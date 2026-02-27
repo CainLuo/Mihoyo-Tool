@@ -1,0 +1,122 @@
+{
+  "lockVersion": "1.0",
+  "settings": {
+    "resolveConflict": true,
+    "resolveConflictStrict": false,
+    "installAll": true
+  },
+  "overrides": {},
+  "overrideDependencyMap": {},
+  "modules": {
+    ".": {
+      "name": "",
+      "dependencies": {},
+      "devDependencies": {
+        "@ohos/hypium": {
+          "specifier": "1.0.25",
+          "version": "1.0.25"
+        },
+        "@ohos/hamock": {
+          "specifier": "1.0.0",
+          "version": "1.0.0"
+        }
+      },
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "core": {
+      "name": "core",
+      "dependencies": {
+        "@ohos/axios": {
+          "specifier": "^2.2.7",
+          "version": "2.2.7"
+        },
+        "@ohos/crypto-js": {
+          "specifier": "^2.0.5",
+          "version": "2.0.5"
+        }
+      },
+      "devDependencies": {
+        "@ohos/hypium": {
+          "specifier": "1.0.25",
+          "version": "1.0.25"
+        }
+      },
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "entry": {
+      "name": "entry",
+      "dependencies": {
+        "@app/core": {
+          "specifier": "file:core",
+          "version": "file:core"
+        }
+      },
+      "devDependencies": {
+        "@ohos/hypium": {
+          "specifier": "1.0.25",
+          "version": "1.0.25"
+        },
+        "@ohos/hamock": {
+          "specifier": "1.0.0",
+          "version": "1.0.0"
+        }
+      },
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    }
+  },
+  "packages": {
+    "@ohos/hypium@1.0.25": {
+      "integrity": "sha512-l6uO2pjl8HyEKdekLqQt7tUpWbDqX/42zoAzkagtUVZAW9jT6lMvbe54MVjoLxq/RwQGygRvi6j4GpypSMFSHw==",
+      "storePath": "oh_modules/.ohpm/@ohos+hypium@1.0.25",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": true,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "@ohos/hamock@1.0.0": {
+      "integrity": "sha512-K6lDPYc6VkKe6ZBNQa9aoG+ZZMiwqfcR/7yAVFSUGIuOAhPvCJAo9+t1fZnpe0dBRBPxj2bxPPbKh69VuyAtDg==",
+      "storePath": "oh_modules/.ohpm/@ohos+hamock@1.0.0",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": true,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "@app/core@file:core": {
+      "storePath": "core",
+      "dependencies": {
+        "@ohos/axios": "2.2.7",
+        "@ohos/crypto-js": "2.0.5"
+      },
+      "devDependencies": {
+        "@ohos/hypium": "1.0.25"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "@ohos/axios@2.2.7": {
+      "integrity": "sha512-oiGb0GheCk6h7MiqZvYPsVOdyLorq7e+PU26EHeBgX5r3rAkVbDR7bCF3n5rDU9mb5R/mgckA/um1ZgYGJ2EBQ==",
+      "storePath": "oh_modules/.ohpm/@ohos+axios@2.2.7",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "@ohos/crypto-js@2.0.5": {
+      "integrity": "sha512-QPW+vxSambzep39qnnvGLk2lItqPqt+HBTo7FsTdL9edv3z35h4D80ClnEPNPfXQzIp8DgVDMIgbAWa1hWq8ug==",
+      "storePath": "oh_modules/.ohpm/@ohos+crypto-js@2.0.5",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    }
+  }
+}
