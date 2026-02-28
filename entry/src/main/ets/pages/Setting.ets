@@ -1,4 +1,7 @@
+import { HMRouter } from '@hadss/hmrouter'
+
 @Preview
+@HMRouter({pageUrl: 'Setting', lifecycle: 'ExitAppLifecycle'})
 @Component
 struct Setting {
   build() {

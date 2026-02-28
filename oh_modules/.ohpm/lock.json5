@@ -33,11 +33,11 @@
       "name": "core",
       "dependencies": {
         "@ohos/axios": {
-          "specifier": "^2.2.7",
+          "specifier": "latest",
           "version": "2.2.7"
         },
         "@ohos/crypto-js": {
-          "specifier": "^2.0.5",
+          "specifier": "latest",
           "version": "2.0.5"
         }
       },
@@ -56,6 +56,10 @@
         "@app/core": {
           "specifier": "file:core",
           "version": "file:core"
+        },
+        "@hadss/hmrouter": {
+          "specifier": "latest",
+          "version": "1.2.2"
         }
       },
       "devDependencies": {
@@ -87,15 +91,6 @@
       "dynamic": false,
       "maskedByOverrideDependencyMap": false
     },
-    "@ohos/hypium@1.0.25": {
-      "integrity": "sha512-l6uO2pjl8HyEKdekLqQt7tUpWbDqX/42zoAzkagtUVZAW9jT6lMvbe54MVjoLxq/RwQGygRvi6j4GpypSMFSHw==",
-      "storePath": "oh_modules/.ohpm/@ohos+hypium@1.0.25",
-      "dependencies": {},
-      "dynamicDependencies": {},
-      "dev": true,
-      "dynamic": false,
-      "maskedByOverrideDependencyMap": false
-    },
     "@ohos/axios@2.2.7": {
       "integrity": "sha512-oiGb0GheCk6h7MiqZvYPsVOdyLorq7e+PU26EHeBgX5r3rAkVbDR7bCF3n5rDU9mb5R/mgckA/um1ZgYGJ2EBQ==",
       "storePath": "oh_modules/.ohpm/@ohos+axios@2.2.7",
@@ -111,6 +106,15 @@
       "dependencies": {},
       "dynamicDependencies": {},
       "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "@ohos/hypium@1.0.25": {
+      "integrity": "sha512-l6uO2pjl8HyEKdekLqQt7tUpWbDqX/42zoAzkagtUVZAW9jT6lMvbe54MVjoLxq/RwQGygRvi6j4GpypSMFSHw==",
+      "storePath": "oh_modules/.ohpm/@ohos+hypium@1.0.25",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": true,
       "dynamic": false,
       "maskedByOverrideDependencyMap": false
     },

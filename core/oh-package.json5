@@ -4,10 +4,10 @@
   "description": "Core library for MiHoYoTool",
   "main": "Index.ets",
   "dependencies": {
-    "@ohos/axios": "^2.2.7",
-    "@ohos/crypto-js": "^2.0.5"
+    "@ohos/axios": "latest",
+    "@ohos/crypto-js": "latest"
   },
   "devDependencies": {
     "@ohos/hypium": "1.0.25"
-  },
+  }
 }

@@ -1,9 +1,11 @@
+
 {
   "name": "entry",
   "version": "6.0.2",
   "description": "Entry module for MiHoYoTool",
   "dependencies": {
-    "@app/core": "file:../core"
+    "@app/core": "file:../core",
+    "@hadss/hmrouter": "latest"
   },
   "devDependencies": {
     "@ohos/hypium": "1.0.25",

@@ -18,12 +18,12 @@
               "./obfuscation-rules.txt"
             ]
           },
-          "consumerFiles": [
+        "consumerFiles": [
             "./consumer-rules.txt"
           ]
         }
-      },
-    },
+      }
+    }
   ],
   "targets": [
     {

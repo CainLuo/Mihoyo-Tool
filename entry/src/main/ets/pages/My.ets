@@ -1,9 +1,7 @@
-import { AppRoute } from '../constants/AppRoute';
+import { HMRouterMgr } from "@hadss/hmrouter"
 
 @Component
 struct My {
-  @Consume('pathStack') pathStack: NavPathStack;
-
   build() {
     Column() {
       Row() {
@@ -12,7 +10,7 @@ struct My {
           .fontSize(18)
           .margin({ right: 20 })
           .onClick(() => {
-            this.pathStack.pushPathByName(AppRoute.Setting, null)
+            HMRouterMgr.push({pageUrl: 'Setting', skipAllInterceptor: true})
           })
       }
       .width('100%')

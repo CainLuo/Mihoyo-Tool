@@ -1,0 +1,215 @@
+[2026-02-28T17:11:21.481] [DEBUG] debug-file - env: nodejsVersion=v18.20.1
+[2026-02-28T17:11:21.667] [DEBUG] debug-file - Hvigor init with startParameters:{
+  hvigorfileTypeCheck: false,
+  parallelExecution: true,
+  incrementalExecution: true,
+  printStackTrace: false,
+  daemon: false,
+  analyze: 0,
+  logLevel: Level { level: 20000, levelStr: 'INFO', colour: 'green' },
+  optimizationStrategy: 'memory',
+  hotCompile: undefined,
+  hotReloadBuild: undefined,
+  customizedParam: undefined
+}
+[2026-02-28T17:11:22.634] [DEBUG] debug-file - hvigorfile, require result:  { default: { system: [Function: appTasks], plugins: [] } }
+[2026-02-28T17:11:22.636] [DEBUG] debug-file - Starting plugin build process
+[2026-02-28T17:11:22.738] [DEBUG] debug-file - App plugin register hook start...
+[2026-02-28T17:11:22.740] [DEBUG] debug-file - Start initialize project's product build option map with build mode debug.
+[2026-02-28T17:11:22.752] [DEBUG] debug-file - Start recording SDK configuration permission data.
+[2026-02-28T17:11:22.782] [DEBUG] debug-file - Project task initialization takes 5 ms 
+[2026-02-28T17:11:22.788] [DEBUG] debug-file - failed to load cangjie to dynamically generate schemas: Error: Cannot find module '@ohos/cangjie-build-support/index'
+Require stack:
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor-ohos-plugin/src/plugin/hooks/cangjie-register.js
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor-ohos-plugin/src/plugin/strategy/stage-init-strategy.js
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor-ohos-plugin/src/plugin/builder/abstract-plugin-builder.js
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor-ohos-plugin/src/plugin/builder/app-plugin-builder.js
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor-ohos-plugin/src/plugin/factory/plugin-factory.js
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor-ohos-plugin/index.js
+- /Users/cain/DevEcoStudioProjects/Mihoyo-Tool/hvigorfile.ts
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor/src/base/internal/lifecycle/configuration.js
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor/src/base/boot/index.js
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor/src/cli/main/cli.js
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor/bin/hvigor.js
+[2026-02-28T17:11:22.798] [DEBUG] debug-file - Start initialize module-target build option map, moduleName=entry, buildMode=debug
+[2026-02-28T17:11:22.804] [DEBUG] debug-file - hvigorfile, resolving /Users/cain/DevEcoStudioProjects/Mihoyo-Tool/core/hvigorfile.ts
+[2026-02-28T17:11:22.841] [DEBUG] debug-file - Start to initialize dependency information.
+[2026-02-28T17:11:21.482] [DEBUG] debug-file - env: hvigor-config.json5 content = {
+  modelVersion: '6.0.2',
+  dependencies: { '@hadss/hmrouter-plugin': 'latest' },
+  execution: {},
+  logging: {},
+  debugging: {},
+  nodeOptions: {}
+}
+[2026-02-28T17:11:23.001] [DEBUG] debug-file - entry : clean cost memory 2.1094512939453125
+[2026-02-28T17:11:21.667] [DEBUG] debug-file - Since current hvigor version 6.22.3 differs from last hvigor version 
+      undefined, delete file-cache.json and task-cache.json.
+[2026-02-28T17:11:23.022] [DEBUG] debug-file - Create  resident worker with id: 0.
+[2026-02-28T17:11:22.635] [DEBUG] debug-file - hvigorfile, binding system plugins [Function: appTasks]
+[2026-02-28T17:11:22.636] [DEBUG] debug-file - App plugin prepare start...
+[2026-02-28T17:11:22.738] [DEBUG] debug-file - App plugin register hook end...
+[2026-02-28T17:11:22.740] [DEBUG] debug-file - Picking option from product 'default' with build mode 'debug'.
+[2026-02-28T17:11:22.776] [DEBUG] debug-file - Sdk init in 28 ms 
+[2026-02-28T17:11:22.782] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2026-02-28T17:11:22.798] [DEBUG] debug-file - Target 'default' config initialized
+[2026-02-28T17:11:22.807] [DEBUG] debug-file - hvigorfile, require result:  { default: { system: [Function: harTasks], plugins: [] } }
+[2026-02-28T17:11:22.846] [DEBUG] debug-file - Module entry Collected Dependency: /Users/cain/DevEcoStudioProjects/Mihoyo-Tool/core,/Users/cain/DevEcoStudioProjects/Mihoyo-Tool/oh_modules/.ohpm/@hadss+hmrouter@1.2.2/oh_modules/@hadss/hmrouter,/Users/cain/DevEcoStudioProjects/Mihoyo-Tool/oh_modules/.ohpm/@ohos+axios@2.2.7/oh_modules/@ohos/axios,/Users/cain/DevEcoStudioProjects/Mihoyo-Tool/oh_modules/.ohpm/@ohos+crypto-js@2.0.5/oh_modules/@ohos/crypto-js,/Users/cain/DevEcoStudioProjects/Mihoyo-Tool/oh_modules/.ohpm/@hadss+hmrouter@1.2.2/oh_modules/@hadss/hmrouter/src/main/cpp/types/libhmrouterlibrary
+[2026-02-28T17:11:21.482] [DEBUG] debug-file - env: daemon=false
+[2026-02-28T17:11:23.002] [DEBUG] debug-file - runTaskFromQueue task cost before running: 1 s 339 ms 
+[2026-02-28T17:11:22.742] [DEBUG] debug-file - Obtain build option for product 'default'in this build.
+[2026-02-28T17:11:22.832] [DEBUG] debug-file - start to load updatedOhPackageInfo to the disk
+[2026-02-28T17:11:21.667] [DEBUG] debug-file - Cache service initialization finished in 1 ms 
+[2026-02-28T17:11:23.023] [DEBUG] debug-file - Create  resident worker with id: 1.
+[2026-02-28T17:11:22.636] [DEBUG] debug-file - App plugin prepare end...
+[2026-02-28T17:11:22.738] [DEBUG] debug-file - Plugin build process completed
+[2026-02-28T17:11:22.740] [DEBUG] debug-file - Product 'default' build option initialized
+[2026-02-28T17:11:22.782] [DEBUG] debug-file - hvigorfile, no custom plugins were found in /Users/cain/DevEcoStudioProjects/Mihoyo-Tool/hvigorfile.ts
+[2026-02-28T17:11:22.798] [DEBUG] debug-file - Target 'mock' config initialized
+[2026-02-28T17:11:22.807] [DEBUG] debug-file - hvigorfile, binding system plugins [Function: harTasks]
+[2026-02-28T17:11:22.846] [DEBUG] debug-file - Module entry's total dependency: 5
+[2026-02-28T17:11:21.483] [DEBUG] debug-file - no-daemon, use the parent process.execArgv --max-old-space-size=8192,--max-semi-space-size=16,--expose-gc
+[2026-02-28T17:11:23.002] [INFO] debug-file - Finished :entry:clean... after 150 ms 
+[2026-02-28T17:11:22.748] [DEBUG] debug-file - No signingConfig found, initRemoteHspCache failed.
+[2026-02-28T17:11:22.834] [DEBUG] debug-file - load to the disk finished
+[2026-02-28T17:11:21.668] [DEBUG] debug-file - hvigorfile, resolving /Users/cain/DevEcoStudioProjects/Mihoyo-Tool/hvigorfile.ts
+[2026-02-28T17:11:23.024] [DEBUG] debug-file - Current worker pool is stopped or closed.
+[2026-02-28T17:11:22.636] [DEBUG] debug-file - App plugin creating...
+[2026-02-28T17:11:22.740] [DEBUG] debug-file - End initialize project's product build option map with build mode 'debug'.
+[2026-02-28T17:11:22.782] [DEBUG] debug-file - hvigorfile, resolve finished /Users/cain/DevEcoStudioProjects/Mihoyo-Tool/hvigorfile.ts
+[2026-02-28T17:11:22.798] [DEBUG] debug-file - Does not get target 'mock'corresponding build option.
+[2026-02-28T17:11:22.808] [DEBUG] debug-file - Starting plugin build process
+[2026-02-28T17:11:22.849] [DEBUG] debug-file - Start to initialize dependency information.
+[2026-02-28T17:11:23.003] [DEBUG] debug-file - Executing task :core:clean
+[2026-02-28T17:11:22.749] [DEBUG] debug-file - Local scan or download HarmonyOS sdk components toolchains,ets,js,native,previewer
+[2026-02-28T17:11:22.834] [DEBUG] debug-file - Start to initialize dependency information.
+[2026-02-28T17:11:23.024] [DEBUG] debug-file - Clear worker 0.
+[2026-02-28T17:11:22.799] [DEBUG] debug-file - Using preset build option 'debug'.
+[2026-02-28T17:11:22.808] [DEBUG] debug-file - Har plugin creating...
+[2026-02-28T17:11:22.850] [DEBUG] debug-file - Module core Collected Dependency: /Users/cain/DevEcoStudioProjects/Mihoyo-Tool/oh_modules/.ohpm/@ohos+axios@2.2.7/oh_modules/@ohos/axios,/Users/cain/DevEcoStudioProjects/Mihoyo-Tool/oh_modules/.ohpm/@ohos+crypto-js@2.0.5/oh_modules/@ohos/crypto-js,/Users/cain/DevEcoStudioProjects/Mihoyo-Tool/oh_modules/.ohpm/@hadss+hmrouter@1.2.2/oh_modules/@hadss/hmrouter,/Users/cain/DevEcoStudioProjects/Mihoyo-Tool/oh_modules/.ohpm/@hadss+hmrouter@1.2.2/oh_modules/@hadss/hmrouter/src/main/cpp/types/libhmrouterlibrary
+[2026-02-28T17:11:23.003] [DEBUG] debug-file - clean: Worker pool is inactive.
+[2026-02-28T17:11:22.750] [DEBUG] debug-file - Local scan or download hmscore sdk components toolchains,ets,native
+[2026-02-28T17:11:22.840] [DEBUG] debug-file - Module Mihoyo-Tool Collected Dependency: /Users/cain/DevEcoStudioProjects/Mihoyo-Tool/oh_modules/.ohpm/@hadss+hmrouter@1.2.2/oh_modules/@hadss/hmrouter,/Users/cain/DevEcoStudioProjects/Mihoyo-Tool/oh_modules/.ohpm/@hadss+hmrouter@1.2.2/oh_modules/@hadss/hmrouter/src/main/cpp/types/libhmrouterlibrary
+[2026-02-28T17:11:23.024] [DEBUG] debug-file - Worker 0 has been cleared.
+[2026-02-28T17:11:22.808] [DEBUG] debug-file - failed to load cangjie to dynamically generate schemas: Error: Cannot find module '@ohos/cangjie-build-support/index'
+Require stack:
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor-ohos-plugin/src/plugin/hooks/cangjie-register.js
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor-ohos-plugin/src/plugin/strategy/stage-init-strategy.js
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor-ohos-plugin/src/plugin/builder/abstract-plugin-builder.js
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor-ohos-plugin/src/plugin/builder/app-plugin-builder.js
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor-ohos-plugin/src/plugin/factory/plugin-factory.js
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor-ohos-plugin/index.js
+- /Users/cain/DevEcoStudioProjects/Mihoyo-Tool/hvigorfile.ts
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor/src/base/internal/lifecycle/configuration.js
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor/src/base/boot/index.js
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor/src/cli/main/cli.js
+- /Applications/DevEco-Studio.app/Contents/tools/hvigor/hvigor/bin/hvigor.js
+[2026-02-28T17:11:22.782] [DEBUG] debug-file - hvigorfile, resolving /Users/cain/DevEcoStudioProjects/Mihoyo-Tool/entry/hvigorfile.ts
+[2026-02-28T17:11:23.009] [DEBUG] debug-file - core : clean cost memory 0.0844879150390625
+[2026-02-28T17:11:22.799] [DEBUG] debug-file - Module 'entry' target 'default' build option initialized
+[2026-02-28T17:11:22.840] [DEBUG] debug-file - Module Mihoyo-Tool's total dependency: 2
+[2026-02-28T17:11:22.787] [DEBUG] debug-file - hvigorfile, require result:  { default: { system: [Function: hapTasks], plugins: [] } }
+[2026-02-28T17:11:23.010] [DEBUG] debug-file - runTaskFromQueue task cost before running: 1 s 347 ms 
+[2026-02-28T17:11:23.024] [DEBUG] debug-file - Current idle worker size: 1.
+[2026-02-28T17:11:22.828] [DEBUG] debug-file - Start initialize module-target build option map, moduleName=core, buildMode=debug
+[2026-02-28T17:11:22.799] [DEBUG] debug-file - Module 'entry' target 'mock' build option initialized
+[2026-02-28T17:11:22.850] [DEBUG] debug-file - Module core's total dependency: 4
+[2026-02-28T17:11:23.010] [INFO] debug-file - Finished :core:clean... after 7 ms 
+[2026-02-28T17:11:22.787] [DEBUG] debug-file - hvigorfile, binding system plugins [Function: hapTasks]
+[2026-02-28T17:11:22.828] [DEBUG] debug-file - Target 'default' config initialized
+[2026-02-28T17:11:22.850] [DEBUG] debug-file - Configuration phase cost:1 s 183 ms 
+[2026-02-28T17:11:23.010] [DEBUG] debug-file - Executing task ::clean
+[2026-02-28T17:11:22.787] [DEBUG] debug-file - Starting plugin build process
+[2026-02-28T17:11:22.828] [DEBUG] debug-file - Target 'ohosTest' config initialized
+[2026-02-28T17:11:23.010] [DEBUG] debug-file - clean: Worker pool is inactive.
+[2026-02-28T17:11:22.787] [DEBUG] debug-file - Hap plugin creating...
+[2026-02-28T17:11:22.828] [DEBUG] debug-file - Module 'core' target 'default' build option initialized
+[2026-02-28T17:11:23.024] [DEBUG] debug-file - Current busy worker size: 0.
+[2026-02-28T17:11:22.799] [DEBUG] debug-file - End initialize module-target build option map, moduleName=entry
+[2026-02-28T17:11:23.010] [DEBUG] debug-file - Mihoyo-Tool : clean cost memory 0.0191497802734375
+[2026-02-28T17:11:22.828] [DEBUG] debug-file - Module 'core' target 'ohosTest' build option initialized
+[2026-02-28T17:11:23.024] [DEBUG] debug-file - Clear worker 1.
+[2026-02-28T17:11:22.852] [DEBUG] debug-file - Configuration task cost before running: 1 s 190 ms 
+[2026-02-28T17:11:22.828] [DEBUG] debug-file - End initialize module-target build option map, moduleName=core
+[2026-02-28T17:11:23.024] [DEBUG] debug-file - Worker 1 has been cleared.
+[2026-02-28T17:11:23.010] [DEBUG] debug-file - runTaskFromQueue task cost before running: 1 s 348 ms 
+[2026-02-28T17:11:22.852] [DEBUG] debug-file - Executing task :entry:clean
+[2026-02-28T17:11:22.828] [DEBUG] debug-file - Start initialize module-target build option map, moduleName=core, buildMode=release
+[2026-02-28T17:11:22.799] [DEBUG] debug-file - Start initialize module-target build option map, moduleName=entry, buildMode=release
+[2026-02-28T17:11:23.024] [DEBUG] debug-file - Current idle worker size: 0.
+[2026-02-28T17:11:22.852] [DEBUG] debug-file - clean: Worker pool is inactive.
+[2026-02-28T17:11:22.829] [DEBUG] debug-file - Target 'default' config initialized
+[2026-02-28T17:11:23.010] [INFO] debug-file - Finished ::clean... after 1 ms 
+[2026-02-28T17:11:22.799] [DEBUG] debug-file - Target 'default' config initialized
+[2026-02-28T17:11:22.829] [DEBUG] debug-file - Target 'ohosTest' config initialized
+[2026-02-28T17:11:23.024] [DEBUG] debug-file - Current busy worker size: 0.
+[2026-02-28T17:11:22.799] [DEBUG] debug-file - Target 'mock' config initialized
+[2026-02-28T17:11:23.024] [DEBUG] debug-file - hvigor build process will be closed.
+[2026-02-28T17:11:22.829] [DEBUG] debug-file - Module 'core' target 'default' build option initialized
+[2026-02-28T17:11:22.799] [DEBUG] debug-file - Does not get target 'mock'corresponding build option.
+[2026-02-28T17:11:23.010] [DEBUG] debug-file - Executing task :entry:init
+[2026-02-28T17:11:22.799] [DEBUG] debug-file - Using preset build option 'release'.
+[2026-02-28T17:11:23.010] [DEBUG] debug-file - entry : init cost memory 0.01279449462890625
+[2026-02-28T17:11:22.799] [DEBUG] debug-file - Module 'entry' target 'default' build option initialized
+[2026-02-28T17:11:23.030] [DEBUG] debug-file - worker[0] exits with exit code 0.
+[2026-02-28T17:11:22.829] [DEBUG] debug-file - Module 'core' target 'ohosTest' build option initialized
+[2026-02-28T17:11:23.010] [DEBUG] debug-file - runTaskFromQueue task cost before running: 1 s 348 ms 
+[2026-02-28T17:11:22.829] [DEBUG] debug-file - End initialize module-target build option map, moduleName=core
+[2026-02-28T17:11:22.799] [DEBUG] debug-file - Module 'entry' target 'mock' build option initialized
+[2026-02-28T17:11:23.030] [DEBUG] debug-file - worker[1] exits with exit code 0.
+[2026-02-28T17:11:23.010] [INFO] debug-file - Finished :entry:init... after 1 ms 
+[2026-02-28T17:11:22.829] [DEBUG] debug-file - Start initialize module-target build option map, moduleName=core, buildMode=debug
+[2026-02-28T17:11:23.031] [DEBUG] debug-file - Current worker pool is terminated.
+[2026-02-28T17:11:22.829] [DEBUG] debug-file - Target 'default' config initialized
+[2026-02-28T17:11:22.799] [DEBUG] debug-file - End initialize module-target build option map, moduleName=entry
+[2026-02-28T17:11:23.010] [DEBUG] debug-file - Executing task :core:init
+[2026-02-28T17:11:22.829] [DEBUG] debug-file - Target 'ohosTest' config initialized
+[2026-02-28T17:11:22.799] [DEBUG] debug-file - Start initialize module-target build option map, moduleName=entry, buildMode=debug
+[2026-02-28T17:11:23.011] [DEBUG] debug-file - core : init cost memory 0.010650634765625
+[2026-02-28T17:11:22.829] [DEBUG] debug-file - Module 'core' target 'default' build option initialized
+[2026-02-28T17:11:22.799] [DEBUG] debug-file - Target 'default' config initialized
+[2026-02-28T17:11:23.011] [DEBUG] debug-file - runTaskFromQueue task cost before running: 1 s 348 ms 
+[2026-02-28T17:11:22.829] [DEBUG] debug-file - Module 'core' target 'ohosTest' build option initialized
+[2026-02-28T17:11:22.800] [DEBUG] debug-file - Target 'mock' config initialized
+[2026-02-28T17:11:23.011] [INFO] debug-file - Finished :core:init... after 1 ms 
+[2026-02-28T17:11:22.829] [DEBUG] debug-file - End initialize module-target build option map, moduleName=core
+[2026-02-28T17:11:22.800] [DEBUG] debug-file - Does not get target 'mock'corresponding build option.
+[2026-02-28T17:11:22.829] [DEBUG] debug-file - Obtain build option for module 'core' target 'default'in this build.
+[2026-02-28T17:11:23.011] [DEBUG] debug-file - Executing task ::init
+[2026-02-28T17:11:22.800] [DEBUG] debug-file - Using preset build option 'debug'.
+[2026-02-28T17:11:22.830] [DEBUG] debug-file - Module core task initialization takes 1 ms 
+[2026-02-28T17:11:23.011] [DEBUG] debug-file - Mihoyo-Tool : init cost memory 0.01157379150390625
+[2026-02-28T17:11:22.800] [DEBUG] debug-file - Module 'entry' target 'default' build option initialized
+[2026-02-28T17:11:22.830] [DEBUG] debug-file - Har plugin register hook start...
+[2026-02-28T17:11:23.011] [DEBUG] debug-file - runTaskFromQueue task cost before running: 1 s 349 ms 
+[2026-02-28T17:11:22.800] [DEBUG] debug-file - Module 'entry' target 'mock' build option initialized
+[2026-02-28T17:11:22.830] [DEBUG] debug-file - Har plugin register hook end...
+[2026-02-28T17:11:22.800] [DEBUG] debug-file - End initialize module-target build option map, moduleName=entry
+[2026-02-28T17:11:23.011] [INFO] debug-file - Finished ::init... after 1 ms 
+[2026-02-28T17:11:22.830] [DEBUG] debug-file - Plugin build process completed
+[2026-02-28T17:11:22.800] [DEBUG] debug-file - Obtain build option for module 'entry' target 'default'in this build.
+[2026-02-28T17:11:23.012] [DEBUG] debug-file - Obtain build option for module 'entry' target 'default'in this build.
+[2026-02-28T17:11:22.830] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2026-02-28T17:11:22.800] [DEBUG] debug-file - Obtain build option for module 'entry' target 'mock'in this build.
+[2026-02-28T17:11:23.012] [DEBUG] debug-file - Obtain build option for module 'entry' target 'mock'in this build.
+[2026-02-28T17:11:22.830] [DEBUG] debug-file - hvigorfile, no custom plugins were found in /Users/cain/DevEcoStudioProjects/Mihoyo-Tool/core/hvigorfile.ts
+[2026-02-28T17:11:22.802] [DEBUG] debug-file - Module entry task initialization takes 3 ms 
+[2026-02-28T17:11:23.013] [DEBUG] debug-file - Obtain build option for module 'core' target 'default'in this build.
+[2026-02-28T17:11:22.830] [DEBUG] debug-file - hvigorfile, resolve finished /Users/cain/DevEcoStudioProjects/Mihoyo-Tool/core/hvigorfile.ts
+[2026-02-28T17:11:22.803] [DEBUG] debug-file - Hap plugin register hook start...
+[2026-02-28T17:11:23.013] [DEBUG] debug-file - Obtain build option for module 'core' target 'ohosTest'in this build.
+[2026-02-28T17:11:22.830] [DEBUG] debug-file - project has submodules:entry,core
+[2026-02-28T17:11:23.020] [DEBUG] debug-file - Since there is no instance or instance is terminated, create a new worker pool.
+[2026-02-28T17:11:22.803] [DEBUG] debug-file - Hap plugin register hook end...
+[2026-02-28T17:11:23.020] [DEBUG] debug-file - Worker pool is initialized with config:  {
+  minPoolNum: 2,
+  maxPoolNum: undefined,
+  maxCoreSize: undefined,
+  cacheCapacity: undefined,
+  cacheTtl: undefined
+}
+[2026-02-28T17:11:22.831] [DEBUG] debug-file - module:core no need to execute packageHap
+[2026-02-28T17:11:22.803] [DEBUG] debug-file - Plugin build process completed
+[2026-02-28T17:11:22.803] [DEBUG] debug-file - hvigorfile, binding custom plugins []
+[2026-02-28T17:11:22.803] [DEBUG] debug-file - hvigorfile, no custom plugins were found in /Users/cain/DevEcoStudioProjects/Mihoyo-Tool/entry/hvigorfile.ts
+[2026-02-28T17:11:22.803] [DEBUG] debug-file - hvigorfile, resolve finished /Users/cain/DevEcoStudioProjects/Mihoyo-Tool/entry/hvigorfile.ts

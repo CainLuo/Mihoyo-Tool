@@ -4,6 +4,7 @@ import Want from '@ohos.app.ability.Want';
 import Window from '@ohos.window';
 import { CoreInitializer } from '@app/core';
 import AbilityConstant from '@ohos.app.ability.AbilityConstant';
+import { HMRouterMgr } from '@hadss/hmrouter';
 
 export default class EntryAbility extends UIAbility {
   onCreate(want: Want, launchParam: AbilityConstant.LaunchParam) {
@@ -11,6 +12,9 @@ export default class EntryAbility extends UIAbility {
     // 初始化核心库，传递环境配置
     const isMock = false; // BuildProfile中缺少IS_MOCK属性，暂时设为false
     CoreInitializer.initCore({ isMock });
+
+    HMRouterMgr.init({context: this.context})
+    HMRouterMgr.openLog("DEBUG")
   }
 
   onDestroy() {
@@ -21,7 +25,7 @@ export default class EntryAbility extends UIAbility {
     // Main window is created, set main page for this ability
     console.log('[Demo] EntryAbility onWindowStageCreate');
 
-    windowStage.loadContent('pages/Main', (err, data) => {
+    windowStage.loadContent('pages/Index', (err, data) => {
       if (err.code) {
         console.error('[Demo] Failed to load the content. Cause: %{public}s', JSON.stringify(err));
         return;
