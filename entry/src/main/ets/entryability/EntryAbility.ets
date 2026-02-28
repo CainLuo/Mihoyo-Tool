@@ -13,8 +13,10 @@ export default class EntryAbility extends UIAbility {
     const isMock = false; // BuildProfile中缺少IS_MOCK属性，暂时设为false
     CoreInitializer.initCore({ isMock });
 
-    HMRouterMgr.init({context: this.context})
     HMRouterMgr.openLog("DEBUG")
+    HMRouterMgr.init({ context: this.context }).catch((error: Object) => {
+      console.error('[Demo] HMRouter init failed: %{public}s', JSON.stringify(error));
+    })
   }
 
   onDestroy() {

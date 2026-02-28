@@ -1,5 +1,7 @@
 import { HMDefaultGlobalAnimator, HMNavigation } from '@hadss/hmrouter';
 import { AttributeUpdater } from '@kit.ArkUI';
+import './Main';
+import './Setting';
 
 class MyNavModifier extends AttributeUpdater<NavigationAttribute> {
   initializeModifier(instance: NavigationAttribute): void {

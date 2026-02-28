@@ -1,3 +1,4 @@
+
 import { Home } from './Home';
 import { My } from './My';
 import { HMLifecycleState, HMPopInfo, HMRouter, HMRouterMgr } from '@hadss/hmrouter';
@@ -20,3 +21,5 @@ struct Main {
     .barMode(BarMode.Fixed)
   }
 }
+
+export { Main }
