@@ -2,7 +2,6 @@
 @Component
 struct Login {
   @State username: string = ''
-  @State password: string = ''
 
   build() {
     Column() {

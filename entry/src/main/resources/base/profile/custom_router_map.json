@@ -1,0 +1,24 @@
+{
+  "routerMap": [
+    {
+      "name": "Main",
+      "pageSourceFile": "src/main/ets/pages/router/MainBuilder.ets",
+      "buildFunction": "MainBuilder",
+      "customData": {
+        "name": "Main",
+        "pageUrl": "Main",
+        "lifecycle": "ExitAppLifecycle"
+      }
+    },
+    {
+      "name": "Setting",
+      "pageSourceFile": "src/main/ets/pages/router/SettingBuilder.ets",
+      "buildFunction": "SettingBuilder",
+      "customData": {
+        "name": "Setting",
+        "pageUrl": "Setting",
+        "lifecycle": "ExitAppLifecycle"
+      }
+    }
+  ]
+}

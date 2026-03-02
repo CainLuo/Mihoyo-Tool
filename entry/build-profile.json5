@@ -23,29 +23,44 @@
     }
   ],
   "targets": [
-  {
-    "name": "default",
-    "config": {
-      "buildOption": {
-        "arkOptions": {
-          "buildProfileFields": {
-            "IS_MOCK": "false"
+    {
+      "name": "default",
+      "config": {
+        "buildOption": {
+          "arkOptions": {
+            "buildProfileFields": {
+              "IS_MOCK": "false",
+              "APP_ENV": "default"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "mock",
+      "config": {
+        "buildOption": {
+          "arkOptions": {
+            "buildProfileFields": {
+              "IS_MOCK": "true",
+              "APP_ENV": "mock"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "release",
+      "config": {
+        "buildOption": {
+          "arkOptions": {
+            "buildProfileFields": {
+              "IS_MOCK": "false",
+              "APP_ENV": "release"
+            }
           }
         }
       }
     }
-  },
-  {
-    "name": "mock",
-    "config": {
-      "buildOption": {
-        "arkOptions": {
-          "buildProfileFields": {
-            "IS_MOCK": "true"
-          }
-        }
-      }
-    }
-  }
-]
+  ]
 }

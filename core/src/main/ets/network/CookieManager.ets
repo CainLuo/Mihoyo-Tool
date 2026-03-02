@@ -1,4 +1,5 @@
 import preferences from '@ohos.data.preferences';
+import { CoreInitializer } from '../CoreInitializer';
 
 /**
  * Cookie 管理器
@@ -14,13 +15,20 @@ export class CookieManager {
    * 初始化首选项
    */
   private static async initPreferences(): Promise<preferences.Preferences> {
-    if (!CookieManager.preferences) {
+    if (CookieManager.preferences !== null) {
+      return CookieManager.preferences;
+    }
+
+    try {
+      const context = CoreInitializer.getContext();
       CookieManager.preferences = await preferences.getPreferences(
-        globalThis.abilityContext,
+        context,
         CookieManager.PREFERENCES_NAME
       );
+      return CookieManager.preferences;
+    } catch (error) {
+      throw new Error(`Init preferences failed: ${CookieManager.toErrorMessage(error)}`);
     }
-    return CookieManager.preferences;
   }
 
   /**
@@ -29,9 +37,15 @@ export class CookieManager {
    */
   public static async setCookie(cookie: string): Promise<void> {
     CookieManager.cookieCache = cookie;
-    const prefs = await CookieManager.initPreferences();
-    await prefs.put(CookieManager.COOKIE_KEY, cookie);
-    await prefs.flush();
+    try {
+      const prefs = await CookieManager.initPreferences();
+      await prefs.put(CookieManager.COOKIE_KEY, cookie);
+      await prefs.flush();
+    } catch (error) {
+      const message: string = CookieManager.toErrorMessage(error);
+      console.error(`Failed to persist cookie: ${message}`);
+      throw new Error(`Persist cookie failed: ${message}`);
+    }
   }
 
   /**
@@ -53,7 +67,7 @@ export class CookieManager {
         return cookie;
       }
     } catch (error) {
-      console.error('Failed to get cookie from preferences:', error);
+      console.error(`Failed to get cookie: ${CookieManager.toErrorMessage(error)}`);
     }
 
     return null;
@@ -69,8 +83,15 @@ export class CookieManager {
       await prefs.delete(CookieManager.COOKIE_KEY);
       await prefs.flush();
     } catch (error) {
-      console.error('Failed to clear cookie:', error);
+      console.error(`Failed to clear cookie: ${CookieManager.toErrorMessage(error)}`);
     }
+  }
+
+  private static toErrorMessage(error: object): string {
+    if (error instanceof Error) {
+      return error.message;
+    }
+    return `${error}`;
   }
 }
 

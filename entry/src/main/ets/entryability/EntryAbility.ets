@@ -1,53 +1,76 @@
-
 import UIAbility from '@ohos.app.ability.UIAbility';
 import Want from '@ohos.app.ability.Want';
 import Window from '@ohos.window';
-import { CoreInitializer } from '@app/core';
+import common from '@ohos.app.ability.common';
+import { CoreInitializer } from 'core';
 import AbilityConstant from '@ohos.app.ability.AbilityConstant';
 import { HMRouterMgr } from '@hadss/hmrouter';
+import { Logger, RuntimeEnv } from '../utils/Logger';
+
+const TAG: string = 'EntryAbility';
 
 export default class EntryAbility extends UIAbility {
-  onCreate(want: Want, launchParam: AbilityConstant.LaunchParam) {
-    console.log('[Demo] EntryAbility onCreate');
-    // 初始化核心库，传递环境配置
-    const isMock = false; // BuildProfile中缺少IS_MOCK属性，暂时设为false
-    CoreInitializer.initCore({ isMock });
+  onCreate(_want: Want, _launchParam: AbilityConstant.LaunchParam) {
+    Logger.info(TAG, 'onCreate');
 
-    HMRouterMgr.openLog("DEBUG")
-    HMRouterMgr.init({ context: this.context }).catch((error: Object) => {
-      console.error('[Demo] HMRouter init failed: %{public}s', JSON.stringify(error));
-    })
+    const runtimeEnv: RuntimeEnv = Logger.getRuntimeEnv();
+    const isMock: boolean = runtimeEnv === RuntimeEnv.MOCK;
+    CoreInitializer.initCore({
+      isMock,
+      context: this.context as common.UIAbilityContext
+    });
+    Logger.info(TAG, `Detected environment: ${Logger.getRuntimeEnvDetail()}`);
+    this.runStartupTaskByEnv(runtimeEnv);
+
+    HMRouterMgr.openLog(runtimeEnv === RuntimeEnv.RELEASE ? 'INFO' : 'DEBUG');
+    HMRouterMgr.init({ context: this.context }).catch((error: object) => {
+      Logger.warning(TAG, `HMRouter init failed: ${JSON.stringify(error)}`);
+    });
   }
 
   onDestroy() {
-    console.log('[Demo] EntryAbility onDestroy');
+    Logger.info(TAG, 'onDestroy');
   }
 
   onWindowStageCreate(windowStage: Window.WindowStage) {
     // Main window is created, set main page for this ability
-    console.log('[Demo] EntryAbility onWindowStageCreate');
+    Logger.info(TAG, 'onWindowStageCreate');
 
     windowStage.loadContent('pages/Index', (err, data) => {
       if (err.code) {
-        console.error('[Demo] Failed to load the content. Cause: %{public}s', JSON.stringify(err));
+        Logger.warning(TAG, `Failed to load content: ${JSON.stringify(err)}`);
         return;
       }
-      console.info('[Demo] Succeeded in loading the content. Data: %{public}s', JSON.stringify(data));
+      Logger.info(TAG, `Succeeded in loading content: ${JSON.stringify(data)}`);
     });
   }
 
   onWindowStageDestroy() {
     // Main window is destroyed, release UI related resources
-    console.log('[Demo] EntryAbility onWindowStageDestroy');
+    Logger.info(TAG, 'onWindowStageDestroy');
   }
 
   onForeground() {
     // Ability has brought to foreground
-    console.log('[Demo] EntryAbility onForeground');
+    Logger.info(TAG, 'onForeground');
   }
 
   onBackground() {
     // Ability has back to background
-    console.log('[Demo] EntryAbility onBackground');
+    Logger.info(TAG, 'onBackground');
+  }
+
+  private runStartupTaskByEnv(runtimeEnv: RuntimeEnv): void {
+    if (runtimeEnv === RuntimeEnv.MOCK) {
+      Logger.debug(TAG, 'Run startup task for Mock environment');
+      return;
+    }
+
+    if (runtimeEnv === RuntimeEnv.RELEASE) {
+      Logger.info(TAG, 'Run startup task for Release environment');
+      return;
+    }
+
+    Logger.debug(TAG, 'Run startup task for non-Mock/Release environment');
   }
 }

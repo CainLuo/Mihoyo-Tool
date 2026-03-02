@@ -12,7 +12,10 @@
     "**/.preview/**/*"
   ],
   "ruleSet": [
+    "plugin:@correctness/recommended",
+    "plugin:@compatibility/recommended",
     "plugin:@performance/recommended",
+    "plugin:@security/recommended",
     "plugin:@typescript-eslint/recommended"
   ],
   "rules": {
@@ -27,6 +30,14 @@
     "@security/no-unsafe-rsa-key": "error",
     "@security/no-unsafe-dsa-key": "error",
     "@security/no-unsafe-dh-key": "error",
-    "@security/no-unsafe-3des": "error"
+    "@security/no-unsafe-3des": "error",
+    "@typescript-eslint/no-explicit-any": "error",
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {
+        "argsIgnorePattern": "^_",
+        "varsIgnorePattern": "^_"
+      }
+    ]
   }
 }

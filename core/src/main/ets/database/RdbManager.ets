@@ -1,6 +1,6 @@
-
 import relationalStore from '@ohos.data.relationalStore';
 import common from '@ohos.app.ability.common';
+
 /**
  * 游戏资产接口
  */
@@ -18,14 +18,14 @@ interface GameAsset {
  */
 export class RdbManager {
   private static rdbStore: relationalStore.RdbStore | null = null;
-  private static readonly DB_NAME = 'mihoyo_tool.db';
-  private static readonly DB_VERSION = 1;
+  private static readonly DB_NAME: string = 'mihoyo_tool.db';
+
   /**
    * 初始化数据库
    * @param context 能力上下文
    */
   public static async init(context: common.UIAbilityContext): Promise<void> {
-    if (RdbManager.rdbStore) {
+    if (RdbManager.rdbStore !== null) {
       return;
     }
 
@@ -34,20 +34,21 @@ export class RdbManager {
       securityLevel: relationalStore.SecurityLevel.S1
     };
 
-    RdbManager.rdbStore = await relationalStore.getRdbStore(context, storeConfig);
-    await RdbManager.createTables();
+    try {
+      RdbManager.rdbStore = await relationalStore.getRdbStore(context, storeConfig);
+      await RdbManager.createTables();
+    } catch (error) {
+      throw new Error(`Rdb init failed: ${RdbManager.toErrorMessage(error)}`);
+    }
   }
 
   /**
    * 创建数据表
    */
   private static async createTables(): Promise<void> {
-    if (!RdbManager.rdbStore) {
-      throw new Error('RdbStore not initialized');
-    }
+    const store: relationalStore.RdbStore = RdbManager.getRdbStore();
 
-    // 创建账号表
-    const createAccountTableSql = `
+    const createAccountTableSql: string = `
       CREATE TABLE IF NOT EXISTS account_table (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE,
@@ -58,8 +59,7 @@ export class RdbManager {
       );
     `;
 
-    // 创建游戏角色表
-    const createGameRoleTableSql = `
+    const createGameRoleTableSql: string = `
       CREATE TABLE IF NOT EXISTS game_role_table (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         account_id INTEGER,
@@ -72,8 +72,7 @@ export class RdbManager {
       );
     `;
 
-    // 创建游戏资产表
-    const createGameAssetTableSql = `
+    const createGameAssetTableSql: string = `
       CREATE TABLE IF NOT EXISTS game_asset_table (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         role_id TEXT,
@@ -85,9 +84,14 @@ export class RdbManager {
         raw_json TEXT
       );
     `;
-    await RdbManager.rdbStore.executeSql(createAccountTableSql, []);
-    await RdbManager.rdbStore.executeSql(createGameRoleTableSql, []);
-    await RdbManager.rdbStore.executeSql(createGameAssetTableSql, []);
+
+    try {
+      await store.executeSql(createAccountTableSql, []);
+      await store.executeSql(createGameRoleTableSql, []);
+      await store.executeSql(createGameAssetTableSql, []);
+    } catch (error) {
+      throw new Error(`Create tables failed: ${RdbManager.toErrorMessage(error)}`);
+    }
   }
 
   /**
@@ -95,11 +99,12 @@ export class RdbManager {
    * @returns RdbStore 实例
    */
   public static getRdbStore(): relationalStore.RdbStore {
-    if (!RdbManager.rdbStore) {
+    if (RdbManager.rdbStore === null) {
       throw new Error('RdbStore not initialized');
     }
     return RdbManager.rdbStore;
   }
+
   /**
    * 通用查询方法
    * @param predicates 查询条件
@@ -110,8 +115,12 @@ export class RdbManager {
     predicates: relationalStore.RdbPredicates,
     columns?: string[]
   ): Promise<relationalStore.ResultSet> {
-    const store = RdbManager.getRdbStore();
-    return await store.query(predicates, columns);
+    const store: relationalStore.RdbStore = RdbManager.getRdbStore();
+    try {
+      return await store.query(predicates, columns);
+    } catch (error) {
+      throw new Error(`Query failed: ${RdbManager.toErrorMessage(error)}`);
+    }
   }
 
   /**
@@ -124,8 +133,12 @@ export class RdbManager {
     tableName: string,
     values: relationalStore.ValuesBucket
   ): Promise<number> {
-    const store = RdbManager.getRdbStore();
-    return await store.insert(tableName, values);
+    const store: relationalStore.RdbStore = RdbManager.getRdbStore();
+    try {
+      return await store.insert(tableName, values);
+    } catch (error) {
+      throw new Error(`Insert failed: ${RdbManager.toErrorMessage(error)}`);
+    }
   }
 
   /**
@@ -137,17 +150,12 @@ export class RdbManager {
     tableName: string,
     valuesList: relationalStore.ValuesBucket[]
   ): Promise<void> {
-    const store = RdbManager.getRdbStore();
-    await store.beginTransaction();
-    try {
+    const store: relationalStore.RdbStore = RdbManager.getRdbStore();
+    await RdbManager.runInTransaction(store, 'Batch insert', async () => {
       for (const values of valuesList) {
         await store.insert(tableName, values);
       }
-      await store.commit();
-    } catch (error) {
-      await store.rollback(0);
-      throw new Error(`Batch insert failed: ${error.message}`);
-    }
+    });
   }
 
   /**
@@ -158,12 +166,16 @@ export class RdbManager {
    * @returns 更新的行数
    */
   public static async update(
-    tableName: string,
+    _tableName: string,
     values: relationalStore.ValuesBucket,
     predicates: relationalStore.RdbPredicates
   ): Promise<number> {
-    const store = RdbManager.getRdbStore();
-    return await store.update(values, predicates);
+    const store: relationalStore.RdbStore = RdbManager.getRdbStore();
+    try {
+      return await store.update(values, predicates);
+    } catch (error) {
+      throw new Error(`Update failed: ${RdbManager.toErrorMessage(error)}`);
+    }
   }
 
   /**
@@ -173,11 +185,15 @@ export class RdbManager {
    * @returns 删除的行数
    */
   public static async delete(
-    tableName: string,
+    _tableName: string,
     predicates: relationalStore.RdbPredicates
   ): Promise<number> {
-    const store = RdbManager.getRdbStore();
-    return await store.delete(predicates);
+    const store: relationalStore.RdbStore = RdbManager.getRdbStore();
+    try {
+      return await store.delete(predicates);
+    } catch (error) {
+      throw new Error(`Delete failed: ${RdbManager.toErrorMessage(error)}`);
+    }
   }
 
   /**
@@ -189,9 +205,14 @@ export class RdbManager {
     sql: string,
     bindArgs?: Array<string | number | boolean | null>
   ): Promise<void> {
-    const store = RdbManager.getRdbStore();
-    await store.executeSql(sql, bindArgs || []);
+    const store: relationalStore.RdbStore = RdbManager.getRdbStore();
+    try {
+      await store.executeSql(sql, bindArgs ?? []);
+    } catch (error) {
+      throw new Error(`Execute SQL failed: ${RdbManager.toErrorMessage(error)}`);
+    }
   }
+
   /**
    * 全量替换游戏资产数据
    * @param roleId 角色ID
@@ -203,16 +224,14 @@ export class RdbManager {
     gameId: string,
     assets: Array<GameAsset>
   ): Promise<void> {
-    const store = RdbManager.getRdbStore();
-    await store.beginTransaction();
-    try {
-      // 删除旧数据
-      const deletePredicates = new relationalStore.RdbPredicates('game_asset_table')
+    const store: relationalStore.RdbStore = RdbManager.getRdbStore();
+    await RdbManager.runInTransaction(store, 'Replace game assets', async () => {
+      const deletePredicates: relationalStore.RdbPredicates = new relationalStore.RdbPredicates('game_asset_table')
         .equalTo('role_id', roleId)
         .equalTo('game_id', gameId);
       await store.delete(deletePredicates);
-      // 插入新数据
-      const valuesList: relationalStore.ValuesBucket[] = assets.map(asset => {
+
+      for (const asset of assets) {
         const values: relationalStore.ValuesBucket = {
           'role_id': roleId,
           'game_id': gameId,
@@ -222,16 +241,42 @@ export class RdbManager {
           'element': asset.element,
           'raw_json': asset.rawJson
         };
-        return values;
-      });
-      for (const values of valuesList) {
         await store.insert('game_asset_table', values);
       }
+    });
+  }
 
+  private static async runInTransaction(
+    store: relationalStore.RdbStore,
+    actionName: string,
+    action: () => Promise<void>
+  ): Promise<void> {
+    try {
+      await store.beginTransaction();
+    } catch (error) {
+      throw new Error(`${actionName} beginTransaction failed: ${RdbManager.toErrorMessage(error)}`);
+    }
+
+    try {
+      await action();
       await store.commit();
     } catch (error) {
-      await store.rollback(0);
-      throw new Error(`Replace game assets failed: ${error.message}`);
+      const actionError: string = RdbManager.toErrorMessage(error);
+      try {
+        await store.rollback(0);
+      } catch (rollbackError) {
+        throw new Error(
+          `${actionName} failed: ${actionError}; rollback failed: ${RdbManager.toErrorMessage(rollbackError)}`
+        );
+      }
+      throw new Error(`${actionName} failed: ${actionError}`);
     }
+  }
+
+  private static toErrorMessage(error: object): string {
+    if (error instanceof Error) {
+      return error.message;
+    }
+    return `${error}`;
   }
 }

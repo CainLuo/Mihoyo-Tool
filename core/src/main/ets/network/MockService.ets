@@ -1,7 +1,6 @@
-
-import { BaseApiService } from './APIs';
+import { BaseApiService, RequestParams } from './APIs';
 import resourceManager from '@ohos.resourceManager';
-import common from '@ohos.app.ability.common';
+import { CoreInitializer } from '../CoreInitializer';
 /**
  * Mock 响应接口
  */
@@ -24,16 +23,19 @@ export class MockService extends BaseApiService {
   private async initResourceManager(): Promise<resourceManager.ResourceManager> {
     if (!this.resourceManager) {
       try {
-        const context = getContext(this) as common.UIAbilityContext;
-        if (!context?.abilityInfo?.bundleName) {
-          throw new Error("Invalid AbilityContext or missing bundleName");
+        const context = CoreInitializer.getContext();
+        if (!context.abilityInfo.bundleName) {
+          throw new Error('Invalid UIAbilityContext or missing bundleName');
         }
-        this.resourceManager = await context.resourceManager;
+        this.resourceManager = context.resourceManager;
       } catch (error) {
-        throw new Error(`ResourceManager init failed: ${error.message}`);
+        throw new Error(`ResourceManager init failed: ${this.toErrorMessage(error)}`);
       }
     }
-    return this.resourceManager!;
+    if (this.resourceManager === null) {
+      throw new Error('ResourceManager is not available');
+    }
+    return this.resourceManager;
   }
   /**
    * 读取本地 Mock 数据
@@ -51,7 +53,7 @@ export class MockService extends BaseApiService {
       const jsonString = Array.from(uint8Array).map(byte => String.fromCharCode(byte)).join('');
       return JSON.parse(jsonString);
     } catch (error) {
-      console.error('Failed to get mock data:', error);
+      console.error(`Failed to get mock data: ${this.toErrorMessage(error)}`);
       // 返回默认的成功响应结构
       const mockResponse: MockResponse = {
         retcode: 0,
@@ -60,6 +62,13 @@ export class MockService extends BaseApiService {
       };
       return mockResponse;
     }
+  }
+
+  private toErrorMessage(error: object): string {
+    if (error instanceof Error) {
+      return error.message;
+    }
+    return `${error}`;
   }
 
   /**
@@ -97,9 +106,9 @@ export class MockService extends BaseApiService {
    */
   public async get(
     url: string,
-    params?: Record<string, Object>,
-    baseUrlType?: string
-  ): Promise<Object> {
+    _params?: RequestParams,
+    _baseUrlType?: string
+  ): Promise<object> {
     await this.delay(300);
     const mockData = await this.getMockData(url);
     return mockData;
@@ -114,9 +123,9 @@ export class MockService extends BaseApiService {
    */
   public async post(
     url: string,
-    data?: Record<string, Object>,
-    baseUrlType?: string
-  ): Promise<Object> {
+    _data?: RequestParams,
+    _baseUrlType?: string
+  ): Promise<object> {
     await this.delay(300);
     const mockData = await this.getMockData(url);
     return mockData;
@@ -131,9 +140,9 @@ export class MockService extends BaseApiService {
    */
   public async put(
     url: string,
-    data?: Record<string, Object>,
-    baseUrlType?: string
-  ): Promise<Object> {
+    _data?: RequestParams,
+    _baseUrlType?: string
+  ): Promise<object> {
     await this.delay(300);
     const mockData = await this.getMockData(url);
     return mockData;
@@ -148,9 +157,9 @@ export class MockService extends BaseApiService {
    */
   public async delete(
     url: string,
-    params?: Record<string, Object>,
-    baseUrlType?: string
-  ): Promise<Object> {
+    _params?: RequestParams,
+    _baseUrlType?: string
+  ): Promise<object> {
     await this.delay(300);
     const mockData = await this.getMockData(url);
     return mockData;

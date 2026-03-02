@@ -1,11 +1,8 @@
-
 import { Home } from './Home';
 import { My } from './My';
-import { HMLifecycleState, HMPopInfo, HMRouter, HMRouterMgr } from '@hadss/hmrouter';
 
-@HMRouter({ pageUrl: 'Main', lifecycle: 'ExitAppLifecycle' })
 @Component
-struct Main {
+export struct Main {
   build() {
     Tabs({ barPosition: BarPosition.End }) {
       TabContent() {
@@ -21,5 +18,3 @@ struct Main {
     .barMode(BarMode.Fixed)
   }
 }
-
-export { Main }

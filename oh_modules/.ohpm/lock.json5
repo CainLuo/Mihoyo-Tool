@@ -53,7 +53,7 @@
     "entry": {
       "name": "entry",
       "dependencies": {
-        "@app/core": {
+        "core": {
           "specifier": "file:core",
           "version": "file:core"
         },
@@ -77,7 +77,7 @@
     }
   },
   "packages": {
-    "@app/core@file:core": {
+    "core@file:core": {
       "storePath": "core",
       "dependencies": {
         "@ohos/axios": "2.2.7",

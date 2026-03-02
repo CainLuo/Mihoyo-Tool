@@ -23,7 +23,7 @@ export function parseCharactersJson(jsonString: string): Record<string, Object>[
     const data: Record<string, Object> = JSON.parse(jsonString);
     const dataObj: Record<string, Object> = data['data'] as Record<string, Object>;
     const characters: Record<string, Object>[] = dataObj['characters'] as Record<string, Object>[] || [];
-    
+
     const assets: Record<string, Object>[] = characters.map((character: Record<string, Object>) => {
       const asset: Record<string, Object> = {};
       asset['type'] = 'character';
@@ -33,10 +33,10 @@ export function parseCharactersJson(jsonString: string): Record<string, Object>[
       asset['rawJson'] = JSON.stringify(character);
       return asset;
     });
-    
+
     return assets;
   } catch (error) {
-    console.error('Failed to parse characters JSON:', error);
+    console.error(`Failed to parse characters JSON: ${error}`);
     return [];
   }
 }
@@ -62,7 +62,7 @@ export function parseGameAssetsJson(
     const data: Record<string, Object> = JSON.parse(jsonString);
     const dataObj: Record<string, Object> = data['data'] as Record<string, Object>;
     const items: Record<string, Object>[] = dataObj['list'] as Record<string, Object>[] || [];
-    
+
     const assets: Record<string, Object>[] = items.map((item: Record<string, Object>) => {
       const asset: Record<string, Object> = {};
       asset['type'] = assetType;
@@ -72,12 +72,19 @@ export function parseGameAssetsJson(
       asset['rawJson'] = JSON.stringify(item);
       return asset;
     });
-    
+
     return assets;
   } catch (error) {
-    console.error('Failed to parse game assets JSON:', error);
+    console.error(`Failed to parse game assets JSON: ${error}`);
     return [];
   }
+}
+
+function toErrorMessage(error: Object): string {
+  if (error instanceof Error) {
+    return error.message;
+  }
+  return `${error}`;
 }
 
 /**
@@ -99,7 +106,7 @@ export class TaskPoolUtil {
     try {
       const task: taskpool.Task = new taskpool.Task(parseCharactersJson, jsonString);
       const rawAssets: Record<string, Object>[] = await taskpool.execute(task) as Record<string, Object>[];
-      
+
       const assets: GameAsset[] = rawAssets.map((asset: Record<string, Object>) => {
         const gameAsset: GameAsset = {
           type: asset['type'] as string,
@@ -110,10 +117,10 @@ export class TaskPoolUtil {
         };
         return gameAsset;
       });
-      
+
       await RdbManager.replaceGameAssets(roleId, gameId, assets);
     } catch (error) {
-      console.error('Failed to process genshin characters:', error);
+      console.error(`Failed to process genshin characters: ${toErrorMessage(error)}`);
     }
   }
 
@@ -146,7 +153,7 @@ export class TaskPoolUtil {
         elementField
       );
       const rawAssets: Record<string, Object>[] = await taskpool.execute(task) as Record<string, Object>[];
-      
+
       const assets: GameAsset[] = rawAssets.map((asset: Record<string, Object>) => {
         const gameAsset: GameAsset = {
           type: asset['type'] as string,
@@ -157,11 +164,10 @@ export class TaskPoolUtil {
         };
         return gameAsset;
       });
-      
+
       await RdbManager.replaceGameAssets(roleId, gameId, assets);
     } catch (error) {
-      console.error('Failed to process game assets:', error);
-      throw new Error('Failed to process game assets');
+      throw new Error(`Failed to process game assets: ${toErrorMessage(error)}`);
     }
   }
 }

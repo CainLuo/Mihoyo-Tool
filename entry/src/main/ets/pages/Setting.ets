@@ -1,8 +1,5 @@
-import { HMRouter } from '@hadss/hmrouter'
-@Preview
-@HMRouter({pageUrl: 'Setting', lifecycle: 'ExitAppLifecycle'})
 @Component
-struct Setting {
+export struct Setting {
   build() {
     Column() {
       Text('这是设置页')
@@ -13,5 +10,3 @@ struct Setting {
     .justifyContent(FlexAlign.Center)
   }
 }
-
-export { Setting }

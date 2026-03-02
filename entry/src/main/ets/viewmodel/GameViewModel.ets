@@ -1,5 +1,3 @@
-import { NetworkFactory, ApiConfig } from '@app/core';
-
 /**
  * 游戏数据响应接口
  */

@@ -12,6 +12,7 @@
     "deliveryWithInstall": true,
     "installationFree": false,
     "pages": "$profile:main_pages",
+    "routerMap": "$profile:custom_router_map",
     "abilities": [
       {
         "name": "EntryAbility",

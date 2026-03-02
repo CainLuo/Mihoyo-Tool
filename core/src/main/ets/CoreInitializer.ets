@@ -1,9 +1,11 @@
+import common from '@ohos.app.ability.common';
 
 /**
  * 核心库配置接口
  */
 interface CoreConfig {
   isMock: boolean;
+  context: common.UIAbilityContext;
 }
 
 /**
@@ -13,14 +15,17 @@ interface CoreConfig {
 export class CoreInitializer {
   private static isMock: boolean = false;
   private static initialized: boolean = false;
+  private static appContext: common.UIAbilityContext | null = null;
+
   /**
    * 初始化核心库
    * @param config 配置对象
    */
   public static initCore(config: CoreConfig): void {
     CoreInitializer.isMock = config.isMock;
+    CoreInitializer.appContext = config.context;
     CoreInitializer.initialized = true;
-    console.log(`Core library initialized with isMock: ${CoreInitializer.isMock}`);
+    console.info(`Core initialized. isMock=${CoreInitializer.isMock}`);
   }
 
   /**
@@ -34,6 +39,17 @@ export class CoreInitializer {
     }
     return CoreInitializer.isMock;
   }
+
+  /**
+   * 获取应用上下文
+   */
+  public static getContext(): common.UIAbilityContext {
+    if (!CoreInitializer.initialized || CoreInitializer.appContext === null) {
+      throw new Error('Core context is not initialized');
+    }
+    return CoreInitializer.appContext;
+  }
+
   /**
    * 检查是否已初始化
    * @returns 是否已初始化

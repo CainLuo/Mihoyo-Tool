@@ -1,6 +1,5 @@
-
-import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from '@ohos/axios';
-import { BaseApiService } from './APIs';
+import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from '@ohos/axios';
+import { BaseApiService, RequestParams } from './APIs';
 import { ApiConfig } from './ApiConfig';
 import { getCookie } from './CookieManager';
 import { generateDS } from './DSUtil';
@@ -90,9 +89,9 @@ export class HttpService extends BaseApiService {
    */
   public async get(
     url: string,
-    params?: Record<string, string | number | boolean>,
+    params?: RequestParams,
     baseUrlType?: string
-  ): Promise<Object> {
+  ): Promise<object> {
     const fullUrl = this.buildUrl(url, baseUrlType);
     const response: AxiosResponse = await HttpService.getInstance().get(fullUrl, { params });
     return response.data;
@@ -107,9 +106,9 @@ export class HttpService extends BaseApiService {
    */
   public async post(
     url: string,
-    data?: Record<string, string | number | boolean | Object>,
+    data?: RequestParams,
     baseUrlType?: string
-  ): Promise<Object> {
+  ): Promise<object> {
     const fullUrl = this.buildUrl(url, baseUrlType);
     const response: AxiosResponse = await HttpService.getInstance().post(fullUrl, data);
     return response.data;
@@ -124,9 +123,9 @@ export class HttpService extends BaseApiService {
    */
   public async put(
     url: string,
-    data?: Record<string, string | number | boolean | Object>,
+    data?: RequestParams,
     baseUrlType?: string
-  ): Promise<Object> {
+  ): Promise<object> {
     const fullUrl = this.buildUrl(url, baseUrlType);
     const response: AxiosResponse = await HttpService.getInstance().put(fullUrl, data);
     return response.data;
@@ -141,9 +140,9 @@ export class HttpService extends BaseApiService {
    */
   public async delete(
     url: string,
-    params?: Record<string, string | number | boolean | Object>,
+    params?: RequestParams,
     baseUrlType?: string
-  ): Promise<Object> {
+  ): Promise<object> {
     const fullUrl = this.buildUrl(url, baseUrlType);
     const response: AxiosResponse = await HttpService.getInstance().delete(fullUrl, { params });
     return response.data;

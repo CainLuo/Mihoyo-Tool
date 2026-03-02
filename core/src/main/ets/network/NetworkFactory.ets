@@ -34,6 +34,9 @@ export class NetworkFactory {
         NetworkFactory.instance = new HttpService();
       }
     }
+    if (NetworkFactory.instance === null) {
+      throw new Error('ApiService instance initialize failed');
+    }
     return NetworkFactory.instance;
   }
 }

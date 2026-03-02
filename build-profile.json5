@@ -14,6 +14,32 @@
             "useNormalizedOHMUrl": true
           }
         }
+      },
+      {
+        "name": "mock",
+        "signingConfig": "default",
+        "targetSdkVersion": "6.0.2(22)",
+        "compatibleSdkVersion": "6.0.2(22)",
+        "runtimeOS": "HarmonyOS",
+        "buildOption": {
+          "strictMode": {
+            "caseSensitiveCheck": true,
+            "useNormalizedOHMUrl": true
+          }
+        }
+      },
+      {
+        "name": "release",
+        "signingConfig": "default",
+        "targetSdkVersion": "6.0.2(22)",
+        "compatibleSdkVersion": "6.0.2(22)",
+        "runtimeOS": "HarmonyOS",
+        "buildOption": {
+          "strictMode": {
+            "caseSensitiveCheck": true,
+            "useNormalizedOHMUrl": true
+          }
+        }
       }
     ],
     "buildModeSet": [
@@ -35,12 +61,34 @@
           "applyToProducts": [
             "default"
           ]
+        },
+        {
+          "name": "mock",
+          "applyToProducts": [
+            "mock"
+          ]
+        },
+        {
+          "name": "release",
+          "applyToProducts": [
+            "release"
+          ]
         }
       ]
     },
     {
       "name": "core",
       "srcPath": "./core",
+      "targets": [
+        {
+          "name": "default",
+          "applyToProducts": [
+            "default",
+            "mock",
+            "release"
+          ]
+        }
+      ]
     }
   ]
 }
