@@ -1,6 +1,6 @@
 @Preview
 @Component
-struct Login {
+export struct Login {
   @State username: string = ''
 
   build() {
@@ -46,5 +46,3 @@ struct Login {
     .justifyContent(FlexAlign.Center)
   }
 }
-
-export { Login }

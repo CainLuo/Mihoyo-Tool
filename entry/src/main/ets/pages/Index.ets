@@ -24,9 +24,8 @@ struct Index {
           modifier: this.modifier
         }
       });
-      // [End hum_navigation]
     }
-    .backgroundColor(Color.Red)
+    .backgroundColor(Color.Transparent)
     .height('100%')
     .width('100%')
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);

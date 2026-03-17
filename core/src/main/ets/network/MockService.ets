@@ -1,6 +1,8 @@
-import { BaseApiService, RequestParams } from './APIs';
-import resourceManager from '@ohos.resourceManager';
+import { BaseApiService, RequestOptions, RequestParams } from './APIs';
+import { resourceManager } from '@kit.LocalizationKit';
+import { util } from '@kit.ArkTS';
 import { CoreInitializer } from '../CoreInitializer';
+
 /**
  * Mock 响应接口
  */
@@ -12,156 +14,79 @@ interface MockResponse {
 
 /**
  * Mock 服务类
- * 实现 BaseApiService 抽象类，读取本地 Mock 数据
+ * 实现 BaseApiService，从 rawfile/mock/ 目录读取本地 JSON 文件作为响应。
+ * options 参数（含 extraHeaders）在 Mock 模式下被忽略，仅保持签名兼容。
  */
 export class MockService extends BaseApiService {
-  private resourceManager: resourceManager.ResourceManager | null = null;
+  private rm: resourceManager.ResourceManager | null = null;
+
+  private async initResourceManager(): Promise<resourceManager.ResourceManager> {
+    if (this.rm) {
+      return this.rm;
+    }
+    const context = CoreInitializer.getContext();
+    if (!context.abilityInfo.bundleName) {
+      throw new Error('Invalid UIAbilityContext or missing bundleName');
+    }
+    this.rm = context.resourceManager;
+    return this.rm;
+  }
 
   /**
-   * 初始化资源管理器
-   */
-  private async initResourceManager(): Promise<resourceManager.ResourceManager> {
-    if (!this.resourceManager) {
-      try {
-        const context = CoreInitializer.getContext();
-        if (!context.abilityInfo.bundleName) {
-          throw new Error('Invalid UIAbilityContext or missing bundleName');
-        }
-        this.resourceManager = context.resourceManager;
-      } catch (error) {
-        throw new Error(`ResourceManager init failed: ${this.toErrorMessage(error)}`);
-      }
-    }
-    if (this.resourceManager === null) {
-      throw new Error('ResourceManager is not available');
-    }
-    return this.resourceManager;
-  }
-  /**
-   * 读取本地 Mock 数据
-   * @param url 请求 URL
-   * @returns Mock 数据
+   * 读取本地 Mock JSON 文件
+   * 使用 util.TextDecoder 解码，避免逐字节 map 带来的内存开销
    */
   private async getMockData(url: string): Promise<MockResponse> {
     try {
-      // 从 URL 路径中提取 Mock 文件名
       const fileName = this.getMockFileName(url);
       const rm = await this.initResourceManager();
-      // 读取 rawfile 目录下的 JSON 文件
       const fileContent = await rm.getRawFileContent(`mock/${fileName}.json`);
-      const uint8Array = new Uint8Array(fileContent.buffer);
-      const jsonString = Array.from(uint8Array).map(byte => String.fromCharCode(byte)).join('');
-      return JSON.parse(jsonString);
+      const decoder = new util.TextDecoder('utf-8');
+      const jsonString = decoder.decodeToString(new Uint8Array(fileContent.buffer));
+      return JSON.parse(jsonString) as MockResponse;
     } catch (error) {
       console.error(`Failed to get mock data: ${this.toErrorMessage(error)}`);
-      // 返回默认的成功响应结构
-      const mockResponse: MockResponse = {
-        retcode: 0,
-        message: 'success',
-        data: {}
-      };
-      return mockResponse;
+      return { retcode: 0, message: 'success', data: {} };
     }
   }
 
-  private toErrorMessage(error: object): string {
+  /**
+   * 将 URL 路径转换为 Mock 文件名
+   * 例：/genshin/character/list → genshin_character_list
+   */
+  private getMockFileName(url: string): string {
+    const fileName = url.replace(/^\/|\/$/g, '').replace(/\//g, '_');
+    return fileName || 'default';
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private toErrorMessage(error: Error | object): string {
     if (error instanceof Error) {
       return error.message;
     }
     return `${error}`;
   }
 
-  /**
-   * 根据 URL 生成 Mock 文件名
-   * @param url 请求 URL
-   * @returns Mock 文件名
-   */
-  private getMockFileName(url: string): string {
-    // 移除路径中的斜杠，替换为下划线
-    let fileName = url.replace(/^\/|\/$/g, '').replace(/\//g, '_');
-    // 如果文件名为空，使用默认名称
-    if (!fileName) {
-      fileName = 'default';
-    }
-    return fileName;
-  }
-
-  /**
-   * 模拟网络延迟
-   * @param ms 延迟毫秒数
-   * @returns Promise<void>
-   */
-  private delay(ms: number): Promise<void> {
-    return new Promise((resolve) => {
-      setTimeout(resolve, ms);
-    });
-  }
-
-  /**
-   * GET 请求
-   * @param url 请求 URL
-   * @param params 请求参数
-   * @param baseUrlType BaseURL 类型
-   * @returns Promise<T>
-   */
-  public async get(
-    url: string,
-    _params?: RequestParams,
-    _baseUrlType?: string
-  ): Promise<object> {
+  public async get(url: string, _params?: RequestParams, _options?: RequestOptions): Promise<object> {
     await this.delay(300);
-    const mockData = await this.getMockData(url);
-    return mockData;
+    return this.getMockData(url);
   }
 
-  /**
-   * POST 请求
-   * @param url 请求 URL
-   * @param data 请求数据
-   * @param baseUrlType BaseURL 类型
-   * @returns Promise<T>
-   */
-  public async post(
-    url: string,
-    _data?: RequestParams,
-    _baseUrlType?: string
-  ): Promise<object> {
+  public async post(url: string, _data?: RequestParams, _options?: RequestOptions): Promise<object> {
     await this.delay(300);
-    const mockData = await this.getMockData(url);
-    return mockData;
+    return this.getMockData(url);
   }
 
-  /**
-   * PUT 请求
-   * @param url 请求 URL
-   * @param data 请求数据
-   * @param baseUrlType BaseURL 类型
-   * @returns Promise<T>
-   */
-  public async put(
-    url: string,
-    _data?: RequestParams,
-    _baseUrlType?: string
-  ): Promise<object> {
+  public async put(url: string, _data?: RequestParams, _options?: RequestOptions): Promise<object> {
     await this.delay(300);
-    const mockData = await this.getMockData(url);
-    return mockData;
+    return this.getMockData(url);
   }
 
-  /**
-   * DELETE 请求
-   * @param url 请求 URL
-   * @param params 请求参数
-   * @param baseUrlType BaseURL 类型
-   * @returns Promise<T>
-   */
-  public async delete(
-    url: string,
-    _params?: RequestParams,
-    _baseUrlType?: string
-  ): Promise<object> {
+  public async delete(url: string, _params?: RequestParams, _options?: RequestOptions): Promise<object> {
     await this.delay(300);
-    const mockData = await this.getMockData(url);
-    return mockData;
+    return this.getMockData(url);
   }
 }

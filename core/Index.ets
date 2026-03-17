@@ -7,9 +7,23 @@ export * from './src/main/ets/CoreInitializer';
 export * from './src/main/ets/network/APIs';
 export * from './src/main/ets/network/ApiConfig';
 export * from './src/main/ets/network/NetworkFactory';
+export * from './src/main/ets/network/CookieManager';
+export * from './src/main/ets/network/GeetestService';
 
 // Database module
 export * from './src/main/ets/database/RdbManager';
+export * from './src/main/ets/database/QueryBuilder';
+export * from './src/main/ets/database/GameDataDao';
+export * from './src/main/ets/database/GameStatsDao';
+
+// Models
+export * from './src/main/ets/models/GameDataRow';
+export * from './src/main/ets/models/GameStatsRow';
+
+// Repository
+export * from './src/main/ets/repository/CharacterRepository';
+export * from './src/main/ets/repository/ActivityRepository';
+export * from './src/main/ets/repository/GachaRepository';
 
 // Utils module
 export * from './src/main/ets/utils/TaskPoolUtil';

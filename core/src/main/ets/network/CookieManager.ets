@@ -1,39 +1,34 @@
-import preferences from '@ohos.data.preferences';
+import { preferences } from '@kit.ArkData';
 import { CoreInitializer } from '../CoreInitializer';
 
 /**
  * Cookie 管理器
- * 从本地首选项或内存中读取和存储 Cookie
+ * 从本地首选项或内存缓存中读取和存储 Cookie
  */
 export class CookieManager {
-  private static preferences: preferences.Preferences | null = null;
+  private static prefs: preferences.Preferences | null = null;
   private static cookieCache: string | null = null;
   private static readonly PREFERENCES_NAME = 'mihoyo_tool_preferences';
   private static readonly COOKIE_KEY = 'current_user_cookie';
 
   /**
-   * 初始化首选项
+   * 懒初始化首选项实例
    */
   private static async initPreferences(): Promise<preferences.Preferences> {
-    if (CookieManager.preferences !== null) {
-      return CookieManager.preferences;
+    if (CookieManager.prefs !== null) {
+      return CookieManager.prefs;
     }
-
     try {
       const context = CoreInitializer.getContext();
-      CookieManager.preferences = await preferences.getPreferences(
-        context,
-        CookieManager.PREFERENCES_NAME
-      );
-      return CookieManager.preferences;
+      CookieManager.prefs = await preferences.getPreferences(context, CookieManager.PREFERENCES_NAME);
+      return CookieManager.prefs;
     } catch (error) {
       throw new Error(`Init preferences failed: ${CookieManager.toErrorMessage(error)}`);
     }
   }
 
   /**
-   * 存储 Cookie
-   * @param cookie Cookie 字符串
+   * 存储 Cookie（同时写入内存缓存和持久化存储）
    */
   public static async setCookie(cookie: string): Promise<void> {
     CookieManager.cookieCache = cookie;
@@ -49,16 +44,12 @@ export class CookieManager {
   }
 
   /**
-   * 获取 Cookie
-   * @returns Cookie 字符串
+   * 获取 Cookie（优先内存缓存，其次持久化存储）
    */
   public static async getCookie(): Promise<string | null> {
-    // 优先从缓存中获取
     if (CookieManager.cookieCache) {
       return CookieManager.cookieCache;
     }
-
-    // 从首选项中读取
     try {
       const prefs = await CookieManager.initPreferences();
       const cookie = await prefs.get(CookieManager.COOKIE_KEY, '') as string;
@@ -69,12 +60,11 @@ export class CookieManager {
     } catch (error) {
       console.error(`Failed to get cookie: ${CookieManager.toErrorMessage(error)}`);
     }
-
     return null;
   }
 
   /**
-   * 清除 Cookie
+   * 清除 Cookie（同时清除内存缓存和持久化存储）
    */
   public static async clearCookie(): Promise<void> {
     CookieManager.cookieCache = null;
@@ -87,7 +77,7 @@ export class CookieManager {
     }
   }
 
-  private static toErrorMessage(error: object): string {
+  private static toErrorMessage(error: Error | object): string {
     if (error instanceof Error) {
       return error.message;
     }
@@ -95,7 +85,6 @@ export class CookieManager {
   }
 }
 
-// 导出默认实例
-export const getCookie = CookieManager.getCookie;
-export const setCookie = CookieManager.setCookie;
-export const clearCookie = CookieManager.clearCookie;
+export const getCookie = (): Promise<string | null> => CookieManager.getCookie();
+export const setCookie = (cookie: string): Promise<void> => CookieManager.setCookie(cookie);
+export const clearCookie = (): Promise<void> => CookieManager.clearCookie();

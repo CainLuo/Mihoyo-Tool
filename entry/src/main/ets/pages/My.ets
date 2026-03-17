@@ -1,7 +1,7 @@
 import { HMRouterMgr } from "@hadss/hmrouter"
 
 @Component
-struct My {
+export struct My {
   build() {
     Column() {
       Row() {
@@ -24,5 +24,3 @@ struct My {
     .height('100%')
   }
 }
-
-export { My };

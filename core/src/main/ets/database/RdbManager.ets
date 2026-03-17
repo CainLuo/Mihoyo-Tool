@@ -1,5 +1,5 @@
-import relationalStore from '@ohos.data.relationalStore';
-import common from '@ohos.app.ability.common';
+import { relationalStore } from '@kit.ArkData';
+import { common } from '@kit.AbilityKit';
 
 /**
  * 游戏资产接口
@@ -28,12 +28,10 @@ export class RdbManager {
     if (RdbManager.rdbStore !== null) {
       return;
     }
-
     const storeConfig: relationalStore.StoreConfig = {
       name: RdbManager.DB_NAME,
       securityLevel: relationalStore.SecurityLevel.S1
     };
-
     try {
       RdbManager.rdbStore = await relationalStore.getRdbStore(context, storeConfig);
       await RdbManager.createTables();
@@ -44,51 +42,121 @@ export class RdbManager {
 
   /**
    * 创建数据表
+   * 表结构详见 .kiro/steering/database-architecture.md
    */
   private static async createTables(): Promise<void> {
     const store: relationalStore.RdbStore = RdbManager.getRdbStore();
 
+    // ── 账号表 ──────────────────────────────────────────────────
     const createAccountTableSql: string = `
       CREATE TABLE IF NOT EXISTS account_table (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE,
-        cookie TEXT,
-        is_active INTEGER DEFAULT 0,
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        username    TEXT UNIQUE,
+        cookie      TEXT,
+        is_active   INTEGER DEFAULT 0,
         create_time INTEGER,
         update_time INTEGER
       );
     `;
 
+    // ── 游戏角色表（各游戏 UID）──────────────────────────────────
     const createGameRoleTableSql: string = `
       CREATE TABLE IF NOT EXISTS game_role_table (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        id         INTEGER PRIMARY KEY AUTOINCREMENT,
         account_id INTEGER,
-        game_id TEXT,
-        role_id TEXT,
-        nickname TEXT,
-        level INTEGER,
-        server TEXT,
+        game_id    TEXT,
+        role_id    TEXT,
+        nickname   TEXT,
+        level      INTEGER,
+        server     TEXT,
         FOREIGN KEY (account_id) REFERENCES account_table(id)
       );
     `;
 
-    const createGameAssetTableSql: string = `
-      CREATE TABLE IF NOT EXISTS game_asset_table (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        role_id TEXT,
-        game_id TEXT,
-        type TEXT,
-        entity_id TEXT,
-        level INTEGER,
-        element TEXT,
-        raw_json TEXT
+    // ── 核心数据表：所有游戏所有数据类型 ────────────────────────
+    // data_type 枚举：character / weapon / relic / activity /
+    //                 gacha_record / gacha_summary / daily_note / abyss
+    // extra_int1/extra_int2/extra_text1 语义由 data_type 决定，详见架构文档
+    const createGameDataTableSql: string = `
+      CREATE TABLE IF NOT EXISTS game_data (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        game_id     TEXT    NOT NULL,
+        role_uid    TEXT    NOT NULL,
+        data_type   TEXT    NOT NULL,
+        entity_id   TEXT    NOT NULL,
+        name        TEXT,
+        rarity      INTEGER,
+        level       INTEGER,
+        extra_int1  INTEGER,
+        extra_int2  INTEGER,
+        extra_text1 TEXT,
+        raw_json    TEXT    NOT NULL,
+        update_time INTEGER
       );
+    `;
+    // 唯一索引：防止重复写入
+    const createGameDataUniqueIdxSql: string = `
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_game_data_unique
+        ON game_data(game_id, role_uid, data_type, entity_id);
+    `;
+    // 查询索引：按游戏+用户+类型批量查
+    const createGameDataQueryIdxSql: string = `
+      CREATE INDEX IF NOT EXISTS idx_game_data_query
+        ON game_data(game_id, role_uid, data_type);
+    `;
+    // 活动索引：按结束时间过滤未结束活动
+    const createGameDataActivityIdxSql: string = `
+      CREATE INDEX IF NOT EXISTS idx_game_data_activity
+        ON game_data(game_id, data_type, extra_int2);
+    `;
+
+    // ── 统计结果表：预计算，供统计页直接查询 ────────────────────
+    // stat_key 枚举：relic_score / is_graduated / crit_rate /
+    //                crit_dmg / pity_count / up_pity_count
+    const createGameStatsTableSql: string = `
+      CREATE TABLE IF NOT EXISTS game_stats (
+        id          INTEGER PRIMARY KEY AUTOINCREMENT,
+        game_id     TEXT NOT NULL,
+        role_uid    TEXT NOT NULL,
+        entity_id   TEXT NOT NULL,
+        stat_key    TEXT NOT NULL,
+        stat_value  REAL,
+        update_time INTEGER
+      );
+    `;
+    const createGameStatsUniqueIdxSql: string = `
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_game_stats_unique
+        ON game_stats(game_id, role_uid, entity_id, stat_key);
+    `;
+
+    // ── 同步状态表：追踪每种数据的最后同步时间和状态 ────────────
+    const createSyncMetaTableSql: string = `
+      CREATE TABLE IF NOT EXISTS sync_meta (
+        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        game_id        TEXT NOT NULL,
+        role_uid       TEXT NOT NULL,
+        data_type      TEXT NOT NULL,
+        last_sync_time INTEGER,
+        sync_status    TEXT,
+        error_msg      TEXT
+      );
+    `;
+    const createSyncMetaUniqueIdxSql: string = `
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_sync_meta_unique
+        ON sync_meta(game_id, role_uid, data_type);
     `;
 
     try {
       await store.executeSql(createAccountTableSql, []);
       await store.executeSql(createGameRoleTableSql, []);
-      await store.executeSql(createGameAssetTableSql, []);
+      await store.executeSql(createGameDataTableSql, []);
+      await store.executeSql(createGameDataUniqueIdxSql, []);
+      await store.executeSql(createGameDataQueryIdxSql, []);
+      await store.executeSql(createGameDataActivityIdxSql, []);
+      await store.executeSql(createGameStatsTableSql, []);
+      await store.executeSql(createGameStatsUniqueIdxSql, []);
+      await store.executeSql(createSyncMetaTableSql, []);
+      await store.executeSql(createSyncMetaUniqueIdxSql, []);
     } catch (error) {
       throw new Error(`Create tables failed: ${RdbManager.toErrorMessage(error)}`);
     }
@@ -96,7 +164,6 @@ export class RdbManager {
 
   /**
    * 获取 RdbStore 实例
-   * @returns RdbStore 实例
    */
   public static getRdbStore(): relationalStore.RdbStore {
     if (RdbManager.rdbStore === null) {
@@ -107,9 +174,6 @@ export class RdbManager {
 
   /**
    * 通用查询方法
-   * @param predicates 查询条件
-   * @param columns 查询列
-   * @returns 查询结果
    */
   public static async query(
     predicates: relationalStore.RdbPredicates,
@@ -124,10 +188,7 @@ export class RdbManager {
   }
 
   /**
-   * 插入数据
-   * @param tableName 表名
-   * @param values 数据值
-   * @returns 插入的行ID
+   * 插入数据，返回插入的行 ID
    */
   public static async insert(
     tableName: string,
@@ -143,8 +204,6 @@ export class RdbManager {
 
   /**
    * 批量插入数据
-   * @param tableName 表名
-   * @param valuesList 数据值列表
    */
   public static async batchInsert(
     tableName: string,
@@ -159,14 +218,10 @@ export class RdbManager {
   }
 
   /**
-   * 更新数据
-   * @param tableName 表名
-   * @param values 数据值
-   * @param predicates 更新条件
-   * @returns 更新的行数
+   * 更新数据，返回更新的行数
+   * @param predicates 更新条件（表名已在 RdbPredicates 构造时绑定）
    */
   public static async update(
-    _tableName: string,
     values: relationalStore.ValuesBucket,
     predicates: relationalStore.RdbPredicates
   ): Promise<number> {
@@ -179,13 +234,10 @@ export class RdbManager {
   }
 
   /**
-   * 删除数据
-   * @param tableName 表名
-   * @param predicates 删除条件
-   * @returns 删除的行数
+   * 删除数据，返回删除的行数
+   * @param predicates 删除条件（表名已在 RdbPredicates 构造时绑定）
    */
   public static async delete(
-    _tableName: string,
     predicates: relationalStore.RdbPredicates
   ): Promise<number> {
     const store: relationalStore.RdbStore = RdbManager.getRdbStore();
@@ -198,8 +250,6 @@ export class RdbManager {
 
   /**
    * 执行 SQL 语句
-   * @param sql SQL 语句
-   * @param bindArgs 绑定参数
    */
   public static async executeSql(
     sql: string,
@@ -214,10 +264,7 @@ export class RdbManager {
   }
 
   /**
-   * 全量替换游戏资产数据
-   * @param roleId 角色ID
-   * @param gameId 游戏ID
-   * @param assets 资产数据列表
+   * 全量替换游戏资产数据（先删后插，在事务中执行）
    */
   public static async replaceGameAssets(
     roleId: string,
@@ -226,9 +273,10 @@ export class RdbManager {
   ): Promise<void> {
     const store: relationalStore.RdbStore = RdbManager.getRdbStore();
     await RdbManager.runInTransaction(store, 'Replace game assets', async () => {
-      const deletePredicates: relationalStore.RdbPredicates = new relationalStore.RdbPredicates('game_asset_table')
-        .equalTo('role_id', roleId)
-        .equalTo('game_id', gameId);
+      const deletePredicates: relationalStore.RdbPredicates =
+        new relationalStore.RdbPredicates('game_asset_table')
+          .equalTo('role_id', roleId)
+          .equalTo('game_id', gameId);
       await store.delete(deletePredicates);
 
       for (const asset of assets) {
@@ -246,34 +294,38 @@ export class RdbManager {
     });
   }
 
+  /**
+   * 在事务中执行操作。
+   * beginTransaction / commit / rollBack 均为同步 API，不可 await。
+   */
   private static async runInTransaction(
     store: relationalStore.RdbStore,
     actionName: string,
     action: () => Promise<void>
   ): Promise<void> {
     try {
-      await store.beginTransaction();
+      store.beginTransaction();
     } catch (error) {
       throw new Error(`${actionName} beginTransaction failed: ${RdbManager.toErrorMessage(error)}`);
     }
 
     try {
       await action();
-      await store.commit();
+      store.commit();
     } catch (error) {
       const actionError: string = RdbManager.toErrorMessage(error);
       try {
-        await store.rollback(0);
+        store.rollBack();
       } catch (rollbackError) {
         throw new Error(
-          `${actionName} failed: ${actionError}; rollback failed: ${RdbManager.toErrorMessage(rollbackError)}`
+          `${actionName} failed: ${actionError}; rollBack failed: ${RdbManager.toErrorMessage(rollbackError)}`
         );
       }
       throw new Error(`${actionName} failed: ${actionError}`);
     }
   }
 
-  private static toErrorMessage(error: object): string {
+  private static toErrorMessage(error: Error | object): string {
     if (error instanceof Error) {
       return error.message;
     }

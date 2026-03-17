@@ -1,4 +1,4 @@
-import common from '@ohos.app.ability.common';
+import { common } from '@kit.AbilityKit';
 
 /**
  * 核心库配置接口
@@ -10,7 +10,7 @@ interface CoreConfig {
 
 /**
  * 核心库初始化器
- * 用于接收和管理全局配置
+ * 在 EntryAbility.onCreate 中调用 initCore，向 core 模块注入全局配置
  */
 export class CoreInitializer {
   private static isMock: boolean = false;
@@ -18,8 +18,7 @@ export class CoreInitializer {
   private static appContext: common.UIAbilityContext | null = null;
 
   /**
-   * 初始化核心库
-   * @param config 配置对象
+   * 初始化核心库，必须在使用任何 core 能力前调用
    */
   public static initCore(config: CoreConfig): void {
     CoreInitializer.isMock = config.isMock;
@@ -30,7 +29,6 @@ export class CoreInitializer {
 
   /**
    * 获取是否为 Mock 环境
-   * @returns 是否为 Mock 环境
    */
   public static getIsMock(): boolean {
     if (!CoreInitializer.initialized) {
@@ -41,7 +39,7 @@ export class CoreInitializer {
   }
 
   /**
-   * 获取应用上下文
+   * 获取应用上下文，未初始化时抛出异常
    */
   public static getContext(): common.UIAbilityContext {
     if (!CoreInitializer.initialized || CoreInitializer.appContext === null) {
@@ -52,7 +50,6 @@ export class CoreInitializer {
 
   /**
    * 检查是否已初始化
-   * @returns 是否已初始化
    */
   public static isInitialized(): boolean {
     return CoreInitializer.initialized;
