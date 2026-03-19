@@ -319,6 +319,14 @@
     {
       "name": "home_error_retry",
       "value": "加载失败，点击重试"
+    },
+    {
+      "name": "home_network_error_title",
+      "value": "网络请求失败"
+    },
+    {
+      "name": "dialog_confirm",
+      "value": "确定"
     }
   ]
 }

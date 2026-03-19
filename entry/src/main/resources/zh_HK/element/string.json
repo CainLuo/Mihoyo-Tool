@@ -207,6 +207,14 @@
     {
       "name": "home_error_retry",
       "value": "載入失敗，點擊重試"
+    },
+    {
+      "name": "home_network_error_title",
+      "value": "網路請求失敗"
+    },
+    {
+      "name": "dialog_confirm",
+      "value": "確定"
     }
   ]
 }

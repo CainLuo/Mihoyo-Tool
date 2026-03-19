@@ -19,6 +19,7 @@
 import { NetworkFactory } from '../network/NetworkFactory';
 import { RequestOptions, RequestParams } from '../network/APIs';
 import { GameDataDao } from '../database/GameDataDao';
+import { SyncMetaDao } from '../database/SyncMetaDao';
 import { GameDataRow, DataType } from '../models/GameDataRow';
 
 // ─── API 路径常量 ────────────────────────────────────────────────
@@ -93,19 +94,107 @@ export class DailyNoteRepository {
       throw new Error(`DailyNoteRepository: unsupported gameId "${gameId}"`);
     }
 
+    // 标记同步中（持久化，App 重启后可感知）
+    try {
+      await SyncMetaDao.markSyncing(gameId, roleUid, DataType.DAILY_NOTE);
+    } catch (_) {}
+
     const options = new RequestOptions();
     options.extraHeaders.set('Cookie', cookie);
 
     const params = DailyNoteRepository.buildParams(gameId, roleUid, server);
-    const raw = await NetworkFactory.getInstance().get(apiUrl, params, options);
-    const resp = raw as ApiResponse;
+    let raw: object;
+    try {
+      raw = await NetworkFactory.getInstance().get(apiUrl, params, options);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      try {
+        await SyncMetaDao.markFailed(gameId, roleUid, DataType.DAILY_NOTE, msg);
+      } catch (_) {}
+      throw new Error(msg);
+    }
 
+    const resp = raw as ApiResponse;
     if (resp.retcode !== 0) {
-      throw new Error(`DailyNoteRepository: API error retcode=${resp.retcode} msg=${resp.message}`);
+      const errMsg = `DailyNoteRepository: API error retcode=${resp.retcode} msg=${resp.message}`;
+      try {
+        await SyncMetaDao.markFailed(gameId, roleUid, DataType.DAILY_NOTE, errMsg);
+      } catch (_) {}
+      throw new Error(errMsg);
     }
 
     const row = DailyNoteRepository.parseToRow(gameId, roleUid, resp.data, JSON.stringify(resp.data));
     await GameDataDao.upsert(row);
+
+    // 标记同步成功，更新 last_sync_time
+    try {
+      await SyncMetaDao.markSuccess(gameId, roleUid, DataType.DAILY_NOTE);
+    } catch (_) {}
+  }
+
+  /**
+   * 携带 Geetest 验证结果重试 syncDailyNote。
+   * 在 Geetest 校验成功后，用新 challenge + validate + seccode 注入请求头重试。
+   *
+   * @param gameId      游戏标识
+   * @param roleUid     游戏内 UID
+   * @param server      服务器标识
+   * @param cookie      账号 Cookie
+   * @param challenge   verifyVerification 返回的新 challenge
+   * @param validate    geetest_validate
+   * @param seccode     geetest_seccode
+   */
+  static async syncDailyNoteWithChallenge(
+    gameId: string,
+    roleUid: string,
+    server: string,
+    cookie: string,
+    challenge: string,
+    validate: string,
+    seccode: string
+  ): Promise<void> {
+    const apiUrl = DailyNoteRepository.getApiUrl(gameId);
+    if (apiUrl === '') {
+      throw new Error(`DailyNoteRepository: unsupported gameId "${gameId}"`);
+    }
+
+    try {
+      await SyncMetaDao.markSyncing(gameId, roleUid, DataType.DAILY_NOTE);
+    } catch (_) {}
+
+    const options = new RequestOptions();
+    options.extraHeaders.set('Cookie', cookie);
+    options.extraHeaders.set('x-rpc-challenge', challenge);
+    options.extraHeaders.set('x-rpc-validate', validate);
+    options.extraHeaders.set('x-rpc-seccode', seccode);
+
+    const params = DailyNoteRepository.buildParams(gameId, roleUid, server);
+    let raw: object;
+    try {
+      raw = await NetworkFactory.getInstance().get(apiUrl, params, options);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      try {
+        await SyncMetaDao.markFailed(gameId, roleUid, DataType.DAILY_NOTE, msg);
+      } catch (_) {}
+      throw new Error(msg);
+    }
+
+    const resp = raw as ApiResponse;
+    if (resp.retcode !== 0) {
+      const errMsg = `DailyNoteRepository: API error retcode=${resp.retcode} msg=${resp.message}`;
+      try {
+        await SyncMetaDao.markFailed(gameId, roleUid, DataType.DAILY_NOTE, errMsg);
+      } catch (_) {}
+      throw new Error(errMsg);
+    }
+
+    const row = DailyNoteRepository.parseToRow(gameId, roleUid, resp.data, JSON.stringify(resp.data));
+    await GameDataDao.upsert(row);
+
+    try {
+      await SyncMetaDao.markSuccess(gameId, roleUid, DataType.DAILY_NOTE);
+    } catch (_) {}
   }
 
   /**

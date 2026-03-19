@@ -15,10 +15,12 @@ export * from './src/main/ets/database/RdbManager';
 export * from './src/main/ets/database/QueryBuilder';
 export * from './src/main/ets/database/GameDataDao';
 export * from './src/main/ets/database/GameStatsDao';
+export * from './src/main/ets/database/SyncMetaDao';
 
 // Models
 export * from './src/main/ets/models/GameDataRow';
 export * from './src/main/ets/models/GameStatsRow';
+export * from './src/main/ets/models/SyncMetaRow';
 
 // Repository
 export * from './src/main/ets/repository/AccountRepository';

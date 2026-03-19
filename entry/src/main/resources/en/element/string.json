@@ -207,6 +207,14 @@
     {
       "name": "home_error_retry",
       "value": "Load failed, tap to retry"
+    },
+    {
+      "name": "home_network_error_title",
+      "value": "Network Request Failed"
+    },
+    {
+      "name": "dialog_confirm",
+      "value": "OK"
     }
   ]
 }

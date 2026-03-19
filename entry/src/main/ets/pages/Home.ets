@@ -7,29 +7,78 @@
  *
  * 状态机（由 HomeViewModel.viewState 驱动）：
  *   loading  — 冷启动加载，显示 Skeleton
- *   empty    — 无绑定账号，显示 Placeholder
- *   data     — 正常展示账号战绩列表
- *   error    — 加载失败，显示重试提示
+ *   empty    — 无绑定账号或无战绩数据，显示 Placeholder
+ *   data     — 正常展示账号战绩列表（右上角显示刷新按钮）
+ *
+ * 副作用监听：
+ *   vm.networkErrorMsg  — 非空时弹系统 Alert 提示网络失败，弹完后清空
+ *   vm.geetestTrigger   — 非 null 时弹 GeetestDialog，完成后调用 vm.onGeetestResult()
  */
 
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
-import { HomeViewModel } from '../viewmodel/HomeViewModel'
+import { HomeViewModel, GeetestTrigger } from '../viewmodel/HomeViewModel'
 import { MihoyoAccountVM, GameRoleCardVM } from '../components/home/HomeModels'
 import { UserGameSection } from '../components/home/UserGameSection'
 import { HomeSkeletonView } from '../components/home/HomeSkeletonView'
 import { HomePlaceholderView } from '../components/home/HomePlaceholderView'
+import { showGeetestDialog } from '../components/GeetestDialog'
 import { Logger } from '../utils/Logger'
 import { HMRouterMgr } from '@hadss/hmrouter'
 import { AppRoutes } from '../constants/AppRoutes'
 import { GenshinDailyDetailParam } from './GenshinDailyDetail'
+import { BusinessError } from '@kit.BasicServicesKit'
 
 @ComponentV2
 export struct Home {
   @Local private tm: ThemeManager = themeManager
   @Local private vm: HomeViewModel = new HomeViewModel()
+  private uiCtx: UIContext | null = null
 
   aboutToAppear(): void {
+    this.uiCtx = this.getUIContext()
     this.vm.loadData()
+  }
+
+  aboutToDisappear(): void {
+    this.vm.dispose()
+  }
+
+  @Monitor('vm.networkErrorMsg')
+  onNetworkErrorChanged(monitor: IMonitor): void {
+    const msg = this.vm.networkErrorMsg
+    if (msg === '') {
+      return
+    }
+    this.vm.networkErrorMsg = ''
+    const ctx = this.uiCtx
+    if (ctx === null) {
+      return
+    }
+    ctx.getPromptAction().showDialog({
+      title: $r('app.string.home_network_error_title'),
+      message: msg,
+      buttons: [{ text: $r('app.string.dialog_confirm'), color: $r('app.color.color_accent') }]
+    }).catch((e: BusinessError) => {
+      Logger.warn('Home', 'showDialog failed: ' + e.message)
+    })
+  }
+
+  @Monitor('vm.geetestTrigger')
+  onGeetestTriggerChanged(monitor: IMonitor): void {
+    const trigger = this.vm.geetestTrigger
+    if (trigger === null) {
+      return
+    }
+    const ctx = this.uiCtx
+    if (ctx === null) {
+      return
+    }
+    showGeetestDialog(ctx, trigger.createResult).then((result) => {
+      this.vm.onGeetestResult(result)
+    }).catch((e: BusinessError) => {
+      Logger.error('Home', 'showGeetestDialog failed: ' + e.message)
+      this.vm.onGeetestResult(null)
+    })
   }
 
   build() {
@@ -78,8 +127,6 @@ export struct Home {
         HomeSkeletonView()
       } else if (this.vm.viewState === 'empty') {
         HomePlaceholderView()
-      } else if (this.vm.viewState === 'error') {
-        this.buildErrorView()
       } else {
         Scroll() {
           Column({ space: this.tm.current.value20 }) {
@@ -107,21 +154,6 @@ export struct Home {
     .backgroundColor(this.tm.current.colorPageBg)
   }
 
-  @Builder
-  private buildErrorView(): void {
-    Column({ space: this.tm.current.value12 }) {
-      Text($r('app.string.home_error_retry'))
-        .font(this.tm.current.body13)
-        .fontColor(this.tm.current.colorTextSecondary)
-    }
-    .width(this.tm.current.widthFull)
-    .layoutWeight(1)
-    .justifyContent(FlexAlign.Center)
-    .onClick(() => {
-      this.vm.loadData()
-    })
-  }
-
   /** 根据 gameId 跳转到对应详情页 */
   private navigateToDetail(card: GameRoleCardVM): void {
     if (card.gameId === 'genshin') {
@@ -131,7 +163,6 @@ export struct Home {
       HMRouterMgr.push({ pageUrl: AppRoutes.GENSHIN_DAILY_DETAIL, param: param })
       return
     }
-    // 其他游戏详情页待实现
     Logger.info('Home', `no detail page for gameId: ${card.gameId}`)
   }
 }
