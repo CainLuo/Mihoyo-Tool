@@ -12,5 +12,6 @@ struct SettingDestination {
       Setting()
     }
     .hideTitleBar(true)
+    .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP])
   }
 }

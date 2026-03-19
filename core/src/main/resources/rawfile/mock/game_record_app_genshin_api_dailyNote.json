@@ -1,0 +1,34 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "current_resin": 120,
+    "max_resin": 160,
+    "resin_recovery_time": "4800",
+    "finished_task_num": 4,
+    "total_task_num": 4,
+    "is_extra_task_reward_received": true,
+    "remain_resin_discount_num": 3,
+    "resin_discount_num_limit": 3,
+    "current_expedition_num": 5,
+    "max_expedition_num": 5,
+    "expeditions": [],
+    "current_home_coin": 1800,
+    "max_home_coin": 2400,
+    "home_coin_recovery_time": "72000",
+    "calendar_url": "",
+    "transformer": {
+      "obtained": true,
+      "recovery_time": {
+        "Day": 0,
+        "Hour": 0,
+        "Minute": 0,
+        "Second": 0,
+        "reached": true
+      },
+      "wiki": "",
+      "noticed": false,
+      "latest_job_id": "0"
+    }
+  }
+}

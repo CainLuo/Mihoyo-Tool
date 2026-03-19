@@ -1,8 +1,212 @@
 {
-  "boolean": [
+  "string": [
     {
-      "name": "boolean_1",
-      "value": true
+      "name": "geetest_dialog_title",
+      "value": "請完成安全驗證"
+    },
+    {
+      "name": "geetest_dialog_close",
+      "value": "✕"
+    },
+    {
+      "name": "genshin_daily_title",
+      "value": "即時便箋"
+    },
+    {
+      "name": "genshin_daily_data_delay_hint",
+      "value": "*數據刷新可能存在一定延遲，請以當前遊戲實際數據為準"
+    },
+    {
+      "name": "login_title",
+      "value": "歡迎登入"
+    },
+    {
+      "name": "login_button",
+      "value": "登入"
+    },
+    {
+      "name": "login_cookie_placeholder",
+      "value": "請貼上米遊社 Cookie"
+    },
+    {
+      "name": "login_tab_phone",
+      "value": "手機號"
+    },
+    {
+      "name": "login_tab_qrcode",
+      "value": "掃碼"
+    },
+    {
+      "name": "login_tab_cookie",
+      "value": "Cookie"
+    },
+    {
+      "name": "login_phone_placeholder",
+      "value": "請輸入手機號"
+    },
+    {
+      "name": "login_send_sms_button",
+      "value": "獲取驗證碼"
+    },
+    {
+      "name": "login_sms_sent_hint",
+      "value": "驗證碼已發送，請查收短信"
+    },
+    {
+      "name": "login_code_placeholder",
+      "value": "請輸入驗證碼"
+    },
+    {
+      "name": "login_back_to_phone",
+      "value": "重新輸入手機號"
+    },
+    {
+      "name": "login_resend_sms",
+      "value": "重新發送"
+    },
+    {
+      "name": "login_qrcode_loading",
+      "value": "二維碼載入中..."
+    },
+    {
+      "name": "login_qrcode_hint",
+      "value": "使用米遊社 App 掃碼登入"
+    },
+    {
+      "name": "login_qrcode_scanned",
+      "value": "已掃碼，請在 App 內確認"
+    },
+    {
+      "name": "login_qrcode_confirmed",
+      "value": "登入中..."
+    },
+    {
+      "name": "login_qrcode_expired",
+      "value": "二維碼已過期，請刷新"
+    },
+    {
+      "name": "login_qrcode_refresh",
+      "value": "刷新二維碼"
+    },
+    {
+      "name": "login_cookie_hint",
+      "value": "請從瀏覽器開發者工具中複製米遊社 Cookie"
+    },
+    {
+      "name": "main_tab_home",
+      "value": "首頁"
+    },
+    {
+      "name": "main_tab_my",
+      "value": "我的"
+    },
+    {
+      "name": "my_setting_button",
+      "value": "設定"
+    },
+    {
+      "name": "my_page_title",
+      "value": "這是我的頁面"
+    },
+    {
+      "name": "daily_note_task_label",
+      "value": "委託任務"
+    },
+    {
+      "name": "daily_note_adventure_label",
+      "value": "歷練點"
+    },
+    {
+      "name": "daily_note_stored_adventure_label",
+      "value": "長效歷練點"
+    },
+    {
+      "name": "daily_note_task_all_received",
+      "value": "已全部領取"
+    },
+    {
+      "name": "daily_note_task_not_received",
+      "value": "未領取獎勵"
+    },
+    {
+      "name": "daily_note_archon_quest_title",
+      "value": "魔神任務"
+    },
+    {
+      "name": "daily_note_archon_quest_done",
+      "value": "全部完成"
+    },
+    {
+      "name": "daily_note_resin_title",
+      "value": "原粹樹脂"
+    },
+    {
+      "name": "daily_note_home_coin_title",
+      "value": "洞天財富 · 洞天寶錢"
+    },
+    {
+      "name": "daily_note_daily_task_title",
+      "value": "每日委託獎勵"
+    },
+    {
+      "name": "daily_note_weekly_boss_title",
+      "value": "值得銘記的強敵"
+    },
+    {
+      "name": "daily_note_weekly_boss_subtitle",
+      "value": "本週剩餘消耗減半次數"
+    },
+    {
+      "name": "daily_note_transformer_title",
+      "value": "參量質變儀"
+    },
+    {
+      "name": "daily_note_transformer_ready",
+      "value": "可使用"
+    },
+    {
+      "name": "daily_note_transformer_done",
+      "value": "已準備完成"
+    },
+    {
+      "name": "daily_note_expedition_title",
+      "value": "探索派遣限制"
+    },
+    {
+      "name": "daily_note_expedition_finished",
+      "value": "已完成"
+    },
+    {
+      "name": "daily_note_expedition_remain_prefix",
+      "value": "剩餘探索時間 "
+    },
+    {
+      "name": "game_name_genshin",
+      "value": "原神"
+    },
+    {
+      "name": "game_name_starrail",
+      "value": "崩壞：星穹鐵道"
+    },
+    {
+      "name": "game_name_zzz",
+      "value": "絕區零"
+    },
+    {
+      "name": "game_name_honkai3",
+      "value": "崩壞3"
+    },
+    {
+      "name": "sync_just_now",
+      "value": "剛剛同步"
+    },
+    {
+      "name": "sync_not_synced",
+      "value": "未同步"
+    },
+    {
+      "name": "home_error_retry",
+      "value": "載入失敗，點擊重試"
     }
   ]
 }

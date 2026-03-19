@@ -1,20 +1,20 @@
-import { Home } from './Home';
-import { My } from './My';
+import { Home } from './Home'
+import { My } from './My'
 
-@Component
+// TabBar 高度不写死，由 ArkUI 布局系统自动适配各机型安全区
+@ComponentV2
 export struct Main {
   build() {
     Tabs({ barPosition: BarPosition.End }) {
       TabContent() {
         Home()
-      }.tabBar('首页')
+      }.tabBar($r('app.string.main_tab_home'))
 
       TabContent() {
         My()
-      }.tabBar('我的')
+      }.tabBar($r('app.string.main_tab_my'))
     }
     .scrollable(false)
-    .barHeight(60)
     .barMode(BarMode.Fixed)
   }
 }

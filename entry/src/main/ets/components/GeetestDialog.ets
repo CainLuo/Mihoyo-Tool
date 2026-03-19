@@ -43,6 +43,8 @@ import { webview } from '@kit.ArkWeb';
 import { UIContext, ComponentContent, promptAction, window } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { GeetestCreateResult, GeetestVerifyInput } from 'core';
+import { themeManager, ThemeManager } from '../theme/ThemeManager';
+import { Logger } from '../utils/Logger';
 
 // ---- 生成内嵌 HTML 的工厂函数 ----
 
@@ -177,15 +179,15 @@ class GeetestBridge {
  *   - Web 高度动态跟随窗口高度（55%），并限制 min/max，适配横屏/分屏/折叠屏
  *   - 注册 windowSizeChange 监听，形态切换时自动重算高度
  */
-@Component
+@ComponentV2
 export struct GeetestDialog {
   /** createVerification 返回的参数，由调用方传入 */
-  @Prop createResult: GeetestCreateResult = { gt: '' };
+  @Param createResult: GeetestCreateResult = { gt: '' };
   /** 验证完成/取消的回调，由 showGeetestDialog 注入 */
-  onResult: (result: GeetestVerifyInput | null) => void = () => {};
+  @Param onResult: (result: GeetestVerifyInput | null) => void = () => {};
 
-  // Web 组件高度，动态跟随窗口可用高度
-  @State private webHeight: number = 360;
+  @Local private webHeight: number = themeManager.current.webHeightDefault;
+  @Local private tm: ThemeManager = themeManager;
 
   private controller: webview.WebviewController = new webview.WebviewController();
   private bridge: GeetestBridge = new GeetestBridge();
@@ -193,7 +195,7 @@ export struct GeetestDialog {
 
   // 根据窗口高度（px）计算 Web 组件高度（vp），取 55% 并限制范围
   private calcWebHeight(windowHeightPx: number): number {
-    const heightVp = px2vp(windowHeightPx) * 0.55;
+    const heightVp = this.getUIContext().px2vp(windowHeightPx) * 0.55;
     if (heightVp < 200) {
       return 200;
     }
@@ -210,7 +212,7 @@ export struct GeetestDialog {
 
     // 获取当前窗口，读取初始高度并注册尺寸变化监听
     try {
-      const ctx = getContext(this);
+      const ctx = this.getUIContext().getHostContext();
       window.getLastWindow(ctx).then((win) => {
         this.win = win;
         const rect = win.getWindowProperties().windowRect;
@@ -220,10 +222,10 @@ export struct GeetestDialog {
           this.webHeight = this.calcWebHeight(size.height);
         });
       }).catch((e: BusinessError) => {
-        console.warn('GeetestDialog getLastWindow failed: ' + e.message);
+        Logger.warn('GeetestDialog', 'getLastWindow failed: ' + e.message);
       });
     } catch (e) {
-      console.warn('GeetestDialog window init failed: ' + (e as Error).message);
+      Logger.warn('GeetestDialog', 'window init failed: ' + (e as Error).message);
     }
   }
 
@@ -233,46 +235,48 @@ export struct GeetestDialog {
       try {
         this.win.off('windowSizeChange');
       } catch (e) {
-        console.warn('GeetestDialog off windowSizeChange failed: ' + (e as Error).message);
+        Logger.warn('GeetestDialog', 'off windowSizeChange failed: ' + (e as Error).message);
       }
       this.win = null;
     }
   }
 
   build() {
-    // 外层容器：左右 padding 16vp，撑满弹窗宽度
     Column() {
-      // 卡片：限制最大宽度 400vp，小屏自动收缩，大屏居中
       Column() {
         // 标题栏
         Row() {
-          Text('请完成安全验证')
-            .fontSize(16)
-            .fontColor('#333333')
-            .fontWeight(FontWeight.Medium)
+          Text($r('app.string.geetest_dialog_title'))
+            .font(this.tm.current.body16Medium)
+            .fontColor(this.tm.current.colorTextPrimary)
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
             .layoutWeight(1)
           // 关闭按钮
-          Text('✕')
-            .fontSize(18)
-            .fontColor('#666666')
-            .padding(8)
+          Text($r('app.string.geetest_dialog_close'))
+            .font(this.tm.current.title18Bold)
+            .fontColor(this.tm.current.colorTextSecondary)
+            .padding(this.tm.current.value8)
             .onClick(() => {
               this.onResult(null);
             })
         }
-        .width('100%')
-        .padding({ left: 16, right: 8, top: 12, bottom: 12 })
+        .width(this.tm.current.widthFull)
+        .padding({
+          left: this.tm.current.value16,
+          right: this.tm.current.value8,
+          top: this.tm.current.value12,
+          bottom: this.tm.current.value12
+        })
 
-        Divider().color('#EEEEEE')
+        Divider().color(this.tm.current.colorDivider)
 
         // Web 组件：高度动态跟随窗口，适配横屏/分屏/折叠屏
         Web({
           src: buildGeetestHtml(this.createResult),
           controller: this.controller
         })
-          .width('100%')
+          .width(this.tm.current.widthFull)
           .height(this.webHeight)
           .javaScriptAccess(true)
           .domStorageAccess(true)
@@ -285,22 +289,25 @@ export struct GeetestDialog {
                 ['onSuccess', 'onCancel']
               );
             } catch (e) {
-              console.error('GeetestDialog registerJavaScriptProxy failed: ' + (e as Error).message);
+              Logger.error('GeetestDialog', 'registerJavaScriptProxy failed: ' + (e as Error).message);
             }
           })
           .onErrorReceive((event) => {
-            console.error('GeetestDialog Web error: ' + event?.error?.getErrorInfo());
+            Logger.error('GeetestDialog', 'Web error: ' + event?.error?.getErrorInfo());
             this.onResult(null);
           })
       }
-      .width('100%')
-      .constraintSize({ minWidth: 280, maxWidth: 400 })
-      .backgroundColor(Color.White)
-      .borderRadius(12)
+      .width(this.tm.current.widthFull)
+      .constraintSize({
+        minWidth: this.tm.current.dialogMinWidth,
+        maxWidth: this.tm.current.dialogMaxWidth
+      })
+      .backgroundColor(this.tm.current.colorCardBg)
+      .borderRadius(this.tm.current.radius12)
       .clip(true)
     }
-    .width('100%')
-    .padding({ left: 16, right: 16 })
+    .width(this.tm.current.widthFull)
+    .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
   }
 }
 
@@ -364,8 +371,8 @@ export function showGeetestDialog(
             }
           })
           .catch((e: BusinessError) => {
-            console.warn(`GeetestDialog close failed: ${e.message}`);
-          });
+          Logger.warn('GeetestDialog', 'close failed: ' + e.message);
+        });
       }
       resolve(result);
     });
@@ -379,12 +386,12 @@ export function showGeetestDialog(
     const dialogOptions: promptAction.BaseDialogOptions = {
       autoCancel: false,
       alignment: DialogAlignment.Center,
-      maskColor: '#80000000',
+      maskColor: themeManager.current.colorMask,
     };
 
     uiContext.getPromptAction().openCustomDialog(contentNode, dialogOptions)
       .catch((e: BusinessError) => {
-        console.error(`GeetestDialog open failed: ${e.message}`);
+        Logger.error('GeetestDialog', 'open failed: ' + e.message);
         resolve(null);
       });
   });

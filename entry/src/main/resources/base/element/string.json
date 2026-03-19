@@ -11,6 +11,314 @@
     {
       "name": "EntryAbility_label",
       "value": "label"
+    },
+    {
+      "name": "home_title",
+      "value": "战绩工具"
+    },
+    {
+      "name": "home_game_count_format",
+      "value": "%d 个游戏"
+    },
+    {
+      "name": "home_no_data_hint",
+      "value": "暂无数据，点击同步"
+    },
+    {
+      "name": "home_account_avatar_desc",
+      "value": "账号头像"
+    },
+    {
+      "name": "setting_title",
+      "value": "设置"
+    },
+    {
+      "name": "setting_section_account",
+      "value": "账号管理"
+    },
+    {
+      "name": "setting_section_appearance",
+      "value": "外观设置"
+    },
+    {
+      "name": "setting_section_about",
+      "value": "关于"
+    },
+    {
+      "name": "setting_account_empty",
+      "value": "暂无账号，点击添加"
+    },
+    {
+      "name": "setting_account_role_count",
+      "value": " 个游戏角色"
+    },
+    {
+      "name": "setting_account_delete",
+      "value": "删除"
+    },
+    {
+      "name": "setting_account_add",
+      "value": "+ 添加账号"
+    },
+    {
+      "name": "setting_account_uid_prefix",
+      "value": "UID: "
+    },
+    {
+      "name": "setting_theme_label",
+      "value": "主题"
+    },
+    {
+      "name": "setting_theme_light",
+      "value": "浅色"
+    },
+    {
+      "name": "setting_theme_dark",
+      "value": "深色"
+    },
+    {
+      "name": "setting_theme_system",
+      "value": "跟随系统"
+    },
+    {
+      "name": "setting_about_version",
+      "value": "版本"
+    },
+    {
+      "name": "setting_about_github",
+      "value": "GitHub"
+    },
+    {
+      "name": "setting_about_license",
+      "value": "许可证"
+    },
+    {
+      "name": "setting_about_github_url",
+      "value": "github.com/cainluo/Mihoyo-Tool"
+    },
+    {
+      "name": "setting_about_license_value",
+      "value": "MIT License"
+    },
+    {
+      "name": "home_placeholder_title",
+      "value": "还没有绑定账号"
+    },
+    {
+      "name": "home_placeholder_desc",
+      "value": "绑定米游社账号后，即可查看原神、星穹铁道等游戏的战绩数据"
+    },
+    {
+      "name": "home_placeholder_button",
+      "value": "去绑定账号"
+    },
+    {
+      "name": "geetest_dialog_title",
+      "value": "请完成安全验证"
+    },
+    {
+      "name": "geetest_dialog_close",
+      "value": "✕"
+    },
+    {
+      "name": "genshin_daily_title",
+      "value": "实时便笺"
+    },
+    {
+      "name": "genshin_daily_data_delay_hint",
+      "value": "*数据刷新可能存在一定延迟，请以当前游戏实际数据为准"
+    },
+    {
+      "name": "login_title",
+      "value": "欢迎登录"
+    },
+    {
+      "name": "login_button",
+      "value": "登录"
+    },
+    {
+      "name": "login_cookie_placeholder",
+      "value": "请粘贴米游社 Cookie"
+    },
+    {
+      "name": "login_tab_phone",
+      "value": "手机号"
+    },
+    {
+      "name": "login_tab_qrcode",
+      "value": "扫码"
+    },
+    {
+      "name": "login_tab_cookie",
+      "value": "Cookie"
+    },
+    {
+      "name": "login_phone_placeholder",
+      "value": "请输入手机号"
+    },
+    {
+      "name": "login_send_sms_button",
+      "value": "获取验证码"
+    },
+    {
+      "name": "login_sms_sent_hint",
+      "value": "验证码已发送，请查收短信"
+    },
+    {
+      "name": "login_code_placeholder",
+      "value": "请输入验证码"
+    },
+    {
+      "name": "login_back_to_phone",
+      "value": "重新输入手机号"
+    },
+    {
+      "name": "login_resend_sms",
+      "value": "重新发送"
+    },
+    {
+      "name": "login_qrcode_loading",
+      "value": "二维码加载中..."
+    },
+    {
+      "name": "login_qrcode_hint",
+      "value": "使用米游社 App 扫码登录"
+    },
+    {
+      "name": "login_qrcode_scanned",
+      "value": "已扫码，请在 App 内确认"
+    },
+    {
+      "name": "login_qrcode_confirmed",
+      "value": "登录中..."
+    },
+    {
+      "name": "login_qrcode_expired",
+      "value": "二维码已过期，请刷新"
+    },
+    {
+      "name": "login_qrcode_refresh",
+      "value": "刷新二维码"
+    },
+    {
+      "name": "login_cookie_hint",
+      "value": "请从浏览器开发者工具中复制米游社 Cookie"
+    },
+    {
+      "name": "main_tab_home",
+      "value": "首页"
+    },
+    {
+      "name": "main_tab_my",
+      "value": "我的"
+    },
+    {
+      "name": "my_setting_button",
+      "value": "设置"
+    },
+    {
+      "name": "my_page_title",
+      "value": "这是我的页面"
+    },
+    {
+      "name": "daily_note_task_label",
+      "value": "委托任务"
+    },
+    {
+      "name": "daily_note_adventure_label",
+      "value": "历练点"
+    },
+    {
+      "name": "daily_note_stored_adventure_label",
+      "value": "长效历练点"
+    },
+    {
+      "name": "daily_note_task_all_received",
+      "value": "已全部领取"
+    },
+    {
+      "name": "daily_note_task_not_received",
+      "value": "未领取奖励"
+    },
+    {
+      "name": "daily_note_archon_quest_title",
+      "value": "魔神任务"
+    },
+    {
+      "name": "daily_note_archon_quest_done",
+      "value": "全部完成"
+    },
+    {
+      "name": "daily_note_resin_title",
+      "value": "原粹树脂"
+    },
+    {
+      "name": "daily_note_home_coin_title",
+      "value": "洞天财富 · 洞天宝钱"
+    },
+    {
+      "name": "daily_note_daily_task_title",
+      "value": "每日委托奖励"
+    },
+    {
+      "name": "daily_note_weekly_boss_title",
+      "value": "值得铭记的强敌"
+    },
+    {
+      "name": "daily_note_weekly_boss_subtitle",
+      "value": "本周剩余消耗减半次数"
+    },
+    {
+      "name": "daily_note_transformer_title",
+      "value": "参量质变仪"
+    },
+    {
+      "name": "daily_note_transformer_ready",
+      "value": "可使用"
+    },
+    {
+      "name": "daily_note_transformer_done",
+      "value": "已准备完成"
+    },
+    {
+      "name": "daily_note_expedition_title",
+      "value": "探索派遣限制"
+    },
+    {
+      "name": "daily_note_expedition_finished",
+      "value": "已完成"
+    },
+    {
+      "name": "daily_note_expedition_remain_prefix",
+      "value": "剩余探索时间 "
+    },
+    {
+      "name": "game_name_genshin",
+      "value": "原神"
+    },
+    {
+      "name": "game_name_starrail",
+      "value": "崩坏：星穹铁道"
+    },
+    {
+      "name": "game_name_zzz",
+      "value": "绝区零"
+    },
+    {
+      "name": "game_name_honkai3",
+      "value": "崩坏3"
+    },
+    {
+      "name": "sync_just_now",
+      "value": "刚刚同步"
+    },
+    {
+      "name": "sync_not_synced",
+      "value": "未同步"
+    },
+    {
+      "name": "home_error_retry",
+      "value": "加载失败，点击重试"
     }
   ]
 }

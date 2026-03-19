@@ -1,0 +1,185 @@
+/**
+ * DailyNoteRepository.ets
+ *
+ * 实时便笺数据 Repository。
+ * 负责从网络拉取各游戏的 daily_note 数据，解析后写入 game_data 表。
+ *
+ * 数据流：
+ *   NetworkFactory.getInstance().get(url) → 解析 JSON → GameDataDao.upsert()
+ *
+ * 调用方（entry ViewModel）只需调用：
+ *   await DailyNoteRepository.syncDailyNote(gameId, roleUid, cookie)
+ *   const row = await DailyNoteRepository.findDailyNote(gameId, roleUid)
+ *
+ * 注意：
+ *   - 不得在此处判断 isMock，网络实现由 NetworkFactory 透明切换
+ *   - extra_int1 = 当前值（树脂/开拓力），extra_int2 = 最大值
+ */
+
+import { NetworkFactory } from '../network/NetworkFactory';
+import { RequestOptions, RequestParams } from '../network/APIs';
+import { GameDataDao } from '../database/GameDataDao';
+import { GameDataRow, DataType } from '../models/GameDataRow';
+
+// ─── API 路径常量 ────────────────────────────────────────────────
+
+/** 各游戏 daily_note API 路径（相对于 baseUrl） */
+const API_GENSHIN_DAILY_NOTE = '/game_record/app/genshin/api/dailyNote';
+const API_STARRAIL_DAILY_NOTE = '/game_record/app/hkrpg/api/note';
+const API_ZZZ_DAILY_NOTE = '/game_record/app/zzz/api/note';
+
+// ─── 响应接口（仅声明需要的字段，ArkTS 严格模式要求） ────────────
+
+/** 原神 daily_note 响应 data 字段 */
+interface GenshinNoteData {
+  current_resin: number;
+  max_resin: number;
+  resin_recovery_time: string;
+  finished_task_num: number;
+  total_task_num: number;
+}
+
+/** 星穹铁道 daily_note 响应 data 字段 */
+interface StarRailNoteData {
+  current_stamina: number;
+  max_stamina: number;
+  stamina_recover_time: number;
+  current_train_score: number;
+  max_train_score: number;
+}
+
+/** 绝区零 daily_note 响应 data 字段 */
+interface ZZZNoteData {
+  energy: ZZZEnergy;
+}
+
+interface ZZZEnergy {
+  progress: ZZZEnergyProgress;
+}
+
+interface ZZZEnergyProgress {
+  current: number;
+  max: number;
+}
+
+/** 通用 API 响应包装 */
+interface ApiResponse {
+  retcode: number;
+  message: string;
+  data: object;
+}
+
+// ─── Repository ──────────────────────────────────────────────────
+
+export class DailyNoteRepository {
+
+  /**
+   * 从网络拉取指定游戏角色的 daily_note，解析后写入 game_data 表。
+   *
+   * @param gameId   游戏标识（"genshin" / "starrail" / "zzz"）
+   * @param roleUid  游戏内 UID
+   * @param server   服务器标识（用于构造请求参数）
+   * @param cookie   账号 Cookie（通过 RequestOptions.extraHeaders 注入）
+   * @throws 网络失败或 retcode != 0 时抛出 Error
+   */
+  static async syncDailyNote(
+    gameId: string,
+    roleUid: string,
+    server: string,
+    cookie: string
+  ): Promise<void> {
+    const apiUrl = DailyNoteRepository.getApiUrl(gameId);
+    if (apiUrl === '') {
+      throw new Error(`DailyNoteRepository: unsupported gameId "${gameId}"`);
+    }
+
+    const options = new RequestOptions();
+    options.extraHeaders.set('Cookie', cookie);
+
+    const params = DailyNoteRepository.buildParams(gameId, roleUid, server);
+    const raw = await NetworkFactory.getInstance().get(apiUrl, params, options);
+    const resp = raw as ApiResponse;
+
+    if (resp.retcode !== 0) {
+      throw new Error(`DailyNoteRepository: API error retcode=${resp.retcode} msg=${resp.message}`);
+    }
+
+    const row = DailyNoteRepository.parseToRow(gameId, roleUid, resp.data, JSON.stringify(resp.data));
+    await GameDataDao.upsert(row);
+  }
+
+  /**
+   * 从本地 DB 读取 daily_note 行（不触发网络请求）。
+   * 返回 null 表示尚未同步过。
+   */
+  static async findDailyNote(
+    gameId: string,
+    roleUid: string
+  ): Promise<GameDataRow | null> {
+    return GameDataDao.findOne(gameId, roleUid, DataType.DAILY_NOTE, 'daily_note');
+  }
+
+  // ─── 私有方法 ────────────────────────────────────────────────
+
+  private static getApiUrl(gameId: string): string {
+    if (gameId === 'genshin') {
+      return API_GENSHIN_DAILY_NOTE;
+    }
+    if (gameId === 'starrail') {
+      return API_STARRAIL_DAILY_NOTE;
+    }
+    if (gameId === 'zzz') {
+      return API_ZZZ_DAILY_NOTE;
+    }
+    return '';
+  }
+
+  private static buildParams(
+    gameId: string,
+    roleUid: string,
+    server: string
+  ): RequestParams {
+    const p = new RequestParams();
+    p.set('role_id', roleUid);
+    p.set('server', server);
+    if (gameId === 'genshin') {
+      p.set('schedule_type', 1);
+    }
+    return p;
+  }
+
+  /**
+   * 将 API 响应 data 解析为 GameDataRow。
+   * extra_int1 = 当前值，extra_int2 = 最大值（与 database-architecture.md 约定一致）
+   */
+  private static parseToRow(
+    gameId: string,
+    roleUid: string,
+    data: object,
+    rawJson: string
+  ): GameDataRow {
+    const row = new GameDataRow();
+    row.gameId = gameId;
+    row.roleUid = roleUid;
+    row.dataType = DataType.DAILY_NOTE;
+    row.entityId = 'daily_note';
+    row.rawJson = rawJson;
+    row.updateTime = Math.floor(Date.now() / 1000);
+
+    if (gameId === 'genshin') {
+      const d = data as GenshinNoteData;
+      row.extraInt1 = d.current_resin;
+      row.extraInt2 = d.max_resin;
+    } else if (gameId === 'starrail') {
+      const d = data as StarRailNoteData;
+      row.extraInt1 = d.current_stamina;
+      row.extraInt2 = d.max_stamina;
+    } else if (gameId === 'zzz') {
+      const d = data as ZZZNoteData;
+      row.extraInt1 = d.energy.progress.current;
+      row.extraInt2 = d.energy.progress.max;
+    }
+
+    return row;
+  }
+}

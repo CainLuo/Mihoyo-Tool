@@ -1,8 +1,212 @@
 {
-  "boolean": [
+  "string": [
     {
-      "name": "boolean_1",
-      "value": true
+      "name": "geetest_dialog_title",
+      "value": "Complete Security Verification"
+    },
+    {
+      "name": "geetest_dialog_close",
+      "value": "✕"
+    },
+    {
+      "name": "genshin_daily_title",
+      "value": "Real-Time Notes"
+    },
+    {
+      "name": "genshin_daily_data_delay_hint",
+      "value": "*Data refresh may be slightly delayed. Please refer to the actual in-game data."
+    },
+    {
+      "name": "login_title",
+      "value": "Welcome"
+    },
+    {
+      "name": "login_button",
+      "value": "Login"
+    },
+    {
+      "name": "login_cookie_placeholder",
+      "value": "Paste your MiHoYo Cookie here"
+    },
+    {
+      "name": "login_tab_phone",
+      "value": "Phone"
+    },
+    {
+      "name": "login_tab_qrcode",
+      "value": "QR Code"
+    },
+    {
+      "name": "login_tab_cookie",
+      "value": "Cookie"
+    },
+    {
+      "name": "login_phone_placeholder",
+      "value": "Enter phone number"
+    },
+    {
+      "name": "login_send_sms_button",
+      "value": "Send Code"
+    },
+    {
+      "name": "login_sms_sent_hint",
+      "value": "Verification code sent, please check your SMS"
+    },
+    {
+      "name": "login_code_placeholder",
+      "value": "Enter verification code"
+    },
+    {
+      "name": "login_back_to_phone",
+      "value": "Re-enter phone number"
+    },
+    {
+      "name": "login_resend_sms",
+      "value": "Resend"
+    },
+    {
+      "name": "login_qrcode_loading",
+      "value": "Loading QR code..."
+    },
+    {
+      "name": "login_qrcode_hint",
+      "value": "Scan with MiYouShe App to login"
+    },
+    {
+      "name": "login_qrcode_scanned",
+      "value": "Scanned, please confirm in the App"
+    },
+    {
+      "name": "login_qrcode_confirmed",
+      "value": "Logging in..."
+    },
+    {
+      "name": "login_qrcode_expired",
+      "value": "QR code expired, please refresh"
+    },
+    {
+      "name": "login_qrcode_refresh",
+      "value": "Refresh QR Code"
+    },
+    {
+      "name": "login_cookie_hint",
+      "value": "Copy your MiHoYo Cookie from browser DevTools"
+    },
+    {
+      "name": "main_tab_home",
+      "value": "Home"
+    },
+    {
+      "name": "main_tab_my",
+      "value": "My"
+    },
+    {
+      "name": "my_setting_button",
+      "value": "Settings"
+    },
+    {
+      "name": "my_page_title",
+      "value": "My Page"
+    },
+    {
+      "name": "daily_note_task_label",
+      "value": "Daily Tasks"
+    },
+    {
+      "name": "daily_note_adventure_label",
+      "value": "Adventure EXP"
+    },
+    {
+      "name": "daily_note_stored_adventure_label",
+      "value": "Stored Adventure EXP"
+    },
+    {
+      "name": "daily_note_task_all_received",
+      "value": "All Claimed"
+    },
+    {
+      "name": "daily_note_task_not_received",
+      "value": "Reward Unclaimed"
+    },
+    {
+      "name": "daily_note_archon_quest_title",
+      "value": "Archon Quests"
+    },
+    {
+      "name": "daily_note_archon_quest_done",
+      "value": "All Done"
+    },
+    {
+      "name": "daily_note_resin_title",
+      "value": "Original Resin"
+    },
+    {
+      "name": "daily_note_home_coin_title",
+      "value": "Realm Currency"
+    },
+    {
+      "name": "daily_note_daily_task_title",
+      "value": "Daily Commission Rewards"
+    },
+    {
+      "name": "daily_note_weekly_boss_title",
+      "value": "Enemies of Note"
+    },
+    {
+      "name": "daily_note_weekly_boss_subtitle",
+      "value": "Remaining half-off challenges this week"
+    },
+    {
+      "name": "daily_note_transformer_title",
+      "value": "Parametric Transformer"
+    },
+    {
+      "name": "daily_note_transformer_ready",
+      "value": "Ready"
+    },
+    {
+      "name": "daily_note_transformer_done",
+      "value": "Preparation Complete"
+    },
+    {
+      "name": "daily_note_expedition_title",
+      "value": "Expedition Limit"
+    },
+    {
+      "name": "daily_note_expedition_finished",
+      "value": "Completed"
+    },
+    {
+      "name": "daily_note_expedition_remain_prefix",
+      "value": "Remaining: "
+    },
+    {
+      "name": "game_name_genshin",
+      "value": "Genshin Impact"
+    },
+    {
+      "name": "game_name_starrail",
+      "value": "Honkai: Star Rail"
+    },
+    {
+      "name": "game_name_zzz",
+      "value": "Zenless Zone Zero"
+    },
+    {
+      "name": "game_name_honkai3",
+      "value": "Honkai Impact 3rd"
+    },
+    {
+      "name": "sync_just_now",
+      "value": "Just synced"
+    },
+    {
+      "name": "sync_not_synced",
+      "value": "Not synced"
+    },
+    {
+      "name": "home_error_retry",
+      "value": "Load failed, tap to retry"
     }
   ]
 }

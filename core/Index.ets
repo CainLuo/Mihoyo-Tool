@@ -21,9 +21,15 @@ export * from './src/main/ets/models/GameDataRow';
 export * from './src/main/ets/models/GameStatsRow';
 
 // Repository
+export * from './src/main/ets/repository/AccountRepository';
+export * from './src/main/ets/repository/AuthRepository';
 export * from './src/main/ets/repository/CharacterRepository';
 export * from './src/main/ets/repository/ActivityRepository';
 export * from './src/main/ets/repository/GachaRepository';
+export * from './src/main/ets/repository/DailyNoteRepository';
 
 // Utils module
 export * from './src/main/ets/utils/TaskPoolUtil';
+
+// Parsers
+export * from './src/main/ets/parsers/genshin/GenshinDailyNoteParser';

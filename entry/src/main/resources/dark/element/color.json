@@ -1,8 +1,76 @@
 {
   "color": [
     {
-      "name": "start_window_background",
-      "value": "#000000"
+      "name": "color_primary",
+      "value": "#4DA3FF"
+    },
+    {
+      "name": "color_text_primary",
+      "value": "#E0E0E0"
+    },
+    {
+      "name": "color_text_secondary",
+      "value": "#999999"
+    },
+    {
+      "name": "color_divider",
+      "value": "#2C2C2C"
+    },
+    {
+      "name": "color_card_bg",
+      "value": "#1E1E1E"
+    },
+    {
+      "name": "color_card_border",
+      "value": "#2E2E2E"
+    },
+    {
+      "name": "color_page_bg",
+      "value": "#121212"
+    },
+    {
+      "name": "color_placeholder",
+      "value": "#555555"
+    },
+    {
+      "name": "color_mask",
+      "value": "#99000000"
+    },
+    {
+      "name": "color_shadow",
+      "value": "#28000000"
+    },
+    {
+      "name": "color_danger",
+      "value": "#FF6B6B"
+    },
+    {
+      "name": "color_danger_bg",
+      "value": "#1AFF6B6B"
+    },
+    {
+      "name": "color_warning",
+      "value": "#F5B942"
+    },
+    {
+      "name": "color_accent",
+      "value": "#4DA3FF"
+    },
+    {
+      "name": "game_color_genshin",
+      "value": "#5BA3E8"
+    },
+    {
+      "name": "game_color_starrail",
+      "value": "#9B8EFF"
+    },
+    {
+      "name": "game_color_zzz",
+      "value": "#F7B84B"
+    },
+    {
+      "name": "game_color_honkai3",
+      "value": "#FF6B6B"
     }
   ]
 }

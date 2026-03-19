@@ -1,26 +1,32 @@
-import { HMRouterMgr } from "@hadss/hmrouter"
+import { HMRouterMgr } from '@hadss/hmrouter'
+import { themeManager, ThemeManager } from '../theme/ThemeManager'
+import { AppRoutes } from '../constants/AppRoutes'
+import { Logger } from '../utils/Logger'
 
-@Component
+@ComponentV2
 export struct My {
+  @Local tm: ThemeManager = themeManager
+
   build() {
     Column() {
       Row() {
         Blank()
-        Text('设置')
-          .fontSize(18)
-          .margin({ right: 20 })
+        Text($r('app.string.my_setting_button'))
+          .font(this.tm.current.title18Bold)
+          .margin({ right: this.tm.current.value20 })
           .onClick(() => {
-            HMRouterMgr.push({pageUrl: 'Setting', skipAllInterceptor: true})
+            Logger.info('My', 'navigate to Setting')
+            HMRouterMgr.push({ pageUrl: AppRoutes.SETTING, skipAllInterceptor: true })
           })
       }
-      .width('100%')
+      .width(this.tm.current.widthFull)
       .justifyContent(FlexAlign.End)
 
-      Text('这是我的页面')
-        .fontSize(24)
-        .margin({ top: 40 })
+      Text($r('app.string.my_page_title'))
+        .font(this.tm.current.title24Bold)
+        .margin({ top: this.tm.current.value40 })
     }
-    .width('100%')
-    .height('100%')
+    .width(this.tm.current.widthFull)
+    .height(this.tm.current.heightFull)
   }
 }

@@ -1,7 +1,12 @@
 import { HMDefaultGlobalAnimator, HMNavigation } from '@hadss/hmrouter';
 import { AttributeUpdater } from '@kit.ArkUI';
+import { AppRoutes } from '../constants/AppRoutes';
+import { themeManager } from '../theme/ThemeManager';
 import './Main';
 import './Setting';
+import './Login';
+import './router/GenshinDailyDetailBuilder';
+import './router/LoginBuilder';
 
 class MyNavModifier extends AttributeUpdater<NavigationAttribute> {
   initializeModifier(instance: NavigationAttribute): void {
@@ -18,7 +23,7 @@ struct Index {
     Column() {
       HMNavigation({
         navigationId: 'mainNavigationId',
-        homePageUrl: 'Main',
+        homePageUrl: AppRoutes.MAIN,
         options: {
           standardAnimator: HMDefaultGlobalAnimator.STANDARD_ANIMATOR,
           modifier: this.modifier
@@ -26,8 +31,8 @@ struct Index {
       });
     }
     .backgroundColor(Color.Transparent)
-    .height('100%')
-    .width('100%')
-    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM]);
+    .height(themeManager.current.heightFull)
+    .width(themeManager.current.widthFull)
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM]);
   }
 }
