@@ -42,8 +42,7 @@ export class GachaRepository {
       builder.limit(limitCount);
     }
     builder.columns(GACHA_COLUMNS);
-    const rows = await GameDataDao.findByBuilder(builder);
-    return rows as GameDataSummary[];
+    return GameDataDao.findSummariesByBuilder(builder);
   }
 
   /**
@@ -60,8 +59,7 @@ export class GachaRepository {
       .equalTo('rarity', 5)
       .orderByDesc('entity_id')
       .columns(GACHA_COLUMNS);
-    const rows = await GameDataDao.findByBuilder(builder);
-    return rows as GameDataSummary[];
+    return GameDataDao.findSummariesByBuilder(builder);
   }
 
   /**

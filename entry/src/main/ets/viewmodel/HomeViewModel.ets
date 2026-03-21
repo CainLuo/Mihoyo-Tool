@@ -27,7 +27,8 @@ import {
   DataType,
   GeetestService,
   GeetestCreateResult,
-  GeetestVerifyInput
+  GeetestVerifyInput,
+  CoreInitializer
 } from 'core';
 import {
   MihoyoAccountVM,
@@ -39,16 +40,15 @@ import {
   GAME_HONKAI3
 } from '../components/home/HomeModels';
 import { Logger } from '../utils/Logger';
+import { ViewState } from '../constants/ViewStates';
+import { ApiErrorCodes } from 'core';
 
 const TAG: string = 'HomeViewModel';
 
 /** 30 分钟自动刷新间隔（毫秒） */
 const AUTO_REFRESH_INTERVAL_MS: number = 30 * 60 * 1000;
 
-/** Geetest 触发的 retcode */
-const RETCODE_GEETEST: number = 10035;
-
-export type HomeViewState = 'loading' | 'empty' | 'data';
+export type HomeViewState = ViewState;
 
 /** Geetest 触发时传给 View 的数据 */
 export class GeetestTrigger {
@@ -73,9 +73,18 @@ export class GeetestTrigger {
   }
 }
 
+/** HomeViewModel @Monitor 路径常量类型 */
+export class HomeViewModelKeys {
+  networkErrorMsg: string = 'vm.networkErrorMsg';
+  geetestTrigger: string = 'vm.geetestTrigger';
+}
+
 @ObservedV2
 export class HomeViewModel {
-  @Trace viewState: HomeViewState = 'loading';
+  /** @Monitor 路径常量，View 层必须通过此对象引用，禁止直接写字符串字面量 */
+  static readonly KEYS: HomeViewModelKeys = new HomeViewModelKeys();
+
+  @Trace viewState: ViewState = ViewState.LOADING;
   @Trace accounts: MihoyoAccountVM[] = [];
   @Trace isRefreshing: boolean = false;
 
@@ -94,16 +103,18 @@ export class HomeViewModel {
    * 同时启动 30 分钟自动刷新定时器。
    */
   async loadData(): Promise<void> {
-    this.viewState = 'loading';
+    // 等待 RDB 初始化完成（CoreInitializer.initCore 是异步的）
+    await CoreInitializer.waitForReady();
+    this.viewState = ViewState.LOADING;
     try {
       const loaded = await this.fetchFromLocal();
       this.accounts = loaded;
-      this.viewState = loaded.length > 0 ? 'data' : 'empty';
+      this.viewState = loaded.length > 0 ? ViewState.DATA : ViewState.EMPTY;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `loadData failed: ${msg}`);
       // DB 读取失败也显示 empty，不进入 error 状态
-      this.viewState = 'empty';
+      this.viewState = ViewState.EMPTY;
     }
 
     // 冷启动后检查是否需要同步（距上次成功超过 30 分钟才触发）
@@ -126,7 +137,7 @@ export class HomeViewModel {
       await this.syncAllDailyNotes();
       const loaded = await this.fetchFromLocal();
       this.accounts = loaded;
-      this.viewState = loaded.length > 0 ? 'data' : 'empty';
+      this.viewState = loaded.length > 0 ? ViewState.DATA : ViewState.EMPTY;
     } finally {
       this.isRefreshing = false;
     }
@@ -160,7 +171,7 @@ export class HomeViewModel {
       // 重试成功后刷新 UI
       const loaded = await this.fetchFromLocal();
       this.accounts = loaded;
-      this.viewState = loaded.length > 0 ? 'data' : 'empty';
+      this.viewState = loaded.length > 0 ? ViewState.DATA : ViewState.EMPTY;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `onGeetestResult retry failed: ${msg}`);
@@ -182,7 +193,7 @@ export class HomeViewModel {
       this.syncIfNeeded().then(() => {
         this.fetchFromLocal().then((loaded) => {
           this.accounts = loaded;
-          this.viewState = loaded.length > 0 ? 'data' : 'empty';
+          this.viewState = loaded.length > 0 ? ViewState.DATA : ViewState.EMPTY;
         }).catch((e: Error) => {
           Logger.warn(TAG, `auto refresh fetchFromLocal failed: ${e.message}`);
         });
@@ -226,7 +237,7 @@ export class HomeViewModel {
           );
         } catch (error) {
           const msg = error instanceof Error ? error.message : `${error}`;
-          if (msg.indexOf(`retcode=${RETCODE_GEETEST}`) !== -1) {
+          if (msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED}`) !== -1) {
             Logger.info(TAG, `Geetest required for ${role.gameId}/${role.roleId}`);
             await this.handleGeetest(pair.account.cookie, role);
           } else {
@@ -257,7 +268,7 @@ export class HomeViewModel {
           );
         } catch (error) {
           const msg = error instanceof Error ? error.message : `${error}`;
-          if (msg.indexOf(`retcode=${RETCODE_GEETEST}`) !== -1) {
+          if (msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED}`) !== -1) {
             // 需要 Geetest 验证
             Logger.info(TAG, `Geetest required for ${role.gameId}/${role.roleId}`);
             await this.handleGeetest(pair.account.cookie, role);

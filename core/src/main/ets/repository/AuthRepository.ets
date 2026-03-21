@@ -26,7 +26,7 @@
  * API 来源：UIGF-org/mihoyo-api-collect
  */
 
-import { apiService } from '../network/NetworkFactory';
+import { NetworkFactory } from '../network/NetworkFactory';
 import { RequestParams, RequestOptions } from '../network/APIs';
 import { GameRoleRow } from './AccountRepository';
 
@@ -299,7 +299,7 @@ export class AuthRepository {
       params.set('now', `${now}`);
       params.set('reason', 'user.mihoyo.com%2523%252Flogin%252Fcaptcha');
       params.set('action_type', 'login_by_mobile_captcha');
-      const resp = await apiService.get(
+      const resp = await NetworkFactory.getInstance().get(
         `${WEBAPI_ACCOUNT}/create_mmt`,
         params,
         new RequestOptions()
@@ -352,7 +352,7 @@ export class AuthRepository {
       if (v3Seccode !== undefined) {
         params.set('geetest_seccode', v3Seccode);
       }
-      const resp = await apiService.post(
+      const resp = await NetworkFactory.getInstance().post(
         `${WEBAPI_ACCOUNT}/create_mobile_captcha`,
         params,
         new RequestOptions()
@@ -382,7 +382,7 @@ export class AuthRepository {
       params.set('mobile_captcha', captcha);
       params.set('source', 'user.mihoyo.com');
       params.set('t', `${now}`);
-      const resp = await apiService.post(
+      const resp = await NetworkFactory.getInstance().post(
         `${WEBAPI_ACCOUNT}/login_by_mobilecaptcha`,
         params,
         new RequestOptions()
@@ -411,7 +411,7 @@ export class AuthRepository {
       params.set('token_types', '2');
       params.set('login_ticket', loginTicket);
       params.set('uid', `${accountId}`);
-      const resp = await apiService.get(
+      const resp = await NetworkFactory.getInstance().get(
         `${TAKUMI_API}/auth/api/getMultiTokenByLoginTicket`,
         params,
         new RequestOptions()
@@ -444,7 +444,7 @@ export class AuthRepository {
       const params = new RequestParams();
       params.set('stoken', stoken);
       params.set('uid', accountId);
-      const resp = await apiService.get(
+      const resp = await NetworkFactory.getInstance().get(
         `${TAKUMI_API}/auth/api/getCookieAccountInfoBySToken`,
         params,
         new RequestOptions()
@@ -473,7 +473,7 @@ export class AuthRepository {
       const params = new RequestParams();
       params.set('app_id', '4');
       params.set('device', deviceId);
-      const resp = await apiService.post(
+      const resp = await NetworkFactory.getInstance().post(
         `${HK4E_SDK}/hk4e_cn/combo/panda/qrcode/fetch`,
         params,
         new RequestOptions()
@@ -512,7 +512,7 @@ export class AuthRepository {
       params.set('app_id', '4');
       params.set('device', deviceId);
       params.set('ticket', ticket);
-      const resp = await apiService.post(
+      const resp = await NetworkFactory.getInstance().post(
         `${HK4E_SDK}/hk4e_cn/combo/panda/qrcode/query`,
         params,
         new RequestOptions()
@@ -556,7 +556,7 @@ export class AuthRepository {
       params.set('game_token', gameToken);
       const options = new RequestOptions();
       options.extraHeaders.set('x-rpc-app_id', 'bll8iq97cem8');
-      const resp = await apiService.post(
+      const resp = await NetworkFactory.getInstance().post(
         `${TAKUMI_API}/account/ma-cn-session/app/getTokenByGameToken`,
         params,
         options
@@ -586,7 +586,7 @@ export class AuthRepository {
     try {
       const options = new RequestOptions();
       options.extraHeaders.set('Cookie', `stoken=${stoken};stuid=${accountId}`);
-      const resp = await apiService.get(
+      const resp = await NetworkFactory.getInstance().get(
         `${PASSPORT_API}/account/auth/api/getLTokenBySToken`,
         new RequestParams(),
         options
@@ -614,7 +614,7 @@ export class AuthRepository {
     try {
       const options = new RequestOptions();
       options.extraHeaders.set('Cookie', cookie);
-      const resp = await apiService.get(
+      const resp = await NetworkFactory.getInstance().get(
         `${BINDING_API}/getUserGameRolesByCookie`,
         new RequestParams(),
         options

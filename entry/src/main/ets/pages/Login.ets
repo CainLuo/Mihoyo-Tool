@@ -35,7 +35,7 @@ export struct Login {
     this.vm.dispose();
   }
 
-  @Monitor('vm.loginSuccess')
+  @Monitor(LoginViewModel.KEYS.loginSuccess)
   onLoginSuccess(): void {
     if (this.vm.loginSuccess) {
       Logger.info(TAG, 'login success, pop back');
@@ -44,36 +44,26 @@ export struct Login {
   }
 
   build() {
-    NavDestination() {
-      Scroll() {
-        Column({ space: this.tm.current.value40 }) {
-          // 标题
-          Text($r('app.string.login_title'))
-            .font(this.tm.current.title26Bold)
-            .fontColor(this.tm.current.colorTextPrimary)
-            .width(this.tm.current.widthFull)
-            .textAlign(TextAlign.Center)
+    Scroll() {
+      Column({ space: this.tm.current.value40 }) {
+        // Tab 切换栏
+        this.buildTabBar()
 
-          // Tab 切换栏
-          this.buildTabBar()
-
-          // Tab 内容区
-          this.buildTabContent()
-        }
-        .width(this.tm.current.widthFull)
-        .constraintSize({ maxWidth: this.tm.current.contentMaxWidth })
-        .padding({
-          left: this.tm.current.value20,
-          right: this.tm.current.value20,
-          top: this.tm.current.value40,
-          bottom: this.tm.current.value40
-        })
+        // Tab 内容区
+        this.buildTabContent()
       }
       .width(this.tm.current.widthFull)
-      .height(this.tm.current.heightFull)
-      .align(Alignment.Top)
+      .constraintSize({ maxWidth: this.tm.current.contentMaxWidth })
+      .padding({
+        left: this.tm.current.value20,
+        right: this.tm.current.value20,
+        top: this.tm.current.value20,
+        bottom: this.tm.current.value40
+      })
     }
-    .hideTitleBar(true)
+    .width(this.tm.current.widthFull)
+    .height(this.tm.current.heightFull)
+    .align(Alignment.Top)
     .backgroundColor(this.tm.current.colorPageBg)
   }
 

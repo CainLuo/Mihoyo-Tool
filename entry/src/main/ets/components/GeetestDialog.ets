@@ -253,13 +253,17 @@ export struct GeetestDialog {
             .textOverflow({ overflow: TextOverflow.Ellipsis })
             .layoutWeight(1)
           // 关闭按钮
-          Text($r('app.string.geetest_dialog_close'))
-            .font(this.tm.current.title18Bold)
-            .fontColor(this.tm.current.colorTextSecondary)
-            .padding(this.tm.current.value8)
-            .onClick(() => {
-              this.onResult(null);
-            })
+          Button({ type: ButtonType.Circle }) {
+            Text($r('app.string.geetest_dialog_close'))
+              .font(this.tm.current.title18Bold)
+              .fontColor(this.tm.current.colorTextSecondary)
+          }
+          .width(this.tm.current.heightNavBar)
+          .height(this.tm.current.heightNavBar)
+          .backgroundColor(Color.Transparent)
+          .onClick(() => {
+            this.onResult(null);
+          })
         }
         .width(this.tm.current.widthFull)
         .padding({

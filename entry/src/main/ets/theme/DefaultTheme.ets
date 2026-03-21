@@ -30,7 +30,11 @@ export class DefaultTheme implements Theme {
   colorWarning: Resource = $r('app.color.color_warning')
 
   // ---- AppFont ----
+  body10: Font = makeFont(10, FontWeight.Normal)
+  body12: Font = makeFont(12, FontWeight.Normal)
   body13: Font = makeFont(13, FontWeight.Normal)
+  body13Bold: Font = makeFont(13, FontWeight.Bold)
+  body15Bold: Font = makeFont(15, FontWeight.Bold)
   body16: Font = makeFont(16, FontWeight.Normal)
   body16Medium: Font = makeFont(16, FontWeight.Medium)
   title18Bold: Font = makeFont(18, FontWeight.Bold)
@@ -42,6 +46,7 @@ export class DefaultTheme implements Theme {
   value2: number = 2
   value4: number = 4
   value8: number = 8
+  value10: number = 10
   value12: number = 12
   value16: number = 16
   value20: number = 20
@@ -96,7 +101,40 @@ export class DefaultTheme implements Theme {
   skeletonBlockH: number = 16
   skeletonBlockR: number = 8
   cardBorderWidth: number = 1
+  sidebarWidth: number = 200
   qrCodeSize: number = 200
+  characterIconHeight: number = 80
+  weaponOverlaySize: number = 64
+  weaponIconSize: number = 48
+  weaponAffixTagH: number = 16
+  elementBadgeSize: number = 30
+  constellationBadgeSize: number = 22
+  weaponAffixBadgeSize: number = 18
+  relicIconSize: number = 44
+  skillIconSize: number = 40
+  skillBadgeSize: number = 18
+  borderWidthMedium: number = 1.5
+  dividerHeightSM: number = 10
+  skillLevelRowHeight: number = 56
+  body11FontSize: number = 11
+  relicIconSizeLG: number = 40
+  relicIconSizeSM: number = 32
+  skillIconSizeLG: number = 36
+  skillIconSizeSM: number = 28
+  skillLevelRowHeightLG: number = 52
+  skillLevelRowHeightSM: number = 44
+  charDetailConsBadgeSize: number = 32
+  charDetailHeroPanelPortraitH: number = 260
+  charDetailHeroPanelLandscapeW: number = 200
+  charDetailSkillIconSize: number = 34
+  charDetailSkillIconRadius: number = 17
+  charDetailNameFontSizePortrait: number = 22
+  charDetailNameFontSizeLandscape: number = 15
+  charDetailWeaponIconSizeLG: number = 52
+  charDetailWeaponIconSizeSM: number = 36
+  charDetailRelicLeftColWidth: number = 90
+  charDetailConsMarginRight: number = 12
+  charDetailSkillBottomOffset: number = 24
 
   constructor(fontFamily: string = '') {
     if (fontFamily !== '') {
@@ -105,7 +143,11 @@ export class DefaultTheme implements Theme {
   }
 
   protected initFonts(family: string): void {
+    this.body10 = makeFont(10, FontWeight.Normal, family)
+    this.body12 = makeFont(12, FontWeight.Normal, family)
     this.body13 = makeFont(13, FontWeight.Normal, family)
+    this.body13Bold = makeFont(13, FontWeight.Bold, family)
+    this.body15Bold = makeFont(15, FontWeight.Bold, family)
     this.body16 = makeFont(16, FontWeight.Normal, family)
     this.body16Medium = makeFont(16, FontWeight.Medium, family)
     this.title18Bold = makeFont(18, FontWeight.Bold, family)

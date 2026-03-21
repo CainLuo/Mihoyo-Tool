@@ -44,6 +44,24 @@ export class GameDataSummary {
   extraInt1: number = 0;
   extraInt2: number = 0;
   extraText1: string = '';
+  /** 角色/武器头像 URL，从 raw_json 中解析填充，不对应数据库列 */
+  iconUrl: string = '';
+  /** 武器名称，从 raw_json 中解析填充 */
+  weaponName: string = '';
+  /** 武器等级，从 raw_json 中解析填充 */
+  weaponLevel: number = 0;
+  /** 武器图标 URL，从 raw_json 中解析填充 */
+  weaponIconUrl: string = '';
+  /** 武器精炼等级，从 raw_json 中解析填充 */
+  weaponAffix: number = 1;
+  /** 武器稀有度，从 raw_json 中解析填充 */
+  weaponRarity: number = 3;
+  /** 圣遗物图标 URL 数组（最多5个），从 detail 接口解析填充 */
+  relicIcons: string[] = [];
+  /** 技能等级数组 [普攻, 战技, 爆发]，从 detail 接口解析填充 */
+  skillLevels: number[] = [];
+  /** 技能图标 URL 数组 [普攻, 战技, 爆发]，从 detail 接口解析填充 */
+  skillIcons: string[] = [];
   updateTime: number = 0;
 }
 

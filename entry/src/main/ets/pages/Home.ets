@@ -16,7 +16,7 @@
  */
 
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
-import { HomeViewModel, GeetestTrigger } from '../viewmodel/HomeViewModel'
+import { HomeViewModel } from '../viewmodel/HomeViewModel'
 import { MihoyoAccountVM, GameRoleCardVM } from '../components/home/HomeModels'
 import { UserGameSection } from '../components/home/UserGameSection'
 import { HomeSkeletonView } from '../components/home/HomeSkeletonView'
@@ -26,6 +26,7 @@ import { Logger } from '../utils/Logger'
 import { HMRouterMgr } from '@hadss/hmrouter'
 import { AppRoutes } from '../constants/AppRoutes'
 import { GenshinDailyDetailParam } from './GenshinDailyDetail'
+import { ViewState } from '../constants/ViewStates'
 import { BusinessError } from '@kit.BasicServicesKit'
 
 @ComponentV2
@@ -43,8 +44,8 @@ export struct Home {
     this.vm.dispose()
   }
 
-  @Monitor('vm.networkErrorMsg')
-  onNetworkErrorChanged(monitor: IMonitor): void {
+  @Monitor(HomeViewModel.KEYS.networkErrorMsg)
+  onNetworkErrorChanged(_monitor: IMonitor): void {
     const msg = this.vm.networkErrorMsg
     if (msg === '') {
       return
@@ -63,8 +64,8 @@ export struct Home {
     })
   }
 
-  @Monitor('vm.geetestTrigger')
-  onGeetestTriggerChanged(monitor: IMonitor): void {
+  @Monitor(HomeViewModel.KEYS.geetestTrigger)
+  onGeetestTriggerChanged(_monitor: IMonitor): void {
     const trigger = this.vm.geetestTrigger
     if (trigger === null) {
       return
@@ -85,16 +86,14 @@ export struct Home {
     Column() {
       // ── 顶部导航栏 ──────────────────────────────────────────
       Row() {
-        Row().width(this.tm.current.heightNavBar)
-
         Text($r('app.string.home_title'))
-          .font(this.tm.current.title18Bold)
+          .font(this.tm.current.title24Bold)
           .fontColor(this.tm.current.colorTextPrimary)
+          .padding({ left: this.tm.current.value16 })
           .layoutWeight(1)
-          .textAlign(TextAlign.Center)
 
         // 刷新按钮：仅在 data 状态显示
-        if (this.vm.viewState === 'data') {
+        if (this.vm.viewState === ViewState.DATA) {
           Button({ type: ButtonType.Circle }) {
             Image($r('app.media.ic_refresh'))
               .width(this.tm.current.iconSizeMD)
@@ -123,9 +122,9 @@ export struct Home {
       Divider().color(this.tm.current.colorDivider)
 
       // ── 内容区：根据 viewState 切换 ─────────────────────────
-      if (this.vm.viewState === 'loading') {
+      if (this.vm.viewState === ViewState.LOADING) {
         HomeSkeletonView()
-      } else if (this.vm.viewState === 'empty') {
+      } else if (this.vm.viewState === ViewState.EMPTY) {
         HomePlaceholderView()
       } else {
         Scroll() {
@@ -144,6 +143,7 @@ export struct Home {
           .width(this.tm.current.widthFull)
           .padding({ top: this.tm.current.value16 })
         }
+        .edgeEffect(EdgeEffect.Spring)
         .scrollBar(BarState.Off)
         .layoutWeight(1)
         .align(Alignment.Top)

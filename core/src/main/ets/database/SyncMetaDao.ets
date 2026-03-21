@@ -129,6 +129,18 @@ export class SyncMetaDao {
     }
   }
 
+  /**
+   * 重置同步时间为 0，使 needsSync 下次必然返回 true。
+   * Mock 模式下数据格式升级时调用。
+   */
+  static async resetSyncTime(
+    gameId: string,
+    roleUid: string,
+    dataType: string
+  ): Promise<void> {
+    await SyncMetaDao.upsertStatus(gameId, roleUid, dataType, 'failed', 1, 'reset');
+  }
+
   // ─── 私有方法 ────────────────────────────────────────────────
 
   /**

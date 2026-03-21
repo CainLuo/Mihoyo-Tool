@@ -39,8 +39,7 @@ export class ActivityRepository {
       .greaterThan('extra_int2', now)
       .orderByAsc('extra_int1')
       .columns(ACTIVITY_COLUMNS);
-    const rows = await GameDataDao.findByBuilder(builder);
-    return rows as GameDataSummary[];
+    return GameDataDao.findSummariesByBuilder(builder);
   }
 
   /**
@@ -56,8 +55,7 @@ export class ActivityRepository {
     if (gameId !== undefined) {
       builder.and().equalTo('game_id', gameId);
     }
-    const rows = await GameDataDao.findByBuilder(builder);
-    return rows as GameDataSummary[];
+    return GameDataDao.findSummariesByBuilder(builder);
   }
 
   /**

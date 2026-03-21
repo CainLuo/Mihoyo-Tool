@@ -13,7 +13,6 @@ struct GenshinDailyDetailDestination {
     NavDestination() {
       GenshinDailyDetail({ routerParam: this.routerParam })
     }
-    .hideTitleBar(true)
-    .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP])
+    .title($r('app.string.genshin_daily_title'))
   }
 }

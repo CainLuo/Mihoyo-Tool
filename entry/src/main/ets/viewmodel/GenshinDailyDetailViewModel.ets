@@ -15,14 +15,13 @@ import {
   ExpeditionVM
 } from '../components/dailynote/DailyNoteModels';
 import { Logger } from '../utils/Logger';
+import { ViewState } from '../constants/ViewStates';
 
 const TAG: string = 'GenshinDailyDetailViewModel';
 
-export type DetailViewState = 'loading' | 'data' | 'empty' | 'error';
-
 @ObservedV2
 export class GenshinDailyDetailViewModel {
-  @Trace viewState: DetailViewState = 'loading';
+  @Trace viewState: ViewState = ViewState.LOADING;
   @Trace note: GenshinDailyNoteVM = new GenshinDailyNoteVM();
 
   private gameId: string = '';
@@ -34,20 +33,20 @@ export class GenshinDailyDetailViewModel {
   }
 
   async loadData(): Promise<void> {
-    this.viewState = 'loading';
+    this.viewState = ViewState.LOADING;
     try {
       const row = await DailyNoteRepository.findDailyNote(this.gameId, this.roleUid);
       if (row === null) {
-        this.viewState = 'empty';
+        this.viewState = ViewState.EMPTY;
         return;
       }
       const data = GenshinDailyNoteParser.parse(row.rawJson);
       this.note = GenshinDailyDetailViewModel.toVM(data);
-      this.viewState = 'data';
+      this.viewState = ViewState.DATA;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `loadData failed: ${msg}`);
-      this.viewState = 'error';
+      this.viewState = ViewState.ERROR;
     }
   }
 

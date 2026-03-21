@@ -11,7 +11,7 @@ struct SettingDestination {
     NavDestination() {
       Setting()
     }
-    .hideTitleBar(true)
-    .ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP])
+    .title($r('app.string.setting_title'))
+    .padding(0)
   }
 }

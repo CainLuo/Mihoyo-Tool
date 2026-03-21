@@ -32,8 +32,16 @@ export type PhoneStep = 'input_phone' | 'input_code';
 /** 二维码状态 */
 export type QRCodeStat = 'loading' | 'ready' | 'scanned' | 'confirmed' | 'expired' | 'error';
 
+/** LoginViewModel @Monitor 路径常量类型 */
+export class LoginViewModelKeys {
+  loginSuccess: string = 'vm.loginSuccess';
+}
+
 @ObservedV2
 export class LoginViewModel {
+  /** @Monitor 路径常量，View 层必须通过此对象引用，禁止直接写字符串字面量 */
+  static readonly KEYS: LoginViewModelKeys = new LoginViewModelKeys();
+
   // ── 通用状态 ──────────────────────────────────────────────────
   @Trace activeTab: LoginTab = 'phone';
   @Trace isLoading: boolean = false;

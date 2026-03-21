@@ -327,6 +327,150 @@
     {
       "name": "dialog_confirm",
       "value": "确定"
+    },
+    {
+      "name": "genshin_character_list_title",
+      "value": "角色列表"
+    },
+    {
+      "name": "characters_tab_title",
+      "value": "角色"
+    },
+    {
+      "name": "characters_placeholder_title",
+      "value": "还没有角色数据"
+    },
+    {
+      "name": "characters_placeholder_desc",
+      "value": "绑定账号并同步后，即可查看各游戏的角色列表"
+    },
+    {
+      "name": "characters_no_data_hint",
+      "value": "暂无角色数据，点击刷新同步"
+    },
+    {
+      "name": "character_level_prefix",
+      "value": "Lv."
+    },
+    {
+      "name": "character_constellation_prefix",
+      "value": "命座 "
+    },
+    {
+      "name": "character_element_Pyro",
+      "value": "火"
+    },
+    {
+      "name": "character_element_Hydro",
+      "value": "水"
+    },
+    {
+      "name": "character_element_Anemo",
+      "value": "风"
+    },
+    {
+      "name": "character_element_Electro",
+      "value": "雷"
+    },
+    {
+      "name": "character_element_Dendro",
+      "value": "草"
+    },
+    {
+      "name": "character_element_Cryo",
+      "value": "冰"
+    },
+    {
+      "name": "character_element_Geo",
+      "value": "岩"
+    },
+    {
+      "name": "character_weapon_affix_prefix",
+      "value": "精%d"
+    },
+    {
+      "name": "character_weapon_level_prefix",
+      "value": "Lv.%d"
+    },
+    {
+      "name": "character_level_value",
+      "value": "Lv.%d"
+    },
+    {
+      "name": "character_fetter_value",
+      "value": "好感 %d"
+    },
+    {
+      "name": "character_no_relics",
+      "value": "未装备圣遗物"
+    },
+    {
+      "name": "character_no_skills",
+      "value": "暂无技能数据"
+    },
+    {
+      "name": "char_detail_title",
+      "value": "角色详情"
+    },
+    {
+      "name": "char_detail_hp",
+      "value": "生命值"
+    },
+    {
+      "name": "char_detail_atk",
+      "value": "攻击力"
+    },
+    {
+      "name": "char_detail_def",
+      "value": "防御力"
+    },
+    {
+      "name": "char_detail_em",
+      "value": "元素精通"
+    },
+    {
+      "name": "char_detail_cr",
+      "value": "暴击率"
+    },
+    {
+      "name": "char_detail_cd",
+      "value": "暴击伤害"
+    },
+    {
+      "name": "char_detail_er",
+      "value": "元素充能"
+    },
+    {
+      "name": "char_detail_heal",
+      "value": "治疗加成"
+    },
+    {
+      "name": "char_detail_weapon_atk",
+      "value": "基础攻击"
+    },
+    {
+      "name": "char_detail_no_data",
+      "value": "暂无数据"
+    },
+    {
+      "name": "char_detail_fetter_label",
+      "value": "好感"
+    },
+    {
+      "name": "char_detail_cons_label",
+      "value": "命座"
+    },
+    {
+      "name": "char_detail_relic_lv_prefix",
+      "value": "+%d"
+    },
+    {
+      "name": "char_detail_weapon_refine_prefix",
+      "value": "R%d"
+    },
+    {
+      "name": "char_detail_weapon_lv_prefix",
+      "value": "Lv.%d/%d"
     }
   ]
 }

@@ -11,6 +11,15 @@
       }
     },
     {
+      "name": "Login",
+      "pageSourceFile": "src/main/ets/pages/router/LoginBuilder.ets",
+      "buildFunction": "LoginBuilder",
+      "customData": {
+        "name": "Login",
+        "pageUrl": "Login"
+      }
+    },
+    {
       "name": "Setting",
       "pageSourceFile": "src/main/ets/pages/router/SettingBuilder.ets",
       "buildFunction": "SettingBuilder",
@@ -18,6 +27,24 @@
         "name": "Setting",
         "pageUrl": "Setting",
         "lifecycle": "ExitAppLifecycle"
+      }
+    },
+    {
+      "name": "GenshinDailyDetail",
+      "pageSourceFile": "src/main/ets/pages/router/GenshinDailyDetailBuilder.ets",
+      "buildFunction": "GenshinDailyDetailBuilder",
+      "customData": {
+        "name": "GenshinDailyDetail",
+        "pageUrl": "GenshinDailyDetail"
+      }
+    },
+    {
+      "name": "GenshinCharacterDetail",
+      "pageSourceFile": "src/main/ets/pages/router/GenshinCharacterDetailBuilder.ets",
+      "buildFunction": "GenshinCharacterDetailBuilder",
+      "customData": {
+        "name": "GenshinCharacterDetail",
+        "pageUrl": "GenshinCharacterDetail"
       }
     }
   ]

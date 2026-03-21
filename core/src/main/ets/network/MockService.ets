@@ -52,10 +52,26 @@ export class MockService extends BaseApiService {
 
   /**
    * 将 URL 路径转换为 Mock 文件名
-   * 例：/genshin/character/list → genshin_character_list
+   * 例：https://api.mihoyo.com/game_record/app/genshin/api/character/list
+   *   → game_record_app_genshin_api_character_list
+   * 例：/game_record/app/genshin/api/character/list
+   *   → game_record_app_genshin_api_character_list
    */
   private getMockFileName(url: string): string {
-    const fileName = url.replace(/^\/|\/$/g, '').replace(/\//g, '_');
+    // 提取路径部分：去掉协议+域名，只保留 path
+    let path = url;
+    const protoIdx = url.indexOf('://');
+    if (protoIdx !== -1) {
+      const slashIdx = url.indexOf('/', protoIdx + 3);
+      path = slashIdx !== -1 ? url.substring(slashIdx) : '/';
+    }
+    // 去掉查询参数
+    const qIdx = path.indexOf('?');
+    if (qIdx !== -1) {
+      path = path.substring(0, qIdx);
+    }
+    // 去掉首尾斜杠，把剩余斜杠替换为下划线
+    const fileName = path.replace(/^\/|\/$/g, '').replace(/\//g, '_');
     return fileName || 'default';
   }
 

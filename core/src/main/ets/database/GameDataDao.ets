@@ -55,8 +55,8 @@ export class GameDataDao {
     const store = RdbManager.getRdbStore();
     try {
       store.beginTransaction();
-      for (const row of rows) {
-        await GameDataDao.upsert(row);
+      for (let i = 0; i < rows.length; i++) {
+        await GameDataDao.upsert(rows[i]);
       }
       store.commit();
     } catch (error) {
@@ -233,13 +233,20 @@ export class GameDataDao {
   static async findByBuilder(builder: QueryBuilder): Promise<GameDataRow[]> {
     try {
       const rs = await RdbManager.query(builder.build(), builder.getColumns());
-      if (builder.getColumns() !== undefined) {
-        return GameDataDao.toSummaryList(rs) as GameDataRow[];
-      }
       return GameDataDao.toRowList(rs);
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       throw new Error(`GameDataDao.findByBuilder failed: ${msg}`);
+    }
+  }
+
+  static async findSummariesByBuilder(builder: QueryBuilder): Promise<GameDataSummary[]> {
+    try {
+      const rs = await RdbManager.query(builder.build(), builder.getColumns());
+      return GameDataDao.toSummaryList(rs);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      throw new Error(`GameDataDao.findSummariesByBuilder failed: ${msg}`);
     }
   }
 

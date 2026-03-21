@@ -1,4 +1,4 @@
-import { apiService } from './NetworkFactory';
+import { NetworkFactory } from './NetworkFactory';
 import { RequestOptions, RequestParams } from './APIs';
 
 /**
@@ -142,7 +142,7 @@ export class GeetestService {
     // extraHeaders 里的 Cookie 会覆盖拦截器注入的 Cookie，
     // 确保使用调用方指定的账号 Cookie 而非全局缓存的 Cookie
     createOptions.extraHeaders.set('Cookie', cookie);
-    const resp = await apiService.get(
+    const resp = await NetworkFactory.getInstance().get(
       `${GeetestService.BASE_URL}/createVerification`,
       createParams,
       createOptions
@@ -176,7 +176,7 @@ export class GeetestService {
     verifyParams.set('geetest_seccode', verifyInput.geetest_seccode);
     const verifyOptions = new RequestOptions();
     verifyOptions.extraHeaders.set('Cookie', cookie);
-    const resp = await apiService.post(
+    const resp = await NetworkFactory.getInstance().post(
       `${GeetestService.BASE_URL}/verifyVerification`,
       verifyParams,
       verifyOptions

@@ -26,8 +26,8 @@ export struct HomePlaceholderView {
       }
 
       Button($r('app.string.home_placeholder_button'))
-        .fontSize((this.tm.current.body16Medium as Font).size as number)
-        .fontWeight((this.tm.current.body16Medium as Font).weight)
+        .fontSize(this.tm.current.body16Medium.size)
+        .fontWeight(this.tm.current.body16Medium.weight)
         .fontColor(Color.White)
         .width(this.tm.current.widthButton)
         .height(this.tm.current.heightButton)

@@ -12,6 +12,7 @@
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 import { MihoyoAccountVM, GameRoleCardVM } from './HomeModels'
 import { GameToolCard } from './GameToolCard'
+import { AppConstants } from '../../constants/AppConstants'
 
 @ComponentV2
 export struct UserGameSection {
@@ -51,7 +52,7 @@ export struct UserGameSection {
         columns: { xs: 1, sm: 2, md: 3, lg: 4 },
         gutter: { x: this.tm.current.value12, y: this.tm.current.value12 },
         breakpoints: {
-          value: ['600vp', '840vp', '1200vp'],
+          value: AppConstants.GRID_BREAKPOINTS,
           reference: BreakpointsReference.WindowSize
         }
       }) {

@@ -12,11 +12,22 @@ export default class EntryAbility extends UIAbility {
 
     const runtimeEnv: RuntimeEnv = Logger.getRuntimeEnv();
     const isMock: boolean = runtimeEnv === RuntimeEnv.MOCK;
-    CoreInitializer.initCore({ isMock, context: this.context });
+
+    // initCore 现在是 async（内部完成 RDB 初始化 + Mock 数据预填充）
+    CoreInitializer.initCore({ isMock, context: this.context })
+      .then(() => {
+        Logger.info(TAG, `Core initialized. isMock=${isMock}`);
+        this.runStartupTaskByEnv(runtimeEnv);
+      })
+      .catch((error: Error | object) => {
+        Logger.warning(TAG, `CoreInitializer.initCore failed: ${JSON.stringify(error)}`);
+      });
+
     Logger.info(TAG, `Detected environment: ${Logger.getRuntimeEnvDetail()}`);
-    this.runStartupTaskByEnv(runtimeEnv);
 
     HMRouterMgr.openLog(runtimeEnv === RuntimeEnv.RELEASE ? 'INFO' : 'DEBUG');
+    // 设置默认 navigationId，所有 push/replace 调用无需显式传 navigationId
+    HMRouterMgr.setDefaultNavigationId('mainNavigationId');
     // HMRouterMgr.init 必须在 loadContent 之前完成，避免路由未就绪时进入页面
     HMRouterMgr.init({ context: this.context }).catch((error: Error | object) => {
       Logger.warning(TAG, `HMRouter init failed: ${JSON.stringify(error)}`);

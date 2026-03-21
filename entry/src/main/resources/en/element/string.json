@@ -215,6 +215,150 @@
     {
       "name": "dialog_confirm",
       "value": "OK"
+    },
+    {
+      "name": "genshin_character_list_title",
+      "value": "Characters"
+    },
+    {
+      "name": "characters_tab_title",
+      "value": "Characters"
+    },
+    {
+      "name": "characters_placeholder_title",
+      "value": "No Character Data"
+    },
+    {
+      "name": "characters_placeholder_desc",
+      "value": "Link an account and sync to view your character roster"
+    },
+    {
+      "name": "characters_no_data_hint",
+      "value": "No characters yet, tap refresh to sync"
+    },
+    {
+      "name": "character_level_prefix",
+      "value": "Lv."
+    },
+    {
+      "name": "character_constellation_prefix",
+      "value": "C"
+    },
+    {
+      "name": "character_element_Pyro",
+      "value": "Pyro"
+    },
+    {
+      "name": "character_element_Hydro",
+      "value": "Hydro"
+    },
+    {
+      "name": "character_element_Anemo",
+      "value": "Anemo"
+    },
+    {
+      "name": "character_element_Electro",
+      "value": "Electro"
+    },
+    {
+      "name": "character_element_Dendro",
+      "value": "Dendro"
+    },
+    {
+      "name": "character_element_Cryo",
+      "value": "Cryo"
+    },
+    {
+      "name": "character_element_Geo",
+      "value": "Geo"
+    },
+    {
+      "name": "character_weapon_affix_prefix",
+      "value": "R%d"
+    },
+    {
+      "name": "character_weapon_level_prefix",
+      "value": "Lv.%d"
+    },
+    {
+      "name": "character_level_value",
+      "value": "Lv.%d"
+    },
+    {
+      "name": "character_fetter_value",
+      "value": "Fetter %d"
+    },
+    {
+      "name": "character_no_relics",
+      "value": "No relics equipped"
+    },
+    {
+      "name": "character_no_skills",
+      "value": "No skill data"
+    },
+    {
+      "name": "char_detail_title",
+      "value": "Character Detail"
+    },
+    {
+      "name": "char_detail_hp",
+      "value": "HP"
+    },
+    {
+      "name": "char_detail_atk",
+      "value": "ATK"
+    },
+    {
+      "name": "char_detail_def",
+      "value": "DEF"
+    },
+    {
+      "name": "char_detail_em",
+      "value": "Elemental Mastery"
+    },
+    {
+      "name": "char_detail_cr",
+      "value": "CRIT Rate"
+    },
+    {
+      "name": "char_detail_cd",
+      "value": "CRIT DMG"
+    },
+    {
+      "name": "char_detail_er",
+      "value": "Energy Recharge"
+    },
+    {
+      "name": "char_detail_heal",
+      "value": "Healing Bonus"
+    },
+    {
+      "name": "char_detail_weapon_atk",
+      "value": "Base ATK"
+    },
+    {
+      "name": "char_detail_no_data",
+      "value": "No data"
+    },
+    {
+      "name": "char_detail_fetter_label",
+      "value": "Fetter"
+    },
+    {
+      "name": "char_detail_cons_label",
+      "value": "Cons"
+    },
+    {
+      "name": "char_detail_relic_lv_prefix",
+      "value": "+%d"
+    },
+    {
+      "name": "char_detail_weapon_refine_prefix",
+      "value": "R%d"
+    },
+    {
+      "name": "char_detail_weapon_lv_prefix",
+      "value": "Lv.%d/%d"
     }
   ]
 }

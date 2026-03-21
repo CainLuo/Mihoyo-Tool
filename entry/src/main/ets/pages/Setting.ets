@@ -8,10 +8,12 @@
  */
 
 import BuildProfile from 'BuildProfile'
+import { HMRouterMgr } from '@hadss/hmrouter'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { SettingAccountVM, SettingGameRoleVM } from '../components/setting/SettingModels'
 import { AccountRepository } from 'core'
 import { Logger } from '../utils/Logger'
+import { AppRoutes } from '../constants/AppRoutes'
 
 const TAG: string = 'Setting'
 
@@ -74,45 +76,35 @@ export struct Setting {
   }
 
   build() {
-    Column() {
-      // 顶部导航栏
-      Row() {
-        Text($r('app.string.setting_title'))
-          .font(this.tm.current.title18Bold)
-          .fontColor(this.tm.current.colorTextPrimary)
+    Scroll() {
+      Column({ space: this.tm.current.value20 }) {
+        // ---- Section 1: 账号管理 ----
+        this.buildSectionHeader($r('app.string.setting_section_account'))
+        this.buildAccountSection()
+
+        // ---- Section 2: 外观设置 ----
+        this.buildSectionHeader($r('app.string.setting_section_appearance'))
+        this.buildAppearanceSection()
+
+        // ---- Section 3: 关于 ----
+        this.buildSectionHeader($r('app.string.setting_section_about'))
+        this.buildAboutSection()
+
+        Row().height(this.tm.current.value40)
       }
       .width(this.tm.current.widthFull)
-      .height(this.tm.current.heightNavBar)
-      .justifyContent(FlexAlign.Center)
-      .backgroundColor(this.tm.current.colorCardBg)
-
-      Divider().color(this.tm.current.colorDivider)
-
-      Scroll() {
-        Column({ space: this.tm.current.value20 }) {
-          // ---- Section 1: 账号管理 ----
-          this.buildSectionHeader($r('app.string.setting_section_account'))
-          this.buildAccountSection()
-
-          // ---- Section 2: 外观设置 ----
-          this.buildSectionHeader($r('app.string.setting_section_appearance'))
-          this.buildAppearanceSection()
-
-          // ---- Section 3: 关于 ----
-          this.buildSectionHeader($r('app.string.setting_section_about'))
-          this.buildAboutSection()
-
-          Row().height(this.tm.current.value40)
-        }
-        .width(this.tm.current.widthFull)
-        .padding({ top: this.tm.current.value16 })
-      }
-      .scrollBar(BarState.Off)
-      .layoutWeight(1)
+      .padding({
+        top: this.tm.current.value12,
+        left: this.tm.current.value20,
+        right: this.tm.current.value20
+      })
     }
+    .scrollBar(BarState.Off)
     .width(this.tm.current.widthFull)
     .height(this.tm.current.heightFull)
+    .align(Alignment.Top)
     .backgroundColor(this.tm.current.colorPageBg)
+    .edgeEffect(EdgeEffect.Spring)
   }
 
   @Builder
@@ -121,11 +113,7 @@ export struct Setting {
       .font(this.tm.current.body13)
       .fontColor(this.tm.current.colorTextSecondary)
       .width(this.tm.current.widthFull)
-      .padding({
-        left: this.tm.current.value16,
-        right: this.tm.current.value16,
-        bottom: this.tm.current.value8
-      })
+      .padding({ bottom: this.tm.current.value8 })
   }
 
   @Builder
@@ -174,8 +162,9 @@ export struct Setting {
                 .fontColor(this.tm.current.colorTextSecondary)
 
               // 删除按钮
-              Text($r('app.string.setting_account_delete'))
-                .font(this.tm.current.body13)
+              Button($r('app.string.setting_account_delete'), { type: ButtonType.Normal })
+                .fontSize(this.tm.current.body13.size)
+                .fontWeight(this.tm.current.body13.weight)
                 .fontColor(this.tm.current.colorDanger)
                 .padding({
                   left: this.tm.current.value8,
@@ -271,24 +260,21 @@ export struct Setting {
 
       // 添加账号按钮
       Divider().color(this.tm.current.colorDivider)
-      Row() {
-        Text($r('app.string.setting_account_add'))
-          .font(this.tm.current.body16)
-          .fontColor(this.tm.current.colorPrimary)
-      }
-      .width(this.tm.current.widthFull)
-      .height(this.tm.current.heightButton)
-      .justifyContent(FlexAlign.Center)
-      .backgroundColor(this.tm.current.colorCardBg)
-      .onClick(() => {
-        // TODO: 跳转到登录页
-      })
+      Button($r('app.string.setting_account_add'), { type: ButtonType.Normal })
+        .fontSize(this.tm.current.body16.size)
+        .fontWeight(this.tm.current.body16.weight)
+        .fontColor(this.tm.current.colorPrimary)
+        .width(this.tm.current.widthFull)
+        .height(this.tm.current.heightButton)
+        .backgroundColor(this.tm.current.colorCardBg)
+        .onClick(() => {
+          HMRouterMgr.push({ pageUrl: AppRoutes.LOGIN })
+        })
     }
     .width(this.tm.current.widthFull)
     .backgroundColor(this.tm.current.colorCardBg)
     .borderRadius(this.tm.current.radius12)
     .clip(true)
-    .margin({ left: this.tm.current.value16, right: this.tm.current.value16 })
   }
 
   @Builder
@@ -308,33 +294,26 @@ export struct Setting {
         }
       }
       .width(this.tm.current.widthFull)
-      .padding({
-        left: this.tm.current.value16,
-        right: this.tm.current.value16,
-        top: this.tm.current.value12,
-        bottom: this.tm.current.value12
-      })
+      .height(this.tm.current.heightButton)
+      .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
       .alignItems(VerticalAlign.Center)
     }
     .width(this.tm.current.widthFull)
     .backgroundColor(this.tm.current.colorCardBg)
     .borderRadius(this.tm.current.radius12)
-    .margin({ left: this.tm.current.value16, right: this.tm.current.value16 })
   }
 
   @Builder
   private buildThemeChip(label: ResourceStr, mode: number) {
-    Text(label)
-      .font(this.tm.current.body13)
+    Button(label, { type: ButtonType.Normal })
+      .fontSize(this.tm.current.body13.size)
+      .fontWeight(this.tm.current.body13.weight)
       .fontColor(this.themeMode === mode ? Color.White : this.tm.current.colorTextSecondary)
       .padding({ left: this.tm.current.value8, right: this.tm.current.value8, top: this.tm.current.value4, bottom: this.tm.current.value4 })
       .borderRadius(this.tm.current.radius8)
       .backgroundColor(this.themeMode === mode ? this.tm.current.colorPrimary : this.tm.current.colorDivider)
       .onClick(() => {
         this.themeMode = mode
-        // 深色/浅色由系统 base/dark 资源目录自动处理，
-        // 强制切换需要 System API（uiAppearance），普通应用无权限调用。
-        // 此处仅记录用户偏好，实际颜色跟随系统深色模式。
       })
   }
 
@@ -354,7 +333,6 @@ export struct Setting {
     .backgroundColor(this.tm.current.colorCardBg)
     .borderRadius(this.tm.current.radius12)
     .clip(true)
-    .margin({ left: this.tm.current.value16, right: this.tm.current.value16 })
   }
 
   @Builder
@@ -372,12 +350,8 @@ export struct Setting {
         .textOverflow({ overflow: TextOverflow.Ellipsis })
     }
     .width(this.tm.current.widthFull)
-    .padding({
-      left: this.tm.current.value16,
-      right: this.tm.current.value16,
-      top: this.tm.current.value12,
-      bottom: this.tm.current.value12
-    })
+    .height(this.tm.current.heightButton)
+    .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
     .alignItems(VerticalAlign.Center)
   }
 }

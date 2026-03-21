@@ -30,6 +30,10 @@ export * from './src/main/ets/repository/ActivityRepository';
 export * from './src/main/ets/repository/GachaRepository';
 export * from './src/main/ets/repository/DailyNoteRepository';
 
+// Constants
+export * from './src/main/ets/constants/ApiErrorCodes';
+export * from './src/main/ets/constants/GenshinPropertyType';
+
 // Utils module
 export * from './src/main/ets/utils/TaskPoolUtil';
 

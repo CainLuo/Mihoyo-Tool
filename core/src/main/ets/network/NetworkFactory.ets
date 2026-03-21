@@ -15,22 +15,25 @@ export class NetworkFactory {
    * @returns 是否为 Mock 环境
    */
   private static isMockEnvironment(): boolean {
-    // 从 CoreInitializer 中读取 isMock 配置
-    const isMock = CoreInitializer.getIsMock();
-    console.log(`Current environment: ${isMock ? 'Mock' : 'Real'}`);
-    return isMock;
+    return CoreInitializer.getIsMock();
   }
   /**
    * 获取 API 服务实例（单例模式）
    * @returns BaseApiService 实例
    */
+  /**
+   * 重置单例，下次 getInstance() 时重新按当前 isMock 创建。
+   * 在 CoreInitializer.initCore 完成后调用，确保单例与环境一致。
+   */
+  public static reset(): void {
+    NetworkFactory.instance = null;
+  }
+
   public static getInstance(): BaseApiService {
     if (!NetworkFactory.instance) {
       if (NetworkFactory.isMockEnvironment()) {
-        console.log('Using MockService for API requests');
         NetworkFactory.instance = new MockService();
       } else {
-        console.log('Using HttpService for API requests');
         NetworkFactory.instance = new HttpService();
       }
     }
@@ -40,6 +43,3 @@ export class NetworkFactory {
     return NetworkFactory.instance;
   }
 }
-
-// 导出默认 API 服务实例
-export const apiService = NetworkFactory.getInstance();

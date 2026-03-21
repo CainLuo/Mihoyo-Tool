@@ -7,10 +7,10 @@
 
 import display from '@ohos.display'
 import { window, UIContext } from '@kit.ArkUI'
-import { HMRouterMgr } from '@hadss/hmrouter'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { DailyNoteGenshin } from '../components/dailynote/DailyNoteGenshin'
 import { GenshinDailyDetailViewModel } from '../viewmodel/GenshinDailyDetailViewModel'
+import { ViewState } from '../constants/ViewStates'
 
 /** HMRouter 传入的路由参数 */
 export class GenshinDailyDetailParam {
@@ -69,35 +69,8 @@ export struct GenshinDailyDetail {
 
   build() {
     Column() {
-      // ── 导航栏 ──────────────────────────────────────────────
-      Row() {
-        Button({ type: ButtonType.Circle }) {
-          Text('‹')
-            .font(this.tm.current.title24Bold)
-            .fontColor(this.tm.current.colorTextPrimary)
-        }
-        .width(this.tm.current.heightNavBar)
-        .height(this.tm.current.heightNavBar)
-        .backgroundColor(Color.Transparent)
-        .onClick(() => { HMRouterMgr.pop() })
-
-        Text($r('app.string.genshin_daily_title'))
-          .font(this.tm.current.title18Bold)
-          .fontColor(this.tm.current.colorTextPrimary)
-          .layoutWeight(1)
-          .textAlign(TextAlign.Center)
-
-        Row().width(this.tm.current.heightNavBar)
-      }
-      .width(this.tm.current.widthFull)
-      .height(this.tm.current.heightNavBar)
-      .alignItems(VerticalAlign.Center)
-      .backgroundColor(this.tm.current.colorCardBg)
-
-      Divider().color(this.tm.current.colorDivider)
-
       // ── 内容区 ──────────────────────────────────────────────
-      if (this.vm.viewState === 'loading') {
+      if (this.vm.viewState === ViewState.LOADING) {
         Row() {
           LoadingProgress()
             .width(this.tm.current.progressSizeMD)
@@ -107,7 +80,7 @@ export struct GenshinDailyDetail {
         .width(this.tm.current.widthFull)
         .layoutWeight(1)
         .justifyContent(FlexAlign.Center)
-      } else if (this.vm.viewState === 'empty' || this.vm.viewState === 'error') {
+      } else if (this.vm.viewState === ViewState.EMPTY || this.vm.viewState === ViewState.ERROR) {
         Row() {
           Text($r('app.string.home_no_data_hint'))
             .font(this.tm.current.body13)
@@ -141,6 +114,7 @@ export struct GenshinDailyDetail {
         .layoutWeight(1)
         .width(this.tm.current.widthFull)
         .align(Alignment.Top)
+        .edgeEffect(EdgeEffect.Spring)
       }
     }
     .width(this.tm.current.widthFull)

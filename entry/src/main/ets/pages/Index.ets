@@ -5,8 +5,11 @@ import { themeManager } from '../theme/ThemeManager';
 import './Main';
 import './Setting';
 import './Login';
+import './router/MainBuilder';
 import './router/GenshinDailyDetailBuilder';
+import './router/GenshinCharacterDetailBuilder';
 import './router/LoginBuilder';
+import './router/SettingBuilder';
 
 class MyNavModifier extends AttributeUpdater<NavigationAttribute> {
   initializeModifier(instance: NavigationAttribute): void {

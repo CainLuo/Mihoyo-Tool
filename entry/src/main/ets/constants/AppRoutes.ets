@@ -9,4 +9,5 @@ export class AppRoutes {
   static readonly LOGIN = 'Login'
   static readonly SETTING = 'Setting'
   static readonly GENSHIN_DAILY_DETAIL = 'GenshinDailyDetail'
+  static readonly GENSHIN_CHARACTER_DETAIL = 'GenshinCharacterDetail'
 }

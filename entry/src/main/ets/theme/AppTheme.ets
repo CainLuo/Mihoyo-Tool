@@ -36,7 +36,11 @@ export interface AppColor {
 // 注意：不能命名为 Font，与 ArkUI 内置类型冲突
 // 每个字段返回完整 Font 对象，size + weight + family 一起切换
 export interface AppFont {
+  body10: Font        // 极小辅助文字（武器等级/精炼 Phone）
+  body12: Font        // 小辅助文字（角标、占位提示）
   body13: Font        // 辅助说明文字
+  body13Bold: Font    // 角色名（Phone）
+  body15Bold: Font    // 角色名（非 Phone）
   body16: Font        // 正文
   body16Medium: Font  // 标题栏文字
   title18Bold: Font   // 导航标题
@@ -51,6 +55,7 @@ export interface Spacing {
   value2: number   // 2vp  — 极小间距
   value4: number   // 4vp  — 小间距
   value8: number   // 8vp
+  value10: number  // 10vp
   value12: number  // 12vp
   value16: number  // 16vp（同时用于 list space、水平边距等）
   value20: number  // 20vp
@@ -113,10 +118,41 @@ export interface Size {
   skeletonBlockH: number  // 16vp  — 骨架屏默认文字色块高度
   skeletonBlockR: number  // 8vp   — 骨架屏默认色块圆角
   cardBorderWidth: number // 1vp   — 卡片描边宽度
+  sidebarWidth: number    // 200vp — Foldable/PC 侧边导航栏宽度
   qrCodeSize: number      // 200vp — 二维码尺寸
+  characterIconHeight: number // 80vp  — 角色卡片头像高度
+  weaponOverlaySize: number  // 64vp  — 武器图标容器尺寸
+  weaponIconSize: number     // 48vp  — 武器图标尺寸
+  weaponAffixTagH: number    // 16vp  — 精炼标签高度（保留兼容）
+  elementBadgeSize: number   // 30vp  — 元素角标尺寸
+  constellationBadgeSize: number // 22vp — 命座圆形徽章尺寸（列表页）
+  charDetailConsBadgeSize: number // 28vp — 命座圆形徽章尺寸（详情页，更大）
+  weaponAffixBadgeSize: number   // 18vp — 精炼圆形徽章尺寸
+  relicIconSize: number      // 44vp  — 圣遗物小图标尺寸（非 Phone 卡片）
+  skillIconSize: number      // 40vp  — 技能图标尺寸（非 Phone 卡片）
+  skillBadgeSize: number     // 18vp  — 技能等级徽章尺寸
+  borderWidthMedium: number  // 1.5vp — 命座徽章描边宽度
+  dividerHeightSM: number    // 10vp  — 信息区竖向分割线高度
+  skillLevelRowHeight: number // 56vp — 技能行固定高度（skillIconSize + 16）
+  body11FontSize: number     // 11vp  — 底部 Tab 文字大小
+  relicIconSizeLG: number    // 40vp  — lg 断点圣遗物图标尺寸
+  relicIconSizeSM: number    // 32vp  — sm/md 断点圣遗物图标尺寸
+  skillIconSizeLG: number    // 36vp  — lg 断点技能图标尺寸
+  skillIconSizeSM: number    // 28vp  — sm/md 断点技能图标尺寸
+  skillLevelRowHeightLG: number // 52vp — lg 断点技能行高度（skillIconSizeLG + 16）
+  skillLevelRowHeightSM: number // 44vp — sm/md 断点技能行高度（skillIconSizeSM + 16）
+  charDetailHeroPanelPortraitH: number // 260vp — 角色详情页 Phone 竖屏立绘区高度
+  charDetailHeroPanelLandscapeW: number // 200vp — 角色详情页 Phone 横屏立绘区宽度
+  charDetailSkillIconSize: number       // 34vp  — 立绘区 Phone 技能图标尺寸
+  charDetailSkillIconRadius: number     // 17vp  — 立绘区 Phone 技能图标圆角
+  charDetailNameFontSizePortrait: number // 22vp — Phone 竖屏角色名字体大小
+  charDetailNameFontSizeLandscape: number // 15vp — Phone 横屏角色名字体大小
+  charDetailWeaponIconSizeLG: number    // 52vp  — 宽屏武器图标尺寸
+  charDetailWeaponIconSizeSM: number    // 36vp  — Phone 武器图标尺寸
+  charDetailRelicLeftColWidth: number   // 90vp  — 宽屏圣遗物左列宽度
+  charDetailConsMarginRight: number     // 12vp  — 命座列距右边缘间距
+  charDetailSkillBottomOffset: number   // 24vp  — 技能区距底部偏移量（offset.y 负值）
 }
-
-// ---- 顶层 Protocol ----
 export interface Theme extends AppColor, AppFont, Spacing, Radius, Shadow, Size {}
 
 // ---- 辅助函数 ----
