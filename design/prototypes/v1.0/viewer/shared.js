@@ -174,6 +174,20 @@ function tabBar(activeTab) {
 }
 
 /** 环形进度 SVG */
+/** 卡片内分割线（dark: rgba白色18%，light: #EEEEEE） */
+function cardDivider() {
+  var color = G.theme === "dark" ? "rgba(255,255,255,.18)" : "#EEEEEE";
+  return '<div style="height:1px;background:' + color + ';margin:4px 0"></div>';
+}
+
+/** 卡片头部与内容区之间的分割线（同色，无 margin） */
+function cardHeaderDivider() {
+  var color = G.theme === "dark" ? "rgba(255,255,255,.18)" : "#EEEEEE";
+  return (
+    '<div style="height:1px;background:' + color + ';margin:0 12px"></div>'
+  );
+}
+
 function ringProgress(ratio, color, size) {
   var r = size / 2 - 4,
     cx = size / 2,

@@ -6,6 +6,7 @@ import { GameDataDao } from './database/GameDataDao';
 import { SyncMetaDao } from './database/SyncMetaDao';
 import { DataType } from './models/GameDataRow';
 import { CharacterRepository } from './repository/CharacterRepository';
+import { DailyNoteRepository } from './repository/DailyNoteRepository';
 
 /**
  * 核心库配置接口
@@ -104,15 +105,29 @@ export class CoreInitializer {
         }
       }
 
-      // 每次 Mock 启动都清空并重新同步角色数据（确保 raw_json 格式最新）
+      // 每次 Mock 启动都清空并重新同步所有数据（确保 raw_json 格式最新）
       try {
         await GameDataDao.deleteByType('genshin', '109050292', DataType.CHARACTER);
         await SyncMetaDao.resetSyncTime('genshin', '109050292', DataType.CHARACTER);
+        await GameDataDao.deleteByType('genshin', '109050292', DataType.DAILY_NOTE);
+        await SyncMetaDao.resetSyncTime('genshin', '109050292', DataType.DAILY_NOTE);
+        await GameDataDao.deleteByType('starrail', '102731382', DataType.DAILY_NOTE);
+        await SyncMetaDao.resetSyncTime('starrail', '102731382', DataType.DAILY_NOTE);
       } catch (_) {}
 
       // 立即从 Mock JSON 填充原神角色数据
       try {
         await CharacterRepository.syncCharacters('genshin', '109050292', 'cn_gf01', 'mock_cookie');
+      } catch (_) {}
+
+      // 立即从 Mock JSON 填充原神便笺数据
+      try {
+        await DailyNoteRepository.syncDailyNote('genshin', '109050292', 'cn_gf01', 'mock_cookie');
+      } catch (_) {}
+
+      // 立即从 Mock JSON 填充崩铁便笺数据
+      try {
+        await DailyNoteRepository.syncDailyNote('starrail', '102731382', 'prod_gf_cn', 'mock_cookie');
       } catch (_) {}
 
     } catch (error) {

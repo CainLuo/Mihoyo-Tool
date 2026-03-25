@@ -615,6 +615,30 @@
     {
       "name": "login_phone_hint",
       "value": "Mainland China phone numbers only"
+    },
+    {
+      "name": "starrail_stamina_title",
+      "value": "Trailblaze Power"
+    },
+    {
+      "name": "starrail_reserve_stamina_title",
+      "value": "Reserved Trailblaze Power"
+    },
+    {
+      "name": "starrail_train_score_title",
+      "value": "Daily Training"
+    },
+    {
+      "name": "starrail_cocoon_title",
+      "value": "Echo of War"
+    },
+    {
+      "name": "starrail_rogue_score_title",
+      "value": "Simulated Universe Score"
+    },
+    {
+      "name": "starrail_tourn_score_title",
+      "value": "Divergent Universe Score"
     }
   ]
 }

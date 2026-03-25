@@ -39,3 +39,4 @@ export * from './src/main/ets/utils/TaskPoolUtil';
 
 // Parsers
 export * from './src/main/ets/parsers/genshin/GenshinDailyNoteParser';
+export * from './src/main/ets/parsers/starrail/StarRailDailyNoteParser';

@@ -11,9 +11,9 @@ export const GAME_STARRAIL = 'starrail'
 export const GAME_ZZZ = 'zzz'
 export const GAME_HONKAI3 = 'honkai3'
 
-/** 游戏便签摘要 — 只展示最核心的 1-2 个指标 */
+/** 游戏便签摘要 — 展示核心指标 */
 export class GameNoteSnapshotVM {
-  /** 主要资源名称，如 "原粹树脂" / "开拓力" / "电量" */
+  /** 主要资源名称，如 "原粹树脂" / "开拓力" */
   primaryLabel: string = ''
   /** 主要资源当前值 */
   primaryCurrent: number = 0
@@ -22,13 +22,51 @@ export class GameNoteSnapshotVM {
   /** 主要资源恢复描述（可选） */
   primaryRecoveryDesc: string = ''
 
-  /** 次要指标名称（可选），如 "每日委托" / "实训" / "活跃度" */
+  /** 次要指标名称（可选） */
   secondaryLabel: string = ''
-  /** 次要指标值描述，如 "4/4 已领取" / "0/500" */
+  /** 次要指标值描述 */
   secondaryDesc: string = ''
 
   /** 是否已全部恢复/满 */
   isFull: boolean = false
+
+  // ── 原神专属字段 ──────────────────────────────────────────────
+  /** 探索派遣当前人数（-1 表示无此数据） */
+  expeditionCurrent: number = -1
+  /** 探索派遣上限 */
+  expeditionMax: number = 0
+
+  /** 洞天财瓮当前值（-1 表示无此数据） */
+  homeCoinCurrent: number = -1
+  /** 洞天财瓮上限 */
+  homeCoinMax: number = 0
+
+  /** 每日委托已完成数（-1 表示无此数据） */
+  dailyTaskFinished: number = -1
+  /** 每日委托总数 */
+  dailyTaskTotal: number = 0
+  /** 每日委托奖励是否已全部领取 */
+  dailyTaskAllReceived: boolean = false
+
+  // ── 崩铁专属字段 ──────────────────────────────────────────────
+  /** 后备开拓力（-1 表示无此数据，无封顶值） */
+  reserveStamina: number = -1
+  /** 每日实训当前积分（-1 表示无此数据） */
+  trainScoreCurrent: number = -1
+  /** 每日实训积分上限 */
+  trainScoreMax: number = 0
+  /** 历战余响剩余次数（-1 表示无此数据） */
+  weeklyCocoonCnt: number = -1
+  /** 历战余响总次数 */
+  weeklyCocoonLimit: number = 0
+  /** 模拟宇宙本周积分（-1 表示无此数据） */
+  rogueScoreCurrent: number = -1
+  /** 模拟宇宙本周积分上限 */
+  rogueScoreMax: number = 0
+  /** 货币战争本周积分（-1 表示无此数据） */
+  tournScoreCurrent: number = -1
+  /** 货币战争本周积分上限 */
+  tournScoreMax: number = 0
 
   constructor(
     primaryLabel: string,

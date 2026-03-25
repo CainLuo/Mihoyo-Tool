@@ -30,6 +30,8 @@ import {
   GeetestVerifyInput,
   CoreInitializer
 } from 'core';
+import { GenshinDailyNoteParser } from 'core';
+import { StarRailDailyNoteParser } from 'core';
 import { serverDisplayName } from '../utils/ServerNameUtil';
 import {
   MihoyoAccountVM,
@@ -343,6 +345,48 @@ export class HomeViewModel {
       if (row === null) {
         return null;
       }
+
+      if (gameId === GAME_GENSHIN) {
+        // 原神：用 Parser 解析 raw_json，填充所有字段
+        const data = GenshinDailyNoteParser.parse(row.rawJson);
+        const isFull = data.currentResin >= data.maxResin && data.maxResin > 0;
+        const recoveryDesc = isFull ? '' : HomeViewModel.resinRecoveryDesc(data.resinRecoveryTime);
+        const snap = new GameNoteSnapshotVM(
+          gameId, data.currentResin, data.maxResin, recoveryDesc, '', '', isFull
+        );
+        snap.expeditionCurrent = data.expeditions.length;
+        snap.expeditionMax = data.maxExpeditionNum;
+        snap.homeCoinCurrent = data.currentHomeCoin;
+        snap.homeCoinMax = data.maxHomeCoin;
+        snap.dailyTaskFinished = data.finishedTaskNum;
+        snap.dailyTaskTotal = data.totalTaskNum;
+        snap.dailyTaskAllReceived = data.isExtraTaskRewardReceived;
+        return snap;
+      }
+
+      if (gameId === GAME_STARRAIL) {
+        // 崩铁：用 Parser 解析 raw_json，填充所有字段
+        const data = StarRailDailyNoteParser.parse(row.rawJson);
+        const stamina = data.currentStamina > 0 ? data.currentStamina : row.extraInt1;
+        const maxStamina = data.maxStamina > 0 ? data.maxStamina : row.extraInt2;
+        const isFull = stamina >= maxStamina && maxStamina > 0;
+        const recoveryDesc = isFull ? '' : HomeViewModel.resinRecoveryDesc(data.staminaRecoverTime);
+        const snap = new GameNoteSnapshotVM(
+          gameId, stamina, maxStamina, recoveryDesc, '', '', isFull
+        );
+        snap.reserveStamina = data.currentReserveStamina;
+        snap.trainScoreCurrent = data.currentTrainScore;
+        snap.trainScoreMax = data.maxTrainScore;
+        snap.weeklyCocoonCnt = data.weeklyCocoonCnt;
+        snap.weeklyCocoonLimit = data.weeklyCocoonLimit;
+        snap.rogueScoreCurrent = data.currentRogueScore;
+        snap.rogueScoreMax = data.maxRogueScore;
+        snap.tournScoreCurrent = data.rogueTournWeeklyCur;
+        snap.tournScoreMax = data.rogueTournWeeklyMax;
+        return snap;
+      }
+
+      // 其他游戏：沿用旧逻辑（extraInt1/extraInt2）
       const isFull = row.extraInt1 >= row.extraInt2 && row.extraInt2 > 0;
       return new GameNoteSnapshotVM(gameId, row.extraInt1, row.extraInt2, '', '', '', isFull);
     } catch (error) {
@@ -350,6 +394,15 @@ export class HomeViewModel {
       Logger.warn(TAG, `loadDailyNoteSnapshot failed for ${gameId}/${roleUid}: ${msg}`);
       return null;
     }
+  }
+
+  /** 将剩余恢复秒数转为描述文字 */
+  private static resinRecoveryDesc(seconds: number): string {
+    if (!seconds || seconds <= 0) { return ''; }
+    const h = Math.floor(seconds / 3600);
+    const m = Math.floor((seconds % 3600) / 60);
+    if (h > 0) { return `将于 ${h} 小时 ${m} 分钟后全部恢复`; }
+    return `将于 ${m} 分钟后全部恢复`;
   }
 
   /** 根据 gameId 返回对应的游戏主题色资源引用 */

@@ -723,6 +723,30 @@
     {
       "name": "login_phone_hint",
       "value": "仅支持中国大陆手机号"
+    },
+    {
+      "name": "starrail_stamina_title",
+      "value": "開拓力"
+    },
+    {
+      "name": "starrail_reserve_stamina_title",
+      "value": "後備開拓力"
+    },
+    {
+      "name": "starrail_train_score_title",
+      "value": "每日實訓"
+    },
+    {
+      "name": "starrail_cocoon_title",
+      "value": "歷戰餘響"
+    },
+    {
+      "name": "starrail_rogue_score_title",
+      "value": "模擬宇宙積分"
+    },
+    {
+      "name": "starrail_tourn_score_title",
+      "value": "貨幣戰爭積分"
     }
   ]
 }

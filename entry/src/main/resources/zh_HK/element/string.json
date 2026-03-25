@@ -615,6 +615,30 @@
     {
       "name": "login_phone_hint",
       "value": "僅支持中國大陸手機號"
+    },
+    {
+      "name": "starrail_stamina_title",
+      "value": "开拓力"
+    },
+    {
+      "name": "starrail_reserve_stamina_title",
+      "value": "后备开拓力"
+    },
+    {
+      "name": "starrail_train_score_title",
+      "value": "每日实训"
+    },
+    {
+      "name": "starrail_cocoon_title",
+      "value": "历战余响"
+    },
+    {
+      "name": "starrail_rogue_score_title",
+      "value": "模拟宇宙积分"
+    },
+    {
+      "name": "starrail_tourn_score_title",
+      "value": "货币战争积分"
     }
   ]
 }

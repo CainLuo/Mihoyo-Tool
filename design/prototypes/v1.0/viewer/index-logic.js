@@ -224,4 +224,28 @@ function launchControls() {
   return [];
 }
 
+// 动态插入 Demo 导航项
+(function () {
+  var sidebar = document.getElementById("sidebar");
+  if (!sidebar) return;
+  var grp = document.createElement("div");
+  grp.className = "nav-group";
+  grp.textContent = "Demo";
+  sidebar.appendChild(grp);
+  var items = [];
+  for (var i = 0; i < items.length; i++) {
+    var item = document.createElement("div");
+    item.className = "nav-item";
+    item.id = "nav-" + items[i].id;
+    item.textContent = items[i].label;
+    item.setAttribute("data-page", items[i].id);
+    item.onclick = (function (pid) {
+      return function () {
+        setPage(pid);
+      };
+    })(items[i].id);
+    sidebar.appendChild(item);
+  }
+})();
+
 refresh();

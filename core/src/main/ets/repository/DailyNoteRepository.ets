@@ -45,8 +45,16 @@ interface StarRailNoteData {
   current_stamina: number;
   max_stamina: number;
   stamina_recover_time: number;
+  current_reserve_stamina: number;
+  is_reserve_stamina_full: boolean;
   current_train_score: number;
   max_train_score: number;
+  current_rogue_score: number;
+  max_rogue_score: number;
+  weekly_cocoon_cnt: number;
+  weekly_cocoon_limit: number;
+  rogue_tourn_weekly_cur: number;
+  rogue_tourn_weekly_max: number;
 }
 
 /** 绝区零 daily_note 响应 data 字段 */
@@ -123,7 +131,11 @@ export class DailyNoteRepository {
       throw new Error(errMsg);
     }
 
-    const row = DailyNoteRepository.parseToRow(gameId, roleUid, resp.data, JSON.stringify(resp.data));
+    // 用整个响应的 JSON 字符串提取 data 部分，避免 object 类型导致字段丢失
+    const rawJsonStr = JSON.stringify(raw);
+    const rawParsed = JSON.parse(rawJsonStr) as Record<string, object>;
+    const dataJson = JSON.stringify(rawParsed['data'] ?? {});
+    const row = DailyNoteRepository.parseToRow(gameId, roleUid, resp.data, dataJson);
     await GameDataDao.upsert(row);
 
     // 标记同步成功，更新 last_sync_time
@@ -189,7 +201,10 @@ export class DailyNoteRepository {
       throw new Error(errMsg);
     }
 
-    const row = DailyNoteRepository.parseToRow(gameId, roleUid, resp.data, JSON.stringify(resp.data));
+    const rawJsonStr2 = JSON.stringify(raw);
+    const rawParsed2 = JSON.parse(rawJsonStr2) as Record<string, object>;
+    const dataJson2 = JSON.stringify(rawParsed2['data'] ?? {});
+    const row = DailyNoteRepository.parseToRow(gameId, roleUid, resp.data, dataJson2);
     await GameDataDao.upsert(row);
 
     try {
