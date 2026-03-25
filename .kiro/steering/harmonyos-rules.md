@@ -68,7 +68,42 @@
 - 必须覆盖所有断点：Phone（360px）、Tablet（800px）、Foldable 展开（932px）、PC（1280px）
 - 使用深色背景模拟 HarmonyOS 暗色主题（见下方"HTML 原型视觉规范"）
 - 图标/图片用占位色块或真实 URL 均可，重点是布局和间距准确
-- 原型文件统一命名为 `<feature>-prototype.html`，**直接在对应 App 版本目录下创建**（如当前 v1.0 → `design/prototypes/v1.0/`），禁止放在项目根目录
+- **所有原型统一在 `design/prototypes/v1.0/index.html` 中管理**，通过左侧导航切换页面，顶部统一控制设备/主题，禁止为每个页面单独创建独立 HTML 文件
+
+### 原型文件结构
+
+```
+design/prototypes/v1.0/
+├── viewer/                 ← 统一原型查看器（打开此目录下的 index.html）
+│   ├── index.html          ← 入口：左侧页面导航 + 顶部设备/主题控制
+│   ├── index-logic.js      ← 路由、刷新、控制栏逻辑
+│   ├── shared.js           ← 共享：主题色 THEMES、工具函数
+│   └── pages/
+│       ├── home.js
+│       ├── characters.js
+│       ├── my.js
+│       ├── login.js
+│       ├── genshin-daily-detail.js
+│       ├── char-detail.js
+│       └── account-detail.js
+├── CHANGELOG.md
+└── COLOR-DESIGN.md
+```
+
+### 新增原型页面流程
+
+1. 在 `pages/` 下新建 `<page-name>.js`，实现：
+   - `render<PageName>(w, h)` — 返回 HTML 字符串
+   - `<pageName>Controls()` — 返回页面专属控制项数组（无控制项返回 `[]`）
+2. 在 `index.html` 的 `<script src="pages/...">` 处引入新文件
+3. 在 `PAGES` 注册表中添加条目
+4. 在左侧导航 `.sidebar` 中添加 `nav-item`
+
+### 禁止行为
+
+- **禁止**为每个页面单独创建独立 HTML 文件（旧的单文件原型已废弃，保留仅供参考）
+- **禁止**在 `render` 函数里硬编码颜色值，必须通过 `T()` 获取主题色
+- **禁止**在按钮文字里使用 `\n` 字面量，控制栏按钮由 `index.html` 统一渲染
 
 ### HTML 原型视觉规范（所有原型必须统一遵守）
 
