@@ -1,6 +1,18 @@
 {
   "string": [
     {
+      "name": "common_arrow_right",
+      "value": "›"
+    },
+    {
+      "name": "app_name",
+      "value": "米悠悠"
+    },
+    {
+      "name": "launch_subtitle",
+      "value": "游戏数据助手"
+    },
+    {
       "name": "module_desc",
       "value": "module description"
     },
@@ -10,7 +22,7 @@
     },
     {
       "name": "EntryAbility_label",
-      "value": "label"
+      "value": "米悠悠"
     },
     {
       "name": "home_title",
@@ -50,7 +62,7 @@
     },
     {
       "name": "setting_account_role_count",
-      "value": " 个游戏角色"
+      "value": "%d 个游戏角色"
     },
     {
       "name": "setting_account_delete",
@@ -221,6 +233,86 @@
       "value": "这是我的页面"
     },
     {
+      "name": "my_section_account",
+      "value": "账号管理"
+    },
+    {
+      "name": "my_section_appearance",
+      "value": "外观设置"
+    },
+    {
+      "name": "my_section_about",
+      "value": "关于"
+    },
+    {
+      "name": "my_account_empty",
+      "value": "暂无账号，点击添加"
+    },
+    {
+      "name": "my_account_role_count",
+      "value": "%d 个游戏角色"
+    },
+    {
+      "name": "my_account_add",
+      "value": "+ 添加账号"
+    },
+    {
+      "name": "my_theme_label",
+      "value": "主题"
+    },
+    {
+      "name": "my_theme_light",
+      "value": "浅色"
+    },
+    {
+      "name": "my_theme_dark",
+      "value": "深色"
+    },
+    {
+      "name": "my_theme_system",
+      "value": "跟随系统"
+    },
+    {
+      "name": "my_about_version",
+      "value": "版本"
+    },
+    {
+      "name": "my_about_github",
+      "value": "GitHub"
+    },
+    {
+      "name": "my_about_license",
+      "value": "许可证"
+    },
+    {
+      "name": "my_about_github_url",
+      "value": "github.com/cainluo/Mihoyo-Tool"
+    },
+    {
+      "name": "my_about_license_value",
+      "value": "MIT License"
+    },
+    {
+      "name": "account_detail_title",
+      "value": "账号详情"
+    },
+    {
+      "name": "account_detail_section_roles",
+      "value": "绑定的游戏角色"
+    },
+    {
+      "name": "account_detail_section_actions",
+      "value": "操作"
+    },
+    {
+      "name": "account_detail_delete",
+      "value": "删除此账号"
+    },
+    {
+      "name": "account_detail_uid_prefix",
+      "value": "UID: "
+    },
+    {
       "name": "daily_note_task_label",
       "value": "委托任务"
     },
@@ -349,6 +441,14 @@
       "value": "暂无角色数据，点击刷新同步"
     },
     {
+      "name": "characters_refresh_cooldown_title",
+      "value": "刷新频率限制"
+    },
+    {
+      "name": "characters_refresh_cooldown_msg",
+      "value": "角色数据已在 30 分钟内同步过，请稍后再试"
+    },
+    {
       "name": "character_level_prefix",
       "value": "Lv."
     },
@@ -471,6 +571,158 @@
     {
       "name": "char_detail_weapon_lv_prefix",
       "value": "Lv.%d/%d"
+    },
+    {
+      "name": "prop_hp_flat",
+      "value": "HP"
+    },
+    {
+      "name": "prop_hp_pct",
+      "value": "HP%"
+    },
+    {
+      "name": "prop_base_atk",
+      "value": "基础攻击力"
+    },
+    {
+      "name": "prop_atk_flat",
+      "value": "攻击力"
+    },
+    {
+      "name": "prop_atk_pct",
+      "value": "攻击力%"
+    },
+    {
+      "name": "prop_def_flat",
+      "value": "防御力"
+    },
+    {
+      "name": "prop_def_pct",
+      "value": "防御力%"
+    },
+    {
+      "name": "prop_base_hp",
+      "value": "基础生命值"
+    },
+    {
+      "name": "prop_base_def",
+      "value": "基础防御力"
+    },
+    {
+      "name": "prop_crit_rate",
+      "value": "暴击率"
+    },
+    {
+      "name": "prop_crit_dmg",
+      "value": "暴击伤害"
+    },
+    {
+      "name": "prop_energy_recharge",
+      "value": "元素充能效率"
+    },
+    {
+      "name": "prop_healing_bonus",
+      "value": "治疗加成"
+    },
+    {
+      "name": "prop_incoming_healing",
+      "value": "受治疗加成"
+    },
+    {
+      "name": "prop_elemental_mastery",
+      "value": "元素精通"
+    },
+    {
+      "name": "prop_pyro_dmg",
+      "value": "火元素伤害加成"
+    },
+    {
+      "name": "prop_electro_dmg",
+      "value": "雷元素伤害加成"
+    },
+    {
+      "name": "prop_hydro_dmg",
+      "value": "水元素伤害加成"
+    },
+    {
+      "name": "prop_dendro_dmg",
+      "value": "草元素伤害加成"
+    },
+    {
+      "name": "prop_anemo_dmg",
+      "value": "风元素伤害加成"
+    },
+    {
+      "name": "prop_geo_dmg",
+      "value": "岩元素伤害加成"
+    },
+    {
+      "name": "prop_cryo_dmg",
+      "value": "冰元素伤害加成"
+    },
+    {
+      "name": "prop_physical_dmg",
+      "value": "物理伤害加成"
+    },
+    {
+      "name": "prop_cooldown_reduction",
+      "value": "冷却缩减"
+    },
+    {
+      "name": "prop_shield_strength",
+      "value": "护盾强效"
+    },
+    {
+      "name": "login_agreement_prefix",
+      "value": "登录即表示您同意"
+    },
+    {
+      "name": "login_agreement_terms",
+      "value": "用户协议"
+    },
+    {
+      "name": "login_agreement_and",
+      "value": "与"
+    },
+    {
+      "name": "login_agreement_privacy",
+      "value": "隐私政策"
+    },
+    {
+      "name": "login_cookie_security_hint",
+      "value": "Cookie 仅存储在本地设备，不会上传至任何服务器"
+    },
+    {
+      "name": "login_brand_desc",
+      "value": "多款游戏数据一站式查看"
+    },
+    {
+      "name": "login_brand_feature1",
+      "value": "角色列表 · 详情查看"
+    },
+    {
+      "name": "login_brand_feature2",
+      "value": "实时便笺 · 树脂提醒"
+    },
+    {
+      "name": "login_sms_sent_to_prefix",
+      "value": "验证码已发送至"
+    },
+    {
+      "name": "login_phone_label",
+      "value": "手机号"
+    },
+    {
+      "name": "login_code_label",
+      "value": "验证码"
+    },
+    {
+      "name": "login_cookie_label",
+      "value": "Cookie"
+    },
+    {
+      "name": "login_phone_hint",
+      "value": "仅支持中国大陆手机号"
     }
   ]
 }

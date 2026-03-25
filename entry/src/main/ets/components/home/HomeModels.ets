@@ -56,7 +56,7 @@ export class GameRoleCardVM {
   /** 游戏显示名称 */
   gameName: string = ''
   /** 游戏主题色（用于卡片顶部色条） */
-  gameColor: ResourceColor = '#007DFF'
+  gameColor: ResourceColor = $r('app.color.color_primary')
   /** 角色 UID */
   roleUid: string = ''
   /** 角色昵称 */

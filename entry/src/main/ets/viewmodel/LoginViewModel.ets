@@ -20,17 +20,11 @@ import {
   AccountRepository
 } from 'core';
 import { Logger } from '../utils/Logger';
+import { LoginTab, PhoneStep, QRCodeStat } from '../constants/LoginTabEnum';
+
+export { LoginTab, PhoneStep, QRCodeStat };
 
 const TAG: string = 'LoginViewModel';
-
-/** 登录方式 Tab */
-export type LoginTab = 'phone' | 'qrcode' | 'cookie';
-
-/** 手机号登录步骤 */
-export type PhoneStep = 'input_phone' | 'input_code';
-
-/** 二维码状态 */
-export type QRCodeStat = 'loading' | 'ready' | 'scanned' | 'confirmed' | 'expired' | 'error';
 
 /** LoginViewModel @Monitor 路径常量类型 */
 export class LoginViewModelKeys {
@@ -43,14 +37,14 @@ export class LoginViewModel {
   static readonly KEYS: LoginViewModelKeys = new LoginViewModelKeys();
 
   // ── 通用状态 ──────────────────────────────────────────────────
-  @Trace activeTab: LoginTab = 'phone';
+  @Trace activeTab: LoginTab = LoginTab.PHONE;
   @Trace isLoading: boolean = false;
   @Trace errorMsg: string = '';
   /** 登录成功标志，View 层监听后跳转 */
   @Trace loginSuccess: boolean = false;
 
   // ── 手机号登录状态 ────────────────────────────────────────────
-  @Trace phoneStep: PhoneStep = 'input_phone';
+  @Trace phoneStep: PhoneStep = PhoneStep.INPUT_PHONE;
   @Trace phoneNumber: string = '';
   @Trace smsCode: string = '';
   @Trace smsCooldown: number = 0;  // 倒计时秒数，0 表示可发送
@@ -68,7 +62,7 @@ export class LoginViewModel {
 
   // ── 二维码登录状态 ────────────────────────────────────────────
   @Trace qrCodeUrl: string = '';
-  @Trace qrCodeStat: QRCodeStat = 'loading';
+  @Trace qrCodeStat: QRCodeStat = QRCodeStat.LOADING;
 
   /** 当前二维码 ticket */
   private qrTicket: string = '';
@@ -86,7 +80,7 @@ export class LoginViewModel {
   switchTab(tab: LoginTab): void {
     this.activeTab = tab;
     this.errorMsg = '';
-    if (tab === 'qrcode') {
+    if (tab === LoginTab.QRCODE) {
       this.startQRCodeLogin();
     } else {
       this.stopQRCodePoll();
@@ -107,6 +101,7 @@ export class LoginViewModel {
    */
   async prepareSendSms(): Promise<MmtData> {
     this.errorMsg = '';
+    this.isLoading = true;
     try {
       const mmt = await AuthRepository.createMmt();
       this.mmtKey = mmt.mmt_key;
@@ -118,6 +113,8 @@ export class LoginViewModel {
       Logger.error(TAG, `prepareSendSms failed: ${msg}`);
       this.errorMsg = msg;
       throw new Error(msg);
+    } finally {
+      this.isLoading = false;
     }
   }
 
@@ -149,7 +146,7 @@ export class LoginViewModel {
         v3Validate,
         v3Seccode
       );
-      this.phoneStep = 'input_code';
+      this.phoneStep = PhoneStep.INPUT_CODE;
       this.startCooldown(60);
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -194,9 +191,18 @@ export class LoginViewModel {
     }
   }
 
+  /** 脱敏手机号，如 138****8888 */
+  get maskedPhone(): string {
+    const p = this.phoneNumber;
+    if (p.length < 7) {
+      return p;
+    }
+    return p.substring(0, 3) + '****' + p.substring(p.length - 4);
+  }
+
   /** 返回手机号输入步骤 */
   backToPhoneInput(): void {
-    this.phoneStep = 'input_phone';
+    this.phoneStep = PhoneStep.INPUT_PHONE;
     this.smsCode = '';
     this.errorMsg = '';
   }
@@ -206,23 +212,26 @@ export class LoginViewModel {
   /** 开始二维码登录（切换到二维码 Tab 时自动调用） */
   async startQRCodeLogin(): Promise<void> {
     this.stopQRCodePoll();
-    this.qrCodeStat = 'loading';
+    this.qrCodeStat = QRCodeStat.LOADING;
     this.qrCodeUrl = '';
     this.errorMsg = '';
     if (this.deviceId.length === 0) {
       this.deviceId = LoginViewModel.generateDeviceId();
     }
+    this.isLoading = true;
     try {
       const result = await AuthRepository.fetchQRCode(this.deviceId);
       this.qrCodeUrl = result.url;
       this.qrTicket = result.ticket;
-      this.qrCodeStat = 'ready';
+      this.qrCodeStat = QRCodeStat.READY;
       this.startQRCodePoll();
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `startQRCodeLogin failed: ${msg}`);
-      this.qrCodeStat = 'error';
+      this.qrCodeStat = QRCodeStat.ERROR;
       this.errorMsg = msg;
+    } finally {
+      this.isLoading = false;
     }
   }
 
@@ -251,14 +260,14 @@ export class LoginViewModel {
     try {
       const result = await AuthRepository.queryQRCode(this.deviceId, this.qrTicket);
       if (result.stat === 'scanned') {
-        this.qrCodeStat = 'scanned';
+        this.qrCodeStat = QRCodeStat.SCANNED;
       } else if (result.stat === 'confirmed' && result.confirmed !== null) {
         this.stopQRCodePoll();
-        this.qrCodeStat = 'confirmed';
+        this.qrCodeStat = QRCodeStat.CONFIRMED;
         await this.handleQRCodeConfirmed(result.confirmed);
       } else if (result.stat === 'expired') {
         this.stopQRCodePoll();
-        this.qrCodeStat = 'expired';
+        this.qrCodeStat = QRCodeStat.EXPIRED;
       }
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -289,7 +298,7 @@ export class LoginViewModel {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `handleQRCodeConfirmed failed: ${msg}`);
       this.errorMsg = msg;
-      this.qrCodeStat = 'error';
+      this.qrCodeStat = QRCodeStat.ERROR;
     } finally {
       this.isLoading = false;
     }

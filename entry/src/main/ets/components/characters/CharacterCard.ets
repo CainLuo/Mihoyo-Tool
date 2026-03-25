@@ -7,11 +7,84 @@
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { GameDataSummary } from 'core';
-import { HMRouterMgr } from '@hadss/hmrouter';
+import { RouterUtil } from '../../utils/RouterUtil';
 import { AppRoutes } from '../../constants/AppRoutes';
 import { GenshinCharacterDetailParam } from '../../pages/GenshinCharacterDetail';
+import { GenshinElement, elementFromString } from '../../constants/GenshinElement';
 
-/** 根据元素英文名返回对应颜色资源 */
+/** 构造 CharacterCard mock 数据的辅助函数 */
+function makeMockChar(name: string, rarity: number, element: string, level: number, fetter: number, cons: number): GameDataSummary {
+  const c = new GameDataSummary();
+  c.name = name;
+  c.rarity = rarity;
+  c.level = level;
+  c.extraInt1 = cons;
+  c.extraInt2 = fetter;
+  c.extraText1 = element;
+  c.weaponLevel = 90;
+  c.weaponAffix = 1;
+  c.weaponRarity = 5;
+  c.skillLevels = [10, 10, 10];
+  return c;
+}
+
+// ── Preview：Phone 模式（xs，无圣遗物/技能行）──
+@Preview
+@ComponentV2
+struct CharacterCardPreviewPhone {
+  build() {
+    Row({ space: 8 }) {
+      CharacterCard({
+        character: makeMockChar('钟离', 5, 'Geo', 90, 10, 6),
+        isPhone: true,
+        breakpoint: 'xs',
+        gameId: 'genshin',
+        roleUid: '100000001'
+      })
+      .width(160)
+      CharacterCard({
+        character: makeMockChar('雷电将军', 5, 'Electro', 80, 7, 0),
+        isPhone: true,
+        breakpoint: 'xs',
+        gameId: 'genshin',
+        roleUid: '100000001'
+      })
+      .width(160)
+    }
+    .padding(16)
+    .backgroundColor($r('app.color.color_page_bg'))
+  }
+}
+
+// ── Preview：非 Phone 模式（sm，含圣遗物/技能行）──
+@Preview
+@ComponentV2
+struct CharacterCardPreviewTablet {
+  build() {
+    Row({ space: 8 }) {
+      CharacterCard({
+        character: makeMockChar('胡桃', 5, 'Pyro', 90, 10, 2),
+        isPhone: false,
+        breakpoint: 'sm',
+        gameId: 'genshin',
+        roleUid: '100000001'
+      })
+      .width(180)
+      CharacterCard({
+        character: makeMockChar('神里绫华', 5, 'Cryo', 90, 10, 6),
+        isPhone: false,
+        breakpoint: 'lg',
+        gameId: 'genshin',
+        roleUid: '100000001'
+      })
+      .width(180)
+    }
+    .padding(16)
+    .backgroundColor($r('app.color.color_page_bg'))
+  }
+}
+
+/** 根据元素字符串返回对应颜色资源 */
 export function elementColor(element: string): Resource {
   if (element === 'Pyro') { return $r('app.color.element_pyro'); }
   if (element === 'Hydro') { return $r('app.color.element_hydro'); }
@@ -23,7 +96,7 @@ export function elementColor(element: string): Resource {
   return $r('app.color.color_text_secondary');
 }
 
-/** 根据元素英文名返回对应多语言标签资源 */
+/** 根据元素字符串返回对应多语言标签资源 */
 export function elementLabel(element: string): Resource {
   if (element === 'Pyro') { return $r('app.string.character_element_Pyro'); }
   if (element === 'Hydro') { return $r('app.string.character_element_Hydro'); }
@@ -94,8 +167,8 @@ export struct CharacterCard {
           .width(this.tm.current.widthFull)
           .justifyContent(FlexAlign.End)
           .linearGradient({
-            angle: 180,
-            colors: [['#00000000', 0.0], ['#B3000000', 1.0]]
+            angle: this.tm.current.gradientAngle180,
+            colors: [[this.tm.current.colorTransparent, 0.0], [this.tm.current.overlayGradientEnd, 1.0]]
           })
           .padding({ top: this.tm.current.value20 })
           .position({ x: 0, y: '100%' })
@@ -104,7 +177,7 @@ export struct CharacterCard {
 
           // 元素角标（左上角）
           Column() {
-            Text(elementLabel(this.character.extraText1))
+            Text(elementLabel(elementFromString(this.character.extraText1)))
               .fontSize(this.tm.current.body12.size)
               .fontWeight(FontWeight.Bold)
               .fontColor(Color.White)
@@ -112,7 +185,7 @@ export struct CharacterCard {
           .width(this.tm.current.elementBadgeSize)
           .height(this.tm.current.elementBadgeSize)
           .borderRadius(this.tm.current.elementBadgeSize / 2)
-          .backgroundColor(elementColor(this.character.extraText1))
+          .backgroundColor(elementColor(elementFromString(this.character.extraText1)))
           .justifyContent(FlexAlign.Center)
           .alignItems(HorizontalAlign.Center)
           .shadow({ radius: this.tm.current.value8, color: $r('app.color.color_mask'), offsetY: 2 })
@@ -139,46 +212,51 @@ export struct CharacterCard {
         .aspectRatio(1)
 
         // 武器浮层（右下角，由外层 Stack alignContent: BottomEnd 定位）
-        Stack() {
-          if (this.character.weaponIconUrl) {
-            Image(this.character.weaponIconUrl)
-              .width(this.tm.current.weaponIconSize)
-              .height(this.tm.current.weaponIconSize)
-              .objectFit(ImageFit.Contain)
-          } else {
-            Column()
-              .width(this.tm.current.weaponIconSize)
-              .height(this.tm.current.weaponIconSize)
-              .backgroundColor($r('app.color.color_placeholder'))
-              .borderRadius(this.tm.current.value4)
+        Column() {
+          // 上：武器图标铺满
+          Stack() {
+            if (this.character.weaponIconUrl) {
+              Image(this.character.weaponIconUrl)
+                .width(this.tm.current.widthFull)
+                .height(this.tm.current.widthFull)
+                .objectFit(ImageFit.Contain)
+            } else {
+              Column()
+                .width(this.tm.current.widthFull)
+                .height(this.tm.current.widthFull)
+                .backgroundColor($r('app.color.color_placeholder'))
+            }
           }
-          // 精炼徽章（左上角）
-          Text(`${this.character.weaponAffix}`)
-            .fontSize(this.isPhone ? this.tm.current.body10.size : this.tm.current.body12.size)
-            .fontWeight(FontWeight.Bold)
-            .fontColor(Color.White)
-            .width(this.tm.current.weaponAffixBadgeSize)
-            .height(this.tm.current.weaponAffixBadgeSize)
-            .borderRadius(this.tm.current.weaponAffixBadgeSize / 2)
-            .backgroundColor($r('app.color.weapon_affix_bg'))
-            .textAlign(TextAlign.Center)
-            .position({ x: this.tm.current.value4, y: this.tm.current.value4 })
-            .zIndex(1)
-          // 武器等级（右下角）
-          Text($r('app.string.character_weapon_level_prefix', this.character.weaponLevel))
-            .fontSize(this.isPhone ? this.tm.current.body10.size : this.tm.current.body12.size)
-            .fontWeight(FontWeight.Medium)
-            .fontColor($r('app.color.color_text_secondary'))
-            .position({ x: '100%', y: '100%' })
-            .markAnchor({ x: '100%', y: '100%' })
-            .margin({ right: this.tm.current.value4, bottom: this.tm.current.value4 })
-            .zIndex(1)
+          .layoutWeight(1)
+          .width(this.tm.current.widthFull)
+
+          // 下：等级 + 精炼标签
+          Row({ space: this.tm.current.value2 }) {
+            Text($r('app.string.character_weapon_level_prefix', this.character.weaponLevel))
+              .fontSize(this.tm.current.body10.size)
+              .fontWeight(FontWeight.Medium)
+              .fontColor(this.tm.current.textOnDarkGhost)
+              .layoutWeight(1)
+              .textAlign(TextAlign.Start)
+            Text(`R${this.character.weaponAffix}`)
+              .fontSize(this.tm.current.body10.size)
+              .fontWeight(FontWeight.Bold)
+              .fontColor(this.tm.current.accentRefine)
+              .backgroundColor(this.tm.current.accentRefineBg)
+              .borderRadius(this.tm.current.value2)
+              .padding({ left: this.tm.current.value2, right: this.tm.current.value2 })
+          }
+          .width(this.tm.current.widthFull)
+          .height(this.tm.current.weaponInfoBarH)
+          .padding({ left: this.tm.current.value4, right: this.tm.current.value4 })
+          .alignItems(VerticalAlign.Center)
         }
         .width(this.tm.current.weaponOverlaySize)
         .height(this.tm.current.weaponOverlaySize)
         .backgroundColor($r('app.color.weapon_overlay_bg'))
         .borderRadius({ topLeft: this.tm.current.radius8, topRight: 0, bottomLeft: 0, bottomRight: 0 })
         .border({ width: { top: 1, left: 1 }, color: $r('app.color.color_card_border') })
+        .clip(true)
         .zIndex(4)
       }
       .width(this.tm.current.widthFull)
@@ -286,7 +364,7 @@ export struct CharacterCard {
       }
     }
     .width(this.tm.current.widthFull)
-    .backgroundColor(this.tm.current.colorCardBg)
+    .backgroundColor(this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
     .border({ width: this.tm.current.cardBorderWidth, color: this.tm.current.colorCardBorder })
     .clip(true)
@@ -300,7 +378,7 @@ export struct CharacterCard {
       param.gameId = this.gameId;
       param.roleUid = this.roleUid;
       param.entityId = this.character.entityId;
-      HMRouterMgr.push({ pageUrl: AppRoutes.GENSHIN_CHARACTER_DETAIL, param: param });
+      RouterUtil.push(AppRoutes.GENSHIN_CHARACTER_DETAIL, param);
     })
   }
 }

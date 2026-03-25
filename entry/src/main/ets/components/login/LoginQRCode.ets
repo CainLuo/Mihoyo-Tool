@@ -6,7 +6,78 @@
  */
 
 import { LoginViewModel } from '../../viewmodel/LoginViewModel';
+import { QRCodeStat } from '../../constants/LoginTabEnum';
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+
+// ── Preview：加载中 ──
+@Preview
+@ComponentV2
+struct LoginQRCodePreviewLoading {
+  @Local private vm: LoginViewModel = (() => {
+    const v = new LoginViewModel();
+    v.qrCodeStat = QRCodeStat.LOADING;
+    return v;
+  })()
+  build() {
+    LoginQRCode({ vm: this.vm })
+      .padding(24)
+      .backgroundColor($r('app.color.color_card_bg'))
+      .width(360)
+  }
+}
+
+// ── Preview：二维码就绪 ──
+@Preview
+@ComponentV2
+struct LoginQRCodePreviewReady {
+  @Local private vm: LoginViewModel = (() => {
+    const v = new LoginViewModel();
+    v.qrCodeStat = QRCodeStat.READY;
+    v.qrCodeUrl = 'https://user.mihoyo.com/qr_code_in_game.html?app_id=4&ticket=mock_ticket_12345';
+    return v;
+  })()
+  build() {
+    LoginQRCode({ vm: this.vm })
+      .padding(24)
+      .backgroundColor($r('app.color.color_card_bg'))
+      .width(360)
+  }
+}
+
+// ── Preview：已扫码待确认 ──
+@Preview
+@ComponentV2
+struct LoginQRCodePreviewScanned {
+  @Local private vm: LoginViewModel = (() => {
+    const v = new LoginViewModel();
+    v.qrCodeStat = QRCodeStat.SCANNED;
+    v.qrCodeUrl = 'https://user.mihoyo.com/qr_code_in_game.html?app_id=4&ticket=mock_ticket_12345';
+    return v;
+  })()
+  build() {
+    LoginQRCode({ vm: this.vm })
+      .padding(24)
+      .backgroundColor($r('app.color.color_card_bg'))
+      .width(360)
+  }
+}
+
+// ── Preview：已过期 ──
+@Preview
+@ComponentV2
+struct LoginQRCodePreviewExpired {
+  @Local private vm: LoginViewModel = (() => {
+    const v = new LoginViewModel();
+    v.qrCodeStat = QRCodeStat.EXPIRED;
+    return v;
+  })()
+  build() {
+    LoginQRCode({ vm: this.vm })
+      .padding(24)
+      .backgroundColor($r('app.color.color_card_bg'))
+      .width(360)
+  }
+}
 
 @ComponentV2
 export struct LoginQRCode {
@@ -15,13 +86,13 @@ export struct LoginQRCode {
 
   build() {
     Column({ space: this.tm.current.value16 }) {
-      if (this.vm.qrCodeStat === 'loading') {
+      if (this.vm.qrCodeStat === QRCodeStat.LOADING) {
         this.buildLoading()
-      } else if (this.vm.qrCodeStat === 'ready' || this.vm.qrCodeStat === 'scanned') {
+      } else if (this.vm.qrCodeStat === QRCodeStat.READY || this.vm.qrCodeStat === QRCodeStat.SCANNED) {
         this.buildQRCode()
-      } else if (this.vm.qrCodeStat === 'confirmed') {
+      } else if (this.vm.qrCodeStat === QRCodeStat.CONFIRMED) {
         this.buildConfirmed()
-      } else if (this.vm.qrCodeStat === 'expired' || this.vm.qrCodeStat === 'error') {
+      } else if (this.vm.qrCodeStat === QRCodeStat.EXPIRED || this.vm.qrCodeStat === QRCodeStat.ERROR) {
         this.buildExpired()
       }
     }
@@ -47,10 +118,10 @@ export struct LoginQRCode {
     QRCode(this.vm.qrCodeUrl)
       .width(this.tm.current.qrCodeSize)
       .height(this.tm.current.qrCodeSize)
-      .color(this.tm.current.colorTextPrimary)
-      .backgroundColor(this.tm.current.colorCardBg)
+      .color(Color.Black)
+      .backgroundColor(Color.White)
 
-    if (this.vm.qrCodeStat === 'scanned') {
+    if (this.vm.qrCodeStat === QRCodeStat.SCANNED) {
       Text($r('app.string.login_qrcode_scanned'))
         .font(this.tm.current.body13)
         .fontColor(this.tm.current.colorPrimary)
@@ -76,17 +147,37 @@ export struct LoginQRCode {
 
   @Builder
   private buildExpired() {
-    Text($r('app.string.login_qrcode_expired'))
-      .font(this.tm.current.body13)
-      .fontColor(this.tm.current.colorTextSecondary)
-      .textAlign(TextAlign.Center)
+    // 底层：低透明度的占位二维码（视觉上表示"有二维码但已失效"）
+    // 上层：半透明遮罩 + 过期提示 + 刷新按钮
+    Stack() {
+      QRCode('https://user.mihoyo.com/qr_code_in_game.html?app_id=4&ticket=expired')
+        .width(this.tm.current.qrCodeSize)
+        .height(this.tm.current.qrCodeSize)
+        .color(Color.Black)
+        .backgroundColor(Color.White)
+        .opacity(this.tm.current.charDetailConsInactiveOpacity)
 
-    Button($r('app.string.login_qrcode_refresh'), { type: ButtonType.Capsule })
-      .width(this.tm.current.widthButtonSM)
-      .height(this.tm.current.heightButton)
-      .backgroundColor(this.tm.current.colorPrimary)
-      .onClick(() => {
-        this.vm.refreshQRCode();
-      })
+      Column({ space: this.tm.current.value12 }) {
+        Text($r('app.string.login_qrcode_expired'))
+          .font(this.tm.current.body13)
+          .fontColor(this.tm.current.colorTextPrimary)
+          .textAlign(TextAlign.Center)
+
+        Button($r('app.string.login_qrcode_refresh'), { type: ButtonType.Capsule })
+          .height(this.tm.current.heightButton)
+          .backgroundColor(this.tm.current.colorPrimary)
+          .enabled(!this.vm.isLoading)
+          .onClick(() => {
+            this.vm.refreshQRCode();
+          })
+      }
+      .width(this.tm.current.qrCodeSize)
+      .height(this.tm.current.qrCodeSize)
+      .justifyContent(FlexAlign.Center)
+      .alignItems(HorizontalAlign.Center)
+      .backgroundColor(this.tm.current.surfaceDark2xl)
+    }
+    .width(this.tm.current.qrCodeSize)
+    .height(this.tm.current.qrCodeSize)
   }
 }

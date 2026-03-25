@@ -30,4 +30,10 @@ export class AppConstants {
    * 数量与列数匹配，保证骨架屏视觉上填满两行
    */
   static readonly SKELETON_CHARACTER_INDICES: number[] = [0, 1, 2, 3, 4, 5, 6, 7];
+
+  /**
+   * 数据同步/自动刷新间隔（毫秒）：30 分钟
+   * 适用于所有需要按需同步的场景（首页 daily_note、角色列表等）
+   */
+  static readonly AUTO_REFRESH_INTERVAL_MS: number = 30 * 60 * 1000;
 }

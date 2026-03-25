@@ -10,9 +10,35 @@
  */
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
-import { MihoyoAccountVM, GameRoleCardVM } from './HomeModels'
+import { MihoyoAccountVM, GameRoleCardVM, GameNoteSnapshotVM } from './HomeModels'
 import { GameToolCard } from './GameToolCard'
 import { AppConstants } from '../../constants/AppConstants'
+
+// ── Preview：单账号多游戏 ──
+@Preview
+@ComponentV2
+struct UserGameSectionPreview {
+  build() {
+    UserGameSection({
+      account: new MihoyoAccountVM(1, 'Kaeya_Player', [
+        new GameRoleCardVM(
+          'genshin', 'genshin', $r('app.color.game_color_genshin'),
+          '123456789', '旅行者', '天空岛',
+          new GameNoteSnapshotVM('resin', 140, 200, '4小时后恢复', '每日委托', '4/4', false),
+          'sync_just_now'
+        ),
+        new GameRoleCardVM(
+          'starrail', 'starrail', $r('app.color.game_color_starrail'),
+          '987654321', '开拓者', '星穹列车',
+          new GameNoteSnapshotVM('stamina', 200, 240, '已满', '实训', '500/500', true),
+          'sync_just_now'
+        ),
+      ])
+    })
+    .padding(16)
+    .backgroundColor('#F5F5F5')
+  }
+}
 
 @ComponentV2
 export struct UserGameSection {

@@ -1,6 +1,22 @@
 {
   "string": [
     {
+      "name": "common_arrow_right",
+      "value": "›"
+    },
+    {
+      "name": "app_name",
+      "value": "米悠悠"
+    },
+    {
+      "name": "launch_subtitle",
+      "value": "遊戲數據助手"
+    },
+    {
+      "name": "setting_account_role_count",
+      "value": "%d 個遊戲角色"
+    },
+    {
       "name": "geetest_dialog_title",
       "value": "請完成安全驗證"
     },
@@ -107,6 +123,86 @@
     {
       "name": "my_page_title",
       "value": "這是我的頁面"
+    },
+    {
+      "name": "my_section_account",
+      "value": "帳號管理"
+    },
+    {
+      "name": "my_section_appearance",
+      "value": "外觀設定"
+    },
+    {
+      "name": "my_section_about",
+      "value": "關於"
+    },
+    {
+      "name": "my_account_empty",
+      "value": "暫無帳號，點擊新增"
+    },
+    {
+      "name": "my_account_role_count",
+      "value": "%d 個遊戲角色"
+    },
+    {
+      "name": "my_account_add",
+      "value": "+ 新增帳號"
+    },
+    {
+      "name": "my_theme_label",
+      "value": "主題"
+    },
+    {
+      "name": "my_theme_light",
+      "value": "淺色"
+    },
+    {
+      "name": "my_theme_dark",
+      "value": "深色"
+    },
+    {
+      "name": "my_theme_system",
+      "value": "跟隨系統"
+    },
+    {
+      "name": "my_about_version",
+      "value": "版本"
+    },
+    {
+      "name": "my_about_github",
+      "value": "GitHub"
+    },
+    {
+      "name": "my_about_license",
+      "value": "授權條款"
+    },
+    {
+      "name": "my_about_github_url",
+      "value": "github.com/cainluo/Mihoyo-Tool"
+    },
+    {
+      "name": "my_about_license_value",
+      "value": "MIT License"
+    },
+    {
+      "name": "account_detail_title",
+      "value": "帳號詳情"
+    },
+    {
+      "name": "account_detail_section_roles",
+      "value": "綁定的遊戲角色"
+    },
+    {
+      "name": "account_detail_section_actions",
+      "value": "操作"
+    },
+    {
+      "name": "account_detail_delete",
+      "value": "刪除此帳號"
+    },
+    {
+      "name": "account_detail_uid_prefix",
+      "value": "UID: "
     },
     {
       "name": "daily_note_task_label",
@@ -237,6 +333,14 @@
       "value": "暫無角色數據，點擊刷新同步"
     },
     {
+      "name": "characters_refresh_cooldown_title",
+      "value": "刷新頻率限制"
+    },
+    {
+      "name": "characters_refresh_cooldown_msg",
+      "value": "角色數據已在 30 分鐘內同步過，請稍後再試"
+    },
+    {
       "name": "character_level_prefix",
       "value": "Lv."
     },
@@ -359,6 +463,158 @@
     {
       "name": "char_detail_weapon_lv_prefix",
       "value": "Lv.%d/%d"
+    },
+    {
+      "name": "prop_hp_flat",
+      "value": "HP"
+    },
+    {
+      "name": "prop_hp_pct",
+      "value": "HP%"
+    },
+    {
+      "name": "prop_base_atk",
+      "value": "基礎攻擊力"
+    },
+    {
+      "name": "prop_atk_flat",
+      "value": "攻擊力"
+    },
+    {
+      "name": "prop_atk_pct",
+      "value": "攻擊力%"
+    },
+    {
+      "name": "prop_def_flat",
+      "value": "防禦力"
+    },
+    {
+      "name": "prop_def_pct",
+      "value": "防禦力%"
+    },
+    {
+      "name": "prop_base_hp",
+      "value": "基礎生命值"
+    },
+    {
+      "name": "prop_base_def",
+      "value": "基礎防禦力"
+    },
+    {
+      "name": "prop_crit_rate",
+      "value": "暴擊率"
+    },
+    {
+      "name": "prop_crit_dmg",
+      "value": "暴擊傷害"
+    },
+    {
+      "name": "prop_energy_recharge",
+      "value": "元素充能效率"
+    },
+    {
+      "name": "prop_healing_bonus",
+      "value": "治療加成"
+    },
+    {
+      "name": "prop_incoming_healing",
+      "value": "受治療加成"
+    },
+    {
+      "name": "prop_elemental_mastery",
+      "value": "元素精通"
+    },
+    {
+      "name": "prop_pyro_dmg",
+      "value": "火元素傷害加成"
+    },
+    {
+      "name": "prop_electro_dmg",
+      "value": "雷元素傷害加成"
+    },
+    {
+      "name": "prop_hydro_dmg",
+      "value": "水元素傷害加成"
+    },
+    {
+      "name": "prop_dendro_dmg",
+      "value": "草元素傷害加成"
+    },
+    {
+      "name": "prop_anemo_dmg",
+      "value": "風元素傷害加成"
+    },
+    {
+      "name": "prop_geo_dmg",
+      "value": "岩元素傷害加成"
+    },
+    {
+      "name": "prop_cryo_dmg",
+      "value": "冰元素傷害加成"
+    },
+    {
+      "name": "prop_physical_dmg",
+      "value": "物理傷害加成"
+    },
+    {
+      "name": "prop_cooldown_reduction",
+      "value": "冷卻縮減"
+    },
+    {
+      "name": "prop_shield_strength",
+      "value": "護盾強效"
+    },
+    {
+      "name": "login_agreement_prefix",
+      "value": "登入即表示您同意"
+    },
+    {
+      "name": "login_agreement_terms",
+      "value": "用戶協議"
+    },
+    {
+      "name": "login_agreement_and",
+      "value": "與"
+    },
+    {
+      "name": "login_agreement_privacy",
+      "value": "隱私政策"
+    },
+    {
+      "name": "login_cookie_security_hint",
+      "value": "Cookie 僅存儲在本地設備，不會上傳至任何伺服器"
+    },
+    {
+      "name": "login_brand_desc",
+      "value": "多款遊戲數據一站式查看"
+    },
+    {
+      "name": "login_brand_feature1",
+      "value": "角色列表 · 詳情查看"
+    },
+    {
+      "name": "login_brand_feature2",
+      "value": "即時便箋 · 樹脂提醒"
+    },
+    {
+      "name": "login_sms_sent_to_prefix",
+      "value": "驗證碼已發送至"
+    },
+    {
+      "name": "login_phone_label",
+      "value": "手機號"
+    },
+    {
+      "name": "login_code_label",
+      "value": "驗證碼"
+    },
+    {
+      "name": "login_cookie_label",
+      "value": "Cookie"
+    },
+    {
+      "name": "login_phone_hint",
+      "value": "僅支持中國大陸手機號"
     }
   ]
 }

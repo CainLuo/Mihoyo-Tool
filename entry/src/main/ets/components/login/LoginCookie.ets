@@ -12,33 +12,56 @@ export struct LoginCookie {
 
   build() {
     Column({ space: this.tm.current.value16 }) {
+      // 操作说明
       Text($r('app.string.login_cookie_hint'))
-        .font(this.tm.current.body13)
+        .font(this.tm.current.body12)
         .fontColor(this.tm.current.colorTextSecondary)
         .width(this.tm.current.widthFull)
         .textAlign(TextAlign.Center)
 
-      TextArea({ placeholder: $r('app.string.login_cookie_placeholder'), text: this.vm.cookieInput })
-        .width(this.tm.current.widthFull)
-        .height(this.tm.current.heightTextArea)
-        .borderRadius(this.tm.current.radius8)
-        .borderWidth(this.tm.current.cardBorderWidth)
-        .borderColor(this.tm.current.colorCardBorder)
-        .backgroundColor(this.tm.current.colorCardBg)
-        .placeholderColor(this.tm.current.colorPlaceholder)
-        .onChange((val: string) => {
-          this.vm.cookieInput = val;
-        })
+      // Cookie 输入框
+      Column({ space: this.tm.current.value8 }) {
+        Text($r('app.string.login_cookie_label'))
+          .font(this.tm.current.body12)
+          .fontColor(this.tm.current.colorTextSecondary)
+          .width(this.tm.current.widthFull)
 
-      Button($r('app.string.login_button'), { type: ButtonType.Capsule })
+        TextArea({ placeholder: $r('app.string.login_cookie_placeholder'), text: this.vm.cookieInput })
+          .width(this.tm.current.widthFull)
+          .height(this.tm.current.loginCookieAreaHeight)
+          .borderRadius(this.tm.current.radius8)
+          .borderWidth(this.tm.current.cardBorderWidth)
+          .borderColor(this.tm.current.colorCardBorder)
+          .backgroundColor(this.tm.current.loginInputBg)
+          .placeholderColor(this.tm.current.colorPlaceholder)
+          .onChange((val: string) => {
+            this.vm.cookieInput = val;
+          })
+      }
+      .alignItems(HorizontalAlign.Start)
+
+      // 确认登录按钮
+      Button($r('app.string.login_button'), { type: ButtonType.Normal })
         .width(this.tm.current.widthFull)
-        .height(this.tm.current.heightButton)
+        .height(this.tm.current.loginInputHeight)
+        .borderRadius(this.tm.current.radius8)
         .backgroundColor(this.tm.current.colorPrimary)
+        .fontSize(this.tm.current.loginButtonFontSize)
+        .fontWeight(FontWeight.Bold)
+        .fontColor(Color.White)
         .enabled(!this.vm.isLoading && this.vm.cookieInput.trim().length > 0)
         .onClick(() => {
           this.vm.loginByCookie();
         })
 
+      // 安全提示
+      Text($r('app.string.login_cookie_security_hint'))
+        .font(this.tm.current.body12)
+        .fontColor(this.tm.current.colorPlaceholder)
+        .width(this.tm.current.widthFull)
+        .textAlign(TextAlign.Center)
+
+      // 错误提示
       if (this.vm.errorMsg.length > 0) {
         Text(this.vm.errorMsg)
           .font(this.tm.current.body13)

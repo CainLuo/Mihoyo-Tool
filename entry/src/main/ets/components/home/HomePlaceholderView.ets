@@ -1,6 +1,16 @@
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 import { AppRoutes } from '../../constants/AppRoutes'
-import { HMRouterMgr } from '@hadss/hmrouter'
+import { RouterUtil } from '../../utils/RouterUtil'
+
+@Preview
+@ComponentV2
+struct HomePlaceholderViewPreview {
+  build() {
+    HomePlaceholderView()
+      .height(600)
+      .backgroundColor('#F5F5F5')
+  }
+}
 
 @ComponentV2
 export struct HomePlaceholderView {
@@ -34,7 +44,7 @@ export struct HomePlaceholderView {
         .borderRadius(this.tm.current.radius12)
         .backgroundColor(this.tm.current.colorPrimary)
         .onClick(() => {
-          HMRouterMgr.push({ pageUrl: AppRoutes.LOGIN })
+          RouterUtil.push(AppRoutes.LOGIN)
         })
     }
     .width(this.tm.current.widthFull)

@@ -8,6 +8,24 @@
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { GameTabItem } from '../../viewmodel/CharactersViewModel';
 
+// ── Preview：多游戏 Tab，第一个选中 ──
+@Preview
+@ComponentV2
+struct GameTabBarPreview {
+  build() {
+    GameTabBar({
+      tabs: [
+        new GameTabItem('genshin', '100000001', $r('app.string.game_name_genshin')),
+        new GameTabItem('starrail', '200000001', $r('app.string.game_name_starrail')),
+        new GameTabItem('zzz', '300000001', $r('app.string.game_name_zzz')),
+      ],
+      selectedIdx: 0,
+      onSelect: (_i: number) => {}
+    })
+    .backgroundColor('#F5F5F5')
+  }
+}
+
 @ComponentV2
 export struct GameTabBar {
   @Param tabs: GameTabItem[] = [];

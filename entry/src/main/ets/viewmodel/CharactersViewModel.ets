@@ -16,10 +16,11 @@
  *   data     — 正常展示角色网格
  */
 
-import { AccountRepository, AccountWithRoles, CharacterRepository, SyncMetaDao, DataType, CoreInitializer } from 'core';
+import { AccountRepository, AccountWithRoles, CharacterRepository, SyncMetaDao, DataType, CoreInitializer, GameDataDao, GameRolePair } from 'core';
 import { GameDataSummary } from 'core';
 import { Logger } from '../utils/Logger';
 import { ViewState } from '../constants/ViewStates';
+import { AppConstants } from '../constants/AppConstants';
 import {
   GAME_GENSHIN,
   GAME_STARRAIL,
@@ -28,7 +29,6 @@ import {
 } from '../components/home/HomeModels';
 
 const TAG: string = 'CharactersViewModel';
-const SYNC_INTERVAL_MS: number = 30 * 60 * 1000;
 
 /** 账号选项（用于 Select 组件） */
 export class AccountOption {
@@ -57,6 +57,7 @@ export class GameTabItem {
 /** CharactersViewModel @Monitor 路径常量类型 */
 export class CharactersViewModelKeys {
   networkErrorMsg: string = 'vm.networkErrorMsg';
+  refreshCoolingDown: string = 'vm.refreshCoolingDown';
 }
 
 @ObservedV2
@@ -72,6 +73,7 @@ export class CharactersViewModel {
   @Trace characters: GameDataSummary[] = [];
   @Trace isRefreshing: boolean = false;
   @Trace networkErrorMsg: string = '';
+  @Trace refreshCoolingDown: boolean = false;
 
   // 原始账号+角色数据，切换时复用
   private allPairs: AccountWithRoles[] = [];
@@ -96,8 +98,10 @@ export class CharactersViewModel {
       Logger.error(TAG, `loadData failed: ${msg}`);
       this.viewState = ViewState.EMPTY;
     }
-    // 按需同步：若本地无数据则保持 LOADING 直到同步完成，有数据则后台静默同步
-    await this.syncIfNeeded();
+    // 若本地无数据，转为 EMPTY（不再自动触发网络同步）
+    if (this.viewState === ViewState.LOADING) {
+      this.viewState = ViewState.EMPTY;
+    }
   }
 
   /** 切换账号（Select 组件回调） */
@@ -116,17 +120,35 @@ export class CharactersViewModel {
       return;
     }
     this.selectedGameIdx = idx;
+    this.viewState = ViewState.LOADING;
     await this.reloadCharacters();
+    // 若本地无数据（非原神等暂未支持的游戏），直接转 EMPTY
+    if (this.viewState === ViewState.LOADING) {
+      this.viewState = ViewState.EMPTY;
+    }
   }
 
-  /** 手动刷新：强制同步当前游戏角色 */
+  /** 手动刷新：强制同步当前游戏角色，30 分钟内重复触发时发出冷却信号 */
   async refresh(): Promise<void> {
     if (this.isRefreshing || this.gameTabs.length === 0) {
       return;
     }
+    // 检查冷却：30 分钟内已同步过则提示用户
+    const tab = this.gameTabs[this.selectedGameIdx];
+    let inCooldown = false;
+    try {
+      inCooldown = !(await SyncMetaDao.needsSync(
+        tab.gameId, tab.roleUid, DataType.CHARACTER, AppConstants.AUTO_REFRESH_INTERVAL_MS
+      ));
+    } catch (_) {
+      inCooldown = false;
+    }
+    if (inCooldown) {
+      this.refreshCoolingDown = !this.refreshCoolingDown;
+      return;
+    }
     this.isRefreshing = true;
     try {
-      const tab = this.gameTabs[this.selectedGameIdx];
       const pair = this.allPairs[this.selectedAccountIdx];
       await CharacterRepository.syncCharacters(
         tab.gameId, tab.roleUid, this.findServer(tab.roleUid), pair.account.cookie
@@ -150,15 +172,36 @@ export class CharactersViewModel {
       return;
     }
     const pair = this.allPairs[this.selectedAccountIdx];
-    const tabs: GameTabItem[] = [];
-    for (let i = 0; i < pair.roles.length; i++) {
-      const role = pair.roles[i];
-      tabs[tabs.length] = new GameTabItem(
-        role.gameId,
-        role.roleId,
-        CharactersViewModel.gameNameResource(role.gameId)
-      );
+    let tabs: GameTabItem[] = [];
+
+    if (pair.roles.length > 0) {
+      // 优先用 game_role_table 里的角色记录构建 Tab
+      for (let i = 0; i < pair.roles.length; i++) {
+        const role = pair.roles[i];
+        tabs[tabs.length] = new GameTabItem(
+          role.gameId,
+          role.roleId,
+          CharactersViewModel.gameNameResource(role.gameId)
+        );
+      }
+    } else {
+      // Fallback：game_role_table 为空（Mock 模式或登录时角色拉取失败），
+      // 改为查 game_data 里实际有 character 数据的 (gameId, roleUid) 组合
+      try {
+        const pairs = await GameDataDao.findDistinctGameRoles(DataType.CHARACTER);
+        for (let i = 0; i < pairs.length; i++) {
+          tabs[tabs.length] = new GameTabItem(
+            pairs[i].gameId,
+            pairs[i].roleUid,
+            CharactersViewModel.gameNameResource(pairs[i].gameId)
+          );
+        }
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : `${error}`;
+        Logger.warn(TAG, `findDistinctGameRoles failed: ${msg}`);
+      }
     }
+
     this.gameTabs = tabs;
     if (tabs.length === 0) {
       this.characters = [];
@@ -179,59 +222,11 @@ export class CharactersViewModel {
     try {
       const rows = await CharacterRepository.findAll(tab.gameId, tab.roleUid);
       this.characters = rows;
-      if (rows.length > 0) {
-        this.viewState = ViewState.DATA;
-      }
-      // 本地无数据时不改变 viewState，保持 LOADING 等待 syncIfNeeded 完成后再更新
+      this.viewState = rows.length > 0 ? ViewState.DATA : ViewState.EMPTY;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `reloadCharacters failed: ${msg}`);
       this.characters = [];
-      this.viewState = ViewState.EMPTY;
-    }
-  }
-
-  /** 后台按需同步：遍历当前账号所有游戏角色 */
-  private async syncIfNeeded(): Promise<void> {
-    if (this.allPairs.length === 0) {
-      return;
-    }
-    const pair = this.allPairs[this.selectedAccountIdx];
-    for (let i = 0; i < pair.roles.length; i++) {
-      const role = pair.roles[i];
-      if (role.gameId !== GAME_GENSHIN) {
-        continue; // 目前只支持原神
-      }
-      let needed = false;
-      try {
-        needed = await SyncMetaDao.needsSync(role.gameId, role.roleId, DataType.CHARACTER, SYNC_INTERVAL_MS);
-      } catch (_) {
-        needed = true;
-      }
-      if (!needed) {
-        continue;
-      }
-      try {
-        await CharacterRepository.syncCharacters(
-          role.gameId, role.roleId, role.server, pair.account.cookie
-        );
-        // 如果同步的正好是当前显示的游戏，刷新列表
-        if (this.gameTabs.length > 0) {
-          const current = this.gameTabs[this.selectedGameIdx];
-          if (current.gameId === role.gameId && current.roleUid === role.roleId) {
-            await this.reloadCharacters();
-          }
-        }
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : `${error}`;
-        Logger.warn(TAG, `syncIfNeeded failed for ${role.gameId}/${role.roleId}: ${msg}`);
-        if (this.viewState !== ViewState.DATA) {
-          this.networkErrorMsg = msg;
-        }
-      }
-    }
-    // 所有同步完成后，若仍处于 LOADING（本地始终无数据），转为 EMPTY
-    if (this.viewState === ViewState.LOADING) {
       this.viewState = ViewState.EMPTY;
     }
   }

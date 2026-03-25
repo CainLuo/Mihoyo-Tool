@@ -5,6 +5,7 @@ import { NetworkFactory } from './network/NetworkFactory';
 import { GameDataDao } from './database/GameDataDao';
 import { SyncMetaDao } from './database/SyncMetaDao';
 import { DataType } from './models/GameDataRow';
+import { CharacterRepository } from './repository/CharacterRepository';
 
 /**
  * 核心库配置接口
@@ -48,7 +49,7 @@ export class CoreInitializer {
       await CoreInitializer.seedMockData();
     }
 
-    // 通知所有等待方：RDB 已就绪
+    // 通知所有等待方：RDB 已就绪（seedMockData 已完成，数据已填充）
     if (CoreInitializer.readyResolve !== null) {
       CoreInitializer.readyResolve();
       CoreInitializer.readyResolve = null;
@@ -65,48 +66,57 @@ export class CoreInitializer {
 
   /**
    * 预填充 Mock 测试数据。
-   * 每次 Mock 启动都清空角色数据并重置同步时间，确保使用最新格式的 raw_json。
+   * 每次 Mock 启动都清空角色数据并重新从 Mock JSON 填充，确保使用最新格式的 raw_json。
    */
   private static async seedMockData(): Promise<void> {
     try {
-      // 每次 Mock 启动都清空角色数据，强制重新同步（确保 raw_json 格式最新）
+      const accounts = await AccountRepository.findAllAccounts();
+      let accountId: number;
+
+      if (accounts.length === 0) {
+        // 首次启动：插入账号和角色记录
+        accountId = await AccountRepository.insertAccount('182692936', 'mock_cookie');
+
+        const genshinRole = new GameRoleRow();
+        genshinRole.accountId = accountId;
+        genshinRole.gameId = 'genshin';
+        genshinRole.roleId = '109050292';
+        genshinRole.nickname = '旅行者';
+        genshinRole.level = 60;
+        genshinRole.server = 'cn_gf01';
+
+        const starrailRole = new GameRoleRow();
+        starrailRole.accountId = accountId;
+        starrailRole.gameId = 'starrail';
+        starrailRole.roleId = '102731382';
+        starrailRole.nickname = '开拓者';
+        starrailRole.level = 70;
+        starrailRole.server = 'prod_gf_cn';
+
+        await AccountRepository.replaceRoles(accountId, [genshinRole, starrailRole]);
+        // 激活 Mock 账号，确保 findActiveAccount() 能找到它
+        await AccountRepository.setActiveAccount(accountId);
+      } else {
+        accountId = accounts[0].id;
+        // 确保已有账号处于激活状态（兼容旧数据）
+        if (!accounts[0].isActive) {
+          await AccountRepository.setActiveAccount(accountId);
+        }
+      }
+
+      // 每次 Mock 启动都清空并重新同步角色数据（确保 raw_json 格式最新）
       try {
         await GameDataDao.deleteByType('genshin', '109050292', DataType.CHARACTER);
         await SyncMetaDao.resetSyncTime('genshin', '109050292', DataType.CHARACTER);
       } catch (_) {}
 
-      const accounts = await AccountRepository.findAllAccounts();
-      // 已有账号则跳过账号/角色插入
-      if (accounts.length > 0) {
-        return;
-      }
+      // 立即从 Mock JSON 填充原神角色数据
+      try {
+        await CharacterRepository.syncCharacters('genshin', '109050292', 'cn_gf01', 'mock_cookie');
+      } catch (_) {}
 
-      // 插入米游社账号（UID 作为 username）
-      const accountId = await AccountRepository.insertAccount('182692936', 'mock_cookie');
-
-      // 插入原神角色
-      const genshinRole = new GameRoleRow();
-      genshinRole.accountId = accountId;
-      genshinRole.gameId = 'genshin';
-      genshinRole.roleId = '109050292';
-      genshinRole.nickname = '旅行者';
-      genshinRole.level = 60;
-      genshinRole.server = 'cn_gf01';
-
-      // 插入星穹铁道角色
-      const starrailRole = new GameRoleRow();
-      starrailRole.accountId = accountId;
-      starrailRole.gameId = 'starrail';
-      starrailRole.roleId = '102731382';
-      starrailRole.nickname = '开拓者';
-      starrailRole.level = 70;
-      starrailRole.server = 'prod_gf_cn';
-
-      const roles: GameRoleRow[] = [genshinRole, starrailRole];
-      await AccountRepository.replaceRoles(accountId, roles);
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
-      // Mock 数据预填充失败不影响主流程，仅记录
       console.warn(`CoreInitializer.seedMockData failed: ${msg}`);
     }
   }

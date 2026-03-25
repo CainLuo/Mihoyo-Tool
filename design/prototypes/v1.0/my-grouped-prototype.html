@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <title>My Page — Grouped List + NavBar Fade</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: #080810;
+        font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+
+      .bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: #111118;
+        border-bottom: 1px solid #2a2a3a;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        flex-wrap: wrap;
+      }
+      .btn {
+        padding: 3px 10px;
+        border-radius: 6px;
+        border: 1px solid #333;
+        background: #1a1a28;
+        color: #aaa;
+        font-size: 11px;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn.on {
+        background: #3a6fd8;
+        border-color: #3a6fd8;
+        color: #fff;
+      }
+      .wrap {
+        margin-top: 52px;
+        display: flex;
+        justify-content: center;
+        padding: 20px 16px;
+      }
+      .screen {
+        border: 2px solid #2a2a3a;
+        border-radius: 12px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      /* ── Light mode ── */
+      .page-light {
+        background: #f2f2f7;
+        font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* NavBar */
+      .navbar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        height: 56px;
+        display: flex;
+        align-items: flex-end;
+        padding: 0 16px 10px;
+        transition:
+          background 0.25s ease,
+          box-shadow 0.25s ease;
+      }
+      .navbar.transparent {
+        background: transparent;
+        box-shadow: none;
+      }
+      .navbar.filled {
+        background: rgba(242, 242, 247, 0.92);
+        backdrop-filter: blur(20px);
+        box-shadow: 0 0.5px 0 rgba(0, 0, 0, 0.12);
+      }
+      .navbar-title {
+        font-size: 24px;
+        font-weight: 700;
+        color: #000;
+        line-height: 1;
+        transition:
+          font-size 0.25s ease,
+          opacity 0.25s ease;
+      }
+      .navbar.filled .navbar-title {
+        font-size: 17px;
+        font-weight: 600;
+      }
+
+      /* Scroll area */
+      .scroll-area {
+        flex: 1;
+        overflow-y: auto;
+        padding-top: 56px;
+        scrollbar-width: none;
+      }
+      .scroll-area::-webkit-scrollbar {
+        display: none;
+      }
+
+      .content-pad {
+        padding: 8px 16px 32px;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+
+      /* Section */
+      .section {
+        margin-bottom: 24px;
+      }
+      .section-header {
+        font-size: 13px;
+        color: #6c6c70;
+        padding: 0 16px 6px;
+        font-weight: 400;
+      }
+      .section-body {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+
+      /* Cell */
+      .cell {
+        display: flex;
+        align-items: center;
+        min-height: 50px;
+        padding: 0 16px;
+        gap: 12px;
+        position: relative;
+      }
+      .cell + .cell::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 16px;
+        right: 0;
+        height: 0.5px;
+        background: rgba(0, 0, 0, 0.1);
+      }
+      .cell-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 18px;
+        background: #007aff;
+        flex-shrink: 0;
+      }
+      .cell-body {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .cell-title {
+        font-size: 16px;
+        color: #000;
+        font-weight: 400;
+      }
+      .cell-subtitle {
+        font-size: 13px;
+        color: #6c6c70;
+      }
+      .cell-value {
+        font-size: 16px;
+        color: #6c6c70;
+      }
+      .cell-link {
+        font-size: 16px;
+        color: #007aff;
+      }
+      .cell-arrow {
+        color: #c7c7cc;
+        font-size: 14px;
+        margin-left: 4px;
+      }
+
+      /* Theme chips */
+      .chip-row {
+        display: flex;
+        gap: 6px;
+      }
+      .chip {
+        padding: 4px 10px;
+        border-radius: 8px;
+        font-size: 13px;
+        cursor: pointer;
+        background: #e5e5ea;
+        color: #6c6c70;
+        border: none;
+        font-family: inherit;
+      }
+      .chip.active {
+        background: #007aff;
+        color: #fff;
+      }
+
+      /* Add account button */
+      .add-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 50px;
+        font-size: 16px;
+        color: #007aff;
+        background: #fff;
+        border-radius: 12px;
+        cursor: pointer;
+        border: none;
+        width: 100%;
+        font-family: inherit;
+      }
+
+      /* ── Dark mode ── */
+      .page-dark {
+        background: #000;
+        font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        overflow: hidden;
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+      .page-dark .navbar.transparent {
+        background: transparent;
+      }
+      .page-dark .navbar.filled {
+        background: rgba(28, 28, 30, 0.92);
+        box-shadow: 0 0.5px 0 rgba(255, 255, 255, 0.1);
+      }
+      .page-dark .navbar-title {
+        color: #fff;
+      }
+      .page-dark .scroll-area {
+        background: #000;
+      }
+      .page-dark .section-header {
+        color: #8e8e93;
+      }
+      .page-dark .section-body {
+        background: #1c1c1e;
+      }
+      .page-dark .cell-title {
+        color: #fff;
+      }
+      .page-dark .cell-subtitle {
+        color: #8e8e93;
+      }
+      .page-dark .cell-value {
+        color: #8e8e93;
+      }
+      .page-dark .cell-link {
+        color: #0a84ff;
+      }
+      .page-dark .cell + .cell::before {
+        background: rgba(255, 255, 255, 0.1);
+      }
+      .page-dark .chip {
+        background: #2c2c2e;
+        color: #8e8e93;
+      }
+      .page-dark .chip.active {
+        background: #0a84ff;
+        color: #fff;
+      }
+      .page-dark .add-btn {
+        background: #1c1c1e;
+        color: #0a84ff;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bar">
+      <button class="btn" onclick="go('pp', 'light')">
+        Phone 竖屏<br />360×780 浅色
+      </button>
+      <button class="btn" onclick="go('pp', 'dark')">
+        Phone 竖屏<br />360×780 深色
+      </button>
+      <button class="btn" onclick="go('pl', 'light')">
+        Phone 横屏<br />780×360 浅色
+      </button>
+      <button class="btn" onclick="go('fd', 'light')">
+        Foldable<br />932×600 浅色
+      </button>
+      <button class="btn" onclick="go('tb', 'light')">
+        Tablet<br />1024×768 浅色
+      </button>
+    </div>
+    <div class="wrap">
+      <div class="screen" id="S"></div>
+    </div>
+
+    <script>
+      var DEVS = {
+        pp: [360, 780],
+        pl: [780, 360],
+        fd: [932, 600],
+        tb: [1024, 768],
+      };
+      var currentTheme = "light";
+
+      function render(dev, theme) {
+        var w = DEVS[dev][0];
+        var isDark = theme === "dark";
+        var pageClass = isDark ? "page-dark" : "page-light";
+        var bgColor = isDark ? "#000" : "#F2F2F7";
+
+        return `
+<div class="${pageClass}" style="width:${w}px;height:${DEVS[dev][1]}px;background:${bgColor}">
+  <!-- NavBar -->
+  <div class="navbar transparent" id="navbar">
+    <span class="navbar-title">我的</span>
+  </div>
+
+  <!-- Scroll area -->
+  <div class="scroll-area" id="scrollArea" onscroll="handleScroll(this)">
+    <div class="content-pad">
+
+      <!-- 大标题区（随滚动消失） -->
+      <div style="height:40px;display:flex;align-items:center;padding:0 4px;margin-bottom:8px">
+        <span style="font-size:34px;font-weight:700;color:${isDark ? "#fff" : "#000"}">我的</span>
+      </div>
+
+      <!-- Section 1: 账号管理 -->
+      <div class="section">
+        <div class="section-header">账号管理</div>
+        <div class="section-body">
+          <div class="cell">
+            <div class="cell-avatar"></div>
+            <div class="cell-body">
+              <div class="cell-title">182692936</div>
+              <div class="cell-subtitle">2 个游戏角色</div>
+            </div>
+            <span class="cell-arrow">›</span>
+          </div>
+        </div>
+        <div style="height:8px"></div>
+        <button class="add-btn">+ 添加账号</button>
+      </div>
+
+      <!-- Section 2: 外观设置 -->
+      <div class="section">
+        <div class="section-header">外观设置</div>
+        <div class="section-body">
+          <div class="cell">
+            <div class="cell-body">
+              <div class="cell-title">主题</div>
+            </div>
+            <div class="chip-row">
+              <button class="chip" onclick="setChip(this,'浅色')">浅色</button>
+              <button class="chip" onclick="setChip(this,'深色')">深色</button>
+              <button class="chip active" onclick="setChip(this,'跟随系统')">跟随系统</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section 3: 关于 -->
+      <div class="section">
+        <div class="section-header">关于</div>
+        <div class="section-body">
+          <div class="cell">
+            <div class="cell-body"><div class="cell-title">版本</div></div>
+            <span class="cell-value">1.0.0</span>
+          </div>
+          <div class="cell">
+            <div class="cell-body"><div class="cell-title">GitHub</div></div>
+            <span class="cell-link">github.com/cainluo/Mihoyo-Tool</span>
+          </div>
+          <div class="cell">
+            <div class="cell-body"><div class="cell-title">许可证</div></div>
+            <span class="cell-value">MIT License</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 额外内容撑高，演示滚动效果 -->
+      <div style="height:200px"></div>
+
+    </div>
+  </div>
+</div>`;
+      }
+
+      function handleScroll(el) {
+        var navbar = el.parentElement.querySelector("#navbar");
+        // 大标题高度约 40+8=48px，滚过这个距离后 NavBar 变实色
+        if (el.scrollTop > 48) {
+          navbar.classList.remove("transparent");
+          navbar.classList.add("filled");
+        } else {
+          navbar.classList.remove("filled");
+          navbar.classList.add("transparent");
+        }
+      }
+
+      function setChip(el, label) {
+        var chips = el.parentElement.querySelectorAll(".chip");
+        for (var i = 0; i < chips.length; i++)
+          chips[i].classList.remove("active");
+        el.classList.add("active");
+      }
+
+      function go(dev, theme) {
+        currentTheme = theme || currentTheme;
+        var btns = document.querySelectorAll(".btn");
+        var keys = ["pp-light", "pp-dark", "pl-light", "fd-light", "tb-light"];
+        var cur = dev + "-" + currentTheme;
+        for (var i = 0; i < btns.length; i++) {
+          btns[i].classList.toggle("on", keys[i] === cur);
+        }
+        var d = DEVS[dev];
+        var s = document.getElementById("S");
+        s.style.width = d[0] + "px";
+        s.style.height = d[1] + "px";
+        s.innerHTML = render(dev, currentTheme);
+      }
+
+      go("pp", "light");
+    </script>
+  </body>
+</html>

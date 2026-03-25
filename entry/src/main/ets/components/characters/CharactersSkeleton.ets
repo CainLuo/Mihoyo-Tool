@@ -8,9 +8,38 @@
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { AppConstants } from '../../constants/AppConstants';
 
+@Preview
+@ComponentV2
+struct CharactersSkeletonPreview {
+  build() {
+    CharactersSkeleton()
+      .height(600)
+      .backgroundColor('#F5F5F5')
+  }
+}
+
 @ComponentV2
 export struct CharactersSkeleton {
   @Local private tm: ThemeManager = themeManager;
+  @Local private imgOpacity: number = themeManager.current.shimmerOpacityHigh;
+  private uiCtx: UIContext | null = null;
+
+  aboutToAppear(): void {
+    this.uiCtx = this.getUIContext();
+    const ctx = this.uiCtx;
+    if (ctx === null) { return; }
+    ctx.animateTo(
+      {
+        duration: this.tm.current.animDurationShimmer,
+        curve: Curve.EaseInOut,
+        iterations: -1,
+        playMode: PlayMode.Alternate
+      },
+      () => {
+        this.imgOpacity = this.tm.current.shimmerOpacityLow;
+      }
+    );
+  }
 
   build() {
     GridRow({
@@ -23,27 +52,32 @@ export struct CharactersSkeleton {
     }) {
       ForEach(AppConstants.SKELETON_CHARACTER_INDICES, (skIdx: number) => {
         GridCol({ span: 1 }) {
-          Column({ space: this.tm.current.value8 }) {
+          Column() {
+            // 模拟 1:1 图片区
             Row()
               .width(this.tm.current.widthFull)
-              .height(this.tm.current.skeletonBlockH)
-              .borderRadius(this.tm.current.skeletonBlockR)
-              .backgroundColor(this.tm.current.colorDivider)
+              .aspectRatio(1)
+              .backgroundColor(this.tm.current.colorSkeletonBg)
+              .opacity(this.imgOpacity)
+
+            // 模拟等级 + 好感度信息行
             Row()
               .width(this.tm.current.skeletonTextW)
               .height(this.tm.current.skeletonBlockH)
               .borderRadius(this.tm.current.skeletonBlockR)
-              .backgroundColor(this.tm.current.colorDivider)
-            Row()
-              .width(this.tm.current.value40)
-              .height(this.tm.current.skeletonBlockH)
-              .borderRadius(this.tm.current.skeletonBlockR)
-              .backgroundColor(this.tm.current.colorDivider)
+              .backgroundColor(this.tm.current.colorSkeletonBg)
+              .opacity(this.imgOpacity)
+              .margin({
+                top: this.tm.current.value8,
+                bottom: this.tm.current.value8,
+                left: this.tm.current.value10,
+              })
           }
           .width(this.tm.current.widthFull)
-          .padding(this.tm.current.value12)
-          .backgroundColor(this.tm.current.colorCardBg)
+          .backgroundColor(this.tm.current.colorSurfaceCard)
           .borderRadius(this.tm.current.radius12)
+          .border({ width: this.tm.current.cardBorderWidth, color: this.tm.current.colorCardBorder })
+          .clip(true)
         }
       }, (skIdx: number) => `sk_${skIdx}`)
     }

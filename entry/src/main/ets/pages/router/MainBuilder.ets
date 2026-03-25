@@ -1,7 +1,7 @@
 import { Main } from '../Main';
 
 @Builder
-export function MainBuilder(_name: string, _param: object) {
+export function MainBuilder(_name: string, _param: Object) {
   MainDestination()
 }
 

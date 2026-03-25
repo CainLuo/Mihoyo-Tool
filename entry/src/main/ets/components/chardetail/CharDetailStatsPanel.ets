@@ -8,9 +8,72 @@
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import {
   GenshinCharacterDetailViewModel,
-  CharDetailStat
+  CharDetailStat,
+  CharDetailWeapon
 } from '../../viewmodel/GenshinCharacterDetailViewModel';
 import { elementColor } from '../characters/CharacterCard';
+import { GenshinElement } from '../../constants/GenshinElement';
+import { ViewState } from '../../constants/ViewStates';
+
+function makeMockStatsPanelVM(): GenshinCharacterDetailViewModel {
+  const vm = new GenshinCharacterDetailViewModel();
+  vm.viewState = ViewState.DATA;
+  vm.charElement = GenshinElement.HYDRO;
+  const w = new CharDetailWeapon();
+  w.name = '苇海信标';
+  w.level = 90;
+  w.maxLevel = 90;
+  w.affix = 1;
+  w.rarity = 5;
+  w.subLabel = $r('app.string.prop_crit_rate');
+  w.subVal = '22.1%';
+  vm.weapon = w;
+  const stats: CharDetailStat[] = [];
+  const rows: Array<[Resource, string, boolean]> = [
+    [$r('app.string.char_detail_hp'), '38450', false],
+    [$r('app.string.char_detail_atk'), '2847', false],
+    [$r('app.string.char_detail_def'), '1024', false],
+    [$r('app.string.char_detail_em'), '86', false],
+    [$r('app.string.char_detail_cr'), '72.4%', true],
+    [$r('app.string.char_detail_cd'), '198.6%', true],
+    [$r('app.string.char_detail_er'), '132.0%', false],
+  ];
+  for (let i = 0; i < rows.length; i++) {
+    stats[stats.length] = new CharDetailStat(rows[i][0], rows[i][1], rows[i][2]);
+  }
+  vm.stats = stats;
+  return vm;
+}
+
+// ── Preview：宽屏模式（武器卡片 + 属性列表）──
+@Preview
+@ComponentV2
+struct CharDetailStatsPanelPreviewWide {
+  build() {
+    CharDetailStatsPanel({
+      vm: makeMockStatsPanelVM(),
+      isPhone: false
+    })
+    .width(280)
+    .height(500)
+    .backgroundColor('#0D0D18')
+  }
+}
+
+// ── Preview：Phone 模式（武器行 + 属性网格）──
+@Preview
+@ComponentV2
+struct CharDetailStatsPanelPreviewPhone {
+  build() {
+    CharDetailStatsPanel({
+      vm: makeMockStatsPanelVM(),
+      isPhone: true,
+      phoneCols: 2
+    })
+    .width(360)
+    .backgroundColor('#0D0D18')
+  }
+}
 
 @ComponentV2
 export struct CharDetailStatsPanel {
@@ -42,13 +105,13 @@ export struct CharDetailStatsPanel {
             .height(this.tm.current.charDetailWeaponIconSizeLG)
             .objectFit(ImageFit.Contain)
             .borderRadius(this.tm.current.value8)
-            .backgroundColor('rgba(255,255,255,0.06)')
+            .backgroundColor(this.tm.current.surfaceGlassSm)
         } else {
           Column()
             .width(this.tm.current.charDetailWeaponIconSizeLG)
             .height(this.tm.current.charDetailWeaponIconSizeLG)
             .borderRadius(this.tm.current.value8)
-            .backgroundColor('rgba(255,255,255,0.06)')
+            .backgroundColor(this.tm.current.surfaceGlassSm)
         }
 
         Column({ space: this.tm.current.value4 }) {
@@ -62,19 +125,19 @@ export struct CharDetailStatsPanel {
             Text($r('app.string.char_detail_weapon_refine_prefix', this.vm.weapon.affix))
               .fontSize(this.tm.current.body10.size)
               .fontWeight(FontWeight.Bold)
-              .fontColor('#ffca28')
-              .backgroundColor('rgba(255,202,40,0.15)')
+              .fontColor(this.tm.current.accentRefine)
+              .backgroundColor(this.tm.current.accentRefineBg)
               .borderRadius(this.tm.current.value4)
-              .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: 1, bottom: 1 })
+              .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.charDetailPaddingTiny, bottom: this.tm.current.charDetailPaddingTiny })
             Text($r('app.string.char_detail_weapon_lv_prefix', this.vm.weapon.level, this.vm.weapon.maxLevel))
               .fontSize(this.tm.current.body10.size)
-              .fontColor('rgba(255,255,255,0.5)')
+              .fontColor(this.tm.current.textOnDarkMuted)
           }
-          if (this.vm.weapon.subLabel !== '') {
+          if (this.vm.weapon.subLabel !== null) {
             Row({ space: this.tm.current.value4 }) {
               Text(this.vm.weapon.subLabel)
                 .fontSize(this.tm.current.body12.size)
-                .fontColor('rgba(255,255,255,0.6)')
+                .fontColor(this.tm.current.textOnDarkMuted)
               Text(this.vm.weapon.subVal)
                 .fontSize(this.tm.current.body12.size)
                 .fontColor(elementColor(this.vm.charElement))
@@ -92,14 +155,14 @@ export struct CharDetailStatsPanel {
         ForEach(this.buildStarArray(this.vm.weapon.rarity), (_: number, idx: number) => {
           Text('★')
             .fontSize(this.tm.current.body12.size)
-            .fontColor('#ffca28')
+            .fontColor(this.tm.current.accentRefine)
         }, (_: number, idx: number) => `star_${idx}`)
       }
     }
     .width(this.tm.current.widthFull)
     .padding(this.tm.current.value12)
-    .backgroundColor('rgba(255,255,255,0.04)')
-    .border({ width: { bottom: 1 }, color: 'rgba(255,255,255,0.07)' })
+    .backgroundColor(this.tm.current.surfaceGlassXs)
+    .border({ width: { bottom: this.tm.current.charDetailBorderWidth }, color: this.tm.current.surfaceOverlayMd })
   }
 
   /** 武器行（Phone 紧凑样式） */
@@ -112,7 +175,7 @@ export struct CharDetailStatsPanel {
           .height(this.tm.current.charDetailWeaponIconSizeSM)
           .objectFit(ImageFit.Contain)
           .borderRadius(this.tm.current.value8)
-          .backgroundColor('rgba(255,255,255,0.08)')
+          .backgroundColor(this.tm.current.surfaceGlassMd)
       }
       Column({ space: this.tm.current.value2 }) {
         Text(this.vm.weapon.name)
@@ -124,19 +187,19 @@ export struct CharDetailStatsPanel {
         Row({ space: this.tm.current.value4 }) {
           Text(`Lv.${this.vm.weapon.level}`)
             .fontSize(this.tm.current.body10.size)
-            .fontColor('rgba(255,255,255,0.6)')
+            .fontColor(this.tm.current.textOnDarkGhost)
           Text($r('app.string.char_detail_weapon_refine_prefix', this.vm.weapon.affix))
             .fontSize(this.tm.current.body10.size)
             .fontWeight(FontWeight.Bold)
-            .fontColor('#ffca28')
-            .backgroundColor('rgba(255,202,40,0.15)')
+            .fontColor(this.tm.current.accentRefine)
+            .backgroundColor(this.tm.current.accentRefineBg)
             .borderRadius(this.tm.current.value4)
-            .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: 1, bottom: 1 })
-          if (this.vm.weapon.subLabel !== '') {
+            .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.charDetailPaddingTiny, bottom: this.tm.current.charDetailPaddingTiny })
+          if (this.vm.weapon.subLabel !== null) {
             Row({ space: this.tm.current.value4 }) {
               Text(this.vm.weapon.subLabel)
                 .fontSize(this.tm.current.body10.size)
-                .fontColor('rgba(255,255,255,0.5)')
+                .fontColor(this.tm.current.textOnDarkMuted)
               Text(this.vm.weapon.subVal)
                 .fontSize(this.tm.current.body10.size)
                 .fontColor(elementColor(this.vm.charElement))
@@ -149,8 +212,8 @@ export struct CharDetailStatsPanel {
     }
     .width(this.tm.current.widthFull)
     .padding({ left: this.tm.current.value10, right: this.tm.current.value10, top: this.tm.current.value8, bottom: this.tm.current.value8 })
-    .backgroundColor('rgba(255,255,255,0.03)')
-    .border({ width: { bottom: 1 }, color: 'rgba(255,255,255,0.06)' })
+    .backgroundColor(this.tm.current.surfaceDarkXs)
+    .border({ width: { bottom: this.tm.current.charDetailBorderWidth }, color: this.tm.current.surfaceGlassSm })
   }
 
   /** 属性列表（宽屏，每行一条） */
@@ -161,7 +224,7 @@ export struct CharDetailStatsPanel {
         Row() {
           Text(stat.labelKey)
             .fontSize(this.tm.current.body13.size)
-            .fontColor('rgba(255,255,255,0.7)')
+            .fontColor(this.tm.current.textOnDarkSecondary)
             .layoutWeight(1)
           Text(stat.value)
             .fontSize(this.tm.current.body13Bold.size)
@@ -175,7 +238,7 @@ export struct CharDetailStatsPanel {
           top: this.tm.current.value8,
           bottom: this.tm.current.value8
         })
-        .border({ width: { bottom: 1 }, color: 'rgba(255,255,255,0.05)' })
+        .border({ width: { bottom: this.tm.current.charDetailBorderWidth }, color: this.tm.current.surfaceOverlaySm })
       }, (stat: CharDetailStat, idx: number) => `stat_${idx}`)
     }
     .width(this.tm.current.widthFull)
@@ -190,7 +253,7 @@ export struct CharDetailStatsPanel {
           Row() {
             Text(stat.labelKey)
               .fontSize(this.tm.current.body12.size)
-              .fontColor('rgba(255,255,255,0.6)')
+              .fontColor(this.tm.current.textOnDarkSecondary)
               .layoutWeight(1)
             Text(stat.value)
               .fontSize(this.tm.current.body12.size)
@@ -198,14 +261,14 @@ export struct CharDetailStatsPanel {
               .fontColor(stat.isHighlight ? elementColor(this.vm.charElement) : Color.White)
           }
           .width(this.tm.current.widthFull)
-          .padding({ left: this.tm.current.value8, right: this.tm.current.value8, top: 5, bottom: 5 })
-          .border({ width: { right: 1, bottom: 1 }, color: 'rgba(255,255,255,0.05)' })
+          .padding({ left: this.tm.current.value8, right: this.tm.current.value8, top: this.tm.current.charDetailStatsPaddingV, bottom: this.tm.current.charDetailStatsPaddingV })
+          .border({ width: { right: this.tm.current.charDetailBorderWidth, bottom: this.tm.current.charDetailBorderWidth }, color: this.tm.current.surfaceOverlaySm })
         }
       }, (stat: CharDetailStat, idx: number) => `pstat_${idx}`)
     }
     .columnsTemplate(this.phoneCols === 4 ? '1fr 1fr 1fr 1fr' : '1fr 1fr')
     .width(this.tm.current.widthFull)
-    .backgroundColor('rgba(0,0,0,0.25)')
+    .backgroundColor(this.tm.current.surfaceDarkLg)
   }
 
   build() {
@@ -231,7 +294,7 @@ export struct CharDetailStatsPanel {
       .width(this.tm.current.widthFull)
       .height(this.tm.current.heightFull)
       .borderRadius(this.tm.current.radius8)
-      .backgroundColor('rgba(0,0,0,0.35)')
+      .backgroundColor(this.tm.current.surfaceDarkXl)
       .clip(true)
     }
   }

@@ -11,6 +11,80 @@ import {
   CharDetailRelic,
   RelicSubStat
 } from '../../viewmodel/GenshinCharacterDetailViewModel';
+import { GenshinElement } from '../../constants/GenshinElement';
+import { ViewState } from '../../constants/ViewStates';
+
+function makeSub(label: Resource, value: string): RelicSubStat {
+  const s = new RelicSubStat();
+  s.label = label;
+  s.value = value;
+  return s;
+}
+
+function makeMockRelicsPanelVM(): GenshinCharacterDetailViewModel {
+  const vm = new GenshinCharacterDetailViewModel();
+  vm.viewState = ViewState.DATA;
+  vm.charElement = GenshinElement.HYDRO;
+  const relicDefs: Array<[number, string, Resource, string]> = [
+    [1, '花', $r('app.string.prop_hp_flat'), '4780'],
+    [2, '羽', $r('app.string.prop_atk_flat'), '311'],
+    [3, '沙', $r('app.string.prop_atk_pct'), '46.6%'],
+    [4, '杯', $r('app.string.prop_hydro_dmg'), '46.6%'],
+    [5, '冠', $r('app.string.prop_crit_rate'), '31.1%'],
+  ];
+  const relics: CharDetailRelic[] = [];
+  for (let i = 0; i < relicDefs.length; i++) {
+    const r = new CharDetailRelic();
+    r.pos = relicDefs[i][0];
+    r.setName = '追忆之注连';
+    r.level = 20;
+    r.rarity = 5;
+    r.mainStatLabel = relicDefs[i][2];
+    r.mainStatValue = relicDefs[i][3];
+    r.subStats = [
+      makeSub($r('app.string.prop_crit_rate'), '7.8%'),
+      makeSub($r('app.string.prop_crit_dmg'), '15.6%'),
+      makeSub($r('app.string.prop_atk_pct'), '5.8%'),
+      makeSub($r('app.string.prop_energy_recharge'), '11.0%'),
+    ];
+    relics[relics.length] = r;
+  }
+  vm.relics = relics;
+  return vm;
+}
+
+// ── Preview：宽屏模式（5行等分）──
+@Preview
+@ComponentV2
+struct CharDetailRelicsPanelPreviewWide {
+  build() {
+    CharDetailRelicsPanel({
+      vm: makeMockRelicsPanelVM(),
+      isPhone: false
+    })
+    .width(320)
+    .height(500)
+    .backgroundColor('#0D0D18')
+  }
+}
+
+// ── Preview：Phone 模式（2列网格卡片）──
+@Preview
+@ComponentV2
+struct CharDetailRelicsPanelPreviewPhone {
+  build() {
+    Scroll() {
+      CharDetailRelicsPanel({
+        vm: makeMockRelicsPanelVM(),
+        isPhone: true
+      })
+      .padding(8)
+    }
+    .width(360)
+    .height(600)
+    .backgroundColor('#0D0D18')
+  }
+}
 
 @ComponentV2
 export struct CharDetailRelicsPanel {
@@ -43,12 +117,12 @@ export struct CharDetailRelicsPanel {
           Column()
             .width(this.tm.current.relicIconSizeLG)
             .height(this.tm.current.relicIconSizeLG)
-            .backgroundColor('rgba(255,255,255,0.08)')
+            .backgroundColor(this.tm.current.surfaceGlassMd)
             .borderRadius(this.tm.current.value4)
         }
-        Text(relic.mainStatLabel)
-          .fontSize(9)
-          .fontColor('rgba(255,255,255,0.5)')
+        Text(relic.mainStatLabel ?? $r('app.string.char_detail_no_data'))
+          .fontSize(this.tm.current.charDetailRelicFontSizeTiny)
+          .fontColor(this.tm.current.textOnDarkMuted)
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
         Text(relic.mainStatValue)
@@ -58,25 +132,25 @@ export struct CharDetailRelicsPanel {
           .maxLines(1)
         Text(this.starsText(relic.rarity))
           .fontSize(this.tm.current.body10.size)
-          .fontColor('#ffca28')
+          .fontColor(this.tm.current.accentRefine)
         Text($r('app.string.char_detail_relic_lv_prefix', relic.level))
-          .fontSize(9)
-          .fontColor('rgba(255,255,255,0.4)')
+          .fontSize(this.tm.current.charDetailRelicFontSizeTiny)
+          .fontColor(this.tm.current.textOnDarkFaint)
       }
       .width(this.tm.current.charDetailRelicLeftColWidth)
       .alignItems(HorizontalAlign.Center)
       .justifyContent(FlexAlign.Center)
       .padding({ top: this.tm.current.value4, bottom: this.tm.current.value4 })
-      .border({ width: { right: 1 }, color: 'rgba(255,255,255,0.06)' })
+      .border({ width: { right: this.tm.current.charDetailBorderWidth }, color: this.tm.current.surfaceGlassSm })
 
       // 右侧：2列×2行副词条
       Grid() {
         ForEach(relic.subStats, (sub: RelicSubStat) => {
           GridItem() {
             Row() {
-              Text(sub.label)
+              Text(sub.label ?? $r('app.string.char_detail_no_data'))
                 .fontSize(this.tm.current.body10.size)
-                .fontColor('rgba(255,255,255,0.55)')
+                .fontColor(this.tm.current.textOnDarkTertiary)
                 .layoutWeight(1)
                 .maxLines(1)
                 .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -86,7 +160,7 @@ export struct CharDetailRelicsPanel {
                 .fontColor(Color.White)
             }
             .width(this.tm.current.widthFull)
-            .padding({ left: this.tm.current.value8, right: this.tm.current.value4, top: 2, bottom: 2 })
+            .padding({ left: this.tm.current.value8, right: this.tm.current.value4, top: this.tm.current.charDetailRelicSubPaddingV, bottom: this.tm.current.charDetailRelicSubPaddingV })
           }
         }, (sub: RelicSubStat, idx: number) => `sub_${relic.pos}_${idx}`)
       }
@@ -96,8 +170,8 @@ export struct CharDetailRelicsPanel {
     .width(this.tm.current.widthFull)
     .layoutWeight(1)
     .alignItems(VerticalAlign.Center)
-    .backgroundColor('rgba(0,0,0,0.15)')
-    .border({ width: { bottom: 1 }, color: 'rgba(255,255,255,0.06)' })
+    .backgroundColor(this.tm.current.surfaceDarkMd)
+    .border({ width: { bottom: this.tm.current.charDetailBorderWidth }, color: this.tm.current.surfaceGlassSm })
   }
 
   /** Phone：单个圣遗物卡片 */
@@ -112,34 +186,34 @@ export struct CharDetailRelicsPanel {
             .height(this.tm.current.relicIconSizeSM)
             .objectFit(ImageFit.Contain)
         }
-        Column({ space: 2 }) {
-          Text(relic.setName !== '' ? relic.setName : relic.mainStatLabel)
+        Column({ space: this.tm.current.charDetailRelicCardSpacing }) {
+          Text(relic.setName !== '' ? relic.setName : (relic.mainStatLabel ?? $r('app.string.char_detail_no_data')))
             .fontSize(this.tm.current.body12.size)
             .fontWeight(FontWeight.Bold)
             .fontColor(Color.White)
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
-          Text(relic.mainStatLabel)
-            .fontSize(9)
-            .fontColor('rgba(255,255,255,0.5)')
+          Text(relic.mainStatLabel ?? $r('app.string.char_detail_no_data'))
+            .fontSize(this.tm.current.charDetailRelicFontSizeTiny)
+            .fontColor(this.tm.current.textOnDarkMuted)
         }
         .alignItems(HorizontalAlign.Start)
         .layoutWeight(1)
         Text($r('app.string.char_detail_relic_lv_prefix', relic.level))
-          .fontSize(9)
-          .fontColor('rgba(255,255,255,0.6)')
-          .backgroundColor('rgba(255,255,255,0.08)')
+          .fontSize(this.tm.current.charDetailRelicFontSizeTiny)
+          .fontColor(this.tm.current.textOnDarkGhost)
+          .backgroundColor(this.tm.current.surfaceGlassMd)
           .borderRadius(this.tm.current.value4)
-          .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: 1, bottom: 1 })
+          .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.charDetailPaddingTiny, bottom: this.tm.current.charDetailPaddingTiny })
       }
       .width(this.tm.current.widthFull)
       .alignItems(VerticalAlign.Center)
 
       // 主词条
       Row() {
-        Text(relic.mainStatLabel)
+        Text(relic.mainStatLabel ?? $r('app.string.char_detail_no_data'))
           .fontSize(this.tm.current.body10.size)
-          .fontColor('rgba(79,195,247,0.9)')
+          .fontColor(this.tm.current.accentPrimaryStrong)
           .layoutWeight(1)
         Text(relic.mainStatValue)
           .fontSize(this.tm.current.body13Bold.size)
@@ -147,31 +221,31 @@ export struct CharDetailRelicsPanel {
           .fontColor(Color.White)
       }
       .width(this.tm.current.widthFull)
-      .padding({ top: 2, bottom: 2 })
-      .border({ width: { bottom: 1 }, color: 'rgba(255,255,255,0.06)' })
+      .padding({ top: this.tm.current.charDetailRelicMainPaddingV, bottom: this.tm.current.charDetailRelicMainPaddingV })
+      .border({ width: { bottom: this.tm.current.charDetailBorderWidth }, color: this.tm.current.surfaceGlassSm })
 
       // 副词条
       Column() {
         ForEach(relic.subStats, (sub: RelicSubStat) => {
           Row() {
-            Text(sub.label)
+            Text(sub.label ?? $r('app.string.char_detail_no_data'))
               .fontSize(this.tm.current.body10.size)
-              .fontColor('rgba(255,255,255,0.6)')
+              .fontColor(this.tm.current.textOnDarkGhost)
               .layoutWeight(1)
             Text(sub.value)
               .fontSize(this.tm.current.body10.size)
-              .fontColor('#dddddd')
+              .fontColor(this.tm.current.textOnDarkHigh)
           }
           .width(this.tm.current.widthFull)
-          .padding({ top: 1, bottom: 1 })
+          .padding({ top: this.tm.current.charDetailPaddingTiny, bottom: this.tm.current.charDetailPaddingTiny })
         }, (sub: RelicSubStat, idx: number) => `psub_${relic.pos}_${idx}`)
       }
       .width(this.tm.current.widthFull)
     }
     .width(this.tm.current.widthFull)
     .padding(this.tm.current.value8)
-    .backgroundColor('rgba(255,255,255,0.04)')
-    .border({ width: 1, color: 'rgba(255,255,255,0.08)' })
+    .backgroundColor(this.tm.current.surfaceGlassXs)
+    .border({ width: this.tm.current.charDetailBorderWidth, color: this.tm.current.surfaceGlassMd })
     .borderRadius(this.tm.current.radius8)
   }
 
@@ -199,7 +273,7 @@ export struct CharDetailRelicsPanel {
       .width(this.tm.current.widthFull)
       .height(this.tm.current.heightFull)
       .borderRadius(this.tm.current.radius8)
-      .backgroundColor('rgba(0,0,0,0.25)')
+      .backgroundColor(this.tm.current.surfaceDarkLg)
       .clip(true)
     }
   }

@@ -1,18 +1,19 @@
 import { GenshinCharacterDetail, GenshinCharacterDetailParam } from '../GenshinCharacterDetail';
 
 @Builder
-export function GenshinCharacterDetailBuilder(_name: string, param: object) {
+export function GenshinCharacterDetailBuilder(_name: string, param: Object) {
   GenshinCharacterDetailDestination({ routerParam: param as GenshinCharacterDetailParam })
 }
 
-@ComponentV2
+@Component
 struct GenshinCharacterDetailDestination {
-  @Param routerParam: GenshinCharacterDetailParam = new GenshinCharacterDetailParam();
+  routerParam: GenshinCharacterDetailParam = new GenshinCharacterDetailParam();
 
   build() {
     NavDestination() {
       GenshinCharacterDetail({ routerParam: this.routerParam })
     }
     .title($r('app.string.char_detail_title'))
+    .hideTitleBar(false)
   }
 }

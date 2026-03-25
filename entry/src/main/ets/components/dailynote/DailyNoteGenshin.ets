@@ -1,8 +1,61 @@
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
-import { GenshinDailyNoteVM, ExpeditionVM } from './DailyNoteModels'
+import { GenshinDailyNoteVM, ExpeditionVM, GenshinDailyTaskVM } from './DailyNoteModels'
 import { DailyNoteCard } from './DailyNoteCard'
 import { ExpeditionItem } from './ExpeditionItem'
 import { GenshinConstants } from '../../constants/GenshinConstants'
+
+/** 构造完整 mock 便签数据 */
+function makeMockNote(resin: number): GenshinDailyNoteVM {
+  const note = new GenshinDailyNoteVM();
+  note.currentResin = resin;
+  note.maxResin = 200;
+  note.resinRecoveryDesc = resin >= 200 ? '' : '将于4小时后全部恢复';
+  note.currentHomeCoin = 1800;
+  note.maxHomeCoin = 2400;
+  note.homeCoinRecoveryDesc = '将于12小时后存满';
+  note.dailyTask = new GenshinDailyTaskVM(4, 4, true, 2);
+  note.remainResinDiscountNum = 1;
+  note.resinDiscountNumLimit = 3;
+  note.transformerReady = true;
+  note.transformerDesc = '';
+  note.expeditions = [
+    new ExpeditionVM('', '8小时14分钟', false),
+    new ExpeditionVM('', '已完成', true),
+    new ExpeditionVM('', '2小时30分钟', false),
+  ];
+  note.maxExpeditionNum = 5;
+  note.archonQuestDone = false;
+  note.archonQuestDesc = '第四幕：永恒的终章';
+  return note;
+}
+
+// ── Preview：正常状态（树脂未满）──
+@Preview
+@ComponentV2
+struct DailyNoteGenshinPreviewNormal {
+  build() {
+    Scroll() {
+      DailyNoteGenshin({ data: makeMockNote(140) })
+        .padding(16)
+    }
+    .height(700)
+    .backgroundColor('#F5F5F5')
+  }
+}
+
+// ── Preview：树脂已满（红色警告）──
+@Preview
+@ComponentV2
+struct DailyNoteGenshinPreviewFull {
+  build() {
+    Scroll() {
+      DailyNoteGenshin({ data: makeMockNote(200) })
+        .padding(16)
+    }
+    .height(700)
+    .backgroundColor('#F5F5F5')
+  }
+}
 
 @ComponentV2
 export struct DailyNoteGenshin {
@@ -156,7 +209,7 @@ export struct DailyNoteGenshin {
           Row().height(this.tm.current.value8)
         }
         .width(this.tm.current.widthFull)
-        .backgroundColor(this.tm.current.colorCardBg)
+        .backgroundColor(this.tm.current.colorSurfaceCard)
         .borderRadius(this.tm.current.radius12)
       }
     }

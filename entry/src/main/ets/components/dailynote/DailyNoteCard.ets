@@ -12,6 +12,41 @@
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 
+// ── Preview：简单文字值卡片 ──
+@Preview
+@ComponentV2
+struct DailyNoteCardPreviewSimple {
+  @Local private tm: ThemeManager = themeManager
+  build() {
+    Column({ space: 8 }) {
+      DailyNoteCard({
+        title: '原粹树脂',
+        subtitle: '将于4小时后全部恢复',
+        hasSubtitle: true,
+        valueText: '140/200',
+        hasValueText: true,
+        valueColor: $r('app.color.color_warning'),
+      })
+      DailyNoteCard({
+        title: '洞天宝钱',
+        valueText: '2400/2400',
+        hasValueText: true,
+        valueColor: $r('app.color.color_danger'),
+      })
+      DailyNoteCard({
+        title: '参量质变仪',
+        subtitle: '已就绪',
+        hasSubtitle: true,
+        valueText: '可使用',
+        hasValueText: true,
+        valueColor: $r('app.color.color_primary'),
+      })
+    }
+    .padding(16)
+    .backgroundColor($r('app.color.color_page_bg'))
+  }
+}
+
 @Builder
 function emptyBuilder() {}
 
@@ -100,7 +135,7 @@ export struct DailyNoteCard {
       }
     }
     .width(this.tm.current.widthFull)
-    .backgroundColor(this.tm.current.colorCardBg)
+    .backgroundColor(this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
   }
 }

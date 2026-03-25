@@ -1,0 +1,786 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>米悠悠 Logo & Launch Page 原型</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: #080810;
+        color: #e8e8f0;
+        font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+      .bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: #111118;
+        border-bottom: 1px solid #2a2a3a;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        flex-wrap: wrap;
+      }
+      .bar span {
+        color: #888;
+        font-size: 12px;
+        white-space: nowrap;
+      }
+      .btn {
+        padding: 3px 10px;
+        border-radius: 6px;
+        border: 1px solid #333;
+        background: #1a1a28;
+        color: #aaa;
+        font-size: 11px;
+        cursor: pointer;
+        line-height: 1.6;
+        transition: all 0.2s;
+        white-space: pre-line;
+        text-align: center;
+      }
+      .btn.on {
+        background: #3a6fd8;
+        border-color: #3a6fd8;
+        color: #fff;
+      }
+      .btn:hover:not(.on) {
+        border-color: #555;
+        color: #ddd;
+      }
+      .sep {
+        width: 1px;
+        height: 24px;
+        background: #2a2a3a;
+        margin: 0 2px;
+        flex-shrink: 0;
+      }
+      .wrap {
+        margin-top: 80px;
+        display: flex;
+        justify-content: center;
+        padding: 20px 16px;
+      }
+      .screen {
+        border: 2px solid #2a2a3a;
+        border-radius: 12px;
+        overflow: hidden;
+        flex-shrink: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bar">
+      <span>设备：</span>
+      <button class="btn on" id="d-pp" onclick="go('pp')">
+        Phone 竖屏 360×780
+      </button>
+      <button class="btn" id="d-pl" onclick="go('pl')">
+        Phone 横屏 780×360
+      </button>
+      <button class="btn" id="d-fd" onclick="go('fd')">Foldable 932×600</button>
+      <button class="btn" id="d-tf" onclick="go('tf')">
+        TripleFold 1200×600
+      </button>
+      <button class="btn" id="d-tb" onclick="go('tb')">Tablet 1024×768</button>
+      <button class="btn" id="d-pc" onclick="go('pc')">2in1/PC 1440×900</button>
+      <div class="sep"></div>
+      <span>视图：</span>
+      <button class="btn on" id="v-splash" onclick="setStage('splash')">
+        启动页
+      </button>
+      <button class="btn" id="v-logo" onclick="setStage('logo')">
+        Logo 预览
+      </button>
+      <div class="sep"></div>
+      <span>主题：</span>
+      <button class="btn on" id="t-dark" onclick="setTheme('dark')">
+        🌙 Dark
+      </button>
+      <button class="btn" id="t-light" onclick="setTheme('light')">
+        ☀️ Light
+      </button>
+    </div>
+    <div class="wrap"><div class="screen" id="S"></div></div>
+    <script>
+      var DEVS = {
+        pp: [360, 780],
+        pl: [780, 360],
+        fd: [932, 600],
+        tf: [1200, 600],
+        tb: [1024, 768],
+        pc: [1440, 900],
+      };
+      var curDev = "pp",
+        curStage = "splash",
+        curTheme = "dark";
+
+      /*
+  颜色来源：
+  Dark  mode — entry/src/main/resources/dark/element/color.json
+  Light mode — entry/src/main/resources/base/element/color.json
+*/
+      var THEMES = {
+        dark: {
+          primary: "#4DA3FF",
+          pageBg: "#000000",
+          cardBg: "#000000",
+          surfaceCard: "#1C1C1C",
+          textPri: "#E0E0E0",
+          textSec: "#999999",
+          divider: "#1A1A1A",
+          genshin: "#5BA3E8",
+          starrail: "#9B8EFF",
+          zzz: "#F7B84B",
+          hydro: "#4BC3F1",
+          gold: "#FFCA28",
+          bgLight: "#0A1E38",
+          bgDark: "#0E0E22",
+          bgDeep: "#0D0D18",
+        },
+        light: {
+          primary: "#007DFF",
+          pageBg: "#F5F5F5",
+          cardBg: "#FFFFFF",
+          surfaceCard: "#FFFFFF",
+          textPri: "#333333",
+          textSec: "#666666",
+          divider: "#EEEEEE",
+          genshin: "#4A90D9",
+          starrail: "#7B68EE",
+          zzz: "#F5A623",
+          hydro: "#4BC3F1",
+          gold: "#FFCA28",
+          bgLight: "#E8F0FF",
+          bgDark: "#D0E4FF",
+          bgDeep: "#F5F5F5",
+        },
+      };
+
+      /*
+  Logo 设计说明：
+  参考米游社原版：奶白底 + 天蓝色块（上半）+ 白色兔子从下方探头
+  耳朵竖起带蓝色内侧高光，脸上两个蓝色小点眼睛
+
+  米悠悠二创：
+  · Dark：背景 #0E0E22，上半蓝色块 primary→hydro 渐变，兔子冷白
+  · Light：背景 #FFFFFF，上半蓝色块 primary→hydro 渐变，兔子暖白
+  · 兔耳内侧高光用 primary 色
+  · 眼睛：两个小菱形（游戏感）
+  · 左耳顶端：原神蓝，右耳顶端：星铁紫
+*/
+      function logoSVG(s, T) {
+        var gid = "g" + Math.round(Math.random() * 99999);
+        var rc = s * 0.22;
+        var cx = s * 0.5;
+        var blueH = s * 0.62;
+        var headR = s * 0.32;
+        var headCX = cx;
+        var headCY = s * 0.72;
+        var earW = s * 0.11;
+        var earH = s * 0.3;
+        var earR = earW * 0.5;
+        var earLX = cx - s * 0.115;
+        var earRX = cx + s * 0.005;
+        var earTopY = s * 0.1;
+        var iearW = earW * 0.45;
+        var iearH = earH * 0.55;
+        var iearR = iearW * 0.5;
+        var sw = (s * 0.018).toFixed(2);
+        var logoBg = curTheme === "dark" ? T.bgDark : "#FFFFFF";
+        var headFill0 = curTheme === "dark" ? "#EEF4FF" : "#FFFFFF";
+        var headFill1 = curTheme === "dark" ? "#D0E4FF" : "#E8F0FF";
+
+        return (
+          '<svg width="' +
+          s +
+          '" height="' +
+          s +
+          '" viewBox="0 0 ' +
+          s +
+          " " +
+          s +
+          '" xmlns="http://www.w3.org/2000/svg">' +
+          "<defs>" +
+          '<linearGradient id="' +
+          gid +
+          'blue" x1="0%" y1="0%" x2="100%" y2="100%">' +
+          '<stop offset="0%" stop-color="' +
+          T.primary +
+          '"/>' +
+          '<stop offset="100%" stop-color="' +
+          T.hydro +
+          '"/>' +
+          "</linearGradient>" +
+          '<radialGradient id="' +
+          gid +
+          'head" cx="45%" cy="35%" r="65%">' +
+          '<stop offset="0%" stop-color="' +
+          headFill0 +
+          '"/>' +
+          '<stop offset="100%" stop-color="' +
+          headFill1 +
+          '"/>' +
+          "</radialGradient>" +
+          '<filter id="' +
+          gid +
+          'sh" x="-20%" y="-20%" width="140%" height="140%">' +
+          '<feDropShadow dx="0" dy="' +
+          (s * 0.01).toFixed(1) +
+          '" stdDeviation="' +
+          (s * 0.02).toFixed(1) +
+          '" flood-color="' +
+          T.primary +
+          '" flood-opacity="0.4"/>' +
+          "</filter>" +
+          '<clipPath id="' +
+          gid +
+          'clip">' +
+          '<rect width="' +
+          s +
+          '" height="' +
+          s +
+          '" rx="' +
+          rc +
+          '" ry="' +
+          rc +
+          '"/>' +
+          "</clipPath>" +
+          "</defs>" +
+          '<g clip-path="url(#' +
+          gid +
+          'clip)">' +
+          '<rect width="' +
+          s +
+          '" height="' +
+          s +
+          '" fill="' +
+          logoBg +
+          '"/>' +
+          '<rect x="0" y="0" width="' +
+          s +
+          '" height="' +
+          blueH +
+          '" fill="url(#' +
+          gid +
+          'blue)"/>' +
+          '<rect x="' +
+          earLX +
+          '" y="' +
+          earTopY +
+          '" width="' +
+          earW +
+          '" height="' +
+          earH +
+          '" rx="' +
+          earR +
+          '" ry="' +
+          earR +
+          '" fill="url(#' +
+          gid +
+          'head)" filter="url(#' +
+          gid +
+          'sh)"/>' +
+          '<rect x="' +
+          earRX +
+          '" y="' +
+          earTopY +
+          '" width="' +
+          earW +
+          '" height="' +
+          earH +
+          '" rx="' +
+          earR +
+          '" ry="' +
+          earR +
+          '" fill="url(#' +
+          gid +
+          'head)" filter="url(#' +
+          gid +
+          'sh)"/>' +
+          '<rect x="' +
+          earLX +
+          '" y="' +
+          earTopY +
+          '" width="' +
+          earW +
+          '" height="' +
+          earH +
+          '" rx="' +
+          earR +
+          '" ry="' +
+          earR +
+          '" fill="none" stroke="' +
+          T.primary +
+          '" stroke-width="' +
+          sw +
+          '"/>' +
+          '<rect x="' +
+          earRX +
+          '" y="' +
+          earTopY +
+          '" width="' +
+          earW +
+          '" height="' +
+          earH +
+          '" rx="' +
+          earR +
+          '" ry="' +
+          earR +
+          '" fill="none" stroke="' +
+          T.primary +
+          '" stroke-width="' +
+          sw +
+          '"/>' +
+          '<rect x="' +
+          (earLX + earW * 0.275) +
+          '" y="' +
+          (earTopY + earH * 0.1) +
+          '" width="' +
+          iearW +
+          '" height="' +
+          iearH +
+          '" rx="' +
+          iearR +
+          '" ry="' +
+          iearR +
+          '" fill="' +
+          T.primary +
+          '" opacity="0.55"/>' +
+          '<rect x="' +
+          (earRX + earW * 0.275) +
+          '" y="' +
+          (earTopY + earH * 0.1) +
+          '" width="' +
+          iearW +
+          '" height="' +
+          iearH +
+          '" rx="' +
+          iearR +
+          '" ry="' +
+          iearR +
+          '" fill="' +
+          T.primary +
+          '" opacity="0.55"/>' +
+          '<circle cx="' +
+          (earLX + earW * 0.5) +
+          '" cy="' +
+          (earTopY + s * 0.015) +
+          '" r="' +
+          s * 0.022 +
+          '" fill="' +
+          T.genshin +
+          '" opacity="0.9"/>' +
+          '<circle cx="' +
+          (earRX + earW * 0.5) +
+          '" cy="' +
+          (earTopY + s * 0.015) +
+          '" r="' +
+          s * 0.022 +
+          '" fill="' +
+          T.starrail +
+          '" opacity="0.9"/>' +
+          '<circle cx="' +
+          headCX +
+          '" cy="' +
+          headCY +
+          '" r="' +
+          headR +
+          '" fill="url(#' +
+          gid +
+          'head)" filter="url(#' +
+          gid +
+          'sh)"/>' +
+          '<circle cx="' +
+          headCX +
+          '" cy="' +
+          headCY +
+          '" r="' +
+          headR +
+          '" fill="none" stroke="' +
+          T.primary +
+          '" stroke-width="' +
+          sw +
+          '"/>' +
+          '<polygon points="' +
+          (headCX - s * 0.09) +
+          "," +
+          (headCY - s * 0.04) +
+          " " +
+          (headCX - s * 0.065) +
+          "," +
+          (headCY - s * 0.015) +
+          " " +
+          (headCX - s * 0.09) +
+          "," +
+          (headCY + s * 0.01) +
+          " " +
+          (headCX - s * 0.115) +
+          "," +
+          (headCY - s * 0.015) +
+          '" fill="' +
+          T.primary +
+          '"/>' +
+          '<polygon points="' +
+          (headCX + s * 0.09) +
+          "," +
+          (headCY - s * 0.04) +
+          " " +
+          (headCX + s * 0.115) +
+          "," +
+          (headCY - s * 0.015) +
+          " " +
+          (headCX + s * 0.09) +
+          "," +
+          (headCY + s * 0.01) +
+          " " +
+          (headCX + s * 0.065) +
+          "," +
+          (headCY - s * 0.015) +
+          '" fill="' +
+          T.primary +
+          '"/>' +
+          "</g>" +
+          "</svg>"
+        );
+      }
+
+      function particles(w, h, n, T) {
+        var cols = [T.primary, T.hydro, T.genshin, T.starrail, T.gold];
+        var d = "";
+        for (var i = 0; i < n; i++) {
+          var x = (Math.random() * w).toFixed(1);
+          var y = (Math.random() * h).toFixed(1);
+          var r = (Math.random() * 1.2 + 0.4).toFixed(1);
+          var op =
+            curTheme === "dark"
+              ? (Math.random() * 0.3 + 0.06).toFixed(2)
+              : (Math.random() * 0.15 + 0.04).toFixed(2);
+          var dur = (Math.random() * 3 + 2).toFixed(1);
+          var delay = (Math.random() * 5).toFixed(1);
+          var col = cols[Math.floor(Math.random() * cols.length)];
+          d +=
+            '<circle cx="' +
+            x +
+            '" cy="' +
+            y +
+            '" r="' +
+            r +
+            '" fill="' +
+            col +
+            '" opacity="' +
+            op +
+            '">' +
+            '<animate attributeName="opacity" values="' +
+            op +
+            ";" +
+            (parseFloat(op) * 0.1).toFixed(2) +
+            ";" +
+            op +
+            '" dur="' +
+            dur +
+            's" begin="' +
+            delay +
+            's" repeatCount="indefinite"/>' +
+            '<animate attributeName="cy" values="' +
+            y +
+            ";" +
+            (parseFloat(y) - 6).toFixed(1) +
+            ";" +
+            y +
+            '" dur="' +
+            dur +
+            's" begin="' +
+            delay +
+            's" repeatCount="indefinite"/>' +
+            "</circle>";
+        }
+        return (
+          '<svg style="position:absolute;inset:0;pointer-events:none" width="' +
+          w +
+          '" height="' +
+          h +
+          '">' +
+          d +
+          "</svg>"
+        );
+      }
+
+      function renderSplash(w, h) {
+        var T = THEMES[curTheme];
+        var isLandscape = w > h * 1.1;
+        var logoSz = isLandscape
+          ? Math.min(h * 0.42, 180)
+          : Math.min(w * 0.38, 155);
+        logoSz = Math.max(80, logoSz);
+        var nameSize = Math.max(
+          18,
+          isLandscape ? Math.min(w * 0.024, 30) : Math.min(w * 0.068, 26),
+        );
+        var subSize = Math.max(10, nameSize * 0.5);
+        var textAlign = isLandscape ? "flex-start" : "center";
+        var textMargin = isLandscape ? "margin-left:28px" : "margin-top:20px";
+
+        var tagBg_g =
+          curTheme === "dark"
+            ? "rgba(91,163,232,0.15)"
+            : "rgba(74,144,217,0.12)";
+        var tagBg_s =
+          curTheme === "dark"
+            ? "rgba(155,142,255,0.15)"
+            : "rgba(123,104,238,0.12)";
+        var tagBg_z =
+          curTheme === "dark"
+            ? "rgba(247,184,75,0.15)"
+            : "rgba(245,166,35,0.12)";
+        var tagBd_g =
+          curTheme === "dark"
+            ? "rgba(91,163,232,0.35)"
+            : "rgba(74,144,217,0.3)";
+        var tagBd_s =
+          curTheme === "dark"
+            ? "rgba(155,142,255,0.35)"
+            : "rgba(123,104,238,0.3)";
+        var tagBd_z =
+          curTheme === "dark"
+            ? "rgba(247,184,75,0.35)"
+            : "rgba(245,166,35,0.3)";
+
+        var gameTags =
+          '<div style="display:flex;gap:5px;margin-top:2px;flex-wrap:wrap;justify-content:' +
+          textAlign +
+          '">' +
+          '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:' +
+          tagBg_g +
+          ";border:1px solid " +
+          tagBd_g +
+          ";color:" +
+          T.genshin +
+          '">原神</span>' +
+          '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:' +
+          tagBg_s +
+          ";border:1px solid " +
+          tagBd_s +
+          ";color:" +
+          T.starrail +
+          '">星穹铁道</span>' +
+          '<span style="font-size:10px;padding:2px 8px;border-radius:10px;background:' +
+          tagBg_z +
+          ";border:1px solid " +
+          tagBd_z +
+          ";color:" +
+          T.zzz +
+          '">绝区零</span>' +
+          "</div>";
+
+        var verColor = curTheme === "dark" ? "#2a3a4a" : "#AAAAAA";
+
+        var textBlock =
+          '<div style="display:flex;flex-direction:column;align-items:' +
+          textAlign +
+          ";gap:8px;" +
+          textMargin +
+          '">' +
+          '<div style="font-size:' +
+          nameSize +
+          "px;font-weight:800;letter-spacing:4px;background:linear-gradient(135deg," +
+          T.primary +
+          "," +
+          T.hydro +
+          ');-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">米悠悠</div>' +
+          '<div style="font-size:' +
+          subSize +
+          "px;letter-spacing:4px;color:" +
+          T.primary +
+          ';font-weight:300;opacity:0.8">游戏数据助手</div>' +
+          gameTags +
+          (isLandscape
+            ? '<div style="margin-top:6px;font-size:11px;color:' +
+              verColor +
+              ';letter-spacing:2px">v1.0.0</div>'
+            : "") +
+          "</div>";
+
+        var loadBarColor =
+          curTheme === "dark" ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.06)";
+        var loadBar = isLandscape
+          ? ""
+          : '<div style="position:absolute;bottom:48px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px">' +
+            '<div style="width:80px;height:1px;background:' +
+            loadBarColor +
+            ';border-radius:1px;overflow:hidden">' +
+            '<div style="height:100%;background:linear-gradient(90deg,' +
+            T.primary +
+            "," +
+            T.hydro +
+            ');border-radius:1px;animation:ld 2.2s ease-in-out infinite"></div>' +
+            "</div>" +
+            '<div style="font-size:10px;color:' +
+            verColor +
+            ';letter-spacing:2px">v1.0.0</div>' +
+            "</div>";
+
+        var bgGrad =
+          curTheme === "dark"
+            ? "radial-gradient(ellipse at 50% 35%," +
+              T.bgLight +
+              " 0%," +
+              T.bgDark +
+              " 45%," +
+              T.bgDeep +
+              " 100%)"
+            : "radial-gradient(ellipse at 50% 35%," +
+              T.bgLight +
+              " 0%," +
+              T.bgDark +
+              " 55%," +
+              T.pageBg +
+              " 100%)";
+
+        var glowColor =
+          curTheme === "dark"
+            ? "rgba(77,163,255,0.08)"
+            : "rgba(0,125,255,0.06)";
+
+        return (
+          "<style>" +
+          "*{box-sizing:border-box;margin:0;padding:0}" +
+          "body{width:" +
+          w +
+          "px;height:" +
+          h +
+          "px;overflow:hidden;background:" +
+          T.pageBg +
+          ';font-family:"PingFang SC","Microsoft YaHei",sans-serif}' +
+          "@keyframes ld{0%{width:0;margin-left:0}60%{width:60px;margin-left:0}100%{width:0;margin-left:80px}}" +
+          "@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}" +
+          "</style>" +
+          '<div style="width:' +
+          w +
+          "px;height:" +
+          h +
+          "px;position:relative;background:" +
+          bgGrad +
+          ';display:flex;align-items:center;justify-content:center">' +
+          '<div style="position:absolute;width:' +
+          w * 0.6 +
+          "px;height:" +
+          h * 0.38 +
+          "px;border-radius:50%;background:radial-gradient(circle," +
+          glowColor +
+          " 0%,transparent 70%);top:" +
+          h * 0.06 +
+          'px;left:50%;transform:translateX(-50%)"></div>' +
+          particles(w, h, isLandscape ? 20 : 30, T) +
+          '<div style="display:flex;flex-direction:' +
+          (isLandscape ? "row" : "column") +
+          ';align-items:center;justify-content:center;animation:float 4.5s ease-in-out infinite;position:relative;z-index:1">' +
+          logoSVG(logoSz, T) +
+          textBlock +
+          "</div>" +
+          loadBar +
+          "</div>"
+        );
+      }
+
+      function renderLogoPreview(w, h) {
+        var T = THEMES[curTheme];
+        var base = Math.min(Math.min(w, h) * 0.28, 200);
+        base = Math.max(60, base);
+        var sizes = [base, base * 0.58, base * 0.34, base * 0.2];
+        var labels = ["512px", "192px", "72px", "48px"];
+        var cells = "";
+        for (var i = 0; i < sizes.length; i++) {
+          var sz = Math.max(28, sizes[i]);
+          var labelColor = curTheme === "dark" ? "#4a5a6a" : "#999999";
+          cells +=
+            '<div style="display:flex;flex-direction:column;align-items:center;gap:8px">' +
+            logoSVG(sz, T) +
+            '<div style="font-size:10px;color:' +
+            labelColor +
+            ';text-align:center">' +
+            labels[i] +
+            "</div>" +
+            "</div>";
+        }
+        var titleColor = curTheme === "dark" ? "#3a4a5a" : "#AAAAAA";
+        var subColor = curTheme === "dark" ? "#2a3a4a" : "#BBBBBB";
+        return (
+          "<style>*{box-sizing:border-box;margin:0;padding:0}body{width:" +
+          w +
+          "px;height:" +
+          h +
+          "px;overflow:hidden;background:" +
+          T.pageBg +
+          ';display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;font-family:"PingFang SC",sans-serif}</style>' +
+          '<div style="font-size:11px;color:' +
+          titleColor +
+          ';letter-spacing:3px">LOGO PREVIEW — 米悠悠</div>' +
+          '<div style="display:flex;align-items:flex-end;gap:' +
+          Math.max(16, w * 0.04) +
+          'px;flex-wrap:wrap;justify-content:center">' +
+          cells +
+          "</div>" +
+          '<div style="font-size:11px;color:' +
+          subColor +
+          ';letter-spacing:1px;text-align:center">兔子二创 · ' +
+          (curTheme === "dark" ? "深色" : "浅色") +
+          "主题 · 主色蓝 + 水元素蓝</div>"
+        );
+      }
+
+      function render(dev) {
+        var d = DEVS[dev];
+        return curStage === "splash"
+          ? renderSplash(d[0], d[1])
+          : renderLogoPreview(d[0], d[1]);
+      }
+
+      function go(dev) {
+        curDev = dev;
+        var keys = Object.keys(DEVS);
+        for (var i = 0; i < keys.length; i++) {
+          var btn = document.getElementById("d-" + keys[i]);
+          if (btn) btn.classList.toggle("on", keys[i] === dev);
+        }
+        var d = DEVS[dev];
+        var s = document.getElementById("S");
+        s.style.width = d[0] + "px";
+        s.style.height = d[1] + "px";
+        s.innerHTML = render(dev);
+      }
+
+      function setStage(stage) {
+        curStage = stage;
+        document
+          .getElementById("v-splash")
+          .classList.toggle("on", stage === "splash");
+        document
+          .getElementById("v-logo")
+          .classList.toggle("on", stage === "logo");
+        go(curDev);
+      }
+
+      function setTheme(theme) {
+        curTheme = theme;
+        document
+          .getElementById("t-dark")
+          .classList.toggle("on", theme === "dark");
+        document
+          .getElementById("t-light")
+          .classList.toggle("on", theme === "light");
+        go(curDev);
+      }
+
+      go("pp");
+    </script>
+  </body>
+</html>

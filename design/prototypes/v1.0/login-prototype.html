@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>米悠悠 登录页原型</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#080810;color:#e8e8f0;font-family:"PingFang SC","Microsoft YaHei",sans-serif}
+.bar{position:fixed;top:0;left:0;right:0;z-index:100;background:#111118;border-bottom:1px solid #2a2a3a;display:flex;align-items:center;gap:6px;padding:8px 14px;flex-wrap:wrap}
+.bar span{color:#888;font-size:12px;white-space:nowrap}
+.btn{padding:3px 10px;border-radius:6px;border:1px solid #333;background:#1a1a28;color:#aaa;font-size:11px;cursor:pointer;line-height:1.6;transition:all .2s;white-space:nowrap;text-align:center}
+.btn.on{background:#3a6fd8;border-color:#3a6fd8;color:#fff}
+.btn:hover:not(.on){border-color:#555;color:#ddd}
+.sep{width:1px;height:24px;background:#2a2a3a;margin:0 2px;flex-shrink:0}
+.wrap{margin-top:80px;display:flex;justify-content:center;padding:20px 16px}
+.screen{border:2px solid #2a2a3a;border-radius:12px;overflow:hidden;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="bar">
+  <span>设备：</span>
+  <button class="btn on" id="d-pp" onclick="go('pp')">Phone 竖屏</button>
+  <button class="btn" id="d-pl" onclick="go('pl')">Phone 横屏</button>
+  <button class="btn" id="d-fd" onclick="go('fd')">Foldable</button>
+  <button class="btn" id="d-tf" onclick="go('tf')">TripleFold</button>
+  <button class="btn" id="d-tb" onclick="go('tb')">Tablet</button>
+  <button class="btn" id="d-pc" onclick="go('pc')">2in1/PC</button>
+  <div class="sep"></div>
+  <span>主题：</span>
+  <button class="btn on" id="t-dark" onclick="setTheme('dark')">🌙 Dark</button>
+  <button class="btn" id="t-light" onclick="setTheme('light')">☀️ Light</button>
+  <div class="sep"></div>
+  <span>登录方式：</span>
+  <button class="btn on" id="tab-phone" onclick="setTab('phone')">手机号</button>
+  <button class="btn" id="tab-qrcode" onclick="setTab('qrcode')">二维码</button>
+  <button class="btn" id="tab-cookie" onclick="setTab('cookie')">Cookie</button>
+  <div class="sep"></div>
+  <span>二维码：</span>
+  <button class="btn" id="qr-loading" onclick="setQR('loading')">加载中</button>
+  <button class="btn on" id="qr-ready" onclick="setQR('ready')">就绪</button>
+  <button class="btn" id="qr-scanned" onclick="setQR('scanned')">已扫码</button>
+  <button class="btn" id="qr-expired" onclick="setQR('expired')">已过期</button>
+  <div class="sep"></div>
+  <span>手机步骤：</span>
+  <button class="btn on" id="ps-phone" onclick="setPhoneStep('phone')">输入手机</button>
+  <button class="btn" id="ps-code" onclick="setPhoneStep('code')">输入验证码</button>
+</div>
+<div class="wrap"><div class="screen" id="S"></div></div>
+<script>
+var DEVS={pp:[360,780],pl:[780,360],fd:[932,600],tf:[1200,600],tb:[1024,768],pc:[1440,900]};
+var curDev='pp',curTheme='dark',curTab='phone',curQR='ready',curPhoneStep='phone';
+
+var THEMES={
+  dark:{
+    primary:'#4DA3FF',priBg:'rgba(77,163,255,0.12)',priRgb:'77,163,255',
+    pageBg:'#000000',cardBg:'#000000',surfCard:'#1C1C1C',border:'#2A2A2A',
+    inputBg:'#111118',inputBd:'#333333',txt:'#E0E0E0',txt2:'#999999',txtM:'#555555',
+    danger:'#FF6B6B',div:'#1A1A1A',ok:'#34D399',okBg:'rgba(52,211,153,0.12)',
+    cyan:'#4BC3F1',genshin:'#5BA3E8',starrail:'#9B8EFF',hydro:'#4BC3F1',
+    bgDark:'#0E0E22',logoFg0:'#EEF4FF',logoFg1:'#D0E4FF',logoBg:'#0E0E22'
+  },
+  light:{
+    primary:'#007DFF',priBg:'rgba(0,125,255,0.10)',priRgb:'0,125,255',
+    pageBg:'#F5F5F5',cardBg:'#FFFFFF',surfCard:'#FFFFFF',border:'#E8E8E8',
+    inputBg:'#F8F8F8',inputBd:'#DDDDDD',txt:'#333333',txt2:'#666666',txtM:'#AAAAAA',
+    danger:'#E8534A',div:'#EEEEEE',ok:'#10B981',okBg:'rgba(16,185,129,0.10)',
+    cyan:'#4BC3F1',genshin:'#4A90D9',starrail:'#7B68EE',hydro:'#4BC3F1',
+    bgDark:'#FFFFFF',logoFg0:'#FFFFFF',logoFg1:'#E8F0FF',logoBg:'#FFFFFF'
+  }
+};
+
+function logoSVG(s,T){
+  var gid='g'+Math.round(Math.random()*99999);
+  var rc=s*0.22,cx=s*0.5;
+  var blueH=s*0.62,headR=s*0.32,headCX=cx,headCY=s*0.72;
+  var earW=s*0.11,earH=s*0.3,earR=earW*0.5;
+  var earLX=cx-s*0.115,earRX=cx+s*0.005,earTopY=s*0.1;
+  var iearW=earW*0.45,iearH=earH*0.55,iearR=iearW*0.5;
+  var sw=(s*0.018).toFixed(2);
+  return '<svg width="'+s+'" height="'+s+'" viewBox="0 0 '+s+' '+s+'" xmlns="http://www.w3.org/2000/svg">'
+    +'<defs>'
+    +'<linearGradient id="'+gid+'b" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="'+T.primary+'"/><stop offset="100%" stop-color="'+T.hydro+'"/></linearGradient>'
+    +'<radialGradient id="'+gid+'h" cx="45%" cy="35%" r="65%"><stop offset="0%" stop-color="'+T.logoFg0+'"/><stop offset="100%" stop-color="'+T.logoFg1+'"/></radialGradient>'
+    +'<filter id="'+gid+'s"><feDropShadow dx="0" dy="'+(s*0.01).toFixed(1)+'" stdDeviation="'+(s*0.02).toFixed(1)+'" flood-color="'+T.primary+'" flood-opacity="0.4"/></filter>'
+    +'<clipPath id="'+gid+'c"><rect width="'+s+'" height="'+s+'" rx="'+rc+'" ry="'+rc+'"/></clipPath>'
+    +'</defs>'
+    +'<g clip-path="url(#'+gid+'c)">'
+    +'<rect width="'+s+'" height="'+s+'" fill="'+T.logoBg+'"/>'
+    +'<rect x="0" y="0" width="'+s+'" height="'+blueH+'" fill="url(#'+gid+'b)"/>'
+    +'<rect x="'+earLX+'" y="'+earTopY+'" width="'+earW+'" height="'+earH+'" rx="'+earR+'" ry="'+earR+'" fill="url(#'+gid+'h)" filter="url(#'+gid+'s)"/>'
+    +'<rect x="'+earRX+'" y="'+earTopY+'" width="'+earW+'" height="'+earH+'" rx="'+earR+'" ry="'+earR+'" fill="url(#'+gid+'h)" filter="url(#'+gid+'s)"/>'
+    +'<rect x="'+earLX+'" y="'+earTopY+'" width="'+earW+'" height="'+earH+'" rx="'+earR+'" ry="'+earR+'" fill="none" stroke="'+T.primary+'" stroke-width="'+sw+'"/>'
+    +'<rect x="'+earRX+'" y="'+earTopY+'" width="'+earW+'" height="'+earH+'" rx="'+earR+'" ry="'+earR+'" fill="none" stroke="'+T.primary+'" stroke-width="'+sw+'"/>'
+    +'<rect x="'+(earLX+earW*0.275)+'" y="'+(earTopY+earH*0.1)+'" width="'+iearW+'" height="'+iearH+'" rx="'+iearR+'" ry="'+iearR+'" fill="'+T.primary+'" opacity="0.55"/>'
+    +'<rect x="'+(earRX+earW*0.275)+'" y="'+(earTopY+earH*0.1)+'" width="'+iearW+'" height="'+iearH+'" rx="'+iearR+'" ry="'+iearR+'" fill="'+T.primary+'" opacity="0.55"/>'
+    +'<circle cx="'+(earLX+earW*0.5)+'" cy="'+(earTopY+s*0.015)+'" r="'+s*0.022+'" fill="'+T.genshin+'" opacity="0.9"/>'
+    +'<circle cx="'+(earRX+earW*0.5)+'" cy="'+(earTopY+s*0.015)+'" r="'+s*0.022+'" fill="'+T.starrail+'" opacity="0.9"/>'
+    +'<circle cx="'+headCX+'" cy="'+headCY+'" r="'+headR+'" fill="url(#'+gid+'h)" filter="url(#'+gid+'s)"/>'
+    +'<circle cx="'+headCX+'" cy="'+headCY+'" r="'+headR+'" fill="none" stroke="'+T.primary+'" stroke-width="'+sw+'"/>'
+    +'<polygon points="'+(headCX-s*0.09)+','+(headCY-s*0.04)+' '+(headCX-s*0.065)+','+(headCY-s*0.015)+' '+(headCX-s*0.09)+','+(headCY+s*0.01)+' '+(headCX-s*0.115)+','+(headCY-s*0.015)+'" fill="'+T.primary+'"/>'
+    +'<polygon points="'+(headCX+s*0.09)+','+(headCY-s*0.04)+' '+(headCX+s*0.115)+','+(headCY-s*0.015)+' '+(headCX+s*0.09)+','+(headCY+s*0.01)+' '+(headCX+s*0.065)+','+(headCY-s*0.015)+'" fill="'+T.primary+'"/>'
+    +'</g></svg>';
+}
+
+function qr(op){
+  var p=[[1,1,1,1,1,1,1,0,1,0,0,0,1,0,1,1,1,1,1,1,1],[1,0,0,0,0,0,1,0,0,1,0,1,0,0,1,0,0,0,0,0,1],[1,0,1,1,1,0,1,0,1,0,1,0,1,0,1,0,1,1,1,0,1],[1,0,1,1,1,0,1,0,0,1,1,0,0,0,1,0,1,1,1,0,1],[1,0,1,1,1,0,1,0,1,1,0,1,1,0,1,0,1,1,1,0,1],[1,0,0,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0,0,0,1],[1,1,1,1,1,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1],[0,0,0,0,0,0,0,0,1,1,0,1,1,0,0,0,0,0,0,0,0],[1,0,1,1,0,1,1,1,0,0,1,0,0,1,1,0,1,1,0,1,0],[0,1,0,0,1,0,0,0,1,0,0,1,0,0,0,1,0,0,1,0,1],[1,1,0,1,0,1,1,1,0,1,1,0,1,1,0,1,1,0,1,1,0],[0,0,1,0,1,0,0,0,1,0,0,1,0,0,1,0,0,1,0,0,1],[1,0,1,1,0,1,1,1,0,0,1,0,0,1,1,0,1,1,0,1,0],[0,0,0,0,0,0,0,0,1,1,0,1,1,0,0,1,0,0,1,0,0],[1,1,1,1,1,1,1,0,0,0,1,0,0,0,1,0,1,0,0,1,1],[1,0,0,0,0,0,1,0,1,0,0,1,0,1,0,1,0,1,0,0,1],[1,0,1,1,1,0,1,0,0,1,1,0,1,0,1,0,0,0,1,1,0],[1,0,1,1,1,0,1,0,1,0,0,1,0,0,0,1,1,0,0,0,1],[1,0,1,1,1,0,1,0,0,1,1,0,1,1,1,0,0,1,1,0,0],[1,0,0,0,0,0,1,0,1,0,0,1,0,0,0,1,0,0,0,1,1],[1,1,1,1,1,1,1,0,0,0,1,0,1,0,1,0,1,1,0,0,1]];
+  var n=p.length,cells='';
+  for(var r=0;r<n;r++) for(var c=0;c<n;c++) cells+='<div style="background:'+(p[r][c]?'rgba(0,0,0,'+op+')':'transparent')+';border-radius:1px"></div>';
+  return '<div style="display:grid;grid-template-columns:repeat('+n+',1fr);gap:1.5px;padding:10px;width:100%;height:100%;background:#fff">'+cells+'</div>';
+}
+
+function injectCSS(w,h,T){
+  var isDark=curTheme==='dark';
+  var scrollThumb=isDark?'rgba(255,255,255,0.15)':'rgba(0,0,0,0.15)';
+  return '<style>'
+    +'*{box-sizing:border-box;margin:0;padding:0}'
+    +'body{width:'+w+'px;height:'+h+'px;overflow:hidden;background:'+T.pageBg+';color:'+T.txt+';font-family:"PingFang SC","Microsoft YaHei",sans-serif}'
+    +'.pg{width:100%;height:100%;display:flex;flex-direction:column}'
+    +'.nav{height:56px;flex-shrink:0;display:flex;align-items:center;padding:0 4px;background:'+T.cardBg+';border-bottom:1px solid '+T.div+'}'
+    +'.nb{width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:22px;color:'+T.txt2+';cursor:pointer}'
+    +'.nt{flex:1;text-align:center;font-size:17px;font-weight:600;color:'+T.txt+'}'
+    +'.np{width:44px}'
+    +'.ct{flex:1;min-height:0;overflow-y:auto;scrollbar-width:thin;scrollbar-color:'+scrollThumb+' transparent;display:flex;flex-direction:column;align-items:center;padding:28px 20px 40px}'
+    +'.ct::-webkit-scrollbar{width:3px}'
+    +'.ct::-webkit-scrollbar-thumb{background:'+scrollThumb+';border-radius:2px}'
+    +'.la{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:24px}'
+    +'.lt{font-size:20px;font-weight:700;color:'+T.txt+'}'
+    +'.ls{font-size:12px;color:'+T.txt2+'}'
+    +'.card{width:100%;max-width:360px;background:'+T.surfCard+';border:1px solid '+T.border+';border-radius:12px;padding:20px}'
+    +'.tb{display:flex;gap:3px;background:'+(isDark?'rgba(255,255,255,.04)':'rgba(0,0,0,.04)')+';border-radius:8px;padding:3px;margin-bottom:18px}'
+    +'.ti{flex:1;text-align:center;padding:6px 0;border-radius:6px;font-size:13px;cursor:pointer;color:'+T.txt2+';border:1px solid transparent;transition:all .2s}'
+    +'.ti.on{background:'+T.primary+';color:#fff;font-weight:600}'
+    +'.iw{display:flex;flex-direction:column;gap:6px;margin-bottom:12px}'
+    +'.il{font-size:12px;color:'+T.txt2+'}'
+    +'.if{width:100%;height:46px;background:'+T.inputBg+';border:1px solid '+T.inputBd+';border-radius:8px;padding:0 12px;font-size:14px;color:'+T.txt+';outline:none}'
+    +'.ta{width:100%;height:108px;background:'+T.inputBg+';border:1px solid '+T.inputBd+';border-radius:8px;padding:10px 12px;font-size:13px;color:'+T.txt+';outline:none;resize:none;font-family:"PingFang SC",sans-serif}'
+    +'.bp{width:100%;height:46px;background:'+T.primary+';border:none;border-radius:8px;color:#fff;font-size:15px;font-weight:600;cursor:pointer}'
+    +'.bg{height:34px;padding:0 14px;background:'+T.priBg+';border:1px solid rgba('+T.priRgb+',.3);border-radius:8px;color:'+T.primary+';font-size:13px;cursor:pointer}'
+    +'.ht{font-size:12px;color:'+T.txtM+';text-align:center;line-height:1.6}'
+    +'.lk{font-size:12px;color:'+T.primary+';cursor:pointer}'
+    +'.qw{display:flex;flex-direction:column;align-items:center;gap:12px}'
+    +'.qb{position:relative;border-radius:10px;overflow:hidden;border:2px solid '+T.border+'}'
+    +'.qo{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}'
+    +'.bk{background:'+T.okBg+';border:1px solid '+T.ok+';border-radius:16px;padding:3px 12px;font-size:12px;color:'+T.ok+';font-weight:600}'
+    +'@keyframes spin{to{transform:rotate(360deg)}}'
+    +'.sp{width:30px;height:30px;border-radius:50%;border:3px solid rgba('+T.priRgb+',.2);border-top-color:'+T.primary+';animation:spin .8s linear infinite}'
+    +'@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}'
+    +'.pu{animation:pulse 1.5s ease-in-out infinite}'
+    +'@keyframes scan{0%{top:6px}100%{top:calc(100% - 6px)}}'
+    +'.sl{position:absolute;left:6px;right:6px;height:2px;background:linear-gradient(90deg,transparent,'+T.cyan+',transparent);animation:scan 2s ease-in-out infinite alternate;box-shadow:0 0 6px '+T.cyan+'}'
+    +'.ww{display:flex;align-items:center;justify-content:center;gap:48px;padding:40px;height:100%;overflow-y:auto;scrollbar-width:thin;scrollbar-color:'+scrollThumb+' transparent}'
+    +'.wl{flex:1;max-width:320px;display:flex;flex-direction:column;gap:14px}'
+    +'.wr{flex:1;max-width:380px}'
+    +'.wt{font-size:26px;font-weight:700;color:'+T.txt+';line-height:1.2}'
+    +'.wd{font-size:13px;color:'+T.txt2+';line-height:1.7}'
+    +'.fl{display:flex;flex-direction:column;gap:8px;margin-top:4px}'
+    +'.fi{display:flex;align-items:center;gap:8px;font-size:13px;color:'+T.txt2+'}'
+    +'.fd{width:5px;height:5px;border-radius:50%;background:'+T.primary+';flex-shrink:0}'
+    +'</style>';
+}
+
+function tabs(){
+  var t=[['phone','手机号'],['qrcode','二维码'],['cookie','Cookie']],h='<div class="tb">';
+  for(var i=0;i<t.length;i++) h+='<div class="ti'+(curTab===t[i][0]?' on':'')+'" onclick="setTab(\''+t[i][0]+'\')">'+t[i][1]+'</div>';
+  return h+'</div>';
+}
+
+function rPhone(T){
+  if(curPhoneStep==='phone')
+    return '<div class="iw"><div class="il">手机号</div><input class="if" type="tel" placeholder="请输入手机号"></div><button class="bp">获取验证码</button><div class="ht" style="margin-top:10px">验证码将发送至您的手机</div>';
+  return '<div style="text-align:center;margin-bottom:12px"><div style="font-size:12px;color:'+T.txt2+'">验证码已发送至</div><div style="font-size:15px;font-weight:600;margin-top:4px">138****8888</div></div>'
+    +'<div class="iw"><div class="il">验证码</div><input class="if" type="number" placeholder="请输入 6 位验证码" maxlength="6"></div>'
+    +'<button class="bp">登录</button>'
+    +'<div style="display:flex;justify-content:space-between;margin-top:10px"><span class="lk" onclick="setPhoneStep(\'phone\')">← 重新输入手机号</span><span style="font-size:12px;color:'+T.txtM+'">重新发送 45s</span></div>';
+}
+
+function rQR(w,T){
+  var sz=Math.min(172,w-80);
+  if(curQR==='loading')
+    return '<div class="qw"><div class="qb" style="width:'+sz+'px;height:'+sz+'px;display:flex;align-items:center;justify-content:center;background:'+T.inputBg+'"><div class="sp"></div></div><div class="ht pu">正在生成二维码…</div></div>';
+  if(curQR==='ready')
+    return '<div class="qw"><div class="qb" style="width:'+sz+'px;height:'+sz+'px;position:relative">'+qr(1)+'<div class="sl"></div></div><div class="ht" style="max-width:200px">使用 App 扫码登录<br>二维码有效期 3 分钟</div></div>';
+  var maskScanned=curTheme==='dark'?'rgba(0,0,0,.82)':'rgba(255,255,255,.82)';
+  var maskExpired=curTheme==='dark'?'rgba(0,0,0,.88)':'rgba(255,255,255,.88)';
+  if(curQR==='scanned')
+    return '<div class="qw"><div class="qb" style="width:'+sz+'px;height:'+sz+'px;position:relative">'+qr(0.12)+'<div class="qo" style="background:'+maskScanned+';backdrop-filter:blur(2px)"><div style="font-size:26px">✅</div><div class="bk">已扫码</div><div style="font-size:12px;color:'+T.txt2+'">请在手机上确认登录</div></div></div><div class="ht">请在 App 中点击确认</div></div>';
+  return '<div class="qw"><div class="qb" style="width:'+sz+'px;height:'+sz+'px;position:relative">'+qr(0.1)+'<div class="qo" style="background:'+maskExpired+';backdrop-filter:blur(3px)"><div style="font-size:22px">⏱</div><div style="font-size:13px;color:'+T.txt2+'">二维码已过期</div><button class="bg" style="margin-top:4px">刷新二维码</button></div></div><div class="ht">二维码已失效，请点击刷新</div></div>';
+}
+
+function rCookie(T){
+  return '<div class="ht" style="margin-bottom:12px">在浏览器登录账号后，从开发者工具中复制 Cookie 粘贴到下方</div>'
+    +'<div class="iw"><div class="il">Cookie</div><textarea class="ta" placeholder="account_id=xxx; cookie_token=xxx; ..."></textarea></div>'
+    +'<button class="bp">确认登录</button>'
+    +'<div class="ht" style="margin-top:10px">Cookie 仅存储在本地设备，不会上传至任何服务器</div>';
+}
+
+function tc(w,T){
+  if(curTab==='phone') return rPhone(T);
+  if(curTab==='qrcode') return rQR(w,T);
+  return rCookie(T);
+}
+
+function ft(T){
+  return '<div style="margin-top:14px;text-align:center"><span class="ht">登录即表示您同意 </span><span class="lk">用户协议</span><span class="ht"> 与 </span><span class="lk">隐私政策</span></div>';
+}
+
+function rN(w,h,T){
+  var logoSz=52;
+  return injectCSS(w,h,T)
+    +'<div class="pg">'
+    +'<div class="nav"><div class="nb">‹</div><div class="nt">登录账号</div><div class="np"></div></div>'
+    +'<div class="ct" style="overflow-y:auto;scrollbar-width:thin">'
+    +'<div class="la">'+logoSVG(logoSz,T)+'<div class="lt">米悠悠</div><div class="ls">游戏数据助手</div></div>'
+    +'<div class="card">'+tabs()+tc(w,T)+'</div>'
+    +ft(T)
+    +'</div></div>';
+}
+
+function rW(w,h,T){
+  var cw=Math.min(360,Math.floor(w/2)-60);
+  var logoSz=56;
+  return injectCSS(w,h,T)
+    +'<div class="pg">'
+    +'<div class="nav"><div class="nb">‹</div><div class="nt">登录账号</div><div class="np"></div></div>'
+    +'<div class="ww" style="overflow-y:auto;scrollbar-width:thin">'
+    +'<div class="wl">'+logoSVG(logoSz,T)
+    +'<div class="wt" style="margin-top:12px">米悠悠</div>'
+    +'<div class="wd">多款游戏数据一站式查看<br>角色 · 便笺</div>'
+    +'<div class="fl"><div class="fi"><div class="fd"></div>角色列表 · 详情查看</div><div class="fi"><div class="fd"></div>实时便笺 · 树脂提醒</div></div>'
+    +'</div>'
+    +'<div class="wr"><div class="card" style="max-width:100%">'
+    +'<div style="font-size:17px;font-weight:600;margin-bottom:16px;color:'+T.txt+'">登录账号</div>'
+    +tabs()+tc(cw,T)+ft(T)
+    +'</div></div></div></div>';
+}
+
+function render(dev){
+  var d=DEVS[dev],T=THEMES[curTheme];
+  return d[0]<=480?rN(d[0],d[1],T):rW(d[0],d[1],T);
+}
+
+function go(dev){
+  curDev=dev;
+  var keys=Object.keys(DEVS);
+  for(var i=0;i<keys.length;i++){var b=document.getElementById('d-'+keys[i]);if(b)b.classList.toggle('on',keys[i]===dev);}
+  var d=DEVS[dev],s=document.getElementById('S');
+  s.style.width=d[0]+'px';s.style.height=d[1]+'px';s.innerHTML=render(dev);
+}
+
+function setTheme(theme){
+  curTheme=theme;
+  document.getElementById('t-dark').classList.toggle('on',theme==='dark');
+  document.getElementById('t-light').classList.toggle('on',theme==='light');
+  go(curDev);
+}
+
+function setTab(tab){
+  curTab=tab;
+  var tabs=['phone','qrcode','cookie'];
+  for(var i=0;i<tabs.length;i++){var b=document.getElementById('tab-'+tabs[i]);if(b)b.classList.toggle('on',tabs[i]===tab);}
+  go(curDev);
+}
+
+function setQR(stat){
+  curQR=stat;
+  var stats=['loading','ready','scanned','expired'];
+  for(var i=0;i<stats.length;i++){var b=document.getElementById('qr-'+stats[i]);if(b)b.classList.toggle('on',stats[i]===stat);}
+  go(curDev);
+}
+
+function setPhoneStep(step){
+  curPhoneStep=step;
+  var steps=['phone','code'];
+  for(var i=0;i<steps.length;i++){var b=document.getElementById('ps-'+steps[i]);if(b)b.classList.toggle('on',steps[i]===step);}
+  go(curDev);
+}
+
+go('pp');
+</script>
+</body>
+</html>

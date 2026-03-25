@@ -1,6 +1,16 @@
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 
-/** 单个骨架色块，用 .animation() 属性动画实现呼吸效果 */
+@Preview
+@ComponentV2
+struct HomeSkeletonViewPreview {
+  build() {
+    HomeSkeletonView()
+      .height(600)
+      .backgroundColor('#F5F5F5')
+  }
+}
+
+/** 单个骨架色块，用 animateTo 实现无限呼吸效果 */
 @ComponentV2
 struct SkeletonBlock {
   @Local private tm: ThemeManager = themeManager
@@ -8,9 +18,27 @@ struct SkeletonBlock {
   @Param blockH: number = themeManager.current.skeletonBlockH
   @Param blockR: number = themeManager.current.skeletonBlockR
   @Local private shimmerOpacity: number = themeManager.current.shimmerOpacityHigh
+  private uiCtx: UIContext | null = null
 
   aboutToAppear(): void {
-    this.shimmerOpacity = this.tm.current.shimmerOpacityLow
+    this.uiCtx = this.getUIContext()
+    this.startShimmer()
+  }
+
+  private startShimmer(): void {
+    const ctx = this.uiCtx
+    if (ctx === null) { return }
+    ctx.animateTo(
+      {
+        duration: this.tm.current.animDurationShimmer,
+        curve: Curve.EaseInOut,
+        iterations: -1,
+        playMode: PlayMode.Alternate
+      },
+      () => {
+        this.shimmerOpacity = this.tm.current.shimmerOpacityLow
+      }
+    )
   }
 
   build() {
@@ -18,14 +46,8 @@ struct SkeletonBlock {
       .width(this.blockW)
       .height(this.blockH)
       .borderRadius(this.blockR)
-      .backgroundColor(this.tm.current.colorDivider)
+      .backgroundColor(this.tm.current.colorSkeletonBg)
       .opacity(this.shimmerOpacity)
-      .animation({
-        duration: this.tm.current.animDurationShimmer,
-        curve: Curve.EaseInOut,
-        iterations: -1,
-        playMode: PlayMode.Alternate
-      })
   }
 }
 

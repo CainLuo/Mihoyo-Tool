@@ -10,12 +10,7 @@
   "modules": {
     ".": {
       "name": "",
-      "dependencies": {
-        "@hadss/hmrouter": {
-          "specifier": "^1.2.2",
-          "version": "1.2.2"
-        }
-      },
+      "dependencies": {},
       "devDependencies": {
         "@ohos/hypium": {
           "specifier": "1.0.25",
@@ -56,10 +51,6 @@
         "core": {
           "specifier": "file:core",
           "version": "file:core"
-        },
-        "@hadss/hmrouter": {
-          "specifier": "latest",
-          "version": "1.2.2"
         }
       },
       "devDependencies": {
@@ -77,6 +68,24 @@
     }
   },
   "packages": {
+    "@ohos/hypium@1.0.25": {
+      "integrity": "sha512-l6uO2pjl8HyEKdekLqQt7tUpWbDqX/42zoAzkagtUVZAW9jT6lMvbe54MVjoLxq/RwQGygRvi6j4GpypSMFSHw==",
+      "storePath": "oh_modules/.ohpm/@ohos+hypium@1.0.25",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": true,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "@ohos/hamock@1.0.0": {
+      "integrity": "sha512-K6lDPYc6VkKe6ZBNQa9aoG+ZZMiwqfcR/7yAVFSUGIuOAhPvCJAo9+t1fZnpe0dBRBPxj2bxPPbKh69VuyAtDg==",
+      "storePath": "oh_modules/.ohpm/@ohos+hamock@1.0.0",
+      "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": true,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
     "core@file:core": {
       "storePath": "core",
       "dependencies": {
@@ -103,43 +112,6 @@
     "@ohos/crypto-js@2.0.5": {
       "integrity": "sha512-QPW+vxSambzep39qnnvGLk2lItqPqt+HBTo7FsTdL9edv3z35h4D80ClnEPNPfXQzIp8DgVDMIgbAWa1hWq8ug==",
       "storePath": "oh_modules/.ohpm/@ohos+crypto-js@2.0.5",
-      "dependencies": {},
-      "dynamicDependencies": {},
-      "dev": false,
-      "dynamic": false,
-      "maskedByOverrideDependencyMap": false
-    },
-    "@ohos/hypium@1.0.25": {
-      "integrity": "sha512-l6uO2pjl8HyEKdekLqQt7tUpWbDqX/42zoAzkagtUVZAW9jT6lMvbe54MVjoLxq/RwQGygRvi6j4GpypSMFSHw==",
-      "storePath": "oh_modules/.ohpm/@ohos+hypium@1.0.25",
-      "dependencies": {},
-      "dynamicDependencies": {},
-      "dev": true,
-      "dynamic": false,
-      "maskedByOverrideDependencyMap": false
-    },
-    "@ohos/hamock@1.0.0": {
-      "integrity": "sha512-K6lDPYc6VkKe6ZBNQa9aoG+ZZMiwqfcR/7yAVFSUGIuOAhPvCJAo9+t1fZnpe0dBRBPxj2bxPPbKh69VuyAtDg==",
-      "storePath": "oh_modules/.ohpm/@ohos+hamock@1.0.0",
-      "dependencies": {},
-      "dynamicDependencies": {},
-      "dev": true,
-      "dynamic": false,
-      "maskedByOverrideDependencyMap": false
-    },
-    "@hadss/hmrouter@1.2.2": {
-      "integrity": "sha512-R+g2ku+wsBCcv6+7OP2C4HpV79nAacO0i0ubRgmzksW+oK+GqywFW87s26Dkt5sLPwRtWQl8hBC+5qOwN2mtog==",
-      "storePath": "oh_modules/.ohpm/@hadss+hmrouter@1.2.2",
-      "dependencies": {
-        "libhmrouterlibrary.so": "oh_modules/.ohpm/@hadss+hmrouter@1.2.2/oh_modules/@hadss/hmrouter/src/main/cpp/types/libhmrouterlibrary"
-      },
-      "dynamicDependencies": {},
-      "dev": false,
-      "dynamic": false,
-      "maskedByOverrideDependencyMap": false
-    },
-    "libhmrouterlibrary.so@file:oh_modules/.ohpm/@hadss+hmrouter@1.2.2/oh_modules/@hadss/hmrouter/src/main/cpp/types/libhmrouterlibrary": {
-      "storePath": "oh_modules/.ohpm/@hadss+hmrouter@1.2.2/oh_modules/@hadss/hmrouter/src/main/cpp/types/libhmrouterlibrary",
       "dependencies": {},
       "dynamicDependencies": {},
       "dev": false,

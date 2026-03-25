@@ -22,7 +22,8 @@ export interface AppColor {
   colorTextPrimary: Resource    // 主文字色
   colorTextSecondary: Resource  // 次要文字色
   colorDivider: Resource        // 分割线色
-  colorCardBg: Resource         // 卡片背景色
+  colorCardBg: Resource         // 卡片背景色（NavBar/TabBar/Sidebar Chrome 层，dark mode 下与页面背景融合）
+  colorSurfaceCard: Resource    // 内容卡片背景色（GameToolCard/CharacterCard 等，比页面背景稍亮）
   colorCardBorder: Resource     // 卡片描边色
   colorPageBg: Resource         // 页面背景色（与卡片形成层次对比）
   colorPlaceholder: Resource    // 占位符/边框色
@@ -30,6 +31,7 @@ export interface AppColor {
   colorDanger: Resource         // 危险操作色（删除等）
   colorDangerBg: Resource       // 危险操作背景色
   colorWarning: Resource        // 警告色（树脂接近满时）
+  colorSkeletonBg: Resource     // 骨架屏色块背景色（比卡片背景明显亮一档，深色模式下可见）
 }
 
 // ---- 字体 Token ----
@@ -122,8 +124,9 @@ export interface Size {
   qrCodeSize: number      // 200vp — 二维码尺寸
   characterIconHeight: number // 80vp  — 角色卡片头像高度
   weaponOverlaySize: number  // 64vp  — 武器图标容器尺寸
-  weaponIconSize: number     // 48vp  — 武器图标尺寸
+  weaponIconSize: number     // 48vp  — 武器图标尺寸（已废弃，图标现在铺满容器）
   weaponAffixTagH: number    // 16vp  — 精炼标签高度（保留兼容）
+  weaponInfoBarH: number     // 18vp  — 武器浮层底部信息栏高度
   elementBadgeSize: number   // 30vp  — 元素角标尺寸
   constellationBadgeSize: number // 22vp — 命座圆形徽章尺寸（列表页）
   charDetailConsBadgeSize: number // 28vp — 命座圆形徽章尺寸（详情页，更大）
@@ -152,6 +155,120 @@ export interface Size {
   charDetailRelicLeftColWidth: number   // 90vp  — 宽屏圣遗物左列宽度
   charDetailConsMarginRight: number     // 12vp  — 命座列距右边缘间距
   charDetailSkillBottomOffset: number   // 24vp  — 技能区距底部偏移量（offset.y 负值）
+
+  // ---- Surface 颜色 Token ----
+  surfaceActivePrimary: Resource      // 主色激活态（命座激活背景）
+  surfaceDark2xl: Resource            // 极强黑色叠加（命座未激活/技能背景）
+  surfaceActiveBorder: Resource       // 主色激活描边
+  surfaceInactiveBorder: Resource     // 未激活描边
+  surfaceSkillBorderPhone: Resource   // Phone 技能图标描边
+  surfaceFetterBg: Resource           // 好感度标签背景
+  surfaceFetterBorder: Resource       // 好感度标签描边
+  surfaceGlassXs: Resource            // 极弱玻璃感（卡片背景）
+  surfaceGlassSm: Resource            // 弱玻璃感（图标背景/分割线）
+  surfaceGlassMd: Resource            // 中玻璃感（图标背景/遮罩）
+  surfaceOverlaySm: Resource          // 弱白色叠加（分割线）
+  surfaceOverlayMd: Resource          // 中白色叠加（分割线）
+  surfaceDarkXs: Resource             // 极弱黑色叠加
+  surfaceDarkMd: Resource             // 中黑色叠加（圣遗物行背景）
+  surfaceDarkLg: Resource             // 较强黑色叠加（属性网格/圣遗物面板）
+  surfaceDarkXl: Resource             // 强黑色叠加（属性面板背景）
+
+  // ---- Text 颜色 Token ----
+  textOnDarkMedium: Resource          // 中等文字（等级）
+  textOnDarkSecondary: Resource       // 次要文字（属性标签）
+  textOnDarkTertiary: Resource        // 三级文字（圣遗物副词条标签）
+  textOnDarkMuted: Resource           // 弱文字（武器等级/圣遗物主词条标签）
+  textOnDarkFaint: Resource           // 极弱文字（圣遗物等级）
+  textOnDarkGhost: Resource           // 幽灵文字（Phone 小字）
+  textOnDarkHigh: Resource            // 高亮文字（圣遗物副词条值）
+  textInactive: Resource              // 未激活状态文字
+  textLockIcon: Resource              // 锁图标颜色
+
+  // ---- Accent 颜色 Token ----
+  accentRefine: Resource              // 精炼/星级金色
+  accentRefineBg: Resource            // 精炼标签背景
+  accentPrimaryStrong: Resource       // 圣遗物主词条强调色
+
+  // ---- Overlay 颜色 Token ----
+  overlayScrImTop: Resource           // 宽屏遮罩底部不透明色
+  overlayGradientEnd: Resource        // 角色卡片底部渐变遮罩终止色
+  overlayShadow: Resource             // 文字阴影颜色
+  overlayPortraitBase: Resource       // Phone 竖屏遮罩基色
+  overlayPortraitStrong: Resource     // Phone 竖屏遮罩强
+  overlayPortraitMid: Resource        // Phone 竖屏遮罩中
+  overlayPortraitBot: Resource        // Phone 竖屏底部遮罩
+  overlayLandOpaque: Resource         // Phone 横屏遮罩不透明
+  overlayLandStrong: Resource         // Phone 横屏遮罩强
+  overlayLandFade: Resource           // Phone 横屏遮罩淡出
+
+  // ---- Background 渐变色 Token ----
+  bgElementHydro1: Resource
+  bgElementHydro2: Resource
+  bgElementHydro3: Resource
+  bgElementPyro1: Resource
+  bgElementPyro2: Resource
+  bgElementPyro3: Resource
+  bgElementElectro1: Resource
+  bgElementElectro2: Resource
+  bgElementElectro3: Resource
+  bgElementAnemo1: Resource
+  bgElementAnemo2: Resource
+  bgElementAnemo3: Resource
+  bgElementGeo1: Resource
+  bgElementGeo2: Resource
+  bgElementGeo3: Resource
+  bgElementCryo1: Resource
+  bgElementCryo2: Resource
+  bgElementCryo3: Resource
+  bgElementDendro1: Resource
+  bgElementDendro2: Resource
+  bgElementDendro3: Resource
+  bgPortrait1: Resource
+  bgPortrait2: Resource
+  bgPageDeep: Resource
+
+  // ---- 渐变透明色 ----
+  colorTransparent: Resource
+
+  // ---- 尺寸/间距 Token（角色详情页专用）----
+  charDetailConsInactiveOpacity: number   // 命座未激活透明度
+  charDetailLockIconRatio: number         // 锁图标相对命座尺寸的比例
+  charDetailRightPaddingPortrait: string  // Phone 竖屏右侧留白百分比
+  charDetailRightPaddingLandscape: string // Phone 横屏右侧留白百分比
+  charDetailBorderWidth: number           // 通用描边宽度（1vp）
+  charDetailPaddingTiny: number           // 极小 padding（1vp，用于标签上下）
+  charDetailStatsPaddingV: number         // 属性网格行上下 padding（5vp）
+  charDetailRelicSubPaddingV: number
+  charDetailRelicMainPaddingV: number
+  charDetailRelicFontSizeTiny: number
+  charDetailRelicCardSpacing: number
+
+  // ---- 启动页 Token ----
+  launchLogoSize: number      // 120vp — 启动页 Logo 尺寸
+  launchLogoRadius: number    // 28vp  — 启动页 Logo 圆角
+
+  // ---- 登录页 Token ----
+  loginNarrowBreakpoint: number  // 480vp — 单栏/双栏切换断点
+  loginLogoSizeSM: number        // 52vp  — 单栏 Logo 尺寸
+  loginLogoSizeLG: number        // 56vp  — 双栏 Logo 尺寸
+  loginWideGap: number           // 48vp  — 双栏间距
+  loginWidePaddingH: number      // 40vp  — 双栏水平内边距
+  loginTabBarBg: Resource        // Tab 栏背景色
+  loginTabBarMarginBottom: number // 18vp — Tab 栏底部间距
+  loginInputHeight: number       // 46vp  — 输入框高度
+  loginInputBg: Resource         // 输入框背景色
+  loginButtonFontSize: number    // 15vp  — 登录按钮字体大小
+  loginFeatureDotSize: number    // 5vp   — 特性列表圆点尺寸
+  loginCookieAreaHeight: number  // 108vp — Cookie 输入区高度
+  value0: number                 // 0vp   — 零间距
+
+  // ---- 渐变角度 Token ----
+  gradientAngle135: number   // 135° — 元素背景渐变方向
+  gradientAngle150: number   // 150° — Phone 背景渐变方向
+  gradientAngle180: number   // 180° — 上下遮罩渐变方向（从上到下）
+  gradientAngle90: number    // 90°  — 左右遮罩渐变方向（从左到右）
+  gradientAngle0: number     // 0°   — 底部遮罩渐变方向（从下到上）
 }
 export interface Theme extends AppColor, AppFont, Spacing, Radius, Shadow, Size {}
 

@@ -22,6 +22,12 @@ const SUMMARY_COLUMNS: string[] = [
   'extra_text1', 'update_time'
 ];
 
+/** findDistinctGameRoles 返回的行模型 */
+export class GameRolePair {
+  gameId: string = '';
+  roleUid: string = '';
+}
+
 export class GameDataDao {
 
   // ─── 写入 ────────────────────────────────────────────────────
@@ -99,6 +105,26 @@ export class GameDataDao {
 
   // ─── 查询（列表，不含 raw_json）────────────────────────────────
 
+  static async count(gameId: string, roleUid: string, dataType: string): Promise<number> {
+    try {
+      const builder = new QueryBuilder(TABLE_NAME)
+        .equalTo('game_id', gameId)
+        .equalTo('role_uid', roleUid)
+        .equalTo('data_type', dataType)
+        .columns(['id']);
+      const rs = await RdbManager.query(builder.build(), ['id']);
+      let n = 0;
+      while (rs.goToNextRow()) {
+        n++;
+      }
+      try { rs.close(); } catch (_) {}
+      return n;
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      throw new Error(`GameDataDao.count failed: ${msg}`);
+    }
+  }
+
   static async findSummaries(
     gameId: string,
     roleUid: string,
@@ -142,6 +168,44 @@ export class GameDataDao {
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       throw new Error(`GameDataDao.searchByName failed: ${msg}`);
+    }
+  }
+
+  /**
+   * 查询指定 data_type 下所有不重复的 (game_id, role_uid) 组合。
+   * 用于 Characters 页面构建游戏 Tab 列表（当 game_role_table 为空时的 fallback）。
+   */
+  static async findDistinctGameRoles(dataType: string): Promise<GameRolePair[]> {
+    try {
+      const builder = new QueryBuilder(TABLE_NAME)
+        .equalTo('data_type', dataType)
+        .columns(['game_id', 'role_uid']);
+      const rs = await RdbManager.query(builder.build(), ['game_id', 'role_uid']);
+      const seen: Map<string, boolean> = new Map<string, boolean>();
+      const result: GameRolePair[] = [];
+      try {
+        while (rs.goToNextRow()) {
+          const gameId = rs.getString(rs.getColumnIndex('game_id'));
+          const roleUid = rs.getString(rs.getColumnIndex('role_uid'));
+          const key = gameId + '|' + roleUid;
+          if (!seen.has(key)) {
+            seen.set(key, true);
+            const pair = new GameRolePair();
+            pair.gameId = gameId;
+            pair.roleUid = roleUid;
+            result[result.length] = pair;
+          }
+        }
+      } catch (parseErr) {
+        const msg = parseErr instanceof Error ? parseErr.message : `${parseErr}`;
+        GameDataDao.closeRs(rs);
+        throw new Error(msg);
+      }
+      GameDataDao.closeRs(rs);
+      return result;
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      throw new Error(`GameDataDao.findDistinctGameRoles failed: ${msg}`);
     }
   }
 

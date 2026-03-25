@@ -1,6 +1,22 @@
 {
   "string": [
     {
+      "name": "common_arrow_right",
+      "value": "›"
+    },
+    {
+      "name": "app_name",
+      "value": "MiYouYou"
+    },
+    {
+      "name": "launch_subtitle",
+      "value": "Game Stats Assistant"
+    },
+    {
+      "name": "setting_account_role_count",
+      "value": "%d game roles"
+    },
+    {
       "name": "geetest_dialog_title",
       "value": "Complete Security Verification"
     },
@@ -107,6 +123,86 @@
     {
       "name": "my_page_title",
       "value": "My Page"
+    },
+    {
+      "name": "my_section_account",
+      "value": "Accounts"
+    },
+    {
+      "name": "my_section_appearance",
+      "value": "Appearance"
+    },
+    {
+      "name": "my_section_about",
+      "value": "About"
+    },
+    {
+      "name": "my_account_empty",
+      "value": "No accounts yet, tap to add"
+    },
+    {
+      "name": "my_account_role_count",
+      "value": "%d game roles"
+    },
+    {
+      "name": "my_account_add",
+      "value": "+ Add Account"
+    },
+    {
+      "name": "my_theme_label",
+      "value": "Theme"
+    },
+    {
+      "name": "my_theme_light",
+      "value": "Light"
+    },
+    {
+      "name": "my_theme_dark",
+      "value": "Dark"
+    },
+    {
+      "name": "my_theme_system",
+      "value": "System"
+    },
+    {
+      "name": "my_about_version",
+      "value": "Version"
+    },
+    {
+      "name": "my_about_github",
+      "value": "GitHub"
+    },
+    {
+      "name": "my_about_license",
+      "value": "License"
+    },
+    {
+      "name": "my_about_github_url",
+      "value": "github.com/cainluo/Mihoyo-Tool"
+    },
+    {
+      "name": "my_about_license_value",
+      "value": "MIT License"
+    },
+    {
+      "name": "account_detail_title",
+      "value": "Account Detail"
+    },
+    {
+      "name": "account_detail_section_roles",
+      "value": "Linked Game Roles"
+    },
+    {
+      "name": "account_detail_section_actions",
+      "value": "Actions"
+    },
+    {
+      "name": "account_detail_delete",
+      "value": "Delete This Account"
+    },
+    {
+      "name": "account_detail_uid_prefix",
+      "value": "UID: "
     },
     {
       "name": "daily_note_task_label",
@@ -237,6 +333,14 @@
       "value": "No characters yet, tap refresh to sync"
     },
     {
+      "name": "characters_refresh_cooldown_title",
+      "value": "Refresh Rate Limited"
+    },
+    {
+      "name": "characters_refresh_cooldown_msg",
+      "value": "Character data was synced within the last 30 minutes. Please try again later."
+    },
+    {
       "name": "character_level_prefix",
       "value": "Lv."
     },
@@ -359,6 +463,158 @@
     {
       "name": "char_detail_weapon_lv_prefix",
       "value": "Lv.%d/%d"
+    },
+    {
+      "name": "prop_hp_flat",
+      "value": "HP"
+    },
+    {
+      "name": "prop_hp_pct",
+      "value": "HP%"
+    },
+    {
+      "name": "prop_base_atk",
+      "value": "Base ATK"
+    },
+    {
+      "name": "prop_atk_flat",
+      "value": "ATK"
+    },
+    {
+      "name": "prop_atk_pct",
+      "value": "ATK%"
+    },
+    {
+      "name": "prop_def_flat",
+      "value": "DEF"
+    },
+    {
+      "name": "prop_def_pct",
+      "value": "DEF%"
+    },
+    {
+      "name": "prop_base_hp",
+      "value": "Base HP"
+    },
+    {
+      "name": "prop_base_def",
+      "value": "Base DEF"
+    },
+    {
+      "name": "prop_crit_rate",
+      "value": "CRIT Rate"
+    },
+    {
+      "name": "prop_crit_dmg",
+      "value": "CRIT DMG"
+    },
+    {
+      "name": "prop_energy_recharge",
+      "value": "Energy Recharge"
+    },
+    {
+      "name": "prop_healing_bonus",
+      "value": "Healing Bonus"
+    },
+    {
+      "name": "prop_incoming_healing",
+      "value": "Incoming Healing"
+    },
+    {
+      "name": "prop_elemental_mastery",
+      "value": "Elemental Mastery"
+    },
+    {
+      "name": "prop_pyro_dmg",
+      "value": "Pyro DMG Bonus"
+    },
+    {
+      "name": "prop_electro_dmg",
+      "value": "Electro DMG Bonus"
+    },
+    {
+      "name": "prop_hydro_dmg",
+      "value": "Hydro DMG Bonus"
+    },
+    {
+      "name": "prop_dendro_dmg",
+      "value": "Dendro DMG Bonus"
+    },
+    {
+      "name": "prop_anemo_dmg",
+      "value": "Anemo DMG Bonus"
+    },
+    {
+      "name": "prop_geo_dmg",
+      "value": "Geo DMG Bonus"
+    },
+    {
+      "name": "prop_cryo_dmg",
+      "value": "Cryo DMG Bonus"
+    },
+    {
+      "name": "prop_physical_dmg",
+      "value": "Physical DMG Bonus"
+    },
+    {
+      "name": "prop_cooldown_reduction",
+      "value": "CD Reduction"
+    },
+    {
+      "name": "prop_shield_strength",
+      "value": "Shield Strength"
+    },
+    {
+      "name": "login_agreement_prefix",
+      "value": "By logging in, you agree to our"
+    },
+    {
+      "name": "login_agreement_terms",
+      "value": "Terms of Service"
+    },
+    {
+      "name": "login_agreement_and",
+      "value": "and"
+    },
+    {
+      "name": "login_agreement_privacy",
+      "value": "Privacy Policy"
+    },
+    {
+      "name": "login_cookie_security_hint",
+      "value": "Cookie is stored locally only and never uploaded to any server"
+    },
+    {
+      "name": "login_brand_desc",
+      "value": "All-in-one game stats viewer"
+    },
+    {
+      "name": "login_brand_feature1",
+      "value": "Character list & detail"
+    },
+    {
+      "name": "login_brand_feature2",
+      "value": "Real-time notes & resin reminder"
+    },
+    {
+      "name": "login_sms_sent_to_prefix",
+      "value": "Code sent to"
+    },
+    {
+      "name": "login_phone_label",
+      "value": "Phone Number"
+    },
+    {
+      "name": "login_code_label",
+      "value": "Verification Code"
+    },
+    {
+      "name": "login_cookie_label",
+      "value": "Cookie"
+    },
+    {
+      "name": "login_phone_hint",
+      "value": "Mainland China phone numbers only"
     }
   ]
 }

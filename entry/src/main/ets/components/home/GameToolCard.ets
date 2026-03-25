@@ -6,7 +6,62 @@
  */
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
-import { GameRoleCardVM } from './HomeModels'
+import { GameRoleCardVM, GameNoteSnapshotVM } from './HomeModels'
+import { gameIdToName, gameIdToPrimaryLabel } from '../../utils/GameIdUtil'
+
+// ── Preview：有便签数据（树脂未满）──
+@Preview
+@ComponentV2
+struct GameToolCardPreviewNormal {
+  build() {
+    GameToolCard({
+      card: new GameRoleCardVM(
+        'genshin', 'genshin', $r('app.color.game_color_genshin'),
+        '123456789', '旅行者', '天空岛',
+        new GameNoteSnapshotVM('resin', 140, 200, '将于4小时后全部恢复', '每日委托', '4/4 已领取', false),
+        'sync_just_now'
+      )
+    })
+    .padding(16)
+    .backgroundColor('#F5F5F5')
+  }
+}
+
+// ── Preview：树脂已满（红色警告）──
+@Preview
+@ComponentV2
+struct GameToolCardPreviewFull {
+  build() {
+    GameToolCard({
+      card: new GameRoleCardVM(
+        'genshin', 'genshin', $r('app.color.game_color_genshin'),
+        '987654321', '钟离', '世界树',
+        new GameNoteSnapshotVM('resin', 200, 200, '已全部恢复', '每日委托', '0/4', true),
+        'sync_just_now'
+      )
+    })
+    .padding(16)
+    .backgroundColor('#F5F5F5')
+  }
+}
+
+// ── Preview：无便签数据（未同步）──
+@Preview
+@ComponentV2
+struct GameToolCardPreviewNoData {
+  build() {
+    GameToolCard({
+      card: new GameRoleCardVM(
+        'starrail', 'starrail', $r('app.color.game_color_starrail'),
+        '111222333', '开拓者', '星穹列车',
+        null,
+        'sync_not_synced'
+      )
+    })
+    .padding(16)
+    .backgroundColor('#F5F5F5')
+  }
+}
 
 @ComponentV2
 export struct GameToolCard {
@@ -15,39 +70,7 @@ export struct GameToolCard {
 
   @Local private tm: ThemeManager = themeManager
 
-  /** 将 gameId 映射为本地化游戏名称资源 */
-  private gameNameResource(gameId: string): Resource {
-    if (gameId === 'genshin') {
-      return $r('app.string.game_name_genshin')
-    }
-    if (gameId === 'starrail') {
-      return $r('app.string.game_name_starrail')
-    }
-    if (gameId === 'zzz') {
-      return $r('app.string.game_name_zzz')
-    }
-    if (gameId === 'honkai3') {
-      return $r('app.string.game_name_honkai3')
-    }
-    return $r('app.string.game_name_genshin')
-  }
 
-  /** 将 gameId 映射为主要资源名称（树脂/开拓力等） */
-  private primaryLabelResource(gameId: string): Resource {
-    if (gameId === 'genshin') {
-      return $r('app.string.daily_note_resin_title')
-    }
-    if (gameId === 'starrail') {
-      return $r('app.string.daily_note_adventure_label')
-    }
-    if (gameId === 'zzz') {
-      return $r('app.string.daily_note_adventure_label')
-    }
-    if (gameId === 'honkai3') {
-      return $r('app.string.daily_note_adventure_label')
-    }
-    return $r('app.string.daily_note_resin_title')
-  }
 
   /** 将 lastSyncDesc key 映射为本地化字符串资源 */
   private syncDescResource(key: string): Resource {
@@ -81,7 +104,7 @@ export struct GameToolCard {
           .backgroundColor(this.card.gameColor)
 
         Column({ space: this.tm.current.value2 }) {
-          Text(this.gameNameResource(this.card.gameName))
+          Text(gameIdToName(this.card.gameName))
             .font(this.tm.current.body16Medium)
             .fontColor(this.tm.current.colorTextPrimary)
             .maxLines(1)
@@ -126,7 +149,7 @@ export struct GameToolCard {
         Column({ space: this.tm.current.value8 }) {
           Row({ space: this.tm.current.value8 }) {
             Column({ space: this.tm.current.value2 }) {
-              Text(this.primaryLabelResource(this.card.snapshot.primaryLabel))
+              Text(gameIdToPrimaryLabel(this.card.gameName))
                 .font(this.tm.current.body13)
                 .fontColor(this.tm.current.colorTextSecondary)
 
@@ -199,7 +222,7 @@ export struct GameToolCard {
         .padding({ top: this.tm.current.value40, bottom: this.tm.current.value40 })
       }
     }
-    .backgroundColor(this.tm.current.colorCardBg)
+    .backgroundColor(this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius16)
     .border({ width: this.tm.current.cardBorderWidth, color: this.tm.current.colorCardBorder })
     .shadow({

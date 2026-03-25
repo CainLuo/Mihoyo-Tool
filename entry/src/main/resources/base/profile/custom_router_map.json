@@ -1,51 +1,34 @@
 {
   "routerMap": [
     {
+      "name": "Launch",
+      "pageSourceFile": "src/main/ets/pages/router/LaunchBuilder.ets",
+      "buildFunction": "LaunchBuilder"
+    },
+    {
       "name": "Main",
       "pageSourceFile": "src/main/ets/pages/router/MainBuilder.ets",
-      "buildFunction": "MainBuilder",
-      "customData": {
-        "name": "Main",
-        "pageUrl": "Main",
-        "lifecycle": "ExitAppLifecycle"
-      }
+      "buildFunction": "MainBuilder"
     },
     {
       "name": "Login",
       "pageSourceFile": "src/main/ets/pages/router/LoginBuilder.ets",
-      "buildFunction": "LoginBuilder",
-      "customData": {
-        "name": "Login",
-        "pageUrl": "Login"
-      }
-    },
-    {
-      "name": "Setting",
-      "pageSourceFile": "src/main/ets/pages/router/SettingBuilder.ets",
-      "buildFunction": "SettingBuilder",
-      "customData": {
-        "name": "Setting",
-        "pageUrl": "Setting",
-        "lifecycle": "ExitAppLifecycle"
-      }
+      "buildFunction": "LoginBuilder"
     },
     {
       "name": "GenshinDailyDetail",
       "pageSourceFile": "src/main/ets/pages/router/GenshinDailyDetailBuilder.ets",
-      "buildFunction": "GenshinDailyDetailBuilder",
-      "customData": {
-        "name": "GenshinDailyDetail",
-        "pageUrl": "GenshinDailyDetail"
-      }
+      "buildFunction": "GenshinDailyDetailBuilder"
     },
     {
       "name": "GenshinCharacterDetail",
       "pageSourceFile": "src/main/ets/pages/router/GenshinCharacterDetailBuilder.ets",
-      "buildFunction": "GenshinCharacterDetailBuilder",
-      "customData": {
-        "name": "GenshinCharacterDetail",
-        "pageUrl": "GenshinCharacterDetail"
-      }
+      "buildFunction": "GenshinCharacterDetailBuilder"
+    },
+    {
+      "name": "AccountDetail",
+      "pageSourceFile": "src/main/ets/pages/router/AccountDetailBuilder.ets",
+      "buildFunction": "AccountDetailBuilder"
     }
   ]
 }

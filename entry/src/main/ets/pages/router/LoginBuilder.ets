@@ -1,7 +1,7 @@
 import { Login } from '../Login';
 
 @Builder
-export function LoginBuilder(_name: string, _param: object) {
+export function LoginBuilder(_name: string, _param: Object) {
   LoginDestination()
 }
 
@@ -12,5 +12,6 @@ struct LoginDestination {
       Login()
     }
     .title($r('app.string.login_title'))
+    .hideTitleBar(false)
   }
 }

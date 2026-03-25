@@ -306,7 +306,7 @@ export struct GeetestDialog {
         minWidth: this.tm.current.dialogMinWidth,
         maxWidth: this.tm.current.dialogMaxWidth
       })
-      .backgroundColor(this.tm.current.colorCardBg)
+      .backgroundColor(this.tm.current.colorSurfaceCard)
       .borderRadius(this.tm.current.radius12)
       .clip(true)
     }

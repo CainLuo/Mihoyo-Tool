@@ -14,19 +14,27 @@
     },
     {
       "name": "color_divider",
-      "value": "#2C2C2C"
+      "value": "#1A1A1A"
     },
     {
       "name": "color_card_bg",
-      "value": "#1E1E1E"
+      "value": "#000000"
+    },
+    {
+      "name": "color_surface_card",
+      "value": "#1C1C1C"
     },
     {
       "name": "color_card_border",
-      "value": "#2E2E2E"
+      "value": "#2A2A2A"
     },
     {
       "name": "color_page_bg",
-      "value": "#121212"
+      "value": "#000000"
+    },
+    {
+      "name": "color_nav_bar_solid",
+      "value": "#EB141420"
     },
     {
       "name": "color_placeholder",
@@ -53,6 +61,10 @@
       "value": "#F5B942"
     },
     {
+      "name": "color_skeleton_bg",
+      "value": "#2E2E2E"
+    },
+    {
       "name": "color_accent",
       "value": "#4DA3FF"
     },
@@ -75,6 +87,18 @@
     {
       "name": "color_primary_bg",
       "value": "#1A4DA3FF"
+    },
+    {
+      "name": "color_transparent",
+      "value": "#00000000"
+    },
+    {
+      "name": "login_tab_bar_bg",
+      "value": "#0AFFFFFF"
+    },
+    {
+      "name": "login_input_bg",
+      "value": "#111118"
     }
   ]
 }

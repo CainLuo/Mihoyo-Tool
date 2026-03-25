@@ -317,13 +317,6 @@ export class AuthRepository {
   /**
    * 发送短信验证码（手机号登录第二步）
    * 接口：POST https://webapi.account.mihoyo.com/Api/create_mobile_captcha
-   *
-   * @param mobile    手机号（含区号，如 +8618888888888）
-   * @param mmtKey    来自 createMmt 的 mmt_key
-   * @param v4Data    Geetest v4 验证结果（mmt_type=1 时必传）
-   * @param v3Challenge  Geetest v3 challenge（v3 验证时传）
-   * @param v3Validate   Geetest v3 validate（v3 验证时传）
-   * @param v3Seccode    Geetest v3 seccode（v3 验证时传）
    */
   static async sendSmsCode(
     mobile: string,
@@ -369,10 +362,6 @@ export class AuthRepository {
   /**
    * 用短信验证码换取 LoginTicket（手机号登录第三步）
    * 接口：POST https://webapi.account.mihoyo.com/Api/login_by_mobilecaptcha
-   *
-   * @param mobile    手机号
-   * @param captcha   短信验证码
-   * @returns PhoneLoginAccountInfo，含 account_id 和 weblogin_token（LoginTicket）
    */
   static async loginByPhone(mobile: string, captcha: string): Promise<PhoneLoginAccountInfo> {
     try {
@@ -400,10 +389,6 @@ export class AuthRepository {
   /**
    * 通过 LoginTicket 获取 LToken
    * 接口：GET https://api-takumi.mihoyo.com/auth/api/getMultiTokenByLoginTicket
-   *
-   * @param loginTicket  来自 loginByPhone 的 weblogin_token
-   * @param accountId    米游社账号 ID
-   * @returns ltoken 字符串
    */
   static async getLTokenByTicket(loginTicket: string, accountId: number): Promise<string> {
     try {
@@ -434,10 +419,6 @@ export class AuthRepository {
   /**
    * 通过 SToken 获取 CookieToken
    * 接口：GET https://api-takumi.mihoyo.com/auth/api/getCookieAccountInfoBySToken
-   *
-   * @param stoken    SToken
-   * @param accountId 米游社账号 ID
-   * @returns cookie_token 字符串
    */
   static async getCookieBySToken(stoken: string, accountId: string): Promise<string> {
     try {
@@ -464,9 +445,6 @@ export class AuthRepository {
   /**
    * 获取二维码 URL（二维码登录第一步）
    * 接口：POST https://hk4e-sdk.mihoyo.com/hk4e_cn/combo/panda/qrcode/fetch
-   *
-   * @param deviceId  设备 ID（建议持久化，每次使用同一个）
-   * @returns 二维码 URL 字符串（直接传给 ArkUI QRCode 组件）和 ticket
    */
   static async fetchQRCode(deviceId: string): Promise<QRCodeFetchResult> {
     try {
@@ -482,7 +460,6 @@ export class AuthRepository {
         throw new Error(`fetchQRCode failed: [${resp.retcode}] ${resp.message}`);
       }
       const url = resp.data.url;
-      // 从 URL 中提取 ticket 参数
       const ticketMatch = url.split('ticket=');
       const ticket = ticketMatch.length > 1 ? ticketMatch[1].split('&')[0] : '';
       const result = new QRCodeFetchResult();
@@ -498,10 +475,6 @@ export class AuthRepository {
   /**
    * 查询二维码扫描状态（二维码登录第二步，需轮询）
    * 接口：POST https://hk4e-sdk.mihoyo.com/hk4e_cn/combo/panda/qrcode/query
-   *
-   * @param deviceId  设备 ID（与 fetchQRCode 相同）
-   * @param ticket    来自 fetchQRCode 的 ticket
-   * @returns 'init' | 'scanned' | 'confirmed' | 'expired'，confirmed 时附带 QRCodeConfirmedData
    */
   static async queryQRCode(
     deviceId: string,
@@ -518,7 +491,6 @@ export class AuthRepository {
         new RequestOptions()
       ) as QRCodeQueryResponse;
       const queryResult = new QRCodeQueryResult();
-      // retcode -106 = 二维码已过期
       if (resp.retcode === -106) {
         queryResult.stat = 'expired';
         return queryResult;
@@ -541,10 +513,6 @@ export class AuthRepository {
   /**
    * 通过 GameToken 获取 SToken（二维码登录第三步）
    * 接口：POST https://api-takumi.mihoyo.com/account/ma-cn-session/app/getTokenByGameToken
-   *
-   * @param accountId  来自二维码确认数据的 uid
-   * @param gameToken  来自二维码确认数据的 token
-   * @returns SToken 字符串和用户信息
    */
   static async getTokenByGameToken(
     accountId: string,
@@ -577,10 +545,6 @@ export class AuthRepository {
   /**
    * 通过 SToken 获取 LToken
    * 接口：GET https://passport-api.mihoyo.com/account/auth/api/getLTokenBySToken
-   *
-   * @param stoken    SToken
-   * @param accountId 米游社账号 ID
-   * @returns ltoken 字符串
    */
   static async getLTokenBySToken(stoken: string, accountId: string): Promise<string> {
     try {
@@ -606,9 +570,6 @@ export class AuthRepository {
   /**
    * 获取账号绑定的所有游戏角色
    * 接口：GET https://api-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie
-   *
-   * @param cookie  完整 Cookie 字符串（含 account_id + cookie_token 或 ltoken + ltuid）
-   * @returns GameRoleRow[] 可直接写入 AccountRepository.replaceRoles
    */
   static async getUserGameRoles(cookie: string): Promise<GameRoleRow[]> {
     try {

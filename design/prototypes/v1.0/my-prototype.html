@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+    <title>My 页面原型 — 战绩工具</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: #080810;
+        color: #e8e8f0;
+        font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+      }
+      /* ── 顶部控制栏 ── */
+      .bar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: #111118;
+        border-bottom: 1px solid #2a2a3a;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        flex-wrap: wrap;
+      }
+      .bar span {
+        color: #888;
+        font-size: 12px;
+      }
+      .btn {
+        padding: 3px 10px;
+        border-radius: 6px;
+        border: 1px solid #333;
+        background: #1a1a28;
+        color: #aaa;
+        font-size: 11px;
+        cursor: pointer;
+        line-height: 1.6;
+        transition: all 0.2s;
+      }
+      .btn.on {
+        background: #3a6fd8;
+        border-color: #3a6fd8;
+        color: #fff;
+      }
+      .btn:hover:not(.on) {
+        border-color: #555;
+        color: #ddd;
+      }
+      /* ── 屏幕容器 ── */
+      .wrap {
+        margin-top: 52px;
+        display: flex;
+        justify-content: center;
+        padding: 20px 16px;
+      }
+      .screen {
+        border: 2px solid #2a2a3a;
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      /* ── 可滚动区域 ── */
+      .sy {
+        overflow-y: auto;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+      }
+      .sy::-webkit-scrollbar {
+        width: 3px;
+      }
+      .sy::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bar">
+      <span>设备：</span>
+      <button class="btn on" onclick="go('pp')">Phone 竖屏<br />360×780</button>
+      <button class="btn" onclick="go('pl')">Phone 横屏<br />780×360</button>
+      <button class="btn" onclick="go('fd')">Foldable<br />932×600</button>
+      <button class="btn" onclick="go('tf')">TripleFold<br />1200×600</button>
+      <button class="btn" onclick="go('tb')">Tablet<br />1024×768</button>
+      <button class="btn" onclick="go('pc')">2in1/PC<br />1440×900</button>
+      <span style="margin-left: 8px">页面：</span>
+      <button class="btn on" id="pg-my" onclick="setPage('my')">My 主页</button>
+      <button class="btn" id="pg-detail" onclick="setPage('detail')">
+        账号详情
+      </button>
+    </div>
+    <div class="wrap"><div class="screen" id="S"></div></div>
+  </body>
+</html>
+<script>
+  var DEVS = {
+    pp: [360, 780],
+    pl: [780, 360],
+    fd: [932, 600],
+    tf: [1200, 600],
+    tb: [1024, 768],
+    pc: [1440, 900],
+  };
+  var curDev = "pp";
+  var curPage = "my";
+
+  // ── 公共组件 ─────────────────────────────────────────────────────────
+
+  // NavBar（Tab 内嵌页：大标题左对齐）
+  function navbarMain(title) {
+    return (
+      '<div style="display:flex;align-items:center;height:56px;background:#111118;border-bottom:1px solid #2a2a3a;flex-shrink:0;padding:0 4px 0 16px">' +
+      '<span style="font-size:24px;font-weight:700;color:#e8e8f0;flex:1">' +
+      title +
+      "</span>" +
+      "</div>"
+    );
+  }
+
+  // NavBar（二级页：系统渲染，居中小标题 + 返回按钮）
+  function navbarSub(title) {
+    return (
+      '<div style="display:flex;align-items:center;height:56px;background:#111118;border-bottom:1px solid #2a2a3a;flex-shrink:0;padding:0 4px">' +
+      '<div style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;color:#3a6fd8;cursor:pointer;flex-shrink:0">‹</div>' +
+      '<span style="font-size:17px;font-weight:600;color:#e8e8f0;flex:1;text-align:center">' +
+      title +
+      "</span>" +
+      '<div style="width:44px;flex-shrink:0"></div>' +
+      "</div>"
+    );
+  }
+
+  // Section 标签
+  function sectionLabel(text) {
+    return (
+      '<div style="font-size:12px;font-weight:600;color:#888;letter-spacing:.5px;padding-bottom:8px">' +
+      text +
+      "</div>"
+    );
+  }
+
+  // 卡片容器开始
+  function cardOpen() {
+    return '<div style="background:#111118;border-radius:12px;overflow:hidden;border:1px solid #2a2a3a">';
+  }
+  function cardClose() {
+    return "</div>";
+  }
+
+  // 列表行（label + value + 可选箭头）
+  function listRow(label, value, isLink, hasChevron, noBorder) {
+    var border = noBorder ? "" : "border-top:1px solid #1e1e2a;";
+    var valColor = isLink ? "#3a6fd8" : "#888";
+    var chevron = hasChevron
+      ? '<span style="font-size:14px;color:#444;margin-left:4px">›</span>'
+      : "";
+    return (
+      '<div style="display:flex;align-items:center;padding:0 16px;height:52px;gap:12px;' +
+      border +
+      '">' +
+      '<span style="font-size:16px;color:#e8e8f0;flex:1">' +
+      label +
+      "</span>" +
+      '<span style="font-size:14px;color:' +
+      valColor +
+      '">' +
+      value +
+      "</span>" +
+      chevron +
+      "</div>"
+    );
+  }
+
+  // 主题 Chip 组
+  function themeChips() {
+    return (
+      '<div style="display:flex;align-items:center;padding:0 16px;height:52px;gap:12px">' +
+      '<span style="font-size:16px;color:#e8e8f0;flex:1">主题</span>' +
+      '<div style="display:flex;gap:6px">' +
+      '<span style="font-size:12px;padding:3px 9px;border-radius:6px;background:#1a1a28;color:#888;border:1px solid #333;cursor:pointer">浅色</span>' +
+      '<span style="font-size:12px;padding:3px 9px;border-radius:6px;background:#3a6fd8;color:#fff;border:1px solid #3a6fd8;cursor:pointer">深色</span>' +
+      '<span style="font-size:12px;padding:3px 9px;border-radius:6px;background:#1a1a28;color:#888;border:1px solid #333;cursor:pointer">跟随系统</span>' +
+      "</div></div>"
+    );
+  }
+
+  // 底部 TabBar（Phone / Tablet 竖屏）
+  function bottomTab() {
+    return (
+      '<div style="display:flex;height:56px;background:#111118;border-top:1px solid #2a2a3a;flex-shrink:0">' +
+      tabItem("首页", false) +
+      tabItem("角色", false) +
+      tabItem("我的", true) +
+      "</div>"
+    );
+  }
+  function tabItem(label, active) {
+    var color = active ? "#3a6fd8" : "#555";
+    return (
+      '<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;color:' +
+      color +
+      ';cursor:pointer">' +
+      '<div style="width:20px;height:4px;border-radius:2px;background:currentColor;opacity:' +
+      (active ? "1" : ".3") +
+      '"></div>' +
+      label +
+      "</div>"
+    );
+  }
+
+  // 侧边导航（Foldable / PC）
+  function sidebar(activeItem) {
+    var items = ["首页", "角色", "我的"];
+    var html =
+      '<div style="width:200px;background:#0d0d18;border-right:1px solid #2a2a3a;display:flex;flex-direction:column;flex-shrink:0">' +
+      '<div style="font-size:20px;font-weight:700;color:#e8e8f0;padding:18px 16px 12px;border-bottom:1px solid #2a2a3a">战绩工具</div>' +
+      '<div style="padding:8px;flex:1">';
+    for (var i = 0; i < items.length; i++) {
+      var active = items[i] === activeItem;
+      var bg = active ? "background:rgba(58,111,216,.15);" : "";
+      var color = active ? "#3a6fd8" : "#888";
+      html +=
+        '<div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;font-size:14px;color:' +
+        color +
+        ";cursor:pointer;margin-bottom:2px;" +
+        bg +
+        '">' +
+        '<div style="width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0"></div>' +
+        items[i] +
+        "</div>";
+    }
+    return html + "</div></div>";
+  }
+
+  // 账号行（点击跳转二级页）
+  function accountRow(
+    initial,
+    name,
+    roleCount,
+    gradientFrom,
+    gradientTo,
+    noBorder,
+  ) {
+    var border = noBorder ? "" : "border-top:1px solid #1e1e2a;";
+    var grad =
+      "linear-gradient(135deg," + gradientFrom + "," + gradientTo + ")";
+    return (
+      '<div style="display:flex;align-items:center;padding:12px 16px;gap:12px;cursor:pointer;' +
+      border +
+      '">' +
+      '<div style="width:40px;height:40px;border-radius:20px;background:' +
+      grad +
+      ';flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff">' +
+      initial +
+      "</div>" +
+      '<div style="flex:1;min-width:0">' +
+      '<div style="font-size:15px;font-weight:500;color:#e8e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
+      name +
+      "</div>" +
+      '<div style="font-size:12px;color:#888;margin-top:2px">' +
+      roleCount +
+      " 个游戏角色</div>" +
+      "</div>" +
+      '<span style="font-size:16px;color:#444">›</span>' +
+      "</div>"
+    );
+  }
+
+  // 添加账号按钮行
+  function addAccountRow() {
+    return '<div style="display:flex;align-items:center;justify-content:center;height:48px;border-top:1px solid #1e1e2a;font-size:15px;color:#3a6fd8;cursor:pointer;gap:6px">＋ 添加账号</div>';
+  }
+
+  // ── My 主页内容区 ─────────────────────────────────────────────────────
+  function myContent() {
+    return (
+      '<div class="sy" style="flex:1;min-height:0;padding:16px 16px 40px;display:flex;flex-direction:column;gap:20px">' +
+      // 账号管理
+      "<div>" +
+      sectionLabel("账号管理") +
+      cardOpen() +
+      accountRow("李", "李旅行者", 3, "#3a6fd8", "#7b5ea7", true) +
+      accountRow("王", "王旅行者", 1, "#e67e22", "#c0392b", false) +
+      addAccountRow() +
+      cardClose() +
+      "</div>" +
+      // 外观设置
+      "<div>" +
+      sectionLabel("外观设置") +
+      cardOpen() +
+      themeChips() +
+      cardClose() +
+      "</div>" +
+      // 关于
+      "<div>" +
+      sectionLabel("关于") +
+      cardOpen() +
+      listRow("版本", "1.0.0", false, false, true) +
+      listRow("GitHub", "github.com/…", true, true, false) +
+      listRow("许可证", "MIT License", false, false, false) +
+      cardClose() +
+      "</div>" +
+      "</div>"
+    );
+  }
+
+  // ── 账号详情内容区 ────────────────────────────────────────────────────
+  function detailContent() {
+    // 账号头部
+    var header =
+      '<div style="display:flex;align-items:center;gap:16px;padding:16px;background:#111118;border-bottom:1px solid #2a2a3a;flex-shrink:0">' +
+      '<div style="width:56px;height:56px;border-radius:28px;background:linear-gradient(135deg,#3a6fd8,#7b5ea7);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;flex-shrink:0">李</div>' +
+      '<div><div style="font-size:18px;font-weight:600;color:#e8e8f0">李旅行者</div>' +
+      '<div style="font-size:13px;color:#888;margin-top:4px">3 个游戏角色</div></div>' +
+      "</div>";
+
+    // 角色列表
+    var roles = [
+      {
+        game: "原神",
+        uid: "123456789",
+        nick: "旅行者",
+        server: "天空岛",
+        color: "#3a6fd8",
+      },
+      {
+        game: "崩坏：星穹铁道",
+        uid: "987654321",
+        nick: "开拓者",
+        server: "星际和平",
+        color: "#a855f7",
+      },
+      {
+        game: "绝区零",
+        uid: "111222333",
+        nick: "绳匠",
+        server: "艾利都",
+        color: "#f97316",
+      },
+    ];
+    var roleRows = "";
+    for (var i = 0; i < roles.length; i++) {
+      var r = roles[i];
+      var border = i === 0 ? "" : "border-top:1px solid #1e1e2a;";
+      roleRows +=
+        '<div style="display:flex;align-items:center;padding:10px 16px;gap:12px;' +
+        border +
+        '">' +
+        '<div style="width:4px;height:36px;border-radius:2px;background:' +
+        r.color +
+        ';flex-shrink:0"></div>' +
+        '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:15px;font-weight:500;color:#e8e8f0">' +
+        r.game +
+        "</div>" +
+        '<div style="font-size:12px;color:#888;margin-top:2px">' +
+        r.nick +
+        " · UID: " +
+        r.uid +
+        " · " +
+        r.server +
+        "</div>" +
+        "</div></div>";
+    }
+
+    // 危险操作
+    var danger =
+      '<div style="display:flex;align-items:center;justify-content:center;height:52px;font-size:16px;color:#ef5350;cursor:pointer">删除此账号</div>';
+
+    return (
+      header +
+      '<div class="sy" style="flex:1;min-height:0;padding:16px 16px 40px;display:flex;flex-direction:column;gap:20px">' +
+      "<div>" +
+      sectionLabel("绑定的游戏角色") +
+      cardOpen() +
+      roleRows +
+      cardClose() +
+      "</div>" +
+      "<div>" +
+      sectionLabel("操作") +
+      cardOpen() +
+      danger +
+      cardClose() +
+      "</div>" +
+      "</div>"
+    );
+  }
+
+  // ── 渲染函数 ──────────────────────────────────────────────────────────
+
+  // Phone 竖屏 / Tablet 竖屏（底部 TabBar）
+  function renderPortrait(w, h) {
+    var navbar = curPage === "my" ? navbarMain("我的") : navbarSub("账号详情");
+    var content = curPage === "my" ? myContent() : detailContent();
+    return (
+      '<div style="display:flex;flex-direction:column;width:' +
+      w +
+      "px;height:" +
+      h +
+      'px;background:#080810">' +
+      navbar +
+      content +
+      (curPage === "my" ? bottomTab() : "") +
+      "</div>"
+    );
+  }
+
+  // Phone 横屏（底部 TabBar 隐藏，内容区更宽）
+  function renderLandscape(w, h) {
+    var navbar = curPage === "my" ? navbarMain("我的") : navbarSub("账号详情");
+    var content = curPage === "my" ? myContent() : detailContent();
+    return (
+      '<div style="display:flex;flex-direction:column;width:' +
+      w +
+      "px;height:" +
+      h +
+      'px;background:#080810">' +
+      navbar +
+      content +
+      "</div>"
+    );
+  }
+
+  // 宽屏（Foldable / TripleFold / Tablet 横屏 / PC）：左侧固定导航
+  function renderWide(w, h) {
+    var content = curPage === "my" ? myContent() : detailContent();
+    var subNavbar = curPage === "detail" ? navbarSub("账号详情") : "";
+    return (
+      '<div style="display:flex;width:' +
+      w +
+      "px;height:" +
+      h +
+      'px;background:#080810">' +
+      sidebar("我的") +
+      '<div style="flex:1;display:flex;flex-direction:column;overflow:hidden">' +
+      (curPage === "my" ? "" : subNavbar) +
+      content +
+      "</div>" +
+      "</div>"
+    );
+  }
+
+  function render(dev) {
+    var d = DEVS[dev];
+    var w = d[0],
+      h = d[1];
+    if (dev === "pp" || dev === "tb") return renderPortrait(w, h);
+    if (dev === "pl") return renderLandscape(w, h);
+    return renderWide(w, h);
+  }
+
+  function go(dev) {
+    curDev = dev;
+    var btns = document.querySelectorAll(".btn");
+    var keys = Object.keys(DEVS);
+    for (var i = 0; i < btns.length; i++) {
+      if (i < keys.length) btns[i].classList.toggle("on", keys[i] === dev);
+    }
+    var d = DEVS[dev];
+    var s = document.getElementById("S");
+    s.style.width = d[0] + "px";
+    s.style.height = d[1] + "px";
+    s.style.display = "flex";
+    s.style.flexDirection = "column";
+    s.innerHTML = render(dev);
+  }
+
+  function setPage(page) {
+    curPage = page;
+    document.getElementById("pg-my").classList.toggle("on", page === "my");
+    document
+      .getElementById("pg-detail")
+      .classList.toggle("on", page === "detail");
+    go(curDev);
+  }
+
+  go("pp");
+</script>

@@ -3,12 +3,9 @@
  * DefaultTheme — 默认主题
  * ============================================================
  *
- * 颜色全部通过 $r('app.color.xxx') 引用资源系统，
- * light/dark 切换由系统根据 base/dark 目录自动处理，
- * 无需手动维护 DarkTheme。
- *
- * 切换字体：
- *   子类传入 fontFamily，initFonts() 自动用它初始化所有字体 token。
+ * 所有颜色通过 $r('app.color.xxx') 引用资源系统，
+ * 换主题只需替换 color.json，代码零改动。
+ * light/dark 切换由系统根据 base/dark 目录自动处理。
  * ============================================================
  */
 
@@ -21,6 +18,7 @@ export class DefaultTheme implements Theme {
   colorTextSecondary: Resource = $r('app.color.color_text_secondary')
   colorDivider: Resource = $r('app.color.color_divider')
   colorCardBg: Resource = $r('app.color.color_card_bg')
+  colorSurfaceCard: Resource = $r('app.color.color_surface_card')
   colorCardBorder: Resource = $r('app.color.color_card_border')
   colorPageBg: Resource = $r('app.color.color_page_bg')
   colorPlaceholder: Resource = $r('app.color.color_placeholder')
@@ -28,6 +26,7 @@ export class DefaultTheme implements Theme {
   colorDanger: Resource = $r('app.color.color_danger')
   colorDangerBg: Resource = $r('app.color.color_danger_bg')
   colorWarning: Resource = $r('app.color.color_warning')
+  colorSkeletonBg: Resource = $r('app.color.color_skeleton_bg')
 
   // ---- AppFont ----
   body10: Font = makeFont(10, FontWeight.Normal)
@@ -107,6 +106,7 @@ export class DefaultTheme implements Theme {
   weaponOverlaySize: number = 64
   weaponIconSize: number = 48
   weaponAffixTagH: number = 16
+  weaponInfoBarH: number = 18
   elementBadgeSize: number = 30
   constellationBadgeSize: number = 22
   weaponAffixBadgeSize: number = 18
@@ -135,6 +135,120 @@ export class DefaultTheme implements Theme {
   charDetailRelicLeftColWidth: number = 90
   charDetailConsMarginRight: number = 12
   charDetailSkillBottomOffset: number = 24
+
+  // ---- Surface 颜色 Token ----
+  surfaceActivePrimary: Resource = $r('app.color.surface_active_primary')
+  surfaceDark2xl: Resource = $r('app.color.surface_dark_2xl')
+  surfaceActiveBorder: Resource = $r('app.color.surface_active_border')
+  surfaceInactiveBorder: Resource = $r('app.color.surface_inactive_border')
+  surfaceSkillBorderPhone: Resource = $r('app.color.surface_skill_border_phone')
+  surfaceFetterBg: Resource = $r('app.color.surface_fetter_bg')
+  surfaceFetterBorder: Resource = $r('app.color.surface_fetter_border')
+  surfaceGlassXs: Resource = $r('app.color.surface_glass_xs')
+  surfaceGlassSm: Resource = $r('app.color.surface_glass_sm')
+  surfaceGlassMd: Resource = $r('app.color.surface_glass_md')
+  surfaceOverlaySm: Resource = $r('app.color.surface_overlay_sm')
+  surfaceOverlayMd: Resource = $r('app.color.surface_overlay_md')
+  surfaceDarkXs: Resource = $r('app.color.surface_dark_xs')
+  surfaceDarkMd: Resource = $r('app.color.surface_dark_md')
+  surfaceDarkLg: Resource = $r('app.color.surface_dark_lg')
+  surfaceDarkXl: Resource = $r('app.color.surface_dark_xl')
+
+  // ---- Text 颜色 Token ----
+  textOnDarkHigh: Resource = $r('app.color.text_on_dark_high')
+  textOnDarkMedium: Resource = $r('app.color.text_on_dark_medium')
+  textOnDarkSecondary: Resource = $r('app.color.text_on_dark_secondary')
+  textOnDarkTertiary: Resource = $r('app.color.text_on_dark_tertiary')
+  textOnDarkMuted: Resource = $r('app.color.text_on_dark_muted')
+  textOnDarkFaint: Resource = $r('app.color.text_on_dark_faint')
+  textOnDarkGhost: Resource = $r('app.color.text_on_dark_ghost')
+  textInactive: Resource = $r('app.color.text_inactive')
+  textLockIcon: Resource = $r('app.color.text_lock_icon')
+
+  // ---- Accent 颜色 Token ----
+  accentRefine: Resource = $r('app.color.accent_refine')
+  accentRefineBg: Resource = $r('app.color.accent_refine_bg')
+  accentPrimaryStrong: Resource = $r('app.color.accent_primary_strong')
+
+  // ---- Overlay 颜色 Token ----
+  overlayScrImTop: Resource = $r('app.color.overlay_scrim_top')
+  overlayGradientEnd: Resource = $r('app.color.overlay_gradient_end')
+  overlayShadow: Resource = $r('app.color.overlay_shadow')
+  overlayPortraitBase: Resource = $r('app.color.overlay_portrait_base')
+  overlayPortraitStrong: Resource = $r('app.color.overlay_portrait_strong')
+  overlayPortraitMid: Resource = $r('app.color.overlay_portrait_mid')
+  overlayPortraitBot: Resource = $r('app.color.overlay_portrait_bot')
+  overlayLandOpaque: Resource = $r('app.color.overlay_land_opaque')
+  overlayLandStrong: Resource = $r('app.color.overlay_land_strong')
+  overlayLandFade: Resource = $r('app.color.overlay_land_fade')
+
+  // ---- Background 渐变色 Token ----
+  bgElementHydro1: Resource = $r('app.color.bg_element_hydro_1')
+  bgElementHydro2: Resource = $r('app.color.bg_element_hydro_2')
+  bgElementHydro3: Resource = $r('app.color.bg_element_hydro_3')
+  bgElementPyro1: Resource = $r('app.color.bg_element_pyro_1')
+  bgElementPyro2: Resource = $r('app.color.bg_element_pyro_2')
+  bgElementPyro3: Resource = $r('app.color.bg_element_pyro_3')
+  bgElementElectro1: Resource = $r('app.color.bg_element_electro_1')
+  bgElementElectro2: Resource = $r('app.color.bg_element_electro_2')
+  bgElementElectro3: Resource = $r('app.color.bg_element_electro_3')
+  bgElementAnemo1: Resource = $r('app.color.bg_element_anemo_1')
+  bgElementAnemo2: Resource = $r('app.color.bg_element_anemo_2')
+  bgElementAnemo3: Resource = $r('app.color.bg_element_anemo_3')
+  bgElementGeo1: Resource = $r('app.color.bg_element_geo_1')
+  bgElementGeo2: Resource = $r('app.color.bg_element_geo_2')
+  bgElementGeo3: Resource = $r('app.color.bg_element_geo_3')
+  bgElementCryo1: Resource = $r('app.color.bg_element_cryo_1')
+  bgElementCryo2: Resource = $r('app.color.bg_element_cryo_2')
+  bgElementCryo3: Resource = $r('app.color.bg_element_cryo_3')
+  bgElementDendro1: Resource = $r('app.color.bg_element_dendro_1')
+  bgElementDendro2: Resource = $r('app.color.bg_element_dendro_2')
+  bgElementDendro3: Resource = $r('app.color.bg_element_dendro_3')
+  bgPortrait1: Resource = $r('app.color.bg_portrait_1')
+  bgPortrait2: Resource = $r('app.color.bg_portrait_2')
+  bgPageDeep: Resource = $r('app.color.bg_page_deep')
+
+  // ---- 渐变透明色 ----
+  colorTransparent: Resource = $r('app.color.color_transparent')
+
+  // ---- 尺寸/间距 Token（角色详情页专用）----
+  charDetailConsInactiveOpacity: number = 0.3
+  charDetailLockIconRatio: number = 0.45
+  charDetailRightPaddingPortrait: string = '40%'
+  charDetailRightPaddingLandscape: string = '35%'
+  charDetailBorderWidth: number = 1
+  charDetailPaddingTiny: number = 1
+  charDetailStatsPaddingV: number = 5
+  charDetailRelicSubPaddingV: number = 2
+  charDetailRelicMainPaddingV: number = 2
+  charDetailRelicFontSizeTiny: number = 9
+  charDetailRelicCardSpacing: number = 2
+
+  // ---- 启动页 Token ----
+  launchLogoSize: number = 120
+  launchLogoRadius: number = 28
+
+  // ---- 登录页 Token ----
+  loginNarrowBreakpoint: number = 480
+  loginLogoSizeSM: number = 52
+  loginLogoSizeLG: number = 56
+  loginWideGap: number = 48
+  loginWidePaddingH: number = 40
+  loginTabBarBg: Resource = $r('app.color.login_tab_bar_bg')
+  loginTabBarMarginBottom: number = 18
+  loginInputHeight: number = 46
+  loginInputBg: Resource = $r('app.color.login_input_bg')
+  loginButtonFontSize: number = 15
+  loginFeatureDotSize: number = 5
+  loginCookieAreaHeight: number = 108
+  value0: number = 0
+
+  // ---- 渐变角度 Token ----
+  gradientAngle135: number = 135
+  gradientAngle150: number = 150
+  gradientAngle180: number = 180
+  gradientAngle90: number = 90
+  gradientAngle0: number = 0
 
   constructor(fontFamily: string = '') {
     if (fontFamily !== '') {

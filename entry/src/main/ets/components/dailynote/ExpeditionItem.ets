@@ -8,6 +8,24 @@
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 import { ExpeditionVM } from './DailyNoteModels'
 
+// ── Preview：派遣进行中 ──
+@Preview
+@ComponentV2
+struct ExpeditionItemPreviewOngoing {
+  build() {
+    Column() {
+      ExpeditionItem({
+        expedition: new ExpeditionVM('', '8小时14分钟', false)
+      })
+      ExpeditionItem({
+        expedition: new ExpeditionVM('', '已完成', true)
+      })
+    }
+    .backgroundColor('#FFFFFF')
+    .width(360)
+  }
+}
+
 @ComponentV2
 export struct ExpeditionItem {
   @Param expedition: ExpeditionVM = new ExpeditionVM('', '', false)

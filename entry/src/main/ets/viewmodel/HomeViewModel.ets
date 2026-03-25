@@ -30,6 +30,7 @@ import {
   GeetestVerifyInput,
   CoreInitializer
 } from 'core';
+import { serverDisplayName } from '../utils/ServerNameUtil';
 import {
   MihoyoAccountVM,
   GameRoleCardVM,
@@ -42,11 +43,9 @@ import {
 import { Logger } from '../utils/Logger';
 import { ViewState } from '../constants/ViewStates';
 import { ApiErrorCodes } from 'core';
+import { AppConstants } from '../constants/AppConstants';
 
 const TAG: string = 'HomeViewModel';
-
-/** 30 分钟自动刷新间隔（毫秒） */
-const AUTO_REFRESH_INTERVAL_MS: number = 30 * 60 * 1000;
 
 export type HomeViewState = ViewState;
 
@@ -200,7 +199,7 @@ export class HomeViewModel {
       }).catch((e: Error) => {
         Logger.warn(TAG, `auto refresh sync failed: ${e.message}`);
       });
-    }, AUTO_REFRESH_INTERVAL_MS);
+    }, AppConstants.AUTO_REFRESH_INTERVAL_MS);
   }
 
   private stopAutoRefresh(): void {
@@ -323,7 +322,7 @@ export class HomeViewModel {
         HomeViewModel.gameColor(role.gameId),
         role.roleId,
         role.nickname,
-        role.server,
+        serverDisplayName(role.server),
         snapshot,
         snapshot !== null ? 'sync_just_now' : 'sync_not_synced'
       );

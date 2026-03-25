@@ -1,14 +1,19 @@
 import { UIAbility, Want, AbilityConstant } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
 import { CoreInitializer } from 'core';
-import { HMRouterMgr } from '@hadss/hmrouter';
 import { Logger, RuntimeEnv } from '../utils/Logger';
+import { AppearanceManager } from '../utils/AppearanceManager';
 
 const TAG: string = 'EntryAbility';
 
 export default class EntryAbility extends UIAbility {
   onCreate(_want: Want, _launchParam: AbilityConstant.LaunchParam) {
     Logger.info(TAG, 'onCreate');
+
+    // 尽早恢复用户选择的颜色模式，避免启动时闪烁
+    AppearanceManager.restoreOnLaunch(this.context).catch((error: Error | object) => {
+      Logger.warning(TAG, `restoreOnLaunch failed: ${JSON.stringify(error)}`);
+    });
 
     const runtimeEnv: RuntimeEnv = Logger.getRuntimeEnv();
     const isMock: boolean = runtimeEnv === RuntimeEnv.MOCK;
@@ -24,14 +29,6 @@ export default class EntryAbility extends UIAbility {
       });
 
     Logger.info(TAG, `Detected environment: ${Logger.getRuntimeEnvDetail()}`);
-
-    HMRouterMgr.openLog(runtimeEnv === RuntimeEnv.RELEASE ? 'INFO' : 'DEBUG');
-    // 设置默认 navigationId，所有 push/replace 调用无需显式传 navigationId
-    HMRouterMgr.setDefaultNavigationId('mainNavigationId');
-    // HMRouterMgr.init 必须在 loadContent 之前完成，避免路由未就绪时进入页面
-    HMRouterMgr.init({ context: this.context }).catch((error: Error | object) => {
-      Logger.warning(TAG, `HMRouter init failed: ${JSON.stringify(error)}`);
-    });
   }
 
   onDestroy() {
@@ -40,6 +37,25 @@ export default class EntryAbility extends UIAbility {
 
   onWindowStageCreate(windowStage: window.WindowStage) {
     Logger.info(TAG, 'onWindowStageCreate');
+    windowStage.getMainWindow().then((win) => {
+      // 获取状态栏高度并存入 AppStorage，供各页面读取
+      const topArea = win.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
+      const topPx = topArea.topRect.height;
+      AppStorage.setOrCreate('topRectHeight', topPx);
+      const bottomArea = win.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
+      const bottomPx = bottomArea.bottomRect.height;
+      AppStorage.setOrCreate('bottomRectHeight', bottomPx);
+      // 监听避让区域变化（折叠屏旋转等场景）
+      win.on('avoidAreaChange', (data) => {
+        if (data.type === window.AvoidAreaType.TYPE_SYSTEM) {
+          AppStorage.setOrCreate('topRectHeight', data.area.topRect.height);
+        } else if (data.type === window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR) {
+          AppStorage.setOrCreate('bottomRectHeight', data.area.bottomRect.height);
+        }
+      });
+    }).catch((err: Error | object) => {
+      Logger.warning(TAG, `getMainWindow failed: ${JSON.stringify(err)}`);
+    });
     windowStage.loadContent('pages/Index', (err, data) => {
       if (err.code) {
         Logger.warning(TAG, `Failed to load content: ${JSON.stringify(err)}`);

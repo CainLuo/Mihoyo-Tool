@@ -34,14 +34,42 @@
 
 ### 文件清单
 
-| 文件                            | 说明                           |
-| ------------------------------- | ------------------------------ |
-| `char-detail.html`              | 角色详情页原型（含全设备断点） |
-| `character-card-prototype.html` | 角色卡片列表组件原型           |
+| 文件                            | 说明                                             |
+| ------------------------------- | ------------------------------------------------ |
+| `char-detail.html`              | 角色详情页原型（含全设备断点）                   |
+| `character-card-prototype.html` | 角色卡片列表组件原型                             |
+| `COLOR-DESIGN.md`               | Color Design System 文字说明文档（三层命名体系） |
+| `color-design.html`             | Color Design System 可视化色板（HTML 画布）      |
 
 ### 补丁记录
 
 - **2026-03-21**：修复 Phone 竖屏/横屏底部裁切问题。各 render 函数根容器改为 `display:flex;flex-direction:column;width:100%;height:100%`，sw 栏 `flex-shrink:0`，内容区 `flex:1;min-height:0`，确保滚动区正确填满剩余空间。删除废弃的 `char-detail.js`（逻辑已内联到 HTML）。
+
+- **2026-03-22**：新增 `my-prototype.html`（My 主页 + 账号详情二级页原型，覆盖全设备断点）。同步更新 `harmonyos-rules.md` 新增"HTML 原型视觉规范"章节，统一所有原型的颜色、字体、交互方式标准（以 `char-detail.html` 为基准）。
+
+### 文件清单（完整）
+
+| 文件                            | 说明                                             |
+| ------------------------------- | ------------------------------------------------ |
+| `char-detail.html`              | 角色详情页原型（含全设备断点）                   |
+| `character-card-prototype.html` | 角色卡片列表组件原型                             |
+| `my-prototype.html`             | My 主页 + 账号详情二级页原型（含全设备断点）     |
+| `COLOR-DESIGN.md`               | Color Design System 文字说明文档（三层命名体系） |
+| `color-design.html`             | Color Design System 可视化色板（HTML 画布）      |
+
+- **2026-03-23**：新增 `launch-prototype.html`（启动页原型，含 light/dark 主题切换，Logo 为确认版兔子 SVG）和 `login-prototype.html`（登录页原型，三种登录方式 Tab 切换，含全设备断点 + light/dark 主题）。两个原型均已用户确认锁定。
+
+### 文件清单（完整）
+
+| 文件                            | 说明                                               |
+| ------------------------------- | -------------------------------------------------- |
+| `char-detail.html`              | 角色详情页原型（含全设备断点）                     |
+| `character-card-prototype.html` | 角色卡片列表组件原型                               |
+| `my-prototype.html`             | My 主页 + 账号详情二级页原型（含全设备断点）       |
+| `launch-prototype.html`         | 启动页原型（light/dark 主题，确认版 Logo）         |
+| `login-prototype.html`          | 登录页原型（三种登录方式，全设备断点，light/dark） |
+| `COLOR-DESIGN.md`               | Color Design System 文字说明文档（三层命名体系）   |
+| `color-design.html`             | Color Design System 可视化色板（HTML 画布）        |
 
 ### 锁定说明
 

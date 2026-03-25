@@ -1,18 +1,18 @@
 /**
  * GenshinDailyDetail — 原神实时便笺详情页（View 层）
  *
- * 通过 HMRouter 路由参数接收 gameId + roleUid，
+ * 通过路由参数接收 gameId + roleUid，
  * 由 GenshinDailyDetailViewModel 从 DB 读取并解析数据。
  */
 
 import display from '@ohos.display'
-import { window, UIContext } from '@kit.ArkUI'
+import { window } from '@kit.ArkUI'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { DailyNoteGenshin } from '../components/dailynote/DailyNoteGenshin'
 import { GenshinDailyDetailViewModel } from '../viewmodel/GenshinDailyDetailViewModel'
 import { ViewState } from '../constants/ViewStates'
 
-/** HMRouter 传入的路由参数 */
+/** 系统 Navigation 传入的路由参数 */
 export class GenshinDailyDetailParam {
   gameId: string = 'genshin';
   roleUid: string = '';
@@ -117,6 +117,7 @@ export struct GenshinDailyDetail {
         .edgeEffect(EdgeEffect.Spring)
       }
     }
+    .expandSafeArea([SafeAreaType.SYSTEM])
     .width(this.tm.current.widthFull)
     .height(this.tm.current.heightFull)
     .backgroundColor(this.tm.current.colorPageBg)

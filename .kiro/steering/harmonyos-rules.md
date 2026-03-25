@@ -1,6 +1,39 @@
 # HarmonyOS 项目开发规范
 
-## 零、项目 API 版本信息
+## 零、核心开发原则（最高优先级，所有规范的基础）
+
+以下原则适用于所有开发行为，优先级高于其他所有规范：
+
+### 1. 官方文档优先
+
+**任何 ArkUI 组件、ArkTS API、系统能力的使用，必须先查阅官方文档，不得凭记忆或猜测。**
+
+- 官方文档入口：`https://developer.huawei.com/consumer/cn/doc`
+- 查阅方式：先用 `remote_web_search` 搜索，找到目标页面 URL 后用 `webFetch` 抓取详细内容
+- **禁止**跳过文档查阅步骤直接写代码
+
+### 2. 禁止使用废弃 API
+
+- 文档中标注 `deprecated` 的 API 一律不得使用
+- 必须使用文档推荐的替代方案
+- hvigor 编译出现 `deprecated` 警告时，必须立即修复
+
+### 3. 优先使用系统推荐方案
+
+- 凡是系统/官方有推荐方案的场景，必须使用推荐方案
+- **禁止**自行实现系统组件已提供的功能（如手动处理 Safe Area、手动实现 NavBar 等）
+- 系统组件（`Navigation`、`NavDestination`、`Tabs` 等）默认已处理安全区域避让，**禁止**在普通页面手动添加 `statusBarHeight` padding 或 `expandSafeArea`
+- 只有有明确特殊需求的页面（如全屏启动页）才允许手动处理布局
+
+### 4. UI 改动必须先出原型
+
+- 任何涉及 UI 布局、视觉风格的新功能或改动，必须先输出 HTML 原型
+- 必须得到用户明确确认后，才能动代码
+- 详见第一节"UI 原型先行规范"
+
+---
+
+## 零·一、项目 API 版本信息
 
 - **本项目目标平台**：HarmonyOS NEXT 6.0.2，对应 **API 18+**
 - **ArkTS 严格模式**已启用，编译器比 IDE 语言服务更严格
@@ -12,6 +45,7 @@
 | 全局 `px2vp(n)`        | `this.getUIContext().px2vp(n)`         | API 12+      |
 | 全局 `vp2px(n)`        | `this.getUIContext().vp2px(n)`         | API 12+      |
 | 全局 `getContext()`    | `this.getUIContext().getHostContext()` | API 12+      |
+| 全局 `animateTo()`     | `this.getUIContext().animateTo()`      | API 12+      |
 | `@Component`           | `@ComponentV2`                         | API 12+      |
 | `@State` / `@Observed` | `@Local` / `@ObservedV2` + `@Trace`    | API 12+      |
 
@@ -32,9 +66,148 @@
 ### 原型规范
 
 - 必须覆盖所有断点：Phone（360px）、Tablet（800px）、Foldable 展开（932px）、PC（1280px）
-- 使用深色背景（`#111`）模拟 HarmonyOS 暗色主题
+- 使用深色背景模拟 HarmonyOS 暗色主题（见下方"HTML 原型视觉规范"）
 - 图标/图片用占位色块或真实 URL 均可，重点是布局和间距准确
-- 原型文件统一命名为 `<feature>-prototype.html`，放在项目根目录
+- 原型文件统一命名为 `<feature>-prototype.html`，**直接在对应 App 版本目录下创建**（如当前 v1.0 → `design/prototypes/v1.0/`），禁止放在项目根目录
+
+### HTML 原型视觉规范（所有原型必须统一遵守）
+
+**以 `char-detail.html` 为基准风格，所有新原型必须与之保持一致。**
+
+#### 交互方式
+
+- 采用**单屏幕切换式**展示：页面顶部固定一个控制栏（`.bar`），点击设备按钮切换屏幕内容
+- **禁止**多设备并排展示（会导致横向滚动，难以评估真实布局）
+- 屏幕容器 `#S` 通过 JS 动态设置 `width` / `height`，内容通过 `innerHTML` 注入
+
+#### 控制栏（`.bar`）规范
+
+```css
+.bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: #111118;
+  border-bottom: 1px solid #2a2a3a;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 3px 10px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #1a1a28;
+  color: #aaa;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn.on {
+  background: #3a6fd8;
+  border-color: #3a6fd8;
+  color: #fff;
+}
+```
+
+按钮文字格式：`设备名\n宽×高`，例如 `Phone 竖屏\n360×780`
+
+#### 颜色规范
+
+| 用途          | 值        |
+| ------------- | --------- |
+| 页面背景      | `#080810` |
+| 卡片/面板背景 | `#111118` |
+| 控制栏背景    | `#111118` |
+| 边框          | `#2a2a3a` |
+| 主文字        | `#e8e8f0` |
+| 次要文字      | `#888`    |
+| 强调色（蓝）  | `#3a6fd8` |
+| 高亮色（青）  | `#4fc3f7` |
+| 金色（星级）  | `#ffca28` |
+| 危险色（红）  | `#ef5350` |
+
+#### 字体规范
+
+```css
+font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+```
+
+#### 屏幕容器规范
+
+```css
+.screen {
+  border: 2px solid #2a2a3a;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.wrap {
+  margin-top: 52px; /* 为固定控制栏留出空间 */
+  display: flex;
+  justify-content: center;
+  padding: 20px 16px;
+}
+```
+
+#### 设备尺寸规范
+
+| 设备          | 宽 × 高    | 按钮标签               |
+| ------------- | ---------- | ---------------------- |
+| Phone 竖屏    | 360 × 780  | `Phone 竖屏\n360×780`  |
+| Phone 横屏    | 780 × 360  | `Phone 横屏\n780×360`  |
+| Foldable 展开 | 932 × 600  | `Foldable\n932×600`    |
+| TripleFold    | 1200 × 600 | `TripleFold\n1200×600` |
+| Tablet        | 1024 × 768 | `Tablet\n1024×768`     |
+| 2in1/PC       | 1440 × 900 | `2in1/PC\n1440×900`    |
+
+#### JS 路由模板
+
+```javascript
+var DEVS = {
+  pp: [360, 780], // Phone 竖屏
+  pl: [780, 360], // Phone 横屏
+  fd: [932, 600], // Foldable
+  tf: [1200, 600], // TripleFold
+  tb: [1024, 768], // Tablet
+  pc: [1440, 900], // 2in1/PC
+};
+
+function go(dev) {
+  var btns = document.querySelectorAll(".btn");
+  var keys = Object.keys(DEVS);
+  for (var i = 0; i < btns.length; i++) {
+    btns[i].classList.toggle("on", keys[i] === dev);
+  }
+  var d = DEVS[dev];
+  var s = document.getElementById("S");
+  s.style.width = d[0] + "px";
+  s.style.height = d[1] + "px";
+  s.innerHTML = render(dev);
+}
+
+go("pp"); // 默认展示 Phone 竖屏
+```
+
+#### 可滚动区域规范
+
+```css
+.sy {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+.sy::-webkit-scrollbar {
+  width: 3px;
+}
+.sy::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+```
 
 ### 禁止行为
 
@@ -44,28 +217,36 @@
 
 ### UI 设计资产管理规范
 
-所有原型文件必须统一存放在 `design/prototypes/` 目录下，按版本号子目录管理。
+所有原型文件直接在对应版本目录下创建和修改，**不经过根目录中转**。
 
 #### 目录结构
 
 ```
 design/
 └── prototypes/
-    ├── v1.0/          # 已确认锁定版本，禁止修改
+    ├── v1.0/          # App v1.0 原型（当前版本）
     │   ├── *.html     # 原型文件
     │   └── CHANGELOG.md
-    └── v1.1/          # 下次改版时创建
+    └── v2.0/          # App v2.0 原型（改版时创建）
 ```
+
+#### 版本与目录对应规则
+
+- 原型文件的存放目录由 **App 版本号**决定：App v1.0 → `design/prototypes/v1.0/`，App v2.0 → `design/prototypes/v2.0/`，以此类推
+- **新建原型时直接在对应版本目录下创建**，禁止先放根目录再移动
+- 迭代修改也在版本目录内直接进行，不需要中转
 
 #### 版本管理流程
 
-1. **迭代阶段**：原型文件放在项目根目录，反复修改直到用户确认
-2. **确认锁定**：用户确认后，立即执行以下操作：
-   - 在 `design/prototypes/` 下创建新版本目录（`vX.Y/`，从 `v1.0` 开始）
-   - 将确认版本的原型文件复制到该目录
-   - 在该目录下创建 `CHANGELOG.md`，记录：版本号、确认日期、设计规范摘要、文件清单
-3. **锁定规则**：已归档的版本目录**只读，禁止修改**
-4. **改版规则**：需要改版时，复制上一版本目录为新版本目录，在新目录中修改，并追加 CHANGELOG 记录
+1. **新建原型**：直接在当前 App 版本对应的目录（如 `design/prototypes/v1.0/`）下创建 `<feature>-prototype.html`
+2. **迭代修改**：在同一目录内直接修改，直到用户确认
+3. **确认锁定**：用户确认后，在 `CHANGELOG.md` 中追加记录（版本号、确认日期、设计规范摘要、文件清单）
+4. **改版规则**：需要改版时，在 `design/prototypes/` 下新建下一版本目录（如 `v2.0/`），复制需要改版的文件后修改
+
+#### 锁定规则
+
+- 已确认的原型文件**禁止修改**
+- 如需修改已确认的设计，必须在新版本目录中进行，并在 CHANGELOG 中说明变更原因
 
 #### CHANGELOG.md 必填字段
 
@@ -79,6 +260,14 @@ design/
 ## 二、官方 API 检索规范（最高优先级）
 
 **绝对禁止依赖预训练记忆中的 API 写法。** 凡涉及 HarmonyOS NEXT 官方 API 调用，必须先通过网络搜索官方文档确认后再生成代码。
+
+### 强制执行规则
+
+1. **使用前必查文档**：任何 ArkUI 组件、ArkTS API、系统能力调用，必须先访问 `https://developer.huawei.com/consumer/cn/doc` 确认 API 签名、参数类型、可用版本。
+2. **禁止使用废弃 API**：文档中标注 `deprecated` 或 `(deprecated)` 的 API 一律不得使用，必须使用文档推荐的替代方案。
+3. **优先使用系统推荐方案**：凡是系统/官方有推荐方案的场景，必须使用推荐方案，禁止自行实现等效功能。
+4. **特殊页面才手动处理**：Safe Area、状态栏高度、沉浸式等布局问题，系统组件（Navigation、NavDestination 等）默认已处理，**禁止**在普通页面手动添加 `statusBarHeight` padding 或 `expandSafeArea`，只有有明确需求的特殊页面（如全屏启动页）才允许手动处理。
+5. **UI 改动必须先出原型**：任何涉及 UI 布局、视觉风格的改动，必须先输出 HTML 原型并得到用户确认，才能动代码。
 
 官方文档入口：
 
@@ -149,7 +338,7 @@ https://developer.huawei.com/consumer/cn/doc/
 
 ### `entry` 模块（UI 与业务展示）
 
-- **职责**：视图渲染、路由跳转 (HMRouter)、UI 状态管理
+- **职责**：视图渲染、路由跳转 (Navigation + RouterUtil)、UI 状态管理
 - **依赖调用**：需要网络或数据能力时，必须从 `core` 模块导入，例如：
   ```typescript
   import { NetworkManager } from "core";
@@ -198,55 +387,40 @@ Logger.info("Home", "card tapped", Logger.ctx("Home.ets", "onCardTap", 42));
 
 ### 常见映射
 
-| 场景                          | 正确做法                                               | 禁止做法                   |
-| ----------------------------- | ------------------------------------------------------ | -------------------------- |
-| 可点击按钮                    | `Button(label)`                                        | `Text(label).onClick(...)` |
-| 导航返回 / 关闭               | `NavDestination().title(...)` 系统自动渲染返回按钮     | 手写 `Row` + `Button('‹')` |
-| 页面标题栏（push/present 页） | `NavDestination().title($r('app.string.xxx'))`         | 手写 `Row` 模拟 NavBar     |
-| Tab 页标题栏（TabBar 内嵌页） | 手写 `Row` 标题区（系统 NavBar 不适用于 Tab 内嵌场景） | —                          |
-| 文本输入                      | `TextInput` / `TextArea`                               | 自定义输入框               |
-| 加载指示器                    | `LoadingProgress()`                                    | 自定义动画                 |
-| 环形进度                      | `Progress({ type: ProgressType.Ring })`                | 自定义 Canvas              |
-| 二维码                        | `QRCode(url)`                                          | 第三方库或 Canvas          |
-| 下拉选择                      | `Select(options)`                                      | 自定义弹层                 |
-| 对话框                        | `promptAction.openCustomDialog` / `AlertDialog`        | 手写遮罩层                 |
+| 场景                          | 正确做法                                                                    | 禁止做法                   |
+| ----------------------------- | --------------------------------------------------------------------------- | -------------------------- |
+| 可点击按钮                    | `Button(label)`                                                             | `Text(label).onClick(...)` |
+| 导航返回 / 关闭               | `NavDestination().title(...)` 系统自动渲染返回按钮                          | 手写 `Row` + `Button('‹')` |
+| 页面标题栏（push/present 页） | `NavDestination().title($r('app.string.xxx'))`                              | 手写 `Row` 模拟 NavBar     |
+| Tab 页标题栏（TabBar 内嵌页） | `NavDestination().title(...)` 系统自动渲染（Main 内嵌套 Navigation + Tabs） | 手写 `Row` 标题区          |
+| 文本输入                      | `TextInput` / `TextArea`                                                    | 自定义输入框               |
+| 加载指示器                    | `LoadingProgress()`                                                         | 自定义动画                 |
+| 环形进度                      | `Progress({ type: ProgressType.Ring })`                                     | 自定义 Canvas              |
+| 二维码                        | `QRCode(url)`                                                               | 第三方库或 Canvas          |
+| 下拉选择                      | `Select(options)`                                                           | 自定义弹层                 |
+| 对话框                        | `promptAction.openCustomDialog` / `AlertDialog`                             | 手写遮罩层                 |
 
 ### 标题栏样式规范（HarmonyOS NEXT 官方推荐）
 
 #### Tab 内嵌页（Home、Characters、My 等主导航页）
 
-- 标题使用**大标题**：`title24Bold`（24sp），**左对齐**
-- NavBar 高度：`heightNavBar`（56vp）
-- 背景色：`colorCardBg`，底部加 `Divider`
-- 右侧操作按钮：`Button(Circle)` + `Image` 图标，或 `Button(Normal)` + 文字
+- `Main.ets` 内部使用嵌套 `Navigation` + `Tabs`，每个 Tab 页包在 `NavDestination` 里
+- 标题由系统 `NavDestination().title()` 自动渲染，**无需手写 NavBar Row**
+- 返回按钮、标题栏背景均由系统处理
 
 ```typescript
-// Tab 内嵌页 NavBar 标准写法
-Row() {
-  Text($r('app.string.page_title'))
-    .font(this.tm.current.title24Bold)       // 大标题，24sp
-    .fontColor(this.tm.current.colorTextPrimary)
-    .padding({ left: this.tm.current.value16 })
-    .layoutWeight(1)
-    // 注意：左对齐，不居中
-
-  // 右侧操作按钮（可选）
-  Button({ type: ButtonType.Circle }) {
-    Image($r('app.media.ic_xxx'))
-      .width(this.tm.current.iconSizeMD)
-      .height(this.tm.current.iconSizeMD)
+// Main.ets — Tab 页标准写法
+@Builder
+tabHome() {
+  NavDestination() {
+    Home()   // 页面组件，不含 NavBar，不含 NavDestination
   }
-  .width(this.tm.current.heightNavBar)
-  .height(this.tm.current.heightNavBar)
-  .backgroundColor(Color.Transparent)
+  .title($r('app.string.main_tab_home'))
+  .hideTitleBar(false)
 }
-.width(this.tm.current.widthFull)
-.height(this.tm.current.heightNavBar)
-.alignItems(VerticalAlign.Center)
-.backgroundColor(this.tm.current.colorCardBg)
 ```
 
-#### push/present 二级页（Setting、Login、GenshinDailyDetail 等）
+#### push/present 二级页（Login、GenshinDailyDetail 等）
 
 - 标题使用**小标题**：由系统 `NavDestination().title()` 渲染，居中，约 17-18sp
 - **禁止**在页面组件内手写 NavBar Row
@@ -293,7 +467,7 @@ Button({ type: ButtonType.Normal }) {
 
 ---
 
-所有通过 HMRouter `push` 跳转的页面（Login、Setting、GenshinDailyDetail 等），**必须**在 Builder 的 `NavDestination` 上设置 `.title()`，由系统渲染标题和返回按钮：
+所有通过 `RouterUtil.push` 跳转的页面（Login、Setting、GenshinDailyDetail 等），**必须**在 Builder 的 `NavDestination` 上设置 `.title()`，由系统渲染标题和返回按钮：
 
 ```typescript
 // XxxBuilder.ets — 正确
@@ -313,55 +487,135 @@ struct XxxDestination {
 
 ### 新增页面 Builder 注册
 
-每个新页面除了创建 Builder 文件外，还必须在 `entry/src/main/resources/base/profile/custom_router_map.json` 中注册路由条目，否则 `HMRouterMgr.push` 会静默失败：
+每个新页面除了创建 Builder 文件外，还必须完成以下两步，否则 `RouterUtil.push` 会静默失败：
+
+1. 在 `entry/src/main/resources/base/profile/custom_router_map.json` 中注册路由条目：
 
 ```json
 {
   "name": "PageName",
   "pageSourceFile": "src/main/ets/pages/router/PageNameBuilder.ets",
-  "buildFunction": "PageNameBuilder",
-  "customData": { "name": "PageName", "pageUrl": "PageName" }
+  "buildFunction": "PageNameBuilder"
 }
+```
+
+2. 在 `Index.ets` 的 `builderMap` 中添加 `wrapBuilder` 注册：
+
+```typescript
+[AppRoutes.PAGE_NAME, wrapBuilder(PageNameBuilder)],
 ```
 
 ---
 
 ## 七、路由规范
 
-本项目使用 `@hadss/hmrouter`（HMRouter）作为路由框架，**禁止**使用系统原生 `router` 或 `Navigation` 直接跳转。
+本项目使用系统原生 `Navigation` + `NavPathStack` 作为路由框架，通过 `RouterUtil` 工具类统一封装跳转操作。**禁止**使用 `@hadss/hmrouter`、系统 `router` 模块或直接操作 `NavPathStack`。
+
+### 页面分层：哪些页面需要 Builder，哪些不需要
+
+**需要 Builder（通过路由 push/replace 跳转的页面）：**
+
+| 页面                   | 类型                        | Builder 文件                        |
+| ---------------------- | --------------------------- | ----------------------------------- |
+| Launch                 | 启动页（全屏，无 TitleBar） | `LaunchBuilder.ets`                 |
+| Main                   | 主框架（全屏，无 TitleBar） | `MainBuilder.ets`                   |
+| Login                  | 二级页（有系统 TitleBar）   | `LoginBuilder.ets`                  |
+| GenshinDailyDetail     | 二级页（有系统 TitleBar）   | `GenshinDailyDetailBuilder.ets`     |
+| GenshinCharacterDetail | 二级页（有系统 TitleBar）   | `GenshinCharacterDetailBuilder.ets` |
+| AccountDetail          | 二级页（有系统 TitleBar）   | `AccountDetailBuilder.ets`          |
+
+**不需要 Builder（Tab 子页，由 Main 的 Tabs 直接渲染）：**
+
+| 页面       | 原因                                                   |
+| ---------- | ------------------------------------------------------ |
+| Home       | `Main` 内 `Tabs` + `NavDestination` 直接渲染，不走路由 |
+| Characters | `Main` 内 `Tabs` + `NavDestination` 直接渲染，不走路由 |
+| My         | `Main` 内 `Tabs` + `NavDestination` 直接渲染，不走路由 |
+
+**判断规则**：凡是通过 `RouterUtil.push` / `RouterUtil.replace` 跳转的页面，必须有 Builder；凡是作为 Tab 子页被父组件直接渲染的页面，不需要 Builder，也不需要在 `custom_router_map.json` 中注册。
+
+### 页面 UI 标准
+
+#### 全屏页（Launch、Main）
+
+- `NavDestination` 设置 `.hideTitleBar(true)`
+- 加 `.expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])`
+- 自行管理沉浸式，不加 `statusBarHeight` padding
+
+#### 二级页（通过 push 跳转，有系统 TitleBar）
+
+- `NavDestination` 设置 `.title($r('app.string.xxx_title'))` + `.hideTitleBar(false)`
+- 必须加 `statusBarHeight` padding，让系统 TitleBar 避开 Status Bar
+- 页面组件本身不包含 NavBar Row，不包含 NavDestination
+
+```typescript
+// 二级页 Builder 标准写法
+@Component
+struct XxxDestination {
+  @State statusBarHeight: number = 0;
+
+  aboutToAppear(): void {
+    const ctx = this.getUIContext();
+    const px = AppStorage.get<number>('topRectHeight') ?? 0;
+    this.statusBarHeight = ctx.px2vp(px);
+  }
+
+  build() {
+    NavDestination() {
+      Xxx()   // 页面组件，不含 NavBar，不含 NavDestination
+    }
+    .title($r('app.string.xxx_title'))
+    .hideTitleBar(false)
+    .padding({ top: this.statusBarHeight })
+  }
+}
+```
+
+#### Tab 子页（Home、Characters、My）
+
+- `Main.ets` 内部使用嵌套 `Tabs`，每个 Tab 页包在 `@Builder` 方法的 `NavDestination` 里
+- 系统自动渲染标题栏，**无需手写 NavBar**，不需要 Builder，不需要注册 `custom_router_map.json`
 
 ### 路由 Path 管理
 
 所有路由 path 字符串必须统一在 `entry/src/main/ets/constants/AppRoutes.ets` 中声明为常量，**禁止**在页面文件中直接写 path 字符串字面量。
 
 ```typescript
-// AppRoutes.ets
 export class AppRoutes {
+  static readonly LAUNCH = "Launch";
   static readonly MAIN = "Main";
   static readonly LOGIN = "Login";
-  static readonly SETTING = "Setting";
-  // 新增页面时在此处添加
+  // 新增路由页面时在此处添加
 }
 ```
 
 ### 跳转用法
 
 ```typescript
-import { HMRouterMgr } from "@hadss/hmrouter";
+import { RouterUtil } from "../utils/RouterUtil";
 import { AppRoutes } from "../constants/AppRoutes";
 
-// 跳转
-HMRouterMgr.push({ pageUrl: AppRoutes.SETTING });
-
-// 返回
-HMRouterMgr.pop();
+RouterUtil.push(AppRoutes.LOGIN); // push，保留返回栈
+RouterUtil.replace(AppRoutes.MAIN); // replace，不保留返回栈
+RouterUtil.pop(); // 返回上一页
+RouterUtil.push(AppRoutes.ACCOUNT_DETAIL, vm); // 携带参数
 ```
 
-### 新增页面流程
+### 新增路由页面完整流程
 
 1. 在 `AppRoutes.ets` 中添加路由常量
-2. 在 `entry/src/main/ets/pages/router/` 下新建对应的 `XxxBuilder.ets`
-3. 在 `Index.ets` 中 `import` 新页面（触发 HMRouter 注册）
+2. 在 `entry/src/main/ets/pages/router/` 下新建 `XxxBuilder.ets`
+3. 在 `entry/src/main/resources/base/profile/custom_router_map.json` 中注册：
+   ```json
+   {
+     "name": "Xxx",
+     "pageSourceFile": "src/main/ets/pages/router/XxxBuilder.ets",
+     "buildFunction": "XxxBuilder"
+   }
+   ```
+4. 在 `Index.ets` 的 `pageBuilder` 函数中添加 `else if` 分支并补充 import
+
+> **注意**：`@Builder` 函数内只能写 UI 组件语法，不能有变量声明或 Map 查找，用 `if/else if` 链分发。
 
 ---
 
@@ -475,7 +729,7 @@ core/src/main/ets/
 // 标准 ViewModel 模板
 @ObservedV2
 export class HomeViewModel {
-  @Trace viewState: HomeViewState = "loading";
+  @Trace viewState: ViewState = ViewState.LOADING;
   @Trace accounts: MihoyoAccountVM[] = [];
   @Trace isRefreshing: boolean = false;
 
@@ -515,7 +769,8 @@ export struct Home {
 2. 在 `entry/src/main/ets/pages/` 下新建 `Xxx.ets`（View 层）
 3. 在 `AppRoutes.ets` 中添加路由常量
 4. 在 `entry/src/main/ets/pages/router/` 下新建 `XxxBuilder.ets`
-5. 在 `Index.ets` 中 `import` 新页面触发 HMRouter 注册
+5. 在 `custom_router_map.json` 中注册路由条目
+6. 在 `Index.ets` 的 `builderMap` 中添加 `wrapBuilder` 注册并补充 import
 
 ---
 
@@ -849,3 +1104,126 @@ onNetworkErrorChanged(_monitor: IMonitor): void { ... }
 4. 修复后重新编译验证
 
 **不要**仅凭 getDiagnostics 通过就认为代码正确，hvigor 是最终裁判。
+
+---
+
+## 十八、业务状态/类型判断必须使用 enum 规范
+
+**禁止**在任何组件、ViewModel、Repository 中用字符串字面量做状态或类型判断。
+
+### 规则
+
+- 凡是需要区分多种状态/类型的场景，必须先定义 `enum`，再用 enum 值做判断
+- 拼写错误的字符串字面量不会在编译期报错，enum 会
+- 已有 enum 文件位于 `entry/src/main/ets/constants/` 目录
+
+### 已有 enum 清单
+
+| enum 名          | 文件                           | 用途                                                        |
+| ---------------- | ------------------------------ | ----------------------------------------------------------- |
+| `ViewState`      | `constants/ViewStates.ets`     | 页面加载状态（LOADING/EMPTY/DATA/ERROR）                    |
+| `GenshinElement` | `constants/GenshinElement.ets` | 原神元素类型（HYDRO/PYRO/…/UNKNOWN）                        |
+| `HeroPanelMode`  | `constants/HeroPanelMode.ets`  | 角色立绘区布局模式（WIDE/PORTRAIT/LANDSCAPE）               |
+| `LoginTab`       | `constants/LoginTabEnum.ets`   | 登录方式 Tab（PHONE/QRCODE/COOKIE）                         |
+| `PhoneStep`      | `constants/LoginTabEnum.ets`   | 手机号登录步骤（INPUT_PHONE/INPUT_CODE）                    |
+| `QRCodeStat`     | `constants/LoginTabEnum.ets`   | 二维码状态（LOADING/READY/SCANNED/CONFIRMED/EXPIRED/ERROR） |
+
+### 字符串 → enum 转换
+
+API 返回的字符串必须在边界处（Repository 或 ViewModel 的 `parseRawJson`）转换为 enum，不得将原始字符串传入 UI 组件：
+
+```typescript
+// 错误 — 直接把 API 字符串传给 UI
+this.charElement = parsed.element ?? "";
+
+// 正确 — 在 ViewModel 解析时转换
+import { GenshinElement, elementFromString } from "../constants/GenshinElement";
+this.charElement = elementFromString(parsed.element ?? "");
+```
+
+### 新增 enum 流程
+
+1. 在 `entry/src/main/ets/constants/` 下新建 `XxxEnum.ets`
+2. 定义 enum 和对应的 `xxxFromString()` 转换函数（如需从 API 字符串转换）
+3. 更新本文档的"已有 enum 清单"表格
+
+---
+
+## 十九、linearGradient angle 必须走 Theme Token 规范
+
+**禁止**在任何组件中直接写 `linearGradient` 的 `angle` 数字字面量。
+
+### 规则
+
+所有渐变方向角度必须从 `ThemeManager.current` 读取对应 token：
+
+```typescript
+// 错误 — 直接写数字
+.linearGradient({ angle: 135, colors: [...] })
+
+// 正确 — 通过 token 引用
+.linearGradient({ angle: this.tm.current.gradientAngle135, colors: [...] })
+```
+
+### 已有 angle token 清单
+
+| token 名           | 值   | 典型用途                  |
+| ------------------ | ---- | ------------------------- |
+| `gradientAngle0`   | 0°   | 底部遮罩（从下到上渐变）  |
+| `gradientAngle90`  | 90°  | 左右遮罩（从左到右渐变）  |
+| `gradientAngle135` | 135° | 元素背景渐变（左上→右下） |
+| `gradientAngle150` | 150° | Phone 背景渐变            |
+| `gradientAngle180` | 180° | 上下遮罩（从上到下渐变）  |
+
+### 新增角度 token 流程
+
+1. 在 `AppTheme.ets` 的 `Size` 接口末尾添加声明（如 `gradientAngle45: number`）
+2. 在 `DefaultTheme.ets` 中赋值
+3. 更新本文档的"已有 angle token 清单"表格
+
+---
+
+## 二十、代码修改后的构建与运行规范
+
+**每次修改代码后，必须按以下顺序执行，不得跳过任何步骤。**
+
+### 标准流程
+
+直接在项目根目录执行：
+
+```bash
+bash run.sh
+```
+
+脚本会自动完成：启动模拟器（如未运行）→ Clean → Build (mock) → 安装 → 启动。
+
+### 手动分步执行（调试用）
+
+```bash
+export DEVECO_SDK_HOME='/Applications/DevEco-Studio.app/Contents/sdk'
+HVIGOR='/Applications/DevEco-Studio.app/Contents/tools/hvigor/bin/hvigorw'
+HDC='/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/toolchains/hdc'
+
+# 1. Clean
+"$HVIGOR" clean
+
+# 2. Build（mock 模式，注意参数是 -p product=mock，不是 -p buildMode=mock）
+"$HVIGOR" assembleHap -p product=mock
+
+# 3. 安装
+"$HDC" -t 127.0.0.1:5555 install entry/build/mock/outputs/mock/entry-mock-unsigned.hap
+
+# 4. 启动
+"$HDC" -t 127.0.0.1:5555 shell aa start -b com.cainluo.mihoyo.tools -a EntryAbility
+```
+
+### 目标设备
+
+- 模拟器：**Mate 80 Pro Max**
+- 连接地址：`127.0.0.1:5555`
+
+### 禁止行为
+
+- **禁止**跳过 Clean 直接 Build（增量编译可能遗留旧产物导致运行异常）
+- **禁止**使用 `-p buildMode=mock`（正确参数是 `-p product=mock`）
+- **禁止**在 DevEco Studio 中点击 Run 替代命令行流程（两者 product 配置可能不一致）
