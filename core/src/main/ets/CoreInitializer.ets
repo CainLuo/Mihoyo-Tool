@@ -94,7 +94,15 @@ export class CoreInitializer {
         starrailRole.level = 70;
         starrailRole.server = 'prod_gf_cn';
 
-        await AccountRepository.replaceRoles(accountId, [genshinRole, starrailRole]);
+        const zzzRole = new GameRoleRow();
+        zzzRole.accountId = accountId;
+        zzzRole.gameId = 'zzz';
+        zzzRole.roleId = '10000001';
+        zzzRole.nickname = '绳匠';
+        zzzRole.level = 60;
+        zzzRole.server = 'prod_gf_cn';
+
+        await AccountRepository.replaceRoles(accountId, [genshinRole, starrailRole, zzzRole]);
         // 激活 Mock 账号，确保 findActiveAccount() 能找到它
         await AccountRepository.setActiveAccount(accountId);
       } else {
@@ -103,6 +111,29 @@ export class CoreInitializer {
         if (!accounts[0].isActive) {
           await AccountRepository.setActiveAccount(accountId);
         }
+        // 每次启动都强制更新角色列表（确保新增游戏角色生效）
+        const genshinRole2 = new GameRoleRow();
+        genshinRole2.accountId = accountId;
+        genshinRole2.gameId = 'genshin';
+        genshinRole2.roleId = '109050292';
+        genshinRole2.nickname = '旅行者';
+        genshinRole2.level = 60;
+        genshinRole2.server = 'cn_gf01';
+        const starrailRole2 = new GameRoleRow();
+        starrailRole2.accountId = accountId;
+        starrailRole2.gameId = 'starrail';
+        starrailRole2.roleId = '102731382';
+        starrailRole2.nickname = '开拓者';
+        starrailRole2.level = 70;
+        starrailRole2.server = 'prod_gf_cn';
+        const zzzRole2 = new GameRoleRow();
+        zzzRole2.accountId = accountId;
+        zzzRole2.gameId = 'zzz';
+        zzzRole2.roleId = '10000001';
+        zzzRole2.nickname = '绳匠';
+        zzzRole2.level = 60;
+        zzzRole2.server = 'prod_gf_cn';
+        await AccountRepository.replaceRoles(accountId, [genshinRole2, starrailRole2, zzzRole2]);
       }
 
       // 每次 Mock 启动都清空并重新同步所有数据（确保 raw_json 格式最新）
@@ -113,6 +144,8 @@ export class CoreInitializer {
         await SyncMetaDao.resetSyncTime('genshin', '109050292', DataType.DAILY_NOTE);
         await GameDataDao.deleteByType('starrail', '102731382', DataType.DAILY_NOTE);
         await SyncMetaDao.resetSyncTime('starrail', '102731382', DataType.DAILY_NOTE);
+        await GameDataDao.deleteByType('zzz', '10000001', DataType.DAILY_NOTE);
+        await SyncMetaDao.resetSyncTime('zzz', '10000001', DataType.DAILY_NOTE);
       } catch (_) {}
 
       // 立即从 Mock JSON 填充原神角色数据
@@ -128,6 +161,11 @@ export class CoreInitializer {
       // 立即从 Mock JSON 填充崩铁便笺数据
       try {
         await DailyNoteRepository.syncDailyNote('starrail', '102731382', 'prod_gf_cn', 'mock_cookie');
+      } catch (_) {}
+
+      // 立即从 Mock JSON 填充绝区零便笺数据（如有角色）
+      try {
+        await DailyNoteRepository.syncDailyNote('zzz', '10000001', 'prod_gf_cn', 'mock_cookie');
       } catch (_) {}
 
     } catch (error) {

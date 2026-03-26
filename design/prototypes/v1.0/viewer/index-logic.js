@@ -13,6 +13,10 @@ var PAGES = {
     render: renderAccountDetail,
     controls: accountDetailControls,
   },
+  "demo-zzz-card": {
+    render: renderDemoZzzCard,
+    controls: demoZzzCardControls,
+  },
 };
 
 var curPage = "launch";
@@ -232,7 +236,7 @@ function launchControls() {
   grp.className = "nav-group";
   grp.textContent = "Demo";
   sidebar.appendChild(grp);
-  var items = [];
+  var items = [{ id: 'demo-zzz-card', label: '绝区零卡片 Demo' }];
   for (var i = 0; i < items.length; i++) {
     var item = document.createElement("div");
     item.className = "nav-item";

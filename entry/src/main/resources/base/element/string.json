@@ -747,6 +747,50 @@
     {
       "name": "starrail_tourn_score_title",
       "value": "貨幣戰爭積分"
+    },
+    {
+      "name": "zzz_energy_title",
+      "value": "电量"
+    },
+    {
+      "name": "zzz_vitality_title",
+      "value": "今日活跃度"
+    },
+    {
+      "name": "zzz_card_sign_title",
+      "value": "刮刮卡/占卜"
+    },
+    {
+      "name": "zzz_card_sign_done",
+      "value": "已完成"
+    },
+    {
+      "name": "zzz_card_sign_todo",
+      "value": "未完成"
+    },
+    {
+      "name": "zzz_video_store_title",
+      "value": "录像店经营"
+    },
+    {
+      "name": "zzz_video_store_done",
+      "value": "已结算"
+    },
+    {
+      "name": "zzz_video_store_open",
+      "value": "营业中"
+    },
+    {
+      "name": "zzz_video_store_closed",
+      "value": "未营业"
+    },
+    {
+      "name": "home_refresh_cooldown_title",
+      "value": "刷新频率限制"
+    },
+    {
+      "name": "home_refresh_cooldown_msg",
+      "value": "30 分钟内已同步过，频繁刷新可能触发人机校验，请稍后再试"
     }
   ]
 }

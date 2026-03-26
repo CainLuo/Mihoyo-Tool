@@ -32,6 +32,7 @@ import {
 } from 'core';
 import { GenshinDailyNoteParser } from 'core';
 import { StarRailDailyNoteParser } from 'core';
+import { ZZZDailyNoteParser } from 'core';
 import { serverDisplayName } from '../utils/ServerNameUtil';
 import {
   MihoyoAccountVM,
@@ -78,6 +79,7 @@ export class GeetestTrigger {
 export class HomeViewModelKeys {
   networkErrorMsg: string = 'vm.networkErrorMsg';
   geetestTrigger: string = 'vm.geetestTrigger';
+  refreshCoolingDown: string = 'vm.refreshCoolingDown';
 }
 
 @ObservedV2
@@ -94,6 +96,9 @@ export class HomeViewModel {
 
   /** 非 null 时 View 弹 GeetestDialog */
   @Trace geetestTrigger: GeetestTrigger | null = null;
+
+  /** 手动刷新冷却信号（切换时触发 View 弹 Dialog） */
+  @Trace refreshCoolingDown: boolean = false;
 
   private autoRefreshTimer: number = -1;
 
@@ -133,9 +138,17 @@ export class HomeViewModel {
     if (this.isRefreshing) {
       return;
     }
+    // 检查冷却：30 分钟内已刷新过则提示用户
+    const lastRefresh = AppStorage.get<number>('homeLastRefreshTime') ?? 0;
+    const now = Math.floor(Date.now() / 1000);
+    if (now - lastRefresh < AppConstants.AUTO_REFRESH_INTERVAL_MS / 1000) {
+      this.refreshCoolingDown = !this.refreshCoolingDown;
+      return;
+    }
     this.isRefreshing = true;
     try {
       await this.syncAllDailyNotes();
+      AppStorage.setOrCreate('homeLastRefreshTime', Math.floor(Date.now() / 1000));
       const loaded = await this.fetchFromLocal();
       this.accounts = loaded;
       this.viewState = loaded.length > 0 ? ViewState.DATA : ViewState.EMPTY;
@@ -383,6 +396,26 @@ export class HomeViewModel {
         snap.rogueScoreMax = data.maxRogueScore;
         snap.tournScoreCurrent = data.rogueTournWeeklyCur;
         snap.tournScoreMax = data.rogueTournWeeklyMax;
+        return snap;
+      }
+
+      if (gameId === GAME_ZZZ) {
+        const data = ZZZDailyNoteParser.parse(row.rawJson);
+        const energy = data.currentEnergy > 0 ? data.currentEnergy : row.extraInt1;
+        const maxEnergy = data.maxEnergy > 0 ? data.maxEnergy : row.extraInt2;
+        const zzzisFull = energy >= maxEnergy && maxEnergy > 0;
+        const zzzRecovery = zzzisFull ? '' : HomeViewModel.resinRecoveryDesc(data.energyRecoverTime);
+        const snap = new GameNoteSnapshotVM(gameId, energy, maxEnergy, zzzRecovery, '', '', zzzisFull);
+        snap.vitalityCurrent = data.currentVitality;
+        snap.vitalityMax = data.maxVitality;
+        snap.scratchCardDone = data.cardSign === 'CardSignDone';
+        if (data.videoStoreState === 'SaleStateDone') {
+          snap.videoStoreState = 'done';
+        } else if (data.videoStoreState === 'SaleStateDoing') {
+          snap.videoStoreState = 'open';
+        } else {
+          snap.videoStoreState = 'closed';
+        }
         return snap;
       }
 

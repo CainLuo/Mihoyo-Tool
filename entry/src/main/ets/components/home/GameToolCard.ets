@@ -9,6 +9,7 @@ import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 import { GameRoleCardVM, GameNoteSnapshotVM } from './HomeModels'
 import { gameIdToName, gameIdToPrimaryLabel } from '../../utils/GameIdUtil'
 import { GameId } from '../../constants/GameId'
+import { ZZZGameToolCardContent } from './ZZZGameToolCardContent'
 
 @ComponentV2
 export struct GameToolCard {
@@ -389,6 +390,12 @@ export struct GameToolCard {
           this.genshinContent(this.card.snapshot)
         } else if (this.card.gameId === GameId.STARRAIL) {
           this.starrailContent(this.card.snapshot)
+        } else if (this.card.gameId === GameId.ZZZ) {
+          ZZZGameToolCardContent({
+            snap: this.card.snapshot,
+            primaryColor: this.primaryColor(),
+            progressRatio: this.progressRatio()
+          })
         } else {
           this.genericContent(this.card.snapshot)
         }

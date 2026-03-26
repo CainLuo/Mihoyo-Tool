@@ -15,8 +15,8 @@ import { BusinessError } from '@kit.BasicServicesKit'
 
 @ComponentV2
 export struct Home {
+  @Param vm: HomeViewModel = new HomeViewModel()
   @Local private tm: ThemeManager = themeManager
-  @Local private vm: HomeViewModel = new HomeViewModel()
   private uiCtx: UIContext | null = null
   private scroller: Scroller = new Scroller()
 
@@ -42,6 +42,19 @@ export struct Home {
       buttons: [{ text: $r('app.string.dialog_confirm'), color: $r('app.color.color_accent') }]
     }).catch((e: BusinessError) => {
       Logger.warn('Home', 'showDialog failed: ' + e.message)
+    })
+  }
+
+  @Monitor(HomeViewModel.KEYS.refreshCoolingDown)
+  onRefreshCoolingDown(_monitor: IMonitor): void {
+    const ctx = this.uiCtx
+    if (ctx === null) { return }
+    ctx.getPromptAction().showDialog({
+      title: $r('app.string.home_refresh_cooldown_title'),
+      message: $r('app.string.home_refresh_cooldown_msg'),
+      buttons: [{ text: $r('app.string.dialog_confirm'), color: $r('app.color.color_accent') }]
+    }).catch((e: BusinessError) => {
+      Logger.warn('Home', 'showDialog cooldown failed: ' + e.message)
     })
   }
 

@@ -68,6 +68,16 @@ export class GameNoteSnapshotVM {
   /** 货币战争本周积分上限 */
   tournScoreMax: number = 0
 
+  // ── 绝区零专属字段 ──────────────────────────────────────────────
+  /** 今日活跃度当前值（-1 表示无此数据） */
+  vitalityCurrent: number = -1
+  /** 今日活跃度上限 */
+  vitalityMax: number = 0
+  /** 刮刮卡/占卜是否已完成 */
+  scratchCardDone: boolean = false
+  /** 录像店经营状态：'done'=已结算 / 'open'=营业中 / 'closed'=未营业 */
+  videoStoreState: string = ''
+
   constructor(
     primaryLabel: string,
     primaryCurrent: number,

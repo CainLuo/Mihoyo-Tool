@@ -639,6 +639,50 @@
     {
       "name": "starrail_tourn_score_title",
       "value": "Divergent Universe Score"
+    },
+    {
+      "name": "zzz_energy_title",
+      "value": "Battery Charge"
+    },
+    {
+      "name": "zzz_vitality_title",
+      "value": "Daily Engagement"
+    },
+    {
+      "name": "zzz_card_sign_title",
+      "value": "Scratch Card"
+    },
+    {
+      "name": "zzz_card_sign_done",
+      "value": "Completed"
+    },
+    {
+      "name": "zzz_card_sign_todo",
+      "value": "Not Done"
+    },
+    {
+      "name": "zzz_video_store_title",
+      "value": "Video Store"
+    },
+    {
+      "name": "zzz_video_store_done",
+      "value": "Revenue Available"
+    },
+    {
+      "name": "zzz_video_store_open",
+      "value": "Currently Open"
+    },
+    {
+      "name": "zzz_video_store_closed",
+      "value": "Waiting to Open"
+    },
+    {
+      "name": "home_refresh_cooldown_title",
+      "value": "Refresh Rate Limited"
+    },
+    {
+      "name": "home_refresh_cooldown_msg",
+      "value": "Synced within 30 minutes. Frequent refreshes may trigger CAPTCHA. Please try again later."
     }
   ]
 }

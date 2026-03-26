@@ -60,15 +60,28 @@ interface StarRailNoteData {
 /** 绝区零 daily_note 响应 data 字段 */
 interface ZZZNoteData {
   energy: ZZZEnergy;
+  vitality: ZZZVitality;
+  card_sign: string;
+  vhs_sale: ZZZVhsSale;
 }
 
 interface ZZZEnergy {
   progress: ZZZEnergyProgress;
+  restore: number;
 }
 
 interface ZZZEnergyProgress {
   current: number;
   max: number;
+}
+
+interface ZZZVitality {
+  current: number;
+  max: number;
+}
+
+interface ZZZVhsSale {
+  sale_state: string;
 }
 
 /** 通用 API 响应包装 */
@@ -283,7 +296,6 @@ export class DailyNoteRepository {
       row.extraInt1 = d.energy.progress.current;
       row.extraInt2 = d.energy.progress.max;
     }
-
     return row;
   }
 }

@@ -326,6 +326,56 @@ function renderHome(w, h) {
     );
   }
 
+  // 绝区零卡片（新设计，已确认）
+  function zzzCard(nick, server, energy, energyMax, isFull, vitality, vitalityMax, cardDone, videoState) {
+    var energyColor = isFull ? c.danger : c.zzz;
+    var ratio = Math.min(energy / energyMax, 1);
+    var r = 20, cx = 22, cy = 22;
+    var circ = 2 * Math.PI * r;
+    var dash = (circ * ratio).toFixed(1);
+    var gap = (circ - circ * ratio).toFixed(1);
+    var ring = '<svg width="44" height="44" viewBox="0 0 44 44" style="flex-shrink:0">'
+      + '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="rgba(128,128,128,.15)" stroke-width="4"/>'
+      + '<circle cx="' + cx + '" cy="' + cy + '" r="' + r + '" fill="none" stroke="' + energyColor + '" stroke-width="4"'
+      + ' stroke-dasharray="' + dash + ' ' + gap + '" stroke-linecap="round" transform="rotate(-90 ' + cx + ' ' + cy + ')"/>'
+      + '</svg>';
+    function row(icon, iconBg, label, val, valColor) {
+      return '<div style="display:flex;align-items:center;gap:8px">'
+        + '<div style="width:28px;height:28px;border-radius:8px;background:' + iconBg + ';display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">' + icon + '</div>'
+        + '<span style="font-size:12px;color:' + c.txt2 + ';flex:1">' + label + '</span>'
+        + '<span style="font-size:13px;font-weight:600;color:' + valColor + '">' + val + '</span>'
+        + '</div>';
+    }
+    var videoLabel = videoState === 'done' ? '已结算' : (videoState === 'open' ? '营业中' : '未营业');
+    var videoColor = videoState === 'done' ? '#34D399' : (videoState === 'open' ? c.zzz : c.txt2);
+    var videoBg = videoState === 'done' ? 'rgba(52,211,153,.12)' : 'rgba(247,184,75,.08)';
+    return '<div style="background:' + c.surfCard + ';border:1px solid ' + c.border + ';border-radius:16px;overflow:hidden;box-shadow:0 2px 8px ' + c.shadow + '">'
+      + '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px">'
+      + '<div style="width:4px;height:36px;border-radius:2px;background:' + c.zzz + ';flex-shrink:0"></div>'
+      + '<div style="flex:1"><div style="font-size:15px;font-weight:500;color:' + c.txt + '">绝区零</div>'
+      + '<div style="font-size:12px;color:' + c.txt2 + '">' + nick + ' · ' + server + '</div></div>'
+      + '<span style="font-size:11px;color:' + c.txt2 + '">刚刚</span>'
+      + '</div>'
+      + cardHeaderDivider()
+      + '<div style="padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px">'
+      + '<div style="display:flex;align-items:center;gap:10px">'
+      + '<div style="width:28px;height:28px;border-radius:8px;background:rgba(247,184,75,.12);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">⚡</div>'
+      + '<div style="flex:1">'
+      + '<div style="font-size:11px;color:' + c.txt2 + ';margin-bottom:2px">电量</div>'
+      + '<div style="display:flex;align-items:baseline;gap:3px">'
+      + '<span style="font-size:24px;font-weight:700;line-height:1;color:' + energyColor + '">' + energy + '</span>'
+      + '<span style="font-size:13px;color:' + c.txt2 + '">/' + energyMax + '</span>'
+      + '</div>'
+      + '<div style="font-size:11px;color:' + (isFull ? c.danger : c.txt2) + ';margin-top:2px">'
+      + (isFull ? '已全部恢复' : '将于 4 小时后全部恢复')
+      + '</div></div>' + ring + '</div>'
+      + cardDivider()
+      + row('🎯', 'rgba(247,184,75,.12)', '今日活跃度', vitality + '/' + vitalityMax, c.zzz)
+      + row('🃏', cardDone ? 'rgba(52,211,153,.12)' : 'rgba(255,107,107,.12)', '刮刮卡/占卜', cardDone ? '已完成' : '未完成', cardDone ? '#34D399' : c.danger)
+      + row('📼', videoBg, '录像店经营', videoLabel, videoColor)
+      + '</div></div>';
+  }
+
   function skCard() {
     return (
       '<div style="background:' +
@@ -426,24 +476,10 @@ function renderHome(w, h) {
   } else {
     var sec1 = accountSection(
       "182692936",
-      2,
+      3,
       genshinCard("旅行者", "天空岛", 140, 200, false, 3, 5, 1800, 2400, true) +
-        starrailCard(
-          "开拓者",
-          "星穹列车",
-          200,
-          240,
-          true,
-          1200,
-          400,
-          500,
-          3,
-          3,
-          8400,
-          14000,
-          6000,
-          8000,
-        ),
+        starrailCard("开拓者", "星穹列车", 200, 240, true, 1200, 400, 500, 3, 3, 8400, 14000, 6000, 8000) +
+        zzzCard("绳匠", "艾利都", 180, 240, false, 400, 500, true, "done"),
     );
     var sec2 = accountSection(
       "另一个账号",
