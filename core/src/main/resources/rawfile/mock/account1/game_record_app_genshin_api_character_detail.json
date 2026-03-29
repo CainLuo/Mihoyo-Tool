@@ -5,321 +5,316 @@
     "list": [
       {
         "base": {
-          "id": 10000075,
-          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/555d1f67bc5ea5ef1dfb39f47287ca11.png",
-          "name": "流浪者",
-          "element": "Anemo",
+          "id": 10000125,
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6966dc8c/3e648c232fb84bea351096c3f2129489.png",
+          "name": "哥伦比娅",
+          "element": "Hydro",
           "fetter": 10,
           "level": 90,
           "rarity": 5,
-          "actived_constellation_num": 1,
-          "image": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/image_7/9bb6c5c371dcff17ac0f120b12eb46bf.png",
-          "is_chosen": true,
-          "side_icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f727/bdc192bd3c11a969e8be5e6831be4590.png",
+          "actived_constellation_num": 0,
+          "image": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/image_7/27f7394e8eeae7eb31a2444c5e5caddf.png",
+          "is_chosen": false,
+          "side_icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6966dceb/6a05d2352e225e42e07f423bbafe7833.png",
           "weapon_type": 10,
           "weapon": {
-            "id": 14512,
-            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/f1bd10806edde7470a4e4a00d63692f5.png",
+            "id": 14401,
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bb4ff947d3649e393b6ca2e117b072d6.png",
             "type": 10,
-            "rarity": 5,
+            "rarity": 4,
             "level": 90,
-            "affix_level": 1,
-            "name": "图莱杜拉的回忆"
+            "affix_level": 5,
+            "name": "西风秘典"
           }
         },
         "weapon": {
-          "id": 14512,
-          "name": "图莱杜拉的回忆",
-          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/f1bd10806edde7470a4e4a00d63692f5.png",
+          "id": 14401,
+          "name": "西风秘典",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bb4ff947d3649e393b6ca2e117b072d6.png",
           "type": 10,
-          "rarity": 5,
+          "rarity": 4,
           "level": 90,
           "promote_level": 6,
           "type_name": "法器",
-          "desc": "深蓝宝石与纯银雕成的铃铛，回响之声清脆悠远。",
-          "affix_level": 1,
+          "desc": "西风骑士团的学者间流传的秘典，记载着元素与物质的道理和力量。",
+          "affix_level": 5,
           "main_property": {
             "property_type": 4,
             "base": "",
             "add": "",
-            "final": "674"
+            "final": "510"
           },
           "sub_property": {
-            "property_type": 22,
+            "property_type": 23,
             "base": "",
             "add": "",
-            "final": "44.1%"
+            "final": "45.9%"
           }
         },
         "relics": [
           {
-            "id": 27543,
-            "name": "众王之都的开端",
-            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/c8fb7d152e4ba53305460154a082ede9.png",
+            "id": 77544,
+            "name": "乐团的晨光",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/5ff2da2140ec40936c57a7e3c00368c8.png",
             "pos": 1,
             "rarity": 5,
-            "level": 20,
+            "level": 0,
             "set": {
-              "id": 2150271,
-              "name": "沙上楼阁史话",
+              "id": 2150031,
+              "name": "流浪大地的乐团",
               "affixes": [
                 {
                   "activation_number": 2,
-                  "effect": "获得15%风元素伤害加成。"
+                  "effect": "元素精通提高80点。"
                 },
                 {
                   "activation_number": 4,
-                  "effect": "重击命中敌人后，该角色的普通攻击速度提升10%，普通攻击、重击与下落攻击造成的伤害提升40%，持续15秒。"
+                  "effect": "装备该圣遗物套装的角色为法器、弓箭角色时，角色重击造成的伤害提高35%。"
                 }
               ]
             },
             "pos_name": "生之花",
             "main_property": {
               "property_type": 2,
-              "value": "4780",
+              "value": "717",
               "times": 0
             },
             "sub_property_list": [
               {
-                "property_type": 5,
-                "value": "56",
-                "times": 2
-              },
-              {
-                "property_type": 20,
-                "value": "3.9%",
+                "property_type": 23,
+                "value": "5.8%",
                 "times": 0
               },
               {
-                "property_type": 6,
-                "value": "9.9%",
-                "times": 1
+                "property_type": 28,
+                "value": "23",
+                "times": 0
               },
               {
-                "property_type": 22,
-                "value": "14.0%",
-                "times": 1
+                "property_type": 3,
+                "value": "5.8%",
+                "times": 0
+              },
+              {
+                "property_type": 9,
+                "value": "5.1%",
+                "times": 0
               }
             ]
           },
           {
-            "id": 27524,
-            "name": "黄金邦国的结末",
-            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/ceab062a7405267b5ff9b85979bc49e9.png",
+            "id": 75523,
+            "name": "角斗士的归宿",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/5f120cdac0fc7783d0ba6d1452818d5d.png",
             "pos": 2,
             "rarity": 5,
-            "level": 20,
+            "level": 0,
             "set": {
-              "id": 2150271,
-              "name": "沙上楼阁史话",
+              "id": 2150011,
+              "name": "角斗士的终幕礼",
               "affixes": [
                 {
                   "activation_number": 2,
-                  "effect": "获得15%风元素伤害加成。"
+                  "effect": "攻击力提高18%。"
                 },
                 {
                   "activation_number": 4,
-                  "effect": "重击命中敌人后，该角色的普通攻击速度提升10%，普通攻击、重击与下落攻击造成的伤害提升40%，持续15秒。"
+                  "effect": "装备该圣遗物套装的角色为单手剑、双手剑、长柄武器角色时，角色普通攻击造成的伤害提高35%。"
                 }
               ]
             },
             "pos_name": "死之羽",
             "main_property": {
               "property_type": 5,
-              "value": "311",
+              "value": "47",
               "times": 0
             },
             "sub_property_list": [
               {
                 "property_type": 22,
-                "value": "14.8%",
-                "times": 1
+                "value": "6.2%",
+                "times": 0
               },
               {
-                "property_type": 23,
-                "value": "16.2%",
-                "times": 2
-              },
-              {
-                "property_type": 3,
-                "value": "10.5%",
-                "times": 1
+                "property_type": 6,
+                "value": "4.7%",
+                "times": 0
               },
               {
                 "property_type": 20,
-                "value": "7.4%",
-                "times": 1
+                "value": "3.1%",
+                "times": 0
               }
             ]
           },
           {
-            "id": 94554,
-            "name": "雷云之笼",
-            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/30ad4db8661bccad21474d67fad9d908.png",
+            "id": 77554,
+            "name": "终幕的时计",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/00cfc809485c04ff1092838901c8c413.png",
             "pos": 3,
             "rarity": 5,
-            "level": 20,
+            "level": 0,
             "set": {
-              "id": 2150201,
-              "name": "绝缘之旗印",
+              "id": 2150031,
+              "name": "流浪大地的乐团",
               "affixes": [
                 {
                   "activation_number": 2,
-                  "effect": "元素充能效率提高20%。"
+                  "effect": "元素精通提高80点。"
                 },
                 {
                   "activation_number": 4,
-                  "effect": "基于元素充能效率的25%，提高元素爆发造成的伤害。至多通过这种方式获得75%提升。"
+                  "effect": "装备该圣遗物套装的角色为法器、弓箭角色时，角色重击造成的伤害提高35%。"
                 }
               ]
             },
             "pos_name": "时之沙",
             "main_property": {
-              "property_type": 6,
-              "value": "46.6%",
+              "property_type": 3,
+              "value": "7.0%",
               "times": 0
             },
             "sub_property_list": [
               {
-                "property_type": 5,
-                "value": "49",
-                "times": 2
-              },
-              {
-                "property_type": 20,
-                "value": "5.8%",
-                "times": 1
-              },
-              {
-                "property_type": 23,
-                "value": "11.7%",
-                "times": 1
-              },
-              {
-                "property_type": 2,
-                "value": "508",
-                "times": 1
-              }
-            ]
-          },
-          {
-            "id": 27513,
-            "name": "迷醉长梦的守护",
-            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3ff2eb86a14a72cf25b919449f84c5aa.png",
-            "pos": 4,
-            "rarity": 5,
-            "level": 20,
-            "set": {
-              "id": 2150271,
-              "name": "沙上楼阁史话",
-              "affixes": [
-                {
-                  "activation_number": 2,
-                  "effect": "获得15%风元素伤害加成。"
-                },
-                {
-                  "activation_number": 4,
-                  "effect": "重击命中敌人后，该角色的普通攻击速度提升10%，普通攻击、重击与下落攻击造成的伤害提升40%，持续15秒。"
-                }
-              ]
-            },
-            "pos_name": "空之杯",
-            "main_property": {
-              "property_type": 44,
-              "value": "46.6%",
-              "times": 0
-            },
-            "sub_property_list": [
-              {
-                "property_type": 3,
-                "value": "4.1%",
+                "property_type": 22,
+                "value": "7.0%",
                 "times": 0
               },
               {
-                "property_type": 23,
-                "value": "18.1%",
-                "times": 2
-              },
-              {
-                "property_type": 22,
-                "value": "19.4%",
-                "times": 2
+                "property_type": 5,
+                "value": "16",
+                "times": 0
               },
               {
                 "property_type": 20,
                 "value": "2.7%",
                 "times": 0
+              },
+              {
+                "property_type": 8,
+                "value": "21",
+                "times": 0
               }
             ]
           },
           {
-            "id": 27533,
-            "name": "流沙贵嗣的遗宝",
-            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/40ed752ca709ba2d84e0c8674eea82e8.png",
-            "pos": 5,
+            "id": 75514,
+            "name": "角斗士的酣醉",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/0c3a5868f5b77bf7bf8ae6c56e016557.png",
+            "pos": 4,
             "rarity": 5,
-            "level": 20,
+            "level": 0,
             "set": {
-              "id": 2150271,
-              "name": "沙上楼阁史话",
+              "id": 2150011,
+              "name": "角斗士的终幕礼",
               "affixes": [
                 {
                   "activation_number": 2,
-                  "effect": "获得15%风元素伤害加成。"
+                  "effect": "攻击力提高18%。"
                 },
                 {
                   "activation_number": 4,
-                  "effect": "重击命中敌人后，该角色的普通攻击速度提升10%，普通攻击、重击与下落攻击造成的伤害提升40%，持续15秒。"
+                  "effect": "装备该圣遗物套装的角色为单手剑、双手剑、长柄武器角色时，角色普通攻击造成的伤害提高35%。"
+                }
+              ]
+            },
+            "pos_name": "空之杯",
+            "main_property": {
+              "property_type": 3,
+              "value": "7.0%",
+              "times": 0
+            },
+            "sub_property_list": [
+              {
+                "property_type": 8,
+                "value": "21",
+                "times": 0
+              },
+              {
+                "property_type": 2,
+                "value": "209",
+                "times": 0
+              },
+              {
+                "property_type": 5,
+                "value": "19",
+                "times": 0
+              },
+              {
+                "property_type": 9,
+                "value": "6.6%",
+                "times": 0
+              }
+            ]
+          },
+          {
+            "id": 71533,
+            "name": "破冰踏雪的回音",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/9ecabf53a38ca54ef43b7f614b5f9375.png",
+            "pos": 5,
+            "rarity": 5,
+            "level": 4,
+            "set": {
+              "id": 2140011,
+              "name": "冰风迷途的勇士",
+              "affixes": [
+                {
+                  "activation_number": 2,
+                  "effect": "获得15%冰元素伤害加成。"
+                },
+                {
+                  "activation_number": 4,
+                  "effect": "攻击处于冰元素影响下的敌人时，暴击率提高20%；若敌人处于冻结状态下，则暴击率额外提高20%。"
                 }
               ]
             },
             "pos_name": "理之冠",
             "main_property": {
               "property_type": 22,
-              "value": "62.2%",
+              "value": "19.9%",
               "times": 0
             },
             "sub_property_list": [
               {
-                "property_type": 20,
-                "value": "6.6%",
-                "times": 1
+                "property_type": 8,
+                "value": "21",
+                "times": 0
               },
               {
                 "property_type": 5,
-                "value": "39",
-                "times": 1
+                "value": "16",
+                "times": 0
               },
               {
-                "property_type": 2,
-                "value": "478",
-                "times": 1
+                "property_type": 28,
+                "value": "19",
+                "times": 0
               },
               {
-                "property_type": 8,
-                "value": "39",
-                "times": 1
+                "property_type": 23,
+                "value": "6.5%",
+                "times": 0
               }
             ]
           }
         ],
         "constellations": [
           {
-            "id": 751,
-            "name": "初番·茂风流羽行",
-            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f721/7ef93885cce4af20403f91c8bf275b5f.png",
-            "effect": "在<color=#FFD780FF>优风倾姿</color>状态下，流浪者进行空居·不生断与空居·刀风界的攻击速度提升10%。\\n此外，突破天赋「梦迹一风」发射的风矢能额外造成25%攻击力的伤害，该效果需要解锁突破天赋「梦迹一风」。",
-            "is_actived": true,
+            "id": 1251,
+            "name": "遍照花海，隐入群山",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6966dce8/a7fdc9d92426d9f223658a34705f8ea8.png",
+            "effect": "施放元素战技<color=#FFD780FF>万古潮汐</color>时，还会立刻触发一次等同于{LINK#N11250001}<color=#FFD780FF>引力干涉</color>{/LINK}的效果，该效果每15秒至多触发一次。\\n<color=#FFD780FF>月兆·满辉</color> \\n触发引力干涉时，若为哥伦比娅积攒最多引力值的月曜反应类型为：\\n·<color=#FFD780FF>月感电反应</color>：为队伍中自己的当前场上角色恢复6点元素能量；\\n·<color=#FFD780FF>月绽放反应</color>：提升队伍中自己的当前场上角色的抗打断能力，持续8秒；\\n·<color=#FFD780FF>月结晶反应</color>：唤出<color=#FFD780FF>雨海护盾</color>，伤害吸收量受益于哥伦比娅生命值上限的12%，对<color=#80C0FFFF>水元素伤害</color>有250%的吸收效果，持续8秒。\\n\\n队伍中附近的所有角色造成的月曜反应伤害{LINK#N11190007}<color=#FFD780FF>擢升</color>{/LINK}1.5%。",
+            "is_actived": false,
             "pos": 1,
             "is_enhanced": false,
             "enhanced_effect": "",
             "can_enhanced": false
           },
           {
-            "id": 752,
-            "name": "二番·箙岛廓白浪",
-            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f721/2dba377a31f4c451220a0fba315362a8.png",
-            "effect": "在<color=#FFD780FF>优风倾姿</color>状态下，<color=#FFD780FF>狂言·式乐五番</color>将依据空居力上限与当前的空居力的差值，每1点使此次狂言·式乐五番造成的伤害提升4%。\\n通过这种方式，至多使狂言·式乐五番造成的伤害提升200%。",
+            "id": 1252,
+            "name": "为夜增辉，与君遥伴",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6966dce8/29aaa0951ea68cca05fdfa55350f89c3.png",
+            "effect": "{LINK#N11250001}<color=#FFD780FF>引力值</color>{/LINK}的积攒速度提升34%。\\n触发<color=#FFD780FF>引力干涉</color>时，哥伦比娅将获得<color=#FFD780FF>皎辉</color>效果，生命值上限提升40%，持续8秒。\\n<color=#FFD780FF>月兆·满辉</color> ：\\n<color=#FFD780FF>皎辉</color>效果持续期间，若本次触发<color=#FFD780FF>引力干涉</color>时，为哥伦比娅积攒最多引力值的月曜反应类型为：\\n·<color=#FFD780FF>月感电反应</color>：队伍中自己的当前场上角色攻击力提升，提升值相当于哥伦比娅生命值上限的1%；\\n·<color=#FFD780FF>月绽放反应</color>：队伍中自己的当前场上角色元素精通提升，提升值相当于哥伦比娅生命值上限的0.35%；\\n·<color=#FFD780FF>月结晶反应</color>：队伍中自己的当前场上角色防御力提升，提升值相当于哥伦比娅生命值上限的1%。\\n\\n队伍中附近的所有角色造成的月曜反应伤害{LINK#N11190007}<color=#FFD780FF>擢升</color>{/LINK}7%。",
             "is_actived": false,
             "pos": 2,
             "is_enhanced": false,
@@ -327,10 +322,10 @@
             "can_enhanced": false
           },
           {
-            "id": 753,
-            "name": "三番·久世舞夕颜",
-            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f721/9f9781eecd87bd736461300508b359c2.png",
-            "effect": "<color=#FFD780FF>狂言·式乐五番</color>的技能等级提高3级。\\n至多提升至15级。",
+            "id": 1253,
+            "name": "柔光凝露，梦湖起波",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6966dce8/f5fdaaca6d700c1dcd78e8ce3c116356.png",
+            "effect": "元素战技<color=#FFD780FF>{LINK#S11252}万古潮汐{/LINK}</color>的技能等级提高3级。\\n至多提升至15级。\\n\\n队伍中附近的所有角色造成的月曜反应伤害{LINK#N11190007}<color=#FFD780FF>擢升</color>{/LINK}1.5%。",
             "is_actived": false,
             "pos": 3,
             "is_enhanced": false,
@@ -338,10 +333,10 @@
             "can_enhanced": false
           },
           {
-            "id": 754,
-            "name": "四番·花月歌浮舟",
-            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f721/5efb1c38018a4eaa6b4710f6701acfb0.png",
-            "effect": "施放<color=#FFD780FF>羽画·风姿华歌</color>时，若触发了突破天赋「拾玉得花」依据元素类型强化的效果，还将随机获得1种本次施放未触发的强化效果。同时至多获得3种元素对应的强化效果。\\n需要解锁突破天赋「拾玉得花」。",
+            "id": 1254,
+            "name": "花岚云翳，山岩树影",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6966dce8/3785acafcf9b7f0afcefe6ea93a8d52e.png",
+            "effect": "触发{LINK#N11250001}<color=#FFD780FF>引力干涉</color>{/LINK}时，还会为哥伦比娅恢复4点元素能量；\\n此外，依据为哥伦比娅积攒最多<color=#FFD780FF>引力值</color>的月曜反应类型，若为月感电/月绽放/月结晶反应，则本次引力干涉造成的月曜反应伤害提升，提升值分别相当于哥伦比娅生命值上限的12.5%/2.5%/12.5%。上述效果每15秒至多触发一次。\\n\\n队伍中附近的所有角色造成的月曜反应伤害{LINK#N11190007}<color=#FFD780FF>擢升</color>{/LINK}1.5%。",
             "is_actived": false,
             "pos": 4,
             "is_enhanced": false,
@@ -349,10 +344,10 @@
             "can_enhanced": false
           },
           {
-            "id": 755,
-            "name": "末番·今昔渡来殿",
-            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f721/01070efdf66874e02d9c5bcc941dc6ef.png",
-            "effect": "<color=#FFD780FF>羽画·风姿华歌</color>的技能等级提高3级。\\n至多提升至15级。",
+            "id": 1255,
+            "name": "万籁俱寂，唯闻君唱",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6966dce8/893ad9b25ef60b56ce30e5b97c149ca6.png",
+            "effect": "元素爆发<color=#FFD780FF>{LINK#S11255}她的乡愁{/LINK}</color>的技能等级提高3级。\\n至多提升至15级。\\n\\n队伍中附近的所有角色造成的月曜反应伤害{LINK#N11190007}<color=#FFD780FF>擢升</color>{/LINK}1.5%。",
             "is_actived": false,
             "pos": 5,
             "is_enhanced": false,
@@ -360,10 +355,10 @@
             "can_enhanced": false
           },
           {
-            "id": 756,
-            "name": "祝言·霞幕倾松风",
-            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f721/1c900e1303f494f264f68dc6748b803a.png",
-            "effect": "在<color=#FFD780FF>优风倾姿</color>状态下，流浪者主动施放的空居·不生断命中敌人时，将产生如下效果：\\n·在命中的位置额外进行一次空居·不生断，造成原本40%的伤害，该伤害视为普通攻击伤害；\\n·当流浪者的空居力低于40点时，为流浪者恢复4点空居力。每0.2秒至多通过这种方式恢复1次空居力，在一次优风倾姿的持续期间，至多触发5次。",
+            "id": 1256,
+            "name": "夜昏且暗，且随月光",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6966dce8/f8fd87b17d6d86a5192fbb79aa82a45b.png",
+            "effect": "处于{LINK#N11250002}<color=#FFD780FF>月之领域</color>{/LINK}中的所有角色触发月曜反应后的8秒内，依据参与反应的元素类型，使队伍中的所有角色造成的对应元素类型伤害的暴击伤害提升80%。同种元素类型的暴击伤害提升效果无法叠加。\\n\\n队伍中附近的所有角色造成的月曜反应伤害{LINK#N11190007}<color=#FFD780FF>擢升</color>{/LINK}7%。",
             "is_actived": false,
             "pos": 6,
             "is_enhanced": false,
@@ -375,33 +370,33 @@
         "selected_properties": [
           {
             "property_type": 2000,
-            "base": "10164",
-            "add": "7247",
-            "final": "17411"
+            "base": "14695",
+            "add": "3840",
+            "final": "18535"
           },
           {
             "property_type": 20,
-            "base": "50.6%",
+            "base": "30.0%",
             "add": "",
-            "final": "50.6%"
+            "final": "30.0%"
           },
           {
             "property_type": 2001,
-            "base": "1002",
-            "add": "1021",
-            "final": "2023"
+            "base": "605",
+            "add": "235",
+            "final": "840"
           },
           {
             "property_type": 22,
-            "base": "204.5%",
+            "base": "83.1%",
             "add": "",
-            "final": "204.5%"
+            "final": "83.1%"
           },
           {
             "property_type": 2002,
-            "base": "607",
-            "add": "39",
-            "final": "647"
+            "base": "515",
+            "add": "123",
+            "final": "637"
           },
           {
             "property_type": 26,
@@ -411,9 +406,9 @@
           },
           {
             "property_type": 28,
-            "base": "0",
+            "base": "122",
             "add": "",
-            "final": "0"
+            "final": "122"
           },
           {
             "property_type": 27,
@@ -422,42 +417,42 @@
             "final": "0.0%"
           },
           {
-            "property_type": 44,
-            "base": "61.6%",
+            "property_type": 42,
+            "base": "0.0%",
             "add": "",
-            "final": "61.6%"
+            "final": "0.0%"
           },
           {
             "property_type": 23,
-            "base": "146.0%",
+            "base": "158.3%",
             "add": "",
-            "final": "146.0%"
+            "final": "158.3%"
           }
         ],
         "base_properties": [
           {
             "property_type": 2000,
-            "base": "10164",
-            "add": "7247",
-            "final": "17411"
+            "base": "14695",
+            "add": "3840",
+            "final": "18535"
           },
           {
             "property_type": 2001,
-            "base": "1002",
-            "add": "1021",
-            "final": "2023"
+            "base": "605",
+            "add": "235",
+            "final": "840"
           },
           {
             "property_type": 2002,
-            "base": "607",
-            "add": "39",
-            "final": "647"
+            "base": "515",
+            "add": "123",
+            "final": "637"
           },
           {
             "property_type": 28,
-            "base": "0",
+            "base": "122",
             "add": "",
-            "final": "0"
+            "final": "122"
           },
           {
             "property_type": 999999,
@@ -469,15 +464,15 @@
         "extra_properties": [
           {
             "property_type": 20,
-            "base": "50.6%",
+            "base": "30.0%",
             "add": "",
-            "final": "50.6%"
+            "final": "30.0%"
           },
           {
             "property_type": 22,
-            "base": "204.5%",
+            "base": "83.1%",
             "add": "",
-            "final": "204.5%"
+            "final": "83.1%"
           },
           {
             "property_type": 26,
@@ -493,9 +488,9 @@
           },
           {
             "property_type": 23,
-            "base": "146.0%",
+            "base": "158.3%",
             "add": "",
-            "final": "146.0%"
+            "final": "158.3%"
           },
           {
             "property_type": 80,
@@ -561,9 +556,9 @@
           },
           {
             "property_type": 44,
-            "base": "61.6%",
+            "base": "0.0%",
             "add": "",
-            "final": "61.6%"
+            "final": "0.0%"
           },
           {
             "property_type": 54,
@@ -610,43 +605,47 @@
         ],
         "skills": [
           {
-            "skill_id": 10751,
+            "skill_id": 11251,
             "skill_type": 1,
-            "level": 10,
-            "desc": "<color=#FFD780FF>普通攻击</color>\\n释放风刃，进行至多三段的攻击，造成<color=#80FFD7FF>风元素伤害</color>。\\n\\n<color=#FFD780FF>重击</color>\\n消耗一定体力，短暂咏唱后，在前方凝聚高压气场，造成<color=#80FFD7FF>风元素范围伤害</color>。\\n\\n<color=#FFD780FF>下落攻击</color>\\n凝聚风元素的力量，从空中下坠冲击地面，攻击下落路径上的敌人，并在落地时造成<color=#80FFD7FF>风元素范围伤害</color>。",
+            "level": 8,
+            "desc": "<color=#FFD780FF>普通攻击</color>\\n唤起月光的潮汐，进行至多三段的攻击，造成<color=#80C0FFFF>水元素伤害</color>。\\n\\n<color=#FFD780FF>重击</color>\\n消耗一定体力，短暂咏唱后，造成<color=#80C0FFFF>水元素范围伤害</color>。\\n若拥有至少1枚{LINK#N11190008}<color=#FFD780FF>草露</color>{/LINK}，哥伦比娅施放的重击将会被替换为特殊的、不消耗体力的重击<color=#FFD780FF>月露涤荡</color>：消耗一枚草露，对前方的敌人造成3次<color=#99FF88FF>草元素范围伤害</color>，该伤害视为月绽放反应伤害。\\n\\n<color=#FFD780FF>下落攻击</color>\\n从空中下坠冲击地面，攻击下落路径上的敌人，并在落地时造成<color=#80C0FFFF>水元素范围伤害</color>。",
             "skill_affix_list": [
               {
                 "name": "一段伤害",
-                "value": "135.8%"
+                "value": "74.9%"
               },
               {
                 "name": "二段伤害",
-                "value": "128.5%"
+                "value": "58.6%"
               },
               {
                 "name": "三段伤害",
-                "value": "94.2%+94.2%"
+                "value": "93.6%"
               },
               {
                 "name": "重击伤害",
-                "value": "237.7%"
+                "value": "185.7%"
               },
               {
                 "name": "重击体力消耗",
                 "value": "50.0点"
               },
               {
+                "name": "月露涤荡伤害",
+                "value": "2.42%生命值上限*3"
+              },
+              {
                 "name": "下坠期间伤害",
-                "value": "112.3%"
+                "value": "97.1%"
               },
               {
                 "name": "低空/高空坠地冲击伤害",
-                "value": "225%/281%"
+                "value": "194%/243%"
               }
             ],
             "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/2c014e6053c4f0d032e1d1ff0c6de0e1.png",
             "is_unlock": true,
-            "name": "行幡鸣弦",
+            "name": "月露泼降",
             "is_enhanced": false,
             "enhanced_desc": "",
             "before_enhanced_skill_attr_index": [],
@@ -654,35 +653,47 @@
             "can_enhanced": false
           },
           {
-            "skill_id": 10752,
+            "skill_id": 11252,
             "skill_type": 1,
             "level": 8,
-            "desc": "凝聚大气的力量，借此摆脱大地的桎梏。对周围造成<color=#80FFD7FF>风元素伤害</color>并跃升至空中，进入「优风倾姿」状态。\\n\\n<color=#FFD780FF>优风倾姿</color>\\n流浪者在这种状态下，无法进行下落攻击，进行普通攻击与重击时，将转为进行空居·不生断与空居·刀风界，造成的伤害与影响范围提高，伤害分别视为普通攻击伤害与重击伤害。进行空居·刀风界将不消耗体力。\\n流浪者在这种状态下将持续悬浮在空中。此时，流浪者的行动具有如下特性：\\n·将持续消耗「空居力」，维持悬浮状态；\\n·进行冲刺时，将额外消耗空居力在空中加速；长按冲刺时，将持续消耗空居力以维持快速移动。该效果将替代冲刺；\\n·进行跳跃时，将额外消耗空居力抬升悬浮高度；长按跳跃时，将持续消耗空居力以持续抬升高度。\\n\\n空居力耗竭后将结束该状态。\\n在优风倾姿持续期间再次施放将结束该状态。\\n\\n<i>「浮世倾舞，秘则为花。」</i>",
+            "desc": "唤起月海的潮汐，造成<color=#80C0FFFF>水元素范围伤害</color>，并唤出{LINK#N11250001}<color=#FFD780FF>引力涟漪</color>{/LINK}。\\n<color=#FFD780FF>引力涟漪</color>将跟随场上角色，并持续对周围的敌人造成<color=#80C0FFFF>水元素范围伤害</color>。<color=#FFD780FF>引力涟漪</color>存在期间，队伍中附近的角色触发月曜反应或造成月曜反应伤害时，将会为哥伦比娅积攒特殊的<color=#FFD780FF>引力值</color>，积攒至上限时，将会依据为哥伦比娅积攒最多<color=#FFD780FF>引力值</color>的月曜反应的类型，对敌人造成不同类型的伤害。\\n<color=#FFD780FF>月兆·满辉</color>：<color=#FFD780FF>引力涟漪</color>会造成范围更大的<color=#80C0FFFF>水元素范围伤害</color>。",
             "skill_affix_list": [
               {
                 "name": "技能伤害",
-                "value": "152.3%"
+                "value": "26.8%生命值上限"
               },
               {
-                "name": "空居·不生断伤害",
-                "value": "148.6%普通攻击伤害"
+                "name": "引力涟漪·持续伤害",
+                "value": "15.0%生命值上限"
               },
               {
-                "name": "空居·刀风界伤害",
-                "value": "138.9%重击伤害"
+                "name": "引力干涉·月感电伤害",
+                "value": "7.53%生命值上限"
               },
               {
-                "name": "初始空居力",
-                "value": "100点"
+                "name": "引力干涉·月绽放伤害",
+                "value": "2.25%生命值上限*5"
+              },
+              {
+                "name": "引力干涉·月结晶伤害",
+                "value": "14.12%生命值上限"
+              },
+              {
+                "name": "引力值上限",
+                "value": "60"
+              },
+              {
+                "name": "引力涟漪持续时间",
+                "value": "25.0秒"
               },
               {
                 "name": "冷却时间",
-                "value": "6.0秒"
+                "value": "17.0秒"
               }
             ],
-            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/768c1eb2e96a207fc72af7e09ce13bae.png",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6966dce5/771809f16437a2c4960f564f0f199057.png",
             "is_unlock": true,
-            "name": "羽画·风姿华歌",
+            "name": "万古潮汐",
             "is_enhanced": false,
             "enhanced_desc": "",
             "before_enhanced_skill_attr_index": [],
@@ -690,14 +701,22 @@
             "can_enhanced": false
           },
           {
-            "skill_id": 10755,
+            "skill_id": 11255,
             "skill_type": 1,
             "level": 8,
-            "desc": "将大气压缩，化变为粉碎一切烦恼的空洞，造成多次<color=#80FFD7FF>风元素范围伤害</color>。\\n处于元素战技「羽画·风姿华歌」的优风倾姿状态下时，将在施放后结束优风倾姿状态。\\n\\n<i>「仄仄天将明，今昔旧梦如尘影，浮沉萩风中。」</i>",
+            "desc": "以无秽的新月之名连接山与海，将身边的大地短暂变换为{LINK#N11250002}<color=#FFD780FF>月之领域</color>{/LINK}，并造成<color=#80C0FFFF>水元素范围伤害</color>。",
             "skill_affix_list": [
               {
                 "name": "技能伤害",
-                "value": "235.5%*5"
+                "value": "51.6%生命值上限"
+              },
+              {
+                "name": "月曜反应伤害提升",
+                "value": "34.0%"
+              },
+              {
+                "name": "月之领域持续时间",
+                "value": "20.0秒"
               },
               {
                 "name": "冷却时间",
@@ -708,9 +727,9 @@
                 "value": "60"
               }
             ],
-            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f71a/4927a4327f0b24ac4018ba9427122c21.png",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6966dce5/b7bfca8b8d4b8ef9e5f847300b1c0d73.png",
             "is_unlock": true,
-            "name": "狂言·式乐五番",
+            "name": "她的乡愁",
             "is_enhanced": false,
             "enhanced_desc": "",
             "before_enhanced_skill_attr_index": [],
@@ -718,14 +737,14 @@
             "can_enhanced": false
           },
           {
-            "skill_id": 7521,
+            "skill_id": 12521,
             "skill_type": 2,
             "level": 1,
-            "desc": "施放<color=#FFD780FF>羽画·风姿华歌</color>时，若接触了<color=#80C0FFFF>水元素</color>/<color=#FF9999FF>火元素</color>/<color=#99FFFFFF>冰元素</color>/<color=#FFACFFFF>雷元素</color>，则会依据触及的元素，在此次优风倾姿状态下获得对应的强化效果：\\n·<color=#80C0FFFF>水元素</color>：空居力上限提升20点；\\n·<color=#FF9999FF>火元素</color>：攻击力提升30%；\\n·<color=#99FFFFFF>冰元素</color>：暴击率提升20%；\\n·<color=#FFACFFFF>雷元素</color>：普通攻击与重击命中敌人后，恢复0.8点元素能量，每0.2秒至多通过上述方式恢复一次元素能量。\\n\\n同时至多获得2种元素对应的强化效果。",
+            "desc": "触发{LINK#N11250001}<color=#FFD780FF>引力干涉</color>{/LINK}时，哥伦比娅将获得月诱效果，使自身的暴击率提升5%，持续10秒。该效果至多叠加3层。",
             "skill_affix_list": [],
-            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f721/d2241dfebd645234eadf85a1aa2498ca.png",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6966dce8/242dd3a5c42a06a0e76cde5324fc79de.png",
             "is_unlock": true,
-            "name": "拾玉得花",
+            "name": "月亮诱发的疯狂",
             "is_enhanced": false,
             "enhanced_desc": "",
             "before_enhanced_skill_attr_index": [],
@@ -733,14 +752,14 @@
             "can_enhanced": false
           },
           {
-            "skill_id": 7522,
+            "skill_id": 12522,
             "skill_type": 2,
             "level": 1,
-            "desc": "在<color=#FFD780FF>优风倾姿</color>状态下，流浪者的空居·不生断或空居·刀风界命中敌人时，有16%几率获得「倾落」效果：流浪者在本次优风倾姿的状态下进行空中加速时，将移除倾落效果，使此次空中加速不消耗空居力，并发射4枚风矢，分别造成35%攻击力的<color=#80FFD7FF>风元素伤害</color>。\\n空居·不生断与空居·刀风界未产生倾落效果时，会使下次产生概率提升12%；0.1秒内至多判定1次是否产生倾落效果。",
+            "desc": "处于{LINK#N11250002}<color=#FFD780FF>月之领域</color>{/LINK}中的角色触发月曜反应时，将分别获得以下效果：\\n·<color=#FFD780FF>月感电反应</color>：雷暴云对符合条件的目标进行雷击时，有33%概率额外进行一次雷击；\\n·<color=#FFD780FF>月绽放反应</color>：触发月绽放反应时，将为队伍提供一枚特殊的{LINK#N11250003}<color=#FFD780FF>山月草露</color>{/LINK}，每18秒至多通过这种方式为队伍提供3枚山月草露；\\n·<color=#FFD780FF>月结晶反应</color>：触发月笼谐奏时，每枚月笼有33%概率额外进行一次攻击。",
             "skill_affix_list": [],
-            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f721/12f3a772fc643b9f59068aa291f58de0.png",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6966dce8/e1e98a5372a9fe50596fa994f28c88df.png",
             "is_unlock": true,
-            "name": "梦迹一风",
+            "name": "新月自己的法则",
             "is_enhanced": false,
             "enhanced_desc": "",
             "before_enhanced_skill_attr_index": [],
@@ -748,14 +767,29 @@
             "can_enhanced": false
           },
           {
-            "skill_id": 7523,
+            "skill_id": 12523,
             "skill_type": 2,
             "level": 1,
-            "desc": "突破弓与法器时，消耗的摩拉数量减少50%。",
+            "desc": "队伍中的角色触发感电/绽放/水元素结晶反应时，将转为触发月感电/月绽放/月结晶反应，且基于哥伦比娅的生命值上限，提升队伍中角色造成的月曜反应的基础伤害：每1000点生命值上限都将提升0.2%月曜反应的基础伤害，至多通过这种方式提升7%伤害。\\n\\n此外，哥伦比娅在队伍中时，队伍的<color=#FFD780FF>月兆</color>将会上升一级。",
             "skill_affix_list": [],
-            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f721/a6b3584a8b209d556f54f0bd3cb975bd.png",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6966dce8/7b89571384f3f6c2dd5d4f7a84182da1.png",
             "is_unlock": true,
-            "name": "廻色云弦",
+            "name": "月兆祝赐·借汝月光",
+            "is_enhanced": false,
+            "enhanced_desc": "",
+            "before_enhanced_skill_attr_index": [],
+            "after_enhanced_skill_attr_index": [],
+            "can_enhanced": false
+          },
+          {
+            "skill_id": 12525,
+            "skill_type": 2,
+            "level": 1,
+            "desc": "处于挪德卡莱区域时，队伍中自己的角色倒下时，哥伦比娅将复苏该角色，并为其恢复生命值，恢复值基于哥伦比娅的好感等级，该效果每100秒至多触发一次。该效果在秘境、征讨领域、深境螺旋中无效。\\n此外，对受到月矩力影响的部分小动物，哥伦比娅似乎有着特殊的亲和力…",
+            "skill_affix_list": [],
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/6966dce8/20dcc7dd3edd39b22c7bff4fc58ecb68.png",
+            "is_unlock": true,
+            "name": "月的守望",
             "is_enhanced": false,
             "enhanced_desc": "",
             "before_enhanced_skill_attr_index": [],
@@ -765,29 +799,33 @@
         ],
         "recommend_relic_property": {
           "recommend_properties": {
-            "sand_main_property_list": [6],
-            "goblet_main_property_list": [44],
+            "sand_main_property_list": [3],
+            "goblet_main_property_list": [3],
             "circlet_main_property_list": [22],
-            "sub_property_list": [20, 22, 6]
+            "sub_property_list": [20, 22, 3]
           },
           "custom_properties": null,
           "has_set_recommend_prop": false
         },
-        "weapon_skin": null
+        "weapon_skin": {
+          "weapon_skin_icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/699e3449/e5730155cb9648c693f9a58d612f1095.png",
+          "weapon_skin_rarity": 4,
+          "weapon_skin_name": "幻礼·星兆"
+        }
       }
     ],
     "property_map": {
+      "3": {
+        "property_type": 3,
+        "name": "生命值",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2000.png",
+        "filter_name": "生命值百分比"
+      },
       "2002": {
         "property_type": 2002,
         "name": "防御力",
         "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2002.png",
         "filter_name": "防御力"
-      },
-      "53": {
-        "property_type": 53,
-        "name": "草元素抗性",
-        "icon": "",
-        "filter_name": "草元素抗性"
       },
       "52": {
         "property_type": 52,
@@ -795,107 +833,11 @@
         "icon": "",
         "filter_name": "水元素抗性"
       },
-      "4": {
-        "property_type": 4,
-        "name": "基础攻击力",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2001.png",
-        "filter_name": "基础攻击力"
-      },
-      "50": {
-        "property_type": 50,
-        "name": "火元素抗性",
+      "27": {
+        "property_type": 27,
+        "name": "受治疗加成",
         "icon": "",
-        "filter_name": "火元素抗性"
-      },
-      "80": {
-        "property_type": 80,
-        "name": "冷却缩减",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_80.png",
-        "filter_name": "冷却缩减"
-      },
-      "42": {
-        "property_type": 42,
-        "name": "水元素伤害加成",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_42.png",
-        "filter_name": "水元素伤害加成"
-      },
-      "45": {
-        "property_type": 45,
-        "name": "岩元素伤害加成",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_45.png",
-        "filter_name": "岩元素伤害加成"
-      },
-      "23": {
-        "property_type": 23,
-        "name": "元素充能效率",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_23.png",
-        "filter_name": "元素充能效率"
-      },
-      "2001": {
-        "property_type": 2001,
-        "name": "攻击力",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2001.png",
-        "filter_name": "攻击力"
-      },
-      "56": {
-        "property_type": 56,
-        "name": "冰元素抗性",
-        "icon": "",
-        "filter_name": "冰元素抗性"
-      },
-      "81": {
-        "property_type": 81,
-        "name": "护盾强效",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_81.png",
-        "filter_name": "护盾强效"
-      },
-      "7": {
-        "property_type": 7,
-        "name": "基础防御力",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2002.png",
-        "filter_name": "基础防御力"
-      },
-      "20": {
-        "property_type": 20,
-        "name": "暴击率",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_20.png",
-        "filter_name": "暴击率"
-      },
-      "22": {
-        "property_type": 22,
-        "name": "暴击伤害",
-        "icon": "",
-        "filter_name": "暴击伤害"
-      },
-      "54": {
-        "property_type": 54,
-        "name": "风元素抗性",
-        "icon": "",
-        "filter_name": "风元素抗性"
-      },
-      "43": {
-        "property_type": 43,
-        "name": "草元素伤害加成",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_43.png",
-        "filter_name": "草元素伤害加成"
-      },
-      "8": {
-        "property_type": 8,
-        "name": "防御力",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2002.png",
-        "filter_name": "防御力"
-      },
-      "46": {
-        "property_type": 46,
-        "name": "冰元素伤害加成",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_46.png",
-        "filter_name": "冰元素伤害加成"
-      },
-      "1": {
-        "property_type": 1,
-        "name": "基础生命值",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2000.png",
-        "filter_name": "基础生命值"
+        "filter_name": "受治疗加成"
       },
       "44": {
         "property_type": 44,
@@ -903,59 +845,29 @@
         "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_44.png",
         "filter_name": "风元素伤害加成"
       },
+      "22": {
+        "property_type": 22,
+        "name": "暴击伤害",
+        "icon": "",
+        "filter_name": "暴击伤害"
+      },
+      "43": {
+        "property_type": 43,
+        "name": "草元素伤害加成",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_43.png",
+        "filter_name": "草元素伤害加成"
+      },
+      "81": {
+        "property_type": 81,
+        "name": "护盾强效",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_81.png",
+        "filter_name": "护盾强效"
+      },
       "51": {
         "property_type": 51,
         "name": "雷元素抗性",
         "icon": "",
         "filter_name": "雷元素抗性"
-      },
-      "9": {
-        "property_type": 9,
-        "name": "防御力",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2002.png",
-        "filter_name": "防御力百分比"
-      },
-      "5": {
-        "property_type": 5,
-        "name": "攻击力",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2001.png",
-        "filter_name": "攻击力"
-      },
-      "27": {
-        "property_type": 27,
-        "name": "受治疗加成",
-        "icon": "",
-        "filter_name": "受治疗加成"
-      },
-      "3": {
-        "property_type": 3,
-        "name": "生命值",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2000.png",
-        "filter_name": "生命值百分比"
-      },
-      "55": {
-        "property_type": 55,
-        "name": "岩元素抗性",
-        "icon": "",
-        "filter_name": "岩元素抗性"
-      },
-      "26": {
-        "property_type": 26,
-        "name": "治疗加成",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_26.png",
-        "filter_name": "治疗加成"
-      },
-      "6": {
-        "property_type": 6,
-        "name": "攻击力",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2001.png",
-        "filter_name": "攻击力百分比"
-      },
-      "28": {
-        "property_type": 28,
-        "name": "元素精通",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_28.png",
-        "filter_name": "元素精通"
       },
       "2000": {
         "property_type": 2000,
@@ -963,11 +875,23 @@
         "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2000.png",
         "filter_name": "生命值上限"
       },
+      "42": {
+        "property_type": 42,
+        "name": "水元素伤害加成",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_42.png",
+        "filter_name": "水元素伤害加成"
+      },
       "2": {
         "property_type": 2,
         "name": "生命值",
         "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2000.png",
         "filter_name": "生命值"
+      },
+      "28": {
+        "property_type": 28,
+        "name": "元素精通",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_28.png",
+        "filter_name": "元素精通"
       },
       "40": {
         "property_type": 40,
@@ -975,11 +899,47 @@
         "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_40.png",
         "filter_name": "火元素伤害加成"
       },
-      "41": {
-        "property_type": 41,
-        "name": "雷元素伤害加成",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_41.png",
-        "filter_name": "雷元素伤害加成"
+      "4": {
+        "property_type": 4,
+        "name": "基础攻击力",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2001.png",
+        "filter_name": "基础攻击力"
+      },
+      "55": {
+        "property_type": 55,
+        "name": "岩元素抗性",
+        "icon": "",
+        "filter_name": "岩元素抗性"
+      },
+      "999999": {
+        "property_type": 999999,
+        "name": "体力上限",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_99999.png",
+        "filter_name": "体力上限"
+      },
+      "80": {
+        "property_type": 80,
+        "name": "冷却缩减",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_80.png",
+        "filter_name": "冷却缩减"
+      },
+      "45": {
+        "property_type": 45,
+        "name": "岩元素伤害加成",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_45.png",
+        "filter_name": "岩元素伤害加成"
+      },
+      "56": {
+        "property_type": 56,
+        "name": "冰元素抗性",
+        "icon": "",
+        "filter_name": "冰元素抗性"
+      },
+      "50": {
+        "property_type": 50,
+        "name": "火元素抗性",
+        "icon": "",
+        "filter_name": "火元素抗性"
       },
       "29": {
         "property_type": 29,
@@ -987,17 +947,95 @@
         "icon": "",
         "filter_name": "物理抗性"
       },
+      "46": {
+        "property_type": 46,
+        "name": "冰元素伤害加成",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_46.png",
+        "filter_name": "冰元素伤害加成"
+      },
+      "9": {
+        "property_type": 9,
+        "name": "防御力",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2002.png",
+        "filter_name": "防御力百分比"
+      },
+      "53": {
+        "property_type": 53,
+        "name": "草元素抗性",
+        "icon": "",
+        "filter_name": "草元素抗性"
+      },
+      "41": {
+        "property_type": 41,
+        "name": "雷元素伤害加成",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_41.png",
+        "filter_name": "雷元素伤害加成"
+      },
+      "7": {
+        "property_type": 7,
+        "name": "基础防御力",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2002.png",
+        "filter_name": "基础防御力"
+      },
+      "26": {
+        "property_type": 26,
+        "name": "治疗加成",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_26.png",
+        "filter_name": "治疗加成"
+      },
+      "23": {
+        "property_type": 23,
+        "name": "元素充能效率",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_23.png",
+        "filter_name": "元素充能效率"
+      },
+      "20": {
+        "property_type": 20,
+        "name": "暴击率",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_20.png",
+        "filter_name": "暴击率"
+      },
+      "5": {
+        "property_type": 5,
+        "name": "攻击力",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2001.png",
+        "filter_name": "攻击力"
+      },
       "30": {
         "property_type": 30,
         "name": "物理伤害加成",
         "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_30.png",
         "filter_name": "物理伤害加成"
       },
-      "999999": {
-        "property_type": 999999,
-        "name": "体力上限",
-        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_99999.png",
-        "filter_name": "体力上限"
+      "6": {
+        "property_type": 6,
+        "name": "攻击力",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2001.png",
+        "filter_name": "攻击力百分比"
+      },
+      "1": {
+        "property_type": 1,
+        "name": "基础生命值",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2000.png",
+        "filter_name": "基础生命值"
+      },
+      "2001": {
+        "property_type": 2001,
+        "name": "攻击力",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2001.png",
+        "filter_name": "攻击力"
+      },
+      "54": {
+        "property_type": 54,
+        "name": "风元素抗性",
+        "icon": "",
+        "filter_name": "风元素抗性"
+      },
+      "8": {
+        "property_type": 8,
+        "name": "防御力",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/genshin/avatar_prop/avatar_prop_2002.png",
+        "filter_name": "防御力"
       }
     },
     "relic_property_options": {
@@ -1009,17 +1047,17 @@
       "sub_property_list": [2, 3, 5, 6, 8, 9, 20, 22, 28, 23]
     },
     "relic_wiki": {
-      "27533": "https://baike.mihoyo.com/ys/obc/content/5403/detail?bbs_presentation_style=no_header",
-      "27543": "https://baike.mihoyo.com/ys/obc/content/5403/detail?bbs_presentation_style=no_header",
-      "27524": "https://baike.mihoyo.com/ys/obc/content/5403/detail?bbs_presentation_style=no_header",
-      "94554": "https://baike.mihoyo.com/ys/obc/content/2322/detail?bbs_presentation_style=no_header",
-      "27513": "https://baike.mihoyo.com/ys/obc/content/5403/detail?bbs_presentation_style=no_header"
+      "77544": "https://baike.mihoyo.com/ys/obc/content/1638/detail?bbs_presentation_style=no_header",
+      "75523": "https://baike.mihoyo.com/ys/obc/content/1633/detail?bbs_presentation_style=no_header",
+      "77554": "https://baike.mihoyo.com/ys/obc/content/1638/detail?bbs_presentation_style=no_header",
+      "75514": "https://baike.mihoyo.com/ys/obc/content/1633/detail?bbs_presentation_style=no_header",
+      "71533": "https://baike.mihoyo.com/ys/obc/content/1629/detail?bbs_presentation_style=no_header"
     },
     "weapon_wiki": {
-      "14512": "https://baike.mihoyo.com/ys/obc/content/5378/detail?bbs_presentation_style=no_header"
+      "14401": "https://baike.mihoyo.com/ys/obc/content/185/detail?bbs_presentation_style=no_header"
     },
     "avatar_wiki": {
-      "10000075": "https://baike.mihoyo.com/ys/obc/content/5494/detail?bbs_presentation_style=no_header"
+      "10000125": "https://baike.mihoyo.com/ys/obc/content/507505/detail?bbs_presentation_style=no_header"
     }
   }
 }
