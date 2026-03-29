@@ -75,7 +75,7 @@ export struct DailyNoteGenshin {
         Text($r('app.string.daily_note_task_label'))
           .font(this.tm.current.body13)
           .fontColor(this.tm.current.colorTextSecondary)
-          .width(this.tm.current.labelWidth)
+          .width(this.tm.current.value56)
         ForEach([0, 1, 2, 3] as number[], (i: number) => {
           Text(i < this.data.dailyTask.finishedNum ? '✓' : '◇')
             .font(this.tm.current.body13)
@@ -90,13 +90,13 @@ export struct DailyNoteGenshin {
           .fontColor(this.data.dailyTask.isExtraTaskRewardReceived
             ? this.tm.current.colorTextSecondary : this.tm.current.colorPrimary)
       }
-      .width(this.tm.current.widthFull)
+      .width(this.tm.current.full)
 
       Row({ space: this.tm.current.value8 }) {
         Text($r('app.string.daily_note_adventure_label'))
           .font(this.tm.current.body13)
           .fontColor(this.tm.current.colorTextSecondary)
-          .width(this.tm.current.labelWidth)
+          .width(this.tm.current.value56)
         ForEach([0, 1, 2, 3] as number[], (i: number) => {
           Text(i < this.data.dailyTask.finishedNum ? '✓' : '◇')
             .font(this.tm.current.body13)
@@ -104,7 +104,7 @@ export struct DailyNoteGenshin {
               ? this.tm.current.colorPrimary : this.tm.current.colorPlaceholder)
         })
       }
-      .width(this.tm.current.widthFull)
+      .width(this.tm.current.full)
 
       if (this.data.dailyTask.storedAdventure >= 0) {
         Row({ space: this.tm.current.value4 }) {
@@ -115,11 +115,11 @@ export struct DailyNoteGenshin {
             .font(this.tm.current.body16Medium)
             .fontColor(this.tm.current.colorPrimary)
         }
-        .width(this.tm.current.widthFull)
+        .width(this.tm.current.full)
         .margin({ top: this.tm.current.value2 })
       }
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .padding({
       left: this.tm.current.value16,
       right: this.tm.current.value16,
@@ -194,7 +194,7 @@ export struct DailyNoteGenshin {
               .font(this.tm.current.body13)
               .fontColor(this.tm.current.colorTextSecondary)
           }
-          .width(this.tm.current.widthFull)
+          .width(this.tm.current.full)
           .padding({
             left: this.tm.current.value16,
             right: this.tm.current.value16,
@@ -208,11 +208,11 @@ export struct DailyNoteGenshin {
 
           Row().height(this.tm.current.value8)
         }
-        .width(this.tm.current.widthFull)
+        .width(this.tm.current.full)
         .backgroundColor(this.tm.current.colorSurfaceCard)
         .borderRadius(this.tm.current.radius12)
       }
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
   }
 }

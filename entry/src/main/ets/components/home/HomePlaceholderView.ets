@@ -20,7 +20,7 @@ export struct HomePlaceholderView {
     Column({ space: this.tm.current.value20 }) {
       // 图标占位
       Text('🎮')
-        .fontSize(this.tm.current.iconSizeXL)
+        .fontSize(this.tm.current.value64)
 
       Column({ space: this.tm.current.value8 }) {
         Text($r('app.string.home_placeholder_title'))
@@ -39,15 +39,15 @@ export struct HomePlaceholderView {
         .fontSize(this.tm.current.body16Medium.size)
         .fontWeight(this.tm.current.body16Medium.weight)
         .fontColor(Color.White)
-        .width(this.tm.current.widthButton)
-        .height(this.tm.current.heightButton)
+        .width(this.tm.current.pct90)
+        .height(this.tm.current.value50)
         .borderRadius(this.tm.current.radius12)
         .backgroundColor(this.tm.current.colorPrimary)
         .onClick(() => {
           RouterUtil.push(AppRoutes.LOGIN)
         })
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .layoutWeight(1)
     .justifyContent(FlexAlign.Center)
     .alignItems(HorizontalAlign.Center)

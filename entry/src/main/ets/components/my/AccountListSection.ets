@@ -22,25 +22,34 @@ export struct AccountListSection {
             .font(this.tm.current.body16)
             .fontColor(this.tm.current.colorTextSecondary)
         }
-        .width(this.tm.current.widthFull)
-        .height(this.tm.current.heightButton)
+        .width(this.tm.current.full)
+        .height(this.tm.current.value50)
         .justifyContent(FlexAlign.Center)
       } else {
         ForEach(this.accounts, (account: MyAccountVM, idx: number) => {
           Column() {
             Row({ space: this.tm.current.value12 }) {
-              Row()
-                .width(this.tm.current.avatarSizeMD)
-                .height(this.tm.current.avatarSizeMD)
-                .borderRadius(this.tm.current.avatarRadius)
-                .backgroundColor(this.tm.current.colorPrimary)
+              if (account.avatarUrl !== '') {
+                Image(account.avatarUrl)
+                  .width(this.tm.current.value36)
+                  .height(this.tm.current.value36)
+                  .borderRadius(this.tm.current.radius12)
+                  .objectFit(ImageFit.Cover)
+                  .border({ width: 2, color: this.tm.current.colorPrimary })
+              } else {
+                Row()
+                  .width(this.tm.current.value36)
+                  .height(this.tm.current.value36)
+                  .borderRadius(this.tm.current.radius12)
+                  .backgroundColor(this.tm.current.colorPrimary)
+              }
               Column({ space: this.tm.current.value2 }) {
-                Text(account.username)
+                Text(account.nickname !== '' ? account.nickname : account.username)
                   .font(this.tm.current.body16Medium)
                   .fontColor(this.tm.current.colorTextPrimary)
                   .maxLines(1)
                   .textOverflow({ overflow: TextOverflow.Ellipsis })
-                Text($r('app.string.my_account_role_count', account.roles.length))
+                Text('UID ' + account.username + ' · ' + account.roles.length.toString() + ' 个游戏角色')
                   .font(this.tm.current.body13)
                   .fontColor(this.tm.current.colorTextSecondary)
               }
@@ -50,7 +59,7 @@ export struct AccountListSection {
                 .font(this.tm.current.body16)
                 .fontColor(this.tm.current.colorTextSecondary)
             }
-            .width(this.tm.current.widthFull)
+            .width(this.tm.current.full)
             .padding({
               left: this.tm.current.value16,
               right: this.tm.current.value16,
@@ -60,7 +69,7 @@ export struct AccountListSection {
             .alignItems(VerticalAlign.Center)
             .onClick(() => { this.onAccountTap(account) })
           }
-          .width(this.tm.current.widthFull)
+          .width(this.tm.current.full)
           .backgroundColor(this.tm.current.colorSurfaceCard)
 
           if (idx < this.accounts.length - 1) {
@@ -74,12 +83,12 @@ export struct AccountListSection {
         .fontSize(this.tm.current.body16.size)
         .fontWeight(this.tm.current.body16.weight)
         .fontColor(this.tm.current.colorPrimary)
-        .width(this.tm.current.widthFull)
-        .height(this.tm.current.heightButton)
+        .width(this.tm.current.full)
+        .height(this.tm.current.value50)
         .backgroundColor(this.tm.current.colorSurfaceCard)
         .onClick(() => { this.onAddTap() })
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .backgroundColor(this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
     .clip(true)

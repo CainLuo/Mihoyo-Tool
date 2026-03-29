@@ -24,10 +24,9 @@ import { GameDataRow, DataType } from '../models/GameDataRow';
 
 // ─── API 路径常量 ────────────────────────────────────────────────
 
-/** 各游戏 daily_note API 路径（相对于 baseUrl） */
 const API_GENSHIN_DAILY_NOTE = '/game_record/app/genshin/api/dailyNote';
 const API_STARRAIL_DAILY_NOTE = '/game_record/app/hkrpg/api/note';
-const API_ZZZ_DAILY_NOTE = '/game_record/app/zzz/api/note';
+const API_ZZZ_DAILY_NOTE = '/event/game_record_zzz/api/zzz/note';
 
 // ─── 响应接口（仅声明需要的字段，ArkTS 严格模式要求） ────────────
 

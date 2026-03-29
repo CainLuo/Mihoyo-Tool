@@ -17,20 +17,20 @@ export struct CharDetailWideLayout {
     Row({ space: this.tm.current.value8 }) {
       CharDetailHeroPanel({ vm: this.vm, mode: HeroPanelMode.WIDE })
         .layoutWeight(1)
-        .height(this.tm.current.heightFull)
+        .height(this.tm.current.full)
         .borderRadius(this.tm.current.radius8)
         .clip(true)
 
       CharDetailStatsPanel({ vm: this.vm, isPhone: false })
         .layoutWeight(1)
-        .height(this.tm.current.heightFull)
+        .height(this.tm.current.full)
 
       CharDetailRelicsPanel({ vm: this.vm, isPhone: false })
         .layoutWeight(1)
-        .height(this.tm.current.heightFull)
+        .height(this.tm.current.full)
     }
-    .width(this.tm.current.widthFull)
-    .height(this.tm.current.heightFull)
+    .width(this.tm.current.full)
+    .height(this.tm.current.full)
     .padding(this.tm.current.value8)
   }
 }

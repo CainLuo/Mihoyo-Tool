@@ -12,7 +12,7 @@ export struct SectionHeader {
     Text(this.title)
       .font(this.tm.current.body13)
       .fontColor(this.tm.current.colorTextSecondary)
-      .width(this.tm.current.widthFull)
+      .width(this.tm.current.full)
       .padding({ bottom: this.tm.current.value8 })
   }
 }

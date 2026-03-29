@@ -30,7 +30,7 @@ export struct CharactersSkeleton {
     if (ctx === null) { return; }
     ctx.animateTo(
       {
-        duration: this.tm.current.animDurationShimmer,
+        duration: this.tm.current.value800,
         curve: Curve.EaseInOut,
         iterations: -1,
         playMode: PlayMode.Alternate
@@ -43,7 +43,7 @@ export struct CharactersSkeleton {
 
   build() {
     GridRow({
-      columns: { xs: 2, sm: 3, md: 4, lg: 5 },
+      columns: 2,
       gutter: { x: this.tm.current.value12, y: this.tm.current.value12 },
       breakpoints: {
         value: AppConstants.GRID_BREAKPOINTS,
@@ -55,33 +55,29 @@ export struct CharactersSkeleton {
           Column() {
             // 模拟 1:1 图片区
             Row()
-              .width(this.tm.current.widthFull)
+              .width(this.tm.current.full)
               .aspectRatio(1)
               .backgroundColor(this.tm.current.colorSkeletonBg)
               .opacity(this.imgOpacity)
 
             // 模拟等级 + 好感度信息行
             Row()
-              .width(this.tm.current.skeletonTextW)
-              .height(this.tm.current.skeletonBlockH)
-              .borderRadius(this.tm.current.skeletonBlockR)
+              .width(this.tm.current.value120)
+              .height(this.tm.current.value16)
+              .borderRadius(this.tm.current.value4)
               .backgroundColor(this.tm.current.colorSkeletonBg)
               .opacity(this.imgOpacity)
-              .margin({
-                top: this.tm.current.value8,
-                bottom: this.tm.current.value8,
-                left: this.tm.current.value10,
-              })
+              .margin(this.tm.current.value8)
           }
-          .width(this.tm.current.widthFull)
+          .width(this.tm.current.full)
           .backgroundColor(this.tm.current.colorSurfaceCard)
           .borderRadius(this.tm.current.radius12)
-          .border({ width: this.tm.current.cardBorderWidth, color: this.tm.current.colorCardBorder })
+          .border({ width: this.tm.current.value1, color: this.tm.current.colorCardBorder })
           .clip(true)
         }
       }, (skIdx: number) => `sk_${skIdx}`)
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
   }
 }

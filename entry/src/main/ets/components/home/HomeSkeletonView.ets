@@ -14,9 +14,9 @@ struct HomeSkeletonViewPreview {
 @ComponentV2
 struct SkeletonBlock {
   @Local private tm: ThemeManager = themeManager
-  @Param blockW: Length = themeManager.current.widthFull
-  @Param blockH: number = themeManager.current.skeletonBlockH
-  @Param blockR: number = themeManager.current.skeletonBlockR
+  @Param blockW: Length = themeManager.current.full
+  @Param blockH: number = themeManager.current.value16
+  @Param blockR: number = themeManager.current.value8
   @Local private shimmerOpacity: number = themeManager.current.shimmerOpacityHigh
   private uiCtx: UIContext | null = null
 
@@ -30,7 +30,7 @@ struct SkeletonBlock {
     if (ctx === null) { return }
     ctx.animateTo(
       {
-        duration: this.tm.current.animDurationShimmer,
+        duration: this.tm.current.value800,
         curve: Curve.EaseInOut,
         iterations: -1,
         playMode: PlayMode.Alternate
@@ -59,20 +59,20 @@ struct AccountSkeletonCard {
   build() {
     Column({ space: this.tm.current.value12 }) {
       Row({ space: this.tm.current.value12 }) {
-          SkeletonBlock({ blockW: this.tm.current.skeletonAvatarSize, blockH: this.tm.current.skeletonAvatarSize, blockR: this.tm.current.avatarRadius })
-        SkeletonBlock({ blockW: this.tm.current.skeletonTextW, blockH: this.tm.current.value16, blockR: this.tm.current.radius8 })
+          SkeletonBlock({ blockW: this.tm.current.value36, blockH: this.tm.current.value36, blockR: this.tm.current.value18 })
+        SkeletonBlock({ blockW: this.tm.current.value120, blockH: this.tm.current.value16, blockR: this.tm.current.radius8 })
       }
-      .width(this.tm.current.widthFull)
+      .width(this.tm.current.full)
       .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
 
       Column({ space: this.tm.current.value12 }) {
-        SkeletonBlock({ blockW: this.tm.current.widthFull, blockH: this.tm.current.skeletonCardH, blockR: this.tm.current.radius16 })
-        SkeletonBlock({ blockW: this.tm.current.widthFull, blockH: this.tm.current.skeletonCardH, blockR: this.tm.current.radius16 })
+        SkeletonBlock({ blockW: this.tm.current.full, blockH: this.tm.current.value100, blockR: this.tm.current.radius16 })
+        SkeletonBlock({ blockW: this.tm.current.full, blockH: this.tm.current.value100, blockR: this.tm.current.radius16 })
       }
-      .width(this.tm.current.widthFull)
+      .width(this.tm.current.full)
       .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
   }
 }
 
@@ -88,7 +88,7 @@ export struct HomeSkeletonView {
         AccountSkeletonCard()
         Row().height(this.tm.current.value40)
       }
-      .width(this.tm.current.widthFull)
+      .width(this.tm.current.full)
       .padding({ top: this.tm.current.value16 })
     }
     .scrollBar(BarState.Off)

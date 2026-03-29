@@ -29,6 +29,7 @@
 import { NetworkFactory } from '../network/NetworkFactory';
 import { RequestParams, RequestOptions } from '../network/APIs';
 import { GameRoleRow } from './AccountRepository';
+import { GameId } from '../models/GameDataRow';
 
 // ─── 国服 API 基础路径 ────────────────────────────────────────────
 
@@ -225,6 +226,59 @@ export interface GameRolesResponse {
 
 interface GameRolesData {
   list: GameRoleInfo[];
+}
+
+/** 账号详情接口返回的游戏数据项 */
+interface GameRecordDataItem {
+  name: string;
+  type: number;
+  value: string;
+}
+
+/** 账号详情接口返回的游戏角色信息 */
+interface GameRecordCardItem {
+  game_id: number;
+  game_role_id: string;
+  nickname: string;
+  region: string;
+  level: number;
+  background_image_v2: string;
+  data: GameRecordDataItem[];
+  game_name: string;
+}
+
+/** getGameRecordCard 响应 */
+interface GameRecordCardResponse {
+  retcode: number;
+  message: string;
+  data: GameRecordCardData;
+}
+
+interface GameRecordCardData {
+  list: GameRecordCardItem[];
+}
+
+/** BBS 账号详情响应 */
+interface BbsUserInfo {
+  uid: string;
+  nickname: string;
+  avatar_url: string;
+}
+
+interface BbsAccountDetailData {
+  user_info: BbsUserInfo;
+}
+
+interface BbsAccountDetailResponse {
+  retcode: number;
+  message: string;
+  data: BbsAccountDetailData;
+}
+
+/** BBS 账号详情结果 class（供外部使用） */
+export class BbsAccountDetailResult {
+  nickname: string = '';
+  avatarUrl: string = '';
 }
 
 /** 登录成功后组装的完整 Cookie 字符串所需的字段 */
@@ -568,6 +622,32 @@ export class AuthRepository {
   // ── 游戏角色查询 ──────────────────────────────────────────────
 
   /**
+   * 获取米游社 BBS 账号详情（nickname、avatar_url）
+   * 接口：GET https://bbs-api.miyoushe.com/user/wapi/getUserFullInfo
+   */
+  static async getBbsAccountDetail(cookie: string): Promise<BbsAccountDetailResult> {
+    try {
+      const options = new RequestOptions();
+      options.extraHeaders.set('Cookie', cookie);
+      const resp = await NetworkFactory.getInstance().get(
+        '/user/wapi/getUserFullInfo',
+        new RequestParams(),
+        options
+      ) as BbsAccountDetailResponse;
+      if (resp.retcode !== 0) {
+        throw new Error(`getBbsAccountDetail failed: [${resp.retcode}] ${resp.message}`);
+      }
+      const result = new BbsAccountDetailResult();
+      result.nickname = resp.data.user_info.nickname ?? '';
+      result.avatarUrl = resp.data.user_info.avatar_url ?? '';
+      return result;
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      throw new Error(`AuthRepository.getBbsAccountDetail failed: ${msg}`);
+    }
+  }
+
+  /**
    * 获取账号绑定的所有游戏角色
    * 接口：GET https://api-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie
    */
@@ -597,6 +677,43 @@ export class AuthRepository {
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       throw new Error(`AuthRepository.getUserGameRoles failed: ${msg}`);
+    }
+  }
+
+  /**
+   * 获取账号详情（含 background_image_v2 和游戏内统计数据）
+   * 接口：GET https://api-takumi-record.mihoyo.com/game_record/app/card/wapi/getGameRecordCard
+   */
+  static async getGameRecordCard(cookie: string, uid: string): Promise<GameRoleRow[]> {
+    try {
+      const options = new RequestOptions();
+      options.extraHeaders.set('Cookie', cookie);
+      const params = new RequestParams();
+      params.set('uid', uid);
+      const resp = await NetworkFactory.getInstance().get(
+        '/game_record/app/card/wapi/getGameRecordCard',
+        params,
+        options
+      ) as GameRecordCardResponse;
+      if (resp.retcode !== 0) {
+        throw new Error(`getGameRecordCard failed: [${resp.retcode}] ${resp.message}`);
+      }
+      const rows: GameRoleRow[] = [];
+      for (const item of resp.data.list) {
+        const row = new GameRoleRow();
+        row.gameId = GameId.fromMihoyoGameId(item.game_id);
+        row.roleId = item.game_role_id;
+        row.nickname = item.nickname;
+        row.level = item.level;
+        row.server = item.region;
+        row.bgImageUrl = item.background_image_v2 ?? '';
+        row.statsJson = JSON.stringify(item.data ?? []);
+        rows[rows.length] = row;
+      }
+      return rows;
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      throw new Error(`AuthRepository.getGameRecordCard failed: ${msg}`);
     }
   }
 

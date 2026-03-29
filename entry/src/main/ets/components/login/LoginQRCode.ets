@@ -96,15 +96,15 @@ export struct LoginQRCode {
         this.buildExpired()
       }
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .alignItems(HorizontalAlign.Center)
   }
 
   @Builder
   private buildLoading() {
     LoadingProgress()
-      .width(this.tm.current.progressSizeMD)
-      .height(this.tm.current.progressSizeMD)
+      .width(this.tm.current.value52)
+      .height(this.tm.current.value52)
       .color(this.tm.current.colorPrimary)
 
     Text($r('app.string.login_qrcode_loading'))
@@ -116,8 +116,8 @@ export struct LoginQRCode {
   private buildQRCode() {
     // ArkUI 内置 QRCode 组件，传入 URL 字符串本地生成二维码
     QRCode(this.vm.qrCodeUrl)
-      .width(this.tm.current.qrCodeSize)
-      .height(this.tm.current.qrCodeSize)
+      .width(this.tm.current.value200)
+      .height(this.tm.current.value200)
       .color(Color.Black)
       .backgroundColor(Color.White)
 
@@ -140,8 +140,8 @@ export struct LoginQRCode {
       .fontColor(this.tm.current.colorPrimary)
 
     LoadingProgress()
-      .width(this.tm.current.progressSizeMD)
-      .height(this.tm.current.progressSizeMD)
+      .width(this.tm.current.value52)
+      .height(this.tm.current.value52)
       .color(this.tm.current.colorPrimary)
   }
 
@@ -151,8 +151,8 @@ export struct LoginQRCode {
     // 上层：半透明遮罩 + 过期提示 + 刷新按钮
     Stack() {
       QRCode('https://user.mihoyo.com/qr_code_in_game.html?app_id=4&ticket=expired')
-        .width(this.tm.current.qrCodeSize)
-        .height(this.tm.current.qrCodeSize)
+        .width(this.tm.current.value200)
+        .height(this.tm.current.value200)
         .color(Color.Black)
         .backgroundColor(Color.White)
         .opacity(this.tm.current.charDetailConsInactiveOpacity)
@@ -164,20 +164,20 @@ export struct LoginQRCode {
           .textAlign(TextAlign.Center)
 
         Button($r('app.string.login_qrcode_refresh'), { type: ButtonType.Capsule })
-          .height(this.tm.current.heightButton)
+          .height(this.tm.current.value50)
           .backgroundColor(this.tm.current.colorPrimary)
           .enabled(!this.vm.isLoading)
           .onClick(() => {
             this.vm.refreshQRCode();
           })
       }
-      .width(this.tm.current.qrCodeSize)
-      .height(this.tm.current.qrCodeSize)
+      .width(this.tm.current.value200)
+      .height(this.tm.current.value200)
       .justifyContent(FlexAlign.Center)
       .alignItems(HorizontalAlign.Center)
       .backgroundColor(this.tm.current.surfaceDark2xl)
     }
-    .width(this.tm.current.qrCodeSize)
-    .height(this.tm.current.qrCodeSize)
+    .width(this.tm.current.value200)
+    .height(this.tm.current.value200)
   }
 }

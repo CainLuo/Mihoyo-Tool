@@ -48,12 +48,12 @@ export struct CharDetailSkillsColumn {
         Column({ space: this.tm.current.value2 }) {
           if (skill.iconUrl !== '') {
             Image(skill.iconUrl)
-              .width(this.tm.current.skillIconSize)
-              .height(this.tm.current.skillIconSize)
+              .width(this.tm.current.value40)
+              .height(this.tm.current.value40)
               .objectFit(ImageFit.Contain)
-              .borderRadius(this.tm.current.skillIconSize / 2)
+              .borderRadius(this.tm.current.value40 / 2)
               .backgroundColor(this.tm.current.surfaceDark2xl)
-              .border({ width: this.tm.current.borderWidthMedium, color: this.tm.current.surfaceGlassSm })
+              .border({ width: this.tm.current.value1p5, color: this.tm.current.surfaceGlassSm })
           }
           Text(`${skill.level}`)
             .fontSize(this.tm.current.body12.size)

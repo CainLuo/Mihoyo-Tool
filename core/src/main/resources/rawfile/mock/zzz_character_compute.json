@@ -1,0 +1,175 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "avatar_consume": [
+      {
+        "id": 10,
+        "cnt": 800000,
+        "name": "丁尼",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/3302bd7aa25a03efee7587e9fca68435.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 100216,
+        "cnt": 4,
+        "name": "初阶命破认证章",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/9bf501124136af32a80646dc317ef845.png",
+        "rarity": "C",
+        "not_opened": false
+      },
+      {
+        "id": 100226,
+        "cnt": 32,
+        "name": "高阶命破认证章",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/0344fbfe51bbc29c95aee221a15fe83b.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 100236,
+        "cnt": 30,
+        "name": "裁决者认证章",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/d2c3365a74bf3e1db334ec95bf8814c9.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 300003,
+        "cnt": 300,
+        "name": "资深调查员记录",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/7a1ffef13c0cde0a945b565c06ea8d56.png",
+        "rarity": "A",
+        "not_opened": false
+      }
+    ],
+    "weapon_consume": [],
+    "skill_consume": [
+      {
+        "id": 10,
+        "cnt": 2905000,
+        "name": "丁尼",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/3302bd7aa25a03efee7587e9fca68435.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 100112,
+        "cnt": 25,
+        "name": "基础冰结芯片",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/4023c5df0d25d39103b7543c052a2680.png",
+        "rarity": "C",
+        "not_opened": false
+      },
+      {
+        "id": 100122,
+        "cnt": 75,
+        "name": "进阶冰结芯片",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/0822ab4898b419daadbe89c50323a5d4.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 100132,
+        "cnt": 250,
+        "name": "特化冰结芯片",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/bd03c8296aa5d828e529abc2baec7b1d.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 100941,
+        "cnt": 5,
+        "name": "「仓鼠笼」访问器",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/644a8e5bbdd562588ca3b75f6cb03cd2.png",
+        "rarity": "S",
+        "not_opened": false
+      },
+      {
+        "id": 110007,
+        "cnt": 9,
+        "name": "秽红晶刺",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/zzzv2/material_icon/material_icon_110007.png",
+        "rarity": "S",
+        "not_opened": false
+      },
+      {
+        "id": 110512,
+        "cnt": 60,
+        "name": "高维数据：蚀梦残铁",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/zzzv2/material_icon/material_icon_110512.png",
+        "rarity": "A",
+        "not_opened": false
+      }
+    ],
+    "coin_id": 10,
+    "user_owns_materials": {
+      "10": 127559,
+      "300003": 48,
+      "100112": 7,
+      "100122": 3,
+      "100132": 2,
+      "100941": 3
+    },
+    "need_get": [
+      {
+        "id": 10,
+        "cnt": 3577441,
+        "name": "丁尼",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/3302bd7aa25a03efee7587e9fca68435.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 100132,
+        "cnt": 274,
+        "name": "特化冰结芯片",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/bd03c8296aa5d828e529abc2baec7b1d.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 100236,
+        "cnt": 42,
+        "name": "裁决者认证章",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/d2c3365a74bf3e1db334ec95bf8814c9.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 100941,
+        "cnt": 2,
+        "name": "「仓鼠笼」访问器",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/644a8e5bbdd562588ca3b75f6cb03cd2.png",
+        "rarity": "S",
+        "not_opened": false
+      },
+      {
+        "id": 110007,
+        "cnt": 9,
+        "name": "秽红晶刺",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/zzzv2/material_icon/material_icon_110007.png",
+        "rarity": "S",
+        "not_opened": false
+      },
+      {
+        "id": 110512,
+        "cnt": 60,
+        "name": "高维数据：蚀梦残铁",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/zzzv2/material_icon/material_icon_110512.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 300003,
+        "cnt": 235,
+        "name": "资深调查员记录",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/7a1ffef13c0cde0a945b565c06ea8d56.png",
+        "rarity": "A",
+        "not_opened": false
+      }
+    ],
+    "coin_icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/3302bd7aa25a03efee7587e9fca68435.png"
+  }
+}

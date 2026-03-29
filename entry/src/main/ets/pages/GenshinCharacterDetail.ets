@@ -23,7 +23,7 @@ export struct GenshinCharacterDetail {
   @Param routerParam: GenshinCharacterDetailParam = new GenshinCharacterDetailParam()
   @Local private tm: ThemeManager = themeManager
   @Local private vm: GenshinCharacterDetailViewModel = new GenshinCharacterDetailViewModel()
-  @Local private windowWidthVp: number = themeManager.current.windowWidthDefault
+  @Local private windowWidthVp: number = themeManager.current.value360
   @Local private windowHeightVp: number = 780
   @Local private currentBreakpoint: string = 'xs'
 
@@ -75,36 +75,34 @@ export struct GenshinCharacterDetail {
   }
 
   build() {
-    Column() {
-      if (this.vm.viewState === ViewState.LOADING) {
-        CharDetailLoadingView({ tm: this.tm })
-      } else if (this.vm.viewState === ViewState.EMPTY || this.vm.viewState === ViewState.ERROR) {
-        CharDetailEmptyView({ tm: this.tm })
-      } else {
-        if (this.isPhonePortrait()) {
-          CharDetailPortraitLayout({ tm: this.tm, vm: this.vm })
-        } else if (this.isPhoneLandscape()) {
-          CharDetailLandscapeLayout({ tm: this.tm, vm: this.vm })
+    NavDestination() {
+      Column() {
+        if (this.vm.viewState === ViewState.LOADING) {
+          CharDetailLoadingView({ tm: this.tm })
+        } else if (this.vm.viewState === ViewState.EMPTY || this.vm.viewState === ViewState.ERROR) {
+          CharDetailEmptyView({ tm: this.tm })
         } else {
-          CharDetailWideLayout({ tm: this.tm, vm: this.vm })
+          if (this.isPhonePortrait()) {
+            CharDetailPortraitLayout({ tm: this.tm, vm: this.vm })
+          } else if (this.isPhoneLandscape()) {
+            CharDetailLandscapeLayout({ tm: this.tm, vm: this.vm })
+          } else {
+            CharDetailWideLayout({ tm: this.tm, vm: this.vm })
+          }
         }
       }
+      .width(this.tm.current.full)
+      .height(this.tm.current.full)
+      .backgroundColor(this.tm.current.bgPageDeep)
+      .onAreaChange((_old, newArea) => {
+        const w = newArea.width as number
+        if (w < 600) { this.currentBreakpoint = 'xs' }
+        else if (w < 840) { this.currentBreakpoint = 'sm' }
+        else if (w < 1200) { this.currentBreakpoint = 'md' }
+        else { this.currentBreakpoint = 'lg' }
+      })
     }
-    .expandSafeArea([SafeAreaType.SYSTEM])
-    .width(this.tm.current.widthFull)
-    .height(this.tm.current.heightFull)
-    .backgroundColor(this.tm.current.bgPageDeep)
-    .onAreaChange((_old, newArea) => {
-      const w = newArea.width as number
-      if (w < 600) {
-        this.currentBreakpoint = 'xs'
-      } else if (w < 840) {
-        this.currentBreakpoint = 'sm'
-      } else if (w < 1200) {
-        this.currentBreakpoint = 'md'
-      } else {
-        this.currentBreakpoint = 'lg'
-      }
-    })
+    .title($r('app.string.char_detail_title'))
+    .hideTitleBar(false)
   }
 }

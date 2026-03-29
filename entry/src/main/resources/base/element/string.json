@@ -421,6 +421,14 @@
       "value": "确定"
     },
     {
+      "name": "dialog_cancel",
+      "value": "取消"
+    },
+    {
+      "name": "dialog_sync",
+      "value": "同步"
+    },
+    {
       "name": "genshin_character_list_title",
       "value": "角色列表"
     },
@@ -437,6 +445,10 @@
       "value": "绑定账号并同步后，即可查看各游戏的角色列表"
     },
     {
+      "name": "characters_select_hint",
+      "value": "选择一个角色查看详情"
+    },
+    {
       "name": "characters_no_data_hint",
       "value": "暂无角色数据，点击刷新同步"
     },
@@ -446,7 +458,7 @@
     },
     {
       "name": "characters_refresh_cooldown_msg",
-      "value": "角色数据已在 30 分钟内同步过，请稍后再试"
+      "value": "30 分钟内已同步过，频繁刷新可能触发人机校验，是否继续刷新？"
     },
     {
       "name": "character_level_prefix",
@@ -790,7 +802,7 @@
     },
     {
       "name": "home_refresh_cooldown_msg",
-      "value": "30 分钟内已同步过，频繁刷新可能触发人机校验，请稍后再试"
+      "value": "30 分钟内已同步过，频繁刷新可能触发人机校验，是否继续刷新？"
     }
   ]
 }

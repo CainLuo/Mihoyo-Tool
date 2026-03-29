@@ -23,7 +23,7 @@ export struct GenshinDailyDetail {
   @Param routerParam: GenshinDailyDetailParam = new GenshinDailyDetailParam()
   @Local private tm: ThemeManager = themeManager
   @Local private vm: GenshinDailyDetailViewModel = new GenshinDailyDetailViewModel()
-  @Local private windowWidthVp: number = themeManager.current.windowWidthDefault
+  @Local private windowWidthVp: number = themeManager.current.value360
 
   private uiCtx: UIContext | null = null
 
@@ -68,58 +68,60 @@ export struct GenshinDailyDetail {
   }
 
   build() {
-    Column() {
-      // ── 内容区 ──────────────────────────────────────────────
-      if (this.vm.viewState === ViewState.LOADING) {
-        Row() {
-          LoadingProgress()
-            .width(this.tm.current.progressSizeMD)
-            .height(this.tm.current.progressSizeMD)
-            .color(this.tm.current.colorPrimary)
-        }
-        .width(this.tm.current.widthFull)
-        .layoutWeight(1)
-        .justifyContent(FlexAlign.Center)
-      } else if (this.vm.viewState === ViewState.EMPTY || this.vm.viewState === ViewState.ERROR) {
-        Row() {
-          Text($r('app.string.home_no_data_hint'))
-            .font(this.tm.current.body13)
-            .fontColor(this.tm.current.colorTextSecondary)
-        }
-        .width(this.tm.current.widthFull)
-        .layoutWeight(1)
-        .justifyContent(FlexAlign.Center)
-      } else {
-        Scroll() {
-          Column({ space: this.tm.current.value8 }) {
-            Text($r('app.string.genshin_daily_data_delay_hint'))
+    NavDestination() {
+      Column() {
+        if (this.vm.viewState === ViewState.LOADING) {
+          Row() {
+            LoadingProgress()
+              .width(this.tm.current.value52)
+              .height(this.tm.current.value52)
+              .color(this.tm.current.colorPrimary)
+          }
+          .width(this.tm.current.full)
+          .layoutWeight(1)
+          .justifyContent(FlexAlign.Center)
+        } else if (this.vm.viewState === ViewState.EMPTY || this.vm.viewState === ViewState.ERROR) {
+          Row() {
+            Text($r('app.string.home_no_data_hint'))
               .font(this.tm.current.body13)
               .fontColor(this.tm.current.colorTextSecondary)
-              .width(this.tm.current.widthFull)
-              .padding({
-                left: this.tm.current.value16,
-                right: this.tm.current.value16,
-                top: this.tm.current.value12
-              })
-
-            DailyNoteGenshin({ data: this.vm.note })
-              .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
           }
-          .width(this.tm.current.widthFull)
-          .constraintSize({ maxWidth: this.tm.current.contentMaxWidth })
-          .padding({ bottom: this.tm.current.value40 })
-          .alignSelf(ItemAlign.Center)
+          .width(this.tm.current.full)
+          .layoutWeight(1)
+          .justifyContent(FlexAlign.Center)
+        } else {
+          Scroll() {
+            Column({ space: this.tm.current.value8 }) {
+              Text($r('app.string.genshin_daily_data_delay_hint'))
+                .font(this.tm.current.body13)
+                .fontColor(this.tm.current.colorTextSecondary)
+                .width(this.tm.current.full)
+                .padding({
+                  left: this.tm.current.value16,
+                  right: this.tm.current.value16,
+                  top: this.tm.current.value12
+                })
+
+              DailyNoteGenshin({ data: this.vm.note })
+                .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
+            }
+            .width(this.tm.current.full)
+            .constraintSize({ maxWidth: this.tm.current.value600 })
+            .padding({ bottom: this.tm.current.value40 })
+            .alignSelf(ItemAlign.Center)
+          }
+          .scrollBar(BarState.Off)
+          .layoutWeight(1)
+          .width(this.tm.current.full)
+          .align(Alignment.Top)
+          .edgeEffect(EdgeEffect.Spring)
         }
-        .scrollBar(BarState.Off)
-        .layoutWeight(1)
-        .width(this.tm.current.widthFull)
-        .align(Alignment.Top)
-        .edgeEffect(EdgeEffect.Spring)
       }
+      .width(this.tm.current.full)
+      .height(this.tm.current.full)
+      .backgroundColor(this.tm.current.colorPageBg)
     }
-    .expandSafeArea([SafeAreaType.SYSTEM])
-    .width(this.tm.current.widthFull)
-    .height(this.tm.current.heightFull)
-    .backgroundColor(this.tm.current.colorPageBg)
+    .title($r('app.string.genshin_daily_title'))
+    .hideTitleBar(false)
   }
 }

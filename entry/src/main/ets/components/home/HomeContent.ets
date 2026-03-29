@@ -32,13 +32,13 @@ export struct HomeContent {
           }, (account: MihoyoAccountVM) => account.accountId.toString())
           Row().height(this.tm.current.value40)
         }
-        .width(this.tm.current.widthFull)
+        .width(this.tm.current.full)
         .padding({ top: this.tm.current.value8 })
       }
       .edgeEffect(EdgeEffect.Spring)
       .scrollBar(BarState.Off)
-      .width(this.tm.current.widthFull)
-      .height(this.tm.current.heightFull)
+      .width(this.tm.current.full)
+      .height(this.tm.current.full)
       .align(Alignment.Top)
     }
   }

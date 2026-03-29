@@ -23,6 +23,10 @@ export class AccountRow {
   isActive: boolean = false;
   createTime: number = 0;
   updateTime: number = 0;
+  /** 米游社昵称（来自 bbs 账号详情接口） */
+  nickname: string = '';
+  /** 米游社头像 URL */
+  avatarUrl: string = '';
 }
 
 /** game_role_table 行模型 */
@@ -34,6 +38,10 @@ export class GameRoleRow {
   nickname: string = '';
   level: number = 0;
   server: string = '';
+  /** 游戏背景图 URL（来自 background_image_v2） */
+  bgImageUrl: string = '';
+  /** 游戏内统计数据 JSON 字符串（来自 data 字段，格式：[{name,value}]） */
+  statsJson: string = '';
 }
 
 /** 账号 + 角色列表的配对结构（替代 Map，规避 ArkTS Map 迭代限制） */
@@ -96,6 +104,20 @@ export class AccountRepository {
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       throw new Error(`AccountRepository.insertAccount failed: ${msg}`);
+    }
+  }
+
+  /** 更新账号 nickname 和 avatarUrl */
+  static async updateNicknameAndAvatar(accountId: number, nickname: string, avatarUrl: string): Promise<void> {
+    try {
+      const values: relationalStore.ValuesBucket = {};
+      values['nickname'] = nickname;
+      values['avatar_url'] = avatarUrl;
+      const predicates = new relationalStore.RdbPredicates('account_table').equalTo('id', accountId);
+      await RdbManager.update(values, predicates);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      throw new Error(`AccountRepository.updateNicknameAndAvatar failed: ${msg}`);
     }
   }
 
@@ -195,6 +217,8 @@ export class AccountRepository {
           v['nickname'] = role.nickname;
           v['level'] = role.level;
           v['server'] = role.server;
+          v['bg_image_url'] = role.bgImageUrl;
+          v['stats_json'] = role.statsJson;
         } catch (fieldErr) {
           const msg = fieldErr instanceof Error ? fieldErr.message : `${fieldErr}`;
           throw new Error(`AccountRepository.replaceRoles build bucket failed: ${msg}`);
@@ -236,6 +260,8 @@ export class AccountRepository {
       row.isActive = rs.getLong(rs.getColumnIndex('is_active')) === 1;
       row.createTime = rs.getLong(rs.getColumnIndex('create_time'));
       row.updateTime = rs.getLong(rs.getColumnIndex('update_time'));
+      try { row.nickname = rs.getString(rs.getColumnIndex('nickname')); } catch (_) {}
+      try { row.avatarUrl = rs.getString(rs.getColumnIndex('avatar_url')); } catch (_) {}
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       throw new Error(`readAccountRow failed: ${msg}`);
@@ -255,6 +281,8 @@ export class AccountRepository {
         row.nickname = rs.getString(rs.getColumnIndex('nickname'));
         row.level = rs.getLong(rs.getColumnIndex('level'));
         row.server = rs.getString(rs.getColumnIndex('server'));
+        try { row.bgImageUrl = rs.getString(rs.getColumnIndex('bg_image_url')); } catch (_) {}
+        try { row.statsJson = rs.getString(rs.getColumnIndex('stats_json')); } catch (_) {}
         rows[rows.length] = row;
       }
       rs.close();

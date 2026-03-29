@@ -55,7 +55,9 @@ export class RdbManager {
         cookie      TEXT,
         is_active   INTEGER DEFAULT 0,
         create_time INTEGER,
-        update_time INTEGER
+        update_time INTEGER,
+        nickname    TEXT DEFAULT '',
+        avatar_url  TEXT DEFAULT ''
       );
     `;
 
@@ -76,7 +78,12 @@ export class RdbManager {
     // ── 核心数据表：所有游戏所有数据类型 ────────────────────────
     // data_type 枚举：character / weapon / relic / activity /
     //                 gacha_record / gacha_summary / daily_note / abyss
-    // extra_int1/extra_int2/extra_text1 语义由 data_type 决定，详见架构文档
+    // extra_int1/extra_int2/extra_text1/extra_text2 语义由 data_type 决定，详见架构文档
+    //
+    // extra_text2 新增语义：
+    //   character（原神）：weapon_type（武器类型数字字符串，如 "1"=单手剑）
+    //   character（星铁）：base_type（命途数字字符串，如 "1"=巡猎）
+    //   character（绝区零）：avatar_profession（职业数字字符串）+ camp（阵营名，JSON格式）
     const createGameDataTableSql: string = `
       CREATE TABLE IF NOT EXISTS game_data (
         id          INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -90,6 +97,7 @@ export class RdbManager {
         extra_int1  INTEGER,
         extra_int2  INTEGER,
         extra_text1 TEXT,
+        extra_text2 TEXT,
         raw_json    TEXT    NOT NULL,
         update_time INTEGER
       );
@@ -157,6 +165,14 @@ export class RdbManager {
       await store.executeSql(createGameStatsUniqueIdxSql, []);
       await store.executeSql(createSyncMetaTableSql, []);
       await store.executeSql(createSyncMetaUniqueIdxSql, []);
+      // 数据库迁移：为旧版本数据库补充 extra_text2 列（已存在时忽略错误）
+      await RdbManager.migrateAddColumn(store, 'game_data', 'extra_text2', 'TEXT');
+      // 数据库迁移：为 game_role_table 补充 bg_image_url 和 stats_json 列
+      await RdbManager.migrateAddColumn(store, 'game_role_table', 'bg_image_url', 'TEXT');
+      await RdbManager.migrateAddColumn(store, 'game_role_table', 'stats_json', 'TEXT');
+      // 数据库迁移：为 account_table 补充 nickname 和 avatar_url 列
+      await RdbManager.migrateAddColumn(store, 'account_table', 'nickname', 'TEXT');
+      await RdbManager.migrateAddColumn(store, 'account_table', 'avatar_url', 'TEXT');
     } catch (error) {
       throw new Error(`Create tables failed: ${RdbManager.toErrorMessage(error)}`);
     }
@@ -330,5 +346,22 @@ export class RdbManager {
       return error.message;
     }
     return `${error}`;
+  }
+
+  /**
+   * 安全地为已有表添加新列（列已存在时静默忽略）。
+   * 用于数据库版本迁移，避免重装时报错。
+   */
+  private static async migrateAddColumn(
+    store: relationalStore.RdbStore,
+    tableName: string,
+    columnName: string,
+    columnType: string
+  ): Promise<void> {
+    try {
+      await store.executeSql(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnType}`, []);
+    } catch (_) {
+      // 列已存在时 SQLite 会报错，直接忽略
+    }
   }
 }

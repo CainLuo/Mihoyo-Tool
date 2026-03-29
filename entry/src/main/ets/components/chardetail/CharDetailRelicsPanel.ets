@@ -110,18 +110,18 @@ export struct CharDetailRelicsPanel {
       Column({ space: this.tm.current.value2 }) {
         if (relic.iconUrl !== '') {
           Image(relic.iconUrl)
-            .width(this.tm.current.relicIconSizeLG)
-            .height(this.tm.current.relicIconSizeLG)
+            .width(this.tm.current.value40)
+            .height(this.tm.current.value40)
             .objectFit(ImageFit.Contain)
         } else {
           Column()
-            .width(this.tm.current.relicIconSizeLG)
-            .height(this.tm.current.relicIconSizeLG)
+            .width(this.tm.current.value40)
+            .height(this.tm.current.value40)
             .backgroundColor(this.tm.current.surfaceGlassMd)
             .borderRadius(this.tm.current.value4)
         }
         Text(relic.mainStatLabel ?? $r('app.string.char_detail_no_data'))
-          .fontSize(this.tm.current.charDetailRelicFontSizeTiny)
+          .fontSize(this.tm.current.value9)
           .fontColor(this.tm.current.textOnDarkMuted)
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -134,14 +134,14 @@ export struct CharDetailRelicsPanel {
           .fontSize(this.tm.current.body10.size)
           .fontColor(this.tm.current.accentRefine)
         Text($r('app.string.char_detail_relic_lv_prefix', relic.level))
-          .fontSize(this.tm.current.charDetailRelicFontSizeTiny)
+          .fontSize(this.tm.current.value9)
           .fontColor(this.tm.current.textOnDarkFaint)
       }
-      .width(this.tm.current.charDetailRelicLeftColWidth)
+      .width(this.tm.current.value90)
       .alignItems(HorizontalAlign.Center)
       .justifyContent(FlexAlign.Center)
       .padding({ top: this.tm.current.value4, bottom: this.tm.current.value4 })
-      .border({ width: { right: this.tm.current.charDetailBorderWidth }, color: this.tm.current.surfaceGlassSm })
+      .border({ width: { right: this.tm.current.value1 }, color: this.tm.current.surfaceGlassSm })
 
       // 右侧：2列×2行副词条
       Grid() {
@@ -159,19 +159,19 @@ export struct CharDetailRelicsPanel {
                 .fontWeight(FontWeight.Bold)
                 .fontColor(Color.White)
             }
-            .width(this.tm.current.widthFull)
-            .padding({ left: this.tm.current.value8, right: this.tm.current.value4, top: this.tm.current.charDetailRelicSubPaddingV, bottom: this.tm.current.charDetailRelicSubPaddingV })
+            .width(this.tm.current.full)
+            .padding({ left: this.tm.current.value8, right: this.tm.current.value4, top: this.tm.current.value2, bottom: this.tm.current.value2 })
           }
         }, (sub: RelicSubStat, idx: number) => `sub_${relic.pos}_${idx}`)
       }
       .columnsTemplate('1fr 1fr')
       .layoutWeight(1)
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .layoutWeight(1)
     .alignItems(VerticalAlign.Center)
     .backgroundColor(this.tm.current.surfaceDarkMd)
-    .border({ width: { bottom: this.tm.current.charDetailBorderWidth }, color: this.tm.current.surfaceGlassSm })
+    .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlassSm })
   }
 
   /** Phone：单个圣遗物卡片 */
@@ -182,11 +182,11 @@ export struct CharDetailRelicsPanel {
       Row({ space: this.tm.current.value4 }) {
         if (relic.iconUrl !== '') {
           Image(relic.iconUrl)
-            .width(this.tm.current.relicIconSizeSM)
-            .height(this.tm.current.relicIconSizeSM)
+            .width(this.tm.current.value32)
+            .height(this.tm.current.value32)
             .objectFit(ImageFit.Contain)
         }
-        Column({ space: this.tm.current.charDetailRelicCardSpacing }) {
+        Column({ space: this.tm.current.value2 }) {
           Text(relic.setName !== '' ? relic.setName : (relic.mainStatLabel ?? $r('app.string.char_detail_no_data')))
             .fontSize(this.tm.current.body12.size)
             .fontWeight(FontWeight.Bold)
@@ -194,19 +194,19 @@ export struct CharDetailRelicsPanel {
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
           Text(relic.mainStatLabel ?? $r('app.string.char_detail_no_data'))
-            .fontSize(this.tm.current.charDetailRelicFontSizeTiny)
+            .fontSize(this.tm.current.value9)
             .fontColor(this.tm.current.textOnDarkMuted)
         }
         .alignItems(HorizontalAlign.Start)
         .layoutWeight(1)
         Text($r('app.string.char_detail_relic_lv_prefix', relic.level))
-          .fontSize(this.tm.current.charDetailRelicFontSizeTiny)
+          .fontSize(this.tm.current.value9)
           .fontColor(this.tm.current.textOnDarkGhost)
           .backgroundColor(this.tm.current.surfaceGlassMd)
           .borderRadius(this.tm.current.value4)
-          .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.charDetailPaddingTiny, bottom: this.tm.current.charDetailPaddingTiny })
+          .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.value1, bottom: this.tm.current.value1 })
       }
-      .width(this.tm.current.widthFull)
+      .width(this.tm.current.full)
       .alignItems(VerticalAlign.Center)
 
       // 主词条
@@ -220,9 +220,9 @@ export struct CharDetailRelicsPanel {
           .fontWeight(FontWeight.Bold)
           .fontColor(Color.White)
       }
-      .width(this.tm.current.widthFull)
-      .padding({ top: this.tm.current.charDetailRelicMainPaddingV, bottom: this.tm.current.charDetailRelicMainPaddingV })
-      .border({ width: { bottom: this.tm.current.charDetailBorderWidth }, color: this.tm.current.surfaceGlassSm })
+      .width(this.tm.current.full)
+      .padding({ top: this.tm.current.value2, bottom: this.tm.current.value2 })
+      .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlassSm })
 
       // 副词条
       Column() {
@@ -236,16 +236,16 @@ export struct CharDetailRelicsPanel {
               .fontSize(this.tm.current.body10.size)
               .fontColor(this.tm.current.textOnDarkHigh)
           }
-          .width(this.tm.current.widthFull)
-          .padding({ top: this.tm.current.charDetailPaddingTiny, bottom: this.tm.current.charDetailPaddingTiny })
+          .width(this.tm.current.full)
+          .padding({ top: this.tm.current.value1, bottom: this.tm.current.value1 })
         }, (sub: RelicSubStat, idx: number) => `psub_${relic.pos}_${idx}`)
       }
-      .width(this.tm.current.widthFull)
+      .width(this.tm.current.full)
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .padding(this.tm.current.value8)
     .backgroundColor(this.tm.current.surfaceGlassXs)
-    .border({ width: this.tm.current.charDetailBorderWidth, color: this.tm.current.surfaceGlassMd })
+    .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlassMd })
     .borderRadius(this.tm.current.radius8)
   }
 
@@ -262,7 +262,7 @@ export struct CharDetailRelicsPanel {
       .columnsTemplate('1fr 1fr')
       .columnsGap(this.tm.current.value8)
       .rowsGap(this.tm.current.value8)
-      .width(this.tm.current.widthFull)
+      .width(this.tm.current.full)
     } else {
       // 宽屏：5行等分，Column + layoutWeight(1)
       Column() {
@@ -270,8 +270,8 @@ export struct CharDetailRelicsPanel {
           this.RelicRow(relic)
         }, (relic: CharDetailRelic) => `relic_${relic.pos}`)
       }
-      .width(this.tm.current.widthFull)
-      .height(this.tm.current.heightFull)
+      .width(this.tm.current.full)
+      .height(this.tm.current.full)
       .borderRadius(this.tm.current.radius8)
       .backgroundColor(this.tm.current.surfaceDarkLg)
       .clip(true)

@@ -10,12 +10,12 @@ export struct CharDetailLoadingView {
   build() {
     Row() {
       LoadingProgress()
-        .width(this.tm.current.progressSizeMD)
-        .height(this.tm.current.progressSizeMD)
+        .width(this.tm.current.value52)
+        .height(this.tm.current.value52)
         .color(this.tm.current.colorPrimary)
     }
-    .width(this.tm.current.widthFull)
-    .height(this.tm.current.heightFull)
+    .width(this.tm.current.full)
+    .height(this.tm.current.full)
     .justifyContent(FlexAlign.Center)
   }
 }

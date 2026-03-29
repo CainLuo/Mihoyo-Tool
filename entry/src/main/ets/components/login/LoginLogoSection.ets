@@ -13,7 +13,7 @@ export struct LoginLogoSection {
       Image($r('app.media.ic_app_logo'))
         .width(this.logoSize)
         .height(this.logoSize)
-        .borderRadius(this.tm.current.launchLogoRadius)
+        .borderRadius(this.tm.current.value28)
       Text($r('app.string.app_name'))
         .font(this.tm.current.title20Bold)
         .fontColor(this.tm.current.colorTextPrimary)

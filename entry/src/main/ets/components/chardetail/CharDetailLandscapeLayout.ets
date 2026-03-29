@@ -16,8 +16,8 @@ export struct CharDetailLandscapeLayout {
   build() {
     Row() {
       CharDetailHeroPanel({ vm: this.vm, mode: HeroPanelMode.LANDSCAPE })
-        .width(this.tm.current.charDetailHeroPanelLandscapeW)
-        .height(this.tm.current.heightFull)
+        .width(this.tm.current.value200)
+        .height(this.tm.current.full)
 
       Scroll() {
         Column({ space: this.tm.current.value8 }) {
@@ -26,15 +26,15 @@ export struct CharDetailLandscapeLayout {
             .padding({ left: this.tm.current.value8, right: this.tm.current.value8 })
           Row().height(this.tm.current.value20)
         }
-        .width(this.tm.current.widthFull)
+        .width(this.tm.current.full)
       }
       .scrollBar(BarState.Off)
       .layoutWeight(1)
-      .height(this.tm.current.heightFull)
+      .height(this.tm.current.full)
       .align(Alignment.Top)
       .edgeEffect(EdgeEffect.Spring)
     }
-    .width(this.tm.current.widthFull)
-    .height(this.tm.current.heightFull)
+    .width(this.tm.current.full)
+    .height(this.tm.current.full)
   }
 }

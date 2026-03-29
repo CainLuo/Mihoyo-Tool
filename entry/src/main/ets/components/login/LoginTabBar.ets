@@ -17,10 +17,10 @@ export struct LoginTabBar {
       LoginTabItem({ tm: this.tm, vm: this.vm, tab: LoginTab.QRCODE, label: $r('app.string.login_tab_qrcode') })
       LoginTabItem({ tm: this.tm, vm: this.vm, tab: LoginTab.COOKIE, label: $r('app.string.login_tab_cookie') })
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .backgroundColor(this.tm.current.loginTabBarBg)
     .borderRadius(this.tm.current.radius8)
     .padding(this.tm.current.value4)
-    .margin({ bottom: this.tm.current.loginTabBarMarginBottom })
+    .margin({ bottom: this.tm.current.value18 })
   }
 }

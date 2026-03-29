@@ -101,15 +101,15 @@ export struct CharDetailStatsPanel {
         // 武器图标
         if (this.vm.weapon.iconUrl !== '') {
           Image(this.vm.weapon.iconUrl)
-            .width(this.tm.current.charDetailWeaponIconSizeLG)
-            .height(this.tm.current.charDetailWeaponIconSizeLG)
+            .width(this.tm.current.value52)
+            .height(this.tm.current.value52)
             .objectFit(ImageFit.Contain)
             .borderRadius(this.tm.current.value8)
             .backgroundColor(this.tm.current.surfaceGlassSm)
         } else {
           Column()
-            .width(this.tm.current.charDetailWeaponIconSizeLG)
-            .height(this.tm.current.charDetailWeaponIconSizeLG)
+            .width(this.tm.current.value52)
+            .height(this.tm.current.value52)
             .borderRadius(this.tm.current.value8)
             .backgroundColor(this.tm.current.surfaceGlassSm)
         }
@@ -128,7 +128,7 @@ export struct CharDetailStatsPanel {
               .fontColor(this.tm.current.accentRefine)
               .backgroundColor(this.tm.current.accentRefineBg)
               .borderRadius(this.tm.current.value4)
-              .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.charDetailPaddingTiny, bottom: this.tm.current.charDetailPaddingTiny })
+              .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.value1, bottom: this.tm.current.value1 })
             Text($r('app.string.char_detail_weapon_lv_prefix', this.vm.weapon.level, this.vm.weapon.maxLevel))
               .fontSize(this.tm.current.body10.size)
               .fontColor(this.tm.current.textOnDarkMuted)
@@ -147,7 +147,7 @@ export struct CharDetailStatsPanel {
         .alignItems(HorizontalAlign.Start)
         .layoutWeight(1)
       }
-      .width(this.tm.current.widthFull)
+      .width(this.tm.current.full)
       .alignItems(VerticalAlign.Center)
 
       // 星级
@@ -159,10 +159,10 @@ export struct CharDetailStatsPanel {
         }, (_: number, idx: number) => `star_${idx}`)
       }
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .padding(this.tm.current.value12)
     .backgroundColor(this.tm.current.surfaceGlassXs)
-    .border({ width: { bottom: this.tm.current.charDetailBorderWidth }, color: this.tm.current.surfaceOverlayMd })
+    .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceOverlayMd })
   }
 
   /** 武器行（Phone 紧凑样式） */
@@ -171,8 +171,8 @@ export struct CharDetailStatsPanel {
     Row({ space: this.tm.current.value8 }) {
       if (this.vm.weapon.iconUrl !== '') {
         Image(this.vm.weapon.iconUrl)
-          .width(this.tm.current.charDetailWeaponIconSizeSM)
-          .height(this.tm.current.charDetailWeaponIconSizeSM)
+          .width(this.tm.current.value36)
+          .height(this.tm.current.value36)
           .objectFit(ImageFit.Contain)
           .borderRadius(this.tm.current.value8)
           .backgroundColor(this.tm.current.surfaceGlassMd)
@@ -194,7 +194,7 @@ export struct CharDetailStatsPanel {
             .fontColor(this.tm.current.accentRefine)
             .backgroundColor(this.tm.current.accentRefineBg)
             .borderRadius(this.tm.current.value4)
-            .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.charDetailPaddingTiny, bottom: this.tm.current.charDetailPaddingTiny })
+            .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.value1, bottom: this.tm.current.value1 })
           if (this.vm.weapon.subLabel !== null) {
             Row({ space: this.tm.current.value4 }) {
               Text(this.vm.weapon.subLabel)
@@ -210,10 +210,10 @@ export struct CharDetailStatsPanel {
       .alignItems(HorizontalAlign.Start)
       .layoutWeight(1)
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .padding({ left: this.tm.current.value10, right: this.tm.current.value10, top: this.tm.current.value8, bottom: this.tm.current.value8 })
     .backgroundColor(this.tm.current.surfaceDarkXs)
-    .border({ width: { bottom: this.tm.current.charDetailBorderWidth }, color: this.tm.current.surfaceGlassSm })
+    .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlassSm })
   }
 
   /** 属性列表（宽屏，每行一条） */
@@ -231,17 +231,17 @@ export struct CharDetailStatsPanel {
             .fontWeight(FontWeight.Bold)
             .fontColor(stat.isHighlight ? elementColor(this.vm.charElement) : Color.White)
         }
-        .width(this.tm.current.widthFull)
+        .width(this.tm.current.full)
         .padding({
           left: this.tm.current.value16,
           right: this.tm.current.value16,
           top: this.tm.current.value8,
           bottom: this.tm.current.value8
         })
-        .border({ width: { bottom: this.tm.current.charDetailBorderWidth }, color: this.tm.current.surfaceOverlaySm })
+        .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceOverlaySm })
       }, (stat: CharDetailStat, idx: number) => `stat_${idx}`)
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
   }
 
   /** 属性网格（Phone，多列） */
@@ -260,14 +260,14 @@ export struct CharDetailStatsPanel {
               .fontWeight(FontWeight.Bold)
               .fontColor(stat.isHighlight ? elementColor(this.vm.charElement) : Color.White)
           }
-          .width(this.tm.current.widthFull)
-          .padding({ left: this.tm.current.value8, right: this.tm.current.value8, top: this.tm.current.charDetailStatsPaddingV, bottom: this.tm.current.charDetailStatsPaddingV })
-          .border({ width: { right: this.tm.current.charDetailBorderWidth, bottom: this.tm.current.charDetailBorderWidth }, color: this.tm.current.surfaceOverlaySm })
+          .width(this.tm.current.full)
+          .padding({ left: this.tm.current.value8, right: this.tm.current.value8, top: this.tm.current.value5, bottom: this.tm.current.value5 })
+          .border({ width: { right: this.tm.current.value1, bottom: this.tm.current.value1 }, color: this.tm.current.surfaceOverlaySm })
         }
       }, (stat: CharDetailStat, idx: number) => `pstat_${idx}`)
     }
     .columnsTemplate(this.phoneCols === 4 ? '1fr 1fr 1fr 1fr' : '1fr 1fr')
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .backgroundColor(this.tm.current.surfaceDarkLg)
   }
 
@@ -278,7 +278,7 @@ export struct CharDetailStatsPanel {
         this.WeaponRow()
         this.StatsGrid()
       }
-      .width(this.tm.current.widthFull)
+      .width(this.tm.current.full)
     } else {
       // 宽屏模式：武器卡片 + 可滚动属性列表
       Column() {
@@ -291,8 +291,8 @@ export struct CharDetailStatsPanel {
         .align(Alignment.Top)
         .edgeEffect(EdgeEffect.Spring)
       }
-      .width(this.tm.current.widthFull)
-      .height(this.tm.current.heightFull)
+      .width(this.tm.current.full)
+      .height(this.tm.current.full)
       .borderRadius(this.tm.current.radius8)
       .backgroundColor(this.tm.current.surfaceDarkXl)
       .clip(true)

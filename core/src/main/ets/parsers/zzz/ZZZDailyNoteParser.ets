@@ -8,17 +8,26 @@
 export class ZZZDailyNoteData {
   currentEnergy: number = 0;
   maxEnergy: number = 240;
-  energyRecoverTime: number = 0;   // 剩余恢复秒数
+  /** 剩余恢复秒数（restore 字段） */
+  energyRecoverTime: number = 0;
 
   currentVitality: number = 0;
-  maxVitality: number = 500;
+  maxVitality: number = 400;
 
-  /** 刮刮卡/占卜：'CardSignDone' = 已完成，'CardSignNo' = 未完成 */
+  /** 刮刮卡/占卜：'CardSignDone'=已完成 / 'CardSignNo'=未完成 */
   cardSign: string = '';
 
   /** 录像店状态：'SaleStateDone'=已结算 / 'SaleStateDoing'=营业中 / 'SaleStateNo'=未营业 */
   videoStoreState: string = '';
+
+  /** 侵蚀隧道（深渊）刷新倒计时（秒） */
+  abyssRefresh: number = 0;
+
+  /** 是否已订阅月卡 */
+  memberCardIsOpen: boolean = false;
 }
+
+// ─── JSON 接口声明 ────────────────────────────────────────────────
 
 interface RawZZZEnergyProgress {
   current: number;
@@ -39,12 +48,21 @@ interface RawZZZVhsSale {
   sale_state: string;
 }
 
+interface RawZZZMemberCard {
+  is_open: boolean;
+  member_card_state: string;
+}
+
 interface RawZZZNoteData {
   energy: RawZZZEnergy;
   vitality: RawZZZVitality;
   card_sign: string;
   vhs_sale: RawZZZVhsSale;
+  abyss_refresh: number;
+  member_card: RawZZZMemberCard;
 }
+
+// ─── Parser ──────────────────────────────────────────────────────
 
 export class ZZZDailyNoteParser {
 
@@ -61,11 +79,13 @@ export class ZZZDailyNoteParser {
     const data = new ZZZDailyNoteData();
     data.currentEnergy = raw.energy.progress.current;
     data.maxEnergy = raw.energy.progress.max;
-    data.energyRecoverTime = raw.energy.restore;
+    data.energyRecoverTime = raw.energy.restore ?? 0;
     data.currentVitality = raw.vitality.current;
     data.maxVitality = raw.vitality.max;
-    data.cardSign = raw.card_sign;
-    data.videoStoreState = raw.vhs_sale.sale_state;
+    data.cardSign = raw.card_sign ?? '';
+    data.videoStoreState = raw.vhs_sale ? raw.vhs_sale.sale_state : '';
+    data.abyssRefresh = raw.abyss_refresh ?? 0;
+    data.memberCardIsOpen = raw.member_card ? raw.member_card.is_open : false;
     return data;
   }
 }

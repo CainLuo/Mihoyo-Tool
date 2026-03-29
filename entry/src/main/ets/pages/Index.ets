@@ -1,26 +1,27 @@
 import { AppRoutes } from '../constants/AppRoutes';
 import { RouterUtil } from '../utils/RouterUtil';
-import { LaunchBuilder } from './router/LaunchBuilder';
-import { MainBuilder } from './router/MainBuilder';
-import { LoginBuilder } from './router/LoginBuilder';
-import { GenshinDailyDetailBuilder } from './router/GenshinDailyDetailBuilder';
-import { GenshinCharacterDetailBuilder } from './router/GenshinCharacterDetailBuilder';
-import { AccountDetailBuilder } from './router/AccountDetailBuilder';
+import { Launch } from './Launch';
+import { Main } from './Main';
+import { Login } from './Login';
+import { GenshinDailyDetail, GenshinDailyDetailParam } from './GenshinDailyDetail';
+import { GenshinCharacterDetail, GenshinCharacterDetailParam } from './GenshinCharacterDetail';
+import { AccountDetail } from './AccountDetail';
+import { MyAccountVM } from '../components/my/MyModels';
 
 @Builder
 function pageBuilder(name: string, param: Object) {
   if (name === AppRoutes.LAUNCH) {
-    LaunchBuilder(name, param)
+    Launch()
   } else if (name === AppRoutes.MAIN) {
-    MainBuilder(name, param)
+    Main()
   } else if (name === AppRoutes.LOGIN) {
-    LoginBuilder(name, param)
+    Login()
   } else if (name === AppRoutes.GENSHIN_DAILY_DETAIL) {
-    GenshinDailyDetailBuilder(name, param)
+    GenshinDailyDetail({ routerParam: param as GenshinDailyDetailParam })
   } else if (name === AppRoutes.GENSHIN_CHARACTER_DETAIL) {
-    GenshinCharacterDetailBuilder(name, param)
+    GenshinCharacterDetail({ routerParam: param as GenshinCharacterDetailParam })
   } else if (name === AppRoutes.ACCOUNT_DETAIL) {
-    AccountDetailBuilder(name, param)
+    AccountDetail({ account: param as MyAccountVM })
   }
 }
 

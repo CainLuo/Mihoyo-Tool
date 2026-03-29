@@ -36,16 +36,16 @@ export struct ExpeditionItem {
       // 角色头像
       if (this.expedition.avatarUrl !== '') {
         Image(this.expedition.avatarUrl)
-          .width(this.tm.current.expeditionAvatarSize)
-          .height(this.tm.current.expeditionAvatarSize)
-          .borderRadius(this.tm.current.expeditionAvatarRadius)
+          .width(this.tm.current.value40)
+          .height(this.tm.current.value40)
+          .borderRadius(this.tm.current.value20)
           .backgroundColor(this.tm.current.colorDivider)
       } else {
         // 占位圆
         Row()
-          .width(this.tm.current.expeditionAvatarSize)
-          .height(this.tm.current.expeditionAvatarSize)
-          .borderRadius(this.tm.current.expeditionAvatarRadius)
+          .width(this.tm.current.value40)
+          .height(this.tm.current.value40)
+          .borderRadius(this.tm.current.value20)
           .backgroundColor(this.tm.current.colorDivider)
       }
 
@@ -67,7 +67,7 @@ export struct ExpeditionItem {
         .layoutWeight(1)
       }
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .padding({
       left: this.tm.current.value16,
       right: this.tm.current.value16,

@@ -63,52 +63,52 @@ export struct CharDetailHeroPanelWide {
     const elem = this.vm.charElement;
     const t = this.tm.current;
     if (elem === GenshinElement.HYDRO) {
-      return { angle: t.gradientAngle135, colors: [[t.bgElementHydro1, 0], [t.bgElementHydro2, 0.4], [t.bgElementHydro3, 1.0]] };
+      return { angle: t.a135, colors: [[t.bgElementHydro1, 0], [t.bgElementHydro2, 0.4], [t.bgElementHydro3, 1.0]] };
     }
     if (elem === GenshinElement.PYRO) {
-      return { angle: t.gradientAngle135, colors: [[t.bgElementPyro1, 0], [t.bgElementPyro2, 0.4], [t.bgElementPyro3, 1.0]] };
+      return { angle: t.a135, colors: [[t.bgElementPyro1, 0], [t.bgElementPyro2, 0.4], [t.bgElementPyro3, 1.0]] };
     }
     if (elem === GenshinElement.ELECTRO) {
-      return { angle: t.gradientAngle135, colors: [[t.bgElementElectro1, 0], [t.bgElementElectro2, 0.4], [t.bgElementElectro3, 1.0]] };
+      return { angle: t.a135, colors: [[t.bgElementElectro1, 0], [t.bgElementElectro2, 0.4], [t.bgElementElectro3, 1.0]] };
     }
     if (elem === GenshinElement.ANEMO) {
-      return { angle: t.gradientAngle135, colors: [[t.bgElementAnemo1, 0], [t.bgElementAnemo2, 0.4], [t.bgElementAnemo3, 1.0]] };
+      return { angle: t.a135, colors: [[t.bgElementAnemo1, 0], [t.bgElementAnemo2, 0.4], [t.bgElementAnemo3, 1.0]] };
     }
     if (elem === GenshinElement.GEO) {
-      return { angle: t.gradientAngle135, colors: [[t.bgElementGeo1, 0], [t.bgElementGeo2, 0.4], [t.bgElementGeo3, 1.0]] };
+      return { angle: t.a135, colors: [[t.bgElementGeo1, 0], [t.bgElementGeo2, 0.4], [t.bgElementGeo3, 1.0]] };
     }
     if (elem === GenshinElement.CRYO) {
-      return { angle: t.gradientAngle135, colors: [[t.bgElementCryo1, 0], [t.bgElementCryo2, 0.4], [t.bgElementCryo3, 1.0]] };
+      return { angle: t.a135, colors: [[t.bgElementCryo1, 0], [t.bgElementCryo2, 0.4], [t.bgElementCryo3, 1.0]] };
     }
     if (elem === GenshinElement.DENDRO) {
-      return { angle: t.gradientAngle135, colors: [[t.bgElementDendro1, 0], [t.bgElementDendro2, 0.4], [t.bgElementDendro3, 1.0]] };
+      return { angle: t.a135, colors: [[t.bgElementDendro1, 0], [t.bgElementDendro2, 0.4], [t.bgElementDendro3, 1.0]] };
     }
-    return { angle: t.gradientAngle135, colors: [[t.bgElementHydro1, 0], [t.bgElementHydro2, 0.4], [t.bgElementHydro3, 1.0]] };
+    return { angle: t.a135, colors: [[t.bgElementHydro1, 0], [t.bgElementHydro2, 0.4], [t.bgElementHydro3, 1.0]] };
   }
 
   build() {
     Stack() {
       // 背景渐变
       Column()
-        .width(this.tm.current.widthFull)
-        .height(this.tm.current.heightFull)
+        .width(this.tm.current.full)
+        .height(this.tm.current.full)
         .linearGradient(this.elementBgColors())
 
       // 立绘
       if (this.vm.charImageUrl !== '') {
         Image(this.vm.charImageUrl)
-          .width(this.tm.current.widthFull)
-          .height(this.tm.current.heightFull)
+          .width(this.tm.current.full)
+          .height(this.tm.current.full)
           .objectFit(ImageFit.Cover)
           .objectRepeat(ImageRepeat.NoRepeat)
       }
 
       // 上下渐变遮罩
       Column()
-        .width(this.tm.current.widthFull)
-        .height(this.tm.current.heightFull)
+        .width(this.tm.current.full)
+        .height(this.tm.current.full)
         .linearGradient({
-          angle: this.tm.current.gradientAngle180,
+          angle: this.tm.current.a180,
           colors: [[this.tm.current.overlayShadow, 0], [this.tm.current.colorTransparent, 0.3],
             [this.tm.current.colorTransparent, 0.55], [this.tm.current.overlayScrImTop, 1.0]]
         })
@@ -149,8 +149,8 @@ export struct CharDetailHeroPanelWide {
       .margin({ right: this.tm.current.value12, bottom: this.tm.current.value12 })
       .zIndex(2)
     }
-    .width(this.tm.current.widthFull)
-    .height(this.tm.current.heightFull)
+    .width(this.tm.current.full)
+    .height(this.tm.current.full)
     .clip(true)
   }
 }

@@ -158,6 +158,26 @@ export class HomeViewModel {
   }
 
   /**
+   * 强制刷新：跳过冷却检查，直接触发同步。
+   * 由 View 层在用户确认冷却 Dialog 后调用。
+   */
+  async forceRefresh(): Promise<void> {
+    if (this.isRefreshing) {
+      return;
+    }
+    this.isRefreshing = true;
+    try {
+      await this.syncAllDailyNotes();
+      AppStorage.setOrCreate('homeLastRefreshTime', Math.floor(Date.now() / 1000));
+      const loaded = await this.fetchFromLocal();
+      this.accounts = loaded;
+      this.viewState = loaded.length > 0 ? ViewState.DATA : ViewState.EMPTY;
+    } finally {
+      this.isRefreshing = false;
+    }
+  }
+
+  /**
    * View 层 GeetestDialog 完成后调用此方法。
    * result 为 null 表示用户取消，非 null 则继续重试同步。
    */
@@ -321,7 +341,7 @@ export class HomeViewModel {
     const result: MihoyoAccountVM[] = [];
     for (const pair of pairs) {
       const cards = await this.buildRoleCards(pair.roles);
-      result[result.length] = new MihoyoAccountVM(pair.account.id, pair.account.username, cards);
+      result[result.length] = new MihoyoAccountVM(pair.account.id, pair.account.username, cards, pair.account.nickname, pair.account.avatarUrl);
     }
     return result;
   }
@@ -331,15 +351,18 @@ export class HomeViewModel {
     const cards: GameRoleCardVM[] = [];
     for (const role of roles) {
       const snapshot = await this.loadDailyNoteSnapshot(role.gameId, role.roleId);
+      if (snapshot === null) {
+        continue; // 没有 daily_note 数据的游戏不显示卡片
+      }
       cards[cards.length] = new GameRoleCardVM(
         role.gameId,
         role.gameId,
         HomeViewModel.gameColor(role.gameId),
         role.roleId,
         role.nickname,
-        serverDisplayName(role.server),
+        serverDisplayName(role.server, role.gameId),
         snapshot,
-        snapshot !== null ? 'sync_just_now' : 'sync_not_synced'
+        'sync_just_now'
       );
     }
     return cards;

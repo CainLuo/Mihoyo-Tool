@@ -53,6 +53,12 @@ export default class EntryAbility extends UIAbility {
           AppStorage.setOrCreate('bottomRectHeight', data.area.bottomRect.height);
         }
       });
+      // 存储窗口宽度（px），供响应式布局使用
+      const size = win.getWindowProperties().windowRect;
+      AppStorage.setOrCreate('windowWidthPx', size.width);
+      win.on('windowSizeChange', (s) => {
+        AppStorage.setOrCreate('windowWidthPx', s.width);
+      });
     }).catch((err: Error | object) => {
       Logger.warning(TAG, `getMainWindow failed: ${JSON.stringify(err)}`);
     });

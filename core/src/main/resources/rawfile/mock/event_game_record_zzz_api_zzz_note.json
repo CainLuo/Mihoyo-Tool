@@ -1,0 +1,47 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "energy": {
+      "progress": {
+        "max": 240,
+        "current": 240
+      },
+      "restore": 0,
+      "day_type": 0,
+      "hour": 0,
+      "minute": 0
+    },
+    "vitality": {
+      "max": 400,
+      "current": 0
+    },
+    "vhs_sale": {
+      "sale_state": "SaleStateDone"
+    },
+    "card_sign": "CardSignNo",
+    "bounty_commission": null,
+    "survey_points": null,
+    "abyss_refresh": 0,
+    "coffee": null,
+    "weekly_task": null,
+    "member_card": {
+      "is_open": false,
+      "member_card_state": "MemberCardStateNo",
+      "exp_time": "0"
+    },
+    "is_sub": false,
+    "is_other_sub": false,
+    "temple_running": {
+      "expedition_state": "ExpeditionStateUnknown",
+      "bench_state": "BenchStateUnknown",
+      "shelve_state": "ShelveStateUnknown",
+      "level": 0,
+      "weekly_currency_max": "0",
+      "currency_next_refresh_ts": "0",
+      "current_currency": "0",
+      "auto_work": null
+    },
+    "cafe_state": "CafeStateNo"
+  }
+}

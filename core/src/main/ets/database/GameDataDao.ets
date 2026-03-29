@@ -19,7 +19,7 @@ const TABLE_NAME: string = 'game_data';
 const SUMMARY_COLUMNS: string[] = [
   'id', 'game_id', 'role_uid', 'data_type', 'entity_id',
   'name', 'rarity', 'level', 'extra_int1', 'extra_int2',
-  'extra_text1', 'update_time'
+  'extra_text1', 'extra_text2', 'update_time'
 ];
 
 /** findDistinctGameRoles 返回的行模型 */
@@ -257,6 +257,7 @@ export class GameDataDao {
       row.extraInt1 = rs.getLong(rs.getColumnIndex('extra_int1'));
       row.extraInt2 = rs.getLong(rs.getColumnIndex('extra_int2'));
       row.extraText1 = rs.getString(rs.getColumnIndex('extra_text1'));
+      row.extraText2 = rs.getString(rs.getColumnIndex('extra_text2'));
       row.rawJson = rs.getString(rs.getColumnIndex('raw_json'));
       row.updateTime = rs.getLong(rs.getColumnIndex('update_time'));
       GameDataDao.closeRs(rs);
@@ -342,6 +343,7 @@ export class GameDataDao {
         r.extraInt1 = rs.getLong(rs.getColumnIndex('extra_int1'));
         r.extraInt2 = rs.getLong(rs.getColumnIndex('extra_int2'));
         r.extraText1 = rs.getString(rs.getColumnIndex('extra_text1'));
+        r.extraText2 = rs.getString(rs.getColumnIndex('extra_text2'));
         r.rawJson = rs.getString(rs.getColumnIndex('raw_json'));
         r.updateTime = rs.getLong(rs.getColumnIndex('update_time'));
         rows[rows.length] = r;
@@ -374,6 +376,7 @@ export class GameDataDao {
         s.extraInt1 = rs.getLong(rs.getColumnIndex('extra_int1'));
         s.extraInt2 = rs.getLong(rs.getColumnIndex('extra_int2'));
         s.extraText1 = rs.getString(rs.getColumnIndex('extra_text1'));
+        s.extraText2 = rs.getString(rs.getColumnIndex('extra_text2'));
         s.updateTime = rs.getLong(rs.getColumnIndex('update_time'));
         rows[rows.length] = s;
       }
@@ -398,6 +401,7 @@ export class GameDataDao {
     bucket['extra_int1'] = row.extraInt1;
     bucket['extra_int2'] = row.extraInt2;
     bucket['extra_text1'] = row.extraText1;
+    bucket['extra_text2'] = row.extraText2;
     bucket['raw_json'] = row.rawJson;
     bucket['update_time'] = row.updateTime;
     return bucket;

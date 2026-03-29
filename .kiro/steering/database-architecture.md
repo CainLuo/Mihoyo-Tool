@@ -58,6 +58,7 @@ CREATE TABLE IF NOT EXISTS game_data (
   extra_int1  INTEGER,           -- 扩展整数字段1，语义由 data_type 决定
   extra_int2  INTEGER,           -- 扩展整数字段2
   extra_text1 TEXT,              -- 扩展文本字段1
+  extra_text2 TEXT,              -- 扩展文本字段2（v1.1 新增，旧库通过 ALTER TABLE 迁移）
   raw_json    TEXT    NOT NULL,  -- 完整原始 JSON
   update_time INTEGER            -- 最后更新时间戳（Unix 秒）
 );
@@ -71,16 +72,16 @@ CREATE INDEX IF NOT EXISTS idx_game_data_activity
 
 #### `data_type` 枚举说明
 
-| data_type     | 含义           | extra_int1      | extra_int2  | extra_text1 |
-| ------------- | -------------- | --------------- | ----------- | ----------- |
-| character     | 角色/代理人    | 命座数          | 好感度      | 元素属性    |
-| weapon        | 武器/光锥/音擎 | 精炼/叠影等级   | -           | 武器类型    |
-| relic         | 圣遗物/遗器    | 部位(1-6)       | 套装 ID     | -           |
-| activity      | 活动           | 开始时间        | 结束时间    | 活动类型    |
-| gacha_record  | 抽卡记录(单条) | 卡池类型        | 是否UP(0/1) | 物品类型    |
-| gacha_summary | 抽卡统计摘要   | 卡池类型        | 总抽数      | -           |
-| daily_note    | 实时便笺       | 当前树脂/开拓力 | 最大值      | -           |
-| abyss         | 深渊/混沌回忆  | 层数            | 星数        | 赛季标识    |
+| data_type     | 含义           | extra_int1       | extra_int2     | extra_text1 | extra_text2                                                            |
+| ------------- | -------------- | ---------------- | -------------- | ----------- | ---------------------------------------------------------------------- |
+| character     | 角色/代理人    | 命座/星魂/影画数 | 好感度（原神） | 元素属性    | 原神=weapon_type数字；星铁=base_type命途；绝区零=avatar_profession职业 |
+| weapon        | 武器/光锥/音擎 | 精炼/叠影等级    | -              | 武器类型    | -                                                                      |
+| relic         | 圣遗物/遗器    | 部位(1-6)        | 套装 ID        | -           | -                                                                      |
+| activity      | 活动           | 开始时间         | 结束时间       | 活动类型    | -                                                                      |
+| gacha_record  | 抽卡记录(单条) | 卡池类型         | 是否UP(0/1)    | 物品类型    | -                                                                      |
+| gacha_summary | 抽卡统计摘要   | 卡池类型         | 总抽数         | -           |
+| daily_note    | 实时便笺       | 当前树脂/开拓力  | 最大值         | -           |
+| abyss         | 深渊/混沌回忆  | 层数             | 星数           | 赛季标识    |
 
 ### 4. `game_stats` — 预计算统计结果
 
@@ -100,14 +101,16 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_game_stats_unique
 
 #### `stat_key` 约定
 
-| stat_key      | 含义                 | 适用游戏     |
-| ------------- | -------------------- | ------------ |
-| relic_score   | 圣遗物/遗器装备分    | 原神、星铁   |
-| is_graduated  | 是否毕业(1=是, 0=否) | 原神、星铁   |
-| crit_rate     | 暴击率(%)            | 原神         |
-| crit_dmg      | 暴击伤害(%)          | 原神         |
-| pity_count    | 当前保底计数         | 所有抽卡游戏 |
-| up_pity_count | 大保底计数(0或1)     | 所有抽卡游戏 |
+| stat_key        | 含义                   | 适用游戏           |
+| --------------- | ---------------------- | ------------------ |
+| relic_score     | 圣遗物/遗器/驱动盘评分 | 原神、星铁、绝区零 |
+| is_graduated    | 是否毕业(1=是, 0=否)   | 原神、星铁、绝区零 |
+| crit_rate       | 暴击率(%)              | 原神、星铁、绝区零 |
+| crit_dmg        | 暴击伤害(%)            | 原神、星铁、绝区零 |
+| pity_count      | 当前保底计数           | 所有抽卡游戏       |
+| up_pity_count   | 大保底计数(0或1)       | 所有抽卡游戏       |
+| anomaly_mastery | 异常精通               | 绝区零             |
+| break_effect    | 击破特攻(%)            | 星铁               |
 
 ### 5. `sync_meta` — 同步状态追踪
 

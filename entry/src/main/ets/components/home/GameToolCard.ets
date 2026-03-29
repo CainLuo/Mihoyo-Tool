@@ -41,10 +41,10 @@ export struct GameToolCard {
   genshinDataRow(emoji: string, label: Resource, value: string, valueColor: ResourceColor) {
     Row({ space: this.tm.current.value8 }) {
       Text(emoji)
-        .width(this.tm.current.iconSizeSM)
-        .height(this.tm.current.iconSizeSM)
+        .width(this.tm.current.value32)
+        .height(this.tm.current.value32)
         .textAlign(TextAlign.Center)
-        .fontSize(this.tm.current.iconSizeSM - 4)
+        .fontSize(this.tm.current.value32 - 4)
         .borderRadius(this.tm.current.value8)
         .backgroundColor($r('app.color.surface_glass_xs'))
 
@@ -57,7 +57,7 @@ export struct GameToolCard {
         .font(this.tm.current.body13Bold)
         .fontColor(valueColor)
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .alignItems(VerticalAlign.Center)
   }
 
@@ -68,10 +68,10 @@ export struct GameToolCard {
       // 树脂：大数字 + 环形进度
       Row({ space: this.tm.current.value10 }) {
         Text('🌙')
-          .width(this.tm.current.iconSizeSM)
-          .height(this.tm.current.iconSizeSM)
+          .width(this.tm.current.value32)
+          .height(this.tm.current.value32)
           .textAlign(TextAlign.Center)
-          .fontSize(this.tm.current.iconSizeSM - 4)
+          .fontSize(this.tm.current.value32 - 4)
           .borderRadius(this.tm.current.value8)
           .backgroundColor($r('app.color.surface_glass_xs'))
 
@@ -109,13 +109,13 @@ export struct GameToolCard {
           total: 100,
           type: ProgressType.Ring
         })
-          .width(this.tm.current.progressSizeMD)
-          .height(this.tm.current.progressSizeMD)
+          .width(this.tm.current.value52)
+          .height(this.tm.current.value52)
           .color(this.primaryColor())
           .backgroundColor(this.tm.current.colorDivider)
-          .style({ strokeWidth: this.tm.current.progressStroke })
+          .style({ strokeWidth: this.tm.current.value5 })
       }
-      .width(this.tm.current.widthFull)
+      .width(this.tm.current.full)
       .alignItems(VerticalAlign.Center)
 
       Divider().color(this.tm.current.colorDivider)
@@ -152,7 +152,7 @@ export struct GameToolCard {
         )
       }
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .padding({
       left: this.tm.current.value12,
       right: this.tm.current.value12,
@@ -169,10 +169,10 @@ export struct GameToolCard {
       // 开拓力：大数字 + 环形进度
       Row({ space: this.tm.current.value10 }) {
         Text('⚡')
-          .width(this.tm.current.iconSizeSM)
-          .height(this.tm.current.iconSizeSM)
+          .width(this.tm.current.value32)
+          .height(this.tm.current.value32)
           .textAlign(TextAlign.Center)
-          .fontSize(this.tm.current.iconSizeSM - 4)
+          .fontSize(this.tm.current.value32 - 4)
           .borderRadius(this.tm.current.value8)
           .backgroundColor($r('app.color.surface_glass_xs'))
 
@@ -210,13 +210,13 @@ export struct GameToolCard {
           total: 100,
           type: ProgressType.Ring
         })
-          .width(this.tm.current.progressSizeMD)
-          .height(this.tm.current.progressSizeMD)
+          .width(this.tm.current.value52)
+          .height(this.tm.current.value52)
           .color(this.primaryColor())
           .backgroundColor(this.tm.current.colorDivider)
-          .style({ strokeWidth: this.tm.current.progressStroke })
+          .style({ strokeWidth: this.tm.current.value5 })
       }
-      .width(this.tm.current.widthFull)
+      .width(this.tm.current.full)
       .alignItems(VerticalAlign.Center)
 
       // 后备开拓力（只显示当前值，无封顶）
@@ -255,7 +255,7 @@ export struct GameToolCard {
           this.tm.current.colorDanger)
       }
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .padding({
       left: this.tm.current.value12,
       right: this.tm.current.value12,
@@ -302,13 +302,13 @@ export struct GameToolCard {
           total: 100,
           type: ProgressType.Ring
         })
-          .width(this.tm.current.progressSizeMD)
-          .height(this.tm.current.progressSizeMD)
+          .width(this.tm.current.value52)
+          .height(this.tm.current.value52)
           .color(this.primaryColor())
           .backgroundColor(this.tm.current.colorDivider)
-          .style({ strokeWidth: this.tm.current.progressStroke })
+          .style({ strokeWidth: this.tm.current.value5 })
       }
-      .width(this.tm.current.widthFull)
+      .width(this.tm.current.full)
 
       if (snap.secondaryLabel !== '') {
         Row() {
@@ -320,10 +320,10 @@ export struct GameToolCard {
             .font(this.tm.current.body13)
             .fontColor(this.tm.current.colorTextPrimary)
         }
-        .width(this.tm.current.widthFull)
+        .width(this.tm.current.full)
       }
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .padding({
       left: this.tm.current.value12,
       right: this.tm.current.value12,
@@ -333,15 +333,23 @@ export struct GameToolCard {
     .alignItems(HorizontalAlign.Start)
   }
 
+  private gameLogoResource(): Resource {
+    if (this.card.gameId === GameId.GENSHIN) { return $r('app.media.logo_genshin') }
+    if (this.card.gameId === GameId.STARRAIL) { return $r('app.media.logo_starrail') }
+    if (this.card.gameId === GameId.ZZZ) { return $r('app.media.logo_zzz') }
+    return $r('app.media.logo_honkai3')
+  }
+
   build() {
     Column() {
       // 卡片头部
       Row({ space: this.tm.current.value8 }) {
-        Row()
-          .width(this.tm.current.gameBarWidth)
-          .height(this.tm.current.gameBarHeightMD)
-          .borderRadius(this.tm.current.gameBarRadius)
-          .backgroundColor(this.card.gameColor)
+        Image(this.gameLogoResource())
+          .width(this.tm.current.value32)
+          .height(this.tm.current.value32)
+          .borderRadius(this.tm.current.value8)
+          .border({ width: 1, color: this.tm.current.colorCardBorder })
+          .objectFit(ImageFit.Cover)
 
         Column({ space: this.tm.current.value2 }) {
           Text(gameIdToName(this.card.gameName))
@@ -371,7 +379,7 @@ export struct GameToolCard {
           .font(this.tm.current.body13)
           .fontColor(this.tm.current.colorTextSecondary)
       }
-      .width(this.tm.current.widthFull)
+      .width(this.tm.current.full)
       .padding({
         left: this.tm.current.value12,
         right: this.tm.current.value12,
@@ -405,14 +413,14 @@ export struct GameToolCard {
             .font(this.tm.current.body13)
             .fontColor(this.tm.current.colorTextSecondary)
         }
-        .width(this.tm.current.widthFull)
+        .width(this.tm.current.full)
         .justifyContent(FlexAlign.Center)
-        .padding({ top: this.tm.current.value40, bottom: this.tm.current.value40 })
+        .padding({ top: this.tm.current.value16, bottom: this.tm.current.value16 })
       }
     }
     .backgroundColor(this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius16)
-    .border({ width: this.tm.current.cardBorderWidth, color: this.tm.current.colorCardBorder })
+    .border({ width: this.tm.current.value1, color: this.tm.current.colorCardBorder })
     .shadow({
       radius: this.tm.current.shadowRadius,
       color: this.tm.current.shadowColor,

@@ -186,7 +186,7 @@ export struct GeetestDialog {
   /** 验证完成/取消的回调，由 showGeetestDialog 注入 */
   @Param onResult: (result: GeetestVerifyInput | null) => void = () => {};
 
-  @Local private webHeight: number = themeManager.current.webHeightDefault;
+  @Local private webHeight: number = themeManager.current.value360;
   @Local private tm: ThemeManager = themeManager;
 
   private controller: webview.WebviewController = new webview.WebviewController();
@@ -258,14 +258,14 @@ export struct GeetestDialog {
               .font(this.tm.current.title18Bold)
               .fontColor(this.tm.current.colorTextSecondary)
           }
-          .width(this.tm.current.heightNavBar)
-          .height(this.tm.current.heightNavBar)
+          .width(this.tm.current.value56)
+          .height(this.tm.current.value56)
           .backgroundColor(Color.Transparent)
           .onClick(() => {
             this.onResult(null);
           })
         }
-        .width(this.tm.current.widthFull)
+        .width(this.tm.current.full)
         .padding({
           left: this.tm.current.value16,
           right: this.tm.current.value8,
@@ -280,7 +280,7 @@ export struct GeetestDialog {
           src: buildGeetestHtml(this.createResult),
           controller: this.controller
         })
-          .width(this.tm.current.widthFull)
+          .width(this.tm.current.full)
           .height(this.webHeight)
           .javaScriptAccess(true)
           .domStorageAccess(true)
@@ -301,16 +301,16 @@ export struct GeetestDialog {
             this.onResult(null);
           })
       }
-      .width(this.tm.current.widthFull)
+      .width(this.tm.current.full)
       .constraintSize({
-        minWidth: this.tm.current.dialogMinWidth,
-        maxWidth: this.tm.current.dialogMaxWidth
+        minWidth: this.tm.current.value280,
+        maxWidth: this.tm.current.value400
       })
       .backgroundColor(this.tm.current.colorSurfaceCard)
       .borderRadius(this.tm.current.radius12)
       .clip(true)
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
   }
 }

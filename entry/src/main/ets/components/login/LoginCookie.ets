@@ -16,7 +16,7 @@ export struct LoginCookie {
       Text($r('app.string.login_cookie_hint'))
         .font(this.tm.current.body12)
         .fontColor(this.tm.current.colorTextSecondary)
-        .width(this.tm.current.widthFull)
+        .width(this.tm.current.full)
         .textAlign(TextAlign.Center)
 
       // Cookie 输入框
@@ -24,13 +24,13 @@ export struct LoginCookie {
         Text($r('app.string.login_cookie_label'))
           .font(this.tm.current.body12)
           .fontColor(this.tm.current.colorTextSecondary)
-          .width(this.tm.current.widthFull)
+          .width(this.tm.current.full)
 
         TextArea({ placeholder: $r('app.string.login_cookie_placeholder'), text: this.vm.cookieInput })
-          .width(this.tm.current.widthFull)
-          .height(this.tm.current.loginCookieAreaHeight)
+          .width(this.tm.current.full)
+          .height(this.tm.current.value108)
           .borderRadius(this.tm.current.radius8)
-          .borderWidth(this.tm.current.cardBorderWidth)
+          .borderWidth(this.tm.current.value1)
           .borderColor(this.tm.current.colorCardBorder)
           .backgroundColor(this.tm.current.loginInputBg)
           .placeholderColor(this.tm.current.colorPlaceholder)
@@ -42,11 +42,11 @@ export struct LoginCookie {
 
       // 确认登录按钮
       Button($r('app.string.login_button'), { type: ButtonType.Normal })
-        .width(this.tm.current.widthFull)
-        .height(this.tm.current.loginInputHeight)
+        .width(this.tm.current.full)
+        .height(this.tm.current.value46)
         .borderRadius(this.tm.current.radius8)
         .backgroundColor(this.tm.current.colorPrimary)
-        .fontSize(this.tm.current.loginButtonFontSize)
+        .fontSize(this.tm.current.value15)
         .fontWeight(FontWeight.Bold)
         .fontColor(Color.White)
         .enabled(!this.vm.isLoading && this.vm.cookieInput.trim().length > 0)
@@ -58,7 +58,7 @@ export struct LoginCookie {
       Text($r('app.string.login_cookie_security_hint'))
         .font(this.tm.current.body12)
         .fontColor(this.tm.current.colorPlaceholder)
-        .width(this.tm.current.widthFull)
+        .width(this.tm.current.full)
         .textAlign(TextAlign.Center)
 
       // 错误提示
@@ -66,10 +66,10 @@ export struct LoginCookie {
         Text(this.vm.errorMsg)
           .font(this.tm.current.body13)
           .fontColor(this.tm.current.colorDanger)
-          .width(this.tm.current.widthFull)
+          .width(this.tm.current.full)
           .textAlign(TextAlign.Center)
       }
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
   }
 }

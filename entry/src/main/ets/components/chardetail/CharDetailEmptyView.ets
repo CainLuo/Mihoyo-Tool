@@ -13,8 +13,8 @@ export struct CharDetailEmptyView {
         .font(this.tm.current.body13)
         .fontColor(this.tm.current.colorTextSecondary)
     }
-    .width(this.tm.current.widthFull)
-    .height(this.tm.current.heightFull)
+    .width(this.tm.current.full)
+    .height(this.tm.current.full)
     .justifyContent(FlexAlign.Center)
   }
 }

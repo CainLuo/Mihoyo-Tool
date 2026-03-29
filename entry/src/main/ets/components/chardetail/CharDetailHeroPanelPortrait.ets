@@ -61,17 +61,17 @@ export struct CharDetailHeroPanelPortrait {
     Stack() {
       // 背景
       Column()
-        .width(this.tm.current.widthFull)
-        .height(this.tm.current.heightFull)
+        .width(this.tm.current.full)
+        .height(this.tm.current.full)
         .linearGradient({
-          angle: this.tm.current.gradientAngle150,
+          angle: this.tm.current.a150,
           colors: [[this.tm.current.bgPortrait1, 0], [this.tm.current.bgPortrait2, 1.0]]
         })
 
       // 立绘贴右
       if (this.vm.charImageUrl !== '') {
         Image(this.vm.charImageUrl)
-          .height(this.tm.current.heightFull)
+          .height(this.tm.current.full)
           .objectFit(ImageFit.Cover)
           .position({ x: '100%', y: 0 })
           .markAnchor({ x: '100%', y: 0 })
@@ -79,20 +79,20 @@ export struct CharDetailHeroPanelPortrait {
 
       // 左侧渐变遮罩
       Column()
-        .width(this.tm.current.widthFull)
-        .height(this.tm.current.heightFull)
+        .width(this.tm.current.full)
+        .height(this.tm.current.full)
         .linearGradient({
-          angle: this.tm.current.gradientAngle90,
+          angle: this.tm.current.a90,
           colors: [[this.tm.current.overlayPortraitBase, 0], [this.tm.current.overlayPortraitStrong, 0.32],
             [this.tm.current.overlayPortraitMid, 0.55], [this.tm.current.colorTransparent, 1.0]]
         })
 
       // 底部渐变
       Column()
-        .width(this.tm.current.widthFull)
-        .height(this.tm.current.heightFull)
+        .width(this.tm.current.full)
+        .height(this.tm.current.full)
         .linearGradient({
-          angle: this.tm.current.gradientAngle0,
+          angle: this.tm.current.a0,
           colors: [[this.tm.current.overlayPortraitBot, 0], [this.tm.current.colorTransparent, 0.45]]
         })
 
@@ -100,17 +100,17 @@ export struct CharDetailHeroPanelPortrait {
       Column() {
         CharDetailConsColumn({ constellations: this.vm.constellations })
       }
-      .width(this.tm.current.widthFull)
-      .height(this.tm.current.heightFull)
+      .width(this.tm.current.full)
+      .height(this.tm.current.full)
       .alignItems(HorizontalAlign.End)
       .justifyContent(FlexAlign.Center)
-      .padding({ right: this.tm.current.charDetailConsMarginRight })
+      .padding({ right: this.tm.current.value12 })
       .zIndex(3)
 
       // 左下角：名字 + 等级 + 好感 + 技能横行
       Column({ space: this.tm.current.value4 }) {
         Text(this.vm.charName)
-          .fontSize(this.tm.current.charDetailNameFontSizePortrait)
+          .fontSize(this.tm.current.value22)
           .fontWeight(FontWeight.Bold)
           .fontColor(Color.White)
           .textShadow({ radius: this.tm.current.value8, color: this.tm.current.overlayShadow, offsetY: 2 })
@@ -124,11 +124,11 @@ export struct CharDetailHeroPanelPortrait {
             .fontSize(this.tm.current.body10.size)
             .fontColor(elementColor(this.vm.charElement))
             .backgroundColor(this.tm.current.surfaceFetterBg)
-            .border({ width: this.tm.current.charDetailBorderWidth, color: this.tm.current.surfaceFetterBorder })
+            .border({ width: this.tm.current.value1, color: this.tm.current.surfaceFetterBorder })
             .borderRadius(this.tm.current.value4)
             .padding({
               left: this.tm.current.value4, right: this.tm.current.value4,
-              top: this.tm.current.charDetailPaddingTiny, bottom: this.tm.current.charDetailPaddingTiny
+              top: this.tm.current.value1, bottom: this.tm.current.value1
             })
         }
         // 技能横行
@@ -137,12 +137,12 @@ export struct CharDetailHeroPanelPortrait {
             Column({ space: this.tm.current.value2 }) {
               if (skill.iconUrl !== '') {
                 Image(skill.iconUrl)
-                  .width(this.tm.current.charDetailSkillIconSize)
-                  .height(this.tm.current.charDetailSkillIconSize)
+                  .width(this.tm.current.value34)
+                  .height(this.tm.current.value34)
                   .objectFit(ImageFit.Contain)
-                  .borderRadius(this.tm.current.charDetailSkillIconRadius)
+                  .borderRadius(this.tm.current.value17)
                   .backgroundColor(this.tm.current.surfaceDark2xl)
-                  .border({ width: this.tm.current.borderWidthMedium, color: this.tm.current.surfaceSkillBorderPhone })
+                  .border({ width: this.tm.current.value1p5, color: this.tm.current.surfaceSkillBorderPhone })
               }
               Text(`${skill.level}`)
                 .fontSize(this.tm.current.body12.size)
@@ -153,19 +153,19 @@ export struct CharDetailHeroPanelPortrait {
           }, (_skill: CharDetailSkill, idx: number) => `pskill_${idx}`)
         }
       }
-      .width(this.tm.current.widthFull)
-      .height(this.tm.current.heightFull)
+      .width(this.tm.current.full)
+      .height(this.tm.current.full)
       .alignItems(HorizontalAlign.Start)
       .justifyContent(FlexAlign.End)
       .padding({
         left: this.tm.current.value12,
-        right: this.tm.current.charDetailRightPaddingPortrait,
-        bottom: this.tm.current.charDetailSkillBottomOffset
+        right: this.tm.current.pct40,
+        bottom: this.tm.current.value24
       })
       .zIndex(2)
     }
-    .width(this.tm.current.widthFull)
-    .height(this.tm.current.heightFull)
+    .width(this.tm.current.full)
+    .height(this.tm.current.full)
     .clip(true)
   }
 }

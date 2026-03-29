@@ -25,6 +25,6 @@ export struct LoginAgreement {
         .font(this.tm.current.body12)
         .fontColor(this.tm.current.colorPrimary)
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
   }
 }

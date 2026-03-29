@@ -12,10 +12,13 @@ import { AppRoutes } from '../constants/AppRoutes'
 import { GameId } from '../constants/GameId'
 import { GenshinDailyDetailParam } from './GenshinDailyDetail'
 import { BusinessError } from '@kit.BasicServicesKit'
+import { ViewState } from '../constants/ViewStates'
 
 @ComponentV2
 export struct Home {
   @Param vm: HomeViewModel = new HomeViewModel()
+  @Param detailStack: NavPathStack = new NavPathStack()
+  @Param isSplit: boolean = false
   @Local private tm: ThemeManager = themeManager
   private uiCtx: UIContext | null = null
   private scroller: Scroller = new Scroller()
@@ -52,7 +55,14 @@ export struct Home {
     ctx.getPromptAction().showDialog({
       title: $r('app.string.home_refresh_cooldown_title'),
       message: $r('app.string.home_refresh_cooldown_msg'),
-      buttons: [{ text: $r('app.string.dialog_confirm'), color: $r('app.color.color_accent') }]
+      buttons: [
+        { text: $r('app.string.dialog_cancel'), color: $r('app.color.color_text_secondary') },
+        { text: $r('app.string.dialog_sync'), color: $r('app.color.color_accent') }
+      ]
+    }).then((result) => {
+      if (result.index === 1) {
+        this.vm.forceRefresh()
+      }
     }).catch((e: BusinessError) => {
       Logger.warn('Home', 'showDialog cooldown failed: ' + e.message)
     })
@@ -89,7 +99,11 @@ export struct Home {
       const param = new GenshinDailyDetailParam()
       param.gameId = card.gameId
       param.roleUid = card.roleUid
-      RouterUtil.push(AppRoutes.GENSHIN_DAILY_DETAIL, param)
+      if (this.isSplit) {
+        this.detailStack.replacePath({ name: AppRoutes.GENSHIN_DAILY_DETAIL, param: param })
+      } else {
+        this.detailStack.pushPathByName(AppRoutes.GENSHIN_DAILY_DETAIL, param)
+      }
       return
     }
     Logger.info('Home', `no detail page for gameId: ${card.gameId}`)

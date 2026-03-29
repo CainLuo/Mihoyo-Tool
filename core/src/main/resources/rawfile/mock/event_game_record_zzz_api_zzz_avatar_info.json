@@ -1,0 +1,1029 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "avatar_list": [
+      {
+        "id": 1171,
+        "level": 60,
+        "name_mi18n": "柏妮思",
+        "full_name_mi18n": "柏妮思·怀特",
+        "element_type": 201,
+        "camp_name_mi18n": "卡吕冬之子",
+        "avatar_profession": 3,
+        "rarity": "S",
+        "group_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/e18c52a56b163d4fce6dfa0745a76120.png",
+        "hollow_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/8d34e1193dcfa5b93ebc5ae6357b2b9c.png",
+        "equip": [
+          {
+            "id": 31841,
+            "level": 15,
+            "name": "混沌爵士[1]",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/836682257edea6822bbe06dd5e360779.png",
+            "rarity": "S",
+            "properties": [
+              {
+                "property_name": "异常精通",
+                "property_id": 31203,
+                "base": "27",
+                "level": 3,
+                "valid": true,
+                "system_id": 312,
+                "add": 2
+              },
+              {
+                "property_name": "暴击伤害",
+                "property_id": 21103,
+                "base": "4.8%",
+                "level": 1,
+                "valid": false,
+                "system_id": 211,
+                "add": 0
+              },
+              {
+                "property_name": "穿透值",
+                "property_id": 23203,
+                "base": "9",
+                "level": 1,
+                "valid": false,
+                "system_id": 232,
+                "add": 0
+              },
+              {
+                "property_name": "防御力",
+                "property_id": 13102,
+                "base": "14.4%",
+                "level": 3,
+                "valid": false,
+                "system_id": 131,
+                "add": 2
+              }
+            ],
+            "main_properties": [
+              {
+                "property_name": "生命值",
+                "property_id": 11103,
+                "base": "2200",
+                "level": 1,
+                "valid": false,
+                "system_id": 111,
+                "add": 0
+              }
+            ],
+            "equip_suit": {
+              "suit_id": 31800,
+              "name": "混沌爵士",
+              "own": 4,
+              "desc1": "异常精通+30点。",
+              "desc2": "<color=#FF5521>火属性伤害</color>和<color=#2EB6FF>电属性伤害</color>提升15%；位于后场时，<color=#FFFFFF>[强化特殊技]</color>和<color=#FFFFFF>[支援攻击]</color>造成的伤害提升20%，换入前场后，该增益效果仍然保留，持续5秒，保留效果7.5秒内最多触发一次。"
+            },
+            "equipment_type": 1,
+            "invalid_property_cnt": 2,
+            "all_hit": false
+          },
+          {
+            "id": 31842,
+            "level": 15,
+            "name": "混沌爵士[2]",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/836682257edea6822bbe06dd5e360779.png",
+            "rarity": "S",
+            "properties": [
+              {
+                "property_name": "暴击伤害",
+                "property_id": 21103,
+                "base": "9.6%",
+                "level": 2,
+                "valid": false,
+                "system_id": 211,
+                "add": 1
+              },
+              {
+                "property_name": "生命值",
+                "property_id": 11103,
+                "base": "224",
+                "level": 2,
+                "valid": false,
+                "system_id": 111,
+                "add": 1
+              },
+              {
+                "property_name": "异常精通",
+                "property_id": 31203,
+                "base": "9",
+                "level": 1,
+                "valid": true,
+                "system_id": 312,
+                "add": 0
+              },
+              {
+                "property_name": "防御力",
+                "property_id": 13103,
+                "base": "45",
+                "level": 3,
+                "valid": false,
+                "system_id": 131,
+                "add": 2
+              }
+            ],
+            "main_properties": [
+              {
+                "property_name": "攻击力",
+                "property_id": 12103,
+                "base": "316",
+                "level": 1,
+                "valid": false,
+                "system_id": 121,
+                "add": 0
+              }
+            ],
+            "equip_suit": {
+              "suit_id": 31800,
+              "name": "混沌爵士",
+              "own": 4,
+              "desc1": "异常精通+30点。",
+              "desc2": "<color=#FF5521>火属性伤害</color>和<color=#2EB6FF>电属性伤害</color>提升15%；位于后场时，<color=#FFFFFF>[强化特殊技]</color>和<color=#FFFFFF>[支援攻击]</color>造成的伤害提升20%，换入前场后，该增益效果仍然保留，持续5秒，保留效果7.5秒内最多触发一次。"
+            },
+            "equipment_type": 2,
+            "invalid_property_cnt": 4,
+            "all_hit": false
+          },
+          {
+            "id": 31443,
+            "level": 15,
+            "name": "激素朋克[3]",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/e319a2dbdb455559fcf3d5e97073acb3.png",
+            "rarity": "S",
+            "properties": [
+              {
+                "property_name": "暴击伤害",
+                "property_id": 21103,
+                "base": "4.8%",
+                "level": 1,
+                "valid": false,
+                "system_id": 211,
+                "add": 0
+              },
+              {
+                "property_name": "暴击率",
+                "property_id": 20103,
+                "base": "7.2%",
+                "level": 3,
+                "valid": false,
+                "system_id": 201,
+                "add": 2
+              },
+              {
+                "property_name": "防御力",
+                "property_id": 13102,
+                "base": "14.4%",
+                "level": 3,
+                "valid": false,
+                "system_id": 131,
+                "add": 2
+              },
+              {
+                "property_name": "攻击力",
+                "property_id": 12103,
+                "base": "38",
+                "level": 2,
+                "valid": false,
+                "system_id": 121,
+                "add": 1
+              }
+            ],
+            "main_properties": [
+              {
+                "property_name": "防御力",
+                "property_id": 13103,
+                "base": "184",
+                "level": 1,
+                "valid": false,
+                "system_id": 131,
+                "add": 0
+              }
+            ],
+            "equip_suit": {
+              "suit_id": 31400,
+              "name": "激素朋克",
+              "own": 2,
+              "desc1": "攻击力+10%。",
+              "desc2": "成为接战状态下的当前操作角色时，装备者的攻击力提升25%，持续10秒，20秒内最多触发一次。"
+            },
+            "equipment_type": 3,
+            "invalid_property_cnt": 5,
+            "all_hit": false
+          },
+          {
+            "id": 31844,
+            "level": 15,
+            "name": "混沌爵士[4]",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/836682257edea6822bbe06dd5e360779.png",
+            "rarity": "S",
+            "properties": [
+              {
+                "property_name": "防御力",
+                "property_id": 13102,
+                "base": "9.6%",
+                "level": 2,
+                "valid": false,
+                "system_id": 131,
+                "add": 1
+              },
+              {
+                "property_name": "攻击力",
+                "property_id": 12102,
+                "base": "9%",
+                "level": 3,
+                "valid": true,
+                "system_id": 121,
+                "add": 2
+              },
+              {
+                "property_name": "生命值",
+                "property_id": 11103,
+                "base": "224",
+                "level": 2,
+                "valid": false,
+                "system_id": 111,
+                "add": 1
+              },
+              {
+                "property_name": "穿透值",
+                "property_id": 23203,
+                "base": "18",
+                "level": 2,
+                "valid": false,
+                "system_id": 232,
+                "add": 1
+              }
+            ],
+            "main_properties": [
+              {
+                "property_name": "异常精通",
+                "property_id": 31203,
+                "base": "92",
+                "level": 1,
+                "valid": false,
+                "system_id": 312,
+                "add": 0
+              }
+            ],
+            "equip_suit": {
+              "suit_id": 31800,
+              "name": "混沌爵士",
+              "own": 4,
+              "desc1": "异常精通+30点。",
+              "desc2": "<color=#FF5521>火属性伤害</color>和<color=#2EB6FF>电属性伤害</color>提升15%；位于后场时，<color=#FFFFFF>[强化特殊技]</color>和<color=#FFFFFF>[支援攻击]</color>造成的伤害提升20%，换入前场后，该增益效果仍然保留，持续5秒，保留效果7.5秒内最多触发一次。"
+            },
+            "equipment_type": 4,
+            "invalid_property_cnt": 3,
+            "all_hit": false
+          },
+          {
+            "id": 31445,
+            "level": 15,
+            "name": "激素朋克[5]",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/e319a2dbdb455559fcf3d5e97073acb3.png",
+            "rarity": "S",
+            "properties": [
+              {
+                "property_name": "生命值",
+                "property_id": 11102,
+                "base": "9%",
+                "level": 3,
+                "valid": false,
+                "system_id": 111,
+                "add": 2
+              },
+              {
+                "property_name": "异常精通",
+                "property_id": 31203,
+                "base": "9",
+                "level": 1,
+                "valid": true,
+                "system_id": 312,
+                "add": 0
+              },
+              {
+                "property_name": "攻击力",
+                "property_id": 12102,
+                "base": "9%",
+                "level": 3,
+                "valid": true,
+                "system_id": 121,
+                "add": 2
+              },
+              {
+                "property_name": "防御力",
+                "property_id": 13102,
+                "base": "4.8%",
+                "level": 1,
+                "valid": false,
+                "system_id": 131,
+                "add": 0
+              }
+            ],
+            "main_properties": [
+              {
+                "property_name": "火属性伤害加成",
+                "property_id": 31603,
+                "base": "30%",
+                "level": 1,
+                "valid": false,
+                "system_id": 316,
+                "add": 0
+              }
+            ],
+            "equip_suit": {
+              "suit_id": 31400,
+              "name": "激素朋克",
+              "own": 2,
+              "desc1": "攻击力+10%。",
+              "desc2": "成为接战状态下的当前操作角色时，装备者的攻击力提升25%，持续10秒，20秒内最多触发一次。"
+            },
+            "equipment_type": 5,
+            "invalid_property_cnt": 2,
+            "all_hit": false
+          },
+          {
+            "id": 31846,
+            "level": 15,
+            "name": "混沌爵士[6]",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/836682257edea6822bbe06dd5e360779.png",
+            "rarity": "S",
+            "properties": [
+              {
+                "property_name": "生命值",
+                "property_id": 11102,
+                "base": "3%",
+                "level": 1,
+                "valid": false,
+                "system_id": 111,
+                "add": 0
+              },
+              {
+                "property_name": "攻击力",
+                "property_id": 12102,
+                "base": "6%",
+                "level": 2,
+                "valid": true,
+                "system_id": 121,
+                "add": 1
+              },
+              {
+                "property_name": "防御力",
+                "property_id": 13102,
+                "base": "9.6%",
+                "level": 2,
+                "valid": false,
+                "system_id": 131,
+                "add": 1
+              },
+              {
+                "property_name": "攻击力",
+                "property_id": 12103,
+                "base": "57",
+                "level": 3,
+                "valid": false,
+                "system_id": 121,
+                "add": 2
+              }
+            ],
+            "main_properties": [
+              {
+                "property_name": "异常掌控",
+                "property_id": 31402,
+                "base": "30%",
+                "level": 1,
+                "valid": false,
+                "system_id": 314,
+                "add": 0
+              }
+            ],
+            "equip_suit": {
+              "suit_id": 31800,
+              "name": "混沌爵士",
+              "own": 4,
+              "desc1": "异常精通+30点。",
+              "desc2": "<color=#FF5521>火属性伤害</color>和<color=#2EB6FF>电属性伤害</color>提升15%；位于后场时，<color=#FFFFFF>[强化特殊技]</color>和<color=#FFFFFF>[支援攻击]</color>造成的伤害提升20%，换入前场后，该增益效果仍然保留，持续5秒，保留效果7.5秒内最多触发一次。"
+            },
+            "equipment_type": 6,
+            "invalid_property_cnt": 3,
+            "all_hit": false
+          }
+        ],
+        "weapon": {
+          "id": 14117,
+          "level": 60,
+          "name": "灼心摇壶",
+          "star": 1,
+          "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/96df0c8f8654e722b940ba9cb36dae15.png",
+          "rarity": "S",
+          "properties": [
+            {
+              "property_name": "攻击力",
+              "property_id": 12102,
+              "base": "30%",
+              "level": 0,
+              "valid": false,
+              "system_id": 0,
+              "add": 0
+            }
+          ],
+          "main_properties": [
+            {
+              "property_name": "基础攻击力",
+              "property_id": 12101,
+              "base": "713",
+              "level": 0,
+              "valid": false,
+              "system_id": 0,
+              "add": 0
+            }
+          ],
+          "talent_title": "焦油斟注",
+          "talent_content": "位于后场时，装备者的能量自动回复提升<color=#2BAD00>0.6</color>点/秒；<color=#FFFFFF>[强化特殊技]</color>或<color=#FFFFFF>[支援攻击]</color>命中敌人时，装备者造成的伤害提升<color=#2BAD00>3.5%</color>，最多叠加10层，持续6秒，0.3秒内最多触发一次，位于后场时叠加效率翻倍，重复触发时刷新持续时间；获得伤害提升效果时，若叠加层数大于等于5层，则装备者的异常精通额外提升<color=#2BAD00>50</color>点，异常精通提升效果不可叠加，持续6秒。",
+          "profession": 3
+        },
+        "properties": [
+          {
+            "property_name": "生命值",
+            "property_id": 1,
+            "base": "7368",
+            "add": "3533",
+            "final": "10901"
+          },
+          {
+            "property_name": "攻击力",
+            "property_id": 2,
+            "base": "1551",
+            "add": "1403",
+            "final": "2954"
+          },
+          {
+            "property_name": "防御力",
+            "property_id": 3,
+            "base": "600",
+            "add": "545",
+            "final": "1145"
+          },
+          {
+            "property_name": "冲击力",
+            "property_id": 4,
+            "base": "",
+            "add": "",
+            "final": "83"
+          },
+          {
+            "property_name": "暴击率",
+            "property_id": 5,
+            "base": "",
+            "add": "",
+            "final": "12.2%"
+          },
+          {
+            "property_name": "暴击伤害",
+            "property_id": 6,
+            "base": "",
+            "add": "",
+            "final": "69.2%"
+          },
+          {
+            "property_name": "异常掌控",
+            "property_id": 7,
+            "base": "118",
+            "add": "35",
+            "final": "153"
+          },
+          {
+            "property_name": "异常精通",
+            "property_id": 8,
+            "base": "",
+            "add": "",
+            "final": "287"
+          },
+          {
+            "property_name": "穿透率",
+            "property_id": 9,
+            "base": "",
+            "add": "",
+            "final": "0.0%"
+          },
+          {
+            "property_name": "能量自动回复",
+            "property_id": 11,
+            "base": "",
+            "add": "",
+            "final": "1.56"
+          },
+          {
+            "property_name": "穿透值",
+            "property_id": 232,
+            "base": "",
+            "add": "",
+            "final": "27"
+          },
+          {
+            "property_name": "火属性伤害加成",
+            "property_id": 316,
+            "base": "",
+            "add": "",
+            "final": "30.0%"
+          }
+        ],
+        "skills": [
+          {
+            "level": 11,
+            "skill_type": 0,
+            "items": [
+              {
+                "title": "普通攻击：炽焰直调式",
+                "text": "点按 <IconMap:Icon_Normal> 发动：\\n向前方进行至多五段的攻击，造成<color=#F0D12B>物理伤害</color>和<color=#FF5521>火属性伤害</color>。",
+                "awaken": false
+              },
+              {
+                "title": "普通攻击：炽焰搅拌式",
+                "text": "<color=#FFFFFF>[燃油特调]</color>状态下，长按 <IconMap:Icon_Normal> 发动：\\n持续回旋并向周身喷射火焰，随后发动终结一击，造成<color=#FF5521>火属性伤害</color>，保持长按可以延长喷射的持续时间；\\n招式发动时，将会消耗20点<color=#FFFFFF>[燃点]</color>；\\n招式发动期间抗打断等级提升；\\n终结一击发动后，点按 <IconMap:Icon_SpecialReady> 可以直接衔接发动<color=#FFFFFF>[强化特殊技：灼热摇荡法·双份]</color>。",
+                "awaken": false
+              }
+            ],
+            "awaken_state": "AwakenStateNotVisible"
+          },
+          {
+            "level": 11,
+            "skill_type": 1,
+            "items": [
+              {
+                "title": "特殊技：灼热熟成法",
+                "text": "点按 <IconMap:Icon_Special> 发动：\\n向前方发动一次火焰冲击，造成<color=#FF5521>火属性伤害</color>；\\n长按 <IconMap:Icon_Special> 可以进行蓄力，提升招式的威力；\\n招式发动期间抗打断等级提升。",
+                "awaken": false
+              },
+              {
+                "title": "强化特殊技：灼热摇荡法",
+                "text": "能量足够时，点按 <IconMap:Icon_SpecialReady> 发动：\\n使用单手喷射器持续喷射火焰，随后向前方直线范围发动一次火焰冲击，造成大量<color=#FF5521>火属性伤害</color>，保持长按可以持续消耗能量并延长喷射的持续时间；\\n持续喷射期间拖曳{LAYOUT_CONSOLECONTROLLER#操作杆}{LAYOUT_FALLBACK#摇杆}，可以发动侧身闪避，向对应方向调整身位；\\n持续喷射期间抗打断等级提升，受到的伤害降低40%；\\n侧身闪避和火焰冲击发动期间拥有无敌效果。",
+                "awaken": false
+              },
+              {
+                "title": "强化特殊技：灼热摇荡法·双份",
+                "text": "<color=#FFFFFF>[强化特殊技：灼热摇荡法]</color>发动期间，能量足够时，点按 <IconMap:Icon_SpecialReady> 发动：\\n使用双手喷射器持续喷射火焰，随后向前方直线范围发动一次强力的火焰冲击，造成大量<color=#FF5521>火属性伤害</color>，保持长按可以持续消耗能量并延长喷射的持续时间；\\n喷射发动瞬间和火焰冲击发动期间拥有无敌效果；\\n持续喷射期间抗打断等级提升，受到的伤害降低40%。",
+                "awaken": false
+              }
+            ],
+            "awaken_state": "AwakenStateNotVisible"
+          },
+          {
+            "level": 11,
+            "skill_type": 2,
+            "items": [
+              {
+                "title": "闪避：焰影疾行",
+                "text": "点按 <IconMap:Icon_Evade> 发动：\\n快速的冲刺闪避；\\n招式发动期间拥有无敌效果。",
+                "awaken": false
+              },
+              {
+                "title": "冲刺攻击：危险发酵式",
+                "text": "闪避时，点按 <IconMap:Icon_Normal> 发动：\\n挥舞喷射器向前方进行突进攻击，造成<color=#FF5521>火属性伤害</color>。",
+                "awaken": false
+              },
+              {
+                "title": "闪避反击：摇荡闪",
+                "text": "触发<color=#FFFFFF>[极限闪避]</color>后，点按 <IconMap:Icon_Normal> 发动：\\n对前方敌人发动连续攻击并喷射火焰，造成<color=#F0D12B>物理伤害</color>和<color=#FF5521>火属性伤害</color>；\\n招式发动期间拥有无敌效果。",
+                "awaken": false
+              }
+            ],
+            "awaken_state": "AwakenStateNotVisible"
+          },
+          {
+            "level": 11,
+            "skill_type": 3,
+            "items": [
+              {
+                "title": "连携技：燃油熔焰",
+                "text": "触发<color=#FFFFFF>[连携技]</color>时，选择对应角色发动：\\n快速突进并向周身喷射火焰，随后向前方扇形范围发动一次火焰冲击，造成大量<color=#FF5521>火属性伤害</color>；\\n招式发动期间拥有无敌效果；\\n招式发动后，点按 <IconMap:Icon_SpecialReady> 可以直接衔接发动<color=#FFFFFF>[强化特殊技：灼热摇荡法·双份]</color>。",
+                "awaken": false
+              },
+              {
+                "title": "终结技：纵享盛焰",
+                "text": "喧响等级达到<color=#FFFFFF>[极]</color>时，点按 <IconMap:Icon_UltimateReady> 发动：\\n快速突进后跃向空中，对前方大范围区域持续喷射火焰，造成大量<color=#FF5521>火属性伤害</color>；\\n跃向空中时，将触发<color=#FFFFFF>[快速支援]</color>，若响应<color=#FFFFFF>[快速支援]</color>，柏妮思会延长火焰喷射的持续时间；\\n招式发动时，回复50点<color=#FFFFFF>[燃点]</color>；\\n招式发动期间拥有无敌效果。",
+                "awaken": false
+              }
+            ],
+            "awaken_state": "AwakenStateNotVisible"
+          },
+          {
+            "level": 6,
+            "skill_type": 5,
+            "items": [
+              {
+                "title": "核心被动：燃油特调",
+                "text": "柏妮思消耗能量值时，会为自身累积<color=#FFFFFF>[燃点]</color>，最多累积100点；每消耗1点能量值，能够累积1.4点<color=#FFFFFF>[燃点]</color>，当<color=#FFFFFF>[燃点]</color>累积至50点时，柏妮思将进入<color=#FFFFFF>[燃油特调]</color>状态，直到<color=#FFFFFF>[燃点]</color>耗尽；进入战场时，柏妮思立刻累积100点<color=#FFFFFF>[燃点]</color>；\\n<color=#FFFFFF>[燃油特调]</color>状态下，柏妮思的<color=#FFFFFF>[普通攻击：炽焰搅拌式]</color>、<color=#FFFFFF>[强化特殊技：灼热摇荡法]</color>、<color=#FFFFFF>[强化特殊技：灼热摇荡法·双份]</color>、<color=#FFFFFF>[连携技：燃油熔焰]</color>或<color=#FFFFFF>[终结技：纵享盛焰]</color>命中敌人时，将对目标施加<color=#FFFFFF>[灼伤]</color>效果，直到柏妮思退出<color=#FFFFFF>[燃油特调]</color>状态；队伍中其他角色攻击命中处于<color=#FFFFFF>[灼伤]</color>状态下的敌人时，会触发<color=#FFFFFF>[余烬]</color>效果，消耗8点<color=#FFFFFF>[燃点]</color>，对目标造成等同于柏妮思<color=#2BAD00>320%</color>攻击力的<color=#FF5521>火属性伤害</color>并累积<color=#FF5521>火属性异常积蓄值</color>，1.5秒内最多触发一次；每拥有10点异常精通，<color=#FFFFFF>[余烬]</color>效果造成的伤害提升1%，最多提升30%；<color=#FFFFFF>[余烬]</color>效果造成的伤害被视为<color=#FFFFFF>[支援攻击]</color>伤害。",
+                "awaken": false
+              },
+              {
+                "title": "额外能力：星火燎原",
+                "text": "队伍中存在其他<color=#FFFFFF>[异常]</color>角色或与自身阵营相同的角色时触发：\\n柏妮思<color=#FFFFFF>[普通攻击：炽焰搅拌式]</color>、<color=#FFFFFF>[强化特殊技：灼热摇荡法]</color>、<color=#FFFFFF>[强化特殊技：灼热摇荡法·双份]</color>命中敌人，或触发<color=#FFFFFF>[余烬]</color>效果时，招式累积的<color=#FF5521>火属性异常积蓄值</color>提升65%；队伍中任意角色对敌人施加<color=#FF5521>[灼烧]</color>效果时，该效果的持续时间提升3秒。",
+                "awaken": false
+              }
+            ],
+            "awaken_state": "AwakenStateNotVisible"
+          },
+          {
+            "level": 11,
+            "skill_type": 6,
+            "items": [
+              {
+                "title": "快速支援：提神特饮",
+                "text": "当前操作中的角色被击飞时，点按 <IconMap:Icon_Switch> 发动：\\n对前方敌人发动连续攻击并喷射火焰，造成<color=#F0D12B>物理伤害</color>和<color=#FF5521>火属性伤害</color>；\\n招式发动期间拥有无敌效果。",
+                "awaken": false
+              },
+              {
+                "title": "招架支援：烟熏油盅",
+                "text": "前场角色即将被攻击时，点按 <IconMap:Icon_Switch> 发动：\\n招架敌人的攻击，累积大量失衡值；\\n招式发动期间拥有无敌效果。",
+                "awaken": false
+              },
+              {
+                "title": "支援突击：灼焰甘露",
+                "text": "发动<color=#FFFFFF>[招架支援]</color>后，点按 <IconMap:Icon_Normal> 发动：\\n腾空跃起，快速旋转前进并向周身喷射火焰，造成<color=#FF5521>火属性伤害</color>；\\n招式发动期间拥有无敌效果；\\n招式发动后，点按 <IconMap:Icon_SpecialReady> 可以直接衔接发动<color=#FFFFFF>[强化特殊技：灼热摇荡法·双份]</color>。",
+                "awaken": false
+              }
+            ],
+            "awaken_state": "AwakenStateNotVisible"
+          }
+        ],
+        "rank": 0,
+        "ranks": [
+          {
+            "id": 1,
+            "name": "热络同心",
+            "desc": "<color=#FFFFFF>[燃点]</color>的上限从100点提升至140点，进入战场时，柏妮思额外累积40点<color=#FFFFFF>[燃点]</color>；\\n<color=#FFFFFF>[余烬]</color>效果的伤害倍率提升，提升效果等同于柏妮思攻击力的100%；\\n<color=#FFFFFF>[余烬]</color>效果累积的<color=#FF5521>火属性异常积蓄值</color>提升25%。",
+            "pos": 1,
+            "is_unlocked": false
+          },
+          {
+            "id": 2,
+            "name": "加量不加价",
+            "desc": "触发<color=#FFFFFF>[余烬]</color>效果时，将对敌人施加<color=#FFFFFF>[热意洞穿]</color>，\\n最多叠加5层，持续6秒，重复触发时刷新持续时间；\\n受到我方攻击时，目标每拥有一层<color=#FFFFFF>[热意洞穿]</color>，本次攻击的穿透率提升4%，最多提升20%。",
+            "pos": 2,
+            "is_unlocked": false
+          },
+          {
+            "id": 3,
+            "name": "天性乐观",
+            "desc": "<color=#FFFFFF>[普通攻击]</color>、<color=#FFFFFF>[闪避]</color>、<color=#FFFFFF>[支援技]</color>、<color=#FFFFFF>[特殊技]</color>、<color=#FFFFFF>[连携技]</color> 技能等级+2",
+            "pos": 3,
+            "is_unlocked": false
+          },
+          {
+            "id": 4,
+            "name": "超绝燃油补给",
+            "desc": "<color=#FFFFFF>[强化特殊技]</color>或<color=#FFFFFF>[支援攻击]</color>命中敌人时，招式的暴击率提升30%；\\n<color=#FFFFFF>[强化特殊技：灼热摇荡法·双份]</color>中，火焰喷射的持续时间上限提升1秒。",
+            "pos": 4,
+            "is_unlocked": false
+          },
+          {
+            "id": 5,
+            "name": "火与冰之舞",
+            "desc": "<color=#FFFFFF>[普通攻击]</color>、<color=#FFFFFF>[闪避]</color>、<color=#FFFFFF>[支援技]</color>、<color=#FFFFFF>[特殊技]</color>、<color=#FFFFFF>[连携技]</color> 技能等级+2",
+            "pos": 5,
+            "is_unlocked": false
+          },
+          {
+            "id": 6,
+            "name": "盛焰邀约",
+            "desc": "柏妮思的<color=#FFFFFF>[强化特殊技：灼热摇荡法·双份]</color>命中敌人时，将额外触发特殊的<color=#FFFFFF>[余烬]</color>效果，\\n对目标造成等同于柏妮思60%攻击力的<color=#FF5521>火属性伤害</color>，0.5秒内最多触发1次，无需消耗<color=#FFFFFF>[燃点]</color>；\\n发动<color=#FFFFFF>[强化特殊技：灼热摇荡法·双份]</color>命中敌人后，招式发动期间，\\n<color=#FFFFFF>[强化特殊技：灼热摇荡法·双份]</color>、特殊的<color=#FFFFFF>[余烬]</color>效果、<color=#FF5521>[灼烧]</color>效果\\n将无视目标25%<color=#FF5521>火属性伤害抗性</color>；\\n在<color=#FFFFFF>[强化特殊技：灼热摇荡法·双份]</color>中发动火焰冲击命中处于<color=#FF5521>[灼烧]</color>状态下的敌人时，\\n能够额外结算一次<color=#FF5521>[灼烧]</color>伤害，伤害效果等同于原本的1800%，同一目标20秒内最多触发一次。",
+            "pos": 6,
+            "is_unlocked": false
+          }
+        ],
+        "role_vertical_painting_url": "https://act-webstatic.mihoyo.com/game_record/zzzv2/role_vertical_painting/role_vertical_painting_1171.png",
+        "equip_plan_info": {
+          "type": 1,
+          "game_default": {
+            "property_list": [
+              {
+                "id": 2,
+                "name": "攻击力",
+                "full_name": "攻击力",
+                "system_id": 2,
+                "is_select": false
+              },
+              {
+                "id": 8,
+                "name": "异常精通",
+                "full_name": "异常精通",
+                "system_id": 8,
+                "is_select": false
+              }
+            ]
+          },
+          "cultivate_info": {
+            "name": "【通用】柏妮思养成方案",
+            "plan_id": "3898",
+            "is_delete": false,
+            "old_plan": false
+          },
+          "custom_info": {
+            "property_list": [
+              {
+                "id": 11103,
+                "name": "生命值",
+                "full_name": "生命值",
+                "system_id": 111,
+                "is_select": false
+              },
+              {
+                "id": 11102,
+                "name": "生命值",
+                "full_name": "生命值百分比",
+                "system_id": 111,
+                "is_select": false
+              },
+              {
+                "id": 12103,
+                "name": "攻击力",
+                "full_name": "攻击力",
+                "system_id": 121,
+                "is_select": false
+              },
+              {
+                "id": 12102,
+                "name": "攻击力",
+                "full_name": "攻击力百分比",
+                "system_id": 121,
+                "is_select": false
+              },
+              {
+                "id": 13103,
+                "name": "防御力",
+                "full_name": "防御力",
+                "system_id": 131,
+                "is_select": false
+              },
+              {
+                "id": 13102,
+                "name": "防御力",
+                "full_name": "防御力百分比",
+                "system_id": 131,
+                "is_select": false
+              },
+              {
+                "id": 20103,
+                "name": "暴击率",
+                "full_name": "暴击率",
+                "system_id": 201,
+                "is_select": false
+              },
+              {
+                "id": 21103,
+                "name": "暴击伤害",
+                "full_name": "暴击伤害",
+                "system_id": 211,
+                "is_select": false
+              },
+              {
+                "id": 31203,
+                "name": "异常精通",
+                "full_name": "异常精通",
+                "system_id": 312,
+                "is_select": false
+              },
+              {
+                "id": 23203,
+                "name": "穿透值",
+                "full_name": "穿透值",
+                "system_id": 232,
+                "is_select": false
+              }
+            ]
+          },
+          "valid_property_cnt": 13,
+          "plan_only_special_property": false,
+          "equip_rating": "ER_A",
+          "plan_effective_property_list": [
+            {
+              "id": 12102,
+              "name": "攻击力",
+              "full_name": "攻击力百分比",
+              "system_id": 121,
+              "is_select": false
+            },
+            {
+              "id": 31203,
+              "name": "异常精通",
+              "full_name": "异常精通",
+              "system_id": 312,
+              "is_select": false
+            }
+          ],
+          "equip_rating_score": 65.85
+        },
+        "us_full_name": "Burnice White",
+        "vertical_painting_color": "#da8837",
+        "sub_element_type": 0,
+        "skin_list": [
+          {
+            "skin_id": 3111710,
+            "skin_name": "柏妮思·纵燃欢宴",
+            "skin_vertical_painting_url": "https://act-webstatic.mihoyo.com/game_record/zzzv2/role_vertical_painting/role_vertical_painting_1171.png",
+            "skin_square_url": "https://act-webstatic.mihoyo.com/game_record/zzzv2/role_square_avatar/role_square_avatar_1171.png",
+            "skin_hollow_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/8d34e1193dcfa5b93ebc5ae6357b2b9c.png",
+            "skin_vertical_painting_color": "#da8837",
+            "unlocked": true,
+            "rarity": "S",
+            "is_original": true
+          }
+        ],
+        "role_square_url": "https://act-webstatic.mihoyo.com/game_record/zzzv2/role_square_avatar/role_square_avatar_1171.png",
+        "awaken_state": "AwakenStateNotVisible",
+        "skill_awaken": {
+          "has_awaken_system": true,
+          "awaken_level": 0,
+          "awaken_max_level": 6,
+          "skill_awaken_items": [
+            {
+              "awaken_level": 1,
+              "level_show_name": "烈火的旋舞 I",
+              "awaken_skill_items": [
+                {
+                  "skill_type": 0,
+                  "awaken_simple_info": "加强：[普通攻击：炽焰搅拌式]",
+                  "skill_items": [
+                    {
+                      "title": "普通攻击：炽焰搅拌式",
+                      "text": "<color=#FFFFFF>[燃油特调]</color>状态下，长按 <IconMap:Icon_Normal> 发动：\\n持续回旋并向周身喷射火焰，随后发动终结一击，额外触发一次不消耗<color=#FFFFFF>[燃点]</color>的<color=#FFFFFF>[余烬]</color>，造成<color=#FF5521>火属性伤害</color>，保持长按可以延长喷射的持续时间；\\n招式造成的伤害同时视为<color=#FFFFFF>[支援攻击]</color>伤害；\\n招式发动时，将会消耗20点<color=#FFFFFF>[燃点]</color>；\\n招式发动期间抗打断等级提升；\\n终结一击发动后，点按 <IconMap:Icon_SpecialReady> 可以直接衔接发动<color=#FFFFFF>[强化特殊技：灼热摇荡法·双份]</color>。"
+                    }
+                  ]
+                },
+                {
+                  "skill_type": 6,
+                  "awaken_simple_info": "加强：[快速支援：提神特饮]",
+                  "skill_items": [
+                    {
+                      "title": "快速支援：提神特饮",
+                      "text": "当前操作中的角色被击飞时，点按 <IconMap:Icon_Switch> 发动：\\n对前方敌人发动连续攻击并喷射火焰，造成<color=#F0D12B>物理伤害</color>和<color=#FF5521>火属性伤害</color>；\\n招式发动期间拥有无敌效果；\\n招式发动后，点按 <IconMap:Icon_SpecialReady> 可以直接衔接发动<color=#FFFFFF>[强化特殊技：灼热摇荡法·双份]</color>。"
+                    }
+                  ]
+                },
+                {
+                  "skill_type": 1,
+                  "awaken_simple_info": "加强：[强化特殊技：灼热摇荡法]、[强化特殊技：灼热摇荡法·双份]，新增：[强化特殊技：灼热抛接法]",
+                  "skill_items": [
+                    {
+                      "title": "强化特殊技：灼热摇荡法",
+                      "text": "能量足够时，点按 <IconMap:Icon_SpecialReady> 发动：\\n使用单手喷射器持续喷射火焰，随后向前方直线范围发动一次火焰冲击，造成大量<color=#FF5521>火属性伤害</color>，保持长按可以持续消耗能量并延长喷射的持续时间；\\n持续喷射期间拖曳{LAYOUT_CONSOLECONTROLLER#操作杆}{LAYOUT_FALLBACK#摇杆}，可以发动侧身闪避，向对应方向调整身位；\\n持续喷射期间抗打断等级提升，受到的伤害降低60%；\\n侧身闪避和火焰冲击发动期间拥有无敌效果。"
+                    },
+                    {
+                      "title": "强化特殊技：灼热摇荡法·双份",
+                      "text": "<color=#FFFFFF>[强化特殊技：灼热摇荡法]</color>发动期间，能量足够时，点按 <IconMap:Icon_SpecialReady> 发动：\\n使用双手喷射器持续喷射火焰，随后向前方直线范围发动一次强力的火焰冲击，造成大量<color=#FF5521>火属性伤害</color>，保持长按可以持续消耗能量并延长喷射的持续时间；\\n喷射发动瞬间和火焰冲击发动期间拥有无敌效果；\\n持续喷射期间抗打断等级提升，受到的伤害降低60%。"
+                    },
+                    {
+                      "title": "强化特殊技：灼热抛接法",
+                      "text": "拥有<color=#FFFFFF>[流火]</color>时，换入前场时发动：\\n队友触发12次<color=#FFFFFF>[余烬]</color>后，柏妮思获得一点<color=#FFFFFF>[流火]</color>，拥有<color=#FFFFFF>[流火]</color>时，柏妮思下一次换入前场时消耗一点<color=#FFFFFF>[流火]</color>自动发动该招式，该次入场视作以[快速支援]入场，<color=#FFFFFF>[普通攻击：炽焰搅拌式]</color>触发的<color=#FFFFFF>[余烬]</color>命中敌人时增加2次计数，拥有<color=#FFFFFF>[流火]</color>时不再增加计数，消耗<color=#FFFFFF>[流火]</color>时清空计数；\\n快速突进并越过敌人，向敌人发动一次火焰冲击，造成<color=#F0D12B>物理伤害</color>和<color=#FF5521>火属性伤害</color>；\\n招式重击命中处于<color=#FE437E>以太异常状态</color>、<color=#2EB6FF>电属性异常状态</color>、<color=#FF5521>火属性异常状态</color>、<color=#F0D12B>物理属性异常状态</color>、<color=#98EFF0>冰属性异常状态</color>的目标时，触发一次<color=#FFFFFF>[异放]</color>：额外结算一次原属性异常<color=#FE437E>480%</color>/<color=#2EB6FF>240%</color>/<color=#FF5521>600%</color>/<color=#F0D12B>40%</color>/<color=#98EFF0>60%</color>的伤害；\\n[额外能力：星火燎原]的<color=#FF5521>火属性异常积蓄值</color>提升效果对该招式生效；\\n招式发动期间拥有无敌效果；\\n招式发动后，点按 <IconMap:Icon_SpecialReady> 可以直接衔接发动<color=#FFFFFF>[强化特殊技：灼热摇荡法·双份]</color>。"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "awaken_level": 2,
+              "level_show_name": "烈火的旋舞 II",
+              "awaken_skill_items": [
+                {
+                  "skill_type": 5,
+                  "awaken_simple_info": "新增：[潜能觉醒：沸点派对]",
+                  "skill_items": [
+                    {
+                      "title": "潜能觉醒：沸点派对",
+                      "text": "当柏妮思的初始能量自动回复大于等于1.8点时，超过的部分每拥有0.1点初始能量自动回复，异常掌控额外提升<color=#2BAD00>1</color>点，造成的伤害提升<color=#2BAD00>1%</color>，异常掌控最多提升25点，造成的伤害最多提升20%；[核心被动：燃油特调]中触发<color=#FFFFFF>[余烬]</color>的间隔降低至1.35秒。"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "awaken_level": 3,
+              "level_show_name": "烈火的旋舞 III",
+              "awaken_skill_items": [
+                {
+                  "skill_type": 5,
+                  "awaken_simple_info": "加强：[潜能觉醒：沸点派对]",
+                  "skill_items": [
+                    {
+                      "title": "潜能觉醒：沸点派对",
+                      "text": "当柏妮思的初始能量自动回复大于等于1.8点时，超过的部分每拥有0.1点初始能量自动回复，异常掌控额外提升<color=#2BAD00>1.3</color>点，造成的伤害提升<color=#2BAD00>1.25%</color>，异常掌控最多提升25点，造成的伤害最多提升20%；[核心被动：燃油特调]中触发<color=#FFFFFF>[余烬]</color>的间隔降低至1.35秒。"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "awaken_level": 4,
+              "level_show_name": "烈火的旋舞 IV",
+              "awaken_skill_items": [
+                {
+                  "skill_type": 5,
+                  "awaken_simple_info": "加强：[潜能觉醒：沸点派对]",
+                  "skill_items": [
+                    {
+                      "title": "潜能觉醒：沸点派对",
+                      "text": "当柏妮思的初始能量自动回复大于等于1.8点时，超过的部分每拥有0.1点初始能量自动回复，异常掌控额外提升<color=#2BAD00>1.6</color>点，造成的伤害提升<color=#2BAD00>1.5%</color>，异常掌控最多提升25点，造成的伤害最多提升20%；[核心被动：燃油特调]中触发<color=#FFFFFF>[余烬]</color>的间隔降低至1.35秒。"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "awaken_level": 5,
+              "level_show_name": "烈火的旋舞 V",
+              "awaken_skill_items": [
+                {
+                  "skill_type": 5,
+                  "awaken_simple_info": "加强：[潜能觉醒：沸点派对]",
+                  "skill_items": [
+                    {
+                      "title": "潜能觉醒：沸点派对",
+                      "text": "当柏妮思的初始能量自动回复大于等于1.8点时，超过的部分每拥有0.1点初始能量自动回复，异常掌控额外提升<color=#2BAD00>2</color>点，造成的伤害提升<color=#2BAD00>1.75%</color>，异常掌控最多提升25点，造成的伤害最多提升20%；[核心被动：燃油特调]中触发<color=#FFFFFF>[余烬]</color>的间隔降低至1.35秒。"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "awaken_level": 6,
+              "level_show_name": "烈火的旋舞 VI",
+              "awaken_skill_items": [
+                {
+                  "skill_type": 5,
+                  "awaken_simple_info": "加强：[潜能觉醒：沸点派对]",
+                  "skill_items": [
+                    {
+                      "title": "潜能觉醒：沸点派对",
+                      "text": "当柏妮思的初始能量自动回复大于等于1.8点时，超过的部分每拥有0.1点初始能量自动回复，异常掌控额外提升<color=#2BAD00>2.5</color>点，造成的伤害提升<color=#2BAD00>2%</color>，异常掌控最多提升25点，造成的伤害最多提升20%；[核心被动：燃油特调]中触发<color=#FFFFFF>[余烬]</color>的间隔降低至1.35秒。"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      }
+    ],
+    "equip_wiki": {
+      "31846": "https://baike.mihoyo.com/zzz/wiki/content/800/detail?bbs_presentation_style=fullscreen",
+      "31841": "https://baike.mihoyo.com/zzz/wiki/content/800/detail?bbs_presentation_style=fullscreen",
+      "31842": "https://baike.mihoyo.com/zzz/wiki/content/800/detail?bbs_presentation_style=fullscreen",
+      "31443": "https://baike.mihoyo.com/zzz/wiki/content/151/detail?bbs_presentation_style=fullscreen",
+      "31844": "https://baike.mihoyo.com/zzz/wiki/content/800/detail?bbs_presentation_style=fullscreen",
+      "31445": "https://baike.mihoyo.com/zzz/wiki/content/151/detail?bbs_presentation_style=fullscreen"
+    },
+    "weapon_wiki": {
+      "14117": "https://baike.mihoyo.com/zzz/wiki/content/841/detail?bbs_presentation_style=fullscreen"
+    },
+    "avatar_wiki": {
+      "1171": "https://baike.mihoyo.com/zzz/wiki/content/840/detail?bbs_presentation_style=fullscreen"
+    },
+    "strategy_wiki": {
+      "1171": "https://baike.mihoyo.com/zzz/wiki/content/842/detail?bbs_presentation_style=fullscreen"
+    },
+    "cultivate_index": {
+      "1171": "https://act.mihoyo.com/zzz/event/character-builder/index.html?game_biz=nap_cn&mhy_auth_required=1&mhy_presentation_style=fullscreen&utm_source=bbs&utm_medium=zzz&utm_campaign=zj-char#/?avatar_id=1171"
+    },
+    "cultivate_equip": {
+      "1171": "https://act.mihoyo.com/zzz/event/character-builder/index.html?game_biz=nap_cn&mhy_auth_required=1&mhy_presentation_style=fullscreen&utm_source=bbs&utm_medium=zzz&utm_campaign=zj-drive#/?avatar_id=1171"
+    },
+    "special_skill_icon": {
+      "1051": {
+        "special_skills": [
+          {
+            "skill_type": 1,
+            "icon": "https://fastcdn.mihoyo.com/static-resource-v2/2025/12/16/4c0f24030dcbf14ba91505c60ced058a_8226905411985297866.png"
+          }
+        ]
+      },
+      "1371": {
+        "special_skills": [
+          {
+            "skill_type": 1,
+            "icon": "https://fastcdn.mihoyo.com/static-resource-v2/2025/12/16/4c0f24030dcbf14ba91505c60ced058a_8226905411985297866.png"
+          }
+        ]
+      },
+      "1441": {
+        "special_skills": [
+          {
+            "skill_type": 1,
+            "icon": "https://fastcdn.mihoyo.com/static-resource-v2/2025/12/16/4c0f24030dcbf14ba91505c60ced058a_8226905411985297866.png"
+          }
+        ]
+      },
+      "1471": {
+        "special_skills": [
+          {
+            "skill_type": 1,
+            "icon": "https://fastcdn.mihoyo.com/static-resource-v2/2025/12/16/4c0f24030dcbf14ba91505c60ced058a_8226905411985297866.png"
+          }
+        ]
+      }
+    }
+  }
+}

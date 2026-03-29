@@ -1,10 +1,22 @@
 /**
  * my.js — 我的页渲染逻辑
+ *
+ * 账号数据来自 mihoyo_bbs_account_detail.json：
+ *   nickname: CainLuo
+ *   uid: 182692936
+ *   avatar_url: https://bbs-static.miyoushe.com/avatar/avatar1.png
  */
 
 function renderMy(w, h) {
   var c = T();
   var maxW = Math.min(600, w - 40);
+
+  // 来自 mihoyo_bbs_account_detail.json
+  var bbsUser = {
+    uid: "182692936",
+    nickname: "CainLuo",
+    avatarUrl: "https://bbs-static.miyoushe.com/avatar/avatar1.png",
+  };
 
   var cardCss =
     "<style>" +
@@ -39,18 +51,31 @@ function renderMy(w, h) {
     c.txt2 +
     ';padding:0 4px 6px;margin-top:4px">账号管理</div>' +
     '<div class="mycard">' +
-    '<div class="myrow"><div style="width:36px;height:36px;border-radius:18px;background:' +
+    '<div class="myrow">' +
+    // 真实头像
+    '<img src="' +
+    bbsUser.avatarUrl +
+    '" style="width:36px;height:36px;border-radius:10px;object-fit:cover;flex-shrink:0;border:1px solid ' +
+    c.border +
+    '" onerror="this.style.background=\'' +
     c.primary +
-    ';flex-shrink:0"></div>' +
-    '<div style="flex:1"><div style="font-size:15px;color:' +
+    "';this.src=''\"/>" +
+    '<div style="flex:1">' +
+    '<div style="font-size:15px;color:' +
     c.txt +
-    '">182692936</div>' +
+    '">' +
+    bbsUser.nickname +
+    "</div>" +
     '<div style="font-size:12px;color:' +
     c.txt2 +
-    ';margin-top:2px">2 个游戏角色</div></div>' +
+    ';margin-top:2px">UID ' +
+    bbsUser.uid +
+    " · 4 个游戏角色</div>" +
+    "</div>" +
     '<span style="color:' +
     c.txt2 +
-    ';font-size:14px">›</span></div>' +
+    ';font-size:14px">›</span>' +
+    "</div>" +
     "</div>" +
     '<div style="display:flex;align-items:center;justify-content:center;height:50px;font-size:15px;color:' +
     c.primary +

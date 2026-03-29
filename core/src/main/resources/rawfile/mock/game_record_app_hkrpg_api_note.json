@@ -2,43 +2,27 @@
   "retcode": 0,
   "message": "OK",
   "data": {
-    "current_stamina": 180,
-    "max_stamina": 240,
-    "stamina_recover_time": 14400,
-    "current_reserve_stamina": 1200,
-    "is_reserve_stamina_full": false,
-    "current_train_score": 400,
+    "current_stamina": 300,
+    "max_stamina": 300,
+    "stamina_recover_time": 0,
+    "stamina_full_ts": 1774676986,
+    "accepted_epedition_num": 0,
+    "total_expedition_num": 4,
+    "expeditions": [],
+    "current_train_score": 0,
     "max_train_score": 500,
-    "current_rogue_score": 8400,
+    "current_rogue_score": 0,
     "max_rogue_score": 14000,
     "weekly_cocoon_cnt": 3,
     "weekly_cocoon_limit": 3,
-    "rogue_tourn_weekly_cur": 6000,
-    "rogue_tourn_weekly_max": 8000,
-    "accepted_epedition_num": 3,
-    "total_expedition_num": 4,
-    "expeditions": [
-      {
-        "avatars": [],
-        "status": "Ongoing",
-        "remaining_time": 29294,
-        "name": "",
-        "item_url": ""
-      },
-      {
-        "avatars": [],
-        "status": "Finished",
-        "remaining_time": 0,
-        "name": "",
-        "item_url": ""
-      },
-      {
-        "avatars": [],
-        "status": "Ongoing",
-        "remaining_time": 9000,
-        "name": "",
-        "item_url": ""
-      }
-    ]
+    "current_reserve_stamina": 2400,
+    "is_reserve_stamina_full": true,
+    "rogue_tourn_weekly_unlocked": false,
+    "rogue_tourn_weekly_max": 1000,
+    "rogue_tourn_weekly_cur": 0,
+    "current_ts": 1774676986,
+    "rogue_tourn_exp_is_full": false,
+    "grid_fight_weekly_cur": 0,
+    "grid_fight_weekly_max": 0
   }
 }

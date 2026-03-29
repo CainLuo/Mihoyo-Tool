@@ -9,14 +9,13 @@ import { CharacterCard } from './CharacterCard'
 import { CharactersSkeleton } from './CharactersSkeleton'
 import { GameTabBar } from './GameTabBar'
 import { ViewState } from '../../constants/ViewStates'
-import { AppConstants } from '../../constants/AppConstants'
 
 @ComponentV2
 export struct CharactersContent {
   @Param tm: ThemeManager = new ThemeManager()
   @Param vm: CharactersViewModel = new CharactersViewModel()
-  @Param currentBreakpoint: string = 'xs'
   @Param scroller: Scroller = new Scroller()
+  @Param onCardTap: (character: GameDataSummary) => void = (_c: GameDataSummary) => {}
 
   build() {
     Column() {
@@ -34,7 +33,7 @@ export struct CharactersContent {
           Column({ space: this.tm.current.value16 }) {
             CharactersSkeleton()
           }
-          .width(this.tm.current.widthFull)
+          .width(this.tm.current.full)
           .padding({ top: this.tm.current.value16 })
         }
         .scrollBar(BarState.Off)
@@ -45,7 +44,7 @@ export struct CharactersContent {
           HomePlaceholderView()
         } else {
           Column({ space: this.tm.current.value20 }) {
-            Text('📋').fontSize(this.tm.current.iconSizeXL)
+            Text('📋').fontSize(this.tm.current.value64)
             Column({ space: this.tm.current.value8 }) {
               Text($r('app.string.characters_placeholder_title'))
                 .font(this.tm.current.title18Bold)
@@ -61,13 +60,13 @@ export struct CharactersContent {
               .fontSize(this.tm.current.body16Medium.size)
               .fontWeight(this.tm.current.body16Medium.weight)
               .fontColor(Color.White)
-              .width(this.tm.current.widthButton)
-              .height(this.tm.current.heightButton)
+              .width(this.tm.current.pct90)
+              .height(this.tm.current.value50)
               .borderRadius(this.tm.current.radius12)
               .backgroundColor(this.tm.current.colorPrimary)
               .onClick(() => { this.vm.refresh() })
           }
-          .width(this.tm.current.widthFull)
+          .width(this.tm.current.full)
           .layoutWeight(1)
           .justifyContent(FlexAlign.Center)
           .alignItems(HorizontalAlign.Center)
@@ -76,32 +75,27 @@ export struct CharactersContent {
         Scroll(this.scroller) {
           Column({ space: this.tm.current.value16 }) {
             GridRow({
-              columns: { xs: 2, sm: 3, md: 4, lg: 5 },
-              gutter: { x: this.tm.current.value12, y: this.tm.current.value12 },
-              breakpoints: {
-                value: AppConstants.GRID_BREAKPOINTS,
-                reference: BreakpointsReference.WindowSize
-              }
+              columns: 2,
+              gutter: { x: this.tm.current.value12, y: this.tm.current.value12 }
             }) {
               ForEach(this.vm.characters, (character: GameDataSummary) => {
                 GridCol({ span: 1 }) {
                   CharacterCard({
                     character: character,
-                    isPhone: this.currentBreakpoint === 'xs',
-                    breakpoint: this.currentBreakpoint,
                     gameId: this.vm.gameTabs.length > 0
                       ? this.vm.gameTabs[this.vm.selectedGameIdx].gameId : 'genshin',
                     roleUid: this.vm.gameTabs.length > 0
-                      ? this.vm.gameTabs[this.vm.selectedGameIdx].roleUid : ''
+                      ? this.vm.gameTabs[this.vm.selectedGameIdx].roleUid : '',
+                    onTap: (c: GameDataSummary) => { this.onCardTap(c) }
                   })
                 }
               }, (character: GameDataSummary) => character.entityId)
             }
-            .width(this.tm.current.widthFull)
+            .width(this.tm.current.full)
             .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
             Row().height(this.tm.current.value40)
           }
-          .width(this.tm.current.widthFull)
+          .width(this.tm.current.full)
           .padding({ top: this.tm.current.value8 })
         }
         .edgeEffect(EdgeEffect.Spring)
@@ -110,7 +104,7 @@ export struct CharactersContent {
         .align(Alignment.Top)
       }
     }
-    .width(this.tm.current.widthFull)
-    .height(this.tm.current.heightFull)
+    .width(this.tm.current.full)
+    .height(this.tm.current.full)
   }
 }

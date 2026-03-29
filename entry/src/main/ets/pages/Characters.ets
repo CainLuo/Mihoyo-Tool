@@ -1,20 +1,30 @@
 /**
- * Characters — 角色 Tab 页（View 层）
+ * Characters — 角色 Tab 页（View 层，纯内容组件）
  */
 import { BusinessError } from '@kit.BasicServicesKit'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { CharactersViewModel } from '../viewmodel/CharactersViewModel'
 import { CharactersContent } from '../components/characters/CharactersContent'
 import { Logger } from '../utils/Logger'
-import { AppConstants } from '../constants/AppConstants'
+import { GenshinCharacterDetailParam, GenshinCharacterDetail } from './GenshinCharacterDetail'
+import { GameDataSummary } from 'core'
+
+@Builder
+export function charDetailBuilder(name: string, param: Object) {
+  if (name === 'CharDetail') {
+    GenshinCharacterDetail({ routerParam: param as GenshinCharacterDetailParam })
+  }
+}
 
 @ComponentV2
 export struct Characters {
   @Local private tm: ThemeManager = themeManager
   @Local private vm: CharactersViewModel = new CharactersViewModel()
-  @Local private currentBreakpoint: string = 'xs'
   private uiCtx: UIContext | null = null
   private scroller: Scroller = new Scroller()
+  // 宽屏时由 Main 传入局部 detailStack，窄屏时为 null
+  @Param detailStack: NavPathStack | null = null
+  @Param isSplit: boolean = false
 
   aboutToAppear(): void {
     this.uiCtx = this.getUIContext()
@@ -44,28 +54,42 @@ export struct Characters {
     ctx.getPromptAction().showDialog({
       title: $r('app.string.characters_refresh_cooldown_title'),
       message: $r('app.string.characters_refresh_cooldown_msg'),
-      buttons: [{ text: $r('app.string.dialog_confirm'), color: $r('app.color.color_accent') }]
+      buttons: [
+        { text: $r('app.string.dialog_cancel'), color: $r('app.color.color_text_secondary') },
+        { text: $r('app.string.dialog_sync'), color: $r('app.color.color_accent') }
+      ]
+    }).then((result) => {
+      if (result.index === 1) {
+        this.vm.forceRefresh()
+      }
     }).catch((e: BusinessError) => {
       Logger.warn('Characters', 'showDialog cooldown failed: ' + e.message)
     })
   }
 
-  build() {
-    GridRow({
-      columns: { xs: 1, sm: 1, md: 1, lg: 1 },
-      breakpoints: { value: AppConstants.GRID_BREAKPOINTS, reference: BreakpointsReference.WindowSize }
-    }) {
-      GridCol({ span: 1 }) {
-        CharactersContent({
-          tm: this.tm,
-          vm: this.vm,
-          currentBreakpoint: this.currentBreakpoint,
-          scroller: this.scroller
-        })
-      }
+  private onCardTap(character: GameDataSummary): void {
+    const gameId = this.vm.gameTabs.length > 0
+      ? this.vm.gameTabs[this.vm.selectedGameIdx].gameId : 'genshin'
+    const roleUid = this.vm.gameTabs.length > 0
+      ? this.vm.gameTabs[this.vm.selectedGameIdx].roleUid : ''
+    const param = new GenshinCharacterDetailParam()
+    param.gameId = gameId
+    param.roleUid = roleUid
+    param.entityId = character.entityId
+
+    if (this.isSplit) {
+      this.detailStack?.replacePath({ name: 'CharDetail', param: param })
+    } else {
+      this.detailStack?.pushPath({ name: 'CharDetail', param: param })
     }
-    .onBreakpointChange((bp: string) => {
-      this.currentBreakpoint = bp
+  }
+
+  build() {
+    CharactersContent({
+      tm: this.tm,
+      vm: this.vm,
+      scroller: this.scroller,
+      onCardTap: (c: GameDataSummary) => { this.onCardTap(c) }
     })
   }
 }

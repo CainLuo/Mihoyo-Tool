@@ -23,6 +23,6 @@ export struct LoginTabContent {
         LoginCookie({ vm: this.vm })
       }
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
   }
 }

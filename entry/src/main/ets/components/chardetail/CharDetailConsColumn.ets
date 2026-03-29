@@ -55,36 +55,36 @@ export struct CharDetailConsColumn {
         if (c.iconUrl !== '') {
           Stack() {
             Image(c.iconUrl)
-              .width(this.tm.current.charDetailConsBadgeSize)
-              .height(this.tm.current.charDetailConsBadgeSize)
+              .width(this.tm.current.value28)
+              .height(this.tm.current.value28)
               .objectFit(ImageFit.Contain)
-              .borderRadius(this.tm.current.charDetailConsBadgeSize / 2)
+              .borderRadius(this.tm.current.value28 / 2)
               .backgroundColor(c.isActived ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDark2xl)
               .border({
-                width: this.tm.current.borderWidthMedium,
+                width: this.tm.current.value1p5,
                 color: c.isActived ? this.tm.current.surfaceActiveBorder : this.tm.current.surfaceInactiveBorder
               })
               .opacity(c.isActived ? 1.0 : this.tm.current.charDetailConsInactiveOpacity)
             if (!c.isActived) {
               SymbolGlyph($r('sys.symbol.lock'))
-                .fontSize(this.tm.current.charDetailConsBadgeSize * this.tm.current.charDetailLockIconRatio)
+                .fontSize(this.tm.current.value28 * this.tm.current.charDetailLockIconRatio)
                 .fontColor([this.tm.current.textLockIcon])
             }
           }
-          .width(this.tm.current.charDetailConsBadgeSize)
-          .height(this.tm.current.charDetailConsBadgeSize)
+          .width(this.tm.current.value28)
+          .height(this.tm.current.value28)
         } else {
           // 无图标兜底：显示序号
           Text(`${c.pos}`)
             .fontSize(this.tm.current.body13Bold.size)
             .fontWeight(FontWeight.Bold)
             .fontColor(c.isActived ? $r('app.color.element_hydro') : this.tm.current.textInactive)
-            .width(this.tm.current.charDetailConsBadgeSize)
-            .height(this.tm.current.charDetailConsBadgeSize)
-            .borderRadius(this.tm.current.charDetailConsBadgeSize / 2)
+            .width(this.tm.current.value28)
+            .height(this.tm.current.value28)
+            .borderRadius(this.tm.current.value28 / 2)
             .backgroundColor(c.isActived ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDark2xl)
             .border({
-              width: this.tm.current.borderWidthMedium,
+              width: this.tm.current.value1p5,
               color: c.isActived ? this.tm.current.surfaceActiveBorder : this.tm.current.surfaceInactiveBorder
             })
             .textAlign(TextAlign.Center)

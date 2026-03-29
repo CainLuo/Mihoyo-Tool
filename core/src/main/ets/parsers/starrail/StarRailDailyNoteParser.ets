@@ -9,6 +9,7 @@ export class StarRailDailyNoteData {
   currentStamina: number = 0;
   maxStamina: number = 240;
   staminaRecoverTime: number = 0;   // 剩余恢复秒数
+  staminaFullTs: number = 0;        // 体力满时的 Unix 时间戳
 
   currentReserveStamina: number = 0;
   isReserveStaminaFull: boolean = false;
@@ -24,12 +25,22 @@ export class StarRailDailyNoteData {
 
   rogueTournWeeklyCur: number = 0;
   rogueTournWeeklyMax: number = 0;
+  rogueTournExpIsFull: boolean = false;
+
+  /** 黄金与机械（模拟宇宙周赛）当前积分 */
+  gridFightWeeklyCur: number = 0;
+  /** 黄金与机械（模拟宇宙周赛）最大积分 */
+  gridFightWeeklyMax: number = 0;
+
+  /** 当前时间戳（服务器返回） */
+  currentTs: number = 0;
 }
 
 interface RawStarRailNoteData {
   current_stamina: number;
   max_stamina: number;
   stamina_recover_time: number;
+  stamina_full_ts: number;
   current_reserve_stamina: number;
   is_reserve_stamina_full: boolean;
   current_train_score: number;
@@ -40,6 +51,10 @@ interface RawStarRailNoteData {
   weekly_cocoon_limit: number;
   rogue_tourn_weekly_cur: number;
   rogue_tourn_weekly_max: number;
+  rogue_tourn_exp_is_full: boolean;
+  grid_fight_weekly_cur: number;
+  grid_fight_weekly_max: number;
+  current_ts: number;
 }
 
 export class StarRailDailyNoteParser {
@@ -58,6 +73,7 @@ export class StarRailDailyNoteParser {
     data.currentStamina = raw.current_stamina;
     data.maxStamina = raw.max_stamina;
     data.staminaRecoverTime = raw.stamina_recover_time;
+    data.staminaFullTs = raw.stamina_full_ts ?? 0;
     data.currentReserveStamina = raw.current_reserve_stamina;
     data.isReserveStaminaFull = raw.is_reserve_stamina_full;
     data.currentTrainScore = raw.current_train_score;
@@ -66,8 +82,12 @@ export class StarRailDailyNoteParser {
     data.maxRogueScore = raw.max_rogue_score;
     data.weeklyCocoonCnt = raw.weekly_cocoon_cnt;
     data.weeklyCocoonLimit = raw.weekly_cocoon_limit;
-    data.rogueTournWeeklyCur = raw.rogue_tourn_weekly_cur;
-    data.rogueTournWeeklyMax = raw.rogue_tourn_weekly_max;
+    data.rogueTournWeeklyCur = raw.rogue_tourn_weekly_cur ?? 0;
+    data.rogueTournWeeklyMax = raw.rogue_tourn_weekly_max ?? 0;
+    data.rogueTournExpIsFull = raw.rogue_tourn_exp_is_full ?? false;
+    data.gridFightWeeklyCur = raw.grid_fight_weekly_cur ?? 0;
+    data.gridFightWeeklyMax = raw.grid_fight_weekly_max ?? 0;
+    data.currentTs = raw.current_ts ?? 0;
     return data;
   }
 }

@@ -16,10 +16,10 @@ export struct ZZZGameToolCardContent {
   dataRow(emoji: string, label: Resource, value: string, valueColor: ResourceColor) {
     Row({ space: this.tm.current.value8 }) {
       Text(emoji)
-        .width(this.tm.current.iconSizeSM)
-        .height(this.tm.current.iconSizeSM)
+        .width(this.tm.current.value32)
+        .height(this.tm.current.value32)
         .textAlign(TextAlign.Center)
-        .fontSize(this.tm.current.iconSizeSM - 4)
+        .fontSize(this.tm.current.value32 - 4)
         .borderRadius(this.tm.current.value8)
         .backgroundColor($r('app.color.surface_glass_xs'))
       Text(label)
@@ -30,7 +30,7 @@ export struct ZZZGameToolCardContent {
         .font(this.tm.current.body13Bold)
         .fontColor(valueColor)
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .alignItems(VerticalAlign.Center)
   }
 
@@ -39,10 +39,10 @@ export struct ZZZGameToolCardContent {
       // 电量：大数字 + 环形进度
       Row({ space: this.tm.current.value10 }) {
         Text('⚡')
-          .width(this.tm.current.iconSizeSM)
-          .height(this.tm.current.iconSizeSM)
+          .width(this.tm.current.value32)
+          .height(this.tm.current.value32)
           .textAlign(TextAlign.Center)
-          .fontSize(this.tm.current.iconSizeSM - 4)
+          .fontSize(this.tm.current.value32 - 4)
           .borderRadius(this.tm.current.value8)
           .backgroundColor($r('app.color.surface_glass_xs'))
 
@@ -80,13 +80,13 @@ export struct ZZZGameToolCardContent {
           total: 100,
           type: ProgressType.Ring
         })
-          .width(this.tm.current.progressSizeMD)
-          .height(this.tm.current.progressSizeMD)
+          .width(this.tm.current.value52)
+          .height(this.tm.current.value52)
           .color(this.primaryColor)
           .backgroundColor(this.tm.current.colorDivider)
-          .style({ strokeWidth: this.tm.current.progressStroke })
+          .style({ strokeWidth: this.tm.current.value5 })
       }
-      .width(this.tm.current.widthFull)
+      .width(this.tm.current.full)
       .alignItems(VerticalAlign.Center)
 
       Divider().color(this.tm.current.colorDivider)
@@ -113,7 +113,7 @@ export struct ZZZGameToolCardContent {
             : this.tm.current.colorTextSecondary)
       }
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .padding({
       left: this.tm.current.value12,
       right: this.tm.current.value12,

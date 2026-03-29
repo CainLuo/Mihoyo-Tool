@@ -15,11 +15,11 @@ export struct LoginNarrowLayout {
   build() {
     Scroll() {
       Column({ space: this.tm.current.value20 }) {
-        LoginLogoSection({ tm: this.tm, logoSize: this.tm.current.loginLogoSizeSM })
+        LoginLogoSection({ tm: this.tm, logoSize: this.tm.current.value52 })
         LoginCard({ tm: this.tm, vm: this.vm })
         LoginAgreement({ tm: this.tm })
       }
-      .width(this.tm.current.widthFull)
+      .width(this.tm.current.full)
       .padding({
         left: this.tm.current.value20,
         right: this.tm.current.value20,
@@ -27,7 +27,7 @@ export struct LoginNarrowLayout {
         bottom: this.tm.current.value40
       })
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .layoutWeight(1)
     .align(Alignment.Top)
   }

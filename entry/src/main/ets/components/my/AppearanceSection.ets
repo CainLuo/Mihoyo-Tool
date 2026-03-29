@@ -29,12 +29,12 @@ export struct AppearanceSection {
           this.ThemeChip($r('app.string.my_theme_system'), ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET)
         }
       }
-      .width(this.tm.current.widthFull)
-      .height(this.tm.current.heightButton)
+      .width(this.tm.current.full)
+      .height(this.tm.current.value50)
       .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
       .alignItems(VerticalAlign.Center)
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .backgroundColor(this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
   }

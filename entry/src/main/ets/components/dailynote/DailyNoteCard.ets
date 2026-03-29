@@ -86,8 +86,8 @@ export struct DailyNoteCard {
         // 左侧图标（有才渲染，无则不占位）
         if (this.hasIcon) {
           Image(this.icon)
-            .width(this.tm.current.iconSizeSM)
-            .height(this.tm.current.iconSizeSM)
+            .width(this.tm.current.value32)
+            .height(this.tm.current.value32)
             .borderRadius(this.tm.current.radius8)
         }
 
@@ -120,7 +120,7 @@ export struct DailyNoteCard {
             .maxLines(1)
         }
       }
-      .width(this.tm.current.widthFull)
+      .width(this.tm.current.full)
       .padding({
         left: this.tm.current.value16,
         right: this.tm.current.value16,
@@ -134,7 +134,7 @@ export struct DailyNoteCard {
         this.customBottom()
       }
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .backgroundColor(this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
   }

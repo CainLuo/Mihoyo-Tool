@@ -11,9 +11,9 @@ export struct LoginFeatureItem {
   build() {
     Row({ space: this.tm.current.value8 }) {
       Column()
-        .width(this.tm.current.loginFeatureDotSize)
-        .height(this.tm.current.loginFeatureDotSize)
-        .borderRadius(this.tm.current.loginFeatureDotSize)
+        .width(this.tm.current.value5)
+        .height(this.tm.current.value5)
+        .borderRadius(this.tm.current.value5)
         .backgroundColor(this.tm.current.colorPrimary)
       Text(this.label)
         .font(this.tm.current.body13)

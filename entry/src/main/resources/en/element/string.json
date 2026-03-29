@@ -313,6 +313,14 @@
       "value": "OK"
     },
     {
+      "name": "dialog_cancel",
+      "value": "Cancel"
+    },
+    {
+      "name": "dialog_sync",
+      "value": "Sync"
+    },
+    {
       "name": "genshin_character_list_title",
       "value": "Characters"
     },
@@ -329,6 +337,10 @@
       "value": "Link an account and sync to view your character roster"
     },
     {
+      "name": "characters_select_hint",
+      "value": "Select a character to view details"
+    },
+    {
       "name": "characters_no_data_hint",
       "value": "No characters yet, tap refresh to sync"
     },
@@ -338,7 +350,7 @@
     },
     {
       "name": "characters_refresh_cooldown_msg",
-      "value": "Character data was synced within the last 30 minutes. Please try again later."
+      "value": "Synced within 30 minutes. Frequent refreshes may trigger CAPTCHA. Continue anyway?"
     },
     {
       "name": "character_level_prefix",
@@ -682,7 +694,7 @@
     },
     {
       "name": "home_refresh_cooldown_msg",
-      "value": "Synced within 30 minutes. Frequent refreshes may trigger CAPTCHA. Please try again later."
+      "value": "Synced within 30 minutes. Frequent refreshes may trigger CAPTCHA. Continue anyway?"
     }
   ]
 }

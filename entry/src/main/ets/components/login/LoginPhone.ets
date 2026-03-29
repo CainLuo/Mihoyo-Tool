@@ -42,11 +42,11 @@ export struct LoginPhone {
         Text(this.vm.errorMsg)
           .font(this.tm.current.body13)
           .fontColor(this.tm.current.colorDanger)
-          .width(this.tm.current.widthFull)
+          .width(this.tm.current.full)
           .textAlign(TextAlign.Center)
       }
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
   }
 
   private handleSendSms(): void {

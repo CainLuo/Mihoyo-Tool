@@ -61,28 +61,28 @@ export struct CharDetailHeroPanelLandscape {
     Stack() {
       // 背景
       Column()
-        .width(this.tm.current.widthFull)
-        .height(this.tm.current.heightFull)
+        .width(this.tm.current.full)
+        .height(this.tm.current.full)
         .linearGradient({
-          angle: this.tm.current.gradientAngle150,
+          angle: this.tm.current.a150,
           colors: [[this.tm.current.bgPortrait1, 0], [this.tm.current.bgPortrait2, 1.0]]
         })
 
       // 立绘铺满
       if (this.vm.charImageUrl !== '') {
         Image(this.vm.charImageUrl)
-          .width(this.tm.current.widthFull)
-          .height(this.tm.current.heightFull)
+          .width(this.tm.current.full)
+          .height(this.tm.current.full)
           .objectFit(ImageFit.Cover)
           .objectRepeat(ImageRepeat.NoRepeat)
       }
 
       // 底部渐变遮罩
       Column()
-        .width(this.tm.current.widthFull)
-        .height(this.tm.current.heightFull)
+        .width(this.tm.current.full)
+        .height(this.tm.current.full)
         .linearGradient({
-          angle: this.tm.current.gradientAngle0,
+          angle: this.tm.current.a0,
           colors: [[this.tm.current.overlayLandOpaque, 0], [this.tm.current.overlayLandStrong, 0.4],
             [this.tm.current.overlayLandFade, 0.65], [this.tm.current.colorTransparent, 1.0]]
         })
@@ -91,17 +91,17 @@ export struct CharDetailHeroPanelLandscape {
       Column() {
         CharDetailConsColumn({ constellations: this.vm.constellations })
       }
-      .width(this.tm.current.widthFull)
-      .height(this.tm.current.heightFull)
+      .width(this.tm.current.full)
+      .height(this.tm.current.full)
       .alignItems(HorizontalAlign.End)
       .justifyContent(FlexAlign.Center)
-      .padding({ right: this.tm.current.charDetailConsMarginRight })
+      .padding({ right: this.tm.current.value12 })
       .zIndex(3)
 
       // 左下角：名字 + 等级 + 好感 + 技能横行
       Column({ space: this.tm.current.value4 }) {
         Text(this.vm.charName)
-          .fontSize(this.tm.current.charDetailNameFontSizeLandscape)
+          .fontSize(this.tm.current.value15)
           .fontWeight(FontWeight.Bold)
           .fontColor(Color.White)
           .textShadow({ radius: this.tm.current.value8, color: this.tm.current.overlayShadow, offsetY: 2 })
@@ -115,11 +115,11 @@ export struct CharDetailHeroPanelLandscape {
             .fontSize(this.tm.current.body10.size)
             .fontColor(elementColor(this.vm.charElement))
             .backgroundColor(this.tm.current.surfaceFetterBg)
-            .border({ width: this.tm.current.charDetailBorderWidth, color: this.tm.current.surfaceFetterBorder })
+            .border({ width: this.tm.current.value1, color: this.tm.current.surfaceFetterBorder })
             .borderRadius(this.tm.current.value4)
             .padding({
               left: this.tm.current.value4, right: this.tm.current.value4,
-              top: this.tm.current.charDetailPaddingTiny, bottom: this.tm.current.charDetailPaddingTiny
+              top: this.tm.current.value1, bottom: this.tm.current.value1
             })
         }
         // 技能横行
@@ -128,12 +128,12 @@ export struct CharDetailHeroPanelLandscape {
             Column({ space: this.tm.current.value2 }) {
               if (skill.iconUrl !== '') {
                 Image(skill.iconUrl)
-                  .width(this.tm.current.charDetailSkillIconSize)
-                  .height(this.tm.current.charDetailSkillIconSize)
+                  .width(this.tm.current.value34)
+                  .height(this.tm.current.value34)
                   .objectFit(ImageFit.Contain)
-                  .borderRadius(this.tm.current.charDetailSkillIconRadius)
+                  .borderRadius(this.tm.current.value17)
                   .backgroundColor(this.tm.current.surfaceDark2xl)
-                  .border({ width: this.tm.current.borderWidthMedium, color: this.tm.current.surfaceSkillBorderPhone })
+                  .border({ width: this.tm.current.value1p5, color: this.tm.current.surfaceSkillBorderPhone })
               }
               Text(`${skill.level}`)
                 .fontSize(this.tm.current.body12.size)
@@ -144,19 +144,19 @@ export struct CharDetailHeroPanelLandscape {
           }, (_skill: CharDetailSkill, idx: number) => `lskill_${idx}`)
         }
       }
-      .width(this.tm.current.widthFull)
-      .height(this.tm.current.heightFull)
+      .width(this.tm.current.full)
+      .height(this.tm.current.full)
       .alignItems(HorizontalAlign.Start)
       .justifyContent(FlexAlign.End)
       .padding({
         left: this.tm.current.value10,
-        right: this.tm.current.charDetailRightPaddingLandscape,
+        right: this.tm.current.pct35,
         bottom: this.tm.current.value16
       })
       .zIndex(2)
     }
-    .width(this.tm.current.widthFull)
-    .height(this.tm.current.heightFull)
+    .width(this.tm.current.full)
+    .height(this.tm.current.full)
     .clip(true)
   }
 }

@@ -49,27 +49,32 @@ export struct Launch {
   }
 
   build() {
-    Column({ space: this.tm.current.value16 }) {
-      Image($r('app.media.ic_app_logo'))
-        .width(this.tm.current.launchLogoSize)
-        .height(this.tm.current.launchLogoSize)
-        .borderRadius(this.tm.current.launchLogoRadius)
-        .scale({ x: this.logoScale, y: this.logoScale })
-        .opacity(this.logoOpacity)
+    NavDestination() {
+      Column({ space: this.tm.current.value16 }) {
+        Image($r('app.media.ic_app_logo'))
+          .width(this.tm.current.value120)
+          .height(this.tm.current.value120)
+          .borderRadius(this.tm.current.value28)
+          .scale({ x: this.logoScale, y: this.logoScale })
+          .opacity(this.logoOpacity)
 
-      Text($r('app.string.app_name'))
-        .font(this.tm.current.title26Bold)
-        .fontColor(this.tm.current.colorTextPrimary)
-        .opacity(this.logoOpacity)
+        Text($r('app.string.app_name'))
+          .font(this.tm.current.title26Bold)
+          .fontColor(this.tm.current.colorTextPrimary)
+          .opacity(this.logoOpacity)
 
-      Text($r('app.string.launch_subtitle'))
-        .font(this.tm.current.body13)
-        .fontColor(this.tm.current.colorTextSecondary)
-        .opacity(this.logoOpacity)
+        Text($r('app.string.launch_subtitle'))
+          .font(this.tm.current.body13)
+          .fontColor(this.tm.current.colorTextSecondary)
+          .opacity(this.logoOpacity)
+      }
+      .width(this.tm.current.full)
+      .height(this.tm.current.full)
+      .justifyContent(FlexAlign.Center)
+      .alignItems(HorizontalAlign.Center)
     }
-    .width(this.tm.current.widthFull)
-    .height(this.tm.current.heightFull)
-    .justifyContent(FlexAlign.Center)
-    .alignItems(HorizontalAlign.Center)
+    .hideTitleBar(true)
+    .backgroundColor($r('app.color.color_page_bg'))
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
   }
 }

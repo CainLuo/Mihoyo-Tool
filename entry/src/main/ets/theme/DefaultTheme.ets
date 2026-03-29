@@ -2,17 +2,12 @@
  * ============================================================
  * DefaultTheme — 默认主题
  * ============================================================
- *
- * 所有颜色通过 $r('app.color.xxx') 引用资源系统，
- * 换主题只需替换 color.json，代码零改动。
- * light/dark 切换由系统根据 base/dark 目录自动处理。
- * ============================================================
  */
 
 import { Theme, makeFont } from './AppTheme'
 
 export class DefaultTheme implements Theme {
-  // ---- AppColor（通过资源系统，自动适配 light/dark）----
+  // ---- AppColor ----
   colorPrimary: Resource = $r('app.color.color_primary')
   colorTextPrimary: Resource = $r('app.color.color_text_primary')
   colorTextSecondary: Resource = $r('app.color.color_text_secondary')
@@ -27,116 +22,6 @@ export class DefaultTheme implements Theme {
   colorDangerBg: Resource = $r('app.color.color_danger_bg')
   colorWarning: Resource = $r('app.color.color_warning')
   colorSkeletonBg: Resource = $r('app.color.color_skeleton_bg')
-
-  // ---- AppFont ----
-  body10: Font = makeFont(10, FontWeight.Normal)
-  body12: Font = makeFont(12, FontWeight.Normal)
-  body13: Font = makeFont(13, FontWeight.Normal)
-  body13Bold: Font = makeFont(13, FontWeight.Bold)
-  body15Bold: Font = makeFont(15, FontWeight.Bold)
-  body16: Font = makeFont(16, FontWeight.Normal)
-  body16Medium: Font = makeFont(16, FontWeight.Medium)
-  title18Bold: Font = makeFont(18, FontWeight.Bold)
-  title20Bold: Font = makeFont(20, FontWeight.Bold)
-  title24Bold: Font = makeFont(24, FontWeight.Bold)
-  title26Bold: Font = makeFont(26, FontWeight.Bold)
-
-  // ---- Spacing ----
-  value2: number = 2
-  value4: number = 4
-  value8: number = 8
-  value10: number = 10
-  value12: number = 12
-  value16: number = 16
-  value20: number = 20
-  value40: number = 40
-
-  // ---- Radius ----
-  radius8: number = 8
-  radius12: number = 12
-  radius16: number = 16
-
-  // ---- Shadow ----
-  shadowRadius: number = 8
-  shadowOffsetY: number = 2
-  shadowColor: Resource = $r('app.color.color_shadow')
-
-  // ---- Size ----
-  widthFull: string = '100%'
-  heightFull: string = '100%'
-  widthButton: string = '90%'
-  widthButtonSM: string = '80%'
-  heightButton: number = 50
-  heightNavBar: number = 56
-  heightTextArea: number = 150
-  dialogMinWidth: number = 280
-  dialogMaxWidth: number = 400
-  contentMaxWidth: number = 600
-  iconSizeMD: number = 22
-  iconSizeXL: number = 64
-  avatarSizeMD: number = 36
-  avatarSizeSM: number = 28
-  avatarRadius: number = 18
-  gameBarWidth: number = 4
-  gameBarHeightMD: number = 36
-  gameBarHeightSM: number = 32
-  gameBarRadius: number = 2
-  progressSizeMD: number = 52
-  progressStroke: number = 5
-  skeletonCardH: number = 100
-  skeletonTextW: number = 120
-  skeletonAvatarSize: number = 36
-  animDurationShimmer: number = 800
-  shimmerOpacityHigh: number = 1.0
-  shimmerOpacityLow: number = 0.3
-  windowWidthDefault: number = 360
-  webHeightDefault: number = 360
-  avatarRadiusSM: number = 14
-  iconSizeSM: number = 32
-  expeditionAvatarSize: number = 40
-  expeditionAvatarRadius: number = 20
-  labelWidth: number = 56
-  blankHeightSM: number = 20
-  skeletonBlockH: number = 16
-  skeletonBlockR: number = 8
-  cardBorderWidth: number = 1
-  sidebarWidth: number = 200
-  qrCodeSize: number = 200
-  characterIconHeight: number = 80
-  weaponOverlaySize: number = 64
-  weaponIconSize: number = 48
-  weaponAffixTagH: number = 16
-  weaponInfoBarH: number = 18
-  elementBadgeSize: number = 30
-  constellationBadgeSize: number = 22
-  weaponAffixBadgeSize: number = 18
-  relicIconSize: number = 44
-  skillIconSize: number = 40
-  skillBadgeSize: number = 18
-  borderWidthMedium: number = 1.5
-  dividerHeightSM: number = 10
-  skillLevelRowHeight: number = 56
-  body11FontSize: number = 11
-  relicIconSizeLG: number = 40
-  relicIconSizeSM: number = 32
-  skillIconSizeLG: number = 36
-  skillIconSizeSM: number = 28
-  skillLevelRowHeightLG: number = 52
-  skillLevelRowHeightSM: number = 44
-  charDetailConsBadgeSize: number = 32
-  charDetailHeroPanelPortraitH: number = 260
-  charDetailHeroPanelLandscapeW: number = 200
-  charDetailSkillIconSize: number = 34
-  charDetailSkillIconRadius: number = 17
-  charDetailNameFontSizePortrait: number = 22
-  charDetailNameFontSizeLandscape: number = 15
-  charDetailWeaponIconSizeLG: number = 52
-  charDetailWeaponIconSizeSM: number = 36
-  charDetailRelicLeftColWidth: number = 90
-  charDetailConsMarginRight: number = 12
-  charDetailSkillBottomOffset: number = 24
-
-  // ---- Surface 颜色 Token ----
   surfaceActivePrimary: Resource = $r('app.color.surface_active_primary')
   surfaceDark2xl: Resource = $r('app.color.surface_dark_2xl')
   surfaceActiveBorder: Resource = $r('app.color.surface_active_border')
@@ -153,8 +38,6 @@ export class DefaultTheme implements Theme {
   surfaceDarkMd: Resource = $r('app.color.surface_dark_md')
   surfaceDarkLg: Resource = $r('app.color.surface_dark_lg')
   surfaceDarkXl: Resource = $r('app.color.surface_dark_xl')
-
-  // ---- Text 颜色 Token ----
   textOnDarkHigh: Resource = $r('app.color.text_on_dark_high')
   textOnDarkMedium: Resource = $r('app.color.text_on_dark_medium')
   textOnDarkSecondary: Resource = $r('app.color.text_on_dark_secondary')
@@ -164,13 +47,9 @@ export class DefaultTheme implements Theme {
   textOnDarkGhost: Resource = $r('app.color.text_on_dark_ghost')
   textInactive: Resource = $r('app.color.text_inactive')
   textLockIcon: Resource = $r('app.color.text_lock_icon')
-
-  // ---- Accent 颜色 Token ----
   accentRefine: Resource = $r('app.color.accent_refine')
   accentRefineBg: Resource = $r('app.color.accent_refine_bg')
   accentPrimaryStrong: Resource = $r('app.color.accent_primary_strong')
-
-  // ---- Overlay 颜色 Token ----
   overlayScrImTop: Resource = $r('app.color.overlay_scrim_top')
   overlayGradientEnd: Resource = $r('app.color.overlay_gradient_end')
   overlayShadow: Resource = $r('app.color.overlay_shadow')
@@ -181,8 +60,6 @@ export class DefaultTheme implements Theme {
   overlayLandOpaque: Resource = $r('app.color.overlay_land_opaque')
   overlayLandStrong: Resource = $r('app.color.overlay_land_strong')
   overlayLandFade: Resource = $r('app.color.overlay_land_fade')
-
-  // ---- Background 渐变色 Token ----
   bgElementHydro1: Resource = $r('app.color.bg_element_hydro_1')
   bgElementHydro2: Resource = $r('app.color.bg_element_hydro_2')
   bgElementHydro3: Resource = $r('app.color.bg_element_hydro_3')
@@ -207,48 +84,101 @@ export class DefaultTheme implements Theme {
   bgPortrait1: Resource = $r('app.color.bg_portrait_1')
   bgPortrait2: Resource = $r('app.color.bg_portrait_2')
   bgPageDeep: Resource = $r('app.color.bg_page_deep')
-
-  // ---- 渐变透明色 ----
   colorTransparent: Resource = $r('app.color.color_transparent')
+  loginTabBarBg: Resource = $r('app.color.login_tab_bar_bg')
+  loginInputBg: Resource = $r('app.color.login_input_bg')
 
-  // ---- 尺寸/间距 Token（角色详情页专用）----
+  // ---- AppFont ----
+  body10: Font = makeFont(10, FontWeight.Normal)
+  body12: Font = makeFont(12, FontWeight.Normal)
+  body13: Font = makeFont(13, FontWeight.Normal)
+  body13Bold: Font = makeFont(13, FontWeight.Bold)
+  body15Bold: Font = makeFont(15, FontWeight.Bold)
+  body16: Font = makeFont(16, FontWeight.Normal)
+  body16Medium: Font = makeFont(16, FontWeight.Medium)
+  title18Bold: Font = makeFont(18, FontWeight.Bold)
+  title20Bold: Font = makeFont(20, FontWeight.Bold)
+  title24Bold: Font = makeFont(24, FontWeight.Bold)
+  title26Bold: Font = makeFont(26, FontWeight.Bold)
+
+  // ---- Spacing ----
+  value0: number = 0
+  value1: number = 1
+  value1p5: number = 1.5
+  value2: number = 2
+  value4: number = 4
+  value5: number = 5
+  value8: number = 8
+  value9: number = 9
+  value10: number = 10
+  value11: number = 11
+  value12: number = 12
+  value14: number = 14
+  value15: number = 15
+  value16: number = 16
+  value17: number = 17
+  value18: number = 18
+  value20: number = 20
+  value22: number = 22
+  value24: number = 24
+  value28: number = 28
+  value30: number = 30
+  value32: number = 32
+  value34: number = 34
+  value36: number = 36
+  value40: number = 40
+  value44: number = 44
+  value46: number = 46
+  value48: number = 48
+  value50: number = 50
+  value52: number = 52
+  value56: number = 56
+  value64: number = 64
+  value80: number = 80
+  value90: number = 90
+  value100: number = 100
+  value108: number = 108
+  value120: number = 120
+  value150: number = 150
+  value200: number = 200
+  value260: number = 260
+  value280: number = 280
+  value360: number = 360
+  value400: number = 400
+  value480: number = 480
+  value600: number = 600
+  value800: number = 800
+
+  // ---- Percent ----
+  full: string = '100%'
+  pct90: string = '90%'
+  pct80: string = '80%'
+  pct40: string = '40%'
+  pct45: string = '45%'
+  pct35: string = '35%'
+
+  // ---- Radius ----
+  radius8: number = 8
+  radius12: number = 12
+  radius16: number = 16
+
+  // ---- Shadow ----
+  shadowRadius: number = 8
+  shadowOffsetY: number = 2
+  shadowColor: Resource = $r('app.color.color_shadow')
+
+  // ---- Angle ----
+  a0: number = 0
+  a90: number = 90
+  a135: number = 135
+  a150: number = 150
+  a180: number = 180
+
+  // ---- Opacity ----
+  shimmerOpacityHigh: number = 1.0
+  shimmerOpacityLow: number = 0.3
   charDetailConsInactiveOpacity: number = 0.3
   charDetailLockIconRatio: number = 0.45
-  charDetailRightPaddingPortrait: string = '40%'
-  charDetailRightPaddingLandscape: string = '35%'
-  charDetailBorderWidth: number = 1
-  charDetailPaddingTiny: number = 1
-  charDetailStatsPaddingV: number = 5
-  charDetailRelicSubPaddingV: number = 2
-  charDetailRelicMainPaddingV: number = 2
-  charDetailRelicFontSizeTiny: number = 9
-  charDetailRelicCardSpacing: number = 2
-
-  // ---- 启动页 Token ----
-  launchLogoSize: number = 120
-  launchLogoRadius: number = 28
-
-  // ---- 登录页 Token ----
-  loginNarrowBreakpoint: number = 480
-  loginLogoSizeSM: number = 52
-  loginLogoSizeLG: number = 56
-  loginWideGap: number = 48
-  loginWidePaddingH: number = 40
-  loginTabBarBg: Resource = $r('app.color.login_tab_bar_bg')
-  loginTabBarMarginBottom: number = 18
-  loginInputHeight: number = 46
-  loginInputBg: Resource = $r('app.color.login_input_bg')
-  loginButtonFontSize: number = 15
-  loginFeatureDotSize: number = 5
-  loginCookieAreaHeight: number = 108
-  value0: number = 0
-
-  // ---- 渐变角度 Token ----
-  gradientAngle135: number = 135
-  gradientAngle150: number = 150
-  gradientAngle180: number = 180
-  gradientAngle90: number = 90
-  gradientAngle0: number = 0
 
   constructor(fontFamily: string = '') {
     if (fontFamily !== '') {

@@ -26,7 +26,7 @@ export struct SidebarNavItem {
           ? this.tm.current.colorPrimary
           : this.tm.current.colorTextSecondary)
     }
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .padding({
       left: this.tm.current.value12,
       right: this.tm.current.value12,

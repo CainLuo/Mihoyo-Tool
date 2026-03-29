@@ -1,34 +1,3 @@
 {
-  "routerMap": [
-    {
-      "name": "Launch",
-      "pageSourceFile": "src/main/ets/pages/router/LaunchBuilder.ets",
-      "buildFunction": "LaunchBuilder"
-    },
-    {
-      "name": "Main",
-      "pageSourceFile": "src/main/ets/pages/router/MainBuilder.ets",
-      "buildFunction": "MainBuilder"
-    },
-    {
-      "name": "Login",
-      "pageSourceFile": "src/main/ets/pages/router/LoginBuilder.ets",
-      "buildFunction": "LoginBuilder"
-    },
-    {
-      "name": "GenshinDailyDetail",
-      "pageSourceFile": "src/main/ets/pages/router/GenshinDailyDetailBuilder.ets",
-      "buildFunction": "GenshinDailyDetailBuilder"
-    },
-    {
-      "name": "GenshinCharacterDetail",
-      "pageSourceFile": "src/main/ets/pages/router/GenshinCharacterDetailBuilder.ets",
-      "buildFunction": "GenshinCharacterDetailBuilder"
-    },
-    {
-      "name": "AccountDetail",
-      "pageSourceFile": "src/main/ets/pages/router/AccountDetailBuilder.ets",
-      "buildFunction": "AccountDetailBuilder"
-    }
-  ]
+  "routerMap": []
 }

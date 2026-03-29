@@ -59,7 +59,7 @@ export struct GameTabBar {
     }
     .scrollable(ScrollDirection.Horizontal)
     .scrollBar(BarState.Off)
-    .width(this.tm.current.widthFull)
+    .width(this.tm.current.full)
     .height(this.tm.current.value40)
   }
 }

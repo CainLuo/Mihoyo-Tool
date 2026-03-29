@@ -348,6 +348,26 @@ export class LoginViewModel {
     try {
       const roles = await AuthRepository.getUserGameRoles(cookie);
       if (roles.length > 0) {
+        // 额外调用账号详情接口，补充 bgImageUrl 和 statsJson
+        try {
+          const uid = LoginViewModel.extractCookieField(cookie, 'account_id') ||
+                      LoginViewModel.extractCookieField(cookie, 'ltuid_v2') ||
+                      username;
+          const detailRoles = await AuthRepository.getGameRecordCard(cookie, uid);
+          // 用 detailRoles 的 bgImageUrl/statsJson 合并到 roles
+          for (let i = 0; i < roles.length; i++) {
+            for (let j = 0; j < detailRoles.length; j++) {
+              if (detailRoles[j].gameId === roles[i].gameId &&
+                  detailRoles[j].roleId === roles[i].roleId) {
+                roles[i].bgImageUrl = detailRoles[j].bgImageUrl;
+                roles[i].statsJson = detailRoles[j].statsJson;
+                break;
+              }
+            }
+          }
+        } catch (_) {
+          // 账号详情拉取失败不阻断流程
+        }
         await AccountRepository.replaceRoles(accountId, roles);
       }
     } catch (error) {
@@ -355,6 +375,17 @@ export class LoginViewModel {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.warn(TAG, `getUserGameRoles failed (non-fatal): ${msg}`);
     }
+    // 3.5 拉取 BBS 账号详情（nickname、avatarUrl）
+    try {
+      const bbsDetail = await AuthRepository.getBbsAccountDetail(cookie);
+      if (bbsDetail.nickname || bbsDetail.avatarUrl) {
+        await AccountRepository.updateNicknameAndAvatar(accountId, bbsDetail.nickname, bbsDetail.avatarUrl);
+      }
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      Logger.warn(TAG, `getBbsAccountDetail failed (non-fatal): ${msg}`);
+    }
+
     // 4. 通知 View 跳转
     this.loginSuccess = true;
   }

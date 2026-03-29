@@ -163,6 +163,28 @@ export class CharactersViewModel {
     }
   }
 
+  /** 强制刷新：跳过冷却检查，由 View 层在用户确认冷却 Dialog 后调用 */
+  async forceRefresh(): Promise<void> {
+    if (this.isRefreshing || this.gameTabs.length === 0) {
+      return;
+    }
+    this.isRefreshing = true;
+    try {
+      const tab = this.gameTabs[this.selectedGameIdx];
+      const pair = this.allPairs[this.selectedAccountIdx];
+      await CharacterRepository.syncCharacters(
+        tab.gameId, tab.roleUid, this.findServer(tab.roleUid), pair.account.cookie
+      );
+      await this.reloadCharacters();
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      Logger.error(TAG, `forceRefresh failed: ${msg}`);
+      this.networkErrorMsg = msg;
+    } finally {
+      this.isRefreshing = false;
+    }
+  }
+
   // ─── 私有方法 ────────────────────────────────────────────────
 
   /** 重建当前账号的游戏 Tab 列表，并加载第一个游戏的角色 */

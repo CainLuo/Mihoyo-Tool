@@ -30,19 +30,22 @@ export struct Login {
   }
 
   build() {
-    Column() {
-      if (this.windowWidth <= this.tm.current.loginNarrowBreakpoint) {
-        LoginNarrowLayout({ tm: this.tm, vm: this.vm })
-      } else {
-        LoginWideLayout({ tm: this.tm, vm: this.vm })
+    NavDestination() {
+      Column() {
+        if (this.windowWidth <= this.tm.current.value480) {
+          LoginNarrowLayout({ tm: this.tm, vm: this.vm })
+        } else {
+          LoginWideLayout({ tm: this.tm, vm: this.vm })
+        }
       }
+      .width(this.tm.current.full)
+      .height(this.tm.current.full)
+      .backgroundColor(this.tm.current.colorPageBg)
+      .onAreaChange((_old, cur) => {
+        this.windowWidth = cur.width as number
+      })
     }
-    .expandSafeArea([SafeAreaType.SYSTEM])
-    .width(this.tm.current.widthFull)
-    .height(this.tm.current.heightFull)
-    .backgroundColor(this.tm.current.colorPageBg)
-    .onAreaChange((_old, cur) => {
-      this.windowWidth = cur.width as number
-    })
+    .title($r('app.string.login_title'))
+    .hideTitleBar(false)
   }
 }
