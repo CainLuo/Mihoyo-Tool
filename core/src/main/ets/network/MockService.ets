@@ -33,20 +33,49 @@ export class MockService extends BaseApiService {
   }
 
   /**
-   * 读取本地 Mock JSON 文件
-   * 使用 util.TextDecoder 解码，避免逐字节 map 带来的内存开销
+   * 从 Cookie 字符串中提取 account_id，用于定位 mock 子目录
+   * account_id=1 → account1，account_id=2 → account2，其他 → 根目录
    */
-  private async getMockData(url: string): Promise<MockResponse> {
+  private getAccountDir(options?: RequestOptions): string {
+    if (!options) { return '' }
+    const cookie = options.extraHeaders.get('Cookie') ?? ''
+    const match = cookie.match(/account_id=(\d+)/)
+    if (match) {
+      return `account${match[1]}/`
+    }
+    return ''
+  }
+
+  /**
+   * 读取本地 Mock JSON 文件
+   * 优先读账号子目录，找不到则回退到根目录
+   */
+  private async getMockData(url: string, options?: RequestOptions): Promise<MockResponse> {
     try {
-      const fileName = this.getMockFileName(url);
-      const rm = await this.initResourceManager();
-      const fileContent = await rm.getRawFileContent(`mock/${fileName}.json`);
-      const decoder = new util.TextDecoder('utf-8');
-      const jsonString = decoder.decodeToString(new Uint8Array(fileContent.buffer));
-      return JSON.parse(jsonString) as MockResponse;
+      const fileName = this.getMockFileName(url)
+      const rm = await this.initResourceManager()
+      const accountDir = this.getAccountDir(options)
+
+      // 优先尝试账号子目录
+      if (accountDir) {
+        try {
+          const fileContent = await rm.getRawFileContent(`mock/${accountDir}${fileName}.json`)
+          const decoder = new util.TextDecoder('utf-8')
+          const jsonString = decoder.decodeToString(new Uint8Array(fileContent.buffer))
+          return JSON.parse(jsonString) as MockResponse
+        } catch (_) {
+          // 子目录没有，回退到根目录
+        }
+      }
+
+      // 根目录
+      const fileContent = await rm.getRawFileContent(`mock/${fileName}.json`)
+      const decoder = new util.TextDecoder('utf-8')
+      const jsonString = decoder.decodeToString(new Uint8Array(fileContent.buffer))
+      return JSON.parse(jsonString) as MockResponse
     } catch (error) {
-      console.error(`Failed to get mock data: ${this.toErrorMessage(error)}`);
-      return { retcode: 0, message: 'success', data: {} };
+      console.error(`Failed to get mock data: ${this.toErrorMessage(error)}`)
+      return { retcode: 0, message: 'success', data: {} }
     }
   }
 
@@ -86,23 +115,23 @@ export class MockService extends BaseApiService {
     return `${error}`;
   }
 
-  public async get(url: string, _params?: RequestParams, _options?: RequestOptions): Promise<object> {
+  public async get(url: string, _params?: RequestParams, options?: RequestOptions): Promise<object> {
     await this.delay(300);
-    return this.getMockData(url);
+    return this.getMockData(url, options);
   }
 
-  public async post(url: string, _data?: RequestParams, _options?: RequestOptions): Promise<object> {
+  public async post(url: string, _data?: RequestParams, options?: RequestOptions): Promise<object> {
     await this.delay(300);
-    return this.getMockData(url);
+    return this.getMockData(url, options);
   }
 
-  public async put(url: string, _data?: RequestParams, _options?: RequestOptions): Promise<object> {
+  public async put(url: string, _data?: RequestParams, options?: RequestOptions): Promise<object> {
     await this.delay(300);
-    return this.getMockData(url);
+    return this.getMockData(url, options);
   }
 
-  public async delete(url: string, _params?: RequestParams, _options?: RequestOptions): Promise<object> {
+  public async delete(url: string, _params?: RequestParams, options?: RequestOptions): Promise<object> {
     await this.delay(300);
-    return this.getMockData(url);
+    return this.getMockData(url, options);
   }
 }

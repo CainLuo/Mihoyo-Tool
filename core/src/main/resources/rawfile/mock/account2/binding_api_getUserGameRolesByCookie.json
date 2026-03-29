@@ -1,0 +1,28 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "list": [
+      {
+        "game_biz": "hk4e_cn",
+        "region": "cn_gf01",
+        "game_uid": "250375401",
+        "nickname": "狂野的沙滩裤",
+        "level": 57,
+        "is_chosen": false,
+        "region_name": "天空岛",
+        "is_official": true
+      },
+      {
+        "game_biz": "hkrpg_cn",
+        "region": "prod_gf_cn",
+        "game_uid": "111310091",
+        "nickname": "&符公子",
+        "level": 67,
+        "is_chosen": false,
+        "region_name": "星穹列车",
+        "is_official": true
+      }
+    ]
+  }
+}

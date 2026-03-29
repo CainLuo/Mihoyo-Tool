@@ -1,0 +1,38 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "list": [
+      {
+        "game_biz": "hk4e_cn",
+        "region": "cn_gf01",
+        "game_uid": "109050292",
+        "nickname": "凹凸曼的小怪兽",
+        "level": 60,
+        "is_chosen": false,
+        "region_name": "天空岛",
+        "is_official": true
+      },
+      {
+        "game_biz": "hkrpg_cn",
+        "region": "prod_gf_cn",
+        "game_uid": "102731382",
+        "nickname": "凹凸曼的小怪兽",
+        "level": 70,
+        "is_chosen": false,
+        "region_name": "星穹列车",
+        "is_official": true
+      },
+      {
+        "game_biz": "nap_cn",
+        "region": "prod_gf_cn",
+        "game_uid": "37716744",
+        "nickname": "凹凸曼的小怪兽",
+        "level": 51,
+        "is_chosen": false,
+        "region_name": "新艾利都",
+        "is_official": true
+      }
+    ]
+  }
+}
