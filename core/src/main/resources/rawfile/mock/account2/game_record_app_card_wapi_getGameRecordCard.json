@@ -1,0 +1,110 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "list": [
+      {
+        "has_role": true,
+        "game_id": 2,
+        "game_role_id": "250375401",
+        "nickname": "狂野的沙滩裤",
+        "region": "cn_gf01",
+        "level": 57,
+        "background_image": "https://upload-bbs.mihoyo.com/upload/2020/09/22/0762ab7cc42ac5a760bb4d1ea87b2c42_1236712390449986860.png",
+        "is_public": true,
+        "data": [
+          {
+            "name": "活跃天数",
+            "type": 1,
+            "value": "277"
+          },
+          {
+            "name": "成就达成数",
+            "type": 1,
+            "value": "911"
+          },
+          {
+            "name": "深境螺旋",
+            "type": 1,
+            "value": "11-3"
+          },
+          {
+            "name": "幻想剧诗",
+            "type": 1,
+            "value": "-"
+          }
+        ],
+        "region_name": "天空岛",
+        "url": "https://webstatic.mihoyo.com/app/community-game-records/index.html?mhy_presentation_style=fullscreen&bbs_auth_required=true&game_id=2&user_id=348366494",
+        "data_switches": [
+          {
+            "switch_id": 1,
+            "is_public": true,
+            "switch_name": "个人主页卡片"
+          },
+          {
+            "switch_id": 2,
+            "is_public": true,
+            "switch_name": "角色详情数据"
+          }
+        ],
+        "h5_data_switches": [],
+        "background_color": "D3BC8E",
+        "background_image_v2": "https://bbs-static.miyoushe.com/static/2023/12/13/a5a5644a78b5e865c46236833f799b51_7522332443953379490.png",
+        "logo": "https://fastcdn.mihoyo.com/static-resource-v2/2024/04/12/27483e6571f16771528cf79b123e8d7c_2612460319618244690.png",
+        "game_name": "原神"
+      },
+      {
+        "has_role": true,
+        "game_id": 6,
+        "game_role_id": "111310091",
+        "nickname": "&符公子",
+        "region": "prod_gf_cn",
+        "level": 67,
+        "background_image": "https://bbs-static.miyoushe.com/static/2023/04/13/b0fc10dfe809bb116dc36bf7cba6dd6e_2377651693193790477.png",
+        "is_public": true,
+        "data": [
+          {
+            "name": "活跃天数",
+            "type": 1,
+            "value": "111"
+          },
+          {
+            "name": "已解锁角色",
+            "type": 1,
+            "value": "28"
+          },
+          {
+            "name": "达成成就数",
+            "type": 1,
+            "value": "394"
+          },
+          {
+            "name": "战利品开启",
+            "type": 1,
+            "value": "482"
+          }
+        ],
+        "region_name": "星穹列车",
+        "url": "https://webstatic.mihoyo.com/app/community-game-records/rpg/index.html?mhy_presentation_style=fullscreen&game_id=6&user_id=348366494",
+        "data_switches": [
+          {
+            "switch_id": 1,
+            "is_public": true,
+            "switch_name": "个人主页卡片"
+          },
+          {
+            "switch_id": 4,
+            "is_public": true,
+            "switch_name": "角色详情数据"
+          }
+        ],
+        "h5_data_switches": [],
+        "background_color": "FFC870",
+        "background_image_v2": "https://bbs-static.miyoushe.com/static/2023/12/13/5eb8122b88e7b9101c30d181d52fd8e3_3702736929647369892.png",
+        "logo": "https://fastcdn.mihoyo.com/static-resource-v2/2024/04/12/ed90eb7aec6c8ec3187122208ffd7b38_9003769916855684753.png",
+        "game_name": "崩坏：星穹铁道"
+      }
+    ]
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "current_resin": 88,
+    "max_resin": 200,
+    "resin_recovery_time": "53401",
+    "finished_task_num": 4,
+    "total_task_num": 4,
+    "is_extra_task_reward_received": true,
+    "remain_resin_discount_num": 3,
+    "resin_discount_num_limit": 3,
+    "current_expedition_num": 5,
+    "max_expedition_num": 5,
+    "expeditions": [
+      {
+        "avatar_side_icon": "https://fastcdn.mihoyo.com/static-resource-v2/2023/12/14/a273217a806ee130b0c0f51bc5542483_2404530785826539052.png",
+        "status": "Ongoing",
+        "remained_time": "9786"
+      },
+      {
+        "avatar_side_icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f727/db95c5527a3b0f1a59743180e531be63.png",
+        "status": "Ongoing",
+        "remained_time": "20586"
+      },
+      {
+        "avatar_side_icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f727/29021fd200fb4074bcb857668b406307.png",
+        "status": "Ongoing",
+        "remained_time": "20586"
+      },
+      {
+        "avatar_side_icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f727/2ad457efe47f31a54bd683286fd03144.png",
+        "status": "Ongoing",
+        "remained_time": "20586"
+      },
+      {
+        "avatar_side_icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f727/455ee1e4da29c15282faba8243bccdcc.png",
+        "status": "Ongoing",
+        "remained_time": "20586"
+      }
+    ],
+    "current_home_coin": 270,
+    "max_home_coin": 2400,
+    "home_coin_recovery_time": "253340",
+    "calendar_url": "",
+    "transformer": {
+      "obtained": true,
+      "recovery_time": {
+        "Day": 4,
+        "Hour": 0,
+        "Minute": 0,
+        "Second": 0,
+        "reached": false
+      },
+      "wiki": "https://baike.mihoyo.com/ys/obc/content/1562/detail?bbs_presentation_style=no_header",
+      "noticed": false,
+      "latest_job_id": "0"
+    },
+    "daily_task": {
+      "total_num": 4,
+      "finished_num": 4,
+      "is_extra_task_reward_received": true,
+      "task_rewards": [
+        {
+          "status": "TaskRewardStatusUnfinished"
+        },
+        {
+          "status": "TaskRewardStatusUnfinished"
+        },
+        {
+          "status": "TaskRewardStatusUnfinished"
+        },
+        {
+          "status": "TaskRewardStatusUnfinished"
+        }
+      ],
+      "attendance_rewards": [
+        {
+          "status": "AttendanceRewardStatusTakenAward",
+          "progress": 2000
+        },
+        {
+          "status": "AttendanceRewardStatusTakenAward",
+          "progress": 2000
+        },
+        {
+          "status": "AttendanceRewardStatusTakenAward",
+          "progress": 2000
+        },
+        {
+          "status": "AttendanceRewardStatusTakenAward",
+          "progress": 2000
+        }
+      ],
+      "attendance_visible": true,
+      "stored_attendance": "2415.9",
+      "stored_attendance_refresh_countdown": 2520176710
+    },
+    "archon_quest_progress": {
+      "list": [
+        {
+          "status": "StatusOngoing",
+          "chapter_num": "第四章 第六幕",
+          "chapter_title": "睡前故事",
+          "id": 1406,
+          "chapter_type": 1
+        },
+        {
+          "status": "StatusNotOpen",
+          "chapter_num": "第五章 第一幕",
+          "chapter_title": "荣花与炎日之途",
+          "id": 1500,
+          "chapter_type": 1
+        }
+      ],
+      "is_open_archon_quest": true,
+      "is_finish_all_mainline": false,
+      "is_finish_all_interchapter": true,
+      "wiki_url": "https://baike.mihoyo.com/ys/obc/content/399/detail?bbs_presentation_style=no_header"
+    }
+  }
+}
