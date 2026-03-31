@@ -44,6 +44,33 @@ export class GameRoleRow {
   statsJson: string = '';
 }
 
+/** 游戏内统计数据项（从 statsJson 解析而来） */
+export class RoleStatItem {
+  name: string = '';
+  value: string = '';
+
+  constructor(name: string, value: string) {
+    this.name = name;
+    this.value = value;
+  }
+
+  /** 将 statsJson 字符串解析为 RoleStatItem 数组，解析失败返回空数组 */
+  static parseAll(statsJson: string): RoleStatItem[] {
+    if (!statsJson || statsJson === '') { return []; }
+    try {
+      interface RawStat { name: string; value: string }
+      const parsed = JSON.parse(statsJson) as RawStat[];
+      const result: RoleStatItem[] = [];
+      for (let i = 0; i < parsed.length; i++) {
+        result[result.length] = new RoleStatItem(parsed[i].name, parsed[i].value);
+      }
+      return result;
+    } catch (_) {
+      return [];
+    }
+  }
+}
+
 /** 账号 + 角色列表的配对结构（替代 Map，规避 ArkTS Map 迭代限制） */
 export class AccountWithRoles {
   account: AccountRow = new AccountRow();
@@ -68,6 +95,27 @@ export class AccountRepository {
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       throw new Error(`AccountRepository.findAllAccounts failed: ${msg}`);
+    }
+  }
+
+  /** 根据 ID 查询单个账号 */
+  static async findAccountById(id: number): Promise<AccountRow | null> {
+    try {
+      const predicates = new relationalStore.RdbPredicates('account_table')
+        .equalTo('id', id);
+      const rs = await RdbManager.query(predicates);
+      if (!rs.goToFirstRow()) { return null; }
+      const row = new AccountRow();
+      row.id = rs.getLong(rs.getColumnIndex('id'));
+      row.username = rs.getString(rs.getColumnIndex('username'));
+      row.cookie = rs.getString(rs.getColumnIndex('cookie'));
+      row.isActive = rs.getLong(rs.getColumnIndex('is_active')) === 1;
+      row.nickname = rs.getString(rs.getColumnIndex('nickname'));
+      row.avatarUrl = rs.getString(rs.getColumnIndex('avatar_url'));
+      return row;
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      throw new Error(`AccountRepository.findAccountById failed: ${msg}`);
     }
   }
 

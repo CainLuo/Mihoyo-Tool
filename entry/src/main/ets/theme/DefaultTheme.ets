@@ -87,6 +87,10 @@ export class DefaultTheme implements Theme {
   colorTransparent: Resource = $r('app.color.color_transparent')
   loginTabBarBg: Resource = $r('app.color.login_tab_bar_bg')
   loginInputBg: Resource = $r('app.color.login_input_bg')
+  qrCodeFg: Color = Color.Black
+  qrCodeBg: Color = Color.White
+  roleCardServerBg: Resource = $r('app.color.role_card_server_bg')
+  roleCardStatBg: Resource = $r('app.color.role_card_stat_bg')
 
   // ---- AppFont ----
   body10: Font = makeFont(10, FontWeight.Normal)

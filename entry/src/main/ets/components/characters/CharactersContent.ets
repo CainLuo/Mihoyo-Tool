@@ -59,7 +59,7 @@ export struct CharactersContent {
             Button($r('app.string.characters_no_data_hint'))
               .fontSize(this.tm.current.body16Medium.size)
               .fontWeight(this.tm.current.body16Medium.weight)
-              .fontColor(Color.White)
+              .fontColor(this.tm.current.textOnDarkHigh)
               .width(this.tm.current.pct90)
               .height(this.tm.current.value50)
               .borderRadius(this.tm.current.radius12)

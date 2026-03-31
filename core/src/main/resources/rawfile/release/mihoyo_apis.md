@@ -898,3 +898,27 @@ Accept-Encoding: gzip, deflate, br
 x-rpc-sys_version: 15.7.1
 x-rum-traceparent: 00-971e6a133c9a3f523bfa1d85d333f47a-1deffa49144df886-01
 ```
+
+---
+
+## Mock 环境测试 Cookie
+
+Mock 模式下，MockService 从 Cookie 的 `account_id` 字段提取账号标识，路由到对应的 mock 子目录。
+
+### Account 1 — CainLuo（uid: 182692936）
+
+路由目录：`mock/account1/`
+
+```
+account_id=1; cookie_token=mock; ltoken=mock; ltuid=1
+```
+
+### Account 2 — 摆烂的班主任（uid: 348366494）
+
+路由目录：`mock/account2/`
+
+```
+account_id=2; cookie_token=mock; ltoken=mock; ltuid=2
+```
+
+> 注意：Mock 模式下 Cookie 的其他字段（`cookie_token`、`ltoken`、`ltuid`）不参与实际验证，只有 `account_id` 用于子目录路由。

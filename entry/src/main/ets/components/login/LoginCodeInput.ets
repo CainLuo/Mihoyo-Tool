@@ -51,7 +51,7 @@ export struct LoginCodeInput {
         .backgroundColor(this.tm.current.colorPrimary)
         .fontSize(this.tm.current.value15)
         .fontWeight(FontWeight.Bold)
-        .fontColor(Color.White)
+        .fontColor(this.tm.current.textOnDarkHigh)
         .enabled(!this.vm.isLoading && this.vm.smsCode.length > 0)
         .onClick(() => { this.vm.loginByPhone() })
 

@@ -48,7 +48,7 @@ export struct LoginCookie {
         .backgroundColor(this.tm.current.colorPrimary)
         .fontSize(this.tm.current.value15)
         .fontWeight(FontWeight.Bold)
-        .fontColor(Color.White)
+        .fontColor(this.tm.current.textOnDarkHigh)
         .enabled(!this.vm.isLoading && this.vm.cookieInput.trim().length > 0)
         .onClick(() => {
           this.vm.loginByCookie();

@@ -17,10 +17,14 @@ import {
   PhoneLoginAccountInfo,
   QRCodeConfirmedData,
   LoginCookieFields,
-  AccountRepository
+  AccountRepository,
+  RoleStatItem
 } from 'core';
 import { Logger } from '../utils/Logger';
 import { LoginTab, PhoneStep, QRCodeStat } from '../constants/LoginTabEnum';
+import { MyAccountVM, MyGameRoleVM, GameStatItem } from '../components/my/MyModels';
+import { serverDisplayName } from '../utils/ServerNameUtil';
+import { gameIdToName, gameIdToColor } from '../utils/GameIdUtil';
 
 export { LoginTab, PhoneStep, QRCodeStat };
 
@@ -29,6 +33,8 @@ const TAG: string = 'LoginViewModel';
 /** LoginViewModel @Monitor 路径常量类型 */
 export class LoginViewModelKeys {
   loginSuccess: string = 'vm.loginSuccess';
+  loginedAccountId: string = 'vm.loginedAccountId';
+  loginedAccountVM: string = 'vm.loginedAccountVM';
 }
 
 @ObservedV2
@@ -42,6 +48,10 @@ export class LoginViewModel {
   @Trace errorMsg: string = '';
   /** 登录成功标志，View 层监听后跳转 */
   @Trace loginSuccess: boolean = false;
+  /** 登录成功后的账号 ID，View 层用于跳转到 AccountDetail */
+  @Trace loginedAccountId: number = -1;
+  /** 登录成功后组装好的账号 VM，View 层直接用于跳转 */
+  @Trace loginedAccountVM: MyAccountVM | null = null;
 
   // ── 手机号登录状态 ────────────────────────────────────────────
   @Trace phoneStep: PhoneStep = PhoneStep.INPUT_PHONE;
@@ -386,7 +396,31 @@ export class LoginViewModel {
       Logger.warn(TAG, `getBbsAccountDetail failed (non-fatal): ${msg}`);
     }
 
-    // 4. 通知 View 跳转
+    // 4. 组装 AccountVM 并通知 View 跳转
+    try {
+      const row = await AccountRepository.findAccountById(accountId);
+      if (row !== null) {
+        const roles = await AccountRepository.findRolesByAccountId(accountId);
+        const roleVMs: MyGameRoleVM[] = [];
+        for (const r of roles) {
+          const rawStats = RoleStatItem.parseAll(r.statsJson);
+          const stats: GameStatItem[] = [];
+          for (let i = 0; i < rawStats.length; i++) {
+            stats[stats.length] = new GameStatItem(rawStats[i].name, rawStats[i].value);
+          }
+          roleVMs[roleVMs.length] = new MyGameRoleVM(
+            r.gameId, gameIdToName(r.gameId), gameIdToColor(r.gameId),
+            r.roleId, r.nickname, serverDisplayName(r.server, r.gameId),
+            r.level, r.bgImageUrl, stats
+          );
+        }
+        this.loginedAccountVM = new MyAccountVM(row.id, row.username, roleVMs, row.nickname, row.avatarUrl);
+      }
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      Logger.warn(TAG, `buildLoginedAccountVM failed (non-fatal): ${msg}`);
+    }
+    this.loginedAccountId = accountId;
     this.loginSuccess = true;
   }
 

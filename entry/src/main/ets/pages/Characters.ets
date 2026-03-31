@@ -8,6 +8,7 @@ import { CharactersContent } from '../components/characters/CharactersContent'
 import { Logger } from '../utils/Logger'
 import { GenshinCharacterDetailParam, GenshinCharacterDetail } from './GenshinCharacterDetail'
 import { GameDataSummary } from 'core'
+import { AccountSignal } from '../utils/AccountSignal'
 
 @Builder
 export function charDetailBuilder(name: string, param: Object) {
@@ -20,14 +21,19 @@ export function charDetailBuilder(name: string, param: Object) {
 export struct Characters {
   @Local private tm: ThemeManager = themeManager
   @Local private vm: CharactersViewModel = new CharactersViewModel()
+  @Local private signal: AccountSignal = AccountSignal.instance()
   private uiCtx: UIContext | null = null
   private scroller: Scroller = new Scroller()
-  // 宽屏时由 Main 传入局部 detailStack，窄屏时为 null
   @Param detailStack: NavPathStack | null = null
   @Param isSplit: boolean = false
 
   aboutToAppear(): void {
     this.uiCtx = this.getUIContext()
+    this.vm.loadData()
+  }
+
+  @Monitor('signal.version')
+  onAccountDataChanged(_monitor: IMonitor): void {
     this.vm.loadData()
   }
 

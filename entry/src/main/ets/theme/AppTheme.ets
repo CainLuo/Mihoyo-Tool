@@ -107,6 +107,14 @@ export interface AppColor {
   // ---- 登录页颜色 ----
   loginTabBarBg: Resource
   loginInputBg: Resource
+
+  // ---- 二维码颜色 ----
+  qrCodeFg: Color
+  qrCodeBg: Color
+
+  // ---- 角色卡片叠加色 ----
+  roleCardServerBg: Resource
+  roleCardStatBg: Resource
 }
 
 // ---- 字体 Token ----

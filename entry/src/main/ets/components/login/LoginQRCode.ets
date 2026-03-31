@@ -20,9 +20,9 @@ struct LoginQRCodePreviewLoading {
   })()
   build() {
     LoginQRCode({ vm: this.vm })
-      .padding(24)
-      .backgroundColor($r('app.color.color_card_bg'))
-      .width(360)
+      .padding(themeManager.current.value24)
+      .backgroundColor(themeManager.current.colorCardBg)
+      .width(themeManager.current.value360)
   }
 }
 
@@ -38,9 +38,9 @@ struct LoginQRCodePreviewReady {
   })()
   build() {
     LoginQRCode({ vm: this.vm })
-      .padding(24)
-      .backgroundColor($r('app.color.color_card_bg'))
-      .width(360)
+      .padding(themeManager.current.value24)
+      .backgroundColor(themeManager.current.colorCardBg)
+      .width(themeManager.current.value360)
   }
 }
 
@@ -56,9 +56,9 @@ struct LoginQRCodePreviewScanned {
   })()
   build() {
     LoginQRCode({ vm: this.vm })
-      .padding(24)
-      .backgroundColor($r('app.color.color_card_bg'))
-      .width(360)
+      .padding(themeManager.current.value24)
+      .backgroundColor(themeManager.current.colorCardBg)
+      .width(themeManager.current.value360)
   }
 }
 
@@ -73,9 +73,9 @@ struct LoginQRCodePreviewExpired {
   })()
   build() {
     LoginQRCode({ vm: this.vm })
-      .padding(24)
-      .backgroundColor($r('app.color.color_card_bg'))
-      .width(360)
+      .padding(themeManager.current.value24)
+      .backgroundColor(themeManager.current.colorCardBg)
+      .width(themeManager.current.value360)
   }
 }
 
@@ -118,8 +118,8 @@ export struct LoginQRCode {
     QRCode(this.vm.qrCodeUrl)
       .width(this.tm.current.value200)
       .height(this.tm.current.value200)
-      .color(Color.Black)
-      .backgroundColor(Color.White)
+      .color(this.tm.current.qrCodeFg)
+      .backgroundColor(this.tm.current.qrCodeBg)
 
     if (this.vm.qrCodeStat === QRCodeStat.SCANNED) {
       Text($r('app.string.login_qrcode_scanned'))
@@ -153,8 +153,8 @@ export struct LoginQRCode {
       QRCode('https://user.mihoyo.com/qr_code_in_game.html?app_id=4&ticket=expired')
         .width(this.tm.current.value200)
         .height(this.tm.current.value200)
-        .color(Color.Black)
-        .backgroundColor(Color.White)
+        .color(this.tm.current.qrCodeFg)
+        .backgroundColor(this.tm.current.qrCodeBg)
         .opacity(this.tm.current.charDetailConsInactiveOpacity)
 
       Column({ space: this.tm.current.value12 }) {

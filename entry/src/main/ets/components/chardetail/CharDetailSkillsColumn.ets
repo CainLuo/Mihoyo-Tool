@@ -31,8 +31,8 @@ struct CharDetailSkillsColumnPreview {
       skills: makeMockSkills(),
       charElement: GenshinElement.HYDRO
     })
-    .padding(16)
-    .backgroundColor('#0D0D18')
+    .padding(themeManager.current.value16)
+    .backgroundColor(themeManager.current.bgPageDeep)
   }
 }
 

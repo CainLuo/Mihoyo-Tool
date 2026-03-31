@@ -62,9 +62,9 @@ struct CharDetailRelicsPanelPreviewWide {
       vm: makeMockRelicsPanelVM(),
       isPhone: false
     })
-    .width(320)
-    .height(500)
-    .backgroundColor('#0D0D18')
+    .width(themeManager.current.value280)
+    .height(themeManager.current.value480)
+    .backgroundColor(themeManager.current.bgPageDeep)
   }
 }
 
@@ -78,11 +78,11 @@ struct CharDetailRelicsPanelPreviewPhone {
         vm: makeMockRelicsPanelVM(),
         isPhone: true
       })
-      .padding(8)
+      .padding(themeManager.current.value8)
     }
-    .width(360)
-    .height(600)
-    .backgroundColor('#0D0D18')
+    .width(themeManager.current.value360)
+    .height(themeManager.current.value600)
+    .backgroundColor(themeManager.current.bgPageDeep)
   }
 }
 
@@ -128,7 +128,7 @@ export struct CharDetailRelicsPanel {
         Text(relic.mainStatValue)
           .fontSize(this.tm.current.body16.size)
           .fontWeight(FontWeight.Bold)
-          .fontColor(Color.White)
+          .fontColor(this.tm.current.textOnDarkHigh)
           .maxLines(1)
         Text(this.starsText(relic.rarity))
           .fontSize(this.tm.current.body10.size)
@@ -157,7 +157,7 @@ export struct CharDetailRelicsPanel {
               Text(sub.value)
                 .fontSize(this.tm.current.body12.size)
                 .fontWeight(FontWeight.Bold)
-                .fontColor(Color.White)
+                .fontColor(this.tm.current.textOnDarkHigh)
             }
             .width(this.tm.current.full)
             .padding({ left: this.tm.current.value8, right: this.tm.current.value4, top: this.tm.current.value2, bottom: this.tm.current.value2 })
@@ -190,7 +190,7 @@ export struct CharDetailRelicsPanel {
           Text(relic.setName !== '' ? relic.setName : (relic.mainStatLabel ?? $r('app.string.char_detail_no_data')))
             .fontSize(this.tm.current.body12.size)
             .fontWeight(FontWeight.Bold)
-            .fontColor(Color.White)
+            .fontColor(this.tm.current.textOnDarkHigh)
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
           Text(relic.mainStatLabel ?? $r('app.string.char_detail_no_data'))
@@ -218,7 +218,7 @@ export struct CharDetailRelicsPanel {
         Text(relic.mainStatValue)
           .fontSize(this.tm.current.body13Bold.size)
           .fontWeight(FontWeight.Bold)
-          .fontColor(Color.White)
+          .fontColor(this.tm.current.textOnDarkHigh)
       }
       .width(this.tm.current.full)
       .padding({ top: this.tm.current.value2, bottom: this.tm.current.value2 })

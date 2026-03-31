@@ -16,7 +16,7 @@
  *   data     — 正常展示角色网格
  */
 
-import { AccountRepository, AccountWithRoles, CharacterRepository, SyncMetaDao, DataType, CoreInitializer, GameDataDao, GameRolePair } from 'core';
+import { AccountRepository, AccountWithRoles, CharacterRepository, SyncMetaDao, DataType, CoreInitializer, GameDataDao } from 'core';
 import { GameDataSummary } from 'core';
 import { Logger } from '../utils/Logger';
 import { ViewState } from '../constants/ViewStates';
@@ -122,10 +122,6 @@ export class CharactersViewModel {
     this.selectedGameIdx = idx;
     this.viewState = ViewState.LOADING;
     await this.reloadCharacters();
-    // 若本地无数据（非原神等暂未支持的游戏），直接转 EMPTY
-    if (this.viewState === ViewState.LOADING) {
-      this.viewState = ViewState.EMPTY;
-    }
   }
 
   /** 手动刷新：强制同步当前游戏角色，30 分钟内重复触发时发出冷却信号 */
@@ -230,10 +226,11 @@ export class CharactersViewModel {
       this.viewState = ViewState.EMPTY;
       return;
     }
+    // 只加载第一个 tab，其余 tab 切换时懒加载
     await this.reloadCharacters();
   }
 
-  /** 从 DB 加载当前选中游戏的角色列表 */
+  /** 从 DB 加载当前选中游戏的角色列表，若为空则自动触发一次后台同步 */
   private async reloadCharacters(): Promise<void> {
     if (this.gameTabs.length === 0) {
       this.characters = [];
@@ -243,14 +240,46 @@ export class CharactersViewModel {
     const tab = this.gameTabs[this.selectedGameIdx];
     try {
       const rows = await CharacterRepository.findAll(tab.gameId, tab.roleUid);
-      this.characters = rows;
-      this.viewState = rows.length > 0 ? ViewState.DATA : ViewState.EMPTY;
+      if (rows.length > 0) {
+        this.characters = rows;
+        this.viewState = ViewState.DATA;
+      } else {
+        // DB 无数据，先显示 loading，后台触发同步
+        this.viewState = ViewState.LOADING;
+        this.autoSyncCharacters(tab.gameId, tab.roleUid);
+      }
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `reloadCharacters failed: ${msg}`);
       this.characters = [];
       this.viewState = ViewState.EMPTY;
     }
+  }
+
+  /** 后台静默同步角色数据，完成后若仍是当前选中 tab 则刷新 UI */
+  private autoSyncCharacters(gameId: string, roleUid: string): void {
+    if (this.allPairs.length === 0) { return; }
+    const pair = this.allPairs[this.selectedAccountIdx];
+    const server = this.findServer(roleUid);
+    CharacterRepository.syncCharacters(gameId, roleUid, server, pair.account.cookie)
+      .then(async () => {
+        // 只有当前选中 tab 仍是这个游戏时才更新 UI
+        if (this.gameTabs.length > 0 &&
+            this.gameTabs[this.selectedGameIdx].gameId === gameId &&
+            this.gameTabs[this.selectedGameIdx].roleUid === roleUid) {
+          const rows = await CharacterRepository.findAll(gameId, roleUid);
+          this.characters = rows;
+          this.viewState = rows.length > 0 ? ViewState.DATA : ViewState.EMPTY;
+        }
+      })
+      .catch((error: Error | object) => {
+        const msg = error instanceof Error ? error.message : `${error}`;
+        Logger.warn(TAG, `autoSyncCharacters failed for ${gameId}/${roleUid}: ${msg}`);
+        // 无论当前 tab 是否匹配，只要还在 LOADING 就转 EMPTY，避免永久卡住
+        if (this.viewState === ViewState.LOADING) {
+          this.viewState = ViewState.EMPTY;
+        }
+      });
   }
 
   private findServer(roleUid: string): string {

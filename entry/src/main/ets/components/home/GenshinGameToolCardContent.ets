@@ -1,12 +1,12 @@
 /**
- * ZZZGameToolCardContent — 绝区零战绩卡片内容区
+ * GenshinGameToolCardContent — 原神战绩卡片内容区
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 import { GameNoteSnapshotVM } from './HomeModels'
 import { GameDataRow } from './GameDataRow'
 
 @ComponentV2
-export struct ZZZGameToolCardContent {
+export struct GenshinGameToolCardContent {
   @Param snap: GameNoteSnapshotVM = new GameNoteSnapshotVM('', 0, 0, '', '', '', false)
   @Param primaryColor: ResourceColor = $r('app.color.color_primary')
   @Param progressRatio: number = 0
@@ -14,9 +14,9 @@ export struct ZZZGameToolCardContent {
 
   build() {
     Column({ space: this.tm.current.value8 }) {
-      // 电量：大数字 + 环形进度
+      // 树脂：大数字 + 环形进度
       Row({ space: this.tm.current.value10 }) {
-        Text('⚡')
+        Text('🌙')
           .width(this.tm.current.value32)
           .height(this.tm.current.value32)
           .textAlign(TextAlign.Center)
@@ -25,7 +25,7 @@ export struct ZZZGameToolCardContent {
           .backgroundColor($r('app.color.surface_glass_xs'))
 
         Column({ space: this.tm.current.value2 }) {
-          Text($r('app.string.zzz_energy_title'))
+          Text($r('app.string.daily_note_resin_title'))
             .font(this.tm.current.body13)
             .fontColor(this.tm.current.colorTextSecondary)
 
@@ -68,31 +68,32 @@ export struct ZZZGameToolCardContent {
 
       Divider().color(this.tm.current.colorDivider)
 
-      if (this.snap.vitalityCurrent >= 0) {
+      if (this.snap.expeditionCurrent >= 0) {
         GameDataRow({
-          emoji: '🎯',
-          label: $r('app.string.zzz_vitality_title'),
-          value: this.snap.vitalityCurrent.toString() + '/' + this.snap.vitalityMax.toString(),
-          valueColor: this.tm.current.colorPrimary
+          emoji: '🗺️',
+          label: $r('app.string.daily_note_expedition_title'),
+          value: this.snap.expeditionCurrent.toString() + '/' + this.snap.expeditionMax.toString(),
+          valueColor: this.tm.current.colorTextPrimary
         })
       }
-
-      GameDataRow({
-        emoji: '🃏',
-        label: $r('app.string.zzz_card_sign_title'),
-        value: this.snap.scratchCardDone ? '已完成' : '未完成',
-        valueColor: this.snap.scratchCardDone ? this.tm.current.colorPrimary : this.tm.current.colorDanger
-      })
-
-      if (this.snap.videoStoreState !== '') {
+      if (this.snap.homeCoinCurrent >= 0) {
         GameDataRow({
-          emoji: '📼',
-          label: $r('app.string.zzz_video_store_title'),
-          value: this.snap.videoStoreState === 'done' ? '已结算'
-            : this.snap.videoStoreState === 'open' ? '营业中' : '未营业',
-          valueColor: this.snap.videoStoreState === 'done' ? this.tm.current.colorPrimary
-            : this.snap.videoStoreState === 'open' ? this.tm.current.colorWarning
-            : this.tm.current.colorTextSecondary
+          emoji: '🏡',
+          label: $r('app.string.daily_note_home_coin_title'),
+          value: this.snap.homeCoinCurrent.toString() + '/' + this.snap.homeCoinMax.toString(),
+          valueColor: this.tm.current.colorTextPrimary
+        })
+      }
+      if (this.snap.dailyTaskFinished >= 0) {
+        GameDataRow({
+          emoji: '📋',
+          label: $r('app.string.daily_note_daily_task_title'),
+          value: this.snap.dailyTaskAllReceived
+            ? '已全部领取'
+            : this.snap.dailyTaskFinished.toString() + '/' + this.snap.dailyTaskTotal.toString(),
+          valueColor: this.snap.dailyTaskAllReceived
+            ? this.tm.current.colorPrimary
+            : this.tm.current.colorTextPrimary
         })
       }
     }

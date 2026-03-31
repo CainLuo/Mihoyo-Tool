@@ -22,6 +22,8 @@
     { "name": "color_transparent", "value": "#00000000" },
     { "name": "login_tab_bar_bg", "value": "#0A000000" },
     { "name": "login_input_bg", "value": "#F8F8F8" },
+    { "name": "role_card_server_bg", "value": "#66000000" },
+    { "name": "role_card_stat_bg", "value": "#73000000" },
 
     { "name": "game_color_genshin", "value": "#4A90D9" },
     { "name": "game_color_starrail", "value": "#7B68EE" },

@@ -2,13 +2,12 @@
  * AccountDetail — 账号详情二级页
  */
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
-import { AccountRepository } from 'core'
 import { Logger } from '../utils/Logger'
 import { MyAccountVM } from '../components/my/MyModels'
-import { RouterUtil } from '../utils/RouterUtil'
 import { SectionHeader } from '../components/my/SectionHeader'
 import { AccountRolesSection } from '../components/accountdetail/AccountRolesSection'
 import { AccountActionsSection } from '../components/accountdetail/AccountActionsSection'
+import { AccountDetailViewModel } from '../viewmodel/AccountDetailViewModel'
 
 const TAG: string = 'AccountDetail'
 
@@ -16,21 +15,22 @@ const TAG: string = 'AccountDetail'
 export struct AccountDetail {
   @Param account: MyAccountVM = new MyAccountVM(0, '', [])
   @Local private tm: ThemeManager = themeManager
+  @Local private vm: AccountDetailViewModel = new AccountDetailViewModel()
   private localStack: NavPathStack | null = null
 
-  private async deleteAccount(): Promise<void> {
-    try {
-      await AccountRepository.deleteAccount(this.account.accountId)
-      Logger.info(TAG, `account deleted: ${this.account.accountId}`)
-      if (this.localStack !== null) {
-        this.localStack.pop()
-      } else {
-        RouterUtil.pop()
-      }
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`
-      Logger.error(TAG, `deleteAccount failed: ${msg}`)
+  @Monitor('vm.deleted')
+  onDeleted(_monitor: IMonitor): void {
+    if (!this.vm.deleted) { return }
+    if (this.localStack !== null) {
+      this.localStack.pop()
     }
+  }
+
+  @Monitor('vm.errorMsg')
+  onError(_monitor: IMonitor): void {
+    const msg = this.vm.errorMsg
+    if (msg === '') { return }
+    Logger.error(TAG, `deleteAccount error: ${msg}`)
   }
 
   build() {
@@ -81,7 +81,7 @@ export struct AccountDetail {
           SectionHeader({ title: $r('app.string.account_detail_section_actions') })
           AccountActionsSection({
             tm: this.tm,
-            onDelete: () => { this.deleteAccount() }
+            onDelete: () => { this.vm.deleteAccount(this.account.accountId) }
           })
 
           Row().height(this.tm.current.value40)

@@ -16,12 +16,12 @@ export struct LoginTabItem {
     Text(this.label)
       .font(this.tm.current.body13)
       .fontColor(this.vm.activeTab === this.tab
-        ? Color.White
+        ? this.tm.current.textOnDarkHigh
         : this.tm.current.colorTextSecondary)
       .fontWeight(this.vm.activeTab === this.tab ? FontWeight.Bold : FontWeight.Normal)
       .backgroundColor(this.vm.activeTab === this.tab
         ? this.tm.current.colorPrimary
-        : Color.Transparent)
+        : this.tm.current.colorTransparent)
       .borderRadius(this.tm.current.radius8)
       .padding({
         left: this.tm.current.value12,

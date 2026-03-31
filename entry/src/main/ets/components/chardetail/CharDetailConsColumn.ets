@@ -28,8 +28,8 @@ function makeMockCons(activatedCount: number): CharDetailConstellation[] {
 struct CharDetailConsColumnPreviewFull {
   build() {
     CharDetailConsColumn({ constellations: makeMockCons(6) })
-      .padding(16)
-      .backgroundColor('#0D0D18')
+      .padding(themeManager.current.value16)
+      .backgroundColor(themeManager.current.bgPageDeep)
   }
 }
 
@@ -39,8 +39,8 @@ struct CharDetailConsColumnPreviewFull {
 struct CharDetailConsColumnPreviewPartial {
   build() {
     CharDetailConsColumn({ constellations: makeMockCons(2) })
-      .padding(16)
-      .backgroundColor('#0D0D18')
+      .padding(themeManager.current.value16)
+      .backgroundColor(themeManager.current.bgPageDeep)
   }
 }
 

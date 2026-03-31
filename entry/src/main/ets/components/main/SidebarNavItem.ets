@@ -36,7 +36,7 @@ export struct SidebarNavItem {
     .borderRadius(this.tm.current.radius8)
     .backgroundColor(this.tab === this.selectedTab
       ? $r('app.color.color_primary_bg')
-      : Color.Transparent)
+      : this.tm.current.colorTransparent)
     .onClick(() => { this.onSelect(this.tab) })
   }
 }

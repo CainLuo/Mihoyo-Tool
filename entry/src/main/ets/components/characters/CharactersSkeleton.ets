@@ -13,8 +13,8 @@ import { AppConstants } from '../../constants/AppConstants';
 struct CharactersSkeletonPreview {
   build() {
     CharactersSkeleton()
-      .height(600)
-      .backgroundColor('#F5F5F5')
+      .height(themeManager.current.value600)
+      .backgroundColor(themeManager.current.colorPageBg)
   }
 }
 

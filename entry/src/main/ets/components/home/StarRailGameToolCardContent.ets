@@ -1,12 +1,12 @@
 /**
- * ZZZGameToolCardContent — 绝区零战绩卡片内容区
+ * StarRailGameToolCardContent — 崩坏：星穹铁道战绩卡片内容区
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 import { GameNoteSnapshotVM } from './HomeModels'
 import { GameDataRow } from './GameDataRow'
 
 @ComponentV2
-export struct ZZZGameToolCardContent {
+export struct StarRailGameToolCardContent {
   @Param snap: GameNoteSnapshotVM = new GameNoteSnapshotVM('', 0, 0, '', '', '', false)
   @Param primaryColor: ResourceColor = $r('app.color.color_primary')
   @Param progressRatio: number = 0
@@ -14,7 +14,7 @@ export struct ZZZGameToolCardContent {
 
   build() {
     Column({ space: this.tm.current.value8 }) {
-      // 电量：大数字 + 环形进度
+      // 开拓力：大数字 + 环形进度
       Row({ space: this.tm.current.value10 }) {
         Text('⚡')
           .width(this.tm.current.value32)
@@ -25,7 +25,7 @@ export struct ZZZGameToolCardContent {
           .backgroundColor($r('app.color.surface_glass_xs'))
 
         Column({ space: this.tm.current.value2 }) {
-          Text($r('app.string.zzz_energy_title'))
+          Text($r('app.string.starrail_stamina_title'))
             .font(this.tm.current.body13)
             .fontColor(this.tm.current.colorTextSecondary)
 
@@ -66,33 +66,47 @@ export struct ZZZGameToolCardContent {
       .width(this.tm.current.full)
       .alignItems(VerticalAlign.Center)
 
-      Divider().color(this.tm.current.colorDivider)
-
-      if (this.snap.vitalityCurrent >= 0) {
+      if (this.snap.reserveStamina >= 0) {
         GameDataRow({
-          emoji: '🎯',
-          label: $r('app.string.zzz_vitality_title'),
-          value: this.snap.vitalityCurrent.toString() + '/' + this.snap.vitalityMax.toString(),
-          valueColor: this.tm.current.colorPrimary
+          emoji: '🔋',
+          label: $r('app.string.starrail_reserve_stamina_title'),
+          value: this.snap.reserveStamina.toString(),
+          valueColor: this.tm.current.colorTextSecondary
         })
       }
 
-      GameDataRow({
-        emoji: '🃏',
-        label: $r('app.string.zzz_card_sign_title'),
-        value: this.snap.scratchCardDone ? '已完成' : '未完成',
-        valueColor: this.snap.scratchCardDone ? this.tm.current.colorPrimary : this.tm.current.colorDanger
-      })
+      Divider().color(this.tm.current.colorDivider)
 
-      if (this.snap.videoStoreState !== '') {
+      if (this.snap.trainScoreCurrent >= 0) {
         GameDataRow({
-          emoji: '📼',
-          label: $r('app.string.zzz_video_store_title'),
-          value: this.snap.videoStoreState === 'done' ? '已结算'
-            : this.snap.videoStoreState === 'open' ? '营业中' : '未营业',
-          valueColor: this.snap.videoStoreState === 'done' ? this.tm.current.colorPrimary
-            : this.snap.videoStoreState === 'open' ? this.tm.current.colorWarning
-            : this.tm.current.colorTextSecondary
+          emoji: '📅',
+          label: $r('app.string.starrail_train_score_title'),
+          value: this.snap.trainScoreCurrent.toString() + '/' + this.snap.trainScoreMax.toString(),
+          valueColor: this.tm.current.colorPrimary
+        })
+      }
+      if (this.snap.weeklyCocoonCnt >= 0) {
+        GameDataRow({
+          emoji: '⚔️',
+          label: $r('app.string.starrail_cocoon_title'),
+          value: this.snap.weeklyCocoonCnt.toString() + '/' + this.snap.weeklyCocoonLimit.toString(),
+          valueColor: this.tm.current.colorWarning
+        })
+      }
+      if (this.snap.rogueScoreCurrent >= 0) {
+        GameDataRow({
+          emoji: '🌌',
+          label: $r('app.string.starrail_rogue_score_title'),
+          value: this.snap.rogueScoreCurrent.toString() + '/' + this.snap.rogueScoreMax.toString(),
+          valueColor: this.tm.current.colorPrimary
+        })
+      }
+      if (this.snap.tournScoreCurrent >= 0) {
+        GameDataRow({
+          emoji: '💰',
+          label: $r('app.string.starrail_tourn_score_title'),
+          value: this.snap.tournScoreCurrent.toString() + '/' + this.snap.tournScoreMax.toString(),
+          valueColor: this.tm.current.colorDanger
         })
       }
     }

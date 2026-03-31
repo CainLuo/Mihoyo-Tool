@@ -60,7 +60,7 @@ export struct CharacterCard {
           Column() {
             Text(this.character.name)
               .font(this.tm.current.body13Bold)
-              .fontColor(Color.White)
+              .fontColor(this.tm.current.textOnDarkHigh)
               .maxLines(1)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
               .width(this.tm.current.full)
@@ -82,7 +82,7 @@ export struct CharacterCard {
             Text(elementLabel(elementFromString(this.character.extraText1)))
               .fontSize(this.tm.current.body12.size)
               .fontWeight(FontWeight.Bold)
-              .fontColor(Color.White)
+              .fontColor(this.tm.current.textOnDarkHigh)
           }
           .width(this.tm.current.value30)
           .height(this.tm.current.value30)

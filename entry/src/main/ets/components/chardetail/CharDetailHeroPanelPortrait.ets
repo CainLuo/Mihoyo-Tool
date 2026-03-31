@@ -47,8 +47,8 @@ function makeMockPortraitVM(): GenshinCharacterDetailViewModel {
 struct CharDetailHeroPanelPortraitPreview {
   build() {
     CharDetailHeroPanelPortrait({ vm: makeMockPortraitVM() })
-      .width(360)
-      .height(260)
+      .width(themeManager.current.value360)
+      .height(themeManager.current.value260)
   }
 }
 
@@ -112,7 +112,7 @@ export struct CharDetailHeroPanelPortrait {
         Text(this.vm.charName)
           .fontSize(this.tm.current.value22)
           .fontWeight(FontWeight.Bold)
-          .fontColor(Color.White)
+          .fontColor(this.tm.current.textOnDarkHigh)
           .textShadow({ radius: this.tm.current.value8, color: this.tm.current.overlayShadow, offsetY: 2 })
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })

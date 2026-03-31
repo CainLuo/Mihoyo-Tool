@@ -49,8 +49,8 @@ function makeMockWideVM(): GenshinCharacterDetailViewModel {
 struct CharDetailHeroPanelWidePreview {
   build() {
     CharDetailHeroPanelWide({ vm: makeMockWideVM() })
-      .width(400)
-      .height(500)
+      .width(themeManager.current.value400)
+      .height(themeManager.current.value480)
   }
 }
 
@@ -118,7 +118,7 @@ export struct CharDetailHeroPanelWide {
         Text(this.vm.charName)
           .fontSize(this.tm.current.title18Bold.size)
           .fontWeight(FontWeight.Bold)
-          .fontColor(Color.White)
+          .fontColor(this.tm.current.textOnDarkHigh)
           .textShadow({ radius: this.tm.current.value8, color: this.tm.current.overlayShadow, offsetY: 2 })
         Text(`Lv.${this.vm.charLevel}/${this.vm.charMaxLevel}`)
           .fontSize(this.tm.current.body12.size)

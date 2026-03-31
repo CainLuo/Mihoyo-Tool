@@ -91,7 +91,7 @@ export struct AccountRolesSection {
               Row({ space: this.tm.current.value8 }) {
                 Text(role.server)
                   .font(this.tm.current.body13)
-                  .fontColor(Color.White)
+                  .fontColor(this.tm.current.textOnDarkHigh)
                   .padding({
                     left: this.tm.current.value8,
                     right: this.tm.current.value8,
@@ -99,15 +99,15 @@ export struct AccountRolesSection {
                     bottom: this.tm.current.value2
                   })
                   .borderRadius(this.tm.current.value4)
-                  .backgroundColor('rgba(0,0,0,0.4)')
+                  .backgroundColor(this.tm.current.roleCardServerBg)
 
                 Text('·')
                   .font(this.tm.current.body13)
-                  .fontColor('rgba(255,255,255,0.5)')
+                  .fontColor(this.tm.current.textOnDarkMuted)
 
                 Text('UID ' + role.roleUid)
                   .font(this.tm.current.body13)
-                  .fontColor('rgba(255,255,255,0.7)')
+                  .fontColor(this.tm.current.textOnDarkSecondary)
               }
               .width(this.tm.current.full)
               .alignItems(VerticalAlign.Center)
@@ -123,12 +123,12 @@ export struct AccountRolesSection {
                       Column({ space: this.tm.current.value2 }) {
                         Text(stat.value)
                           .font(this.tm.current.body16Medium)
-                          .fontColor(Color.White)
+                          .fontColor(this.tm.current.textOnDarkHigh)
                           .maxLines(1)
                           .textOverflow({ overflow: TextOverflow.Ellipsis })
                         Text(stat.name)
                           .font(this.tm.current.body13)
-                          .fontColor('rgba(255,255,255,0.7)')
+                          .fontColor(this.tm.current.textOnDarkSecondary)
                           .maxLines(2)
                           .textOverflow({ overflow: TextOverflow.Ellipsis })
                       }
@@ -140,7 +140,7 @@ export struct AccountRolesSection {
                         bottom: this.tm.current.value8
                       })
                       .alignItems(HorizontalAlign.Start)
-                      .backgroundColor('rgba(0,0,0,0.45)')
+                      .backgroundColor(this.tm.current.roleCardStatBg)
                       .borderRadius(this.tm.current.value8)
                     }
                   })

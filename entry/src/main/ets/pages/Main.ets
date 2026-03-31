@@ -1,32 +1,33 @@
 /**
  * Main — 应用主框架
  *
- * 按 Navigation11 示例结构：
- * - 一个 Navigation，内容区 if/else 切换三个 Tab 页
- * - toolbarConfiguration 做底部 TabBar，宽屏时自动只在左侧 NavBar 显示
- * - splitPlaceholder 宽屏右侧占位
+ * 每个 Tab 有独立的 NavPathStack（对应 iOS 每个 Tab 独立 NavigationController）：
+ * - homeStack：Home Tab 的导航栈
+ * - charStack：Characters Tab 的导航栈
+ * - myStack：My Tab 的导航栈
+ *
+ * 切换 Tab 时各栈互不影响，登录成功后可操作 myStack 实现 setViewControllers 效果。
  */
 import { SymbolGlyphModifier, ComponentContent } from '@kit.ArkUI'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
+import { HomeViewModel } from '../viewmodel/HomeViewModel'
 import { Home } from './Home'
 import { Characters, charDetailBuilder } from './Characters'
 import { My } from './My'
-import { HomeViewModel } from '../viewmodel/HomeViewModel'
-import { ViewState } from '../constants/ViewStates'
 import { GenshinDailyDetail, GenshinDailyDetailParam } from './GenshinDailyDetail'
 import { GenshinCharacterDetailParam, GenshinCharacterDetail } from './GenshinCharacterDetail'
 import { AccountDetail } from './AccountDetail'
 import { Login } from './Login'
 import { MyAccountVM } from '../components/my/MyModels'
 import { AppRoutes } from '../constants/AppRoutes'
+import { splitPlaceholderBuilder } from '../components/SplitPlaceholder'
+import { HomeRefreshButton } from '../components/home/HomeRefreshButton'
 
 @Builder
-function detailBuilder(name: string, param: Object) {
-  if (name === 'CharDetail') {
-    charDetailBuilder(name, param)
-  } else if (name === AppRoutes.GENSHIN_DAILY_DETAIL) {
+function allDetailBuilder(name: string, param: Object) {
+  if (name === AppRoutes.GENSHIN_DAILY_DETAIL) {
     GenshinDailyDetail({ routerParam: param as GenshinDailyDetailParam })
-  } else if (name === AppRoutes.GENSHIN_CHARACTER_DETAIL) {
+  } else if (name === 'CharDetail' || name === AppRoutes.GENSHIN_CHARACTER_DETAIL) {
     GenshinCharacterDetail({ routerParam: param as GenshinCharacterDetailParam })
   } else if (name === AppRoutes.ACCOUNT_DETAIL) {
     AccountDetail({ account: param as MyAccountVM })
@@ -39,21 +40,18 @@ const TAB_HOME = 0
 const TAB_CHARACTERS = 1
 const TAB_MY = 2
 
-@Builder
-function splitPlaceholderBuilder() {
-  Column() {}
-  .width('100%')
-  .height('100%')
-  .backgroundColor($r('app.color.color_page_bg'))
-}
-
 @ComponentV2
 export struct Main {
   @Local private tm: ThemeManager = themeManager
   @Local private selectedTab: number = TAB_HOME
   @Local private homeVm: HomeViewModel = new HomeViewModel()
   @Local private isSplit: boolean = false
-  private detailStack: NavPathStack = new NavPathStack()
+
+  // 每个 Tab 独立的导航栈
+  readonly homeStack: NavPathStack = new NavPathStack()
+  readonly charStack: NavPathStack = new NavPathStack()
+  readonly myStack: NavPathStack = new NavPathStack()
+
   private placeholder: ComponentContent<object> | null = null
   private uiCtx: UIContext | null = null
 
@@ -68,28 +66,19 @@ export struct Main {
         value: $r('app.string.main_tab_home'),
         symbolIcon: new SymbolGlyphModifier($r('sys.symbol.ohos_star')),
         status: this.selectedTab === TAB_HOME ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
-        action: () => {
-          this.selectedTab = TAB_HOME
-          this.detailStack.clear()
-        }
+        action: () => { this.selectedTab = TAB_HOME }
       },
       {
         value: $r('app.string.characters_tab_title'),
         symbolIcon: new SymbolGlyphModifier($r('sys.symbol.ohos_lungs')),
         status: this.selectedTab === TAB_CHARACTERS ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
-        action: () => {
-          this.selectedTab = TAB_CHARACTERS
-          this.detailStack.clear()
-        }
+        action: () => { this.selectedTab = TAB_CHARACTERS }
       },
       {
         value: $r('app.string.main_tab_my'),
         symbolIcon: new SymbolGlyphModifier($r('sys.symbol.ohos_lungs')),
         status: this.selectedTab === TAB_MY ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
-        action: () => {
-          this.selectedTab = TAB_MY
-          this.detailStack.clear()
-        }
+        action: () => { this.selectedTab = TAB_MY }
       }
     ]
     return items
@@ -97,21 +86,11 @@ export struct Main {
 
   @Builder
   homeMenus() {
-    if (this.homeVm.viewState === ViewState.DATA) {
-      Button({ type: ButtonType.Circle }) {
-        Image($r('app.media.ic_refresh'))
-          .width(this.tm.current.value22)
-          .height(this.tm.current.value22)
-          .fillColor(this.homeVm.isRefreshing
-            ? this.tm.current.colorTextSecondary
-            : this.tm.current.colorTextPrimary)
-      }
-      .width(this.tm.current.value56)
-      .height(this.tm.current.value56)
-      .backgroundColor(Color.Transparent)
-      .enabled(!this.homeVm.isRefreshing)
-      .onClick(() => { this.homeVm.refresh() })
-    }
+    HomeRefreshButton({
+      viewState: this.homeVm.viewState,
+      isRefreshing: this.homeVm.isRefreshing,
+      onRefresh: () => { this.homeVm.refresh() }
+    })
   }
 
   private tabTitle(): Resource {
@@ -120,19 +99,29 @@ export struct Main {
     return $r('app.string.main_tab_my')
   }
 
+  // 当前 Tab 对应的栈
+  private get currentStack(): NavPathStack {
+    if (this.selectedTab === TAB_HOME) { return this.homeStack }
+    if (this.selectedTab === TAB_CHARACTERS) { return this.charStack }
+    return this.myStack
+  }
+
   build() {
     NavDestination() {
-      Navigation(this.detailStack) {
-        // NavBar 内容区：根据 selectedTab 切换
-        if (this.selectedTab === TAB_HOME) {
-          Home({ vm: this.homeVm, detailStack: this.detailStack, isSplit: this.isSplit })
-        } else if (this.selectedTab === TAB_CHARACTERS) {
-          Characters({ detailStack: this.detailStack, isSplit: this.isSplit })
-        } else {
-          My({ detailStack: this.detailStack, isSplit: this.isSplit })
+      Navigation(this.currentStack) {
+        Stack() {
+          Home({ detailStack: this.homeStack, isSplit: this.isSplit,
+            onVmReady: (vm: HomeViewModel) => { this.homeVm = vm } })
+            .visibility(this.selectedTab === TAB_HOME ? Visibility.Visible : Visibility.None)
+          Characters({ detailStack: this.charStack, isSplit: this.isSplit })
+            .visibility(this.selectedTab === TAB_CHARACTERS ? Visibility.Visible : Visibility.None)
+          My({ detailStack: this.myStack, isSplit: this.isSplit })
+            .visibility(this.selectedTab === TAB_MY ? Visibility.Visible : Visibility.None)
         }
+        .width(this.tm.current.full)
+        .height(this.tm.current.full)
       }
-      .navDestination(detailBuilder)
+      .navDestination(allDetailBuilder)
       .title(this.tabTitle())
       .menus(this.selectedTab === TAB_HOME ? this.homeMenus : null)
       .toolbarConfiguration(this.tabItems)

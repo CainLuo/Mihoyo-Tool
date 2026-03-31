@@ -75,7 +75,7 @@ export struct AccountListSection {
           if (idx < this.accounts.length - 1) {
             Divider().color(this.tm.current.colorDivider).margin({ left: this.tm.current.value16 })
           }
-        })
+        }, (account: MyAccountVM) => `${account.accountId}_${account.roles.length}`)
       }
 
       Divider().color(this.tm.current.colorDivider)

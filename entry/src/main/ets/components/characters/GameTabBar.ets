@@ -22,7 +22,7 @@ struct GameTabBarPreview {
       selectedIdx: 0,
       onSelect: (_i: number) => {}
     })
-    .backgroundColor('#F5F5F5')
+    .backgroundColor(themeManager.current.colorPageBg)
   }
 }
 
@@ -51,7 +51,7 @@ export struct GameTabBar {
             .borderRadius(this.tm.current.radius8)
             .backgroundColor(idx === this.selectedIdx
               ? $r('app.color.color_primary_bg')
-              : Color.Transparent)
+              : this.tm.current.colorTransparent)
             .onClick(() => { this.onSelect(idx); })
         }, (tab: GameTabItem) => tab.gameId + tab.roleUid)
       }

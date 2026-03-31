@@ -260,7 +260,7 @@ export struct GeetestDialog {
           }
           .width(this.tm.current.value56)
           .height(this.tm.current.value56)
-          .backgroundColor(Color.Transparent)
+          .backgroundColor(this.tm.current.colorTransparent)
           .onClick(() => {
             this.onResult(null);
           })

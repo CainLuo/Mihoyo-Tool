@@ -109,7 +109,6 @@ export class HomeViewModel {
    * 同时启动 30 分钟自动刷新定时器。
    */
   async loadData(): Promise<void> {
-    // 等待 RDB 初始化完成（CoreInitializer.initCore 是异步的）
     await CoreInitializer.waitForReady();
     this.viewState = ViewState.LOADING;
     try {
@@ -119,14 +118,31 @@ export class HomeViewModel {
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `loadData failed: ${msg}`);
-      // DB 读取失败也显示 empty，不进入 error 状态
       this.viewState = ViewState.EMPTY;
     }
 
-    // 冷启动后检查是否需要同步（距上次成功超过 30 分钟才触发）
-    this.syncIfNeeded();
+    const hasAccountsButNoCards = this.accounts.length > 0 &&
+      this.accounts.every(a => a.roles.length === 0);
 
-    // 启动 30 分钟自动刷新定时器
+    if (hasAccountsButNoCards) {
+      try {
+        await this.syncAllDailyNotes();
+        const refreshed = await this.fetchFromLocal();
+        this.accounts = refreshed;
+        this.viewState = refreshed.length > 0 ? ViewState.DATA : ViewState.EMPTY;
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : `${e}`
+        Logger.error(TAG, `syncAllDailyNotes path failed: ${msg}`)
+      }
+    } else {
+      this.syncIfNeeded().then(async () => {
+        try {
+          const refreshed = await this.fetchFromLocal();
+          this.accounts = refreshed;
+          this.viewState = refreshed.length > 0 ? ViewState.DATA : ViewState.EMPTY;
+        } catch (_) {}
+      }).catch((_: Error | object) => {});
+    }
     this.startAutoRefresh();
   }
 
@@ -138,7 +154,6 @@ export class HomeViewModel {
     if (this.isRefreshing) {
       return;
     }
-    // 检查冷却：30 分钟内已刷新过则提示用户
     const lastRefresh = AppStorage.get<number>('homeLastRefreshTime') ?? 0;
     const now = Math.floor(Date.now() / 1000);
     if (now - lastRefresh < AppConstants.AUTO_REFRESH_INTERVAL_MS / 1000) {
@@ -303,7 +318,6 @@ export class HomeViewModel {
         } catch (error) {
           const msg = error instanceof Error ? error.message : `${error}`;
           if (msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED}`) !== -1) {
-            // 需要 Geetest 验证
             Logger.info(TAG, `Geetest required for ${role.gameId}/${role.roleId}`);
             await this.handleGeetest(pair.account.cookie, role);
           } else {
@@ -383,7 +397,6 @@ export class HomeViewModel {
       }
 
       if (gameId === GAME_GENSHIN) {
-        // 原神：用 Parser 解析 raw_json，填充所有字段
         const data = GenshinDailyNoteParser.parse(row.rawJson);
         const isFull = data.currentResin >= data.maxResin && data.maxResin > 0;
         const recoveryDesc = isFull ? '' : HomeViewModel.resinRecoveryDesc(data.resinRecoveryTime);

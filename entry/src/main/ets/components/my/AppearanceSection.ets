@@ -44,7 +44,7 @@ export struct AppearanceSection {
     Button(label, { type: ButtonType.Normal })
       .fontSize(this.tm.current.body13.size)
       .fontWeight(this.tm.current.body13.weight)
-      .fontColor(this.themeMode === mode ? Color.White : this.tm.current.colorTextSecondary)
+      .fontColor(this.themeMode === mode ? this.tm.current.textOnDarkHigh : this.tm.current.colorTextSecondary)
       .padding({
         left: this.tm.current.value8,
         right: this.tm.current.value8,

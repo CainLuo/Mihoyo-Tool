@@ -1,13 +1,13 @@
 /**
  * Login.ets — 登录页
  */
-import { AppRoutes } from '../constants/AppRoutes'
-import { RouterUtil } from '../utils/RouterUtil'
 import { LoginViewModel } from '../viewmodel/LoginViewModel'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { LoginNarrowLayout } from '../components/login/LoginNarrowLayout'
 import { LoginWideLayout } from '../components/login/LoginWideLayout'
 import { Logger } from '../utils/Logger'
+import { AppRoutes } from '../constants/AppRoutes'
+import { AccountSignal } from '../utils/AccountSignal'
 
 const TAG: string = 'Login'
 
@@ -16,17 +16,25 @@ export struct Login {
   @Local private vm: LoginViewModel = new LoginViewModel()
   @Local private tm: ThemeManager = themeManager
   @Local private windowWidth: number = 360
+  private localStack: NavPathStack | null = null
 
   aboutToDisappear(): void {
     this.vm.dispose()
   }
 
   @Monitor(LoginViewModel.KEYS.loginSuccess)
-  onLoginSuccess(): void {
-    if (this.vm.loginSuccess) {
-      Logger.info(TAG, 'login success, navigate to Main')
-      RouterUtil.replace(AppRoutes.MAIN)
+  onLoginSuccess(_monitor: IMonitor): void {
+    if (!this.vm.loginSuccess) { return }
+    const stack = this.localStack
+    if (stack === null) { return }
+    const accountVM = this.vm.loginedAccountVM
+    if (accountVM === null) {
+      Logger.error(TAG, 'loginedAccountVM is null after loginSuccess')
+      stack.pop()
+      return
     }
+    stack.replacePath({ name: AppRoutes.ACCOUNT_DETAIL, param: accountVM })
+    AccountSignal.instance().notify()
   }
 
   build() {
@@ -47,5 +55,8 @@ export struct Login {
     }
     .title($r('app.string.login_title'))
     .hideTitleBar(false)
+    .onReady((ctx: NavDestinationContext) => {
+      this.localStack = ctx.pathStack
+    })
   }
 }

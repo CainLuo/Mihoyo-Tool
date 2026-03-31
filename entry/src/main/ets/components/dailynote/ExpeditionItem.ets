@@ -21,8 +21,8 @@ struct ExpeditionItemPreviewOngoing {
         expedition: new ExpeditionVM('', '已完成', true)
       })
     }
-    .backgroundColor('#FFFFFF')
-    .width(360)
+    .backgroundColor(themeManager.current.colorSurfaceCard)
+    .width(themeManager.current.value360)
   }
 }
 

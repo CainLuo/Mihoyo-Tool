@@ -7,8 +7,8 @@ import { RouterUtil } from '../../utils/RouterUtil'
 struct HomePlaceholderViewPreview {
   build() {
     HomePlaceholderView()
-      .height(600)
-      .backgroundColor('#F5F5F5')
+      .height(themeManager.current.value600)
+      .backgroundColor(themeManager.current.colorPageBg)
   }
 }
 
@@ -38,7 +38,7 @@ export struct HomePlaceholderView {
       Button($r('app.string.home_placeholder_button'))
         .fontSize(this.tm.current.body16Medium.size)
         .fontWeight(this.tm.current.body16Medium.weight)
-        .fontColor(Color.White)
+        .fontColor(this.tm.current.textOnDarkHigh)
         .width(this.tm.current.pct90)
         .height(this.tm.current.value50)
         .borderRadius(this.tm.current.radius12)

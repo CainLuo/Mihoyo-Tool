@@ -13,6 +13,7 @@ import { CharDetailHeroPanelWide } from './CharDetailHeroPanelWide';
 import { CharDetailHeroPanelPortrait } from './CharDetailHeroPanelPortrait';
 import { CharDetailHeroPanelLandscape } from './CharDetailHeroPanelLandscape';
 import { GenshinElement } from '../../constants/GenshinElement';
+import { themeManager } from '../../theme/ThemeManager';
 import { ViewState } from '../../constants/ViewStates';
 
 function makeMockHeroPanelVM(element: GenshinElement, name: string, cons: number): GenshinCharacterDetailViewModel {
@@ -53,8 +54,8 @@ struct CharDetailHeroPanelPreviewWide {
       vm: makeMockHeroPanelVM(GenshinElement.HYDRO, '夜兰', 6),
       mode: HeroPanelMode.WIDE
     })
-    .width(400)
-    .height(500)
+    .width(themeManager.current.value400)
+    .height(themeManager.current.value480)
   }
 }
 
@@ -67,8 +68,8 @@ struct CharDetailHeroPanelPreviewPortrait {
       vm: makeMockHeroPanelVM(GenshinElement.PYRO, '胡桃', 1),
       mode: HeroPanelMode.PORTRAIT
     })
-    .width(360)
-    .height(260)
+    .width(themeManager.current.value360)
+    .height(themeManager.current.value260)
   }
 }
 
@@ -81,8 +82,8 @@ struct CharDetailHeroPanelPreviewLandscape {
       vm: makeMockHeroPanelVM(GenshinElement.ELECTRO, '雷电将军', 6),
       mode: HeroPanelMode.LANDSCAPE
     })
-    .width(200)
-    .height(360)
+    .width(themeManager.current.value200)
+    .height(themeManager.current.value360)
   }
 }
 

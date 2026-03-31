@@ -33,13 +33,14 @@ function makeMockNote(resin: number): GenshinDailyNoteVM {
 @Preview
 @ComponentV2
 struct DailyNoteGenshinPreviewNormal {
+  @Local private tm: ThemeManager = themeManager
   build() {
     Scroll() {
       DailyNoteGenshin({ data: makeMockNote(140) })
-        .padding(16)
+        .padding(this.tm.current.value16)
     }
-    .height(700)
-    .backgroundColor('#F5F5F5')
+    .height(this.tm.current.value600)
+    .backgroundColor(this.tm.current.colorPageBg)
   }
 }
 
@@ -50,10 +51,10 @@ struct DailyNoteGenshinPreviewFull {
   build() {
     Scroll() {
       DailyNoteGenshin({ data: makeMockNote(200) })
-        .padding(16)
+        .padding(themeManager.current.value16)
     }
-    .height(700)
-    .backgroundColor('#F5F5F5')
+    .height(themeManager.current.value600)
+    .backgroundColor(themeManager.current.colorPageBg)
   }
 }
 

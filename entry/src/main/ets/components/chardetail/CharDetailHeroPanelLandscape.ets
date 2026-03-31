@@ -47,8 +47,8 @@ function makeMockLandscapeVM(): GenshinCharacterDetailViewModel {
 struct CharDetailHeroPanelLandscapePreview {
   build() {
     CharDetailHeroPanelLandscape({ vm: makeMockLandscapeVM() })
-      .width(200)
-      .height(360)
+      .width(themeManager.current.value200)
+      .height(themeManager.current.value360)
   }
 }
 
@@ -103,7 +103,7 @@ export struct CharDetailHeroPanelLandscape {
         Text(this.vm.charName)
           .fontSize(this.tm.current.value15)
           .fontWeight(FontWeight.Bold)
-          .fontColor(Color.White)
+          .fontColor(this.tm.current.textOnDarkHigh)
           .textShadow({ radius: this.tm.current.value8, color: this.tm.current.overlayShadow, offsetY: 2 })
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })

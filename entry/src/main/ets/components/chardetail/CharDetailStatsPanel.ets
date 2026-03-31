@@ -54,9 +54,9 @@ struct CharDetailStatsPanelPreviewWide {
       vm: makeMockStatsPanelVM(),
       isPhone: false
     })
-    .width(280)
-    .height(500)
-    .backgroundColor('#0D0D18')
+    .width(themeManager.current.value280)
+    .height(themeManager.current.value480)
+    .backgroundColor(themeManager.current.bgPageDeep)
   }
 }
 
@@ -70,8 +70,8 @@ struct CharDetailStatsPanelPreviewPhone {
       isPhone: true,
       phoneCols: 2
     })
-    .width(360)
-    .backgroundColor('#0D0D18')
+    .width(themeManager.current.value360)
+    .backgroundColor(themeManager.current.bgPageDeep)
   }
 }
 
@@ -118,7 +118,7 @@ export struct CharDetailStatsPanel {
           Text(this.vm.weapon.name)
             .fontSize(this.tm.current.body13Bold.size)
             .fontWeight(FontWeight.Bold)
-            .fontColor(Color.White)
+            .fontColor(this.tm.current.textOnDarkHigh)
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
           Row({ space: this.tm.current.value8 }) {
@@ -181,7 +181,7 @@ export struct CharDetailStatsPanel {
         Text(this.vm.weapon.name)
           .fontSize(this.tm.current.body13.size)
           .fontWeight(FontWeight.Bold)
-          .fontColor(Color.White)
+          .fontColor(this.tm.current.textOnDarkHigh)
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
         Row({ space: this.tm.current.value4 }) {
@@ -229,7 +229,7 @@ export struct CharDetailStatsPanel {
           Text(stat.value)
             .fontSize(this.tm.current.body13Bold.size)
             .fontWeight(FontWeight.Bold)
-            .fontColor(stat.isHighlight ? elementColor(this.vm.charElement) : Color.White)
+            .fontColor(stat.isHighlight ? elementColor(this.vm.charElement) : this.tm.current.textOnDarkHigh)
         }
         .width(this.tm.current.full)
         .padding({
@@ -258,7 +258,7 @@ export struct CharDetailStatsPanel {
             Text(stat.value)
               .fontSize(this.tm.current.body12.size)
               .fontWeight(FontWeight.Bold)
-              .fontColor(stat.isHighlight ? elementColor(this.vm.charElement) : Color.White)
+              .fontColor(stat.isHighlight ? elementColor(this.vm.charElement) : this.tm.current.textOnDarkHigh)
           }
           .width(this.tm.current.full)
           .padding({ left: this.tm.current.value8, right: this.tm.current.value8, top: this.tm.current.value5, bottom: this.tm.current.value5 })

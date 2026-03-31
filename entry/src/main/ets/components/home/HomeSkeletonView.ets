@@ -5,8 +5,8 @@ import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 struct HomeSkeletonViewPreview {
   build() {
     HomeSkeletonView()
-      .height(600)
-      .backgroundColor('#F5F5F5')
+      .height(themeManager.current.value600)
+      .backgroundColor(themeManager.current.colorPageBg)
   }
 }
 
