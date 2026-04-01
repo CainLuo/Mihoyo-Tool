@@ -27,6 +27,7 @@ import {
   GAME_ZZZ,
   GAME_HONKAI3
 } from '../components/home/HomeModels';
+import { CharacterDataSource } from '../components/characters/CharacterDataSource';
 
 const TAG: string = 'CharactersViewModel';
 
@@ -74,6 +75,9 @@ export class CharactersViewModel {
   @Trace isRefreshing: boolean = false;
   @Trace networkErrorMsg: string = '';
   @Trace refreshCoolingDown: boolean = false;
+
+  /** LazyForEach 数据源，随 characters 同步更新 */
+  readonly dataSource: CharacterDataSource = new CharacterDataSource();
 
   // 原始账号+角色数据，切换时复用
   private allPairs: AccountWithRoles[] = [];
@@ -222,7 +226,7 @@ export class CharactersViewModel {
 
     this.gameTabs = tabs;
     if (tabs.length === 0) {
-      this.characters = [];
+      this.setCharacters([]);
       this.viewState = ViewState.EMPTY;
       return;
     }
@@ -233,7 +237,7 @@ export class CharactersViewModel {
   /** 从 DB 加载当前选中游戏的角色列表，若为空则自动触发一次后台同步 */
   private async reloadCharacters(): Promise<void> {
     if (this.gameTabs.length === 0) {
-      this.characters = [];
+      this.setCharacters([]);
       this.viewState = ViewState.EMPTY;
       return;
     }
@@ -241,7 +245,7 @@ export class CharactersViewModel {
     try {
       const rows = await CharacterRepository.findAll(tab.gameId, tab.roleUid);
       if (rows.length > 0) {
-        this.characters = rows;
+        this.setCharacters(rows);
         this.viewState = ViewState.DATA;
       } else {
         // DB 无数据，先显示 loading，后台触发同步
@@ -251,7 +255,7 @@ export class CharactersViewModel {
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `reloadCharacters failed: ${msg}`);
-      this.characters = [];
+      this.setCharacters([]);
       this.viewState = ViewState.EMPTY;
     }
   }
@@ -268,7 +272,7 @@ export class CharactersViewModel {
             this.gameTabs[this.selectedGameIdx].gameId === gameId &&
             this.gameTabs[this.selectedGameIdx].roleUid === roleUid) {
           const rows = await CharacterRepository.findAll(gameId, roleUid);
-          this.characters = rows;
+          this.setCharacters(rows);
           this.viewState = rows.length > 0 ? ViewState.DATA : ViewState.EMPTY;
         }
       })
@@ -280,6 +284,11 @@ export class CharactersViewModel {
           this.viewState = ViewState.EMPTY;
         }
       });
+  }
+
+  private setCharacters(rows: GameDataSummary[]): void {
+    this.characters = rows;
+    this.dataSource.setData(rows);
   }
 
   private findServer(roleUid: string): string {

@@ -115,6 +115,30 @@
     { "name": "bg_element_dendro_3", "value": "#040E02" },
     { "name": "bg_portrait_1", "value": "#0A1E38" },
     { "name": "bg_portrait_2", "value": "#0E0E22" },
-    { "name": "bg_page_deep", "value": "#0D0D18" }
+    { "name": "bg_page_deep", "value": "#0D0D18" },
+
+    { "name": "sr_element_physical", "value": "#9E9E9E" },
+    { "name": "sr_element_fire", "value": "#FF7043" },
+    { "name": "sr_element_ice", "value": "#4FC3F7" },
+    { "name": "sr_element_lightning", "value": "#CE93D8" },
+    { "name": "sr_element_wind", "value": "#69F0AE" },
+    { "name": "sr_element_quantum", "value": "#7C4DFF" },
+    { "name": "sr_element_imaginary", "value": "#FFD54F" },
+
+    { "name": "sr_path_destruction", "value": "#EF5350" },
+    { "name": "sr_path_hunt", "value": "#FF9800" },
+    { "name": "sr_path_erudition", "value": "#00BCD4" },
+    { "name": "sr_path_harmony", "value": "#66BB6A" },
+    { "name": "sr_path_nihility", "value": "#9C27B0" },
+    { "name": "sr_path_preservation", "value": "#2196F3" },
+    { "name": "sr_path_abundance", "value": "#4CAF50" },
+    { "name": "sr_path_remembrance", "value": "#90CAF9" },
+    { "name": "sr_path_elation", "value": "#F48FB1" },
+
+    { "name": "zzz_element_physical", "value": "#9E9E9E" },
+    { "name": "zzz_element_fire", "value": "#FF7043" },
+    { "name": "zzz_element_ice", "value": "#4FC3F7" },
+    { "name": "zzz_element_electric", "value": "#CE93D8" },
+    { "name": "zzz_element_ether", "value": "#E040FB" }
   ]
 }

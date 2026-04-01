@@ -72,36 +72,33 @@ export struct CharactersContent {
           .alignItems(HorizontalAlign.Center)
         }
       } else {
-        Scroll(this.scroller) {
-          Column({ space: this.tm.current.value16 }) {
-            GridRow({
-              columns: 2,
-              gutter: { x: this.tm.current.value12, y: this.tm.current.value12 }
-            }) {
-              ForEach(this.vm.characters, (character: GameDataSummary) => {
-                GridCol({ span: 1 }) {
-                  CharacterCard({
-                    character: character,
-                    gameId: this.vm.gameTabs.length > 0
-                      ? this.vm.gameTabs[this.vm.selectedGameIdx].gameId : 'genshin',
-                    roleUid: this.vm.gameTabs.length > 0
-                      ? this.vm.gameTabs[this.vm.selectedGameIdx].roleUid : '',
-                    onTap: (c: GameDataSummary) => { this.onCardTap(c) }
-                  })
-                }
-              }, (character: GameDataSummary) => character.entityId)
+        // LazyForEach + Grid 实现懒加载，只渲染可见区域内的卡片
+        Grid(this.scroller) {
+          LazyForEach(this.vm.dataSource, (character: GameDataSummary) => {
+            GridItem() {
+              CharacterCard({
+                character: character,
+                gameId: this.vm.gameTabs.length > 0
+                  ? this.vm.gameTabs[this.vm.selectedGameIdx].gameId : 'genshin',
+                roleUid: this.vm.gameTabs.length > 0
+                  ? this.vm.gameTabs[this.vm.selectedGameIdx].roleUid : '',
+                onTap: (c: GameDataSummary) => { this.onCardTap(c) }
+              })
             }
-            .width(this.tm.current.full)
-            .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
-            Row().height(this.tm.current.value40)
-          }
-          .width(this.tm.current.full)
-          .padding({ top: this.tm.current.value8 })
+          }, (character: GameDataSummary) => `${character.gameId}_${character.entityId}`)
         }
+        .columnsTemplate('1fr 1fr')
+        .columnsGap(this.tm.current.value12)
+        .rowsGap(this.tm.current.value12)
+        .padding({
+          top: this.tm.current.value8,
+          left: this.tm.current.value16,
+          right: this.tm.current.value16,
+          bottom: this.tm.current.value40
+        })
         .edgeEffect(EdgeEffect.Spring)
         .scrollBar(BarState.Off)
         .layoutWeight(1)
-        .align(Alignment.Top)
       }
     }
     .width(this.tm.current.full)

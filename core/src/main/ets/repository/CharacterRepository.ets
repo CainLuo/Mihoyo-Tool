@@ -567,6 +567,7 @@ interface ZZZCharacterStorage {
   full_name: string;
   element_type: number;
   camp_name: string;
+  group_icon_path: string;
   avatar_profession: number;
   rarity: string;
   rarity_num: number;
@@ -1106,6 +1107,7 @@ export class CharacterRepository {
         rarity: item.rarity, rarity_num: rarityNum,
         level: item.level, rank: item.rank,
         icon: item.hollow_icon_path, square_icon: item.role_square_url,
+        group_icon_path: item.group_icon_path,
         vertical_painting_url: detail ? detail.role_vertical_painting_url : '',
         weapon: detail ? detail.weapon : null,
         equip_list: equipList, relic_icons: relicIcons,
@@ -1185,7 +1187,7 @@ export class CharacterRepository {
         const p = JSON.parse(row.rawJson) as ZZZCharacterStorage;
         s.iconUrl = p.icon ?? '';
         s.squareIconUrl = p.square_icon ?? '';
-        s.fullName = p.full_name ?? '';
+        s.fullName = p.group_icon_path ?? '';  // 卡片底部显示阵营 icon
         if (p.weapon) {
           s.weaponName = p.weapon.name ?? '';
           s.weaponLevel = p.weapon.level ?? 0;
