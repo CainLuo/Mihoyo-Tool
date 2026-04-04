@@ -1,7 +1,7 @@
 /**
  * CharDetailEmptyView — 角色详情空态/错误视图
  */
-import { ThemeManager } from '../../theme/ThemeManager'
+import { ThemeManager, themeManager } from '../../theme/ThemeManager'
 
 @ComponentV2
 export struct CharDetailEmptyView {
@@ -16,5 +16,20 @@ export struct CharDetailEmptyView {
     .width(this.tm.current.full)
     .height(this.tm.current.full)
     .justifyContent(FlexAlign.Center)
+  }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+struct CharDetailEmptyViewPreview {
+  build() {
+    Column() {
+      CharDetailEmptyView({ tm: themeManager })
+    }
+    .width('100%')
+    .height(200)
+    .backgroundColor('#1a1a2e')
   }
 }

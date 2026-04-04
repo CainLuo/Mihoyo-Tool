@@ -107,3 +107,30 @@ export struct GenshinGameToolCardContent {
     .alignItems(HorizontalAlign.Start)
   }
 }
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+struct GenshinGameToolCardContentPreview {
+  build() {
+    Column() {
+      GenshinGameToolCardContent({
+        snap: (() => {
+          const snap = new GameNoteSnapshotVM('genshin', 140, 200, '将于4小时后全部恢复', '', '', false);
+          snap.expeditionCurrent = 3;
+          snap.expeditionMax = 5;
+          snap.homeCoinCurrent = 1800;
+          snap.homeCoinMax = 2400;
+          snap.dailyTaskFinished = 4;
+          snap.dailyTaskTotal = 4;
+          snap.dailyTaskAllReceived = true;
+          return snap;
+        })(),
+        primaryColor: $r('app.color.game_color_genshin'),
+        progressRatio: 0.7
+      })
+    }
+    .backgroundColor('#1a1a2e')
+  }
+}

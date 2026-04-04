@@ -13,7 +13,7 @@ import { CharDetailWideLayout } from '../components/chardetail/CharDetailWideLay
 import { ViewState } from '../constants/ViewStates'
 
 export class GenshinCharacterDetailParam {
-  gameId: string = 'genshin'
+  accountId: number = 0
   roleUid: string = ''
   entityId: string = ''
 }
@@ -51,7 +51,7 @@ export struct GenshinCharacterDetail {
         try { win.on('windowSizeChange', this.sizeCallback) } catch (_e) {}
       })
     } catch (_e) {}
-    this.vm.init(this.routerParam.gameId, this.routerParam.roleUid, this.routerParam.entityId)
+    this.vm.init(this.routerParam.accountId, this.routerParam.roleUid, this.routerParam.entityId)
     this.vm.loadData()
   }
 

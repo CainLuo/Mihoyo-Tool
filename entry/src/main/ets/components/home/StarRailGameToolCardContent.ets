@@ -120,3 +120,32 @@ export struct StarRailGameToolCardContent {
     .alignItems(HorizontalAlign.Start)
   }
 }
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+struct StarRailGameToolCardContentPreview {
+  build() {
+    Column() {
+      StarRailGameToolCardContent({
+        snap: (() => {
+          const snap = new GameNoteSnapshotVM('starrail', 180, 300, '将于2小时后全部恢复', '', '', false);
+          snap.reserveStamina = 2400;
+          snap.trainScoreCurrent = 400;
+          snap.trainScoreMax = 500;
+          snap.weeklyCocoonCnt = 2;
+          snap.weeklyCocoonLimit = 3;
+          snap.rogueScoreCurrent = 10000;
+          snap.rogueScoreMax = 14000;
+          snap.tournScoreCurrent = 800;
+          snap.tournScoreMax = 1000;
+          return snap;
+        })(),
+        primaryColor: $r('app.color.game_color_starrail'),
+        progressRatio: 0.6
+      })
+    }
+    .backgroundColor('#1a1a2e')
+  }
+}

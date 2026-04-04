@@ -78,8 +78,10 @@ export struct Characters {
       ? this.vm.gameTabs[this.vm.selectedGameIdx].gameId : 'genshin'
     const roleUid = this.vm.gameTabs.length > 0
       ? this.vm.gameTabs[this.vm.selectedGameIdx].roleUid : ''
+    const accountId = this.vm.accountOptions.length > 0
+      ? this.vm.accountOptions[this.vm.selectedAccountIdx].accountId : 0
     const param = new GenshinCharacterDetailParam()
-    param.gameId = gameId
+    param.accountId = accountId
     param.roleUid = roleUid
     param.entityId = character.entityId
 

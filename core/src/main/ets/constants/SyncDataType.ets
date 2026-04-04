@@ -1,0 +1,17 @@
+export enum SyncDataType {
+  ACCOUNT = 'account_table',
+  GAME_ROLE = 'game_role_table',
+  GENSHIN_CHARACTER_LIST = 'genshin_character_list',
+  GENSHIN_DAILY_NOTE = 'genshin_daily_note',
+  GENSHIN_CHARACTER_DETAIL = 'genshin_character_detail',
+  GENSHIN_CHARACTER_COMPUTE = 'genshin_character_compute',
+  STARRAIL_AVATAR_BASIC = 'starrail_avatar_basic',
+  STARRAIL_DAILY_NOTE = 'starrail_daily_note',
+  STARRAIL_AVATAR_INFO = 'starrail_avatar_info',
+  STARRAIL_AVATAR_COMPUTE = 'starrail_avatar_compute',
+  ZZZ_AVATAR_BASIC = 'zzz_avatar_basic',
+  ZZZ_DAILY_NOTE = 'zzz_daily_note',
+  ZZZ_AVATAR_INFO = 'zzz_avatar_info',
+  ZZZ_AVATAR_COMPUTE = 'zzz_avatar_compute',
+  SYNC_META = 'sync_meta',
+}

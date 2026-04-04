@@ -14,7 +14,7 @@ import { ViewState } from '../constants/ViewStates'
 
 /** 系统 Navigation 传入的路由参数 */
 export class GenshinDailyDetailParam {
-  gameId: string = 'genshin';
+  accountId: number = 0;
   roleUid: string = '';
 }
 
@@ -50,7 +50,7 @@ export struct GenshinDailyDetail {
       })
     } catch (_e) {}
 
-    this.vm.init(this.routerParam.gameId, this.routerParam.roleUid)
+    this.vm.init(this.routerParam.accountId, this.routerParam.roleUid)
     this.vm.loadData()
   }
 

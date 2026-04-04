@@ -2,13 +2,13 @@
  * GenshinDailyDetailViewModel.ets
  *
  * 原神实时便笺详情页 ViewModel。
- * 从 DB 读取 raw_json → GenshinDailyNoteParser.parse() → 转换为 GenshinDailyNoteVM。
+ * 从 DB 读取 rawJson → GenshinDailyNoteParser.parse() → 转换为 GenshinDailyNoteVM。
  *
  * 时间描述（"X小时Y分钟后恢复"）在此处生成为纯字符串，
  * 因为时间是动态计算值，不适合放资源文件。
  */
 
-import { DailyNoteRepository, GenshinDailyNoteParser, GenshinDailyNoteData, GenshinExpeditionData } from 'core';
+import { CoreInitializerV2, GenshinDailyNoteParser, GenshinDailyNoteData, GenshinExpeditionData } from 'core';
 import {
   GenshinDailyNoteVM,
   GenshinDailyTaskVM,
@@ -24,18 +24,18 @@ export class GenshinDailyDetailViewModel {
   @Trace viewState: ViewState = ViewState.LOADING;
   @Trace note: GenshinDailyNoteVM = new GenshinDailyNoteVM();
 
-  private gameId: string = '';
+  private accountId: number = 0;
   private roleUid: string = '';
 
-  init(gameId: string, roleUid: string): void {
-    this.gameId = gameId;
+  init(accountId: number, roleUid: string): void {
+    this.accountId = accountId;
     this.roleUid = roleUid;
   }
 
   async loadData(): Promise<void> {
     this.viewState = ViewState.LOADING;
     try {
-      const row = await DailyNoteRepository.findDailyNote(this.gameId, this.roleUid);
+      const row = await CoreInitializerV2.genshinRepository.getDailyNote(this.accountId, this.roleUid);
       if (row === null) {
         this.viewState = ViewState.EMPTY;
         return;

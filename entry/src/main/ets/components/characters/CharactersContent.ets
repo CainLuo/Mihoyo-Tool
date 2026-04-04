@@ -1,7 +1,7 @@
 /**
  * CharactersContent — 角色页内容区组件
  */
-import { ThemeManager } from '../../theme/ThemeManager'
+import { ThemeManager, themeManager } from '../../theme/ThemeManager'
 import { CharactersViewModel } from '../../viewmodel/CharactersViewModel'
 import { GameDataSummary } from 'core'
 import { HomePlaceholderView } from '../home/HomePlaceholderView'
@@ -103,5 +103,20 @@ export struct CharactersContent {
     }
     .width(this.tm.current.full)
     .height(this.tm.current.full)
+  }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+struct CharactersContentPreviewEmpty {
+  build() {
+    CharactersContent({
+      tm: themeManager,
+      vm: new CharactersViewModel()
+    })
+    .height(600)
+    .backgroundColor(themeManager.current.colorPageBg)
   }
 }

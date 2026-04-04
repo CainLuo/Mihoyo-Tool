@@ -79,3 +79,21 @@ export struct GenericGameToolCardContent {
     .alignItems(HorizontalAlign.Start)
   }
 }
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+struct GenericGameToolCardContentPreview {
+  build() {
+    Column() {
+      GenericGameToolCardContent({
+        snap: new GameNoteSnapshotVM('honkai3', 120, 240, '将于3小时后全部恢复', '体力', '120/240', false),
+        primaryLabel: $r('app.string.app_name'),
+        primaryColor: $r('app.color.game_color_genshin'),
+        progressRatio: 0.5
+      })
+    }
+    .backgroundColor('#1a1a2e')
+  }
+}

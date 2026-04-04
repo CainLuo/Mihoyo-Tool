@@ -1,0 +1,10 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "challenge": "mock_challenge_value",
+    "gt": "mock_gt_value",
+    "new_captcha": 1,
+    "success": 0
+  }
+}

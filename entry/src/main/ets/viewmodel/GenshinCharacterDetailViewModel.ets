@@ -6,7 +6,7 @@
  * 所有 property_type 数字必须通过 GenshinPropertyType enum 引用，禁止写字面量。
  */
 
-import { CharacterRepository, GenshinPropertyType } from 'core';
+import { CoreInitializerV2, GenshinPropertyType } from 'core';
 import { Logger } from '../utils/Logger';
 import { ViewState } from '../constants/ViewStates';
 import { GenshinElement, elementFromString } from '../constants/GenshinElement';
@@ -185,12 +185,12 @@ export class GenshinCharacterDetailViewModel {
   // 技能（普攻/战技/爆发，最多3个）
   @Trace skills: CharDetailSkill[] = [];
 
-  private gameId: string = '';
+  private accountId: number = 0;
   private roleUid: string = '';
   private entityId: string = '';
 
-  init(gameId: string, roleUid: string, entityId: string): void {
-    this.gameId = gameId;
+  init(accountId: number, roleUid: string, entityId: string): void {
+    this.accountId = accountId;
     this.roleUid = roleUid;
     this.entityId = entityId;
   }
@@ -198,7 +198,7 @@ export class GenshinCharacterDetailViewModel {
   async loadData(): Promise<void> {
     this.viewState = ViewState.LOADING;
     try {
-      const row = await CharacterRepository.findById(this.gameId, this.roleUid, this.entityId);
+      const row = await CoreInitializerV2.genshinRepository.getAvatarDetail(this.accountId, this.roleUid, this.entityId);
       if (row === null || row.rawJson === '') {
         this.viewState = ViewState.EMPTY;
         return;

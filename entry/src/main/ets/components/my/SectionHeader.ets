@@ -16,3 +16,18 @@ export struct SectionHeader {
       .padding({ bottom: this.tm.current.value8 })
   }
 }
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+struct SectionHeaderPreview {
+  build() {
+    Column({ space: 8 }) {
+      SectionHeader({ title: $r('app.string.my_section_account') })
+      SectionHeader({ title: $r('app.string.my_section_about') })
+    }
+    .padding(16)
+    .backgroundColor('#1a1a2e')
+  }
+}

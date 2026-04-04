@@ -1,7 +1,7 @@
 /**
  * AccountActionsSection — 账号详情页操作区块
  */
-import { ThemeManager } from '../../theme/ThemeManager'
+import { ThemeManager, themeManager } from '../../theme/ThemeManager'
 
 @ComponentV2
 export struct AccountActionsSection {
@@ -23,5 +23,19 @@ export struct AccountActionsSection {
     .backgroundColor(this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
     .clip(true)
+  }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+struct AccountActionsSectionPreview {
+  build() {
+    Column() {
+      AccountActionsSection({ tm: themeManager })
+    }
+    .padding(16)
+    .backgroundColor('#1a1a2e')
   }
 }

@@ -10,7 +10,7 @@ import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { GameDataSummary } from 'core';
 import { GameId } from '../../constants/GameId';
 import { elementFromString } from '../../constants/GenshinElement';
-import { GenshinElement } from '../../constants/GenshinElement';
+import { GenshinElement, elementIcon } from '../../constants/GenshinElement';
 import {
   starRailElementLabel, starRailElementColor,
   starRailPathLabel, starRailPathColor
@@ -211,10 +211,12 @@ export struct CharacterCard {
   @Builder
   private genshinTopLeft() {
     Column() {
-      Text(elementLabel(elementFromString(this.character.extraText1)))
-        .fontSize(this.tm.current.body12.size)
-        .fontWeight(FontWeight.Bold)
-        .fontColor(this.tm.current.textOnDarkHigh)
+      if (elementIcon(elementFromString(this.character.extraText1)) !== null) {
+        Image(elementIcon(elementFromString(this.character.extraText1)) as Resource)
+          .width(this.tm.current.value20)
+          .height(this.tm.current.value20)
+          .objectFit(ImageFit.Contain)
+      }
     }
     .width(this.tm.current.value30)
     .height(this.tm.current.value30)
@@ -391,5 +393,82 @@ export struct CharacterCard {
       left: this.tm.current.value10,
       right: this.tm.current.value10
     })
+  }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+struct CharacterCardPreview {
+  build() {
+    GridRow({
+      columns: { xs: 2, sm: 3, md: 4, lg: 5 },
+      gutter: 8
+    }) {
+      // 原神角色
+      GridCol() {
+        CharacterCard({
+          character: (() => {
+            const c = new GameDataSummary();
+            c.gameId = GameId.GENSHIN;
+            c.name = '纳西妲';
+            c.rarity = 5;
+            c.level = 90;
+            c.extraInt1 = 6;
+            c.extraInt2 = 10;
+            c.extraText1 = 'Dendro';
+            c.extraText2 = '10';
+            c.weaponLevel = 90;
+            c.weaponAffix = 1;
+            c.weaponRarity = 5;
+            return c;
+          })(),
+          gameId: GameId.GENSHIN
+        })
+      }
+      // 星铁角色
+      GridCol() {
+        CharacterCard({
+          character: (() => {
+            const c = new GameDataSummary();
+            c.gameId = GameId.STARRAIL;
+            c.name = '黑天鹅';
+            c.rarity = 5;
+            c.level = 80;
+            c.extraInt1 = 4;
+            c.extraText1 = 'wind';
+            c.extraText2 = '4';
+            c.weaponLevel = 80;
+            c.weaponAffix = 1;
+            c.weaponRarity = 5;
+            return c;
+          })(),
+          gameId: GameId.STARRAIL
+        })
+      }
+      // 绝区零角色
+      GridCol() {
+        CharacterCard({
+          character: (() => {
+            const c = new GameDataSummary();
+            c.gameId = GameId.ZZZ;
+            c.name = '柏妮思';
+            c.rarity = 5;
+            c.level = 60;
+            c.extraInt1 = 3;
+            c.extraText1 = '200';
+            c.extraText2 = '1';
+            c.weaponLevel = 60;
+            c.weaponAffix = 1;
+            c.weaponRarity = 5;
+            return c;
+          })(),
+          gameId: GameId.ZZZ
+        })
+      }
+    }
+    .padding(16)
+    .backgroundColor('#1a1a2e')
   }
 }

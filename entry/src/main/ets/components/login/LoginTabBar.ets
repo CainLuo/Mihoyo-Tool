@@ -1,7 +1,7 @@
 /**
  * LoginTabBar — 登录方式 Tab 栏
  */
-import { ThemeManager } from '../../theme/ThemeManager'
+import { ThemeManager, themeManager } from '../../theme/ThemeManager'
 import { LoginViewModel } from '../../viewmodel/LoginViewModel'
 import { LoginTab } from '../../constants/LoginTabEnum'
 import { LoginTabItem } from './LoginTabItem'
@@ -22,5 +22,19 @@ export struct LoginTabBar {
     .borderRadius(this.tm.current.radius8)
     .padding(this.tm.current.value4)
     .margin({ bottom: this.tm.current.value18 })
+  }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+struct LoginTabBarPreview {
+  build() {
+    Column() {
+      LoginTabBar({ tm: themeManager, vm: new LoginViewModel() })
+    }
+    .padding(16)
+    .backgroundColor('#1a1a2e')
   }
 }

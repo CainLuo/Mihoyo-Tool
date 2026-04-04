@@ -1,7 +1,7 @@
 /**
  * CharDetailLoadingView — 角色详情加载中视图
  */
-import { ThemeManager } from '../../theme/ThemeManager'
+import { ThemeManager, themeManager } from '../../theme/ThemeManager'
 
 @ComponentV2
 export struct CharDetailLoadingView {
@@ -17,5 +17,20 @@ export struct CharDetailLoadingView {
     .width(this.tm.current.full)
     .height(this.tm.current.full)
     .justifyContent(FlexAlign.Center)
+  }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+struct CharDetailLoadingViewPreview {
+  build() {
+    Column() {
+      CharDetailLoadingView({ tm: themeManager })
+    }
+    .width('100%')
+    .height(200)
+    .backgroundColor('#1a1a2e')
   }
 }

@@ -109,7 +109,7 @@ export struct Home {
               account: account,
               onCardTap: (card: GameRoleCardVM) => {
                 Logger.info('Home', `card tapped: ${card.gameId} ${card.roleUid}`)
-                this.navigateToDetail(card)
+                this.navigateToDetail(account.accountId, card)
               }
             })
           }, (account: MihoyoAccountVM) => `${account.accountId}_${account.roles.length}`)
@@ -126,10 +126,10 @@ export struct Home {
     }
   }
 
-  private navigateToDetail(card: GameRoleCardVM): void {
+  private navigateToDetail(accountId: number, card: GameRoleCardVM): void {
     if (card.gameId === GameId.GENSHIN) {
       const param = new GenshinDailyDetailParam()
-      param.gameId = card.gameId
+      param.accountId = accountId
       param.roleUid = card.roleUid
       if (this.isSplit) {
         this.detailStack.replacePath({ name: AppRoutes.GENSHIN_DAILY_DETAIL, param: param })

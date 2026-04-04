@@ -56,3 +56,17 @@ export struct AppearanceSection {
       .onClick(() => { this.onThemeChange(mode) })
   }
 }
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+struct AppearanceSectionPreview {
+  build() {
+    Column() {
+      AppearanceSection({ themeMode: ConfigurationConstant.ColorMode.COLOR_MODE_DARK })
+    }
+    .padding(16)
+    .backgroundColor('#1a1a2e')
+  }
+}

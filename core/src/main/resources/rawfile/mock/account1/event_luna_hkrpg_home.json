@@ -1,0 +1,16 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "month": 4,
+    "awards": [
+      {
+        "icon": "https://act-webstatic.mihoyo.com/hkrpg/e20211215comicat/item_icon/1x/1.png",
+        "name": "星琼",
+        "cnt": 60
+      }
+    ],
+    "biz": "hkrpg_cn",
+    "resign": false
+  }
+}

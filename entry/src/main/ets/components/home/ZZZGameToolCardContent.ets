@@ -106,3 +106,27 @@ export struct ZZZGameToolCardContent {
     .alignItems(HorizontalAlign.Start)
   }
 }
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+struct ZZZGameToolCardContentPreview {
+  build() {
+    Column() {
+      ZZZGameToolCardContent({
+        snap: (() => {
+          const snap = new GameNoteSnapshotVM('zzz', 180, 240, '将于1小时后全部恢复', '', '', false);
+          snap.vitalityCurrent = 300;
+          snap.vitalityMax = 400;
+          snap.scratchCardDone = true;
+          snap.videoStoreState = 'open';
+          return snap;
+        })(),
+        primaryColor: $r('app.color.game_color_zzz'),
+        progressRatio: 0.75
+      })
+    }
+    .backgroundColor('#1a1a2e')
+  }
+}

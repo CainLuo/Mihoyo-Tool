@@ -1,7 +1,10 @@
 /**
  * MyViewModel.ets — 我的页面 ViewModel
+ *
+ * DB 读取部分已切换到 v2 Repository（CoreInitializerV2）。
+ * 网络调用（getBbsAccountDetail、getGameRecordCard）暂时保留旧版 AuthRepository。
  */
-import { AccountRepository, AuthRepository, RoleStatItem } from 'core';
+import { CoreInitializerV2, AuthRepository, RoleStatItem } from 'core';
 import { Logger } from '../utils/Logger';
 import { MyAccountVM, MyGameRoleVM, GameStatItem } from '../components/my/MyModels';
 import { serverDisplayName } from '../utils/ServerNameUtil';
@@ -25,24 +28,30 @@ export class MyViewModel {
 
   async loadAccounts(): Promise<void> {
     try {
-      const accountRows = await AccountRepository.findAllAccounts();
+      const accountRows = await CoreInitializerV2.bbsRepository.getAllAccounts();
       const vms: MyAccountVM[] = [];
-      for (const row of accountRows) {
-        let roles = await AccountRepository.findRolesByAccountId(row.id);
+      for (let ai = 0; ai < accountRows.length; ai++) {
+        const row = accountRows[ai];
+        let roles = await CoreInitializerV2.bbsRepository.getGameRoles(row.id);
 
-        // 补充/更新 nickname 和 avatarUrl
+        // 补充/更新 nickname 和 avatarUrl（暂时保留旧版网络调用）
         if (row.cookie) {
           try {
             const bbsDetail = await AuthRepository.getBbsAccountDetail(row.cookie);
             if (bbsDetail.nickname || bbsDetail.avatarUrl) {
-              await AccountRepository.updateNicknameAndAvatar(row.id, bbsDetail.nickname, bbsDetail.avatarUrl);
+              const updatedRow = await CoreInitializerV2.bbsRepository.getAccountById(row.id);
+              if (updatedRow !== null) {
+                updatedRow.nickname = bbsDetail.nickname;
+                updatedRow.avatarUrl = bbsDetail.avatarUrl;
+                await CoreInitializerV2.bbsRepository.saveAccount(updatedRow);
+              }
               row.nickname = bbsDetail.nickname;
               row.avatarUrl = bbsDetail.avatarUrl;
             }
           } catch (_) {}
         }
 
-        // 如果角色数据缺少 statsJson，调用账号详情接口补充
+        // 如果角色数据缺少 statsJson，调用账号详情接口补充（暂时保留旧版网络调用）
         let needsRefresh = false;
         for (let i = 0; i < roles.length; i++) {
           if (!roles[i].statsJson || roles[i].statsJson === '') {
@@ -53,22 +62,24 @@ export class MyViewModel {
         if (needsRefresh && row.cookie) {
           try {
             const detailRoles = await AuthRepository.getGameRecordCard(row.cookie, row.username);
-            for (let i = 0; i < roles.length; i++) {
+            const updatedRoles = await CoreInitializerV2.bbsRepository.getGameRoles(row.id);
+            for (let i = 0; i < updatedRoles.length; i++) {
               for (let j = 0; j < detailRoles.length; j++) {
-                if (detailRoles[j].gameId === roles[i].gameId) {
-                  roles[i].bgImageUrl = detailRoles[j].bgImageUrl;
-                  roles[i].statsJson = detailRoles[j].statsJson;
+                if (detailRoles[j].gameId === updatedRoles[i].gameId) {
+                  updatedRoles[i].bgImageUrl = detailRoles[j].bgImageUrl;
+                  updatedRoles[i].statsJson = detailRoles[j].statsJson;
                   break;
                 }
               }
             }
-            await AccountRepository.replaceRoles(row.id, roles);
-            roles = await AccountRepository.findRolesByAccountId(row.id);
+            await CoreInitializerV2.bbsRepository.saveGameRoles(updatedRoles);
+            roles = await CoreInitializerV2.bbsRepository.getGameRoles(row.id);
           } catch (_) {}
         }
 
         const roleVMs: MyGameRoleVM[] = [];
-        for (const r of roles) {
+        for (let ri = 0; ri < roles.length; ri++) {
+          const r = roles[ri];
           const rawStats = RoleStatItem.parseAll(r.statsJson);
           const stats: GameStatItem[] = [];
           for (let i = 0; i < rawStats.length; i++) {

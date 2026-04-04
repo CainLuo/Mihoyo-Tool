@@ -1,6 +1,6 @@
 import { UIAbility, Want, AbilityConstant } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
-import { CoreInitializer } from 'core';
+import { CoreInitializer, CoreInitializerV2 } from 'core';
 import { Logger, RuntimeEnv } from '../utils/Logger';
 import { AppearanceManager } from '../utils/AppearanceManager';
 
@@ -26,6 +26,15 @@ export default class EntryAbility extends UIAbility {
       })
       .catch((error: Error | object) => {
         Logger.warning(TAG, `CoreInitializer.initCore failed: ${JSON.stringify(error)}`);
+      });
+
+    // 同步初始化 V2 数据库层（新架构，与旧版并行运行）
+    CoreInitializerV2.initCore({ isMock, context: this.context })
+      .then(() => {
+        Logger.info(TAG, `CoreV2 initialized. isMock=${isMock}`);
+      })
+      .catch((error: Error | object) => {
+        Logger.warning(TAG, `CoreInitializerV2.initCore failed: ${JSON.stringify(error)}`);
       });
 
     Logger.info(TAG, `Detected environment: ${Logger.getRuntimeEnvDetail()}`);
