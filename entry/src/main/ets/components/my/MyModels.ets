@@ -9,7 +9,8 @@ export class MyGameRoleVM {
   gameColor: ResourceColor = $r('app.color.color_primary')
   roleUid: string = ''
   nickname: string = ''
-  server: string = ''
+  /** 服务器显示名称，优先使用国际化 Resource，未知服务器时降级为原始 region 字符串 */
+  server: ResourceStr = ''
   level: number = 0
   /** 游戏背景图 URL */
   bgImageUrl: string = ''
@@ -22,7 +23,7 @@ export class MyGameRoleVM {
     gameColor: ResourceColor,
     roleUid: string,
     nickname: string,
-    server: string,
+    server: ResourceStr,
     level: number = 0,
     bgImageUrl: string = '',
     stats: GameStatItem[] = []

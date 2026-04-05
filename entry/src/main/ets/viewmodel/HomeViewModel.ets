@@ -396,7 +396,7 @@ export class HomeViewModel {
         HomeViewModel.gameColor(role.gameId),
         role.roleId,
         role.nickname,
-        serverDisplayName(role.server, role.gameId),
+        serverDisplayName(role.server, role.gameId) ?? role.server,
         snapshot,
         'sync_just_now'
       );

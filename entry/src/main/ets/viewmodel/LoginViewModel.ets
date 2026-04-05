@@ -445,7 +445,7 @@ export class LoginViewModel {
           }
           roleVMs[roleVMs.length] = new MyGameRoleVM(
             r.gameId, gameIdToName(r.gameId), gameIdToColor(r.gameId),
-            r.roleId, r.nickname, serverDisplayName(r.server, r.gameId),
+            r.roleId, r.nickname, serverDisplayName(r.server, r.gameId) ?? r.server,
             r.level, r.bgImageUrl, stats
           );
         }

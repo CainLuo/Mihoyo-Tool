@@ -109,8 +109,8 @@ export class GameRoleCardVM {
   roleUid: string = ''
   /** 角色昵称 */
   nickname: string = ''
-  /** 服务器名称，如 "天空岛" / "世界树" */
-  server: string = ''
+  /** 服务器显示名称，优先使用国际化 Resource，未知服务器时降级为原始 region 字符串 */
+  server: ResourceStr = ''
   /** 便签摘要（null 表示未同步） */
   snapshot: GameNoteSnapshotVM | null = null
   /** 最后同步时间描述，如 "5分钟前" */
@@ -122,7 +122,7 @@ export class GameRoleCardVM {
     gameColor: ResourceColor,
     roleUid: string,
     nickname: string,
-    server: string,
+    server: ResourceStr,
     snapshot: GameNoteSnapshotVM | null,
     lastSyncDesc: string
   ) {

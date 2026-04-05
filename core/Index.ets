@@ -78,6 +78,11 @@ export * from './src/main/ets/network/v2/MihoyoEnvironment';
 
 // V2 常量
 export * from './src/main/ets/constants/SyncDataType';
+export * from './src/main/ets/constants/GenshinPropertyType';
+export * from './src/main/ets/constants/StarRailPropertyType';
+export * from './src/main/ets/constants/ZZZPropertyId';
+export * from './src/main/ets/constants/GameServer';
+export * from './src/main/ets/database/v2/TableSchema';
 
 // ── V2 网络层完整导出 ──────────────────────────────────────────
 

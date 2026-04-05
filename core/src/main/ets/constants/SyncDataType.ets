@@ -1,17 +1,7 @@
-export enum SyncDataType {
-  ACCOUNT = 'account_table',
-  GAME_ROLE = 'game_role_table',
-  GENSHIN_CHARACTER_LIST = 'genshin_character_list',
-  GENSHIN_DAILY_NOTE = 'genshin_daily_note',
-  GENSHIN_CHARACTER_DETAIL = 'genshin_character_detail',
-  GENSHIN_CHARACTER_COMPUTE = 'genshin_character_compute',
-  STARRAIL_AVATAR_BASIC = 'starrail_avatar_basic',
-  STARRAIL_DAILY_NOTE = 'starrail_daily_note',
-  STARRAIL_AVATAR_INFO = 'starrail_avatar_info',
-  STARRAIL_AVATAR_COMPUTE = 'starrail_avatar_compute',
-  ZZZ_AVATAR_BASIC = 'zzz_avatar_basic',
-  ZZZ_DAILY_NOTE = 'zzz_daily_note',
-  ZZZ_AVATAR_INFO = 'zzz_avatar_info',
-  ZZZ_AVATAR_COMPUTE = 'zzz_avatar_compute',
-  SYNC_META = 'sync_meta',
-}
+/**
+ * SyncDataType — sync_meta 表的 data_type 字段枚举
+ *
+ * 值与 TableName 完全对齐（sync_meta.data_type 存储的就是对应的表名字符串）。
+ * 通过重新导出 TableName 消除重复字符串定义，同时保留 SyncDataType 语义。
+ */
+export { TableName as SyncDataType } from '../database/v2/TableSchema';

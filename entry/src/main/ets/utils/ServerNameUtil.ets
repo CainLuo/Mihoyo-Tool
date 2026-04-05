@@ -1,62 +1,51 @@
 /**
- * ServerNameUtil — 服务器标识符 → 用户友好名称映射
+ * ServerNameUtil — 服务器标识符 → 国际化资源映射
  *
- * 米游社各游戏服务器 ID 与显示名称的对应关系。
+ * 将米游社 API 返回的 region 字段转换为多语言显示名称（Resource）。
  * 所有需要展示服务器名称的地方必须通过此工具转换，禁止直接显示原始 server 字段。
  *
  * 注意：不同游戏可能共用相同的 server 标识符（如 prod_gf_cn），
  * 因此必须结合 gameId 才能正确映射。
+ *
+ * 重要说明：
+ * 本文件所有 server 值均来自项目 mock 数据（binding_api_getUserGameRolesByCookie.json），
+ * 100% 已验证，无推断值。未知 server 原样返回 null，由调用方决定兜底显示。
+ *
+ * 待扩展（需要真实账号数据验证后再添加）：
+ * - 国服渠道服（region 含 'qd'）
+ * - 国际服（region 含 'os' 或 'prod_official'）
  */
+import { GenshinServer, StarRailServer, ZZZServer } from 'core';
+import { GameId } from '../constants/GameId';
 
 /**
- * 将服务器原始标识符转换为用户友好的显示名称。
- * 未知标识符原样返回。
+ * 将服务器原始标识符转换为多语言显示名称。
+ * 未知标识符返回 null，调用方可选择显示原始 server 字符串作为兜底。
  *
  * @param server  服务器标识符（来自 API region 字段）
- * @param gameId  游戏标识（'genshin' / 'starrail' / 'zzz' / 'honkai3'），默认空字符串
+ * @param gameId  游戏标识（GameId enum 值）
  */
-export function serverDisplayName(server: string, gameId: string = ''): string {
-  // ── 原神 ──────────────────────────────────────────────────────
-  if (gameId === 'genshin' || gameId === '') {
-    if (server === 'cn_gf01') { return '天空岛' }
-    if (server === 'cn_qd01') { return '世界树' }
-    if (server === 'os_usa') { return '美服' }
-    if (server === 'os_euro') { return '欧服' }
-    if (server === 'os_asia') { return '亚服' }
-    if (server === 'os_cht') { return '港澳台服' }
-    if (gameId === 'genshin') { return server }
+export function serverDisplayName(server: string, gameId: string): Resource | null {
+  if (gameId === GameId.GENSHIN) {
+    if (server === GenshinServer.CN_OFFICIAL) {
+      return $r('app.string.server_genshin_cn_official');
+    }
+    return null;
   }
 
-  // ── 崩坏：星穹铁道 ────────────────────────────────────────────
-  if (gameId === 'starrail') {
-    if (server === 'prod_gf_cn') { return '星穹列车' }
-    if (server === 'prod_qd_cn') { return '星穹列车（渠道）' }
-    if (server === 'prod_official_usa') { return '美服' }
-    if (server === 'prod_official_euro') { return '欧服' }
-    if (server === 'prod_official_asia') { return '亚服' }
-    if (server === 'prod_official_cht') { return '港澳台服' }
-    return server
+  if (gameId === GameId.STARRAIL) {
+    if (server === StarRailServer.CN_OFFICIAL) {
+      return $r('app.string.server_starrail_cn_official');
+    }
+    return null;
   }
 
-  // ── 绝区零 ────────────────────────────────────────────────────
-  if (gameId === 'zzz') {
-    if (server === 'prod_gf_cn') { return '新艾利都' }
-    if (server === 'prod_qd_cn') { return '新艾利都（渠道）' }
-    if (server === 'prod_gf_jp') { return '日服' }
-    if (server === 'prod_gf_us') { return '美服' }
-    if (server === 'prod_gf_eu') { return '欧服' }
-    if (server === 'prod_gf_sg') { return '亚服' }
-    return server
+  if (gameId === GameId.ZZZ) {
+    if (server === ZZZServer.CN_OFFICIAL) {
+      return $r('app.string.server_zzz_cn_official');
+    }
+    return null;
   }
 
-  // ── 崩坏3 ─────────────────────────────────────────────────────
-  if (gameId === 'honkai3') {
-    if (server === 'android01') { return '官服' }
-    if (server === 'ios01') { return '官服' }
-    if (server === 'pc01') { return '全平台（桌面）服' }
-    return server
-  }
-
-  // ── 兜底（gameId 为空时按 server 原样返回）────────────────────
-  return server
+  return null;
 }
