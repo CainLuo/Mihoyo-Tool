@@ -119,5 +119,62 @@ export default function mockServiceBaseTest() {
       const cookie = 'ltoken=abc; account_id=5; ltuid=5';
       expect(MockServiceBase.extractAccountId(cookie)).assertEqual(5);
     });
+
+    // ── 边界场景补充 ─────────────────────────────────────────────
+
+    it('extractAccountId_accountIdZero_returns0', 0, () => {
+      // account_id=0 是有效值，不应 fallback
+      const cookie = 'account_id=0; ltoken=abc';
+      expect(MockServiceBase.extractAccountId(cookie)).assertEqual(0);
+    });
+
+    it('extractAccountId_floatValue_truncatesToInt', 0, () => {
+      // parseInt('1.5') = 1，截断小数部分
+      const cookie = 'account_id=1.5; ltoken=abc';
+      expect(MockServiceBase.extractAccountId(cookie)).assertEqual(1);
+    });
+
+    it('extractAccountId_duplicateKey_takesFirst', 0, () => {
+      // account_id 出现多次，取第一个匹配
+      const cookie = 'account_id=1; account_id=2; ltoken=abc';
+      expect(MockServiceBase.extractAccountId(cookie)).assertEqual(1);
+    });
+
+    it('extractAccountId_alphaValue_fallbackTo1', 0, () => {
+      // parseInt('abc') = NaN，fallback 返回 1
+      const cookie = 'account_id=abc; ltoken=abc';
+      expect(MockServiceBase.extractAccountId(cookie)).assertEqual(1);
+    });
+  });
+
+  describe('MockServiceBase.pathToFileName (边界场景)', () => {
+
+    it('pathWithUppercase_preservesCase', 0, () => {
+      // 路径含大写字母，保留原始大小写
+      const result = MockServiceBase.pathToFileName('/Game_Record/App');
+      expect(result).assertEqual('Game_Record_App.json');
+    });
+
+    it('pathWithNumbers_mapsCorrectly', 0, () => {
+      const result = MockServiceBase.pathToFileName('/api/v3/data');
+      expect(result).assertEqual('api_v3_data.json');
+    });
+
+    it('pathWithHyphen_preservesHyphen', 0, () => {
+      // 连字符保留，斜杠转下划线
+      const result = MockServiceBase.pathToFileName('/game-record/api');
+      expect(result).assertEqual('game-record_api.json');
+    });
+
+    it('pathWithMultipleQueryParams_stripsAll', 0, () => {
+      const result = MockServiceBase.pathToFileName('/api?a=1&b=2&c=3');
+      expect(result).assertEqual('api.json');
+    });
+
+    it('specialMappingWithQuery_specialMappingTakesPriority', 0, () => {
+      // 特殊映射路径含 query，特殊映射优先
+      const result = MockServiceBase.pathToFileName('/event/rpgcalc/compute?game=hkrpg&uid=123');
+      expect(result).assertEqual('hkrpg_character_compute.json');
+    });
   });
 }

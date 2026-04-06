@@ -104,5 +104,50 @@ export default function starRailDailyNoteParserTest() {
       const data = StarRailDailyNoteParser.parse('');
       expect(data.currentStamina).assertEqual(0);
     });
+
+    // ── 边界值补充 ───────────────────────────────────────────────
+
+    it('parse_currentStamina_zero_returns0', 0, () => {
+      const json = JSON.stringify({
+        current_stamina: 0, max_stamina: 300, stamina_recover_time: 0,
+        stamina_full_ts: 0, current_reserve_stamina: 0, is_reserve_stamina_full: false,
+        current_train_score: 0, max_train_score: 500, current_rogue_score: 0,
+        max_rogue_score: 14000, weekly_cocoon_cnt: 0, weekly_cocoon_limit: 3,
+        rogue_tourn_weekly_cur: 0, rogue_tourn_weekly_max: 1000,
+        rogue_tourn_exp_is_full: false, grid_fight_weekly_cur: 0,
+        grid_fight_weekly_max: 3, current_ts: 0
+      });
+      const data = StarRailDailyNoteParser.parse(json);
+      expect(data.currentStamina).assertEqual(0);
+    });
+
+    it('parse_gridFightWeeklyCur_missing_returns0', 0, () => {
+      // grid_fight_weekly_cur 字段缺失，?? 0 兜底
+      const json = JSON.stringify({
+        current_stamina: 180, max_stamina: 300, stamina_recover_time: 1800,
+        stamina_full_ts: 0, current_reserve_stamina: 0, is_reserve_stamina_full: false,
+        current_train_score: 0, max_train_score: 500, current_rogue_score: 0,
+        max_rogue_score: 14000, weekly_cocoon_cnt: 0, weekly_cocoon_limit: 3,
+        rogue_tourn_weekly_cur: 0, rogue_tourn_weekly_max: 1000,
+        rogue_tourn_exp_is_full: false, current_ts: 0
+        // grid_fight_weekly_cur 和 grid_fight_weekly_max 故意缺失
+      });
+      const data = StarRailDailyNoteParser.parse(json);
+      expect(data.gridFightWeeklyCur).assertEqual(0);
+    });
+
+    it('parse_maxStamina_zero_doesNotCrash', 0, () => {
+      const json = JSON.stringify({
+        current_stamina: 0, max_stamina: 0, stamina_recover_time: 0,
+        stamina_full_ts: 0, current_reserve_stamina: 0, is_reserve_stamina_full: false,
+        current_train_score: 0, max_train_score: 0, current_rogue_score: 0,
+        max_rogue_score: 0, weekly_cocoon_cnt: 0, weekly_cocoon_limit: 0,
+        rogue_tourn_weekly_cur: 0, rogue_tourn_weekly_max: 0,
+        rogue_tourn_exp_is_full: false, grid_fight_weekly_cur: 0,
+        grid_fight_weekly_max: 0, current_ts: 0
+      });
+      const data = StarRailDailyNoteParser.parse(json);
+      expect(data.maxStamina).assertEqual(0);
+    });
   });
 }

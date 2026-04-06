@@ -11,23 +11,24 @@
  *   - characters: 当前账号 × 当前游戏的角色摘要列表
  *
  * 状态机（viewState）：
- *   loading  — 冷启动读 DB
- *   empty    — 无账号或无角色数据，显示 Placeholder
- *   data     — 正常展示角色网格
+ *   LOADING  — 冷启动读 DB
+ *   EMPTY    — 无账号或无角色数据，显示 Placeholder
+ *   DATA     — 正常展示角色网格
  *
- * 注意：网络同步（CharacterRepository.syncCharacters）暂时保留旧版调用，
- *       账号查询和 DB 读取部分已切换到 v2 Repository。
+ * V2 迁移：已移除旧版 CharacterRepository，全部切换到 V2 Repository + V2 ApiService。
  */
 
 import {
-  CharacterRepository,
-  CoreInitializerV2,
+  CoreInitializer,
   GameDataSummary,
-  AccountRowV2,
-  GameRoleRowV2,
+  AccountRow,
+  GameRoleRow,
   GenshinCharacterListRow,
   StarRailAvatarBasicRow,
-  ZZZAvatarBasicRow
+  ZZZAvatarBasicRow,
+  GenshinApiService,
+  StarRailApiService,
+  ZZZApiService
 } from 'core';
 import { Logger } from '../utils/Logger';
 import { ViewState } from '../constants/ViewStates';
@@ -39,6 +40,83 @@ import {
   GAME_HONKAI3
 } from '../components/home/HomeModels';
 import { CharacterDataSource } from '../components/characters/CharacterDataSource';
+
+// ─── 解析用本地 interface ────────────────────────────────────────
+
+/** 原神角色列表 API 响应中的武器字段 */
+interface GenshinWeaponItem {
+  name: string;
+  level: number;
+  affix_level: number;
+  rarity: number;
+}
+
+/** 原神角色列表 API 响应中的单个角色字段 */
+interface GenshinCharacterItem {
+  id: number;
+  name: string;
+  element: string;
+  rarity: number;
+  level: number;
+  fetter: number;
+  actived_constellation_num: number;
+  icon: string;
+  side_icon: string;
+  weapon_type: number;
+  weapon: GenshinWeaponItem | null;
+}
+
+/** 原神角色列表 API 响应 data 字段 */
+interface GenshinCharacterListData {
+  list: GenshinCharacterItem[];
+}
+
+/** 星穹铁道角色列表 API 响应中的装备字段 */
+interface StarRailEquipItem {
+  id: number;
+  name: string;
+  level: number;
+  rank: number;
+  rarity: number;
+}
+
+/** 星穹铁道角色列表 API 响应中的单个角色字段 */
+interface StarRailAvatarItem {
+  id: number;
+  name: string;
+  rarity: number;
+  level: number;
+  rank: number;
+  base_type: number;
+  element_id: number;
+  icon: string;
+  figure_path: string;
+  equip: StarRailEquipItem | null;
+}
+
+/** 星穹铁道角色列表 API 响应 data 字段 */
+interface StarRailAvatarListData {
+  list: StarRailAvatarItem[];
+}
+
+/** 绝区零代理人列表 API 响应中的单个代理人字段 */
+interface ZZZAvatarItem {
+  id: number;
+  name_mi18n: string;
+  full_name_mi18n: string;
+  rarity: string;
+  level: number;
+  rank: number;
+  element_type: number;
+  avatar_profession: number;
+  hollow_icon_path: string;
+  role_square_url: string;
+}
+
+/** 绝区零代理人列表 API 响应 data 字段 */
+interface ZZZAvatarListData {
+  avatar_list: ZZZAvatarItem[];
+}
 
 const TAG: string = 'CharactersViewModel';
 
@@ -91,19 +169,19 @@ export class CharactersViewModel {
   readonly dataSource: CharacterDataSource = new CharacterDataSource();
 
   // 原始账号+角色数据，切换时复用
-  private allAccounts: AccountRowV2[] = [];
-  private allRoles: GameRoleRowV2[][] = [];
+  private allAccounts: AccountRow[] = [];
+  private allRoles: GameRoleRow[][] = [];
 
   // ─── 公开方法 ────────────────────────────────────────────────
 
   async loadData(): Promise<void> {
-    await CoreInitializerV2.waitForReady();
+    await CoreInitializer.waitForReady();
     this.viewState = ViewState.LOADING;
     try {
-      this.allAccounts = await CoreInitializerV2.bbsRepository.getAllAccounts();
+      this.allAccounts = await CoreInitializer.bbsRepository.getAllAccounts();
       this.allRoles = [];
       for (let i = 0; i < this.allAccounts.length; i++) {
-        const roles = await CoreInitializerV2.bbsRepository.getGameRoles(this.allAccounts[i].id);
+        const roles = await CoreInitializer.bbsRepository.getGameRoles(this.allAccounts[i].id);
         this.allRoles[this.allRoles.length] = roles;
       }
       if (this.allAccounts.length === 0) {
@@ -149,7 +227,7 @@ export class CharactersViewModel {
       return;
     }
     const tab = this.gameTabs[this.selectedGameIdx];
-    // 检查冷却：使用 v2 needsSync
+    // 检查冷却：使用 V2 needsSync
     let inCooldown = false;
     try {
       const needed = await CharactersViewModel.needsCharacterSync(
@@ -167,10 +245,7 @@ export class CharactersViewModel {
     try {
       const account = this.allAccounts[this.selectedAccountIdx];
       const server = this.findServer(tab.roleUid);
-      // 暂时保留旧版网络同步调用
-      await CharacterRepository.syncCharacters(
-        tab.gameId, tab.roleUid, server, account.cookie
-      );
+      await this.syncCharactersV2(account, tab.gameId, tab.roleUid, server);
       await this.reloadCharacters();
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -190,10 +265,7 @@ export class CharactersViewModel {
     try {
       const tab = this.gameTabs[this.selectedGameIdx];
       const account = this.allAccounts[this.selectedAccountIdx];
-      // 暂时保留旧版网络同步调用
-      await CharacterRepository.syncCharacters(
-        tab.gameId, tab.roleUid, this.findServer(tab.roleUid), account.cookie
-      );
+      await this.syncCharactersV2(account, tab.gameId, tab.roleUid, this.findServer(tab.roleUid));
       await this.reloadCharacters();
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -268,15 +340,15 @@ export class CharactersViewModel {
     roleUid: string
   ): Promise<GameDataSummary[]> {
     if (gameId === GAME_GENSHIN) {
-      const rows = await CoreInitializerV2.genshinRepository.getAvatarList(accountId, roleUid);
+      const rows = await CoreInitializer.genshinRepository.getAvatarList(accountId, roleUid);
       return CharactersViewModel.genshinRowsToSummaries(rows, roleUid);
     }
     if (gameId === GAME_STARRAIL) {
-      const rows = await CoreInitializerV2.starRailRepository.getAvatarList(accountId, roleUid);
+      const rows = await CoreInitializer.starRailRepository.getAvatarList(accountId, roleUid);
       return CharactersViewModel.starRailRowsToSummaries(rows, roleUid);
     }
     if (gameId === GAME_ZZZ) {
-      const rows = await CoreInitializerV2.zzzRepository.getAvatarList(accountId, roleUid);
+      const rows = await CoreInitializer.zzzRepository.getAvatarList(accountId, roleUid);
       return CharactersViewModel.zzzRowsToSummaries(rows, roleUid);
     }
     return [];
@@ -369,8 +441,7 @@ export class CharactersViewModel {
     const account = this.allAccounts[this.selectedAccountIdx];
     const server = this.findServer(roleUid);
     const accountId = account.id;
-    // 暂时保留旧版网络同步调用
-    CharacterRepository.syncCharacters(gameId, roleUid, server, account.cookie)
+    this.syncCharactersV2(account, gameId, roleUid, server)
       .then(async () => {
         if (this.gameTabs.length > 0 &&
             this.gameTabs[this.selectedGameIdx].gameId === gameId &&
@@ -394,6 +465,200 @@ export class CharactersViewModel {
     this.dataSource.setData(rows);
   }
 
+  /**
+   * V2 角色列表同步：根据 gameId 分发到对应 Repository，
+   * 调用 V2 ApiService 拉取数据后写入 V2 DB。
+   * 其他 gameId 静默跳过。
+   */
+  private async syncCharactersV2(
+    account: AccountRow,
+    gameId: string,
+    roleUid: string,
+    server: string
+  ): Promise<void> {
+    if (gameId === GAME_GENSHIN) {
+      const repo = CoreInitializer.genshinRepository;
+      await repo.markAvatarListSyncing(account.id, roleUid);
+      try {
+        const resp = await (repo.getService() as GenshinApiService).getCharacterList(
+          roleUid, server, account.cookie
+        );
+        const rows = CharactersViewModel.parseGenshinCharacterList(account.id, roleUid, resp);
+        await repo.upsertAvatarList(account.id, roleUid, rows);
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : `${error}`;
+        await repo.markAvatarListFailed(account.id, roleUid, msg);
+        throw new Error(msg);
+      }
+    } else if (gameId === GAME_STARRAIL) {
+      const repo = CoreInitializer.starRailRepository;
+      await repo.markAvatarListSyncing(account.id, roleUid);
+      try {
+        const resp = await (repo.getService() as StarRailApiService).getAvatarBasic(
+          roleUid, server, account.cookie
+        );
+        const rows = CharactersViewModel.parseStarRailAvatarBasic(account.id, roleUid, resp);
+        await repo.upsertAvatarList(account.id, roleUid, rows);
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : `${error}`;
+        await repo.markAvatarListFailed(account.id, roleUid, msg);
+        throw new Error(msg);
+      }
+    } else if (gameId === GAME_ZZZ) {
+      const repo = CoreInitializer.zzzRepository;
+      await repo.markAvatarListSyncing(account.id, roleUid);
+      try {
+        const resp = await (repo.getService() as ZZZApiService).getAvatarBasic(
+          roleUid, server, account.cookie
+        );
+        const rows = CharactersViewModel.parseZZZAvatarBasic(account.id, roleUid, resp);
+        await repo.upsertAvatarList(account.id, roleUid, rows);
+      } catch (error) {
+        const msg = error instanceof Error ? error.message : `${error}`;
+        await repo.markAvatarListFailed(account.id, roleUid, msg);
+        throw new Error(msg);
+      }
+    }
+    // 其他 gameId 静默跳过
+  }
+
+  /**
+   * 解析原神角色列表 API 响应，构建 GenshinCharacterListRow[]。
+   * 响应结构：{ list: Array<{ id, name, element, rarity, level, fetter,
+   *   actived_constellation_num, icon, side_icon, weapon_type, weapon: {...} }> }
+   */
+  private static parseGenshinCharacterList(
+    accountId: number,
+    roleUid: string,
+    resp: object
+  ): GenshinCharacterListRow[] {
+    const result: GenshinCharacterListRow[] = [];
+    try {
+      const data = resp as GenshinCharacterListData;
+      const list = data.list;
+      if (!list || list.length === 0) {
+        return result;
+      }
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i];
+        const weapon = item.weapon;
+        const row = new GenshinCharacterListRow();
+        row.accountId = accountId;
+        row.roleUid = roleUid;
+        row.avatarId = `${item.id}`;
+        row.name = item.name;
+        row.element = item.element;
+        row.rarity = item.rarity;
+        row.level = item.level;
+        row.fetter = item.fetter;
+        row.activedConstellationNum = item.actived_constellation_num;
+        row.icon = item.icon;
+        row.sideIcon = item.side_icon;
+        row.weaponType = item.weapon_type;
+        row.weaponName = weapon ? weapon.name : '';
+        row.weaponLevel = weapon ? weapon.level : 0;
+        row.weaponAffixLevel = weapon ? weapon.affix_level : 0;
+        row.weaponRarity = weapon ? weapon.rarity : 0;
+        row.rawJson = JSON.stringify(item);
+        row.updateTime = Math.floor(Date.now() / 1000);
+        result[result.length] = row;
+      }
+    } catch (error) {
+      Logger.warn(TAG, `parseGenshinCharacterList failed: ${error}`);
+    }
+    return result;
+  }
+
+  /**
+   * 解析星穹铁道角色列表 API 响应，构建 StarRailAvatarBasicRow[]。
+   * 响应结构：{ list: Array<{ id, name, rarity, level, rank, base_type,
+   *   element_id, icon, figure_path, equip: {...} | null }> }
+   */
+  private static parseStarRailAvatarBasic(
+    accountId: number,
+    roleUid: string,
+    resp: object
+  ): StarRailAvatarBasicRow[] {
+    const result: StarRailAvatarBasicRow[] = [];
+    try {
+      const data = resp as StarRailAvatarListData;
+      const list = data.list;
+      if (!list || list.length === 0) {
+        return result;
+      }
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i];
+        const equip = item.equip;
+        const row = new StarRailAvatarBasicRow();
+        row.accountId = accountId;
+        row.roleUid = roleUid;
+        row.avatarId = `${item.id}`;
+        row.name = item.name;
+        row.rarity = item.rarity;
+        row.level = item.level;
+        row.rank = item.rank;
+        row.baseType = item.base_type;
+        row.elementId = item.element_id;
+        row.element = `${item.element_id}`;
+        row.icon = item.icon;
+        row.figurePath = item.figure_path;
+        row.equipId = equip ? `${equip.id}` : '';
+        row.equipName = equip ? equip.name : '';
+        row.equipLevel = equip ? equip.level : 0;
+        row.equipRank = equip ? equip.rank : 0;
+        row.equipRarity = equip ? equip.rarity : 0;
+        row.rawJson = JSON.stringify(item);
+        row.updateTime = Math.floor(Date.now() / 1000);
+        result[result.length] = row;
+      }
+    } catch (error) {
+      Logger.warn(TAG, `parseStarRailAvatarBasic failed: ${error}`);
+    }
+    return result;
+  }
+
+  /**
+   * 解析绝区零代理人列表 API 响应，构建 ZZZAvatarBasicRow[]。
+   * 响应结构：{ avatar_list: Array<{ id, name_mi18n, full_name_mi18n, rarity,
+   *   level, rank, element_type, avatar_profession, hollow_icon_path, role_square_url }> }
+   */
+  private static parseZZZAvatarBasic(
+    accountId: number,
+    roleUid: string,
+    resp: object
+  ): ZZZAvatarBasicRow[] {
+    const result: ZZZAvatarBasicRow[] = [];
+    try {
+      const data = resp as ZZZAvatarListData;
+      const list = data.avatar_list;
+      if (!list || list.length === 0) {
+        return result;
+      }
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i];
+        const row = new ZZZAvatarBasicRow();
+        row.accountId = accountId;
+        row.roleUid = roleUid;
+        row.avatarId = `${item.id}`;
+        row.nameMi18n = item.name_mi18n;
+        row.fullNameMi18n = item.full_name_mi18n;
+        row.rarity = item.rarity;
+        row.level = item.level;
+        row.rank = item.rank;
+        row.elementType = item.element_type;
+        row.avatarProfession = item.avatar_profession;
+        row.hollowIconPath = item.hollow_icon_path;
+        row.roleSquareUrl = item.role_square_url;
+        row.rawJson = JSON.stringify(item);
+        row.updateTime = Math.floor(Date.now() / 1000);
+        result[result.length] = row;
+      }
+    } catch (error) {
+      Logger.warn(TAG, `parseZZZAvatarBasic failed: ${error}`);
+    }
+    return result;
+  }
+
   private findServer(roleUid: string): string {
     if (this.allRoles.length === 0 || this.selectedAccountIdx >= this.allRoles.length) {
       return '';
@@ -410,18 +675,18 @@ export class CharactersViewModel {
   /** 检查指定游戏角色是否需要同步角色数据（v2 版本） */
   private static async needsCharacterSync(accountId: number, roleUid: string, gameId: string): Promise<boolean> {
     if (gameId === GAME_GENSHIN) {
-      return CoreInitializerV2.genshinRepository.needsAvatarListSync(accountId, roleUid);
+      return CoreInitializer.genshinRepository.needsAvatarListSync(accountId, roleUid);
     }
     if (gameId === GAME_STARRAIL) {
-      return CoreInitializerV2.starRailRepository.needsAvatarListSync(accountId, roleUid);
+      return CoreInitializer.starRailRepository.needsAvatarListSync(accountId, roleUid);
     }
     if (gameId === GAME_ZZZ) {
-      return CoreInitializerV2.zzzRepository.needsAvatarListSync(accountId, roleUid);
+      return CoreInitializer.zzzRepository.needsAvatarListSync(accountId, roleUid);
     }
     return true;
   }
 
-  private static buildAccountOptions(accounts: AccountRowV2[]): AccountOption[] {
+  private static buildAccountOptions(accounts: AccountRow[]): AccountOption[] {
     const opts: AccountOption[] = [];
     for (let i = 0; i < accounts.length; i++) {
       opts[opts.length] = new AccountOption(accounts[i].id, accounts[i].username);

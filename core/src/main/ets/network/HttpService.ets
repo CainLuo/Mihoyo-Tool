@@ -1,8 +1,6 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from '@ohos/axios';
 import { BaseApiService, RequestOptions, RequestParams, RequestValue } from './APIs';
-import { ApiConfig } from './ApiConfig';
 import { getCookie } from './CookieManager';
-import { generateDS } from './DSUtil';
 
 /**
  * HTTP 服务类
@@ -32,16 +30,9 @@ export class HttpService extends BaseApiService {
       }
     });
 
-    // 请求拦截器：注入 DS 签名和 Cookie
-    // 注意：extraHeaders 已在 buildHeaders() 里提前合并到 config.headers，
-    // 此处拦截器只负责 DS 和 Cookie，不重复处理 extraHeaders。
+    // 请求拦截器：注入 Cookie
     instance.interceptors.request.use(
       async (config: InternalAxiosRequestConfig) => {
-        const ds = generateDS(config);
-        if (ds) {
-          const headers = config.headers as Record<string, string>;
-          headers['x-rpc-ds'] = ds;
-        }
         const cookie = await getCookie();
         if (cookie) {
           const headers = config.headers as Record<string, string>;
@@ -61,11 +52,10 @@ export class HttpService extends BaseApiService {
   }
 
   /**
-   * 构建完整 URL
+   * 构建完整 URL（直接返回传入的 URL，调用方负责传入完整路径）
    */
-  private buildUrl(url: string, baseUrlType?: string): string {
-    const baseUrl = ApiConfig.getBaseUrl(baseUrlType ?? 'PUBLIC_DATA');
-    return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+  private buildUrl(url: string, _baseUrlType?: string): string {
+    return url;
   }
 
   /**

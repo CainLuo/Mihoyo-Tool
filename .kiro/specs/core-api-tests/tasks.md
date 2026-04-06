@@ -2,17 +2,17 @@
 
 ## Tasks
 
-- [ ] 1. 补充 DSUtilV2.test.ets 测试用例
-  - [ ] 1.1 添加字典序排列验证：params `{z:1, a:2, m:3}` → query `a=2&m=3&z=1`
-  - [ ] 1.2 添加字典序排列验证：params `{b:1, a:2}` → query `a=2&b=1`
-  - [ ] 1.3 添加字典序排列验证：params `{role_id:1, role:2}` → query `role=2&role_id=1`
-  - [ ] 1.4 添加 random 字符集验证：调用 100 次，每次 random 只含 `[a-zA-Z0-9]`
-  - [ ] 1.5 添加极端参数测试：100 个键值对，DS 正常生成不崩溃
-  - [ ] 1.6 添加边界值测试：params 值为数字 0，序列化为 `key=0` 不被过滤
-  - [ ] 1.7 添加边界值测试：params 值为负数，序列化为 `key=-1`
-  - [ ] 1.8 添加 Unicode body 测试：`{"name":"旅行者"}`，DS 正常生成
+- [-] 1. 补充 DSUtilV2.test.ets 测试用例
+  - [x] 1.1 添加字典序排列验证：params `{z:1, a:2, m:3}` → query `a=2&m=3&z=1`
+  - [x] 1.2 添加字典序排列验证：params `{b:1, a:2}` → query `a=2&b=1`
+  - [x] 1.3 添加字典序排列验证：params `{role_id:1, role:2}` → query `role=2&role_id=1`
+  - [x] 1.4 添加 random 字符集验证：调用 100 次，每次 random 只含 `[a-zA-Z0-9]`
+  - [x] 1.5 添加极端参数测试：100 个键值对，DS 正常生成不崩溃
+  - [x] 1.6 添加边界值测试：params 值为数字 0，序列化为 `key=0` 不被过滤
+  - [x] 1.7 添加边界值测试：params 值为负数，序列化为 `key=-1`
+  - [x] 1.8 添加 Unicode body 测试：`{"name":"旅行者"}`，DS 正常生成
 
-- [ ] 2. 补充 MockServiceBase.test.ets 测试用例
+- [-] 2. 补充 MockServiceBase.test.ets 测试用例
   - [ ] 2.1 添加 pathToFileName 边界：路径含大写字母，保留原始大小写
   - [ ] 2.2 添加 pathToFileName 边界：路径含数字 `/api/v3/data`，正确映射
   - [ ] 2.3 添加 pathToFileName 边界：路径含连字符 `/game-record/api`，连字符保留

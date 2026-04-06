@@ -6,7 +6,7 @@
  * 所有 property_type 数字必须通过 GenshinPropertyType enum 引用，禁止写字面量。
  */
 
-import { CoreInitializerV2, GenshinPropertyType } from 'core';
+import { CoreInitializer, GenshinPropertyType } from 'core';
 import { Logger } from '../utils/Logger';
 import { ViewState } from '../constants/ViewStates';
 import { GenshinElement, elementFromString } from '../constants/GenshinElement';
@@ -198,7 +198,7 @@ export class GenshinCharacterDetailViewModel {
   async loadData(): Promise<void> {
     this.viewState = ViewState.LOADING;
     try {
-      const row = await CoreInitializerV2.genshinRepository.getAvatarDetail(this.accountId, this.roleUid, this.entityId);
+      const row = await CoreInitializer.genshinRepository.getAvatarDetail(this.accountId, this.roleUid, this.entityId);
       if (row === null || row.rawJson === '') {
         this.viewState = ViewState.EMPTY;
         return;

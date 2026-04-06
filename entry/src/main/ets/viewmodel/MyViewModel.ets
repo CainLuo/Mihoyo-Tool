@@ -1,10 +1,9 @@
 /**
  * MyViewModel.ets — 我的页面 ViewModel
  *
- * DB 读取部分已切换到 v2 Repository（CoreInitializerV2）。
- * 网络调用（getBbsAccountDetail、getGameRecordCard）暂时保留旧版 AuthRepository。
+ * 从 V2 Repository 读取账号和角色数据，通过 AuthRepository 补充网络数据（nickname、avatarUrl、statsJson）。
  */
-import { CoreInitializerV2, AuthRepository, RoleStatItem } from 'core';
+import { CoreInitializer, AuthRepository, RoleStatItem } from 'core';
 import { Logger } from '../utils/Logger';
 import { MyAccountVM, MyGameRoleVM, GameStatItem } from '../components/my/MyModels';
 import { serverDisplayName } from '../utils/ServerNameUtil';
@@ -28,22 +27,22 @@ export class MyViewModel {
 
   async loadAccounts(): Promise<void> {
     try {
-      const accountRows = await CoreInitializerV2.bbsRepository.getAllAccounts();
+      const accountRows = await CoreInitializer.bbsRepository.getAllAccounts();
       const vms: MyAccountVM[] = [];
       for (let ai = 0; ai < accountRows.length; ai++) {
         const row = accountRows[ai];
-        let roles = await CoreInitializerV2.bbsRepository.getGameRoles(row.id);
+        let roles = await CoreInitializer.bbsRepository.getGameRoles(row.id);
 
-        // 补充/更新 nickname 和 avatarUrl（暂时保留旧版网络调用）
+        // 补充/更新 nickname 和 avatarUrl
         if (row.cookie) {
           try {
             const bbsDetail = await AuthRepository.getBbsAccountDetail(row.cookie);
             if (bbsDetail.nickname || bbsDetail.avatarUrl) {
-              const updatedRow = await CoreInitializerV2.bbsRepository.getAccountById(row.id);
+              const updatedRow = await CoreInitializer.bbsRepository.getAccountById(row.id);
               if (updatedRow !== null) {
                 updatedRow.nickname = bbsDetail.nickname;
                 updatedRow.avatarUrl = bbsDetail.avatarUrl;
-                await CoreInitializerV2.bbsRepository.saveAccount(updatedRow);
+                await CoreInitializer.bbsRepository.saveAccount(updatedRow);
               }
               row.nickname = bbsDetail.nickname;
               row.avatarUrl = bbsDetail.avatarUrl;
@@ -51,7 +50,7 @@ export class MyViewModel {
           } catch (_) {}
         }
 
-        // 如果角色数据缺少 statsJson，调用账号详情接口补充（暂时保留旧版网络调用）
+        // 如果角色数据缺少 statsJson，调用账号详情接口补充
         let needsRefresh = false;
         for (let i = 0; i < roles.length; i++) {
           if (!roles[i].statsJson || roles[i].statsJson === '') {
@@ -62,7 +61,7 @@ export class MyViewModel {
         if (needsRefresh && row.cookie) {
           try {
             const detailRoles = await AuthRepository.getGameRecordCard(row.cookie, row.username);
-            const updatedRoles = await CoreInitializerV2.bbsRepository.getGameRoles(row.id);
+            const updatedRoles = await CoreInitializer.bbsRepository.getGameRoles(row.id);
             for (let i = 0; i < updatedRoles.length; i++) {
               for (let j = 0; j < detailRoles.length; j++) {
                 if (detailRoles[j].gameId === updatedRoles[i].gameId) {
@@ -72,8 +71,8 @@ export class MyViewModel {
                 }
               }
             }
-            await CoreInitializerV2.bbsRepository.saveGameRoles(updatedRoles);
-            roles = await CoreInitializerV2.bbsRepository.getGameRoles(row.id);
+            await CoreInitializer.bbsRepository.saveGameRoles(updatedRoles);
+            roles = await CoreInitializer.bbsRepository.getGameRoles(row.id);
           } catch (_) {}
         }
 

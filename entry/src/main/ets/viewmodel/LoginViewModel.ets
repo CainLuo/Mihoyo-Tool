@@ -18,9 +18,9 @@ import {
   QRCodeConfirmedData,
   LoginCookieFields,
   RoleStatItem,
-  CoreInitializerV2,
-  AccountRowV2,
-  GameRoleRowV2
+  CoreInitializer,
+  AccountRow,
+  GameRoleRow
 } from 'core';
 import { Logger } from '../utils/Logger';
 import { LoginTab, PhoneStep, QRCodeStat } from '../constants/LoginTabEnum';
@@ -354,17 +354,17 @@ export class LoginViewModel {
   private async finalizeLogin(username: string, cookie: string): Promise<void> {
     // 1. 写入账号（v2 Repository）
     const now = Math.floor(Date.now() / 1000);
-    const accountRow = new AccountRowV2();
+    const accountRow = new AccountRow();
     accountRow.id = 0; // 新账号，自增
     accountRow.username = username;
     accountRow.cookie = cookie;
     accountRow.isActive = 1;
     accountRow.createTime = now;
     accountRow.updateTime = now;
-    await CoreInitializerV2.bbsRepository.saveAccount(accountRow);
+    await CoreInitializer.bbsRepository.saveAccount(accountRow);
 
     // 查询刚写入的账号 id
-    const savedAccount = await CoreInitializerV2.bbsRepository.getAccountByUsername(username);
+    const savedAccount = await CoreInitializer.bbsRepository.getAccountByUsername(username);
     const accountId = savedAccount !== null ? savedAccount.id : 0;
 
     // 2. 拉取游戏角色并写入（v2 Repository）
@@ -391,10 +391,10 @@ export class LoginViewModel {
           // 账号详情拉取失败不阻断流程
         }
         // 转换为 GameRoleRowV2 并保存
-        const roleRowsV2: GameRoleRowV2[] = [];
+        const roleRowsV2: GameRoleRow[] = [];
         for (let i = 0; i < roles.length; i++) {
           const r = roles[i];
-          const roleRow = new GameRoleRowV2();
+          const roleRow = new GameRoleRow();
           roleRow.id = 0;
           roleRow.accountId = accountId;
           roleRow.gameId = r.gameId;
@@ -406,7 +406,7 @@ export class LoginViewModel {
           roleRow.statsJson = r.statsJson;
           roleRowsV2[roleRowsV2.length] = roleRow;
         }
-        await CoreInitializerV2.bbsRepository.saveGameRoles(roleRowsV2);
+        await CoreInitializer.bbsRepository.saveGameRoles(roleRowsV2);
       }
     } catch (error) {
       // 角色拉取失败不阻断登录流程，只记录 warn
@@ -418,11 +418,11 @@ export class LoginViewModel {
     try {
       const bbsDetail = await AuthRepository.getBbsAccountDetail(cookie);
       if (bbsDetail.nickname || bbsDetail.avatarUrl) {
-        const latestRow = await CoreInitializerV2.bbsRepository.getAccountById(accountId);
+        const latestRow = await CoreInitializer.bbsRepository.getAccountById(accountId);
         if (latestRow !== null) {
           latestRow.nickname = bbsDetail.nickname;
           latestRow.avatarUrl = bbsDetail.avatarUrl;
-          await CoreInitializerV2.bbsRepository.saveAccount(latestRow);
+          await CoreInitializer.bbsRepository.saveAccount(latestRow);
         }
       }
     } catch (error) {
@@ -432,9 +432,9 @@ export class LoginViewModel {
 
     // 4. 组装 AccountVM 并通知 View 跳转
     try {
-      const row = await CoreInitializerV2.bbsRepository.getAccountById(accountId);
+      const row = await CoreInitializer.bbsRepository.getAccountById(accountId);
       if (row !== null) {
-        const roleRows = await CoreInitializerV2.bbsRepository.getGameRoles(accountId);
+        const roleRows = await CoreInitializer.bbsRepository.getGameRoles(accountId);
         const roleVMs: MyGameRoleVM[] = [];
         for (let i = 0; i < roleRows.length; i++) {
           const r = roleRows[i];

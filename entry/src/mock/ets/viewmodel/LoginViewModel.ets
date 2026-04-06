@@ -3,10 +3,13 @@
  *
  * 接口与 entry/src/main/ets/viewmodel/LoginViewModel.ets 完全一致，
  * 所有登录方法直接返回 Mock 数据，不发起任何真实网络请求。
+ *
+ * V2 迁移：已移除旧版 AccountRepository，切换到 CoreInitializerV2.bbsRepository。
  */
 
-import { AccountRepository, GameRoleRow, MmtData, GeetestV4Data } from 'core';
+import { MmtData, GeetestV4Data, CoreInitializer, AccountRow, GameRoleRow } from 'core';
 import { LoginTab, PhoneStep, QRCodeStat } from '../constants/LoginTabEnum';
+import { MyAccountVM } from '../../main/ets/components/my/MyModels';
 import hilog from '@ohos.hilog';
 
 export { LoginTab, PhoneStep, QRCodeStat };
@@ -25,43 +28,61 @@ const MOCK_ACCOUNT_ID: string = '182692936';
 const MOCK_COOKIE: string =
   'account_id=182692936; cookie_token=mock_token; ltoken=mock_ltoken; ltuid=182692936';
 
-function buildMockRoles(accountId: number): GameRoleRow[] {
+/** 构建 mock 游戏角色列表（原神 + 星铁） */
+function buildMockRoleRowsV2(accountId: number): GameRoleRow[] {
   const roles: GameRoleRow[] = [];
 
   const genshin = new GameRoleRow();
+  genshin.id = 0;
   genshin.accountId = accountId;
   genshin.gameId = 'genshin';
   genshin.roleId = '109050292';
   genshin.nickname = 'Mock旅行者';
   genshin.level = 60;
   genshin.server = 'cn_gf01';
+  genshin.bgImageUrl = '';
+  genshin.statsJson = '';
   roles[roles.length] = genshin;
 
   const starrail = new GameRoleRow();
+  starrail.id = 0;
   starrail.accountId = accountId;
   starrail.gameId = 'starrail';
   starrail.roleId = '102731382';
   starrail.nickname = 'Mock开拓者';
   starrail.level = 70;
   starrail.server = 'prod_gf_cn';
+  starrail.bgImageUrl = '';
+  starrail.statsJson = '';
   roles[roles.length] = starrail;
 
   return roles;
 }
 
+/** LoginViewModel @Monitor 路径常量类型 */
 export class LoginViewModelKeys {
   loginSuccess: string = 'vm.loginSuccess';
+  loginedAccountId: string = 'vm.loginedAccountId';
+  loginedAccountVM: string = 'vm.loginedAccountVM';
 }
 
 @ObservedV2
 export class LoginViewModel {
+  /** @Monitor 路径常量，View 层必须通过此对象引用，禁止直接写字符串字面量 */
   static readonly KEYS: LoginViewModelKeys = new LoginViewModelKeys();
 
+  // ── 通用状态 ──────────────────────────────────────────────────
   @Trace activeTab: LoginTab = LoginTab.PHONE;
   @Trace isLoading: boolean = false;
   @Trace errorMsg: string = '';
+  /** 登录成功标志，View 层监听后跳转 */
   @Trace loginSuccess: boolean = false;
+  /** 登录成功后的账号 ID，View 层用于跳转到 AccountDetail */
+  @Trace loginedAccountId: number = -1;
+  /** 登录成功后组装好的账号 VM（mock 环境不组装，保持 null） */
+  @Trace loginedAccountVM: MyAccountVM | null = null;
 
+  // ── 手机号登录状态 ────────────────────────────────────────────
   @Trace phoneStep: PhoneStep = PhoneStep.INPUT_PHONE;
   @Trace phoneNumber: string = '';
   @Trace smsCode: string = '';
@@ -69,16 +90,19 @@ export class LoginViewModel {
 
   private cooldownTimer: number = -1;
 
+  // ── 二维码登录状态 ────────────────────────────────────────────
   @Trace qrCodeUrl: string = '';
   @Trace qrCodeStat: QRCodeStat = QRCodeStat.LOADING;
 
   private pollTimer: number = -1;
   private mockPollCount: number = 0;
 
+  // ── Cookie 登录状态 ───────────────────────────────────────────
   @Trace cookieInput: string = '';
 
   // ─── 通用 ─────────────────────────────────────────────────────
 
+  /** 切换 Tab */
   switchTab(tab: LoginTab): void {
     this.activeTab = tab;
     this.errorMsg = '';
@@ -89,6 +113,7 @@ export class LoginViewModel {
     }
   }
 
+  /** 清理资源（页面销毁时调用） */
   dispose(): void {
     this.stopQRCodePoll();
     this.stopCooldown();
@@ -96,12 +121,14 @@ export class LoginViewModel {
 
   // ─── 手机号登录 ───────────────────────────────────────────────
 
+  /** 申请人机验证任务（mock 直接返回） */
   async prepareSendSms(): Promise<MmtData> {
     this.errorMsg = '';
     const mock: MmtData = { mmt_key: 'mock_mmt_key', success: 1 };
     return mock;
   }
 
+  /** 发送短信验证码（mock 直接进入下一步） */
   async sendSmsCode(
     _v4Data?: GeetestV4Data,
     _v3Challenge?: string,
@@ -120,6 +147,7 @@ export class LoginViewModel {
     logInfo(`Mock 短信已"发送"至 ${this.phoneNumber}`);
   }
 
+  /** 用短信验证码登录（mock 直接写入 V2 DB） */
   async loginByPhone(): Promise<void> {
     if (this.smsCode.length === 0) {
       this.errorMsg = 'code_empty';
@@ -139,6 +167,7 @@ export class LoginViewModel {
     }
   }
 
+  /** 脱敏手机号，如 138****8888 */
   get maskedPhone(): string {
     const p = this.phoneNumber;
     if (p.length < 7) {
@@ -147,6 +176,7 @@ export class LoginViewModel {
     return p.substring(0, 3) + '****' + p.substring(p.length - 4);
   }
 
+  /** 返回手机号输入步骤 */
   backToPhoneInput(): void {
     this.phoneStep = PhoneStep.INPUT_PHONE;
     this.smsCode = '';
@@ -155,6 +185,7 @@ export class LoginViewModel {
 
   // ─── 二维码登录 ───────────────────────────────────────────────
 
+  /** 开始二维码登录（mock 生成假二维码，3 次轮询后自动确认） */
   async startQRCodeLogin(): Promise<void> {
     this.stopQRCodePoll();
     this.qrCodeStat = QRCodeStat.LOADING;
@@ -168,6 +199,7 @@ export class LoginViewModel {
     logInfo('Mock 二维码已生成');
   }
 
+  /** 刷新二维码 */
   async refreshQRCode(): Promise<void> {
     await this.startQRCodeLogin();
   }
@@ -209,6 +241,7 @@ export class LoginViewModel {
 
   // ─── Cookie 登录 ──────────────────────────────────────────────
 
+  /** 用手动输入的 Cookie 登录（mock 直接写入 V2 DB） */
   async loginByCookie(): Promise<void> {
     if (this.cookieInput.trim().length === 0) {
       this.errorMsg = 'cookie_empty';
@@ -233,17 +266,38 @@ export class LoginViewModel {
 
   // ─── 登录成功统一流程 ─────────────────────────────────────────
 
+  /**
+   * 登录成功后统一处理：写账号（V2）→ 写游戏角色（V2）→ 通知 View
+   * mock 环境不拉取网络数据，直接写入预设的 mock 角色。
+   */
   private async finalizeLogin(username: string, cookie: string): Promise<void> {
-    const accountId = await AccountRepository.insertAccount(username, cookie);
-    await AccountRepository.setActiveAccount(accountId);
-    const roles = buildMockRoles(accountId);
-    await AccountRepository.replaceRoles(accountId, roles);
+    // 1. 写入账号（V2 Repository）
+    const now = Math.floor(Date.now() / 1000);
+    const accountRow = new AccountRow();
+    accountRow.id = 0;
+    accountRow.username = username;
+    accountRow.cookie = cookie;
+    accountRow.isActive = 1;
+    accountRow.createTime = now;
+    accountRow.updateTime = now;
+    await CoreInitializer.bbsRepository.saveAccount(accountRow);
+
+    // 2. 查询自增 id
+    const savedAccount = await CoreInitializer.bbsRepository.getAccountByUsername(username);
+    const accountId = savedAccount !== null ? savedAccount.id : 0;
+
+    // 3. 写入 mock 游戏角色（V2 Repository）
+    const roleRows = buildMockRoleRowsV2(accountId);
+    await CoreInitializer.bbsRepository.saveGameRoles(roleRows);
+
     logInfo(`Mock 登录成功，accountId=${accountId}`);
+    this.loginedAccountId = accountId;
     this.loginSuccess = true;
   }
 
   // ─── 工具方法 ─────────────────────────────────────────────────
 
+  /** 从 Cookie 字符串中提取指定字段值 */
   private static extractCookieField(cookie: string, field: string): string {
     const parts = cookie.split(';');
     for (let i = 0; i < parts.length; i++) {
@@ -262,6 +316,7 @@ export class LoginViewModel {
     });
   }
 
+  /** 开始短信倒计时 */
   private startCooldown(seconds: number): void {
     this.smsCooldown = seconds;
     this.cooldownTimer = setInterval(() => {
@@ -273,6 +328,7 @@ export class LoginViewModel {
     }, 1000) as number;
   }
 
+  /** 停止倒计时 */
   private stopCooldown(): void {
     if (this.cooldownTimer !== -1) {
       clearInterval(this.cooldownTimer);

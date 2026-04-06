@@ -43,19 +43,19 @@
     - **Property 4: switchTab 清空 errorMsg**
     - **Validates: Requirements 3.6**
 
-- [ ] 4. 新建 MyViewModel.test.ets
+- [x] 4. 新建 MyViewModel.test.ets
   - 创建 `entry/src/test/MyViewModel.test.ets`
   - 导出函数 `myViewModelTest()`，使用 `describe('MyViewModel', ...)`
   - 测试构造函数初始状态：`viewState`、`accounts`
   - _Requirements: 4.1, 4.2_
 
-- [ ] 5. 新建 AccountDetailViewModel.test.ets
+- [x] 5. 新建 AccountDetailViewModel.test.ets
   - 创建 `entry/src/test/AccountDetailViewModel.test.ets`
   - 导出函数 `accountDetailViewModelTest()`，使用 `describe('AccountDetailViewModel', ...)`
   - 测试构造函数初始状态：`deleted`、`errorMsg`
   - _Requirements: 5.1, 5.2_
 
-- [ ] 6. 新建 GenshinDailyDetailViewModel.test.ets
+- [x] 6. 新建 GenshinDailyDetailViewModel.test.ets
   - 创建 `entry/src/test/GenshinDailyDetailViewModel.test.ets`
   - 导出函数 `genshinDailyDetailViewModelTest()`，使用 `describe('GenshinDailyDetailViewModel', ...)`
   - 测试构造函数初始状态：`viewState`
@@ -67,7 +67,7 @@
     - **Property 5: formatSeconds 非负输入不崩溃**
     - **Validates: Requirements 6.2, 6.3, 6.4**
 
-- [ ] 7. 新建 GenshinCharacterDetailViewModel.test.ets
+- [x] 7. 新建 GenshinCharacterDetailViewModel.test.ets
   - 创建 `entry/src/test/GenshinCharacterDetailViewModel.test.ets`
   - 导出函数 `genshinCharDetailViewModelTest()`，使用 `describe('GenshinCharacterDetailViewModel', ...)`
   - 测试构造函数初始状态：`viewState`
@@ -78,7 +78,7 @@
     - **Property 6: propertyTypeToResource 已知类型非 null**
     - **Validates: Requirements 7.2, 7.3**
 
-- [ ] 8. 更新 List.test.ets，注册以上 7 个测试套件
+- [x] 8. 更新 List.test.ets，注册以上 7 个测试套件
   - 修改 `entry/src/test/List.test.ets`
   - 保留现有 `localUnitTest()` 调用
   - 追加 import 和调用：`homeViewModelTest`、`charactersViewModelTest`、`loginViewModelTest`、`myViewModelTest`、`accountDetailViewModelTest`、`genshinDailyDetailViewModelTest`、`genshinCharDetailViewModelTest`

@@ -1,5 +1,6 @@
 import { NetworkFactory } from './NetworkFactory';
 import { RequestOptions, RequestParams } from './APIs';
+import { GeetestCreateResult, GeetestVerifyInput } from '../errors/ApiErrors';
 
 /**
  * ============================================================
@@ -37,38 +38,6 @@ import { RequestOptions, RequestParams } from './APIs';
  */
 
 // ---- 类型定义 ----
-
-/**
- * createVerification 接口的响应 data 字段
- *
- * 米游社同时支持 Geetest v3 和 v4：
- *   - v3：有 challenge 字段，使用 initGeetest()
- *   - v4：有 risk_type 字段，使用 initGeetest4()
- * 通过是否存在 challenge 字段来区分版本。
- */
-export interface GeetestCreateResult {
-  /** Geetest 应用 ID，v3/v4 均有 */
-  gt: string;
-  /** v3 专用：动态 challenge token，每次申请都不同 */
-  challenge?: string;
-  /** v4 专用：风险类型，决定展示哪种验证方式（滑块/点选等） */
-  risk_type?: string;
-  /** 是否新验证码（v3 字段） */
-  new_captcha?: boolean;
-}
-
-/**
- * 用户完成 Geetest 验证后，前端 SDK 返回的验证结果
- * 需要提交给 verifyVerification 接口
- */
-export interface GeetestVerifyInput {
-  /** 验证 challenge（来自 createVerification 或 SDK 内部更新） */
-  geetest_challenge: string;
-  /** 验证通过后的 validate token */
-  geetest_validate: string;
-  /** 安全码，格式通常为 validate|jordan */
-  geetest_seccode: string;
-}
 
 /**
  * verifyVerification 接口成功后返回的新 challenge

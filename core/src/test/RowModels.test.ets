@@ -5,8 +5,8 @@
  */
 
 import { describe, it, expect } from '@ohos/hypium';
-import { AccountRowV2 } from '../main/ets/models/v2/AccountRowV2';
-import { GameRoleRowV2 } from '../main/ets/models/v2/GameRoleRowV2';
+import { AccountRow } from '../main/ets/models/v2/AccountRowV2';
+import { GameRoleRow } from '../main/ets/models/v2/GameRoleRowV2';
 import {
   GenshinCharacterListRow,
   GenshinDailyNoteRow,
@@ -30,7 +30,7 @@ import { SyncMetaRow } from '../main/ets/models/v2/SyncMetaRow';
 export default function rowModelsTest() {
   describe('AccountRowV2', () => {
     it('defaultValues_areCorrect', 0, () => {
-      const row = new AccountRowV2();
+      const row = new AccountRow();
       expect(row.id).assertEqual(0);
       expect(row.username).assertEqual('');
       expect(row.cookie).assertEqual('');
@@ -44,7 +44,7 @@ export default function rowModelsTest() {
 
   describe('GameRoleRowV2', () => {
     it('defaultValues_areCorrect', 0, () => {
-      const row = new GameRoleRowV2();
+      const row = new GameRoleRow();
       expect(row.id).assertEqual(0);
       expect(row.accountId).assertEqual(0);
       expect(row.gameId).assertEqual('');

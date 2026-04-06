@@ -182,7 +182,7 @@ class GeetestBridge {
 @ComponentV2
 export struct GeetestDialog {
   /** createVerification 返回的参数，由调用方传入 */
-  @Param createResult: GeetestCreateResult = { gt: '' };
+  @Param createResult: GeetestCreateResult = new GeetestCreateResult();
   /** 验证完成/取消的回调，由 showGeetestDialog 注入 */
   @Param onResult: (result: GeetestVerifyInput | null) => void = () => {};
 

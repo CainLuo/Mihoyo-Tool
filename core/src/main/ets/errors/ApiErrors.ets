@@ -5,9 +5,14 @@
 
 /** Geetest 验证申请结果（createVerification 接口返回） */
 export class GeetestCreateResult {
+  /** Geetest 应用 ID，v3/v4 均有 */
   gt: string = '';
+  /** v3 专用：动态 challenge token */
   challenge: string = '';
+  /** 是否新验证码（v3 字段） */
   new_captcha: number = 0;
+  /** v4 专用：风险类型 */
+  risk_type: string = '';
 }
 
 /** Geetest 验证提交参数（用户完成验证后传入） */

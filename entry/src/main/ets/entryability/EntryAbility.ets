@@ -1,6 +1,6 @@
 import { UIAbility, Want, AbilityConstant } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
-import { CoreInitializer, CoreInitializerV2 } from 'core';
+import { CoreInitializer } from 'core';
 import { Logger, RuntimeEnv } from '../utils/Logger';
 import { AppearanceManager } from '../utils/AppearanceManager';
 
@@ -18,20 +18,11 @@ export default class EntryAbility extends UIAbility {
     const runtimeEnv: RuntimeEnv = Logger.getRuntimeEnv();
     const isMock: boolean = runtimeEnv === RuntimeEnv.MOCK;
 
-    // initCore 现在是 async（内部完成 RDB 初始化 + Mock 数据预填充）
+    // 初始化 V2 数据库层
     CoreInitializer.initCore({ isMock, context: this.context })
       .then(() => {
-        Logger.info(TAG, `Core initialized. isMock=${isMock}`);
-        this.runStartupTaskByEnv(runtimeEnv);
-      })
-      .catch((error: Error | object) => {
-        Logger.warning(TAG, `CoreInitializer.initCore failed: ${JSON.stringify(error)}`);
-      });
-
-    // 同步初始化 V2 数据库层（新架构，与旧版并行运行）
-    CoreInitializerV2.initCore({ isMock, context: this.context })
-      .then(() => {
         Logger.info(TAG, `CoreV2 initialized. isMock=${isMock}`);
+        this.runStartupTaskByEnv(runtimeEnv);
       })
       .catch((error: Error | object) => {
         Logger.warning(TAG, `CoreInitializerV2.initCore failed: ${JSON.stringify(error)}`);

@@ -8,7 +8,7 @@
  * 因为时间是动态计算值，不适合放资源文件。
  */
 
-import { CoreInitializerV2, GenshinDailyNoteParser, GenshinDailyNoteData, GenshinExpeditionData } from 'core';
+import { CoreInitializer, GenshinDailyNoteParser, GenshinDailyNoteData, GenshinExpeditionData } from 'core';
 import {
   GenshinDailyNoteVM,
   GenshinDailyTaskVM,
@@ -35,7 +35,7 @@ export class GenshinDailyDetailViewModel {
   async loadData(): Promise<void> {
     this.viewState = ViewState.LOADING;
     try {
-      const row = await CoreInitializerV2.genshinRepository.getDailyNote(this.accountId, this.roleUid);
+      const row = await CoreInitializer.genshinRepository.getDailyNote(this.accountId, this.roleUid);
       if (row === null) {
         this.viewState = ViewState.EMPTY;
         return;
