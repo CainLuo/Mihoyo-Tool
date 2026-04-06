@@ -4,13 +4,16 @@
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 import { GameNoteSnapshotVM } from './HomeModels'
 import { GameDataRow } from './GameDataRow'
+import { TimeFormatUtil } from '../../utils/TimeFormatUtil'
+import { common } from '@kit.AbilityKit'
 
 @ComponentV2
 export struct StarRailGameToolCardContent {
-  @Param snap: GameNoteSnapshotVM = new GameNoteSnapshotVM('', 0, 0, '', '', '', false)
+  @Param snap: GameNoteSnapshotVM = new GameNoteSnapshotVM('', 0, 0, 0, '', '', false)
   @Param primaryColor: ResourceColor = $r('app.color.color_primary')
   @Param progressRatio: number = 0
   @Local private tm: ThemeManager = themeManager
+  @Local private ctx: common.UIAbilityContext = getContext(this) as common.UIAbilityContext
 
   build() {
     Column({ space: this.tm.current.value8 }) {
@@ -41,8 +44,8 @@ export struct StarRailGameToolCardContent {
           }
           .alignItems(VerticalAlign.Bottom)
 
-          if (this.snap.primaryRecoveryDesc !== '') {
-            Text(this.snap.primaryRecoveryDesc)
+          if (this.snap.primaryRecoverySeconds > 0) {
+            Text(TimeFormatUtil.recoveryDesc(this.snap.primaryRecoverySeconds, this.ctx))
               .font(this.tm.current.body13)
               .fontColor(this.snap.isFull ? this.tm.current.colorDanger : this.tm.current.colorTextSecondary)
               .maxLines(1)
@@ -130,7 +133,7 @@ struct StarRailGameToolCardContentPreview {
     Column() {
       StarRailGameToolCardContent({
         snap: (() => {
-          const snap = new GameNoteSnapshotVM('starrail', 180, 300, '将于2小时后全部恢复', '', '', false);
+          const snap = new GameNoteSnapshotVM('starrail', 180, 300, 7200, '', '', false);
           snap.reserveStamina = 2400;
           snap.trainScoreCurrent = 400;
           snap.trainScoreMax = 500;

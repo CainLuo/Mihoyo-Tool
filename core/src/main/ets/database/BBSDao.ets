@@ -1,5 +1,6 @@
 import { relationalStore } from '@kit.ArkData';
 import { RdbManager } from './RdbManager';
+import { RsReader } from './RsReader';
 import { TableName, CommonCol, AccountCol, GameRoleCol, ACCOUNT_TABLE, GAME_ROLE_TABLE } from './TableSchema';
 import { AccountRow } from '../models/AccountRow';
 import { GameRoleRow } from '../models/GameRoleRow';
@@ -77,37 +78,25 @@ export class AccountDao {
   }
 
   /**
-   * 将 ResultSet 当前行映射为 AccountRowV2
+   * 将 ResultSet 当前行映射为 AccountRow
    */
   private static mapRow(rs: relationalStore.ResultSet): AccountRow {
     try {
+      const r = new RsReader(rs);
       const row = new AccountRow();
-      const idVal = rs.getValue(rs.getColumnIndex(CommonCol.ID));
-      row.id = typeof idVal === 'number' ? idVal : 0;
-      const usernameVal = rs.getValue(rs.getColumnIndex(AccountCol.USERNAME));
-      row.username = typeof usernameVal === 'string' ? usernameVal : '';
-      const cookieVal = rs.getValue(rs.getColumnIndex(AccountCol.COOKIE));
-      row.cookie = typeof cookieVal === 'string' ? cookieVal : '';
-      const stokenVal = rs.getValue(rs.getColumnIndex(AccountCol.STOKEN));
-      row.stoken = typeof stokenVal === 'string' ? stokenVal : '';
-      const stuidVal = rs.getValue(rs.getColumnIndex(AccountCol.STUID));
-      row.stuid = typeof stuidVal === 'string' ? stuidVal : '';
-      const midVal = rs.getValue(rs.getColumnIndex(AccountCol.MID));
-      row.mid = typeof midVal === 'string' ? midVal : '';
-      const isActiveVal = rs.getValue(rs.getColumnIndex(AccountCol.IS_ACTIVE));
-      row.isActive = typeof isActiveVal === 'number' ? isActiveVal : 0;
-      const createTimeVal = rs.getValue(rs.getColumnIndex(AccountCol.CREATE_TIME));
-      row.createTime = typeof createTimeVal === 'number' ? createTimeVal : 0;
-      const updateTimeVal = rs.getValue(rs.getColumnIndex(CommonCol.UPDATE_TIME));
-      row.updateTime = typeof updateTimeVal === 'number' ? updateTimeVal : 0;
-      const uidVal = rs.getValue(rs.getColumnIndex(AccountCol.UID));
-      row.uid = typeof uidVal === 'string' ? uidVal : '';
-      const nicknameVal = rs.getValue(rs.getColumnIndex(AccountCol.NICKNAME));
-      row.nickname = typeof nicknameVal === 'string' ? nicknameVal : '';
-      const avatarUrlVal = rs.getValue(rs.getColumnIndex(AccountCol.AVATAR_URL));
-      row.avatarUrl = typeof avatarUrlVal === 'string' ? avatarUrlVal : '';
-      const introduceVal = rs.getValue(rs.getColumnIndex(AccountCol.INTRODUCE));
-      row.introduce = typeof introduceVal === 'string' ? introduceVal : '';
+      row.id         = r.num(CommonCol.ID);
+      row.username   = r.str(AccountCol.USERNAME);
+      row.cookie     = r.str(AccountCol.COOKIE);
+      row.stoken     = r.str(AccountCol.STOKEN);
+      row.stuid      = r.str(AccountCol.STUID);
+      row.mid        = r.str(AccountCol.MID);
+      row.isActive   = r.num(AccountCol.IS_ACTIVE);
+      row.createTime = r.num(AccountCol.CREATE_TIME);
+      row.updateTime = r.num(CommonCol.UPDATE_TIME);
+      row.uid        = r.str(AccountCol.UID);
+      row.nickname   = r.str(AccountCol.NICKNAME);
+      row.avatarUrl  = r.str(AccountCol.AVATAR_URL);
+      row.introduce  = r.str(AccountCol.INTRODUCE);
       return row;
     } catch (e) {
       throw new Error(`AccountDao.mapRow failed: ${e instanceof Error ? e.message : e}`);
@@ -185,39 +174,26 @@ export class GameRoleDao {
   }
 
   /**
-   * 将 ResultSet 当前行映射为 GameRoleRowV2
+   * 将 ResultSet 当前行映射为 GameRoleRow
    */
   private static mapRow(rs: relationalStore.ResultSet): GameRoleRow {
     try {
+      const r = new RsReader(rs);
       const row = new GameRoleRow();
-      const idVal = rs.getValue(rs.getColumnIndex(CommonCol.ID));
-      row.id = typeof idVal === 'number' ? idVal : 0;
-      const accountIdVal = rs.getValue(rs.getColumnIndex(CommonCol.ACCOUNT_ID));
-      row.accountId = typeof accountIdVal === 'number' ? accountIdVal : 0;
-      const gameIdVal = rs.getValue(rs.getColumnIndex(GameRoleCol.GAME_ID));
-      row.gameId = typeof gameIdVal === 'string' ? gameIdVal : '';
-      const gameBizVal = rs.getValue(rs.getColumnIndex(GameRoleCol.GAME_BIZ));
-      row.gameBiz = typeof gameBizVal === 'string' ? gameBizVal : '';
-      const gameTypeVal = rs.getValue(rs.getColumnIndex(GameRoleCol.GAME_TYPE));
-      row.gameType = typeof gameTypeVal === 'number' ? gameTypeVal : 0;
-      const roleIdVal = rs.getValue(rs.getColumnIndex(GameRoleCol.ROLE_ID));
-      row.roleId = typeof roleIdVal === 'string' ? roleIdVal : '';
-      const nicknameVal = rs.getValue(rs.getColumnIndex(GameRoleCol.NICKNAME));
-      row.nickname = typeof nicknameVal === 'string' ? nicknameVal : '';
-      const levelVal = rs.getValue(rs.getColumnIndex(GameRoleCol.LEVEL));
-      row.level = typeof levelVal === 'number' ? levelVal : 0;
-      const serverVal = rs.getValue(rs.getColumnIndex(GameRoleCol.SERVER));
-      row.server = typeof serverVal === 'string' ? serverVal : '';
-      const regionNameVal = rs.getValue(rs.getColumnIndex(GameRoleCol.REGION_NAME));
-      row.regionName = typeof regionNameVal === 'string' ? regionNameVal : '';
-      const isChosenVal = rs.getValue(rs.getColumnIndex(GameRoleCol.IS_CHOSEN));
-      row.isChosen = typeof isChosenVal === 'number' ? isChosenVal : 0;
-      const isPublicVal = rs.getValue(rs.getColumnIndex(GameRoleCol.IS_PUBLIC));
-      row.isPublic = typeof isPublicVal === 'number' ? isPublicVal : 0;
-      const bgImageUrlVal = rs.getValue(rs.getColumnIndex(GameRoleCol.BG_IMAGE_URL));
-      row.bgImageUrl = typeof bgImageUrlVal === 'string' ? bgImageUrlVal : '';
-      const statsJsonVal = rs.getValue(rs.getColumnIndex(GameRoleCol.STATS_JSON));
-      row.statsJson = typeof statsJsonVal === 'string' ? statsJsonVal : '';
+      row.id         = r.num(CommonCol.ID);
+      row.accountId  = r.num(CommonCol.ACCOUNT_ID);
+      row.gameId     = r.str(GameRoleCol.GAME_ID);
+      row.gameBiz    = r.str(GameRoleCol.GAME_BIZ);
+      row.gameType   = r.num(GameRoleCol.GAME_TYPE);
+      row.roleId     = r.str(GameRoleCol.ROLE_ID);
+      row.nickname   = r.str(GameRoleCol.NICKNAME);
+      row.level      = r.num(GameRoleCol.LEVEL);
+      row.server     = r.str(GameRoleCol.SERVER);
+      row.regionName = r.str(GameRoleCol.REGION_NAME);
+      row.isChosen   = r.num(GameRoleCol.IS_CHOSEN);
+      row.isPublic   = r.num(GameRoleCol.IS_PUBLIC);
+      row.bgImageUrl = r.str(GameRoleCol.BG_IMAGE_URL);
+      row.statsJson  = r.str(GameRoleCol.STATS_JSON);
       return row;
     } catch (e) {
       throw new Error(`GameRoleDao.mapRow failed: ${e instanceof Error ? e.message : e}`);

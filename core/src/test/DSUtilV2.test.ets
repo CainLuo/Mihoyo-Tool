@@ -1,7 +1,7 @@
 /**
- * DSUtilV2.test.ets
+ * DSUtil.test.ets
  *
- * 测试 DSUtilV2 的纯函数逻辑：
+ * 测试 DSUtil 的纯函数逻辑：
  * - DS 格式（timestamp,random,md5）
  * - query 参数序列化（字典序）
  * - 空参数处理

@@ -8,10 +8,11 @@
  * - StarRailAvatarComputeDao：养成计算（starrail_avatar_compute）
  *
  * 所有写入操作使用 INSERT OR REPLACE（依赖 UNIQUE 索引实现 upsert 语义）。
- * 所有读取操作通过 RdbManagerV2.queryFirst/queryAll 封装，自动管理 ResultSet 生命周期。
+ * 所有读取操作通过 RdbManager.queryFirst/queryAll 封装，自动管理 ResultSet 生命周期。
  */
 import { relationalStore } from '@kit.ArkData';
 import { RdbManager } from './RdbManager';
+import { RsReader } from './RsReader';
 import {
   TableName, CommonCol,
   StarRailAvatarBasicCol, StarRailDailyNoteCol, StarRailAvatarInfoCol, StarRailAvatarComputeCol,
@@ -107,47 +108,28 @@ export class StarRailAvatarBasicDao {
   /** 将 ResultSet 当前行映射为 StarRailAvatarBasicRow */
   private static mapRow(rs: relationalStore.ResultSet): StarRailAvatarBasicRow {
     try {
+      const r = new RsReader(rs);
       const row = new StarRailAvatarBasicRow();
-      const idVal = rs.getValue(rs.getColumnIndex(CommonCol.ID));
-      row.id = typeof idVal === 'number' ? idVal : 0;
-      const accountIdVal = rs.getValue(rs.getColumnIndex(CommonCol.ACCOUNT_ID));
-      row.accountId = typeof accountIdVal === 'number' ? accountIdVal : 0;
-      const roleUidVal = rs.getValue(rs.getColumnIndex(CommonCol.ROLE_UID));
-      row.roleUid = typeof roleUidVal === 'string' ? roleUidVal : '';
-      const avatarIdVal = rs.getValue(rs.getColumnIndex(CommonCol.AVATAR_ID));
-      row.avatarId = typeof avatarIdVal === 'string' ? avatarIdVal : '';
-      const nameVal = rs.getValue(rs.getColumnIndex(StarRailAvatarBasicCol.NAME));
-      row.name = typeof nameVal === 'string' ? nameVal : '';
-      const elementVal = rs.getValue(rs.getColumnIndex(StarRailAvatarBasicCol.ELEMENT));
-      row.element = typeof elementVal === 'string' ? elementVal : '';
-      const rarityVal = rs.getValue(rs.getColumnIndex(StarRailAvatarBasicCol.RARITY));
-      row.rarity = typeof rarityVal === 'number' ? rarityVal : 0;
-      const levelVal = rs.getValue(rs.getColumnIndex(StarRailAvatarBasicCol.LEVEL));
-      row.level = typeof levelVal === 'number' ? levelVal : 0;
-      const rankVal = rs.getValue(rs.getColumnIndex(StarRailAvatarBasicCol.RANK));
-      row.rank = typeof rankVal === 'number' ? rankVal : 0;
-      const baseTypeVal = rs.getValue(rs.getColumnIndex(StarRailAvatarBasicCol.BASE_TYPE));
-      row.baseType = typeof baseTypeVal === 'number' ? baseTypeVal : 0;
-      const equipIdVal = rs.getValue(rs.getColumnIndex(StarRailAvatarBasicCol.EQUIP_ID));
-      row.equipId = typeof equipIdVal === 'string' ? equipIdVal : '';
-      const equipNameVal = rs.getValue(rs.getColumnIndex(StarRailAvatarBasicCol.EQUIP_NAME));
-      row.equipName = typeof equipNameVal === 'string' ? equipNameVal : '';
-      const equipRarityVal = rs.getValue(rs.getColumnIndex(StarRailAvatarBasicCol.EQUIP_RARITY));
-      row.equipRarity = typeof equipRarityVal === 'number' ? equipRarityVal : 0;
-      const equipLevelVal = rs.getValue(rs.getColumnIndex(StarRailAvatarBasicCol.EQUIP_LEVEL));
-      row.equipLevel = typeof equipLevelVal === 'number' ? equipLevelVal : 0;
-      const equipRankVal = rs.getValue(rs.getColumnIndex(StarRailAvatarBasicCol.EQUIP_RANK));
-      row.equipRank = typeof equipRankVal === 'number' ? equipRankVal : 0;
-      const iconVal = rs.getValue(rs.getColumnIndex(StarRailAvatarBasicCol.ICON));
-      row.icon = typeof iconVal === 'string' ? iconVal : '';
-      const figurePathVal = rs.getValue(rs.getColumnIndex(StarRailAvatarBasicCol.FIGURE_PATH));
-      row.figurePath = typeof figurePathVal === 'string' ? figurePathVal : '';
-      const elementIdVal = rs.getValue(rs.getColumnIndex(StarRailAvatarBasicCol.ELEMENT_ID));
-      row.elementId = typeof elementIdVal === 'number' ? elementIdVal : 0;
-      const rawJsonVal = rs.getValue(rs.getColumnIndex(CommonCol.RAW_JSON));
-      row.rawJson = typeof rawJsonVal === 'string' ? rawJsonVal : '';
-      const updateTimeVal = rs.getValue(rs.getColumnIndex(CommonCol.UPDATE_TIME));
-      row.updateTime = typeof updateTimeVal === 'number' ? updateTimeVal : 0;
+      row.id          = r.num(CommonCol.ID);
+      row.accountId   = r.num(CommonCol.ACCOUNT_ID);
+      row.roleUid     = r.str(CommonCol.ROLE_UID);
+      row.avatarId    = r.str(CommonCol.AVATAR_ID);
+      row.name        = r.str(StarRailAvatarBasicCol.NAME);
+      row.element     = r.str(StarRailAvatarBasicCol.ELEMENT);
+      row.rarity      = r.num(StarRailAvatarBasicCol.RARITY);
+      row.level       = r.num(StarRailAvatarBasicCol.LEVEL);
+      row.rank        = r.num(StarRailAvatarBasicCol.RANK);
+      row.baseType    = r.num(StarRailAvatarBasicCol.BASE_TYPE);
+      row.equipId     = r.str(StarRailAvatarBasicCol.EQUIP_ID);
+      row.equipName   = r.str(StarRailAvatarBasicCol.EQUIP_NAME);
+      row.equipRarity = r.num(StarRailAvatarBasicCol.EQUIP_RARITY);
+      row.equipLevel  = r.num(StarRailAvatarBasicCol.EQUIP_LEVEL);
+      row.equipRank   = r.num(StarRailAvatarBasicCol.EQUIP_RANK);
+      row.icon        = r.str(StarRailAvatarBasicCol.ICON);
+      row.figurePath  = r.str(StarRailAvatarBasicCol.FIGURE_PATH);
+      row.elementId   = r.num(StarRailAvatarBasicCol.ELEMENT_ID);
+      row.rawJson     = r.str(CommonCol.RAW_JSON);
+      row.updateTime  = r.num(CommonCol.UPDATE_TIME);
       return row;
     } catch (e) {
       throw new Error(`StarRailAvatarBasicDao.mapRow failed: ${e instanceof Error ? e.message : e}`);
@@ -214,51 +196,30 @@ export class StarRailDailyNoteDao {
   /** 将 ResultSet 当前行映射为 StarRailDailyNoteRow */
   private static mapRow(rs: relationalStore.ResultSet): StarRailDailyNoteRow {
     try {
+      const r = new RsReader(rs);
       const row = new StarRailDailyNoteRow();
-      const idVal = rs.getValue(rs.getColumnIndex(CommonCol.ID));
-      row.id = typeof idVal === 'number' ? idVal : 0;
-      const accountIdVal = rs.getValue(rs.getColumnIndex(CommonCol.ACCOUNT_ID));
-      row.accountId = typeof accountIdVal === 'number' ? accountIdVal : 0;
-      const roleUidVal = rs.getValue(rs.getColumnIndex(CommonCol.ROLE_UID));
-      row.roleUid = typeof roleUidVal === 'string' ? roleUidVal : '';
-      const currentStaminaVal = rs.getValue(rs.getColumnIndex(StarRailDailyNoteCol.CURRENT_STAMINA));
-      row.currentStamina = typeof currentStaminaVal === 'number' ? currentStaminaVal : 0;
-      const maxStaminaVal = rs.getValue(rs.getColumnIndex(StarRailDailyNoteCol.MAX_STAMINA));
-      row.maxStamina = typeof maxStaminaVal === 'number' ? maxStaminaVal : 0;
-      const staminaRecoverVal = rs.getValue(rs.getColumnIndex(StarRailDailyNoteCol.STAMINA_RECOVER_TIME));
-      row.staminaRecoverTime = typeof staminaRecoverVal === 'number' ? staminaRecoverVal : 0;
-      const staminaFullTsVal = rs.getValue(rs.getColumnIndex(StarRailDailyNoteCol.STAMINA_FULL_TS));
-      row.staminaFullTs = typeof staminaFullTsVal === 'number' ? staminaFullTsVal : 0;
-      const reserveStaminaVal = rs.getValue(rs.getColumnIndex(StarRailDailyNoteCol.CURRENT_RESERVE_STAMINA));
-      row.currentReserveStamina = typeof reserveStaminaVal === 'number' ? reserveStaminaVal : 0;
-      const acceptedExpeditionVal = rs.getValue(rs.getColumnIndex(StarRailDailyNoteCol.ACCEPTED_EXPEDITION_NUM));
-      row.acceptedExpeditionNum = typeof acceptedExpeditionVal === 'number' ? acceptedExpeditionVal : 0;
-      const totalExpeditionVal = rs.getValue(rs.getColumnIndex(StarRailDailyNoteCol.TOTAL_EXPEDITION_NUM));
-      row.totalExpeditionNum = typeof totalExpeditionVal === 'number' ? totalExpeditionVal : 0;
-      const currentTrainVal = rs.getValue(rs.getColumnIndex(StarRailDailyNoteCol.CURRENT_TRAIN_SCORE));
-      row.currentTrainScore = typeof currentTrainVal === 'number' ? currentTrainVal : 0;
-      const maxTrainVal = rs.getValue(rs.getColumnIndex(StarRailDailyNoteCol.MAX_TRAIN_SCORE));
-      row.maxTrainScore = typeof maxTrainVal === 'number' ? maxTrainVal : 0;
-      const currentRogueVal = rs.getValue(rs.getColumnIndex(StarRailDailyNoteCol.CURRENT_ROGUE_SCORE));
-      row.currentRogueScore = typeof currentRogueVal === 'number' ? currentRogueVal : 0;
-      const maxRogueVal = rs.getValue(rs.getColumnIndex(StarRailDailyNoteCol.MAX_ROGUE_SCORE));
-      row.maxRogueScore = typeof maxRogueVal === 'number' ? maxRogueVal : 0;
-      const weeklyCocoonCntVal = rs.getValue(rs.getColumnIndex(StarRailDailyNoteCol.WEEKLY_COCOON_CNT));
-      row.weeklyCocoonCnt = typeof weeklyCocoonCntVal === 'number' ? weeklyCocoonCntVal : 0;
-      const weeklyCocoonLimitVal = rs.getValue(rs.getColumnIndex(StarRailDailyNoteCol.WEEKLY_COCOON_LIMIT));
-      row.weeklyCocoonLimit = typeof weeklyCocoonLimitVal === 'number' ? weeklyCocoonLimitVal : 0;
-      const rogueTournCurVal = rs.getValue(rs.getColumnIndex(StarRailDailyNoteCol.ROGUE_TOURN_WEEKLY_CUR));
-      row.rogueTournWeeklyCur = typeof rogueTournCurVal === 'number' ? rogueTournCurVal : 0;
-      const rogueTournMaxVal = rs.getValue(rs.getColumnIndex(StarRailDailyNoteCol.ROGUE_TOURN_WEEKLY_MAX));
-      row.rogueTournWeeklyMax = typeof rogueTournMaxVal === 'number' ? rogueTournMaxVal : 0;
-      const gridFightCurVal = rs.getValue(rs.getColumnIndex(StarRailDailyNoteCol.GRID_FIGHT_WEEKLY_CUR));
-      row.gridFightWeeklyCur = typeof gridFightCurVal === 'number' ? gridFightCurVal : 0;
-      const gridFightMaxVal = rs.getValue(rs.getColumnIndex(StarRailDailyNoteCol.GRID_FIGHT_WEEKLY_MAX));
-      row.gridFightWeeklyMax = typeof gridFightMaxVal === 'number' ? gridFightMaxVal : 0;
-      const rawJsonVal = rs.getValue(rs.getColumnIndex(CommonCol.RAW_JSON));
-      row.rawJson = typeof rawJsonVal === 'string' ? rawJsonVal : '';
-      const updateTimeVal = rs.getValue(rs.getColumnIndex(CommonCol.UPDATE_TIME));
-      row.updateTime = typeof updateTimeVal === 'number' ? updateTimeVal : 0;
+      row.id                    = r.num(CommonCol.ID);
+      row.accountId             = r.num(CommonCol.ACCOUNT_ID);
+      row.roleUid               = r.str(CommonCol.ROLE_UID);
+      row.currentStamina        = r.num(StarRailDailyNoteCol.CURRENT_STAMINA);
+      row.maxStamina            = r.num(StarRailDailyNoteCol.MAX_STAMINA);
+      row.staminaRecoverTime    = r.num(StarRailDailyNoteCol.STAMINA_RECOVER_TIME);
+      row.staminaFullTs         = r.num(StarRailDailyNoteCol.STAMINA_FULL_TS);
+      row.currentReserveStamina = r.num(StarRailDailyNoteCol.CURRENT_RESERVE_STAMINA);
+      row.acceptedExpeditionNum = r.num(StarRailDailyNoteCol.ACCEPTED_EXPEDITION_NUM);
+      row.totalExpeditionNum    = r.num(StarRailDailyNoteCol.TOTAL_EXPEDITION_NUM);
+      row.currentTrainScore     = r.num(StarRailDailyNoteCol.CURRENT_TRAIN_SCORE);
+      row.maxTrainScore         = r.num(StarRailDailyNoteCol.MAX_TRAIN_SCORE);
+      row.currentRogueScore     = r.num(StarRailDailyNoteCol.CURRENT_ROGUE_SCORE);
+      row.maxRogueScore         = r.num(StarRailDailyNoteCol.MAX_ROGUE_SCORE);
+      row.weeklyCocoonCnt       = r.num(StarRailDailyNoteCol.WEEKLY_COCOON_CNT);
+      row.weeklyCocoonLimit     = r.num(StarRailDailyNoteCol.WEEKLY_COCOON_LIMIT);
+      row.rogueTournWeeklyCur   = r.num(StarRailDailyNoteCol.ROGUE_TOURN_WEEKLY_CUR);
+      row.rogueTournWeeklyMax   = r.num(StarRailDailyNoteCol.ROGUE_TOURN_WEEKLY_MAX);
+      row.gridFightWeeklyCur    = r.num(StarRailDailyNoteCol.GRID_FIGHT_WEEKLY_CUR);
+      row.gridFightWeeklyMax    = r.num(StarRailDailyNoteCol.GRID_FIGHT_WEEKLY_MAX);
+      row.rawJson               = r.str(CommonCol.RAW_JSON);
+      row.updateTime            = r.num(CommonCol.UPDATE_TIME);
       return row;
     } catch (e) {
       throw new Error(`StarRailDailyNoteDao.mapRow failed: ${e instanceof Error ? e.message : e}`);
@@ -330,29 +291,19 @@ export class StarRailAvatarInfoDao {
   /** 将 ResultSet 当前行映射为 StarRailAvatarInfoRow */
   private static mapRow(rs: relationalStore.ResultSet): StarRailAvatarInfoRow {
     try {
+      const r = new RsReader(rs);
       const row = new StarRailAvatarInfoRow();
-      const idVal = rs.getValue(rs.getColumnIndex(CommonCol.ID));
-      row.id = typeof idVal === 'number' ? idVal : 0;
-      const accountIdVal = rs.getValue(rs.getColumnIndex(CommonCol.ACCOUNT_ID));
-      row.accountId = typeof accountIdVal === 'number' ? accountIdVal : 0;
-      const roleUidVal = rs.getValue(rs.getColumnIndex(CommonCol.ROLE_UID));
-      row.roleUid = typeof roleUidVal === 'string' ? roleUidVal : '';
-      const avatarIdVal = rs.getValue(rs.getColumnIndex(CommonCol.AVATAR_ID));
-      row.avatarId = typeof avatarIdVal === 'string' ? avatarIdVal : '';
-      const equipIdVal = rs.getValue(rs.getColumnIndex(StarRailAvatarInfoCol.EQUIP_ID));
-      row.equipId = typeof equipIdVal === 'string' ? equipIdVal : '';
-      const equipLevelVal = rs.getValue(rs.getColumnIndex(StarRailAvatarInfoCol.EQUIP_LEVEL));
-      row.equipLevel = typeof equipLevelVal === 'number' ? equipLevelVal : 0;
-      const equipRankVal = rs.getValue(rs.getColumnIndex(StarRailAvatarInfoCol.EQUIP_RANK));
-      row.equipRank = typeof equipRankVal === 'number' ? equipRankVal : 0;
-      const relicIdsVal = rs.getValue(rs.getColumnIndex(StarRailAvatarInfoCol.RELIC_IDS));
-      row.relicIds = typeof relicIdsVal === 'string' ? relicIdsVal : '';
-      const skillTreeJsonVal = rs.getValue(rs.getColumnIndex(StarRailAvatarInfoCol.SKILL_TREE_JSON));
-      row.skillTreeJson = typeof skillTreeJsonVal === 'string' ? skillTreeJsonVal : '';
-      const rawJsonVal = rs.getValue(rs.getColumnIndex(CommonCol.RAW_JSON));
-      row.rawJson = typeof rawJsonVal === 'string' ? rawJsonVal : '';
-      const updateTimeVal = rs.getValue(rs.getColumnIndex(CommonCol.UPDATE_TIME));
-      row.updateTime = typeof updateTimeVal === 'number' ? updateTimeVal : 0;
+      row.id           = r.num(CommonCol.ID);
+      row.accountId    = r.num(CommonCol.ACCOUNT_ID);
+      row.roleUid      = r.str(CommonCol.ROLE_UID);
+      row.avatarId     = r.str(CommonCol.AVATAR_ID);
+      row.equipId      = r.str(StarRailAvatarInfoCol.EQUIP_ID);
+      row.equipLevel   = r.num(StarRailAvatarInfoCol.EQUIP_LEVEL);
+      row.equipRank    = r.num(StarRailAvatarInfoCol.EQUIP_RANK);
+      row.relicIds     = r.str(StarRailAvatarInfoCol.RELIC_IDS);
+      row.skillTreeJson = r.str(StarRailAvatarInfoCol.SKILL_TREE_JSON);
+      row.rawJson      = r.str(CommonCol.RAW_JSON);
+      row.updateTime   = r.num(CommonCol.UPDATE_TIME);
       return row;
     } catch (e) {
       throw new Error(`StarRailAvatarInfoDao.mapRow failed: ${e instanceof Error ? e.message : e}`);
@@ -416,23 +367,16 @@ export class StarRailAvatarComputeDao {
   /** 将 ResultSet 当前行映射为 StarRailAvatarComputeRow */
   private static mapRow(rs: relationalStore.ResultSet): StarRailAvatarComputeRow {
     try {
+      const r = new RsReader(rs);
       const row = new StarRailAvatarComputeRow();
-      const idVal = rs.getValue(rs.getColumnIndex(CommonCol.ID));
-      row.id = typeof idVal === 'number' ? idVal : 0;
-      const accountIdVal = rs.getValue(rs.getColumnIndex(CommonCol.ACCOUNT_ID));
-      row.accountId = typeof accountIdVal === 'number' ? accountIdVal : 0;
-      const roleUidVal = rs.getValue(rs.getColumnIndex(CommonCol.ROLE_UID));
-      row.roleUid = typeof roleUidVal === 'string' ? roleUidVal : '';
-      const avatarIdVal = rs.getValue(rs.getColumnIndex(CommonCol.AVATAR_ID));
-      row.avatarId = typeof avatarIdVal === 'string' ? avatarIdVal : '';
-      const avatarConsumeVal = rs.getValue(rs.getColumnIndex(StarRailAvatarComputeCol.AVATAR_CONSUME_JSON));
-      row.avatarConsumeJson = typeof avatarConsumeVal === 'string' ? avatarConsumeVal : '';
-      const skillConsumeVal = rs.getValue(rs.getColumnIndex(StarRailAvatarComputeCol.SKILL_CONSUME_JSON));
-      row.skillConsumeJson = typeof skillConsumeVal === 'string' ? skillConsumeVal : '';
-      const equipmentConsumeVal = rs.getValue(rs.getColumnIndex(StarRailAvatarComputeCol.EQUIPMENT_CONSUME_JSON));
-      row.equipmentConsumeJson = typeof equipmentConsumeVal === 'string' ? equipmentConsumeVal : '';
-      const updateTimeVal = rs.getValue(rs.getColumnIndex(CommonCol.UPDATE_TIME));
-      row.updateTime = typeof updateTimeVal === 'number' ? updateTimeVal : 0;
+      row.id                   = r.num(CommonCol.ID);
+      row.accountId            = r.num(CommonCol.ACCOUNT_ID);
+      row.roleUid              = r.str(CommonCol.ROLE_UID);
+      row.avatarId             = r.str(CommonCol.AVATAR_ID);
+      row.avatarConsumeJson    = r.str(StarRailAvatarComputeCol.AVATAR_CONSUME_JSON);
+      row.skillConsumeJson     = r.str(StarRailAvatarComputeCol.SKILL_CONSUME_JSON);
+      row.equipmentConsumeJson = r.str(StarRailAvatarComputeCol.EQUIPMENT_CONSUME_JSON);
+      row.updateTime           = r.num(CommonCol.UPDATE_TIME);
       return row;
     } catch (e) {
       throw new Error(`StarRailAvatarComputeDao.mapRow failed: ${e instanceof Error ? e.message : e}`);

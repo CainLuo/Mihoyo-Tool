@@ -4,13 +4,16 @@
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 import { GameNoteSnapshotVM } from './HomeModels'
 import { GameDataRow } from './GameDataRow'
+import { TimeFormatUtil } from '../../utils/TimeFormatUtil'
+import { common } from '@kit.AbilityKit'
 
 @ComponentV2
 export struct GenshinGameToolCardContent {
-  @Param snap: GameNoteSnapshotVM = new GameNoteSnapshotVM('', 0, 0, '', '', '', false)
+  @Param snap: GameNoteSnapshotVM = new GameNoteSnapshotVM('', 0, 0, 0, '', '', false)
   @Param primaryColor: ResourceColor = $r('app.color.color_primary')
   @Param progressRatio: number = 0
   @Local private tm: ThemeManager = themeManager
+  @Local private ctx: common.UIAbilityContext = getContext(this) as common.UIAbilityContext
 
   build() {
     Column({ space: this.tm.current.value8 }) {
@@ -41,8 +44,8 @@ export struct GenshinGameToolCardContent {
           }
           .alignItems(VerticalAlign.Bottom)
 
-          if (this.snap.primaryRecoveryDesc !== '') {
-            Text(this.snap.primaryRecoveryDesc)
+          if (this.snap.primaryRecoverySeconds > 0) {
+            Text(TimeFormatUtil.recoveryDesc(this.snap.primaryRecoverySeconds, this.ctx))
               .font(this.tm.current.body13)
               .fontColor(this.snap.isFull ? this.tm.current.colorDanger : this.tm.current.colorTextSecondary)
               .maxLines(1)
@@ -89,7 +92,7 @@ export struct GenshinGameToolCardContent {
           emoji: '📋',
           label: $r('app.string.daily_note_daily_task_title'),
           value: this.snap.dailyTaskAllReceived
-            ? '已全部领取'
+            ? $r('app.string.daily_note_task_all_received')
             : this.snap.dailyTaskFinished.toString() + '/' + this.snap.dailyTaskTotal.toString(),
           valueColor: this.snap.dailyTaskAllReceived
             ? this.tm.current.colorPrimary
@@ -117,7 +120,7 @@ struct GenshinGameToolCardContentPreview {
     Column() {
       GenshinGameToolCardContent({
         snap: (() => {
-          const snap = new GameNoteSnapshotVM('genshin', 140, 200, '将于4小时后全部恢复', '', '', false);
+          const snap = new GameNoteSnapshotVM('genshin', 140, 200, 14400, '', '', false);
           snap.expeditionCurrent = 3;
           snap.expeditionMax = 5;
           snap.homeCoinCurrent = 1800;

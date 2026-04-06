@@ -8,13 +8,14 @@
  * - ZZZAvatarComputeDao：养成计算（zzz_avatar_compute）
  *
  * 所有写入操作使用 INSERT OR REPLACE（依赖 UNIQUE 索引实现 upsert 语义）。
- * 所有读取操作通过 RdbManagerV2.queryFirst/queryAll 封装，自动管理 ResultSet 生命周期。
+ * 所有读取操作通过 RdbManager.queryFirst/queryAll 封装，自动管理 ResultSet 生命周期。
  *
  * 特殊说明：ZZZAvatarBasicRow.awakenState 字段在数据库中以 TEXT 存储，
  * upsertAll 时调用 .toString() 转换，mapRow 时调用 parseInt() 还原。
  */
 import { relationalStore } from '@kit.ArkData';
 import { RdbManager } from './RdbManager';
+import { RsReader } from './RsReader';
 import {
   TableName, CommonCol,
   ZZZAvatarBasicCol, ZZZDailyNoteCol, ZZZAvatarInfoCol, ZZZAvatarComputeCol,
@@ -110,49 +111,31 @@ export class ZZZAvatarBasicDao {
 
   /**
    * 将 ResultSet 当前行映射为 ZZZAvatarBasicRow。
-   * 注意：awakenState 列在数据库中为 TEXT，读取后通过 parseInt() 转换为 number。
+   * 注意：awakenState 列在数据库中为 TEXT，通过 r.strAsInt() 读取并转换为 number。
    */
   private static mapRow(rs: relationalStore.ResultSet): ZZZAvatarBasicRow {
     try {
+      const r = new RsReader(rs);
       const row = new ZZZAvatarBasicRow();
-      const idVal = rs.getValue(rs.getColumnIndex(CommonCol.ID));
-      row.id = typeof idVal === 'number' ? idVal : 0;
-      const accountIdVal = rs.getValue(rs.getColumnIndex(CommonCol.ACCOUNT_ID));
-      row.accountId = typeof accountIdVal === 'number' ? accountIdVal : 0;
-      const roleUidVal = rs.getValue(rs.getColumnIndex(CommonCol.ROLE_UID));
-      row.roleUid = typeof roleUidVal === 'string' ? roleUidVal : '';
-      const avatarIdVal = rs.getValue(rs.getColumnIndex(CommonCol.AVATAR_ID));
-      row.avatarId = typeof avatarIdVal === 'string' ? avatarIdVal : '';
-      const nameMi18nVal = rs.getValue(rs.getColumnIndex(ZZZAvatarBasicCol.NAME_MI18N));
-      row.nameMi18n = typeof nameMi18nVal === 'string' ? nameMi18nVal : '';
-      const fullNameMi18nVal = rs.getValue(rs.getColumnIndex(ZZZAvatarBasicCol.FULL_NAME_MI18N));
-      row.fullNameMi18n = typeof fullNameMi18nVal === 'string' ? fullNameMi18nVal : '';
-      const elementTypeVal = rs.getValue(rs.getColumnIndex(ZZZAvatarBasicCol.ELEMENT_TYPE));
-      row.elementType = typeof elementTypeVal === 'number' ? elementTypeVal : 0;
-      const subElementTypeVal = rs.getValue(rs.getColumnIndex(ZZZAvatarBasicCol.SUB_ELEMENT_TYPE));
-      row.subElementType = typeof subElementTypeVal === 'number' ? subElementTypeVal : 0;
-      const avatarProfessionVal = rs.getValue(rs.getColumnIndex(ZZZAvatarBasicCol.AVATAR_PROFESSION));
-      row.avatarProfession = typeof avatarProfessionVal === 'number' ? avatarProfessionVal : 0;
-      const rarityVal = rs.getValue(rs.getColumnIndex(ZZZAvatarBasicCol.RARITY));
-      row.rarity = typeof rarityVal === 'string' ? rarityVal : '';
-      const levelVal = rs.getValue(rs.getColumnIndex(ZZZAvatarBasicCol.LEVEL));
-      row.level = typeof levelVal === 'number' ? levelVal : 0;
-      const rankVal = rs.getValue(rs.getColumnIndex(ZZZAvatarBasicCol.RANK));
-      row.rank = typeof rankVal === 'number' ? rankVal : 0;
-      const campNameMi18nVal = rs.getValue(rs.getColumnIndex(ZZZAvatarBasicCol.CAMP_NAME_MI18N));
-      row.campNameMi18n = typeof campNameMi18nVal === 'string' ? campNameMi18nVal : '';
-      const groupIconPathVal = rs.getValue(rs.getColumnIndex(ZZZAvatarBasicCol.GROUP_ICON_PATH));
-      row.groupIconPath = typeof groupIconPathVal === 'string' ? groupIconPathVal : '';
-      const hollowIconPathVal = rs.getValue(rs.getColumnIndex(ZZZAvatarBasicCol.HOLLOW_ICON_PATH));
-      row.hollowIconPath = typeof hollowIconPathVal === 'string' ? hollowIconPathVal : '';
-      const roleSquareUrlVal = rs.getValue(rs.getColumnIndex(ZZZAvatarBasicCol.ROLE_SQUARE_URL));
-      row.roleSquareUrl = typeof roleSquareUrlVal === 'string' ? roleSquareUrlVal : '';
-      const awakenStateVal = rs.getValue(rs.getColumnIndex(ZZZAvatarBasicCol.AWAKEN_STATE));
-      row.awakenState = typeof awakenStateVal === 'string' ? parseInt(awakenStateVal) : 0;
-      const rawJsonVal = rs.getValue(rs.getColumnIndex(CommonCol.RAW_JSON));
-      row.rawJson = typeof rawJsonVal === 'string' ? rawJsonVal : '';
-      const updateTimeVal = rs.getValue(rs.getColumnIndex(CommonCol.UPDATE_TIME));
-      row.updateTime = typeof updateTimeVal === 'number' ? updateTimeVal : 0;
+      row.id               = r.num(CommonCol.ID);
+      row.accountId        = r.num(CommonCol.ACCOUNT_ID);
+      row.roleUid          = r.str(CommonCol.ROLE_UID);
+      row.avatarId         = r.str(CommonCol.AVATAR_ID);
+      row.nameMi18n        = r.str(ZZZAvatarBasicCol.NAME_MI18N);
+      row.fullNameMi18n    = r.str(ZZZAvatarBasicCol.FULL_NAME_MI18N);
+      row.elementType      = r.num(ZZZAvatarBasicCol.ELEMENT_TYPE);
+      row.subElementType   = r.num(ZZZAvatarBasicCol.SUB_ELEMENT_TYPE);
+      row.avatarProfession = r.num(ZZZAvatarBasicCol.AVATAR_PROFESSION);
+      row.rarity           = r.str(ZZZAvatarBasicCol.RARITY);
+      row.level            = r.num(ZZZAvatarBasicCol.LEVEL);
+      row.rank             = r.num(ZZZAvatarBasicCol.RANK);
+      row.campNameMi18n    = r.str(ZZZAvatarBasicCol.CAMP_NAME_MI18N);
+      row.groupIconPath    = r.str(ZZZAvatarBasicCol.GROUP_ICON_PATH);
+      row.hollowIconPath   = r.str(ZZZAvatarBasicCol.HOLLOW_ICON_PATH);
+      row.roleSquareUrl    = r.str(ZZZAvatarBasicCol.ROLE_SQUARE_URL);
+      row.awakenState      = r.strAsInt(ZZZAvatarBasicCol.AWAKEN_STATE);
+      row.rawJson          = r.str(CommonCol.RAW_JSON);
+      row.updateTime       = r.num(CommonCol.UPDATE_TIME);
       return row;
     } catch (e) {
       throw new Error(`ZZZAvatarBasicDao.mapRow failed: ${e instanceof Error ? e.message : e}`);
@@ -215,31 +198,20 @@ export class ZZZDailyNoteDao {
   /** 将 ResultSet 当前行映射为 ZZZDailyNoteRow */
   private static mapRow(rs: relationalStore.ResultSet): ZZZDailyNoteRow {
     try {
+      const r = new RsReader(rs);
       const row = new ZZZDailyNoteRow();
-      const idVal = rs.getValue(rs.getColumnIndex(CommonCol.ID));
-      row.id = typeof idVal === 'number' ? idVal : 0;
-      const accountIdVal = rs.getValue(rs.getColumnIndex(CommonCol.ACCOUNT_ID));
-      row.accountId = typeof accountIdVal === 'number' ? accountIdVal : 0;
-      const roleUidVal = rs.getValue(rs.getColumnIndex(CommonCol.ROLE_UID));
-      row.roleUid = typeof roleUidVal === 'string' ? roleUidVal : '';
-      const energyCurrentVal = rs.getValue(rs.getColumnIndex(ZZZDailyNoteCol.ENERGY_CURRENT));
-      row.energyCurrent = typeof energyCurrentVal === 'number' ? energyCurrentVal : 0;
-      const energyMaxVal = rs.getValue(rs.getColumnIndex(ZZZDailyNoteCol.ENERGY_MAX));
-      row.energyMax = typeof energyMaxVal === 'number' ? energyMaxVal : 0;
-      const energyRestoreVal = rs.getValue(rs.getColumnIndex(ZZZDailyNoteCol.ENERGY_RESTORE));
-      row.energyRestore = typeof energyRestoreVal === 'number' ? energyRestoreVal : 0;
-      const vitalityCurrentVal = rs.getValue(rs.getColumnIndex(ZZZDailyNoteCol.VITALITY_CURRENT));
-      row.vitalityCurrent = typeof vitalityCurrentVal === 'number' ? vitalityCurrentVal : 0;
-      const vitalityMaxVal = rs.getValue(rs.getColumnIndex(ZZZDailyNoteCol.VITALITY_MAX));
-      row.vitalityMax = typeof vitalityMaxVal === 'number' ? vitalityMaxVal : 0;
-      const vhsSaleStateVal = rs.getValue(rs.getColumnIndex(ZZZDailyNoteCol.VHS_SALE_STATE));
-      row.vhsSaleState = typeof vhsSaleStateVal === 'string' ? vhsSaleStateVal : '';
-      const cardSignVal = rs.getValue(rs.getColumnIndex(ZZZDailyNoteCol.CARD_SIGN));
-      row.cardSign = typeof cardSignVal === 'string' ? cardSignVal : '';
-      const rawJsonVal = rs.getValue(rs.getColumnIndex(CommonCol.RAW_JSON));
-      row.rawJson = typeof rawJsonVal === 'string' ? rawJsonVal : '';
-      const updateTimeVal = rs.getValue(rs.getColumnIndex(CommonCol.UPDATE_TIME));
-      row.updateTime = typeof updateTimeVal === 'number' ? updateTimeVal : 0;
+      row.id              = r.num(CommonCol.ID);
+      row.accountId       = r.num(CommonCol.ACCOUNT_ID);
+      row.roleUid         = r.str(CommonCol.ROLE_UID);
+      row.energyCurrent   = r.num(ZZZDailyNoteCol.ENERGY_CURRENT);
+      row.energyMax       = r.num(ZZZDailyNoteCol.ENERGY_MAX);
+      row.energyRestore   = r.num(ZZZDailyNoteCol.ENERGY_RESTORE);
+      row.vitalityCurrent = r.num(ZZZDailyNoteCol.VITALITY_CURRENT);
+      row.vitalityMax     = r.num(ZZZDailyNoteCol.VITALITY_MAX);
+      row.vhsSaleState    = r.str(ZZZDailyNoteCol.VHS_SALE_STATE);
+      row.cardSign        = r.str(ZZZDailyNoteCol.CARD_SIGN);
+      row.rawJson         = r.str(CommonCol.RAW_JSON);
+      row.updateTime      = r.num(CommonCol.UPDATE_TIME);
       return row;
     } catch (e) {
       throw new Error(`ZZZDailyNoteDao.mapRow failed: ${e instanceof Error ? e.message : e}`);
@@ -311,31 +283,20 @@ export class ZZZAvatarInfoDao {
   /** 将 ResultSet 当前行映射为 ZZZAvatarInfoRow */
   private static mapRow(rs: relationalStore.ResultSet): ZZZAvatarInfoRow {
     try {
+      const r = new RsReader(rs);
       const row = new ZZZAvatarInfoRow();
-      const idVal = rs.getValue(rs.getColumnIndex(CommonCol.ID));
-      row.id = typeof idVal === 'number' ? idVal : 0;
-      const accountIdVal = rs.getValue(rs.getColumnIndex(CommonCol.ACCOUNT_ID));
-      row.accountId = typeof accountIdVal === 'number' ? accountIdVal : 0;
-      const roleUidVal = rs.getValue(rs.getColumnIndex(CommonCol.ROLE_UID));
-      row.roleUid = typeof roleUidVal === 'string' ? roleUidVal : '';
-      const avatarIdVal = rs.getValue(rs.getColumnIndex(CommonCol.AVATAR_ID));
-      row.avatarId = typeof avatarIdVal === 'string' ? avatarIdVal : '';
-      const weaponIdVal = rs.getValue(rs.getColumnIndex(ZZZAvatarInfoCol.WEAPON_ID));
-      row.weaponId = typeof weaponIdVal === 'string' ? weaponIdVal : '';
-      const weaponLevelVal = rs.getValue(rs.getColumnIndex(ZZZAvatarInfoCol.WEAPON_LEVEL));
-      row.weaponLevel = typeof weaponLevelVal === 'number' ? weaponLevelVal : 0;
-      const weaponStarVal = rs.getValue(rs.getColumnIndex(ZZZAvatarInfoCol.WEAPON_STAR));
-      row.weaponStar = typeof weaponStarVal === 'number' ? weaponStarVal : 0;
-      const equipIdsVal = rs.getValue(rs.getColumnIndex(ZZZAvatarInfoCol.EQUIP_IDS));
-      row.equipIds = typeof equipIdsVal === 'string' ? equipIdsVal : '';
-      const skillLevelsJsonVal = rs.getValue(rs.getColumnIndex(ZZZAvatarInfoCol.SKILL_LEVELS_JSON));
-      row.skillLevelsJson = typeof skillLevelsJsonVal === 'string' ? skillLevelsJsonVal : '';
-      const verticalPaintingUrlVal = rs.getValue(rs.getColumnIndex(ZZZAvatarInfoCol.VERTICAL_PAINTING_URL));
-      row.verticalPaintingUrl = typeof verticalPaintingUrlVal === 'string' ? verticalPaintingUrlVal : '';
-      const rawJsonVal = rs.getValue(rs.getColumnIndex(CommonCol.RAW_JSON));
-      row.rawJson = typeof rawJsonVal === 'string' ? rawJsonVal : '';
-      const updateTimeVal = rs.getValue(rs.getColumnIndex(CommonCol.UPDATE_TIME));
-      row.updateTime = typeof updateTimeVal === 'number' ? updateTimeVal : 0;
+      row.id                  = r.num(CommonCol.ID);
+      row.accountId           = r.num(CommonCol.ACCOUNT_ID);
+      row.roleUid             = r.str(CommonCol.ROLE_UID);
+      row.avatarId            = r.str(CommonCol.AVATAR_ID);
+      row.weaponId            = r.str(ZZZAvatarInfoCol.WEAPON_ID);
+      row.weaponLevel         = r.num(ZZZAvatarInfoCol.WEAPON_LEVEL);
+      row.weaponStar          = r.num(ZZZAvatarInfoCol.WEAPON_STAR);
+      row.equipIds            = r.str(ZZZAvatarInfoCol.EQUIP_IDS);
+      row.skillLevelsJson     = r.str(ZZZAvatarInfoCol.SKILL_LEVELS_JSON);
+      row.verticalPaintingUrl = r.str(ZZZAvatarInfoCol.VERTICAL_PAINTING_URL);
+      row.rawJson             = r.str(CommonCol.RAW_JSON);
+      row.updateTime          = r.num(CommonCol.UPDATE_TIME);
       return row;
     } catch (e) {
       throw new Error(`ZZZAvatarInfoDao.mapRow failed: ${e instanceof Error ? e.message : e}`);
@@ -399,23 +360,16 @@ export class ZZZAvatarComputeDao {
   /** 将 ResultSet 当前行映射为 ZZZAvatarComputeRow */
   private static mapRow(rs: relationalStore.ResultSet): ZZZAvatarComputeRow {
     try {
+      const r = new RsReader(rs);
       const row = new ZZZAvatarComputeRow();
-      const idVal = rs.getValue(rs.getColumnIndex(CommonCol.ID));
-      row.id = typeof idVal === 'number' ? idVal : 0;
-      const accountIdVal = rs.getValue(rs.getColumnIndex(CommonCol.ACCOUNT_ID));
-      row.accountId = typeof accountIdVal === 'number' ? accountIdVal : 0;
-      const roleUidVal = rs.getValue(rs.getColumnIndex(CommonCol.ROLE_UID));
-      row.roleUid = typeof roleUidVal === 'string' ? roleUidVal : '';
-      const avatarIdVal = rs.getValue(rs.getColumnIndex(CommonCol.AVATAR_ID));
-      row.avatarId = typeof avatarIdVal === 'string' ? avatarIdVal : '';
-      const avatarConsumeVal = rs.getValue(rs.getColumnIndex(ZZZAvatarComputeCol.AVATAR_CONSUME_JSON));
-      row.avatarConsumeJson = typeof avatarConsumeVal === 'string' ? avatarConsumeVal : '';
-      const weaponConsumeVal = rs.getValue(rs.getColumnIndex(ZZZAvatarComputeCol.WEAPON_CONSUME_JSON));
-      row.weaponConsumeJson = typeof weaponConsumeVal === 'string' ? weaponConsumeVal : '';
-      const skillConsumeVal = rs.getValue(rs.getColumnIndex(ZZZAvatarComputeCol.SKILL_CONSUME_JSON));
-      row.skillConsumeJson = typeof skillConsumeVal === 'string' ? skillConsumeVal : '';
-      const updateTimeVal = rs.getValue(rs.getColumnIndex(CommonCol.UPDATE_TIME));
-      row.updateTime = typeof updateTimeVal === 'number' ? updateTimeVal : 0;
+      row.id                = r.num(CommonCol.ID);
+      row.accountId         = r.num(CommonCol.ACCOUNT_ID);
+      row.roleUid           = r.str(CommonCol.ROLE_UID);
+      row.avatarId          = r.str(CommonCol.AVATAR_ID);
+      row.avatarConsumeJson = r.str(ZZZAvatarComputeCol.AVATAR_CONSUME_JSON);
+      row.weaponConsumeJson = r.str(ZZZAvatarComputeCol.WEAPON_CONSUME_JSON);
+      row.skillConsumeJson  = r.str(ZZZAvatarComputeCol.SKILL_CONSUME_JSON);
+      row.updateTime        = r.num(CommonCol.UPDATE_TIME);
       return row;
     } catch (e) {
       throw new Error(`ZZZAvatarComputeDao.mapRow failed: ${e instanceof Error ? e.message : e}`);

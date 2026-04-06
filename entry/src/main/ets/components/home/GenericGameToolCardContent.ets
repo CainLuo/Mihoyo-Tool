@@ -3,14 +3,17 @@
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 import { GameNoteSnapshotVM } from './HomeModels'
+import { TimeFormatUtil } from '../../utils/TimeFormatUtil'
+import { common } from '@kit.AbilityKit'
 
 @ComponentV2
 export struct GenericGameToolCardContent {
-  @Param snap: GameNoteSnapshotVM = new GameNoteSnapshotVM('', 0, 0, '', '', '', false)
+  @Param snap: GameNoteSnapshotVM = new GameNoteSnapshotVM('', 0, 0, 0, '', '', false)
   @Param primaryLabel: Resource = $r('app.string.app_name')
   @Param primaryColor: ResourceColor = $r('app.color.color_primary')
   @Param progressRatio: number = 0
   @Local private tm: ThemeManager = themeManager
+  @Local private ctx: common.UIAbilityContext = getContext(this) as common.UIAbilityContext
 
   build() {
     Column({ space: this.tm.current.value8 }) {
@@ -32,8 +35,8 @@ export struct GenericGameToolCardContent {
           }
           .alignItems(VerticalAlign.Bottom)
 
-          if (this.snap.primaryRecoveryDesc !== '') {
-            Text(this.snap.primaryRecoveryDesc)
+          if (this.snap.primaryRecoverySeconds > 0) {
+            Text(TimeFormatUtil.recoveryDesc(this.snap.primaryRecoverySeconds, this.ctx))
               .font(this.tm.current.body13)
               .fontColor(this.tm.current.colorTextSecondary)
               .maxLines(1)
@@ -88,7 +91,7 @@ struct GenericGameToolCardContentPreview {
   build() {
     Column() {
       GenericGameToolCardContent({
-        snap: new GameNoteSnapshotVM('honkai3', 120, 240, '将于3小时后全部恢复', '体力', '120/240', false),
+        snap: new GameNoteSnapshotVM('honkai3', 120, 240, 10800, '体力', '120/240', false),
         primaryLabel: $r('app.string.app_name'),
         primaryColor: $r('app.color.game_color_genshin'),
         progressRatio: 0.5

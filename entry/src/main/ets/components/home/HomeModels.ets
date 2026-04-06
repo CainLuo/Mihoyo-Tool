@@ -4,6 +4,7 @@
  * 以用户为单位，每个用户下有多个游戏角色，
  * 每个游戏角色携带该游戏的实时便签摘要。
  */
+import { ZZZVideoStoreState, ZZZCardSign } from '../../constants/ZZZEnums';
 
 // ---- 游戏 ID 枚举 ----
 export const GAME_GENSHIN = 'genshin'
@@ -19,8 +20,8 @@ export class GameNoteSnapshotVM {
   primaryCurrent: number = 0
   /** 主要资源上限 */
   primaryMax: number = 0
-  /** 主要资源恢复描述（可选） */
-  primaryRecoveryDesc: string = ''
+  /** 主要资源恢复剩余秒数（0 表示已满或无数据） */
+  primaryRecoverySeconds: number = 0
 
   /** 次要指标名称（可选） */
   secondaryLabel: string = ''
@@ -73,16 +74,16 @@ export class GameNoteSnapshotVM {
   vitalityCurrent: number = -1
   /** 今日活跃度上限 */
   vitalityMax: number = 0
-  /** 刮刮卡/占卜是否已完成 */
-  scratchCardDone: boolean = false
-  /** 录像店经营状态：'done'=已结算 / 'open'=营业中 / 'closed'=未营业 */
-  videoStoreState: string = ''
+  /** 刮刮卡/占卜状态 */
+  scratchCardSign: ZZZCardSign = ZZZCardSign.UNKNOWN
+  /** 录像店经营状态 */
+  videoStoreState: ZZZVideoStoreState = ZZZVideoStoreState.UNKNOWN
 
   constructor(
     primaryLabel: string,
     primaryCurrent: number,
     primaryMax: number,
-    primaryRecoveryDesc: string,
+    primaryRecoverySeconds: number,
     secondaryLabel: string,
     secondaryDesc: string,
     isFull: boolean
@@ -90,7 +91,7 @@ export class GameNoteSnapshotVM {
     this.primaryLabel = primaryLabel
     this.primaryCurrent = primaryCurrent
     this.primaryMax = primaryMax
-    this.primaryRecoveryDesc = primaryRecoveryDesc
+    this.primaryRecoverySeconds = primaryRecoverySeconds
     this.secondaryLabel = secondaryLabel
     this.secondaryDesc = secondaryDesc
     this.isFull = isFull

@@ -14,8 +14,6 @@
  *   LOADING  — 冷启动读 DB
  *   EMPTY    — 无账号或无角色数据，显示 Placeholder
  *   DATA     — 正常展示角色网格
- *
- * V2 迁移：已移除旧版 CharacterRepository，全部切换到 V2 Repository + V2 ApiService。
  */
 
 import {
@@ -227,7 +225,7 @@ export class CharactersViewModel {
       return;
     }
     const tab = this.gameTabs[this.selectedGameIdx];
-    // 检查冷却：使用 V2 needsSync
+    // 检查冷却：使用 needsSync
     let inCooldown = false;
     try {
       const needed = await CharactersViewModel.needsCharacterSync(
@@ -245,7 +243,7 @@ export class CharactersViewModel {
     try {
       const account = this.allAccounts[this.selectedAccountIdx];
       const server = this.findServer(tab.roleUid);
-      await this.syncCharactersV2(account, tab.gameId, tab.roleUid, server);
+      await this.syncCharacters(account, tab.gameId, tab.roleUid, server);
       await this.reloadCharacters();
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -265,7 +263,7 @@ export class CharactersViewModel {
     try {
       const tab = this.gameTabs[this.selectedGameIdx];
       const account = this.allAccounts[this.selectedAccountIdx];
-      await this.syncCharactersV2(account, tab.gameId, tab.roleUid, this.findServer(tab.roleUid));
+      await this.syncCharacters(account, tab.gameId, tab.roleUid, this.findServer(tab.roleUid));
       await this.reloadCharacters();
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -307,7 +305,7 @@ export class CharactersViewModel {
     await this.reloadCharacters();
   }
 
-  /** 从 v2 DB 加载当前选中游戏的角色列表，若为空则自动触发一次后台同步 */
+  /** 从 DB 加载当前选中游戏的角色列表，若为空则自动触发一次后台同步 */
   private async reloadCharacters(): Promise<void> {
     if (this.gameTabs.length === 0) {
       this.setCharacters([]);
@@ -317,7 +315,7 @@ export class CharactersViewModel {
     const tab = this.gameTabs[this.selectedGameIdx];
     const accountId = this.allAccounts[this.selectedAccountIdx].id;
     try {
-      const rows = await CharactersViewModel.loadCharactersFromV2(accountId, tab.gameId, tab.roleUid);
+      const rows = await CharactersViewModel.loadCharacters(accountId, tab.gameId, tab.roleUid);
       if (rows.length > 0) {
         this.setCharacters(rows);
         this.viewState = ViewState.DATA;
@@ -333,8 +331,8 @@ export class CharactersViewModel {
     }
   }
 
-  /** 从 v2 Repository 读取角色数据并转换为 GameDataSummary */
-  private static async loadCharactersFromV2(
+  /** 从 Repository 读取角色数据并转换为 GameDataSummary */
+  private static async loadCharacters(
     accountId: number,
     gameId: string,
     roleUid: string
@@ -441,12 +439,12 @@ export class CharactersViewModel {
     const account = this.allAccounts[this.selectedAccountIdx];
     const server = this.findServer(roleUid);
     const accountId = account.id;
-    this.syncCharactersV2(account, gameId, roleUid, server)
+    this.syncCharacters(account, gameId, roleUid, server)
       .then(async () => {
         if (this.gameTabs.length > 0 &&
             this.gameTabs[this.selectedGameIdx].gameId === gameId &&
             this.gameTabs[this.selectedGameIdx].roleUid === roleUid) {
-          const rows = await CharactersViewModel.loadCharactersFromV2(accountId, gameId, roleUid);
+          const rows = await CharactersViewModel.loadCharacters(accountId, gameId, roleUid);
           this.setCharacters(rows);
           this.viewState = rows.length > 0 ? ViewState.DATA : ViewState.EMPTY;
         }
@@ -466,11 +464,11 @@ export class CharactersViewModel {
   }
 
   /**
-   * V2 角色列表同步：根据 gameId 分发到对应 Repository，
-   * 调用 V2 ApiService 拉取数据后写入 V2 DB。
+   * 角色列表同步：根据 gameId 分发到对应 Repository，
+   * 调用 ApiService 拉取数据后写入 DB。
    * 其他 gameId 静默跳过。
    */
-  private async syncCharactersV2(
+  private async syncCharacters(
     account: AccountRow,
     gameId: string,
     roleUid: string,
@@ -672,7 +670,7 @@ export class CharactersViewModel {
     return '';
   }
 
-  /** 检查指定游戏角色是否需要同步角色数据（v2 版本） */
+  /** 检查指定游戏角色是否需要同步角色数据 */
   private static async needsCharacterSync(accountId: number, roleUid: string, gameId: string): Promise<boolean> {
     if (gameId === GAME_GENSHIN) {
       return CoreInitializer.genshinRepository.needsAvatarListSync(accountId, roleUid);

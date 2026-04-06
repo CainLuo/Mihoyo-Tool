@@ -2,7 +2,7 @@ import axios, { AxiosInstance, AxiosResponse } from '@ohos/axios';
 import { RequestParams, RequestOptions, RequestValue } from './APIs';
 
 /**
- * HttpClientV2 — 新版 HTTP 客户端
+ * HttpClient — HTTP 客户端
  * 接受完整 URL（含 Domain），通过 extraHeaders 注入请求头（含 Cookie、DS 等）。
  * 与旧版 HttpService 的区别：不依赖 ApiConfig，不自动注入 DS，由调用方通过 extraHeaders 控制。
  */

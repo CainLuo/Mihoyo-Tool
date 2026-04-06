@@ -4,7 +4,7 @@
  * 本文件是整个数据库层的"单一真相来源"：
  * - 所有表名通过 TableName enum 引用，禁止在其他文件直接写表名字符串
  * - 所有列名通过对应的 XxxCol enum 引用，禁止在 DAO 中直接写列名字符串
- * - 每张表的 DDL 由 TableDef.buildCreateSql() 动态生成，RdbManagerV2 循环调用
+ * - 每张表的 DDL 由 TableDef.buildCreateSql() 动态生成，RdbManager 循环调用
  * - 每个索引的 DDL 由 IndexDef.buildCreateSql() 动态生成
  *
  * 新增表时：
@@ -75,7 +75,7 @@ export enum CommonCol {
 
 /**
  * account_table 专属列名。
- * 对应 AccountRowV2 模型字段，存储米游社账号的登录凭证和基础信息。
+ * 对应 AccountRow 模型字段，存储米游社账号的登录凭证和基础信息。
  */
 export enum AccountCol {
   /** 米游社用户名（唯一键，用于 upsert 冲突检测） */
@@ -104,7 +104,7 @@ export enum AccountCol {
 
 /**
  * game_role_table 专属列名。
- * 对应 GameRoleRowV2 模型字段，存储各游戏绑定角色的基础信息。
+ * 对应 GameRoleRow 模型字段，存储各游戏绑定角色的基础信息。
  */
 export enum GameRoleCol {
   /** 游戏标识符（如 'hk4e_cn'=原神国服，'hkrpg_cn'=星铁国服，'nap_cn'=绝区零国服） */
@@ -490,7 +490,7 @@ export class TableDef {
 
   /**
    * 生成 CREATE TABLE IF NOT EXISTS DDL 字符串。
-   * 由 RdbManagerV2.createTables() 调用，幂等（IF NOT EXISTS 保证）。
+   * 由 RdbManager.createTables() 调用，幂等（IF NOT EXISTS 保证）。
    */
   buildCreateSql(): string {
     const colDefs: string[] = [];
@@ -786,7 +786,7 @@ export const SYNC_META_TABLE = new TableDef(TableName.SYNC_META, [
 ], FK_ACCOUNT);
 
 /**
- * 所有 15 张表的有序列表，供 RdbManagerV2.createTables() 循环建表使用。
+ * 所有 15 张表的有序列表，供 RdbManager.createTables() 循环建表使用。
  * 顺序很重要：account_table 必须在所有有外键的子表之前创建。
  */
 export const ALL_TABLES: TableDef[] = [
@@ -842,7 +842,7 @@ export class IndexDef {
 
   /**
    * 生成 CREATE [UNIQUE] INDEX IF NOT EXISTS DDL 字符串。
-   * 由 RdbManagerV2.createTables() 调用，幂等（IF NOT EXISTS 保证）。
+   * 由 RdbManager.createTables() 调用，幂等（IF NOT EXISTS 保证）。
    */
   buildCreateSql(): string {
     const uniqueStr = this.unique ? 'UNIQUE ' : '';
@@ -851,7 +851,7 @@ export class IndexDef {
 }
 
 /**
- * 所有索引的有序列表，供 RdbManagerV2.createTables() 循环建索引使用。
+ * 所有索引的有序列表，供 RdbManager.createTables() 循环建索引使用。
  * UNIQUE 索引同时承担业务唯一键约束（INSERT OR REPLACE 依赖此约束实现 upsert 语义）。
  */
 export const ALL_INDEXES: IndexDef[] = [

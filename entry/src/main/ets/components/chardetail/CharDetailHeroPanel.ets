@@ -7,7 +7,8 @@
  *   LANDSCAPE → CharDetailHeroPanelLandscape（Phone 横屏）
  */
 
-import { GenshinCharacterDetailViewModel, CharDetailConstellation, CharDetailSkill } from '../../viewmodel/GenshinCharacterDetailViewModel';
+import { GenshinCharacterDetailViewModel } from '../../viewmodel/GenshinCharacterDetailViewModel';
+import { CharDetailConstellation, CharDetailSkill } from './CharDetailModels';
 import { HeroPanelMode } from '../../constants/HeroPanelMode';
 import { CharDetailHeroPanelWide } from './CharDetailHeroPanelWide';
 import { CharDetailHeroPanelPortrait } from './CharDetailHeroPanelPortrait';
@@ -21,7 +22,6 @@ function makeMockHeroPanelVM(element: GenshinElement, name: string, cons: number
   vm.viewState = ViewState.DATA;
   vm.charName = name;
   vm.charLevel = 90;
-  vm.charMaxLevel = 90;
   vm.charFetter = 10;
   vm.charElement = element;
   vm.charImageUrl = '';

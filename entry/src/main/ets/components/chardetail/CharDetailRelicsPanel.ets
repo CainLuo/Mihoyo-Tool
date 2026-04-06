@@ -7,10 +7,9 @@
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import {
-  GenshinCharacterDetailViewModel,
-  CharDetailRelic,
-  RelicSubStat
+  GenshinCharacterDetailViewModel
 } from '../../viewmodel/GenshinCharacterDetailViewModel';
+import { CharDetailRelic, RelicSubStat } from './CharDetailModels';
 import { GenshinElement } from '../../constants/GenshinElement';
 import { ViewState } from '../../constants/ViewStates';
 

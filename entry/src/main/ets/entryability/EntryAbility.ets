@@ -18,7 +18,7 @@ export default class EntryAbility extends UIAbility {
     const runtimeEnv: RuntimeEnv = Logger.getRuntimeEnv();
     const isMock: boolean = runtimeEnv === RuntimeEnv.MOCK;
 
-    // 初始化 V2 数据库层
+    // 初始化数据库层
     CoreInitializer.initCore({ isMock, context: this.context })
       .then(() => {
         Logger.info(TAG, `CoreV2 initialized. isMock=${isMock}`);

@@ -3,8 +3,6 @@
  *
  * 接口与 entry/src/main/ets/viewmodel/LoginViewModel.ets 完全一致，
  * 所有登录方法直接返回 Mock 数据，不发起任何真实网络请求。
- *
- * V2 迁移：已移除旧版 AccountRepository，切换到 CoreInitializerV2.bbsRepository。
  */
 
 import { MmtData, GeetestV4Data, CoreInitializer, AccountRow, GameRoleRow } from 'core';
@@ -29,7 +27,7 @@ const MOCK_COOKIE: string =
   'account_id=182692936; cookie_token=mock_token; ltoken=mock_ltoken; ltuid=182692936';
 
 /** 构建 mock 游戏角色列表（原神 + 星铁） */
-function buildMockRoleRowsV2(accountId: number): GameRoleRow[] {
+function buildMockRoleRows(accountId: number): GameRoleRow[] {
   const roles: GameRoleRow[] = [];
 
   const genshin = new GameRoleRow();
@@ -147,7 +145,7 @@ export class LoginViewModel {
     logInfo(`Mock 短信已"发送"至 ${this.phoneNumber}`);
   }
 
-  /** 用短信验证码登录（mock 直接写入 V2 DB） */
+  /** 用短信验证码登录（mock 直接写入 DB） */
   async loginByPhone(): Promise<void> {
     if (this.smsCode.length === 0) {
       this.errorMsg = 'code_empty';
@@ -241,7 +239,7 @@ export class LoginViewModel {
 
   // ─── Cookie 登录 ──────────────────────────────────────────────
 
-  /** 用手动输入的 Cookie 登录（mock 直接写入 V2 DB） */
+  /** 用手动输入的 Cookie 登录（mock 直接写入 DB） */
   async loginByCookie(): Promise<void> {
     if (this.cookieInput.trim().length === 0) {
       this.errorMsg = 'cookie_empty';
@@ -267,11 +265,11 @@ export class LoginViewModel {
   // ─── 登录成功统一流程 ─────────────────────────────────────────
 
   /**
-   * 登录成功后统一处理：写账号（V2）→ 写游戏角色（V2）→ 通知 View
+   * 登录成功后统一处理：写账号 → 写游戏角色 → 通知 View
    * mock 环境不拉取网络数据，直接写入预设的 mock 角色。
    */
   private async finalizeLogin(username: string, cookie: string): Promise<void> {
-    // 1. 写入账号（V2 Repository）
+    // 1. 写入账号
     const now = Math.floor(Date.now() / 1000);
     const accountRow = new AccountRow();
     accountRow.id = 0;
@@ -286,8 +284,8 @@ export class LoginViewModel {
     const savedAccount = await CoreInitializer.bbsRepository.getAccountByUsername(username);
     const accountId = savedAccount !== null ? savedAccount.id : 0;
 
-    // 3. 写入 mock 游戏角色（V2 Repository）
-    const roleRows = buildMockRoleRowsV2(accountId);
+    // 3. 写入 mock 游戏角色
+    const roleRows = buildMockRoleRows(accountId);
     await CoreInitializer.bbsRepository.saveGameRoles(roleRows);
 
     logInfo(`Mock 登录成功，accountId=${accountId}`);

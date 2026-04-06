@@ -3,7 +3,7 @@ import { common } from '@kit.AbilityKit';
 import { ALL_TABLES, ALL_INDEXES, TableName } from './TableSchema';
 
 /**
- * 数据库管理器 V2
+ * 数据库管理器
  * 全新 V1.0 架构，15 张专用表，SecurityLevel.S2 加密
  */
 export class RdbManager {

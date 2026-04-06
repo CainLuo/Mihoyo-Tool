@@ -1,7 +1,7 @@
 /**
  * MyViewModel.ets — 我的页面 ViewModel
  *
- * 从 V2 Repository 读取账号和角色数据，通过 AuthRepository 补充网络数据（nickname、avatarUrl、statsJson）。
+ * 从 Repository 读取账号和角色数据，通过 AuthRepository 补充网络数据（nickname、avatarUrl、statsJson）。
  */
 import { CoreInitializer, AuthRepository, RoleStatItem } from 'core';
 import { Logger } from '../utils/Logger';

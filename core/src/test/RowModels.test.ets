@@ -1,7 +1,7 @@
 /**
  * RowModels.test.ets
  *
- * 验证 v2 Row 模型的默认值正确，防止字段初始化错误导致 DB 写入异常。
+ * 验证 Row 模型的默认值正确，防止字段初始化错误导致 DB 写入异常。
  */
 
 import { describe, it, expect } from '@ohos/hypium';

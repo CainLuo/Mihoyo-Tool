@@ -88,7 +88,7 @@ export class BBSRepository {
   async refreshGameRoles(accountId: number, cookie: string): Promise<GameRoleRow[]> {
     try {
       // TODO: 待 MihoyoAccountApiService 创建后，调用 this.getService().getGameRoles(cookie)
-      // 解析响应，构建 GameRoleRowV2 列表
+      // 解析响应，构建 GameRoleRow 列表
       // 注意：实际解析逻辑在 ViewModel 层或 Parser 层，这里返回原始响应供上层处理
       // 此处仅作为网络调用的封装
       return [];

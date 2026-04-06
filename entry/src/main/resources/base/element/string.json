@@ -594,7 +594,7 @@
     },
     {
       "name": "char_detail_weapon_lv_prefix",
-      "value": "Lv.%d/%d"
+      "value": "Lv.%d"
     },
     {
       "name": "prop_hp_flat",
@@ -815,6 +815,42 @@
     {
       "name": "home_refresh_cooldown_msg",
       "value": "30 分钟内已同步过，频繁刷新可能触发人机校验，是否继续刷新？"
+    },
+    {
+      "name": "time_hours_minutes_recovery",
+      "value": "将于 %d 小时 %d 分钟后全部恢复"
+    },
+    {
+      "name": "time_minutes_recovery",
+      "value": "将于 %d 分钟后全部恢复"
+    },
+    {
+      "name": "time_hours_minutes_after",
+      "value": "%d小时%d分钟后恢复"
+    },
+    {
+      "name": "time_minutes_after",
+      "value": "%d分钟后恢复"
+    },
+    {
+      "name": "time_soon",
+      "value": "即将恢复"
+    },
+    {
+      "name": "time_days_hours_available",
+      "value": "%d天%d小时后可用"
+    },
+    {
+      "name": "time_hours_minutes_available",
+      "value": "%d小时%d分钟后可用"
+    },
+    {
+      "name": "time_minutes_available",
+      "value": "%d分钟后可用"
+    },
+    {
+      "name": "time_soon_available",
+      "value": "即将可用"
     }
   ]
 }

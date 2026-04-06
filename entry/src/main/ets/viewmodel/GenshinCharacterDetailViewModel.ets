@@ -6,81 +6,20 @@
  * 所有 property_type 数字必须通过 GenshinPropertyType enum 引用，禁止写字面量。
  */
 
-import { CoreInitializer, GenshinPropertyType } from 'core';
+import { CoreInitializer, GenshinPropertyType, GenshinCharacterDetailRow } from 'core';
 import { Logger } from '../utils/Logger';
 import { ViewState } from '../constants/ViewStates';
 import { GenshinElement, elementFromString } from '../constants/GenshinElement';
+import {
+  CharDetailWeapon,
+  CharDetailRelic,
+  RelicSubStat,
+  CharDetailSkill,
+  CharDetailConstellation,
+  CharDetailStat
+} from '../components/chardetail/CharDetailModels';
 
 const TAG: string = 'GenshinCharacterDetailViewModel';
-
-// ─── 展示模型 ────────────────────────────────────────────────────
-
-/** 武器详情 */
-export class CharDetailWeapon {
-  name: string = '';
-  iconUrl: string = '';
-  level: number = 0;
-  maxLevel: number = 90;
-  affix: number = 1;
-  rarity: number = 3;
-  /** 武器基础攻击力（来自 weapon.main_property.final，property_type = BASE_ATK = 4） */
-  baseAtk: number = 0;
-  /** 武器副词条标签（Resource，由 GenshinPropertyType enum 映射；无副词条时为 null） */
-  subLabel: Resource | null = null;
-  /** 武器副词条值（如"22.1%"） */
-  subVal: string = '';
-}
-
-/** 圣遗物副词条 */
-export class RelicSubStat {
-  label: Resource | null = null;
-  value: string = '';
-}
-
-/** 圣遗物详情 */
-export class CharDetailRelic {
-  pos: number = 0;
-  iconUrl: string = '';
-  setName: string = '';
-  level: number = 0;
-  rarity: number = 5;
-  mainStatLabel: Resource | null = null;
-  mainStatValue: string = '';
-  subStats: RelicSubStat[] = [];
-}
-
-/** 技能详情 */
-export class CharDetailSkill {
-  iconUrl: string = '';
-  level: number = 0;
-}
-
-/** 命座详情（含完整信息） */
-export class CharDetailConstellation {
-  /** 命座位置（1-6） */
-  pos: number = 0;
-  /** 命座名称 */
-  name: string = '';
-  /** 命座图标 URL */
-  iconUrl: string = '';
-  /** 命座效果描述 */
-  effect: string = '';
-  /** 是否已激活 */
-  isActived: boolean = false;
-}
-
-/** 属性行 */
-export class CharDetailStat {
-  labelKey: Resource;
-  value: string = '';
-  isHighlight: boolean = false;
-
-  constructor(labelKey: Resource, value: string, isHighlight: boolean = false) {
-    this.labelKey = labelKey;
-    this.value = value;
-    this.isHighlight = isHighlight;
-  }
-}
 
 // ─── @Monitor 路径常量 ───────────────────────────────────────────
 
@@ -163,7 +102,6 @@ export class GenshinCharacterDetailViewModel {
   // 基础信息
   @Trace charName: string = '';
   @Trace charLevel: number = 0;
-  @Trace charMaxLevel: number = 90;
   @Trace charFetter: number = 0;
   @Trace charElement: GenshinElement = GenshinElement.UNKNOWN;
   @Trace charImageUrl: string = '';
@@ -198,7 +136,7 @@ export class GenshinCharacterDetailViewModel {
   async loadData(): Promise<void> {
     this.viewState = ViewState.LOADING;
     try {
-      const row = await CoreInitializer.genshinRepository.getAvatarDetail(this.accountId, this.roleUid, this.entityId);
+      const row: GenshinCharacterDetailRow | null = await CoreInitializer.genshinRepository.getAvatarDetail(this.accountId, this.roleUid, this.entityId);
       if (row === null || row.rawJson === '') {
         this.viewState = ViewState.EMPTY;
         return;
@@ -217,7 +155,6 @@ export class GenshinCharacterDetailViewModel {
       const parsed = JSON.parse(rawJson) as CharacterRawJson;
       this.charName = parsed.name ?? '';
       this.charLevel = parsed.level ?? 0;
-      this.charMaxLevel = 90;
       this.charFetter = parsed.fetter ?? 0;
       this.charElement = elementFromString(parsed.element ?? '');
       this.charImageUrl = parsed.image ?? '';
@@ -254,7 +191,6 @@ export class GenshinCharacterDetailViewModel {
         w.name = parsed.weapon.name ?? '';
         w.iconUrl = parsed.weapon.icon ?? '';
         w.level = parsed.weapon.level ?? 0;
-        w.maxLevel = 90;
         w.affix = parsed.weapon.affix_level ?? 1;
         w.rarity = parsed.weapon.rarity ?? 3;
         // 武器基础攻击力：weapon_base_atk 字段（property_type = BASE_ATK = 4）

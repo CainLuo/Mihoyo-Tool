@@ -6,7 +6,7 @@
  */
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
-import { CharDetailSkill } from '../../viewmodel/GenshinCharacterDetailViewModel';
+import { CharDetailSkill } from './CharDetailModels';
 import { elementColor } from '../characters/CharacterCard';
 import { GenshinElement } from '../../constants/GenshinElement';
 

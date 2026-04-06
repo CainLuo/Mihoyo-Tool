@@ -4,7 +4,7 @@ import { common } from '@kit.AbilityKit';
 import { util } from '@kit.ArkTS';
 
 /**
- * DSUtilV2 — 米游社 DS 动态签名生成
+ * DSUtil — 米游社 DS 动态签名生成
  *
  * DS 格式：{timestamp},{random},{md5}
  * md5 内容：salt={salt}&t={timestamp}&r={random}&b={body}&q={query}
@@ -18,7 +18,7 @@ export class DSUtil {
   private static saltX6: string = '';
 
   /**
-   * 预加载 salt 配置（在 CoreInitializerV2.initCore 中调用）
+   * 预加载 salt 配置（在 CoreInitializer.initCore 中调用）
    */
   static async preloadSalts(context: common.UIAbilityContext): Promise<void> {
     try {
@@ -54,7 +54,7 @@ export class DSUtil {
   }
 
   /**
-   * 生成 V2 DS（BBS 接口，BBS Profile）
+   * 生成 DS（BBS 接口，BBS Profile）
    * @param params GET 请求参数
    * @param body   POST 请求 body 字符串
    */

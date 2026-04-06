@@ -32,8 +32,8 @@ export class CoreInitializer {
   static readonly signRepository: SignRepository = new SignRepository();
 
   /**
-   * 初始化核心库 V2
-   * 1. 初始化数据库（RdbManagerV2）
+   * 初始化核心库
+   * 1. 初始化数据库（RdbManager）
    * 2. 根据 isMock 创建对应的 Service 实例（占位，待 MihoyoApiServiceFactory 创建后替换）
    * 3. 将 Service 注入到各 Repository
    */

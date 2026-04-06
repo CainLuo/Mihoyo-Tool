@@ -22,12 +22,12 @@ export * from './src/main/ets/parsers/genshin/GenshinDailyNoteParser';
 export * from './src/main/ets/parsers/starrail/StarRailDailyNoteParser';
 export * from './src/main/ets/parsers/zzz/ZZZDailyNoteParser';
 
-// ── V2 新架构导出 ──────────────────────────────────────────────
+// ── 核心导出 ──────────────────────────────────────────────────
 
-// V2 核心初始化器
+// 核心初始化器
 export * from './src/main/ets/CoreInitializer';
 
-// V2 数据库层
+// 数据库层
 export * from './src/main/ets/database/RdbManager';
 export * from './src/main/ets/database/BBSDao';
 export * from './src/main/ets/database/GenshinDao';
@@ -35,7 +35,7 @@ export * from './src/main/ets/database/StarRailDao';
 export * from './src/main/ets/database/ZZZDao';
 export * from './src/main/ets/database/SyncMetaDao';
 
-// V2 数据模型
+// 数据模型
 export * from './src/main/ets/models/AccountRow';
 export * from './src/main/ets/models/GameRoleRow';
 export * from './src/main/ets/models/GenshinRows';
@@ -44,7 +44,7 @@ export * from './src/main/ets/models/ZZZRows';
 export * from './src/main/ets/models/GameDataSummary';
 export * from './src/main/ets/models/SyncMetaRow';
 
-// V2 Repository 层
+// Repository 层
 export * from './src/main/ets/repository/GameRepository';
 export * from './src/main/ets/repository/BBSRepository';
 export * from './src/main/ets/repository/GenshinRepository';
@@ -52,11 +52,11 @@ export * from './src/main/ets/repository/StarRailRepository';
 export * from './src/main/ets/repository/ZZZRepository';
 export * from './src/main/ets/repository/SignRepository';
 
-// V2 网络层（抽象基类和环境枚举）
+// 网络层（抽象基类和环境枚举）
 export * from './src/main/ets/network/MihoyoApiService';
 export * from './src/main/ets/network/MihoyoEnvironment';
 
-// V2 常量
+// 常量
 export * from './src/main/ets/constants/SyncDataType';
 export * from './src/main/ets/constants/GenshinPropertyType';
 export * from './src/main/ets/constants/StarRailPropertyType';
@@ -65,7 +65,7 @@ export * from './src/main/ets/constants/GameServer';
 export * from './src/main/ets/constants/GameId';
 export * from './src/main/ets/database/TableSchema';
 
-// ── V2 网络层完整导出 ──────────────────────────────────────────
+// ── 网络层完整导出 ──────────────────────────────────────────
 
 // Domain 和 Path 枚举
 export * from './src/main/ets/network/MihoyoDomain';

@@ -5,7 +5,8 @@
  */
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
-import { GenshinCharacterDetailViewModel, CharDetailSkill, CharDetailConstellation } from '../../viewmodel/GenshinCharacterDetailViewModel';
+import { GenshinCharacterDetailViewModel } from '../../viewmodel/GenshinCharacterDetailViewModel';
+import { CharDetailSkill, CharDetailConstellation } from './CharDetailModels';
 import { elementColor } from '../characters/CharacterCard';
 import { CharDetailConsColumn } from './CharDetailConsColumn';
 import { GenshinElement } from '../../constants/GenshinElement';
@@ -16,7 +17,6 @@ function makeMockPortraitVM(): GenshinCharacterDetailViewModel {
   vm.viewState = ViewState.DATA;
   vm.charName = '胡桃';
   vm.charLevel = 90;
-  vm.charMaxLevel = 90;
   vm.charFetter = 10;
   vm.charElement = GenshinElement.PYRO;
   vm.charImageUrl = '';

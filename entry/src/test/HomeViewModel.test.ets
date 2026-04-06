@@ -103,28 +103,6 @@ export default function homeViewModelTest() {
       expect(true).assertTrue();
     });
 
-    // ─── resinRecoveryDesc 测试 ──────────────────────────────────
-
-    it('resinRecoveryDesc 超过 1 小时包含小时描述', 0, () => {
-      const result = HomeViewModel.resinRecoveryDesc(3660);
-      expect(result.indexOf('1 小时') !== -1).assertTrue();
-    });
-
-    it('resinRecoveryDesc 不足 1 小时包含分钟描述', 0, () => {
-      const result = HomeViewModel.resinRecoveryDesc(600);
-      expect(result.indexOf('10 分钟') !== -1).assertTrue();
-    });
-
-    it('resinRecoveryDesc 秒数为 0 返回空字符串', 0, () => {
-      const result = HomeViewModel.resinRecoveryDesc(0);
-      expect(result).assertEqual('');
-    });
-
-    it('resinRecoveryDesc 秒数为负数返回空字符串', 0, () => {
-      const result = HomeViewModel.resinRecoveryDesc(-1);
-      expect(result).assertEqual('');
-    });
-
     // ─── gameColor 测试 ──────────────────────────────────────────
 
     it('gameColor 原神返回正确颜色资源', 0, () => {

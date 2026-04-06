@@ -57,15 +57,11 @@ export class GenshinDailyDetailViewModel {
 
     vm.currentResin = data.currentResin;
     vm.maxResin = data.maxResin;
-    vm.resinRecoveryDesc = data.currentResin >= data.maxResin
-      ? ''
-      : GenshinDailyDetailViewModel.formatSeconds(data.resinRecoveryTime);
+    vm.resinRecoverySeconds = data.currentResin >= data.maxResin ? 0 : data.resinRecoveryTime;
 
     vm.currentHomeCoin = data.currentHomeCoin;
     vm.maxHomeCoin = data.maxHomeCoin;
-    vm.homeCoinRecoveryDesc = data.currentHomeCoin >= data.maxHomeCoin
-      ? ''
-      : GenshinDailyDetailViewModel.formatSeconds(data.homeCoinRecoveryTime);
+    vm.homeCoinRecoverySeconds = data.currentHomeCoin >= data.maxHomeCoin ? 0 : data.homeCoinRecoveryTime;
 
     vm.dailyTask = new GenshinDailyTaskVM(
       data.finishedTaskNum,
@@ -78,9 +74,9 @@ export class GenshinDailyDetailViewModel {
     vm.resinDiscountNumLimit = data.resinDiscountNumLimit;
 
     vm.transformerReady = data.transformer.reached;
-    vm.transformerDesc = data.transformer.reached
-      ? ''
-      : GenshinDailyDetailViewModel.formatTransformer(data.transformer.day, data.transformer.hour, data.transformer.minute);
+    vm.transformerDay = data.transformer.day;
+    vm.transformerHour = data.transformer.hour;
+    vm.transformerMinute = data.transformer.minute;
 
     vm.expeditions = GenshinDailyDetailViewModel.toExpeditionVMs(data.expeditions);
     vm.maxExpeditionNum = data.maxExpeditionNum;
@@ -93,41 +89,8 @@ export class GenshinDailyDetailViewModel {
     for (const r of raws) {
       const finished = r.status === 'Finished' || r.remainedTime === '0';
       const remainSec = parseInt(r.remainedTime, 10) || 0;
-      const remainDesc = finished ? '' : GenshinDailyDetailViewModel.formatSeconds(remainSec);
-      result[result.length] = new ExpeditionVM(r.avatarSideIcon, remainDesc, finished);
+      result[result.length] = new ExpeditionVM(r.avatarSideIcon, remainSec, finished);
     }
     return result;
-  }
-
-  /**
-   * 将秒数格式化为 "X小时Y分钟后恢复"。
-   * 不足1小时只显示分钟，不足1分钟显示"即将恢复"。
-   */
-  private static formatSeconds(seconds: number): string {
-    if (seconds <= 0) {
-      return '';
-    }
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    if (h > 0) {
-      return `${h}小时${m}分钟后恢复`;
-    }
-    if (m > 0) {
-      return `${m}分钟后恢复`;
-    }
-    return '即将恢复';
-  }
-
-  private static formatTransformer(day: number, hour: number, minute: number): string {
-    if (day > 0) {
-      return `${day}天${hour}小时后可用`;
-    }
-    if (hour > 0) {
-      return `${hour}小时${minute}分钟后可用`;
-    }
-    if (minute > 0) {
-      return `${minute}分钟后可用`;
-    }
-    return '即将可用';
   }
 }

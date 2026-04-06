@@ -7,12 +7,12 @@ export abstract class GameRepository {
   // 同步间隔阈值（秒）
   protected static readonly SYNC_INTERVAL_SECONDS: number = 300;
 
-  // Service 实例，由 CoreInitializerV2 注入
+  // Service 实例，由 CoreInitializer 注入
   private service: MihoyoApiService | null = null;
   private syncMetaDao: SyncMetaDao = new SyncMetaDao();
 
   /**
-   * 注入 Service 实例（由 CoreInitializerV2 调用）
+   * 注入 Service 实例（由 CoreInitializer 调用）
    */
   setService(service: MihoyoApiService): void {
     this.service = service;

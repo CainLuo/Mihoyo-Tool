@@ -9,6 +9,7 @@
  */
 import { relationalStore } from '@kit.ArkData';
 import { RdbManager } from './RdbManager';
+import { RsReader } from './RsReader';
 import { TableName, CommonCol, SyncMetaCol, SYNC_META_TABLE } from './TableSchema';
 import { SyncMetaRow } from '../models/SyncMetaRow';
 
@@ -28,7 +29,7 @@ export class SyncMetaDao {
         row.lastSyncTime, row.syncStatus, row.errorMsg
       ]);
     } catch (e) {
-      throw new Error(`SyncMetaDaoV2.upsert failed: ${e instanceof Error ? e.message : e}`);
+      throw new Error(`SyncMetaDao.upsert failed: ${e instanceof Error ? e.message : e}`);
     }
   }
 
@@ -45,7 +46,7 @@ export class SyncMetaDao {
     try {
       return await RdbManager.queryFirst(predicates, SYNC_META_TABLE.columnNames(), (rs) => SyncMetaDao.mapRow(rs));
     } catch (e) {
-      throw new Error(`SyncMetaDaoV2.findOne failed: ${e instanceof Error ? e.message : e}`);
+      throw new Error(`SyncMetaDao.findOne failed: ${e instanceof Error ? e.message : e}`);
     }
   }
 
@@ -89,31 +90,25 @@ export class SyncMetaDao {
         );
       }
     } catch (e) {
-      throw new Error(`SyncMetaDaoV2.updateStatus failed: ${e instanceof Error ? e.message : e}`);
+      throw new Error(`SyncMetaDao.updateStatus failed: ${e instanceof Error ? e.message : e}`);
     }
   }
 
   /** 将 ResultSet 当前行映射为 SyncMetaRow */
   private static mapRow(rs: relationalStore.ResultSet): SyncMetaRow {
     try {
+      const r = new RsReader(rs);
       const row = new SyncMetaRow();
-      const idVal = rs.getValue(rs.getColumnIndex(CommonCol.ID));
-      row.id = typeof idVal === 'number' ? idVal : 0;
-      const accountIdVal = rs.getValue(rs.getColumnIndex(CommonCol.ACCOUNT_ID));
-      row.accountId = typeof accountIdVal === 'number' ? accountIdVal : 0;
-      const roleUidVal = rs.getValue(rs.getColumnIndex(CommonCol.ROLE_UID));
-      row.roleUid = typeof roleUidVal === 'string' ? roleUidVal : '';
-      const dataTypeVal = rs.getValue(rs.getColumnIndex(CommonCol.DATA_TYPE));
-      row.dataType = typeof dataTypeVal === 'string' ? dataTypeVal : '';
-      const lastSyncTimeVal = rs.getValue(rs.getColumnIndex(SyncMetaCol.LAST_SYNC_TIME));
-      row.lastSyncTime = typeof lastSyncTimeVal === 'number' ? lastSyncTimeVal : 0;
-      const syncStatusVal = rs.getValue(rs.getColumnIndex(SyncMetaCol.SYNC_STATUS));
-      row.syncStatus = typeof syncStatusVal === 'string' ? syncStatusVal : '';
-      const errorMsgVal = rs.getValue(rs.getColumnIndex(SyncMetaCol.ERROR_MSG));
-      row.errorMsg = typeof errorMsgVal === 'string' ? errorMsgVal : '';
+      row.id           = r.num(CommonCol.ID);
+      row.accountId    = r.num(CommonCol.ACCOUNT_ID);
+      row.roleUid      = r.str(CommonCol.ROLE_UID);
+      row.dataType     = r.str(CommonCol.DATA_TYPE);
+      row.lastSyncTime = r.num(SyncMetaCol.LAST_SYNC_TIME);
+      row.syncStatus   = r.str(SyncMetaCol.SYNC_STATUS);
+      row.errorMsg     = r.str(SyncMetaCol.ERROR_MSG);
       return row;
     } catch (e) {
-      throw new Error(`SyncMetaDaoV2.mapRow failed: ${e instanceof Error ? e.message : e}`);
+      throw new Error(`SyncMetaDao.mapRow failed: ${e instanceof Error ? e.message : e}`);
     }
   }
 }

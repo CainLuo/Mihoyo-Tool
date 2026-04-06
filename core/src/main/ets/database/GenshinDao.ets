@@ -8,10 +8,11 @@
  * - GenshinCharacterComputeDao：养成计算（genshin_character_compute）
  *
  * 所有写入操作使用 INSERT OR REPLACE（依赖 UNIQUE 索引实现 upsert 语义）。
- * 所有读取操作通过 RdbManagerV2.queryFirst/queryAll 封装，自动管理 ResultSet 生命周期。
+ * 所有读取操作通过 RdbManager.queryFirst/queryAll 封装，自动管理 ResultSet 生命周期。
  */
 import { relationalStore } from '@kit.ArkData';
 import { RdbManager } from './RdbManager';
+import { RsReader } from './RsReader';
 import {
   TableName, CommonCol,
   GenshinCharListCol, GenshinDailyNoteCol, GenshinCharDetailCol, GenshinCharComputeCol,
@@ -113,51 +114,31 @@ export class GenshinCharacterListDao {
 
   /**
    * 将 ResultSet 当前行映射为 GenshinCharacterListRow。
-   * 对每个字段做类型守卫，确保类型不匹配时使用安全默认值而非抛出异常。
    */
   private static mapRow(rs: relationalStore.ResultSet): GenshinCharacterListRow {
     try {
+      const r = new RsReader(rs);
       const row = new GenshinCharacterListRow();
-      const idVal = rs.getValue(rs.getColumnIndex(CommonCol.ID));
-      row.id = typeof idVal === 'number' ? idVal : 0;
-      const accountIdVal = rs.getValue(rs.getColumnIndex(CommonCol.ACCOUNT_ID));
-      row.accountId = typeof accountIdVal === 'number' ? accountIdVal : 0;
-      const roleUidVal = rs.getValue(rs.getColumnIndex(CommonCol.ROLE_UID));
-      row.roleUid = typeof roleUidVal === 'string' ? roleUidVal : '';
-      const avatarIdVal = rs.getValue(rs.getColumnIndex(CommonCol.AVATAR_ID));
-      row.avatarId = typeof avatarIdVal === 'string' ? avatarIdVal : '';
-      const nameVal = rs.getValue(rs.getColumnIndex(GenshinCharListCol.NAME));
-      row.name = typeof nameVal === 'string' ? nameVal : '';
-      const elementVal = rs.getValue(rs.getColumnIndex(GenshinCharListCol.ELEMENT));
-      row.element = typeof elementVal === 'string' ? elementVal : '';
-      const rarityVal = rs.getValue(rs.getColumnIndex(GenshinCharListCol.RARITY));
-      row.rarity = typeof rarityVal === 'number' ? rarityVal : 0;
-      const levelVal = rs.getValue(rs.getColumnIndex(GenshinCharListCol.LEVEL));
-      row.level = typeof levelVal === 'number' ? levelVal : 0;
-      const fetterVal = rs.getValue(rs.getColumnIndex(GenshinCharListCol.FETTER));
-      row.fetter = typeof fetterVal === 'number' ? fetterVal : 0;
-      const activedVal = rs.getValue(rs.getColumnIndex(GenshinCharListCol.ACTIVED_CONSTELLATION_NUM));
-      row.activedConstellationNum = typeof activedVal === 'number' ? activedVal : 0;
-      const weaponTypeVal = rs.getValue(rs.getColumnIndex(GenshinCharListCol.WEAPON_TYPE));
-      row.weaponType = typeof weaponTypeVal === 'number' ? weaponTypeVal : 0;
-      const weaponIdVal = rs.getValue(rs.getColumnIndex(GenshinCharListCol.WEAPON_ID));
-      row.weaponId = typeof weaponIdVal === 'string' ? weaponIdVal : '';
-      const weaponNameVal = rs.getValue(rs.getColumnIndex(GenshinCharListCol.WEAPON_NAME));
-      row.weaponName = typeof weaponNameVal === 'string' ? weaponNameVal : '';
-      const weaponRarityVal = rs.getValue(rs.getColumnIndex(GenshinCharListCol.WEAPON_RARITY));
-      row.weaponRarity = typeof weaponRarityVal === 'number' ? weaponRarityVal : 0;
-      const weaponLevelVal = rs.getValue(rs.getColumnIndex(GenshinCharListCol.WEAPON_LEVEL));
-      row.weaponLevel = typeof weaponLevelVal === 'number' ? weaponLevelVal : 0;
-      const weaponAffixVal = rs.getValue(rs.getColumnIndex(GenshinCharListCol.WEAPON_AFFIX_LEVEL));
-      row.weaponAffixLevel = typeof weaponAffixVal === 'number' ? weaponAffixVal : 0;
-      const iconVal = rs.getValue(rs.getColumnIndex(GenshinCharListCol.ICON));
-      row.icon = typeof iconVal === 'string' ? iconVal : '';
-      const sideIconVal = rs.getValue(rs.getColumnIndex(GenshinCharListCol.SIDE_ICON));
-      row.sideIcon = typeof sideIconVal === 'string' ? sideIconVal : '';
-      const rawJsonVal = rs.getValue(rs.getColumnIndex(CommonCol.RAW_JSON));
-      row.rawJson = typeof rawJsonVal === 'string' ? rawJsonVal : '';
-      const updateTimeVal = rs.getValue(rs.getColumnIndex(CommonCol.UPDATE_TIME));
-      row.updateTime = typeof updateTimeVal === 'number' ? updateTimeVal : 0;
+      row.id                      = r.num(CommonCol.ID);
+      row.accountId               = r.num(CommonCol.ACCOUNT_ID);
+      row.roleUid                 = r.str(CommonCol.ROLE_UID);
+      row.avatarId                = r.str(CommonCol.AVATAR_ID);
+      row.name                    = r.str(GenshinCharListCol.NAME);
+      row.element                 = r.str(GenshinCharListCol.ELEMENT);
+      row.rarity                  = r.num(GenshinCharListCol.RARITY);
+      row.level                   = r.num(GenshinCharListCol.LEVEL);
+      row.fetter                  = r.num(GenshinCharListCol.FETTER);
+      row.activedConstellationNum = r.num(GenshinCharListCol.ACTIVED_CONSTELLATION_NUM);
+      row.weaponType              = r.num(GenshinCharListCol.WEAPON_TYPE);
+      row.weaponId                = r.str(GenshinCharListCol.WEAPON_ID);
+      row.weaponName              = r.str(GenshinCharListCol.WEAPON_NAME);
+      row.weaponRarity            = r.num(GenshinCharListCol.WEAPON_RARITY);
+      row.weaponLevel             = r.num(GenshinCharListCol.WEAPON_LEVEL);
+      row.weaponAffixLevel        = r.num(GenshinCharListCol.WEAPON_AFFIX_LEVEL);
+      row.icon                    = r.str(GenshinCharListCol.ICON);
+      row.sideIcon                = r.str(GenshinCharListCol.SIDE_ICON);
+      row.rawJson                 = r.str(CommonCol.RAW_JSON);
+      row.updateTime              = r.num(CommonCol.UPDATE_TIME);
       return row;
     } catch (e) {
       throw new Error(`GenshinCharacterListDao.mapRow failed: ${e instanceof Error ? e.message : e}`);
@@ -222,39 +203,24 @@ export class GenshinDailyNoteDao {
   /** 将 ResultSet 当前行映射为 GenshinDailyNoteRow */
   private static mapRow(rs: relationalStore.ResultSet): GenshinDailyNoteRow {
     try {
+      const r = new RsReader(rs);
       const row = new GenshinDailyNoteRow();
-      const idVal = rs.getValue(rs.getColumnIndex(CommonCol.ID));
-      row.id = typeof idVal === 'number' ? idVal : 0;
-      const accountIdVal = rs.getValue(rs.getColumnIndex(CommonCol.ACCOUNT_ID));
-      row.accountId = typeof accountIdVal === 'number' ? accountIdVal : 0;
-      const roleUidVal = rs.getValue(rs.getColumnIndex(CommonCol.ROLE_UID));
-      row.roleUid = typeof roleUidVal === 'string' ? roleUidVal : '';
-      const currentResinVal = rs.getValue(rs.getColumnIndex(GenshinDailyNoteCol.CURRENT_RESIN));
-      row.currentResin = typeof currentResinVal === 'number' ? currentResinVal : 0;
-      const maxResinVal = rs.getValue(rs.getColumnIndex(GenshinDailyNoteCol.MAX_RESIN));
-      row.maxResin = typeof maxResinVal === 'number' ? maxResinVal : 0;
-      const resinRecoveryVal = rs.getValue(rs.getColumnIndex(GenshinDailyNoteCol.RESIN_RECOVERY_TIME));
-      row.resinRecoveryTime = typeof resinRecoveryVal === 'number' ? resinRecoveryVal : 0;
-      const finishedTaskVal = rs.getValue(rs.getColumnIndex(GenshinDailyNoteCol.FINISHED_TASK_NUM));
-      row.finishedTaskNum = typeof finishedTaskVal === 'number' ? finishedTaskVal : 0;
-      const totalTaskVal = rs.getValue(rs.getColumnIndex(GenshinDailyNoteCol.TOTAL_TASK_NUM));
-      row.totalTaskNum = typeof totalTaskVal === 'number' ? totalTaskVal : 0;
-      const remainDiscountVal = rs.getValue(rs.getColumnIndex(GenshinDailyNoteCol.REMAIN_RESIN_DISCOUNT_NUM));
-      row.remainResinDiscountNum = typeof remainDiscountVal === 'number' ? remainDiscountVal : 0;
-      const currentExpeditionVal = rs.getValue(rs.getColumnIndex(GenshinDailyNoteCol.CURRENT_EXPEDITION_NUM));
-      row.currentExpeditionNum = typeof currentExpeditionVal === 'number' ? currentExpeditionVal : 0;
-      const maxExpeditionVal = rs.getValue(rs.getColumnIndex(GenshinDailyNoteCol.MAX_EXPEDITION_NUM));
-      row.maxExpeditionNum = typeof maxExpeditionVal === 'number' ? maxExpeditionVal : 0;
-      const currentHomeCoinVal = rs.getValue(rs.getColumnIndex(GenshinDailyNoteCol.CURRENT_HOME_COIN));
-      row.currentHomeCoin = typeof currentHomeCoinVal === 'number' ? currentHomeCoinVal : 0;
-      const maxHomeCoinVal = rs.getValue(rs.getColumnIndex(GenshinDailyNoteCol.MAX_HOME_COIN));
-      row.maxHomeCoin = typeof maxHomeCoinVal === 'number' ? maxHomeCoinVal : 0;
-      const transformerVal = rs.getValue(rs.getColumnIndex(GenshinDailyNoteCol.TRANSFORMER_RECOVERY_DAY));
-      row.transformerRecoveryDay = typeof transformerVal === 'number' ? transformerVal : 0;
-      const rawJsonVal = rs.getValue(rs.getColumnIndex(CommonCol.RAW_JSON));
-      row.rawJson = typeof rawJsonVal === 'string' ? rawJsonVal : '';
-      const updateTimeVal = rs.getValue(rs.getColumnIndex(CommonCol.UPDATE_TIME));
-      row.updateTime = typeof updateTimeVal === 'number' ? updateTimeVal : 0;
+      row.id                    = r.num(CommonCol.ID);
+      row.accountId             = r.num(CommonCol.ACCOUNT_ID);
+      row.roleUid               = r.str(CommonCol.ROLE_UID);
+      row.currentResin          = r.num(GenshinDailyNoteCol.CURRENT_RESIN);
+      row.maxResin              = r.num(GenshinDailyNoteCol.MAX_RESIN);
+      row.resinRecoveryTime     = r.num(GenshinDailyNoteCol.RESIN_RECOVERY_TIME);
+      row.finishedTaskNum       = r.num(GenshinDailyNoteCol.FINISHED_TASK_NUM);
+      row.totalTaskNum          = r.num(GenshinDailyNoteCol.TOTAL_TASK_NUM);
+      row.remainResinDiscountNum = r.num(GenshinDailyNoteCol.REMAIN_RESIN_DISCOUNT_NUM);
+      row.currentExpeditionNum  = r.num(GenshinDailyNoteCol.CURRENT_EXPEDITION_NUM);
+      row.maxExpeditionNum      = r.num(GenshinDailyNoteCol.MAX_EXPEDITION_NUM);
+      row.currentHomeCoin       = r.num(GenshinDailyNoteCol.CURRENT_HOME_COIN);
+      row.maxHomeCoin           = r.num(GenshinDailyNoteCol.MAX_HOME_COIN);
+      row.transformerRecoveryDay = r.num(GenshinDailyNoteCol.TRANSFORMER_RECOVERY_DAY);
+      row.rawJson               = r.str(CommonCol.RAW_JSON);
+      row.updateTime            = r.num(CommonCol.UPDATE_TIME);
       return row;
     } catch (e) {
       throw new Error(`GenshinDailyNoteDao.mapRow failed: ${e instanceof Error ? e.message : e}`);
@@ -326,29 +292,19 @@ export class GenshinCharacterDetailDao {
   /** 将 ResultSet 当前行映射为 GenshinCharacterDetailRow */
   private static mapRow(rs: relationalStore.ResultSet): GenshinCharacterDetailRow {
     try {
+      const r = new RsReader(rs);
       const row = new GenshinCharacterDetailRow();
-      const idVal = rs.getValue(rs.getColumnIndex(CommonCol.ID));
-      row.id = typeof idVal === 'number' ? idVal : 0;
-      const accountIdVal = rs.getValue(rs.getColumnIndex(CommonCol.ACCOUNT_ID));
-      row.accountId = typeof accountIdVal === 'number' ? accountIdVal : 0;
-      const roleUidVal = rs.getValue(rs.getColumnIndex(CommonCol.ROLE_UID));
-      row.roleUid = typeof roleUidVal === 'string' ? roleUidVal : '';
-      const avatarIdVal = rs.getValue(rs.getColumnIndex(CommonCol.AVATAR_ID));
-      row.avatarId = typeof avatarIdVal === 'string' ? avatarIdVal : '';
-      const weaponIdVal = rs.getValue(rs.getColumnIndex(GenshinCharDetailCol.WEAPON_ID));
-      row.weaponId = typeof weaponIdVal === 'string' ? weaponIdVal : '';
-      const weaponLevelVal = rs.getValue(rs.getColumnIndex(GenshinCharDetailCol.WEAPON_LEVEL));
-      row.weaponLevel = typeof weaponLevelVal === 'number' ? weaponLevelVal : 0;
-      const weaponAffixVal = rs.getValue(rs.getColumnIndex(GenshinCharDetailCol.WEAPON_AFFIX_LEVEL));
-      row.weaponAffixLevel = typeof weaponAffixVal === 'number' ? weaponAffixVal : 0;
-      const relicIdsVal = rs.getValue(rs.getColumnIndex(GenshinCharDetailCol.RELIC_IDS));
-      row.relicIds = typeof relicIdsVal === 'string' ? relicIdsVal : '';
-      const skillLevelsVal = rs.getValue(rs.getColumnIndex(GenshinCharDetailCol.SKILL_LEVELS));
-      row.skillLevels = typeof skillLevelsVal === 'string' ? skillLevelsVal : '';
-      const rawJsonVal = rs.getValue(rs.getColumnIndex(CommonCol.RAW_JSON));
-      row.rawJson = typeof rawJsonVal === 'string' ? rawJsonVal : '';
-      const updateTimeVal = rs.getValue(rs.getColumnIndex(CommonCol.UPDATE_TIME));
-      row.updateTime = typeof updateTimeVal === 'number' ? updateTimeVal : 0;
+      row.id               = r.num(CommonCol.ID);
+      row.accountId        = r.num(CommonCol.ACCOUNT_ID);
+      row.roleUid          = r.str(CommonCol.ROLE_UID);
+      row.avatarId         = r.str(CommonCol.AVATAR_ID);
+      row.weaponId         = r.str(GenshinCharDetailCol.WEAPON_ID);
+      row.weaponLevel      = r.num(GenshinCharDetailCol.WEAPON_LEVEL);
+      row.weaponAffixLevel = r.num(GenshinCharDetailCol.WEAPON_AFFIX_LEVEL);
+      row.relicIds         = r.str(GenshinCharDetailCol.RELIC_IDS);
+      row.skillLevels      = r.str(GenshinCharDetailCol.SKILL_LEVELS);
+      row.rawJson          = r.str(CommonCol.RAW_JSON);
+      row.updateTime       = r.num(CommonCol.UPDATE_TIME);
       return row;
     } catch (e) {
       throw new Error(`GenshinCharacterDetailDao.mapRow failed: ${e instanceof Error ? e.message : e}`);
@@ -412,23 +368,16 @@ export class GenshinCharacterComputeDao {
   /** 将 ResultSet 当前行映射为 GenshinCharacterComputeRow */
   private static mapRow(rs: relationalStore.ResultSet): GenshinCharacterComputeRow {
     try {
+      const r = new RsReader(rs);
       const row = new GenshinCharacterComputeRow();
-      const idVal = rs.getValue(rs.getColumnIndex(CommonCol.ID));
-      row.id = typeof idVal === 'number' ? idVal : 0;
-      const accountIdVal = rs.getValue(rs.getColumnIndex(CommonCol.ACCOUNT_ID));
-      row.accountId = typeof accountIdVal === 'number' ? accountIdVal : 0;
-      const roleUidVal = rs.getValue(rs.getColumnIndex(CommonCol.ROLE_UID));
-      row.roleUid = typeof roleUidVal === 'string' ? roleUidVal : '';
-      const avatarIdVal = rs.getValue(rs.getColumnIndex(CommonCol.AVATAR_ID));
-      row.avatarId = typeof avatarIdVal === 'string' ? avatarIdVal : '';
-      const avatarConsumeVal = rs.getValue(rs.getColumnIndex(GenshinCharComputeCol.AVATAR_CONSUME_JSON));
-      row.avatarConsumeJson = typeof avatarConsumeVal === 'string' ? avatarConsumeVal : '';
-      const skillConsumeVal = rs.getValue(rs.getColumnIndex(GenshinCharComputeCol.SKILL_CONSUME_JSON));
-      row.skillConsumeJson = typeof skillConsumeVal === 'string' ? skillConsumeVal : '';
-      const weaponConsumeVal = rs.getValue(rs.getColumnIndex(GenshinCharComputeCol.WEAPON_CONSUME_JSON));
-      row.weaponConsumeJson = typeof weaponConsumeVal === 'string' ? weaponConsumeVal : '';
-      const updateTimeVal = rs.getValue(rs.getColumnIndex(CommonCol.UPDATE_TIME));
-      row.updateTime = typeof updateTimeVal === 'number' ? updateTimeVal : 0;
+      row.id                = r.num(CommonCol.ID);
+      row.accountId         = r.num(CommonCol.ACCOUNT_ID);
+      row.roleUid           = r.str(CommonCol.ROLE_UID);
+      row.avatarId          = r.str(CommonCol.AVATAR_ID);
+      row.avatarConsumeJson = r.str(GenshinCharComputeCol.AVATAR_CONSUME_JSON);
+      row.skillConsumeJson  = r.str(GenshinCharComputeCol.SKILL_CONSUME_JSON);
+      row.weaponConsumeJson = r.str(GenshinCharComputeCol.WEAPON_CONSUME_JSON);
+      row.updateTime        = r.num(CommonCol.UPDATE_TIME);
       return row;
     } catch (e) {
       throw new Error(`GenshinCharacterComputeDao.mapRow failed: ${e instanceof Error ? e.message : e}`);

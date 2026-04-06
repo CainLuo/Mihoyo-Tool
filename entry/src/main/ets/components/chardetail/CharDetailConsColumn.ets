@@ -6,7 +6,7 @@
  */
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
-import { CharDetailConstellation } from '../../viewmodel/GenshinCharacterDetailViewModel';
+import { CharDetailConstellation } from './CharDetailModels';
 
 /** 构造 mock 命座数据 */
 function makeMockCons(activatedCount: number): CharDetailConstellation[] {

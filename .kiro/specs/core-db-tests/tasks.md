@@ -4,7 +4,7 @@
 
 ### 1. DB 层设备端测试（core/src/ohosTest/）
 
-- [ ] 1.1 新建 `core/src/ohosTest/ets/test/RdbManagerV2.test.ets`
+- [x] 1.1 新建 `core/src/ohosTest/ets/test/RdbManagerV2.test.ets`
   - 测试 `init(context)` 成功，`getRdbStore()` 返回非 null
   - 测试 `init` 幂等（重复调用不抛异常）
   - 测试 `createTables` 幂等（IF NOT EXISTS 保证，再次调用不抛异常）
@@ -14,7 +14,7 @@
   - 测试 15 张表全部存在（查询 sqlite_master，验证所有表名）
   - 测试 `PRAGMA foreign_keys` 已开启（返回 1）
 
-- [ ] 1.2 新建 `core/src/ohosTest/ets/test/BBSDao.test.ets`
+- [x] 1.2 新建 `core/src/ohosTest/ets/test/BBSDao.test.ets`
   - **AccountDao 测试**
     - `upsert_newAccount_findAllReturns1`：upsert 新账号，findAll 返回 1 条
     - `upsert_duplicateUsername_updatesExisting`：upsert 相同 username，仍只有 1 条且字段更新
@@ -36,7 +36,7 @@
     - `findByAccountAndGame_notExists_returnsEmptyArray`：findByAccountAndGame 不存在返回空数组
     - `deleteByAccountId_exists_rowsRemoved`：deleteByAccountId 后 findByAccountId 返回空数组
 
-- [ ] 1.3 新建 `core/src/ohosTest/ets/test/GenshinDao.test.ets`
+- [x] 1.3 新建 `core/src/ohosTest/ets/test/GenshinDao.test.ets`
   - **GenshinCharacterListDao 测试**
     - `upsertAll_twoRows_findAllReturnsTwo`：写入 2 条，findAll 返回 2 条
     - `upsertAll_duplicateUniqueKey_updatesExisting`：相同唯一键再次写入，仍只有 1 条
@@ -59,7 +59,7 @@
     - `upsert_duplicateUniqueKey_updatesExisting`：相同唯一键再次写入，仍只有 1 条
     - `findByAvatarId_notExists_returnsNull`：空表 findByAvatarId 返回 null
 
-- [ ] 1.4 新建 `core/src/ohosTest/ets/test/StarRailDao.test.ets`
+- [x] 1.4 新建 `core/src/ohosTest/ets/test/StarRailDao.test.ets`
   - **StarRailAvatarBasicDao 测试**
     - `upsertAll_twoRows_findAllReturnsTwo`：写入 2 条，findAll 返回 2 条
     - `upsertAll_duplicateUniqueKey_updatesExisting`：相同唯一键再次写入，仍只有 1 条
@@ -83,7 +83,7 @@
     - `findByAvatarId_notExists_returnsNull`：空表 findByAvatarId 返回 null
     - `deleteAll_clearsData_findByAvatarIdReturnsNull`：deleteAll 后 findByAvatarId 返回 null
 
-- [ ] 1.5 新建 `core/src/ohosTest/ets/test/ZZZDao.test.ets`
+- [x] 1.5 新建 `core/src/ohosTest/ets/test/ZZZDao.test.ets`
   - **ZZZAvatarBasicDao 测试**
     - `upsertAll_twoRows_findAllReturnsTwo`：写入 2 条，findAll 返回 2 条
     - `upsertAll_duplicateUniqueKey_updatesExisting`：相同唯一键再次写入，仍只有 1 条
@@ -109,7 +109,7 @@
     - `findByAvatarId_notExists_returnsNull`：空表 findByAvatarId 返回 null
     - `deleteAll_clearsData_findByAvatarIdReturnsNull`：deleteAll 后 findByAvatarId 返回 null
 
-- [ ] 1.6 新建 `core/src/ohosTest/ets/test/SyncMetaDaoV2.test.ets`
+- [x] 1.6 新建 `core/src/ohosTest/ets/test/SyncMetaDaoV2.test.ets`
   - `upsert_newRow_findOneReturnsRow`：upsert 写入，findOne 返回对应行
   - `upsert_duplicateUniqueKey_updatesExisting`：相同唯一键再次写入，仍只有 1 条
   - `findOne_exists_returnsMatchingRow`：findOne 存在，返回字段与写入一致
@@ -119,14 +119,14 @@
   - `updateStatus_failed_updatesSyncStatusAndErrorMsg`：updateStatus 为 failed，syncStatus 变为 'failed'，errorMsg 更新
   - `updateStatus_notExists_noException`：记录不存在时 updateStatus 不抛异常
 
-- [ ] 1.7 更新 `core/src/ohosTest/ets/test/List.test.ets`
+- [x] 1.7 更新 `core/src/ohosTest/ets/test/List.test.ets`
   - import 并注册以上 6 个新 DB 测试套件（RdbManagerV2、BBSDao、GenshinDao、StarRailDao、ZZZDao、SyncMetaDaoV2）
 
 ---
 
 ### 2. Repository 层设备端测试（core/src/ohosTest/）
 
-- [ ] 2.1 新建 `core/src/ohosTest/ets/test/BBSRepository.test.ets`
+- [x] 2.1 新建 `core/src/ohosTest/ets/test/BBSRepository.test.ets`
   - `saveAccount_newAccount_getAllAccountsReturnsOne`：saveAccount 写入新账号，getAllAccounts 返回 1 条
   - `saveAccount_duplicateUsername_updatesExisting`：saveAccount 相同 username，仍只有 1 条且字段更新
   - `getAllAccounts_emptyTable_returnsEmptyArray`：空表 getAllAccounts 返回空数组
@@ -139,7 +139,7 @@
   - `getGameRolesByGame_filterByGame_returnsOnlyMatching`：getGameRolesByGame 按游戏过滤
   - `deleteGameRoles_clearsAll_getGameRolesReturnsEmpty`：deleteGameRoles 清空，getGameRoles 返回空数组
 
-- [ ] 2.2 新建 `core/src/ohosTest/ets/test/GenshinRepository.test.ets`
+- [x] 2.2 新建 `core/src/ohosTest/ets/test/GenshinRepository.test.ets`
   - `getAvatarList_emptyTable_returnsEmptyArray`：getAvatarList 空表返回空数组
   - `upsertAvatarList_oneRow_getAvatarListReturnsOne`：upsertAvatarList 写入，getAvatarList 返回 1 条
   - `upsertAvatarList_updatesSyncMeta`：upsertAvatarList 同时更新 sync_meta 为 success
@@ -154,7 +154,7 @@
   - `getAvatarCompute_emptyTable_returnsNull`：getAvatarCompute 空表返回 null
   - `upsertAvatarCompute_row_getAvatarComputeReturnsRow`：upsertAvatarCompute 写入，getAvatarCompute 返回对应行
 
-- [ ] 2.3 新建 `core/src/ohosTest/ets/test/StarRailRepository.test.ets`
+- [x] 2.3 新建 `core/src/ohosTest/ets/test/StarRailRepository.test.ets`
   - 与 GenshinRepository.test.ets 结构对称，方法名相同，测试用例命名规则相同
   - `getAvatarList_emptyTable_returnsEmptyArray`
   - `upsertAvatarList_oneRow_getAvatarListReturnsOne`
@@ -170,7 +170,7 @@
   - `getAvatarCompute_emptyTable_returnsNull`
   - `upsertAvatarCompute_row_getAvatarComputeReturnsRow`
 
-- [ ] 2.4 新建 `core/src/ohosTest/ets/test/ZZZRepository.test.ets`
+- [x] 2.4 新建 `core/src/ohosTest/ets/test/ZZZRepository.test.ets`
   - 与 StarRailRepository.test.ets 结构完全对称，测试用例命名规则相同
   - `getAvatarList_emptyTable_returnsEmptyArray`
   - `upsertAvatarList_oneRow_getAvatarListReturnsOne`
@@ -186,5 +186,5 @@
   - `getAvatarCompute_emptyTable_returnsNull`
   - `upsertAvatarCompute_row_getAvatarComputeReturnsRow`
 
-- [ ] 2.5 更新 `core/src/ohosTest/ets/test/List.test.ets`
+- [x] 2.5 更新 `core/src/ohosTest/ets/test/List.test.ets`
   - import 并注册以上 4 个新 Repository 测试套件（BBSRepository、GenshinRepository、StarRailRepository、ZZZRepository）

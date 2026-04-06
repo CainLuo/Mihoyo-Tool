@@ -8,7 +8,7 @@ import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 export struct GameDataRow {
   @Param emoji: string = ''
   @Param label: Resource = $r('app.string.app_name')
-  @Param value: string = ''
+  @Param value: ResourceStr = ''
   @Param valueColor: ResourceColor = $r('app.color.color_text_primary')
   @Local private tm: ThemeManager = themeManager
 

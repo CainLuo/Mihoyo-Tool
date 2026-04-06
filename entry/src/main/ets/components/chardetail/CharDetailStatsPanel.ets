@@ -7,10 +7,9 @@
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import {
-  GenshinCharacterDetailViewModel,
-  CharDetailStat,
-  CharDetailWeapon
+  GenshinCharacterDetailViewModel
 } from '../../viewmodel/GenshinCharacterDetailViewModel';
+import { CharDetailStat, CharDetailWeapon } from './CharDetailModels';
 import { elementColor } from '../characters/CharacterCard';
 import { GenshinElement } from '../../constants/GenshinElement';
 import { ViewState } from '../../constants/ViewStates';
@@ -22,7 +21,6 @@ function makeMockStatsPanelVM(): GenshinCharacterDetailViewModel {
   const w = new CharDetailWeapon();
   w.name = '苇海信标';
   w.level = 90;
-  w.maxLevel = 90;
   w.affix = 1;
   w.rarity = 5;
   w.subLabel = $r('app.string.prop_crit_rate');
@@ -129,7 +127,7 @@ export struct CharDetailStatsPanel {
               .backgroundColor(this.tm.current.accentRefineBg)
               .borderRadius(this.tm.current.value4)
               .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.value1, bottom: this.tm.current.value1 })
-            Text($r('app.string.char_detail_weapon_lv_prefix', this.vm.weapon.level, this.vm.weapon.maxLevel))
+            Text($r('app.string.char_detail_weapon_lv_prefix', this.vm.weapon.level))
               .fontSize(this.tm.current.body10.size)
               .fontColor(this.tm.current.textOnDarkMuted)
           }

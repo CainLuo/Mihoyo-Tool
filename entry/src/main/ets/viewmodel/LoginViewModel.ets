@@ -352,7 +352,7 @@ export class LoginViewModel {
    * @param cookie    完整 Cookie 字符串
    */
   private async finalizeLogin(username: string, cookie: string): Promise<void> {
-    // 1. 写入账号（v2 Repository）
+    // 1. 写入账号
     const now = Math.floor(Date.now() / 1000);
     const accountRow = new AccountRow();
     accountRow.id = 0; // 新账号，自增
@@ -367,7 +367,7 @@ export class LoginViewModel {
     const savedAccount = await CoreInitializer.bbsRepository.getAccountByUsername(username);
     const accountId = savedAccount !== null ? savedAccount.id : 0;
 
-    // 2. 拉取游戏角色并写入（v2 Repository）
+    // 2. 拉取游戏角色并写入
     try {
       const roles = await AuthRepository.getUserGameRoles(cookie);
       if (roles.length > 0) {
@@ -390,8 +390,8 @@ export class LoginViewModel {
         } catch (_) {
           // 账号详情拉取失败不阻断流程
         }
-        // 转换为 GameRoleRowV2 并保存
-        const roleRowsV2: GameRoleRow[] = [];
+        // 转换为 GameRoleRow 并保存
+        const roleRows: GameRoleRow[] = [];
         for (let i = 0; i < roles.length; i++) {
           const r = roles[i];
           const roleRow = new GameRoleRow();
@@ -404,9 +404,9 @@ export class LoginViewModel {
           roleRow.server = r.server;
           roleRow.bgImageUrl = r.bgImageUrl;
           roleRow.statsJson = r.statsJson;
-          roleRowsV2[roleRowsV2.length] = roleRow;
+          roleRows[roleRows.length] = roleRow;
         }
-        await CoreInitializer.bbsRepository.saveGameRoles(roleRowsV2);
+        await CoreInitializer.bbsRepository.saveGameRoles(roleRows);
       }
     } catch (error) {
       // 角色拉取失败不阻断登录流程，只记录 warn
