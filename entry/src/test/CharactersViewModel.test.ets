@@ -58,6 +58,16 @@ export default function charactersViewModelTest() {
       expect(vm.refreshCoolingDown).assertFalse();
     });
 
+    it('初始 showAccountSwitcher 为 false', 0, () => {
+      const vm = new CharactersViewModel();
+      expect(vm.showAccountSwitcher).assertFalse();
+    });
+
+    it('初始 showRefreshButton 为 false', 0, () => {
+      const vm = new CharactersViewModel();
+      expect(vm.showRefreshButton).assertFalse();
+    });
+
     // ─── selectAccount 防重 ──────────────────────────────────────
 
     it('selectAccount 相同 idx 不改变 selectedAccountIdx', 0, async () => {
@@ -118,13 +128,44 @@ export default function charactersViewModelTest() {
       expect(result.length).assertEqual(0);
     });
 
-    it('toSelectOptions 转换正确', 0, () => {
-      const ao1 = new AccountOption(1, 'u1');
-      const ao2 = new AccountOption(2, 'u2');
+    it('toSelectOptions 转换正确（使用 username）', 0, () => {
+      const ao1 = new AccountOption(1, 'u1', '旅行者', '', 'uid001');
+      const ao2 = new AccountOption(2, 'u2', '', '', '');
       const result = CharactersViewModel.toSelectOptions([ao1, ao2]);
       expect(result.length).assertEqual(2);
       expect(result[0].value).assertEqual('u1');
       expect(result[1].value).assertEqual('u2');
+    });
+
+    // ─── AccountOption 字段默认值 ────────────────────────────────
+
+    it('AccountOption 构造函数仅传 accountId 和 username 时其余字段为空字符串', 0, () => {
+      const opt = new AccountOption(1, 'user1');
+      expect(opt.accountId).assertEqual(1);
+      expect(opt.username).assertEqual('user1');
+      expect(opt.nickname).assertEqual('');
+      expect(opt.avatarUrl).assertEqual('');
+      expect(opt.uid).assertEqual('');
+    });
+
+    it('AccountOption 构造函数传全部字段时正确赋值', 0, () => {
+      const opt = new AccountOption(2, 'user2', '旅行者', 'https://example.com/avatar.png', 'uid123');
+      expect(opt.nickname).assertEqual('旅行者');
+      expect(opt.avatarUrl).assertEqual('https://example.com/avatar.png');
+      expect(opt.uid).assertEqual('uid123');
+    });
+
+    // ─── selectAccount 越界保护 ──────────────────────────────────
+
+    it('selectAccount 超出范围的 idx 不崩溃', 0, async () => {
+      const vm = new CharactersViewModel();
+      let threw = false;
+      try {
+        await vm.selectAccount(999);
+      } catch (_) {
+        threw = true;
+      }
+      expect(threw).assertFalse();
     });
 
     // ─── KEYS 路径常量 ───────────────────────────────────────────

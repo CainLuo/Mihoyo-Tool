@@ -20,37 +20,43 @@ export class RsReader {
   }
 
   /**
-   * 读取 INTEGER 列，类型不匹配时返回 fallback（默认 0）。
-   * @param col      列名（使用 XxxCol enum 值，禁止直接写字符串）
-   * @param fallback 类型不匹配时的默认值，默认为 0
+   * 读取 INTEGER 列，类型不匹配或异常时返回 fallback（默认 0）。
    */
   num(col: string, fallback: number = 0): number {
-    const v = this.rs.getValue(this.rs.getColumnIndex(col));
-    return typeof v === 'number' ? v : fallback;
+    try {
+      const v = this.rs.getValue(this.rs.getColumnIndex(col));
+      return typeof v === 'number' ? v : fallback;
+    } catch (_) {
+      return fallback;
+    }
   }
 
   /**
-   * 读取 TEXT 列，类型不匹配时返回 fallback（默认 ''）。
-   * @param col      列名（使用 XxxCol enum 值，禁止直接写字符串）
-   * @param fallback 类型不匹配时的默认值，默认为空字符串
+   * 读取 TEXT 列，类型不匹配或异常时返回 fallback（默认 ''）。
    */
   str(col: string, fallback: string = ''): string {
-    const v = this.rs.getValue(this.rs.getColumnIndex(col));
-    return typeof v === 'string' ? v : fallback;
+    try {
+      const v = this.rs.getValue(this.rs.getColumnIndex(col));
+      return typeof v === 'string' ? v : fallback;
+    } catch (_) {
+      return fallback;
+    }
   }
 
   /**
    * 读取以 TEXT 存储的整数列（如 ZZZ awakenState），
-   * 先读字符串再 parseInt，解析失败时返回 fallback（默认 0）。
-   * @param col      列名（使用 XxxCol enum 值，禁止直接写字符串）
-   * @param fallback 解析失败时的默认值，默认为 0
+   * 先读字符串再 parseInt，解析失败或异常时返回 fallback（默认 0）。
    */
   strAsInt(col: string, fallback: number = 0): number {
-    const v = this.rs.getValue(this.rs.getColumnIndex(col));
-    if (typeof v !== 'string') {
+    try {
+      const v = this.rs.getValue(this.rs.getColumnIndex(col));
+      if (typeof v !== 'string') {
+        return fallback;
+      }
+      const parsed = parseInt(v);
+      return isNaN(parsed) ? fallback : parsed;
+    } catch (_) {
       return fallback;
     }
-    const parsed = parseInt(v);
-    return isNaN(parsed) ? fallback : parsed;
   }
 }

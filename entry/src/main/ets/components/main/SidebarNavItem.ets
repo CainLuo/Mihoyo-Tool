@@ -47,7 +47,7 @@ import { themeManager } from '../../theme/ThemeManager';
 
 @Preview
 @ComponentV2
-struct SidebarNavItemPreview {
+export struct SidebarNavItemPreview {
   build() {
     Column({ space: 4 }) {
       SidebarNavItem({ tm: themeManager, tab: 0, selectedTab: 0, label: $r('app.string.main_tab_home') })

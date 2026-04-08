@@ -225,16 +225,19 @@
 
 **UI 测试用例**（`CharacterCardTest.test.ets`）
 
-| 用例                      | 操作              | 预期                                   |
-| ------------------------- | ----------------- | -------------------------------------- |
-| 角色名显示                | name='纳西妲'     | '纳西妲' 文字可见                      |
-| 5 星背景色                | rarity=5          | 背景色为 rarity_5star_bg               |
-| 4 星背景色                | rarity=4          | 背景色为 rarity_4star_bg               |
-| 命座数字显示              | extraInt1=6       | '6' 可见（右上角）                     |
-| 点击触发回调              | 点击卡片          | `onTap` 回调触发，参数为对应 character |
-| 原神显示元素圆形角标      | gameId='genshin'  | 左上角元素圆形标签可见                 |
-| 星铁显示属性+命途标签     | gameId='starrail' | 左上角纵向胶囊标签可见                 |
-| 绝区零显示稀有度+属性标签 | gameId='zzz'      | 左上角纵向胶囊标签可见                 |
+| 用例                      | 操作                               | 预期                                   |
+| ------------------------- | ---------------------------------- | -------------------------------------- |
+| 角色名显示                | name='纳西妲'                      | '纳西妲' 文字可见                      |
+| 5 星背景色                | rarity=5                           | 背景色为 rarity_5star_bg               |
+| 4 星背景色                | rarity=4                           | 背景色为 rarity_4star_bg               |
+| 命座数字显示              | extraInt1=6                        | '6' 可见（右上角）                     |
+| 点击触发回调              | 点击卡片                           | `onTap` 回调触发，参数为对应 character |
+| 原神显示元素圆形角标      | gameId='genshin'                   | 左上角元素圆形标签可见                 |
+| 星铁显示属性+命途标签     | gameId='starrail'                  | 左上角纵向胶囊标签可见                 |
+| 绝区零显示稀有度+属性标签 | gameId='zzz'                       | 左上角纵向胶囊标签可见                 |
+| 有武器时显示武器浮层      | hasWeaponSlot=true，weaponLevel=90 | 右下角武器浮层可见，显示 Lv.90         |
+| 无武器时显示未装备占位    | hasWeaponSlot=true，weaponLevel=0  | 右下角显示禁止圆圈图标和"未装备"文字   |
+| 无武器槽位时不显示浮层    | hasWeaponSlot=false                | 右下角武器浮层不可见                   |
 
 ---
 
@@ -805,21 +808,21 @@
 
 **CharacterCard**
 
-| 用例                   | 操作                           | 预期结果                 |
-| ---------------------- | ------------------------------ | ------------------------ |
-| rarity=4（4 星）       | character.rarity=4             | 背景色为 rarity_4star_bg |
-| rarity=5（5 星）       | character.rarity=5             | 背景色为 rarity_5star_bg |
-| extraInt1=0（0 命）    | character.extraInt1=0          | 右上角显示 '0'           |
-| extraInt1=6（6 命）    | character.extraInt1=6          | 右上角显示 '6'           |
-| extraInt2=0（好感 0）  | character.extraInt2=0          | 底部显示 '好感 0'        |
-| extraInt2=10（好感满） | character.extraInt2=10         | 底部显示 '好感 10'       |
-| level=1（最低等级）    | character.level=1              | 显示 'Lv.1'              |
-| level=90（最高等级）   | character.level=90             | 显示 'Lv.90'             |
-| weaponLevel=0          | character.weaponLevel=0        | 显示 'Lv.0'，不崩溃      |
-| weaponAffix=1（R1）    | character.weaponAffix=1        | 显示 'R1'                |
-| weaponAffix=5（R5）    | character.weaponAffix=5        | 显示 'R5'                |
-| 绝区零 rarity='S'      | character.rarity=5（映射为 S） | 左上角显示 'S'           |
-| 绝区零 rarity='A'      | character.rarity=4（映射为 A） | 左上角显示 'A'           |
+| 用例                   | 操作                                        | 预期结果                                      |
+| ---------------------- | ------------------------------------------- | --------------------------------------------- |
+| rarity=4（4 星）       | character.rarity=4                          | 背景色为 rarity_4star_bg                      |
+| rarity=5（5 星）       | character.rarity=5                          | 背景色为 rarity_5star_bg                      |
+| extraInt1=0（0 命）    | character.extraInt1=0                       | 右上角显示 '0'                                |
+| extraInt1=6（6 命）    | character.extraInt1=6                       | 右上角显示 '6'                                |
+| extraInt2=0（好感 0）  | character.extraInt2=0                       | 底部显示 '好感 0'                             |
+| extraInt2=10（好感满） | character.extraInt2=10                      | 底部显示 '好感 10'                            |
+| level=1（最低等级）    | character.level=1                           | 显示 'Lv.1'                                   |
+| level=90（最高等级）   | character.level=90                          | 显示 'Lv.90'                                  |
+| weaponLevel=0          | character.weaponLevel=0，hasWeaponSlot=true | 显示未装备占位（禁止圆圈 + "未装备"），不崩溃 |
+| weaponAffix=1（R1）    | character.weaponAffix=1                     | 显示 'R1'                                     |
+| weaponAffix=5（R5）    | character.weaponAffix=5                     | 显示 'R5'                                     |
+| 绝区零 rarity='S'      | character.rarity=5（映射为 S）              | 左上角显示 'S'                                |
+| 绝区零 rarity='A'      | character.rarity=4（映射为 A）              | 左上角显示 'A'                                |
 
 ---
 

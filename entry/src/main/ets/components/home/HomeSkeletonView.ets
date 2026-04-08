@@ -2,7 +2,7 @@ import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 
 @Preview
 @ComponentV2
-struct HomeSkeletonViewPreview {
+export struct HomeSkeletonViewPreview {
   build() {
     HomeSkeletonView()
       .height(themeManager.current.value600)

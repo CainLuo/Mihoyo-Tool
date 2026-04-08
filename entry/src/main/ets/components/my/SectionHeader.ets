@@ -21,7 +21,7 @@ export struct SectionHeader {
 
 @Preview
 @ComponentV2
-struct SectionHeaderPreview {
+export struct SectionHeaderPreview {
   build() {
     Column({ space: 8 }) {
       SectionHeader({ title: $r('app.string.my_section_account') })

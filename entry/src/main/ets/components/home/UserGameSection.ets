@@ -63,7 +63,7 @@ export struct UserGameSection {
 
 @Preview
 @ComponentV2
-struct UserGameSectionPreview {
+export struct UserGameSectionPreview {
   @Local private card: GameRoleCardVM = new GameRoleCardVM('genshin', 'genshin', $r('app.color.game_color_genshin'), '123456789', '旅行者', '天空岛', null, 'sync_just_now');
   @Local private account: MihoyoAccountVM = new MihoyoAccountVM(1, 'user001', [], '旅行者', '');
 

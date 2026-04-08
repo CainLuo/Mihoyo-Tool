@@ -46,7 +46,7 @@ function makeMockStatsPanelVM(): GenshinCharacterDetailViewModel {
 // ── Preview：宽屏模式（武器卡片 + 属性列表）──
 @Preview
 @ComponentV2
-struct CharDetailStatsPanelPreviewWide {
+export struct CharDetailStatsPanelPreviewWide {
   build() {
     CharDetailStatsPanel({
       vm: makeMockStatsPanelVM(),
@@ -61,7 +61,7 @@ struct CharDetailStatsPanelPreviewWide {
 // ── Preview：Phone 模式（武器行 + 属性网格）──
 @Preview
 @ComponentV2
-struct CharDetailStatsPanelPreviewPhone {
+export struct CharDetailStatsPanelPreviewPhone {
   build() {
     CharDetailStatsPanel({
       vm: makeMockStatsPanelVM(),

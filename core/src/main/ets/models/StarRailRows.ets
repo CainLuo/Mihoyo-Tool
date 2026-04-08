@@ -14,6 +14,9 @@ export class StarRailAvatarBasicRow {
   equipRarity: number = 0;
   equipLevel: number = 0;
   equipRank: number = 0;
+  equipIconUrl: string = '';
+  /** 是否被选中（0=否，1=是） */
+  isChosen: number = 0;
   icon: string = '';
   figurePath: string = '';
   elementId: number = 0;

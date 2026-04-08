@@ -37,7 +37,7 @@ import { themeManager } from '../../theme/ThemeManager';
 
 @Preview
 @ComponentV2
-struct BottomTabItemPreview {
+export struct BottomTabItemPreview {
   build() {
     Row() {
       BottomTabItem({ tm: themeManager, tab: 0, selectedTab: 0, label: $r('app.string.main_tab_home'), icon: '🏠' })

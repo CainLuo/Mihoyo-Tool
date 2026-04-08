@@ -8,12 +8,11 @@
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 import { ExpeditionVM } from './DailyNoteModels'
 import { TimeFormatUtil } from '../../utils/TimeFormatUtil'
-import { common } from '@kit.AbilityKit'
 
 // ── Preview：派遣进行中 ──
 @Preview
 @ComponentV2
-struct ExpeditionItemPreviewOngoing {
+export struct ExpeditionItemPreviewOngoing {
   build() {
     Column() {
       ExpeditionItem({
@@ -32,7 +31,6 @@ struct ExpeditionItemPreviewOngoing {
 export struct ExpeditionItem {
   @Param expedition: ExpeditionVM = new ExpeditionVM('', 0, false)
   @Local private tm: ThemeManager = themeManager
-  @Local private ctx: common.UIAbilityContext = getContext(this) as common.UIAbilityContext
 
   build() {
     Row({ space: this.tm.current.value12 }) {
@@ -63,7 +61,7 @@ export struct ExpeditionItem {
           Text($r('app.string.daily_note_expedition_remain_prefix'))
             .font(this.tm.current.body16)
             .fontColor(this.tm.current.colorTextSecondary)
-          Text(TimeFormatUtil.formatSeconds(this.expedition.remainSeconds, this.ctx))
+          Text(TimeFormatUtil.formatSeconds(this.expedition.remainSeconds, this.getUIContext()))
             .font(this.tm.current.body16)
             .fontColor(this.tm.current.colorTextSecondary)
         }

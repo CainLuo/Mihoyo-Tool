@@ -177,6 +177,12 @@ export enum GenshinCharListCol {
   WEAPON_LEVEL              = 'weapon_level',
   /** 武器精炼等级（1-5） */
   WEAPON_AFFIX_LEVEL        = 'weapon_affix_level',
+  /** 武器图标 URL */
+  WEAPON_ICON_URL           = 'weapon_icon_url',
+  /** 角色立绘大图 URL */
+  IMAGE                     = 'image',
+  /** 是否被选中（0=否，1=是） */
+  IS_CHOSEN                 = 'is_chosen',
   /** 角色头像图片 URL */
   ICON                      = 'icon',
   /** 角色侧面小图 URL（用于列表展示） */
@@ -269,6 +275,10 @@ export enum StarRailAvatarBasicCol {
   EQUIP_LEVEL  = 'equip_level',
   /** 光锥叠影等级（1-5，对应原神精炼） */
   EQUIP_RANK   = 'equip_rank',
+  /** 光锥图标 URL */
+  EQUIP_ICON_URL = 'equip_icon_url',
+  /** 是否被选中（0=否，1=是） */
+  IS_CHOSEN    = 'is_chosen',
   /** 角色头像图片 URL */
   ICON         = 'icon',
   /** 角色立绘图片路径 */
@@ -381,6 +391,8 @@ export enum ZZZAvatarBasicCol {
   ROLE_SQUARE_URL   = 'role_square_url',
   /** 觉醒状态（存储为 TEXT，读取时 parseInt 转 number） */
   AWAKEN_STATE      = 'awaken_state',
+  /** 是否被选中（0=否，1=是） */
+  IS_CHOSEN         = 'is_chosen',
 }
 
 /**
@@ -577,6 +589,9 @@ export const GENSHIN_CHARACTER_LIST_TABLE = new TableDef(TableName.GENSHIN_CHARA
   new ColumnDef('weapon_rarity',             'INTEGER'),
   new ColumnDef('weapon_level',              'INTEGER'),
   new ColumnDef('weapon_affix_level',        'INTEGER'),
+  new ColumnDef('weapon_icon_url',           'TEXT'),
+  new ColumnDef('image',                     'TEXT'),
+  new ColumnDef('is_chosen',                 'INTEGER', 'DEFAULT 0'),
   new ColumnDef('icon',                      'TEXT'),
   new ColumnDef('side_icon',                 'TEXT'),
   new ColumnDef(CommonCol.RAW_JSON,    'TEXT',    'NOT NULL'),
@@ -647,6 +662,8 @@ export const STARRAIL_AVATAR_BASIC_TABLE = new TableDef(TableName.STARRAIL_AVATA
   new ColumnDef('equip_rarity', 'INTEGER'),
   new ColumnDef('equip_level',  'INTEGER'),
   new ColumnDef('equip_rank',   'INTEGER'),
+  new ColumnDef('equip_icon_url', 'TEXT'),
+  new ColumnDef('is_chosen',    'INTEGER', 'DEFAULT 0'),
   new ColumnDef('icon',         'TEXT'),
   new ColumnDef('figure_path',  'TEXT'),
   new ColumnDef('element_id',   'INTEGER'),
@@ -726,6 +743,7 @@ export const ZZZ_AVATAR_BASIC_TABLE = new TableDef(TableName.ZZZ_AVATAR_BASIC, [
   new ColumnDef('hollow_icon_path',  'TEXT'),
   new ColumnDef('role_square_url',   'TEXT'),
   new ColumnDef('awaken_state',      'TEXT'),
+  new ColumnDef('is_chosen',         'INTEGER', 'DEFAULT 0'),
   new ColumnDef(CommonCol.RAW_JSON,    'TEXT',    'NOT NULL'),
   new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
 ], FK_ACCOUNT);

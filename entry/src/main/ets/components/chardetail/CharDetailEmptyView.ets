@@ -23,7 +23,7 @@ export struct CharDetailEmptyView {
 
 @Preview
 @ComponentV2
-struct CharDetailEmptyViewPreview {
+export struct CharDetailEmptyViewPreview {
   build() {
     Column() {
       CharDetailEmptyView({ tm: themeManager })

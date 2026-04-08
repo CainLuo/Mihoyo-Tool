@@ -38,7 +38,7 @@ export struct GameDataRow {
 
 @Preview
 @ComponentV2
-struct GameDataRowPreview {
+export struct GameDataRowPreview {
   build() {
     Column({ space: 8 }) {
       GameDataRow({ emoji: '🌙', label: $r('app.string.daily_note_resin_title'), value: '140/200', valueColor: $r('app.color.color_primary') })

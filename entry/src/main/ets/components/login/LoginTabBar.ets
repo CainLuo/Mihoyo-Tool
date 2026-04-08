@@ -29,7 +29,7 @@ export struct LoginTabBar {
 
 @Preview
 @ComponentV2
-struct LoginTabBarPreview {
+export struct LoginTabBarPreview {
   build() {
     Column() {
       LoginTabBar({ tm: themeManager, vm: new LoginViewModel() })

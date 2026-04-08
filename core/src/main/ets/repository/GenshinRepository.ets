@@ -12,6 +12,38 @@ import {
   GenshinCharacterDetailRow,
   GenshinCharacterComputeRow
 } from '../models/GenshinRows';
+import { GenshinApiService } from '../network/GenshinApiService';
+
+// ─── 解析用本地 interface ────────────────────────────────────────
+
+interface GenshinWeaponItem {
+  id: number;
+  name: string;
+  level: number;
+  affix_level: number;
+  rarity: number;
+  icon: string;
+}
+
+interface GenshinCharacterItem {
+  id: number;
+  name: string;
+  element: string;
+  rarity: number;
+  level: number;
+  fetter: number;
+  actived_constellation_num: number;
+  image: string;
+  is_chosen: boolean;
+  icon: string;
+  side_icon: string;
+  weapon_type: number;
+  weapon: GenshinWeaponItem | null;
+}
+
+interface GenshinCharacterListData {
+  list: GenshinCharacterItem[];
+}
 
 export class GenshinRepository extends GameRepository {
   private characterListDao: GenshinCharacterListDao = new GenshinCharacterListDao();
@@ -21,10 +53,6 @@ export class GenshinRepository extends GameRepository {
 
   // ── 角色列表 ──────────────────────────────────────────────────
 
-  /**
-   * 获取角色列表（先返回 DB 缓存，若超过同步阈值则触发后台网络请求）
-   * 注意：网络请求和 DB 写入逻辑在 ViewModel 层触发，Repository 只提供 DB 读写接口
-   */
   async getAvatarList(accountId: number, roleUid: string): Promise<GenshinCharacterListRow[]> {
     return this.characterListDao.findAll(accountId, roleUid);
   }
@@ -52,6 +80,22 @@ export class GenshinRepository extends GameRepository {
     await this.markFailed(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_LIST, errorMsg);
   }
 
+  /**
+   * 拉取角色列表 → 解析 → 写 DB（entry 层只需调用此方法）
+   */
+  async syncAvatarList(accountId: number, roleUid: string, server: string, cookie: string): Promise<void> {
+    await this.markSyncing(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_LIST);
+    try {
+      const resp = await (this.getService() as GenshinApiService).getCharacterList(roleUid, server, cookie);
+      const rows = GenshinRepository.parseCharacterList(accountId, roleUid, resp);
+      await this.upsertAvatarList(accountId, roleUid, rows);
+    } catch (error) {
+      const msg = this.toErrorMessage(error);
+      await this.markFailed(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_LIST, msg);
+      throw new Error(msg);
+    }
+  }
+
   // ── 实时便笺 ──────────────────────────────────────────────────
 
   async getDailyNote(accountId: number, roleUid: string): Promise<GenshinDailyNoteRow | null> {
@@ -75,6 +119,28 @@ export class GenshinRepository extends GameRepository {
 
   async markDailyNoteFailed(accountId: number, roleUid: string, errorMsg: string): Promise<void> {
     await this.markFailed(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE, errorMsg);
+  }
+
+  /**
+   * 拉取便笺 → 写 DB（entry 层只需调用此方法）
+   */
+  async syncDailyNote(accountId: number, roleUid: string, server: string, cookie: string): Promise<void> {
+    await this.markSyncing(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE);
+    try {
+      const resp = await (this.getService() as GenshinApiService).getDailyNote(roleUid, server, cookie);
+      const respData = resp as Record<string, object>;
+      const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
+      const row = new GenshinDailyNoteRow();
+      row.accountId = accountId;
+      row.roleUid = roleUid;
+      row.rawJson = JSON.stringify(dataObj);
+      row.updateTime = Math.floor(Date.now() / 1000);
+      await this.upsertDailyNote(accountId, roleUid, row);
+    } catch (error) {
+      const msg = this.toErrorMessage(error);
+      await this.markFailed(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE, msg);
+      throw new Error(msg);
+    }
   }
 
   // ── 角色详情 ──────────────────────────────────────────────────
@@ -113,5 +179,47 @@ export class GenshinRepository extends GameRepository {
       await this.characterComputeDao.upsert(row);
       await this.markSuccess(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_COMPUTE);
     });
+  }
+
+  // ── 解析方法 ─────────────────────────────────────────────────
+
+  static parseCharacterList(accountId: number, roleUid: string, resp: object): GenshinCharacterListRow[] {
+    const result: GenshinCharacterListRow[] = [];
+    try {
+      const respRecord = resp as Record<string, object>;
+      const dataObj = respRecord['data'] !== undefined ? respRecord['data'] : resp;
+      const data = dataObj as GenshinCharacterListData;
+      const list = data.list;
+      if (!list || list.length === 0) { return result; }
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i];
+        const weapon = item.weapon;
+        const row = new GenshinCharacterListRow();
+        row.accountId = accountId;
+        row.roleUid = roleUid;
+        row.avatarId = `${item.id}`;
+        row.name = item.name;
+        row.element = item.element;
+        row.rarity = item.rarity;
+        row.level = item.level;
+        row.fetter = item.fetter;
+        row.activedConstellationNum = item.actived_constellation_num;
+        row.image = item.image ?? '';
+        row.isChosen = item.is_chosen ? 1 : 0;
+        row.icon = item.icon;
+        row.sideIcon = item.side_icon;
+        row.weaponType = item.weapon_type;
+        row.weaponId = weapon ? `${weapon.id}` : '';
+        row.weaponName = weapon ? weapon.name : '';
+        row.weaponLevel = weapon ? weapon.level : 0;
+        row.weaponAffixLevel = weapon ? weapon.affix_level : 0;
+        row.weaponRarity = weapon ? weapon.rarity : 0;
+        row.weaponIconUrl = weapon ? weapon.icon : '';
+        row.rawJson = JSON.stringify(item);
+        row.updateTime = Math.floor(Date.now() / 1000);
+        result[result.length] = row;
+      }
+    } catch (_) {}
+    return result;
   }
 }

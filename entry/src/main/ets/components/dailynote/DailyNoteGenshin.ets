@@ -4,7 +4,6 @@ import { DailyNoteCard } from './DailyNoteCard'
 import { ExpeditionItem } from './ExpeditionItem'
 import { GenshinConstants } from '../../constants/GenshinConstants'
 import { TimeFormatUtil } from '../../utils/TimeFormatUtil'
-import { common } from '@kit.AbilityKit'
 
 /** 构造完整 mock 便签数据 */
 function makeMockNote(resin: number): GenshinDailyNoteVM {
@@ -36,7 +35,7 @@ function makeMockNote(resin: number): GenshinDailyNoteVM {
 // ── Preview：正常状态（树脂未满）──
 @Preview
 @ComponentV2
-struct DailyNoteGenshinPreviewNormal {
+export struct DailyNoteGenshinPreviewNormal {
   @Local private tm: ThemeManager = themeManager
   build() {
     Scroll() {
@@ -51,7 +50,7 @@ struct DailyNoteGenshinPreviewNormal {
 // ── Preview：树脂已满（红色警告）──
 @Preview
 @ComponentV2
-struct DailyNoteGenshinPreviewFull {
+export struct DailyNoteGenshinPreviewFull {
   build() {
     Scroll() {
       DailyNoteGenshin({ data: makeMockNote(200) })
@@ -66,7 +65,6 @@ struct DailyNoteGenshinPreviewFull {
 export struct DailyNoteGenshin {
   @Param data: GenshinDailyNoteVM = new GenshinDailyNoteVM()
   @Local private tm: ThemeManager = themeManager
-  @Local private ctx: common.UIAbilityContext = getContext(this) as common.UIAbilityContext
 
   private resinColor(): ResourceColor {
     if (this.data.currentResin >= this.data.maxResin) return this.tm.current.colorDanger
@@ -149,7 +147,7 @@ export struct DailyNoteGenshin {
 
       DailyNoteCard({
         title: $r('app.string.daily_note_resin_title'),
-        subtitle: TimeFormatUtil.formatSeconds(this.data.resinRecoverySeconds, this.ctx),
+        subtitle: TimeFormatUtil.formatSeconds(this.data.resinRecoverySeconds, this.getUIContext()),
         hasSubtitle: this.data.resinRecoverySeconds > 0,
         valueText: this.data.currentResin.toString() + '/' + this.data.maxResin.toString(),
         hasValueText: true,
@@ -158,7 +156,7 @@ export struct DailyNoteGenshin {
 
       DailyNoteCard({
         title: $r('app.string.daily_note_home_coin_title'),
-        subtitle: TimeFormatUtil.formatSeconds(this.data.homeCoinRecoverySeconds, this.ctx),
+        subtitle: TimeFormatUtil.formatSeconds(this.data.homeCoinRecoverySeconds, this.getUIContext()),
         hasSubtitle: this.data.homeCoinRecoverySeconds > 0,
         valueText: this.data.currentHomeCoin.toString() + '/' + this.data.maxHomeCoin.toString(),
         hasValueText: true,
@@ -183,7 +181,7 @@ export struct DailyNoteGenshin {
         title: $r('app.string.daily_note_transformer_title'),
         subtitle: this.data.transformerReady
           ? $r('app.string.daily_note_transformer_done')
-          : TimeFormatUtil.formatTransformer(this.data.transformerDay, this.data.transformerHour, this.data.transformerMinute, this.ctx),
+          : TimeFormatUtil.formatTransformer(this.data.transformerDay, this.data.transformerHour, this.data.transformerMinute, this.getUIContext()),
         hasSubtitle: true,
         valueText: this.data.transformerReady ? $r('app.string.daily_note_transformer_ready') : '',
         hasValueText: this.data.transformerReady,

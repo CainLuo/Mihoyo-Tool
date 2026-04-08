@@ -24,7 +24,7 @@ export struct CharDetailLoadingView {
 
 @Preview
 @ComponentV2
-struct CharDetailLoadingViewPreview {
+export struct CharDetailLoadingViewPreview {
   build() {
     Column() {
       CharDetailLoadingView({ tm: themeManager })

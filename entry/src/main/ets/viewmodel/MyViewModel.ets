@@ -3,7 +3,7 @@
  *
  * 从 Repository 读取账号和角色数据，通过 AuthRepository 补充网络数据（nickname、avatarUrl、statsJson）。
  */
-import { CoreInitializer, AuthRepository, RoleStatItem } from 'core';
+import { CoreInitializer, RoleStatItem } from 'core';
 import { Logger } from '../utils/Logger';
 import { MyAccountVM, MyGameRoleVM, GameStatItem } from '../components/my/MyModels';
 import { serverDisplayName } from '../utils/ServerNameUtil';
@@ -31,51 +31,8 @@ export class MyViewModel {
       const vms: MyAccountVM[] = [];
       for (let ai = 0; ai < accountRows.length; ai++) {
         const row = accountRows[ai];
-        let roles = await CoreInitializer.bbsRepository.getGameRoles(row.id);
-
-        // 补充/更新 nickname 和 avatarUrl
-        if (row.cookie) {
-          try {
-            const bbsDetail = await AuthRepository.getBbsAccountDetail(row.cookie);
-            if (bbsDetail.nickname || bbsDetail.avatarUrl) {
-              const updatedRow = await CoreInitializer.bbsRepository.getAccountById(row.id);
-              if (updatedRow !== null) {
-                updatedRow.nickname = bbsDetail.nickname;
-                updatedRow.avatarUrl = bbsDetail.avatarUrl;
-                await CoreInitializer.bbsRepository.saveAccount(updatedRow);
-              }
-              row.nickname = bbsDetail.nickname;
-              row.avatarUrl = bbsDetail.avatarUrl;
-            }
-          } catch (_) {}
-        }
-
-        // 如果角色数据缺少 statsJson，调用账号详情接口补充
-        let needsRefresh = false;
-        for (let i = 0; i < roles.length; i++) {
-          if (!roles[i].statsJson || roles[i].statsJson === '') {
-            needsRefresh = true;
-            break;
-          }
-        }
-        if (needsRefresh && row.cookie) {
-          try {
-            const detailRoles = await AuthRepository.getGameRecordCard(row.cookie, row.username);
-            const updatedRoles = await CoreInitializer.bbsRepository.getGameRoles(row.id);
-            for (let i = 0; i < updatedRoles.length; i++) {
-              for (let j = 0; j < detailRoles.length; j++) {
-                if (detailRoles[j].gameId === updatedRoles[i].gameId) {
-                  updatedRoles[i].bgImageUrl = detailRoles[j].bgImageUrl;
-                  updatedRoles[i].statsJson = detailRoles[j].statsJson;
-                  break;
-                }
-              }
-            }
-            await CoreInitializer.bbsRepository.saveGameRoles(updatedRoles);
-            roles = await CoreInitializer.bbsRepository.getGameRoles(row.id);
-          } catch (_) {}
-        }
-
+        // 只读取 DB 数据，不做任何写操作（写操作在登录时完成）
+        const roles = await CoreInitializer.bbsRepository.getGameRoles(row.id);
         const roleVMs: MyGameRoleVM[] = [];
         for (let ri = 0; ri < roles.length; ri++) {
           const r = roles[ri];

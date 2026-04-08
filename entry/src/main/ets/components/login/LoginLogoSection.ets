@@ -29,7 +29,7 @@ export struct LoginLogoSection {
 
 @Preview
 @ComponentV2
-struct LoginLogoSectionPreview {
+export struct LoginLogoSectionPreview {
   build() {
     Column() {
       LoginLogoSection({ tm: themeManager, logoSize: 64 })

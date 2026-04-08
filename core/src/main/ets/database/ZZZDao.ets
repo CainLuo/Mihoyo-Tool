@@ -53,7 +53,7 @@ export class ZZZAvatarBasicDao {
           idVal, row.accountId, row.roleUid, row.avatarId, row.nameMi18n, row.fullNameMi18n,
           row.elementType, row.subElementType, row.avatarProfession, row.rarity, row.level,
           row.rank, row.campNameMi18n, row.groupIconPath, row.hollowIconPath,
-          row.roleSquareUrl, row.awakenState.toString(), row.rawJson, row.updateTime
+          row.roleSquareUrl, row.awakenState.toString(), row.isChosen, row.rawJson, row.updateTime
         ]);
       }
     } catch (e) {
@@ -134,6 +134,7 @@ export class ZZZAvatarBasicDao {
       row.hollowIconPath   = r.str(ZZZAvatarBasicCol.HOLLOW_ICON_PATH);
       row.roleSquareUrl    = r.str(ZZZAvatarBasicCol.ROLE_SQUARE_URL);
       row.awakenState      = r.strAsInt(ZZZAvatarBasicCol.AWAKEN_STATE);
+      row.isChosen         = r.num(ZZZAvatarBasicCol.IS_CHOSEN);
       row.rawJson          = r.str(CommonCol.RAW_JSON);
       row.updateTime       = r.num(CommonCol.UPDATE_TIME);
       return row;

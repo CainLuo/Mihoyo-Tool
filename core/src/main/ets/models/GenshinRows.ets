@@ -15,6 +15,11 @@ export class GenshinCharacterListRow {
   weaponRarity: number = 0;
   weaponLevel: number = 0;
   weaponAffixLevel: number = 0;
+  weaponIconUrl: string = '';
+  /** 角色立绘大图 URL */
+  image: string = '';
+  /** 是否被选中（0=否，1=是） */
+  isChosen: number = 0;
   icon: string = '';
   sideIcon: string = '';
   rawJson: string = '';

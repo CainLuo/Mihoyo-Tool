@@ -4,7 +4,7 @@ import { RouterUtil } from '../../utils/RouterUtil'
 
 @Preview
 @ComponentV2
-struct HomePlaceholderViewPreview {
+export struct HomePlaceholderViewPreview {
   build() {
     HomePlaceholderView()
       .height(themeManager.current.value600)

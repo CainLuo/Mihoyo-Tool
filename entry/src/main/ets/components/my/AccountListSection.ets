@@ -99,7 +99,7 @@ export struct AccountListSection {
 
 @Preview
 @ComponentV2
-struct AccountListSectionPreview {
+export struct AccountListSectionPreview {
   build() {
     Column({ space: 16 }) {
       // 有账号

@@ -11,7 +11,7 @@ import { GameTabItem } from '../../viewmodel/CharactersViewModel';
 // ── Preview：多游戏 Tab，第一个选中 ──
 @Preview
 @ComponentV2
-struct GameTabBarPreview {
+export struct GameTabBarPreview {
   build() {
     GameTabBar({
       tabs: [

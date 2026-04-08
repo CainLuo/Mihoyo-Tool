@@ -12,6 +12,36 @@ import {
   StarRailAvatarInfoRow,
   StarRailAvatarComputeRow
 } from '../models/StarRailRows';
+import { StarRailApiService } from '../network/StarRailApiService';
+
+interface StarRailEquipItem {
+  id: number;
+  name: string;
+  level: number;
+  rank: number;
+  rarity: number;
+  icon: string;
+}
+
+interface StarRailAvatarItem {
+  id: number;
+  name: string;
+  rarity: number;
+  level: number;
+  rank: number;
+  base_type: number;
+  element: string;
+  element_id: number;
+  icon: string;
+  figure_path: string;
+  is_chosen: boolean;
+  equip: StarRailEquipItem | null;
+}
+
+interface StarRailAvatarListData {
+  list: StarRailAvatarItem[];
+  avatar_list: StarRailAvatarItem[];
+}
 
 export class StarRailRepository extends GameRepository {
   private avatarBasicDao: StarRailAvatarBasicDao = new StarRailAvatarBasicDao();
@@ -48,6 +78,20 @@ export class StarRailRepository extends GameRepository {
     await this.markFailed(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_BASIC, errorMsg);
   }
 
+  /** 拉取角色列表 → 解析 → 写 DB */
+  async syncAvatarList(accountId: number, roleUid: string, server: string, cookie: string): Promise<void> {
+    await this.markSyncing(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_BASIC);
+    try {
+      const resp = await (this.getService() as StarRailApiService).getAvatarBasic(roleUid, server, cookie);
+      const rows = StarRailRepository.parseAvatarBasic(accountId, roleUid, resp);
+      await this.upsertAvatarList(accountId, roleUid, rows);
+    } catch (error) {
+      const msg = this.toErrorMessage(error);
+      await this.markFailed(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_BASIC, msg);
+      throw new Error(msg);
+    }
+  }
+
   // ── 实时便笺 ──────────────────────────────────────────────────
 
   async getDailyNote(accountId: number, roleUid: string): Promise<StarRailDailyNoteRow | null> {
@@ -71,6 +115,26 @@ export class StarRailRepository extends GameRepository {
 
   async markDailyNoteFailed(accountId: number, roleUid: string, errorMsg: string): Promise<void> {
     await this.markFailed(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE, errorMsg);
+  }
+
+  /** 拉取便笺 → 写 DB */
+  async syncDailyNote(accountId: number, roleUid: string, server: string, cookie: string): Promise<void> {
+    await this.markSyncing(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE);
+    try {
+      const resp = await (this.getService() as StarRailApiService).getDailyNote(roleUid, server, cookie);
+      const respData = resp as Record<string, object>;
+      const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
+      const row = new StarRailDailyNoteRow();
+      row.accountId = accountId;
+      row.roleUid = roleUid;
+      row.rawJson = JSON.stringify(dataObj);
+      row.updateTime = Math.floor(Date.now() / 1000);
+      await this.upsertDailyNote(accountId, roleUid, row);
+    } catch (error) {
+      const msg = this.toErrorMessage(error);
+      await this.markFailed(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE, msg);
+      throw new Error(msg);
+    }
   }
 
   // ── 角色详情 ──────────────────────────────────────────────────
@@ -121,5 +185,46 @@ export class StarRailRepository extends GameRepository {
 
   async markAvatarComputeFailed(accountId: number, roleUid: string, errorMsg: string): Promise<void> {
     await this.markFailed(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_COMPUTE, errorMsg);
+  }
+
+  // ── 解析方法 ─────────────────────────────────────────────────
+
+  static parseAvatarBasic(accountId: number, roleUid: string, resp: object): StarRailAvatarBasicRow[] {
+    const result: StarRailAvatarBasicRow[] = [];
+    try {
+      const respRecord = resp as Record<string, object>;
+      const dataObj = respRecord['data'] !== undefined ? respRecord['data'] : resp;
+      const data = dataObj as StarRailAvatarListData;
+      const list = data.avatar_list !== undefined ? data.avatar_list : data.list;
+      if (!list || list.length === 0) { return result; }
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i];
+        const equip = item.equip;
+        const row = new StarRailAvatarBasicRow();
+        row.accountId = accountId;
+        row.roleUid = roleUid;
+        row.avatarId = `${item.id}`;
+        row.name = item.name;
+        row.rarity = item.rarity;
+        row.level = item.level;
+        row.rank = item.rank;
+        row.baseType = item.base_type;
+        row.elementId = item.element_id;
+        row.element = item.element ?? `${item.element_id}`;
+        row.icon = item.icon;
+        row.figurePath = item.figure_path;
+        row.isChosen = item.is_chosen ? 1 : 0;
+        row.equipId = equip ? `${equip.id}` : '';
+        row.equipName = equip ? equip.name : '';
+        row.equipLevel = equip ? equip.level : 0;
+        row.equipRank = equip ? equip.rank : 0;
+        row.equipRarity = equip ? equip.rarity : 0;
+        row.equipIconUrl = equip ? equip.icon : '';
+        row.rawJson = JSON.stringify(item);
+        row.updateTime = Math.floor(Date.now() / 1000);
+        result[result.length] = row;
+      }
+    } catch (_) {}
+    return result;
   }
 }

@@ -149,7 +149,7 @@ export struct GameToolCard {
 
 @Preview
 @ComponentV2
-struct GameToolCardPreview {
+export struct GameToolCardPreview {
   @Local private snap: GameNoteSnapshotVM = new GameNoteSnapshotVM('genshin', 120, 200, 10800, '', '', false);
   @Local private card1: GameRoleCardVM = new GameRoleCardVM('genshin', 'genshin', $r('app.color.game_color_genshin'), '123456789', '旅行者', '天空岛', null, 'sync_just_now');
   @Local private card2: GameRoleCardVM = new GameRoleCardVM('starrail', 'starrail', $r('app.color.game_color_starrail'), '987654321', '开拓者', '星穹列车', null, 'sync_not_synced');

@@ -25,7 +25,7 @@ function makeMockSkills(): CharDetailSkill[] {
 // ── Preview：水元素技能列 ──
 @Preview
 @ComponentV2
-struct CharDetailSkillsColumnPreview {
+export struct CharDetailSkillsColumnPreview {
   build() {
     CharDetailSkillsColumn({
       skills: makeMockSkills(),

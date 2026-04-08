@@ -58,6 +58,10 @@ export class GameDataSummary {
   weaponRarity: number = 0;
   /** 武器图标 URL */
   weaponIconUrl: string = '';
+  /** 该游戏/角色是否有武器槽位（原神/星铁=true，绝区零暂时=false） */
+  hasWeaponSlot: boolean = false;
+  /** 阵营图标 URL（绝区零专用，对应 group_icon_path） */
+  groupIconUrl: string = '';
   /** 数据更新时间（Unix 秒） */
   updateTime: number = 0;
 }

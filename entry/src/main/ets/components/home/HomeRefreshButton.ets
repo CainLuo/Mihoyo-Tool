@@ -34,7 +34,7 @@ export struct HomeRefreshButton {
 
 @Preview
 @ComponentV2
-struct HomeRefreshButtonPreview {
+export struct HomeRefreshButtonPreview {
   build() {
     Row({ space: 16 }) {
       HomeRefreshButton({ viewState: ViewState.DATA, isRefreshing: false })

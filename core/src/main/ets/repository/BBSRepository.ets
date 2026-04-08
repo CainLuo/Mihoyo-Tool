@@ -1,41 +1,137 @@
-// 注意：MihoyoAccountApiService 尚未创建（在 mihoyo-api-redesign spec 中定义）。
-// 当前使用 MihoyoApiService 抽象基类作为 service 类型占位。
-// 待 MihoyoAccountApiService 创建后，将此处类型替换为 MihoyoAccountApiService。
 import { MihoyoApiService } from '../network/MihoyoApiService';
 import { AccountDao, GameRoleDao } from '../database/BBSDao';
 import { AccountRow } from '../models/AccountRow';
 import { GameRoleRow } from '../models/GameRoleRow';
+import { AuthRepository } from './AuthRepository';
+import { CoreInitializer } from '../CoreInitializer';
+
+/** login() 方法的返回值，供 entry 层组装 AccountVM */
+export class LoginResult {
+  accountId: number = 0;
+  username: string = '';
+  nickname: string = '';
+  avatarUrl: string = '';
+  roles: GameRoleRow[] = [];
+}
 
 export class BBSRepository {
-  // TODO: 待 MihoyoAccountApiService 创建后，将类型替换为 MihoyoAccountApiService
   private service: MihoyoApiService | null = null;
   private accountDao: AccountDao = new AccountDao();
   private gameRoleDao: GameRoleDao = new GameRoleDao();
 
-  // TODO: 待 MihoyoAccountApiService 创建后，将参数类型替换为 MihoyoAccountApiService
   setService(service: MihoyoApiService): void {
     this.service = service;
   }
 
-  private getService(): MihoyoApiService {
-    if (this.service === null) {
-      throw new Error('BBSRepository: service not initialized');
-    }
-    return this.service;
+  private toErrorMessage(error: Error | object): string {
+    return error instanceof Error ? error.message : `${error}`;
   }
 
-  private toErrorMessage(error: Error | object): string {
-    if (error instanceof Error) {
-      return error.message;
+  // ── 登录 ──────────────────────────────────────────────────────
+
+  /**
+   * 完整登录流程：写账号 → 拉游戏角色 → 补充详情 → 返回结果。
+   * entry 层只需调用此方法，不接触任何 DB 操作和环境判断。
+   *
+   * mock 环境下，core 内部自动将 username/cookie 替换为 mockIdx，
+   * 确保 MockService 能路由到正确的 account1/ 或 account2/ 目录。
+   */
+  async login(username: string, cookie: string): Promise<LoginResult> {
+    // mock 环境：username 和 cookie 里的 account_id 统一使用 mockIdx，保证一致性
+    // 此逻辑由 core 内部处理，entry 层不感知环境
+    let effectiveCookie = cookie;
+    let effectiveUsername = username;
+    if (CoreInitializer.getIsMock()) {
+      const allAccounts = await this.accountDao.findAll();
+      const mockIdx = (allAccounts.length % 2) + 1;
+      effectiveCookie = `account_id=${mockIdx}; cookie_token=mock_token; ltoken=mock_ltoken; ltuid=${mockIdx}`;
+      effectiveUsername = `${mockIdx}`;
     }
-    return `${error}`;
+
+    // 1. 写入账号（INSERT OR IGNORE + UPDATE，不触发 CASCADE）
+    const accountId = await this.upsertOrUpdateAccount(effectiveUsername, effectiveCookie);
+
+    // 2. 拉取游戏角色并写入
+    try {
+      const roles = await AuthRepository.getUserGameRoles(effectiveCookie);
+      if (roles.length > 0) {
+        try {
+          const uid = BBSRepository.extractCookieField(effectiveCookie, 'account_id') || effectiveUsername;
+          const detailRoles = await AuthRepository.getGameRecordCard(effectiveCookie, uid);
+          for (let i = 0; i < roles.length; i++) {
+            for (let j = 0; j < detailRoles.length; j++) {
+              if (detailRoles[j].gameId === roles[i].gameId &&
+                  detailRoles[j].roleId === roles[i].roleId) {
+                roles[i].bgImageUrl = detailRoles[j].bgImageUrl;
+                roles[i].statsJson = detailRoles[j].statsJson;
+                break;
+              }
+            }
+          }
+        } catch (_) {}
+        const roleRows: GameRoleRow[] = [];
+        for (let i = 0; i < roles.length; i++) {
+          const r = roles[i];
+          const row = new GameRoleRow();
+          row.id = 0;
+          row.accountId = accountId;
+          row.gameId = r.gameId;
+          row.roleId = r.roleId;
+          row.nickname = r.nickname;
+          row.level = r.level;
+          row.server = r.server;
+          row.bgImageUrl = r.bgImageUrl;
+          row.statsJson = r.statsJson;
+          roleRows[roleRows.length] = row;
+        }
+        await this.gameRoleDao.upsertAll(roleRows);
+      }
+    } catch (_) {}
+
+    // 3. 补充 BBS 账号详情（nickname、avatarUrl）
+    let nickname = '';
+    let avatarUrl = '';
+    try {
+      const bbsDetail = await AuthRepository.getBbsAccountDetail(effectiveCookie);
+      if (bbsDetail.nickname || bbsDetail.avatarUrl) {
+        nickname = bbsDetail.nickname;
+        avatarUrl = bbsDetail.avatarUrl;
+        const latestRow = await this.accountDao.findById(accountId);
+        if (latestRow !== null) {
+          latestRow.nickname = nickname;
+          latestRow.avatarUrl = avatarUrl;
+          await this.accountDao.upsert(latestRow);
+        }
+      }
+    } catch (_) {}
+
+    // 4. 返回结果
+    const result = new LoginResult();
+    result.accountId = accountId;
+    result.username = effectiveUsername;
+    result.nickname = nickname;
+    result.avatarUrl = avatarUrl;
+    result.roles = await this.gameRoleDao.findByAccountId(accountId);
+    return result;
   }
 
   // ── 账号操作 ──────────────────────────────────────────────────
 
-  /** 保存账号（登录时调用） */
+  /** 保存账号（更新已有账号的字段，如 nickname/avatarUrl） */
   async saveAccount(row: AccountRow): Promise<void> {
     await this.accountDao.upsert(row);
+  }
+
+  /**
+   * 登录时写入账号：INSERT OR IGNORE + UPDATE cookie，不触发 CASCADE。
+   * @returns 写入后的账号数据库 id
+   */
+  async upsertOrUpdateAccount(username: string, cookie: string): Promise<number> {
+    const now = Math.floor(Date.now() / 1000);
+    await this.accountDao.insertOrIgnore(username, cookie, now);
+    await this.accountDao.updateCookie(username, cookie, now);
+    const saved = await this.accountDao.findByUsername(username);
+    return saved !== null ? saved.id : 0;
   }
 
   /** 查询所有账号 */
@@ -70,72 +166,22 @@ export class BBSRepository {
     return this.gameRoleDao.findByAccountAndGame(accountId, gameId);
   }
 
-  /** 批量保存游戏角色 */
-  async saveGameRoles(rows: GameRoleRow[]): Promise<void> {
-    await this.gameRoleDao.upsertAll(rows);
-  }
-
   /** 删除账号下所有游戏角色 */
   async deleteGameRoles(accountId: number): Promise<void> {
     await this.gameRoleDao.deleteByAccountId(accountId);
   }
 
-  // ── 网络请求 ──────────────────────────────────────────────────
-  // 以下方法在 MihoyoAccountApiService 创建后，需将 getService() 返回值强转为具体类型后调用对应方法。
-  // 当前 MihoyoApiService 抽象基类未定义这些方法，调用时会在运行时由具体子类实现。
+  // ── 工具方法 ─────────────────────────────────────────────────
 
-  /** 刷新游戏角色列表（从网络获取并保存到 DB） */
-  async refreshGameRoles(accountId: number, cookie: string): Promise<GameRoleRow[]> {
-    try {
-      // TODO: 待 MihoyoAccountApiService 创建后，调用 this.getService().getGameRoles(cookie)
-      // 解析响应，构建 GameRoleRow 列表
-      // 注意：实际解析逻辑在 ViewModel 层或 Parser 层，这里返回原始响应供上层处理
-      // 此处仅作为网络调用的封装
-      return [];
-    } catch (e) {
-      throw new Error(`BBSRepository.refreshGameRoles failed: ${this.toErrorMessage(e instanceof Error ? e : new Error(String(e)))}`);
+  private static extractCookieField(cookie: string, field: string): string {
+    const parts = cookie.split(';');
+    for (let i = 0; i < parts.length; i++) {
+      const trimmed = parts[i].trim();
+      const prefix = field + '=';
+      if (trimmed.startsWith(prefix)) {
+        return trimmed.substring(prefix.length).trim();
+      }
     }
-  }
-
-  /** 获取用户完整信息 */
-  async getUserFullInfo(uid: string, cookie: string): Promise<object> {
-    // TODO: 待 MihoyoAccountApiService 创建后，调用 this.getService().getUserFullInfo(uid, cookie)
-    throw new Error(`BBSRepository.getUserFullInfo: not implemented yet, uid=${uid}`);
-  }
-
-  /** 获取游戏战绩卡片 */
-  async getGameRecordCard(uid: string, cookie: string): Promise<object> {
-    // TODO: 待 MihoyoAccountApiService 创建后，调用 this.getService().getGameRecordCard(uid, cookie)
-    throw new Error(`BBSRepository.getGameRecordCard: not implemented yet, uid=${uid}`);
-  }
-
-  /** 申请 Geetest 验证 */
-  async createVerification(cookie: string): Promise<object> {
-    // TODO: 待 MihoyoAccountApiService 创建后，调用 this.getService().createVerification(cookie)
-    throw new Error(`BBSRepository.createVerification: not implemented yet`);
-  }
-
-  /** 提交 Geetest 验证结果 */
-  async verifyVerification(input: object, cookie: string): Promise<object> {
-    // TODO: 待 MihoyoAccountApiService 创建后，调用 this.getService().verifyVerification(input, cookie)
-    throw new Error(`BBSRepository.verifyVerification: not implemented yet`);
-  }
-
-  /** 刷新 cookie_token */
-  async refreshCookieToken(stoken: string, stuid: string): Promise<object> {
-    // TODO: 待 MihoyoAccountApiService 创建后，调用 this.getService().refreshCookieToken(stoken, stuid)
-    throw new Error(`BBSRepository.refreshCookieToken: not implemented yet, stuid=${stuid}`);
-  }
-
-  /** 刷新 ltoken */
-  async refreshLToken(stoken: string, stuid: string): Promise<object> {
-    // TODO: 待 MihoyoAccountApiService 创建后，调用 this.getService().refreshLToken(stoken, stuid)
-    throw new Error(`BBSRepository.refreshLToken: not implemented yet, stuid=${stuid}`);
-  }
-
-  /** 验证 ltoken 有效性 */
-  async verifyLToken(ltoken: string, ltuid: string): Promise<object> {
-    // TODO: 待 MihoyoAccountApiService 创建后，调用 this.getService().verifyLToken(ltoken, ltuid)
-    throw new Error(`BBSRepository.verifyLToken: not implemented yet, ltuid=${ltuid}`);
+    return '';
   }
 }

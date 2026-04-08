@@ -12,9 +12,28 @@ export class AccountDao {
 
   /**
    * 使用 INSERT OR REPLACE 实现 upsert（按 username 唯一键）
+   * 注意：当 id > 0 时改用 UPDATE，避免 INSERT OR REPLACE 触发 ON DELETE CASCADE 级联删除角色数据
    */
   async upsert(row: AccountRow): Promise<void> {
-    const idVal: relationalStore.ValueType = row.id > 0 ? row.id : null;
+    if (row.id > 0) {
+      // 已有账号：用 UPDATE，不触发级联删除
+      try {
+        await RdbManager.updateRows(
+          TableName.ACCOUNT,
+          ACCOUNT_TABLE.columnNames().filter(c => c !== CommonCol.ID),
+          [row.username, row.cookie, row.stoken, row.stuid, row.mid,
+           row.isActive, row.createTime, row.updateTime, row.uid, row.nickname,
+           row.avatarUrl, row.introduce],
+          [CommonCol.ID],
+          [row.id]
+        );
+      } catch (e) {
+        throw new Error(`AccountDao.upsert(update) failed: ${e instanceof Error ? e.message : e}`);
+      }
+      return;
+    }
+    // 新账号：INSERT OR IGNORE（不覆盖已有 username）
+    const idVal: relationalStore.ValueType = null;
     try {
       await RdbManager.upsertRow(TableName.ACCOUNT, ACCOUNT_TABLE.columnNames(), [
         idVal, row.username, row.cookie, row.stoken, row.stuid, row.mid,
@@ -61,6 +80,34 @@ export class AccountDao {
       return await RdbManager.queryFirst(predicates, ACCOUNT_TABLE.columnNames(), (rs) => AccountDao.mapRow(rs));
     } catch (e) {
       throw new Error(`AccountDao.findByUsername failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /**
+   * INSERT OR IGNORE：username 不存在时插入新行，已存在时跳过
+   */
+  async insertOrIgnore(username: string, cookie: string, now: number): Promise<void> {
+    try {
+      await RdbManager.executeSql(
+        `INSERT OR IGNORE INTO account_table (username, cookie, stoken, stuid, mid, is_active, create_time, update_time, uid, nickname, avatar_url, introduce) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [username, cookie, '', '', '', 1, now, now, '', '', '', '']
+      );
+    } catch (e) {
+      throw new Error(`AccountDao.insertOrIgnore failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /**
+   * 仅更新 cookie 和 update_time（按 username 匹配）
+   */
+  async updateCookie(username: string, cookie: string, now: number): Promise<void> {
+    try {
+      await RdbManager.executeSql(
+        `UPDATE account_table SET cookie = ?, update_time = ? WHERE username = ?`,
+        [cookie, now, username]
+      );
+    } catch (e) {
+      throw new Error(`AccountDao.updateCookie failed: ${e instanceof Error ? e.message : e}`);
     }
   }
 

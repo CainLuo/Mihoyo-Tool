@@ -8,6 +8,7 @@ import { SectionHeader } from '../components/my/SectionHeader'
 import { AccountRolesSection } from '../components/accountdetail/AccountRolesSection'
 import { AccountActionsSection } from '../components/accountdetail/AccountActionsSection'
 import { AccountDetailViewModel } from '../viewmodel/AccountDetailViewModel'
+import { AccountSignal } from '../utils/AccountSignal'
 
 const TAG: string = 'AccountDetail'
 
@@ -21,6 +22,8 @@ export struct AccountDetail {
   @Monitor('vm.deleted')
   onDeleted(_monitor: IMonitor): void {
     if (!this.vm.deleted) { return }
+    // 通知所有 Tab 账号数据已变更（Home / Characters / My 会自动重新加载）
+    AccountSignal.instance().notify()
     if (this.localStack !== null) {
       this.localStack.pop()
     }

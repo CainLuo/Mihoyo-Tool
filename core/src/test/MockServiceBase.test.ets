@@ -7,7 +7,7 @@
  */
 
 import { describe, it, expect } from '@ohos/hypium';
-import { MockServiceBase } from '../main/ets/network/v2/mock/MockServiceBase';
+import { MockServiceBase } from '../main/ets/network/mock/MockServiceBase';
 
 export default function mockServiceBaseTest() {
   describe('MockServiceBase.pathToFileName', () => {
@@ -175,6 +175,18 @@ export default function mockServiceBaseTest() {
       // 特殊映射路径含 query，特殊映射优先
       const result = MockServiceBase.pathToFileName('/event/rpgcalc/compute?game=hkrpg&uid=123');
       expect(result).assertEqual('hkrpg_character_compute.json');
+    });
+
+    // ── 验证 mock 登录用的两个 cookie 能正确路由 ─────────────────
+
+    it('extractAccountId_mockCookie1_returns1', 0, () => {
+      const cookie = 'account_id=1; cookie_token=mock; ltoken=mock; ltuid=1';
+      expect(MockServiceBase.extractAccountId(cookie)).assertEqual(1);
+    });
+
+    it('extractAccountId_mockCookie2_returns2', 0, () => {
+      const cookie = 'account_id=2; cookie_token=mock; ltoken=mock; ltuid=2';
+      expect(MockServiceBase.extractAccountId(cookie)).assertEqual(2);
     });
   });
 }

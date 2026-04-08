@@ -49,8 +49,8 @@ export class GenshinCharacterListDao {
           idVal, row.accountId, row.roleUid, row.avatarId, row.name, row.element,
           row.rarity, row.level, row.fetter, row.activedConstellationNum,
           row.weaponType, row.weaponId, row.weaponName, row.weaponRarity,
-          row.weaponLevel, row.weaponAffixLevel, row.icon, row.sideIcon,
-          row.rawJson, row.updateTime
+          row.weaponLevel, row.weaponAffixLevel, row.weaponIconUrl, row.image, row.isChosen,
+          row.icon, row.sideIcon, row.rawJson, row.updateTime
         ]);
       }
     } catch (e) {
@@ -135,6 +135,9 @@ export class GenshinCharacterListDao {
       row.weaponRarity            = r.num(GenshinCharListCol.WEAPON_RARITY);
       row.weaponLevel             = r.num(GenshinCharListCol.WEAPON_LEVEL);
       row.weaponAffixLevel        = r.num(GenshinCharListCol.WEAPON_AFFIX_LEVEL);
+      row.weaponIconUrl           = r.str(GenshinCharListCol.WEAPON_ICON_URL);
+      row.image                   = r.str(GenshinCharListCol.IMAGE);
+      row.isChosen                = r.num(GenshinCharListCol.IS_CHOSEN);
       row.icon                    = r.str(GenshinCharListCol.ICON);
       row.sideIcon                = r.str(GenshinCharListCol.SIDE_ICON);
       row.rawJson                 = r.str(CommonCol.RAW_JSON);

@@ -61,7 +61,7 @@ export struct AppearanceSection {
 
 @Preview
 @ComponentV2
-struct AppearanceSectionPreview {
+export struct AppearanceSectionPreview {
   build() {
     Column() {
       AppearanceSection({ themeMode: ConfigurationConstant.ColorMode.COLOR_MODE_DARK })

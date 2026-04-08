@@ -29,7 +29,7 @@ export function splitPlaceholderBuilder() {
 
 @Preview
 @ComponentV2
-struct SplitPlaceholderPreview {
+export struct SplitPlaceholderPreview {
   build() {
     SplitPlaceholder()
   }

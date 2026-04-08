@@ -12,7 +12,7 @@ import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 // ── Preview：加载中 ──
 @Preview
 @ComponentV2
-struct LoginQRCodePreviewLoading {
+export struct LoginQRCodePreviewLoading {
   @Local private vm: LoginViewModel = (() => {
     const v = new LoginViewModel();
     v.qrCodeStat = QRCodeStat.LOADING;
@@ -29,7 +29,7 @@ struct LoginQRCodePreviewLoading {
 // ── Preview：二维码就绪 ──
 @Preview
 @ComponentV2
-struct LoginQRCodePreviewReady {
+export struct LoginQRCodePreviewReady {
   @Local private vm: LoginViewModel = (() => {
     const v = new LoginViewModel();
     v.qrCodeStat = QRCodeStat.READY;
@@ -47,7 +47,7 @@ struct LoginQRCodePreviewReady {
 // ── Preview：已扫码待确认 ──
 @Preview
 @ComponentV2
-struct LoginQRCodePreviewScanned {
+export struct LoginQRCodePreviewScanned {
   @Local private vm: LoginViewModel = (() => {
     const v = new LoginViewModel();
     v.qrCodeStat = QRCodeStat.SCANNED;
@@ -65,7 +65,7 @@ struct LoginQRCodePreviewScanned {
 // ── Preview：已过期 ──
 @Preview
 @ComponentV2
-struct LoginQRCodePreviewExpired {
+export struct LoginQRCodePreviewExpired {
   @Local private vm: LoginViewModel = (() => {
     const v = new LoginViewModel();
     v.qrCodeStat = QRCodeStat.EXPIRED;

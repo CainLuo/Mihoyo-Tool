@@ -1,9 +1,12 @@
 /**
  * Characters — 角色 Tab 页（View 层，纯内容组件）
+ *
+ * ViewModel 由 Characters 自己持有，标题栏菜单 Builder 通过 @BuilderParam 暴露给 Main，
+ * Main 直接把它传给 Navigation.menus()，不感知任何业务状态。
  */
 import { BusinessError } from '@kit.BasicServicesKit'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
-import { CharactersViewModel } from '../viewmodel/CharactersViewModel'
+import { CharactersViewModel, AccountOption } from '../viewmodel/CharactersViewModel'
 import { CharactersContent } from '../components/characters/CharactersContent'
 import { Logger } from '../utils/Logger'
 import { GenshinCharacterDetailParam, GenshinCharacterDetail } from './GenshinCharacterDetail'
@@ -26,15 +29,55 @@ export struct Characters {
   private scroller: Scroller = new Scroller()
   @Param detailStack: NavPathStack | null = null
   @Param isSplit: boolean = false
+  /** Main 通过此回调注册操作函数 */
+  @Event onReady: (doRefresh: () => void, doSelectAccount: (idx: number) => void) => void =
+    (_r: () => void, _s: (idx: number) => void) => {}
+  /** Main 通过此回调感知标题栏按钮状态 */
+  @Event onMenuStateChange: (
+    showRefresh: boolean,
+    showSwitcher: boolean,
+    isRefreshing: boolean,
+    accountOptions: AccountOption[],
+    selectedIdx: number
+  ) => void = (_sr: boolean, _ss: boolean, _ir: boolean, _ao: AccountOption[], _si: number) => {}
 
   aboutToAppear(): void {
     this.uiCtx = this.getUIContext()
-    this.vm.loadData()
+    this.onReady(
+      () => { this.vm.refresh() },
+      (idx: number) => { this.vm.selectAccount(idx).catch((_: Error | object) => {}) }
+    )
+    this.vm.loadData().catch((_: Error | object) => {})
   }
 
   @Monitor('signal.version')
   onAccountDataChanged(_monitor: IMonitor): void {
-    this.vm.loadData()
+    this.vm.loadData().catch((_: Error | object) => {})
+  }
+
+  @Monitor('vm.showRefreshButton')
+  onShowRefreshChanged(_monitor: IMonitor): void { this.notifyMenuState() }
+
+  @Monitor('vm.showAccountSwitcher')
+  onShowSwitcherChanged(_monitor: IMonitor): void { this.notifyMenuState() }
+
+  @Monitor('vm.isRefreshing')
+  onIsRefreshingChanged(_monitor: IMonitor): void { this.notifyMenuState() }
+
+  @Monitor('vm.accountOptions')
+  onAccountOptionsChanged(_monitor: IMonitor): void { this.notifyMenuState() }
+
+  @Monitor('vm.selectedAccountIdx')
+  onSelectedAccountIdxChanged(_monitor: IMonitor): void { this.notifyMenuState() }
+
+  private notifyMenuState(): void {
+    this.onMenuStateChange(
+      this.vm.showRefreshButton,
+      this.vm.showAccountSwitcher,
+      this.vm.isRefreshing,
+      this.vm.accountOptions,
+      this.vm.selectedAccountIdx
+    )
   }
 
   @Monitor(CharactersViewModel.KEYS.networkErrorMsg)

@@ -29,12 +29,6 @@ import {
 import { GenshinDailyNoteParser } from 'core';
 import { StarRailDailyNoteParser } from 'core';
 import { ZZZDailyNoteParser } from 'core';
-import { GenshinApiService } from 'core';
-import { StarRailApiService } from 'core';
-import { ZZZApiService } from 'core';
-import { GenshinDailyNoteRow } from 'core';
-import { StarRailDailyNoteRow } from 'core';
-import { ZZZDailyNoteRow } from 'core';
 import { serverDisplayName } from '../utils/ServerNameUtil';
 import {
   MihoyoAccountVM,
@@ -214,10 +208,7 @@ export class HomeViewModel {
         trigger.cookie,
         trigger.gameId,
         trigger.roleId,
-        trigger.server,
-        '',
-        result.geetest_validate,
-        result.geetest_seccode
+        trigger.server
       );
       const loaded = await this.fetchFromLocal();
       this.accounts = loaded;
@@ -261,107 +252,42 @@ export class HomeViewModel {
   }
 
   /**
-   * 封装单个角色的完整同步流程，供 syncIfNeeded 和 syncAllDailyNotes 共用。
+   * 单个角色的便笺同步：委托给对应游戏 Repository 完成 API 调用 + 写 DB。
    */
   private async syncDailyNote(account: AccountRow, role: GameRoleRow): Promise<void> {
     const gameId = role.gameId;
-    if (gameId === GAME_GENSHIN) {
-      const repo = CoreInitializer.genshinRepository;
-      try {
-        await repo.markDailyNoteSyncing(account.id, role.roleId);
-        const resp = await (repo.getService() as GenshinApiService).getDailyNote(
-          role.roleId, role.server, account.cookie
+    try {
+      if (gameId === GAME_GENSHIN) {
+        await CoreInitializer.genshinRepository.syncDailyNote(
+          account.id, role.roleId, role.server, account.cookie
         );
-        const respData = resp as Record<string, object>;
-        const dataObj = respData['data'] !== undefined ? respData['data'] : respData;
-        const row = new GenshinDailyNoteRow();
-        row.accountId = account.id;
-        row.roleUid = role.roleId;
-        row.rawJson = JSON.stringify(dataObj);
-        row.updateTime = Math.floor(Date.now() / 1000);
-        await repo.upsertDailyNote(account.id, role.roleId, row);
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : `${error}`;
-        if (msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED}`) !== -1) {
-          await this.handleGeetest(account, role);
-        } else {
-          await repo.markDailyNoteFailed(account.id, role.roleId, msg);
-          this.networkErrorMsg = msg;
-        }
+      } else if (gameId === GAME_STARRAIL) {
+        await CoreInitializer.starRailRepository.syncDailyNote(
+          account.id, role.roleId, role.server, account.cookie
+        );
+      } else if (gameId === GAME_ZZZ) {
+        await CoreInitializer.zzzRepository.syncDailyNote(
+          account.id, role.roleId, role.server, account.cookie
+        );
       }
-    } else if (gameId === GAME_STARRAIL) {
-      const repo = CoreInitializer.starRailRepository;
-      try {
-        await repo.markDailyNoteSyncing(account.id, role.roleId);
-        const resp = await (repo.getService() as StarRailApiService).getDailyNote(
-          role.roleId, role.server, account.cookie
-        );
-        const respData = resp as Record<string, object>;
-        const dataObj = respData['data'] !== undefined ? respData['data'] : respData;
-        const parsed = StarRailDailyNoteParser.parse(JSON.stringify(dataObj));
-        const row = new StarRailDailyNoteRow();
-        row.accountId = account.id;
-        row.roleUid = role.roleId;
-        row.rawJson = JSON.stringify(dataObj);
-        row.updateTime = Math.floor(Date.now() / 1000);
-        row.currentStamina = parsed.currentStamina;
-        row.maxStamina = parsed.maxStamina;
-        await repo.upsertDailyNote(account.id, role.roleId, row);
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : `${error}`;
-        if (msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED}`) !== -1) {
-          await this.handleGeetest(account, role);
-        } else {
-          await repo.markDailyNoteFailed(account.id, role.roleId, msg);
-          this.networkErrorMsg = msg;
-        }
-      }
-    } else if (gameId === GAME_ZZZ) {
-      const repo = CoreInitializer.zzzRepository;
-      try {
-        await repo.markDailyNoteSyncing(account.id, role.roleId);
-        const resp = await (repo.getService() as ZZZApiService).getDailyNote(
-          role.roleId, role.server, account.cookie
-        );
-        const respData = resp as Record<string, object>;
-        const dataObj = respData['data'] !== undefined ? respData['data'] : respData;
-        const parsed = ZZZDailyNoteParser.parse(JSON.stringify(dataObj));
-        const row = new ZZZDailyNoteRow();
-        row.accountId = account.id;
-        row.roleUid = role.roleId;
-        row.rawJson = JSON.stringify(dataObj);
-        row.updateTime = Math.floor(Date.now() / 1000);
-        row.energyCurrent = parsed.currentEnergy;
-        row.energyMax = parsed.maxEnergy;
-        await repo.upsertDailyNote(account.id, role.roleId, row);
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : `${error}`;
-        if (msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED}`) !== -1) {
-          await this.handleGeetest(account, role);
-        } else {
-          await repo.markDailyNoteFailed(account.id, role.roleId, msg);
-          this.networkErrorMsg = msg;
-        }
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      if (msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED}`) !== -1) {
+        await this.handleGeetest(account, role);
+      } else {
+        this.networkErrorMsg = msg;
       }
     }
-    // 其他 gameId 静默跳过
   }
 
-  /**
-   * Geetest 验证后重新拉取便笺（challenge 由 Service 层通过 RequestOptions.extraHeaders 处理）
-   */
+  /** Geetest 验证后重新拉取便笺 */
   private async syncDailyNoteWithChallenge(
     accountId: number,
     cookie: string,
     gameId: string,
     roleId: string,
-    server: string,
-    challenge: string,
-    validate: string,
-    seccode: string
+    server: string
   ): Promise<void> {
-    // challenge 注入由 Service 层通过 RequestOptions.extraHeaders 处理
-    // 此处直接调用 getDailyNote，Service 层已在 verifyVerification 后更新 challenge 状态
     const fakeAccount = new AccountRow();
     fakeAccount.id = accountId;
     fakeAccount.cookie = cookie;

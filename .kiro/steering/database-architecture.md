@@ -60,35 +60,38 @@ core/src/main/ets/errors/
 └── ApiErrors.ets              ← 业务错误类型（AuthExpiredError / GeetestRequiredError 等）
 ```
 
-## Repository 层方法命名规范
+## 模块边界原则（最高优先级）
 
-三个游戏 Repository（`GenshinRepository`、`StarRailRepository`、`ZZZRepository`）统一使用以下方法名，保持一致性：
+**entry 模块严禁直接操作数据库，也不感知运行环境（mock/release）**，所有数据操作和环境适配必须通过 core 层 Repository 完成：
 
-| 语义               | 方法名                                                  |
-| ------------------ | ------------------------------------------------------- |
-| 读角色列表         | `getAvatarList(accountId, roleUid)`                     |
-| 写角色列表         | `upsertAvatarList(accountId, roleUid, rows)`            |
-| 删角色列表         | `deleteAvatarList(accountId, roleUid)`                  |
-| 检查列表同步阈值   | `needsAvatarListSync(accountId, roleUid)`               |
-| 标记列表同步中     | `markAvatarListSyncing(accountId, roleUid)`             |
-| 标记列表失败       | `markAvatarListFailed(accountId, roleUid, errorMsg)`    |
-| 读便笺             | `getDailyNote(accountId, roleUid)`                      |
-| 写便笺             | `upsertDailyNote(accountId, roleUid, row)`              |
-| 检查便笺同步阈值   | `needsDailyNoteSync(accountId, roleUid)`                |
-| 标记便笺同步中     | `markDailyNoteSyncing(accountId, roleUid)`              |
-| 标记便笺失败       | `markDailyNoteFailed(accountId, roleUid, errorMsg)`     |
-| 读角色详情         | `getAvatarDetail(accountId, roleUid, avatarId)`         |
-| 写角色详情（批量） | `upsertAvatarDetails(accountId, roleUid, rows)`         |
-| 检查详情同步阈值   | `needsAvatarDetailSync(accountId, roleUid)`             |
-| 标记详情同步中     | `markAvatarDetailSyncing(accountId, roleUid)`           |
-| 标记详情失败       | `markAvatarDetailFailed(accountId, roleUid, errorMsg)`  |
-| 读养成计算         | `getAvatarCompute(accountId, roleUid, avatarId)`        |
-| 写养成计算         | `upsertAvatarCompute(accountId, roleUid, row)`          |
-| 检查计算同步阈值   | `needsAvatarComputeSync(accountId, roleUid)`            |
-| 标记计算同步中     | `markAvatarComputeSyncing(accountId, roleUid)`          |
-| 标记计算失败       | `markAvatarComputeFailed(accountId, roleUid, errorMsg)` |
+- entry ViewModel 只调用 Repository 的高层方法（如 `login()`、`syncDailyNote()`、`syncAvatarList()`）
+- entry 不得 import `RdbManager`、任何 DAO 类、`Row` 模型（用于写入）
+- entry 不得直接调用 `ApiService.getDailyNote()` 等网络方法后自己写 DB
+- entry 不得判断 `isMock`、`APP_RUNTIME_ENV` 等环境变量做业务分支
+- 唯一例外：`EntryAbility.onCreate` 负责从 `BuildProfile` 读取环境并通过 `CoreInitializer.initCore({ isMock })` 传给 core，这是 entry 唯一感知环境的地方
+- mock 环境下的 username/cookie 替换逻辑由 `BBSRepository.login()` 内部处理，entry 传入原始值即可
 
-**禁止**在新游戏 Repository 中使用 `getCharacterList`、`getAvatarBasic`、`getAvatarInfo` 等旧命名。
+数据流：entry ViewModel → core Repository（内部完成环境适配 + API 调用 + 解析 + DB 写入）→ 返回结果给 ViewModel
+
+### BBSRepository 高层方法
+
+| 方法                      | 说明                                                       |
+| ------------------------- | ---------------------------------------------------------- |
+| `login(username, cookie)` | 完整登录流程：写账号 + 拉角色 + 补详情，返回 `LoginResult` |
+| `getAllAccounts()`        | 读所有账号                                                 |
+| `getGameRoles(accountId)` | 读账号下所有游戏角色                                       |
+| `deleteAccount(id)`       | 删除账号（级联删除所有子表数据）                           |
+
+### 游戏 Repository 高层方法（三个游戏统一）
+
+| 方法                                                 | 说明                        |
+| ---------------------------------------------------- | --------------------------- |
+| `syncAvatarList(accountId, roleUid, server, cookie)` | 拉取角色列表 → 解析 → 写 DB |
+| `syncDailyNote(accountId, roleUid, server, cookie)`  | 拉取便笺 → 写 DB            |
+| `getAvatarList(accountId, roleUid)`                  | 读角色列表                  |
+| `getDailyNote(accountId, roleUid)`                   | 读便笺                      |
+| `needsAvatarListSync(accountId, roleUid)`            | 检查是否需要同步            |
+| `needsDailyNoteSync(accountId, roleUid)`             | 检查是否需要同步            |
 
 1. **全新数据库，无旧表兼容，无迁移逻辑**（V1.0 起点）
 2. 所有表使用 `CREATE TABLE IF NOT EXISTS`，保证幂等性

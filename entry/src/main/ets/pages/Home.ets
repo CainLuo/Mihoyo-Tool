@@ -1,8 +1,8 @@
 /**
  * Home — 首页（View 层）
  *
- * vm 由 Home 自己持有（@Local），通过 onVmReady 回调把引用传给 Main，
- * 让 Main 的刷新按钮能访问 vm 状态，同时避免双实例问题。
+ * ViewModel 由 Home 自己持有，标题栏菜单 Builder 通过 @BuilderParam 暴露给 Main，
+ * Main 直接把它传给 Navigation.menus()，不感知任何业务状态。
  */
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { HomeViewModel } from '../viewmodel/HomeViewModel'
@@ -23,8 +23,11 @@ import { ViewState } from '../constants/ViewStates'
 export struct Home {
   @Param detailStack: NavPathStack = new NavPathStack()
   @Param isSplit: boolean = false
-  /** Main 通过此回调拿到 vm 引用，用于刷新按钮 */
-  @Event onVmReady: (vm: HomeViewModel) => void = (_vm: HomeViewModel) => {}
+  /** Main 通过此回调注册操作函数 */
+  @Event onReady: (doRefresh: () => void) => void = (_fn: () => void) => {}
+  /** Main 通过此回调感知标题栏按钮状态 */
+  @Event onMenuStateChange: (showRefresh: boolean, isRefreshing: boolean) => void =
+    (_s: boolean, _r: boolean) => {}
   @Local vm: HomeViewModel = new HomeViewModel()
   @Local private tm: ThemeManager = themeManager
   @Local private signal: AccountSignal = AccountSignal.instance()
@@ -33,7 +36,7 @@ export struct Home {
 
   aboutToAppear(): void {
     this.uiCtx = this.getUIContext()
-    this.onVmReady(this.vm)
+    this.onReady(() => { this.vm.refresh() })
     this.vm.loadData()
   }
 
@@ -44,6 +47,16 @@ export struct Home {
   @Monitor('signal.version')
   onAccountDataChanged(_monitor: IMonitor): void {
     this.vm.loadData()
+  }
+
+  @Monitor('vm.viewState')
+  onViewStateChanged(_monitor: IMonitor): void {
+    this.onMenuStateChange(this.vm.viewState === ViewState.DATA, this.vm.isRefreshing)
+  }
+
+  @Monitor('vm.isRefreshing')
+  onIsRefreshingChanged(_monitor: IMonitor): void {
+    this.onMenuStateChange(this.vm.viewState === ViewState.DATA, this.vm.isRefreshing)
   }
 
   @Monitor('vm.networkErrorMsg')

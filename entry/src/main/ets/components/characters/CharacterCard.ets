@@ -12,10 +12,9 @@ import { GameId } from '../../constants/GameId';
 import { elementFromString } from '../../constants/GenshinElement';
 import { GenshinElement, elementIcon } from '../../constants/GenshinElement';
 import {
-  starRailElementLabel, starRailElementColor,
-  starRailPathLabel, starRailPathColor
+  starRailElementIcon, starRailPathIcon
 } from '../../constants/StarRailElement';
-import { zzzElementLabel, zzzElementColor, zzzProfessionLabel } from '../../constants/ZZZElement';
+import { zzzElementColor, zzzElementIcon, zzzProfessionIcon } from '../../constants/ZZZElement';
 
 /** 原神：根据元素字符串返回颜色资源 */
 export function elementColor(element: string): Resource {
@@ -132,54 +131,87 @@ export struct CharacterCard {
         .width(this.tm.current.full)
         .aspectRatio(1)
 
-        // 武器浮层（右下角）
-        Column() {
-          Stack() {
-            if (this.character.weaponIconUrl) {
-              Image(this.character.weaponIconUrl)
-                .width(this.tm.current.full)
-                .height(this.tm.current.full)
-                .objectFit(ImageFit.Contain)
+        // 武器浮层（右下角）—— 无武器槽位时不显示
+        if (this.character.hasWeaponSlot) {
+          Column() {
+            if (this.character.weaponLevel > 0 || this.character.weaponIconUrl !== '') {
+              // 有武器：显示图标 + 等级 + 精炼
+              Stack() {
+                if (this.character.weaponIconUrl) {
+                  Image(this.character.weaponIconUrl)
+                    .width(this.tm.current.full)
+                    .height(this.tm.current.full)
+                    .objectFit(ImageFit.Contain)
+                } else {
+                  Column()
+                    .width(this.tm.current.full)
+                    .height(this.tm.current.full)
+                    .backgroundColor($r('app.color.color_placeholder'))
+                }
+              }
+              .layoutWeight(1)
+              .width(this.tm.current.full)
+
+              Row({ space: this.tm.current.value2 }) {
+                Text($r('app.string.character_weapon_level_prefix', this.character.weaponLevel))
+                  .fontSize(this.tm.current.body10.size)
+                  .fontWeight(FontWeight.Medium)
+                  .fontColor(this.tm.current.textOnDarkGhost)
+                  .layoutWeight(1)
+                  .textAlign(TextAlign.Start)
+                Text(this.gameId === GameId.STARRAIL
+                  ? `S${this.character.weaponAffix}`
+                  : `R${this.character.weaponAffix}`)
+                  .fontSize(this.tm.current.body10.size)
+                  .fontWeight(FontWeight.Bold)
+                  .fontColor(this.tm.current.accentRefine)
+                  .backgroundColor(this.tm.current.accentRefineBg)
+                  .borderRadius(this.tm.current.value2)
+                  .padding({ left: this.tm.current.value2, right: this.tm.current.value2 })
+              }
+              .width(this.tm.current.full)
+              .height(this.tm.current.value18)
+              .padding({ left: this.tm.current.value4, right: this.tm.current.value4 })
+              .alignItems(VerticalAlign.Center)
             } else {
-              Column()
-                .width(this.tm.current.full)
-                .height(this.tm.current.full)
-                .backgroundColor($r('app.color.color_placeholder'))
+              // 无武器：禁止圆圈 + "未装备"提示
+              Column({ space: this.tm.current.value4 }) {
+                // 禁止圆圈图标
+                Stack() {
+                  Column()
+                    .width(this.tm.current.value22)
+                    .height(this.tm.current.value22)
+                    .borderRadius(this.tm.current.value22 / 2)
+                    .border({ width: 2, color: $r('app.color.color_text_secondary') })
+                  Column()
+                    .width(2)
+                    .height(this.tm.current.value24)
+                    .backgroundColor($r('app.color.color_text_secondary'))
+                    .rotate({ angle: 45 })
+                }
+                .width(this.tm.current.value22)
+                .height(this.tm.current.value22)
+                .opacity(0.4)
+
+                Text($r('app.string.character_weapon_none'))
+                  .fontSize(this.tm.current.body10.size)
+                  .fontColor(this.tm.current.colorTextSecondary)
+                  .opacity(0.5)
+              }
+              .width(this.tm.current.full)
+              .layoutWeight(1)
+              .justifyContent(FlexAlign.Center)
+              .alignItems(HorizontalAlign.Center)
             }
           }
-          .layoutWeight(1)
-          .width(this.tm.current.full)
-
-          Row({ space: this.tm.current.value2 }) {
-            Text($r('app.string.character_weapon_level_prefix', this.character.weaponLevel))
-              .fontSize(this.tm.current.body10.size)
-              .fontWeight(FontWeight.Medium)
-              .fontColor(this.tm.current.textOnDarkGhost)
-              .layoutWeight(1)
-              .textAlign(TextAlign.Start)
-            // 原神用 R，星铁用 S，绝区零用 R
-            Text(this.gameId === GameId.STARRAIL
-              ? `S${this.character.weaponAffix}`
-              : `R${this.character.weaponAffix}`)
-              .fontSize(this.tm.current.body10.size)
-              .fontWeight(FontWeight.Bold)
-              .fontColor(this.tm.current.accentRefine)
-              .backgroundColor(this.tm.current.accentRefineBg)
-              .borderRadius(this.tm.current.value2)
-              .padding({ left: this.tm.current.value2, right: this.tm.current.value2 })
-          }
-          .width(this.tm.current.full)
-          .height(this.tm.current.value18)
-          .padding({ left: this.tm.current.value4, right: this.tm.current.value4 })
-          .alignItems(VerticalAlign.Center)
+          .width(this.tm.current.value64)
+          .height(this.tm.current.value64)
+          .backgroundColor($r('app.color.weapon_overlay_bg'))
+          .borderRadius({ topLeft: this.tm.current.radius8, topRight: 0, bottomLeft: 0, bottomRight: 0 })
+          .border({ width: { top: 1, left: 1 }, color: $r('app.color.color_card_border') })
+          .clip(true)
+          .zIndex(4)
         }
-        .width(this.tm.current.value64)
-        .height(this.tm.current.value64)
-        .backgroundColor($r('app.color.weapon_overlay_bg'))
-        .borderRadius({ topLeft: this.tm.current.radius8, topRight: 0, bottomLeft: 0, bottomRight: 0 })
-        .border({ width: { top: 1, left: 1 }, color: $r('app.color.color_card_border') })
-        .clip(true)
-        .zIndex(4)
       }
       .width(this.tm.current.full)
       .aspectRatio(1)
@@ -207,114 +239,68 @@ export struct CharacterCard {
     .onClick(() => { this.onTap(this.character) })
   }
 
-  // ── 原神：左上元素圆形角标 ──────────────────────────────────
+  // ── 原神：左上元素图标 ──────────────────────────────────────
   @Builder
   private genshinTopLeft() {
-    Column() {
-      if (elementIcon(elementFromString(this.character.extraText1)) !== null) {
-        Image(elementIcon(elementFromString(this.character.extraText1)) as Resource)
-          .width(this.tm.current.value20)
-          .height(this.tm.current.value20)
-          .objectFit(ImageFit.Contain)
-      }
+    if (elementIcon(elementFromString(this.character.extraText1)) !== null) {
+      Image(elementIcon(elementFromString(this.character.extraText1)) as Resource)
+        .width(this.tm.current.value24)
+        .height(this.tm.current.value24)
+        .objectFit(ImageFit.Contain)
+        .position({ x: this.tm.current.value8, y: this.tm.current.value8 })
+        .zIndex(3)
     }
-    .width(this.tm.current.value30)
-    .height(this.tm.current.value30)
-    .borderRadius(this.tm.current.value30 / 2)
-    .backgroundColor(elementColor(elementFromString(this.character.extraText1)))
-    .justifyContent(FlexAlign.Center)
-    .alignItems(HorizontalAlign.Center)
-    .shadow({ radius: this.tm.current.value8, color: $r('app.color.color_mask'), offsetY: 2 })
-    .position({ x: this.tm.current.value8, y: this.tm.current.value8 })
-    .zIndex(3)
   }
 
-  // ── 星穹铁道：属性 + 命途，纵向胶囊标签 ────────────────────
+  // ── 星穹铁道：属性 + 命途，纵向图标 ───────────────────────
   @Builder
   private starrailTopLeft() {
     Column({ space: this.tm.current.value4 }) {
-      // 属性标签
-      Text(starRailElementLabel(this.character.extraText1))
-        .fontSize(this.tm.current.body10.size)
-        .fontWeight(FontWeight.Bold)
-        .fontColor(starRailElementColor(this.character.extraText1))
-        .padding({
-          left: this.tm.current.value5,
-          right: this.tm.current.value5,
-          top: this.tm.current.value2,
-          bottom: this.tm.current.value2
-        })
-        .borderRadius(this.tm.current.value8)
-        .border({ width: this.tm.current.value1, color: starRailElementColor(this.character.extraText1) })
-        .backgroundColor($r('app.color.color_mask'))
-      // 命途标签
-      Text(starRailPathLabel(parseInt(this.character.extraText2)))
-        .fontSize(this.tm.current.body10.size)
-        .fontWeight(FontWeight.Bold)
-        .fontColor(starRailPathColor(parseInt(this.character.extraText2)))
-        .padding({
-          left: this.tm.current.value5,
-          right: this.tm.current.value5,
-          top: this.tm.current.value2,
-          bottom: this.tm.current.value2
-        })
-        .borderRadius(this.tm.current.value8)
-        .border({ width: this.tm.current.value1, color: starRailPathColor(parseInt(this.character.extraText2)) })
-        .backgroundColor($r('app.color.color_mask'))
+      // 属性图标
+      if (starRailElementIcon(this.character.extraText1) !== null) {
+        Image(starRailElementIcon(this.character.extraText1) as Resource)
+          .width(this.tm.current.value22)
+          .height(this.tm.current.value22)
+          .objectFit(ImageFit.Contain)
+      }
+      // 命途图标
+      if (starRailPathIcon(parseInt(this.character.extraText2)) !== null) {
+        Image(starRailPathIcon(parseInt(this.character.extraText2)) as Resource)
+          .width(this.tm.current.value22)
+          .height(this.tm.current.value22)
+          .objectFit(ImageFit.Contain)
+      }
     }
     .alignItems(HorizontalAlign.Start)
     .position({ x: this.tm.current.value8, y: this.tm.current.value8 })
     .zIndex(3)
   }
 
-  // ── 绝区零：稀有度 + 属性 + 特性，纵向胶囊标签 ─────────────
+  // ── 绝区零：稀有度 + 属性 + 特性，纵向图标 ─────────────────
   @Builder
   private zzzTopLeft() {
     Column({ space: this.tm.current.value4 }) {
-      // 稀有度（S/A）
-      Text(this.character.rarity >= 5 ? 'S' : 'A')
-        .fontSize(this.tm.current.body10.size)
-        .fontWeight(FontWeight.Bold)
-        .fontColor(this.character.rarity >= 5 ? $r('app.color.rarity_5star') : $r('app.color.color_text_secondary'))
-        .padding({
-          left: this.tm.current.value5,
-          right: this.tm.current.value5,
-          top: this.tm.current.value2,
-          bottom: this.tm.current.value2
-        })
-        .borderRadius(this.tm.current.value8)
-        .border({
-          width: this.tm.current.value1,
-          color: this.character.rarity >= 5 ? $r('app.color.rarity_5star') : $r('app.color.color_text_secondary')
-        })
-        .backgroundColor($r('app.color.color_mask'))
-      // 属性标签
-      Text(zzzElementLabel(parseInt(this.character.extraText1)))
-        .fontSize(this.tm.current.body10.size)
-        .fontWeight(FontWeight.Bold)
-        .fontColor(zzzElementColor(parseInt(this.character.extraText1)))
-        .padding({
-          left: this.tm.current.value5,
-          right: this.tm.current.value5,
-          top: this.tm.current.value2,
-          bottom: this.tm.current.value2
-        })
-        .borderRadius(this.tm.current.value8)
-        .border({ width: this.tm.current.value1, color: zzzElementColor(parseInt(this.character.extraText1)) })
-        .backgroundColor($r('app.color.color_mask'))
-      // 特性标签
-      Text(zzzProfessionLabel(parseInt(this.character.extraText2)))
-        .fontSize(this.tm.current.body10.size)
-        .fontColor(this.tm.current.textOnDarkSecondary)
-        .padding({
-          left: this.tm.current.value5,
-          right: this.tm.current.value5,
-          top: this.tm.current.value2,
-          bottom: this.tm.current.value2
-        })
-        .borderRadius(this.tm.current.value8)
-        .border({ width: this.tm.current.value1, color: this.tm.current.surfaceInactiveBorder })
-        .backgroundColor($r('app.color.color_mask'))
+      // 稀有度图标（S/A）
+      Image(this.character.rarity >= 5
+        ? $r('app.media.zzz_rarity_s')
+        : $r('app.media.zzz_rarity_a'))
+        .width(this.tm.current.value22)
+        .height(this.tm.current.value22)
+        .objectFit(ImageFit.Contain)
+      // 属性图标
+      if (zzzElementIcon(parseInt(this.character.extraText1)) !== null) {
+        Image(zzzElementIcon(parseInt(this.character.extraText1)) as Resource)
+          .width(this.tm.current.value22)
+          .height(this.tm.current.value22)
+          .objectFit(ImageFit.Contain)
+      }
+      // 特性图标
+      if (zzzProfessionIcon(parseInt(this.character.extraText2)) !== null) {
+        Image(zzzProfessionIcon(parseInt(this.character.extraText2)) as Resource)
+          .width(this.tm.current.value22)
+          .height(this.tm.current.value22)
+          .objectFit(ImageFit.Contain)
+      }
     }
     .alignItems(HorizontalAlign.Start)
     .position({ x: this.tm.current.value8, y: this.tm.current.value8 })
@@ -372,13 +358,13 @@ export struct CharacterCard {
         .font(this.tm.current.body13)
         .fontColor(this.tm.current.colorTextSecondary)
         .flexShrink(0)
-      if (this.character.fullName) {
+      if (this.character.groupIconUrl) {
         Column()
           .width(1)
           .height(this.tm.current.value10)
           .backgroundColor(this.tm.current.colorDivider)
           .flexShrink(0)
-        Image(this.character.fullName)
+        Image(this.character.groupIconUrl)
           .width(this.tm.current.value20)
           .height(this.tm.current.value20)
           .objectFit(ImageFit.Contain)
@@ -400,7 +386,7 @@ export struct CharacterCard {
 
 @Preview
 @ComponentV2
-struct CharacterCardPreview {
+export struct CharacterCardPreview {
   build() {
     GridRow({
       columns: { xs: 2, sm: 3, md: 4, lg: 5 },

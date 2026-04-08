@@ -32,34 +32,34 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 | ZZZ_AVATAR_COMPUTE 值正确        | `SyncDataType.ZZZ_AVATAR_COMPUTE`        | `'zzz_avatar_compute'`        |
 | SYNC_META 值正确                 | `SyncDataType.SYNC_META`                 | `'sync_meta'`                 |
 
-### 1.2 v2 Row 模型默认值（RowModels.test.ets）
+### 1.2 Row 模型默认值（RowModels.test.ets）
 
-被测类：`core/src/main/ets/models/v2/` 下所有 Row 类
+被测类：`core/src/main/ets/models/` 下所有 Row 类
 
-**AccountRowV2**
+**AccountRow**
 
-| 测试用例                 | 字段                           | 预期默认值 |
-| ------------------------ | ------------------------------ | ---------- |
-| id 默认为 0              | `new AccountRowV2().id`        | `0`        |
-| username 默认为空字符串  | `new AccountRowV2().username`  | `''`       |
-| cookie 默认为空字符串    | `new AccountRowV2().cookie`    | `''`       |
-| stoken 默认为空字符串    | `new AccountRowV2().stoken`    | `''`       |
-| isActive 默认为 0        | `new AccountRowV2().isActive`  | `0`        |
-| uid 默认为空字符串       | `new AccountRowV2().uid`       | `''`       |
-| nickname 默认为空字符串  | `new AccountRowV2().nickname`  | `''`       |
-| avatarUrl 默认为空字符串 | `new AccountRowV2().avatarUrl` | `''`       |
+| 测试用例                 | 字段                         | 预期默认值 |
+| ------------------------ | ---------------------------- | ---------- |
+| id 默认为 0              | `new AccountRow().id`        | `0`        |
+| username 默认为空字符串  | `new AccountRow().username`  | `''`       |
+| cookie 默认为空字符串    | `new AccountRow().cookie`    | `''`       |
+| stoken 默认为空字符串    | `new AccountRow().stoken`    | `''`       |
+| isActive 默认为 0        | `new AccountRow().isActive`  | `0`        |
+| uid 默认为空字符串       | `new AccountRow().uid`       | `''`       |
+| nickname 默认为空字符串  | `new AccountRow().nickname`  | `''`       |
+| avatarUrl 默认为空字符串 | `new AccountRow().avatarUrl` | `''`       |
 
-**GameRoleRowV2**
+**GameRoleRow**
 
-| 测试用例              | 字段                            | 预期默认值 |
-| --------------------- | ------------------------------- | ---------- |
-| id 默认为 0           | `new GameRoleRowV2().id`        | `0`        |
-| accountId 默认为 0    | `new GameRoleRowV2().accountId` | `0`        |
-| gameId 默认为空字符串 | `new GameRoleRowV2().gameId`    | `''`       |
-| roleId 默认为空字符串 | `new GameRoleRowV2().roleId`    | `''`       |
-| level 默认为 0        | `new GameRoleRowV2().level`     | `0`        |
-| isChosen 默认为 0     | `new GameRoleRowV2().isChosen`  | `0`        |
-| isPublic 默认为 0     | `new GameRoleRowV2().isPublic`  | `0`        |
+| 测试用例              | 字段                          | 预期默认值 |
+| --------------------- | ----------------------------- | ---------- |
+| id 默认为 0           | `new GameRoleRow().id`        | `0`        |
+| accountId 默认为 0    | `new GameRoleRow().accountId` | `0`        |
+| gameId 默认为空字符串 | `new GameRoleRow().gameId`    | `''`       |
+| roleId 默认为空字符串 | `new GameRoleRow().roleId`    | `''`       |
+| level 默认为 0        | `new GameRoleRow().level`     | `0`        |
+| isChosen 默认为 0     | `new GameRoleRow().isChosen`  | `0`        |
+| isPublic 默认为 0     | `new GameRoleRow().isPublic`  | `0`        |
 
 **GenshinCharacterListRow**
 
@@ -71,6 +71,9 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 | level 默认为 0                   | `new GenshinCharacterListRow().level`                   | `0`        |
 | fetter 默认为 0                  | `new GenshinCharacterListRow().fetter`                  | `0`        |
 | activedConstellationNum 默认为 0 | `new GenshinCharacterListRow().activedConstellationNum` | `0`        |
+| weaponIconUrl 默认为空字符串     | `new GenshinCharacterListRow().weaponIconUrl`           | `''`       |
+| image 默认为空字符串             | `new GenshinCharacterListRow().image`                   | `''`       |
+| isChosen 默认为 0                | `new GenshinCharacterListRow().isChosen`                | `0`        |
 | rawJson 默认为空字符串           | `new GenshinCharacterListRow().rawJson`                 | `''`       |
 
 **GenshinDailyNoteRow**
@@ -103,14 +106,16 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 
 **StarRailAvatarBasicRow**
 
-| 测试用例                | 字段                                     | 预期默认值 |
-| ----------------------- | ---------------------------------------- | ---------- |
-| avatarId 默认为空字符串 | `new StarRailAvatarBasicRow().avatarId`  | `''`       |
-| rarity 默认为 0         | `new StarRailAvatarBasicRow().rarity`    | `0`        |
-| level 默认为 0          | `new StarRailAvatarBasicRow().level`     | `0`        |
-| rank 默认为 0           | `new StarRailAvatarBasicRow().rank`      | `0`        |
-| baseType 默认为 0       | `new StarRailAvatarBasicRow().baseType`  | `0`        |
-| elementId 默认为 0      | `new StarRailAvatarBasicRow().elementId` | `0`        |
+| 测试用例                    | 字段                                        | 预期默认值 |
+| --------------------------- | ------------------------------------------- | ---------- |
+| avatarId 默认为空字符串     | `new StarRailAvatarBasicRow().avatarId`     | `''`       |
+| rarity 默认为 0             | `new StarRailAvatarBasicRow().rarity`       | `0`        |
+| level 默认为 0              | `new StarRailAvatarBasicRow().level`        | `0`        |
+| rank 默认为 0               | `new StarRailAvatarBasicRow().rank`         | `0`        |
+| baseType 默认为 0           | `new StarRailAvatarBasicRow().baseType`     | `0`        |
+| elementId 默认为 0          | `new StarRailAvatarBasicRow().elementId`    | `0`        |
+| equipIconUrl 默认为空字符串 | `new StarRailAvatarBasicRow().equipIconUrl` | `''`       |
+| isChosen 默认为 0           | `new StarRailAvatarBasicRow().isChosen`     | `0`        |
 
 **StarRailDailyNoteRow**
 
@@ -148,6 +153,8 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 | rank 默认为 0                      | `new ZZZAvatarBasicRow().rank`             | `0`        |
 | elementType 默认为 0               | `new ZZZAvatarBasicRow().elementType`      | `0`        |
 | avatarProfession 默认为 0          | `new ZZZAvatarBasicRow().avatarProfession` | `0`        |
+| awakenState 默认为 0               | `new ZZZAvatarBasicRow().awakenState`      | `0`        |
+| isChosen 默认为 0                  | `new ZZZAvatarBasicRow().isChosen`         | `0`        |
 
 **ZZZDailyNoteRow**
 
@@ -541,6 +548,37 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 | 无效 JSON | `'invalid'` | 返回默认值，`currentEnergy=0`，`maxEnergy=240` |
 | 空字符串  | `''`        | 返回默认值，不抛异常                           |
 
+### 3.6 StarRailRepository.parseAvatarBasic（StarRailAvatarBasicParser.test.ets）
+
+被测方法：`StarRailRepository.parseAvatarBasic(accountId, roleUid, resp)`
+
+> 注意：星铁角色列表 API 响应使用 `avatar_list` 字段（而非 `list`），解析时必须优先读 `avatar_list`。
+
+**正常解析**
+
+| 测试用例                         | 输入                                             | 预期结果                                         |
+| -------------------------------- | ------------------------------------------------ | ------------------------------------------------ |
+| avatar_list 字段解析正确         | `{ data: { avatar_list: [3 个角色] } }`          | 返回 3 条 `StarRailAvatarBasicRow`               |
+| accountId 和 roleUid 正确写入    | 传入 accountId=30001, roleUid='uid1'             | 每行 accountId=30001，roleUid='uid1'             |
+| avatarId 转为字符串              | `id: 1000`                                       | `avatarId === '1000'`                            |
+| name 解析正确                    | `name: '开拓者'`                                 | `name === '开拓者'`                              |
+| rarity 解析正确                  | `rarity: 5`                                      | `rarity === 5`                                   |
+| element 字符串解析正确           | `element: 'fire'`                                | `element === 'fire'`                             |
+| equip 非 null 时光锥字段正确     | `equip: { id, name, level, rank, rarity, icon }` | equipId/equipName/equipLevel/equipIconUrl 均正确 |
+| equip 为 null 时光锥字段为默认值 | `equip: null`                                    | `equipId=''`，`equipLevel=0`，`equipIconUrl=''`  |
+| is_chosen=true 时 isChosen=1     | `is_chosen: true`                                | `isChosen === 1`                                 |
+| is_chosen=false 时 isChosen=0    | `is_chosen: false`                               | `isChosen === 0`                                 |
+| rawJson 存储单个角色对象         | 传入 1 个角色                                    | `JSON.parse(rows[0].rawJson).id === 1000`        |
+| updateTime 被设置为当前时间戳    | 调用时                                           | `updateTime` 在调用前后时间戳范围内              |
+
+**容错处理**
+
+| 测试用例                   | 输入        | 预期结果           |
+| -------------------------- | ----------- | ------------------ |
+| avatar_list 为空数组       | `[]`        | 返回空数组         |
+| 传入空对象（无 data 字段） | `{}`        | 返回空数组，不崩溃 |
+| 传入非对象（字符串）       | `'invalid'` | 返回空数组，不崩溃 |
+
 ---
 
 ## 四、Repository 层（core/src/ohosTest/）
@@ -550,25 +588,26 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 
 ### 4.1 BBSRepository（BBSRepository.test.ets）
 
-被测类：`core/src/main/ets/repository/v2/BBSRepository.ets`
+被测类：`core/src/main/ets/repository/BBSRepository.ets`
 
-| 测试用例                       | 前置条件                  | 操作                               | 预期结果                            |
-| ------------------------------ | ------------------------- | ---------------------------------- | ----------------------------------- |
-| saveAccount 写入新账号         | 表为空                    | `saveAccount(row)`                 | `getAllAccounts()` 返回 1 条        |
-| saveAccount 更新已有账号       | 已有 username='u1'        | 再次 `saveAccount` 相同 username   | 仍只有 1 条，字段更新               |
-| getAllAccounts 空表            | 表为空                    | `getAllAccounts()`                 | 返回空数组                          |
-| getAccountById 存在            | 已有 id=1                 | `getAccountById(1)`                | 返回对应行                          |
-| getAccountById 不存在          | 表为空                    | `getAccountById(999)`              | 返回 null                           |
-| getAccountByUsername 存在      | 已有 username='u1'        | `getAccountByUsername('u1')`       | 返回对应行                          |
-| deleteAccount 存在             | 已有 id=1                 | `deleteAccount(1)`                 | `getAccountById(1)` 返回 null       |
-| saveGameRoles 批量写入         | 表为空                    | `saveGameRoles([row1, row2])`      | `getGameRoles(accountId)` 返回 2 条 |
-| getGameRoles 按 accountId 过滤 | 已有不同 accountId 的数据 | `getGameRoles(1)`                  | 只返回 accountId=1 的数据           |
-| getGameRolesByGame 过滤        | 已有原神和星铁角色        | `getGameRolesByGame(1, 'genshin')` | 只返回原神角色                      |
-| deleteGameRoles 清空           | 已有 2 条                 | `deleteGameRoles(1)`               | `getGameRoles(1)` 返回空数组        |
+| 测试用例                           | 前置条件                  | 操作                                    | 预期结果                                     |
+| ---------------------------------- | ------------------------- | --------------------------------------- | -------------------------------------------- |
+| saveAccount 写入新账号             | 表为空                    | `saveAccount(row)`                      | `getAllAccounts()` 返回 1 条                 |
+| saveAccount 更新已有账号           | 已有 username='u1'        | 再次 `saveAccount` 相同 username        | 仍只有 1 条，字段更新                        |
+| getAllAccounts 空表                | 表为空                    | `getAllAccounts()`                      | 返回空数组                                   |
+| getAccountById 存在                | 已有 id=1                 | `getAccountById(1)`                     | 返回对应行                                   |
+| getAccountById 不存在              | 表为空                    | `getAccountById(999)`                   | 返回 null                                    |
+| getAccountByUsername 存在          | 已有 username='u1'        | `getAccountByUsername('u1')`            | 返回对应行                                   |
+| deleteAccount 存在（级联删除角色） | 已有账号且有游戏角色      | `deleteAccount(id)`                     | `getGameRoles(id)` 返回空数组                |
+| upsertOrUpdateAccount 新账号       | 表为空                    | `upsertOrUpdateAccount('u1', 'cookie')` | 返回新账号 id，`getAccountByUsername` 能查到 |
+| upsertOrUpdateAccount 已有账号     | 已有 username='u1'        | 再次调用，cookie 不同                   | 返回同一 id，cookie 已更新                   |
+| getGameRoles 按 accountId 过滤     | 已有不同 accountId 的数据 | `getGameRoles(1)`                       | 只返回 accountId=1 的数据                    |
+| getGameRolesByGame 过滤            | 已有原神和星铁角色        | `getGameRolesByGame(1, 'genshin')`      | 只返回原神角色                               |
+| deleteGameRoles 清空               | 已有 2 条                 | `deleteGameRoles(1)`                    | `getGameRoles(1)` 返回空数组                 |
 
 ### 4.2 GenshinRepository（GenshinRepository.test.ets）
 
-被测类：`core/src/main/ets/repository/v2/GenshinRepository.ets`
+被测类：`core/src/main/ets/repository/GenshinRepository.ets`
 
 | 测试用例                            | 操作                                       | 预期结果                                    |
 | ----------------------------------- | ------------------------------------------ | ------------------------------------------- |
@@ -585,6 +624,8 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 | upsertAvatarDetails 写入            | `upsertAvatarDetails(1, 'uid1', [row])`    | `getAvatarDetail` 返回对应行                |
 | getAvatarCompute 空表               | `getAvatarCompute(1, 'uid1', 'avatarId1')` | 返回 null                                   |
 | upsertAvatarCompute 写入            | `upsertAvatarCompute(1, 'uid1', row)`      | `getAvatarCompute` 返回对应行               |
+
+> 注：`syncDailyNote(accountId, roleUid, server, cookie)` 和 `syncAvatarList(accountId, roleUid, server, cookie)` 是高层方法，内部调用 ApiService + 写 DB，需要注入 MockService 才能测试，属于集成测试范畴，在 `ohosTest` 中通过 `setService(mockService)` 注入后验证 DB 写入结果。
 
 ### 4.3 StarRailRepository（StarRailRepository.test.ets）
 
@@ -631,22 +672,24 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 所有本地单元测试必须在 `core/src/test/List.test.ets` 中注册：
 
 ```typescript
-import dsUtilV2Test from "./DSUtilV2.test";
+import dsUtilTest from "./DSUtilV2.test";
 import mockServiceBaseTest from "./MockServiceBase.test";
 import genshinDailyNoteParserTest from "./GenshinDailyNoteParser.test";
 import starRailDailyNoteParserTest from "./StarRailDailyNoteParser.test";
 import zzzDailyNoteParserTest from "./ZZZDailyNoteParser.test";
 import syncDataTypeTest from "./SyncDataType.test";
 import rowModelsTest from "./RowModels.test";
+import starRailAvatarBasicParserTest from "./StarRailAvatarBasicParser.test";
 
 export default function testsuite() {
-  dsUtilV2Test();
+  dsUtilTest();
   mockServiceBaseTest();
   genshinDailyNoteParserTest();
   starRailDailyNoteParserTest();
   zzzDailyNoteParserTest();
   syncDataTypeTest();
   rowModelsTest();
+  starRailAvatarBasicParserTest();
 }
 ```
 

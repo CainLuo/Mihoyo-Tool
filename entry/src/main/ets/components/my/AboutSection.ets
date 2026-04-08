@@ -48,7 +48,7 @@ export struct AboutSection {
 
 @Preview
 @ComponentV2
-struct AboutSectionPreview {
+export struct AboutSectionPreview {
   build() {
     Column() {
       AboutSection()

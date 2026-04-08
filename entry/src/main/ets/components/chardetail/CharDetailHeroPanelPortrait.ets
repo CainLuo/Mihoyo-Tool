@@ -44,7 +44,7 @@ function makeMockPortraitVM(): GenshinCharacterDetailViewModel {
 // ── Preview：Phone 竖屏立绘区 ──
 @Preview
 @ComponentV2
-struct CharDetailHeroPanelPortraitPreview {
+export struct CharDetailHeroPanelPortraitPreview {
   build() {
     CharDetailHeroPanelPortrait({ vm: makeMockPortraitVM() })
       .width(themeManager.current.value360)

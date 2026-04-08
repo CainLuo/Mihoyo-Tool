@@ -110,7 +110,7 @@ export struct CharactersContent {
 
 @Preview
 @ComponentV2
-struct CharactersContentPreviewEmpty {
+export struct CharactersContentPreviewEmpty {
   build() {
     CharactersContent({
       tm: themeManager,

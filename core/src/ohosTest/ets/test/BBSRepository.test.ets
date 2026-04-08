@@ -4,6 +4,7 @@ import { RdbManager } from '../../../main/ets/database/RdbManager';
 import { BBSRepository } from '../../../main/ets/repository/BBSRepository';
 import { AccountRow } from '../../../main/ets/models/AccountRow';
 import { GameRoleRow } from '../../../main/ets/models/GameRoleRow';
+import { GameRoleDao } from '../../../main/ets/database/BBSDao';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 
 function getContext(): common.UIAbilityContext {
@@ -47,6 +48,7 @@ function makeGameRole(accountId: number, gameId: string, roleId: string): GameRo
 
 export default function bbsRepositoryTest() {
   const repo = new BBSRepository();
+  const gameRoleDao = new GameRoleDao();
 
   beforeAll(async () => {
     await RdbManager.init(getContext());
@@ -116,7 +118,7 @@ export default function bbsRepositoryTest() {
       const acc = await repo.getAccountByUsername('repo_test_cascade');
       expect(acc !== null).assertTrue();
       if (acc !== null) {
-        await repo.saveGameRoles([makeGameRole(acc.id, 'genshin', 'r_cascade')]);
+        await gameRoleDao.upsertAll([makeGameRole(acc.id, 'genshin', 'r_cascade')]);
         const rolesBefore = await repo.getGameRoles(acc.id);
         expect(rolesBefore.length).assertEqual(1);
 
@@ -128,12 +130,12 @@ export default function bbsRepositoryTest() {
       }
     });
 
-    it('saveGameRoles_twoRows_getGameRolesReturnsTwo', 0, async () => {
+    it('upsertGameRoles_twoRows_getGameRolesReturnsTwo', 0, async () => {
       await repo.saveAccount(makeAccount('repo_test_roles'));
       const acc = await repo.getAccountByUsername('repo_test_roles');
       expect(acc !== null).assertTrue();
       if (acc !== null) {
-        await repo.saveGameRoles([
+        await gameRoleDao.upsertAll([
           makeGameRole(acc.id, 'genshin', 'r1'),
           makeGameRole(acc.id, 'starrail', 'r2')
         ]);
@@ -149,8 +151,8 @@ export default function bbsRepositoryTest() {
       const acc2 = await repo.getAccountByUsername('repo_test_filter2');
       expect(acc1 !== null && acc2 !== null).assertTrue();
       if (acc1 !== null && acc2 !== null) {
-        await repo.saveGameRoles([makeGameRole(acc1.id, 'genshin', 'r_f1')]);
-        await repo.saveGameRoles([makeGameRole(acc2.id, 'genshin', 'r_f2')]);
+        await gameRoleDao.upsertAll([makeGameRole(acc1.id, 'genshin', 'r_f1')]);
+        await gameRoleDao.upsertAll([makeGameRole(acc2.id, 'genshin', 'r_f2')]);
         const result = await repo.getGameRoles(acc1.id);
         expect(result.length).assertEqual(1);
         expect(result[0].accountId).assertEqual(acc1.id);
@@ -162,7 +164,7 @@ export default function bbsRepositoryTest() {
       const acc = await repo.getAccountByUsername('repo_test_bygame');
       expect(acc !== null).assertTrue();
       if (acc !== null) {
-        await repo.saveGameRoles([
+        await gameRoleDao.upsertAll([
           makeGameRole(acc.id, 'genshin', 'r_g'),
           makeGameRole(acc.id, 'starrail', 'r_s')
         ]);
@@ -177,7 +179,7 @@ export default function bbsRepositoryTest() {
       const acc = await repo.getAccountByUsername('repo_test_delroles');
       expect(acc !== null).assertTrue();
       if (acc !== null) {
-        await repo.saveGameRoles([makeGameRole(acc.id, 'genshin', 'r_del')]);
+        await gameRoleDao.upsertAll([makeGameRole(acc.id, 'genshin', 'r_del')]);
         await repo.deleteGameRoles(acc.id);
         const result = await repo.getGameRoles(acc.id);
         expect(result.length).assertEqual(0);

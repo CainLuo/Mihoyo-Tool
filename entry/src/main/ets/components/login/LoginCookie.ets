@@ -78,7 +78,7 @@ export struct LoginCookie {
 
 @Preview
 @ComponentV2
-struct LoginCookiePreview {
+export struct LoginCookiePreview {
   build() {
     Column() {
       LoginCookie({ vm: new LoginViewModel() })

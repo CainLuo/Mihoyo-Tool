@@ -15,7 +15,10 @@ export class ZZZAvatarBasicRow {
   groupIconPath: string = '';
   hollowIconPath: string = '';
   roleSquareUrl: string = '';
+  /** 觉醒状态（DB 存 TEXT，读取时 parseInt 转 number；0=未知/不可见） */
   awakenState: number = 0;
+  /** 是否被选中（0=否，1=是） */
+  isChosen: number = 0;
   rawJson: string = '';
   updateTime: number = 0;
 }

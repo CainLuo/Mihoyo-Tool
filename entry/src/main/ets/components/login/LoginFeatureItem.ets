@@ -27,7 +27,7 @@ export struct LoginFeatureItem {
 
 @Preview
 @ComponentV2
-struct LoginFeatureItemPreview {
+export struct LoginFeatureItemPreview {
   build() {
     Column({ space: 8 }) {
       LoginFeatureItem({ tm: themeManager, label: $r('app.string.login_brand_feature1') })

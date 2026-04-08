@@ -19,8 +19,7 @@ import {
   LoginCookieFields,
   RoleStatItem,
   CoreInitializer,
-  AccountRow,
-  GameRoleRow
+  LoginResult
 } from 'core';
 import { Logger } from '../utils/Logger';
 import { LoginTab, PhoneStep, QRCodeStat } from '../constants/LoginTabEnum';
@@ -347,115 +346,43 @@ export class LoginViewModel {
   // ─── 登录成功统一流程 ─────────────────────────────────────────
 
   /**
-   * 登录成功后统一处理：写账号 → 写游戏角色 → 设置激活 → 通知 View
-   * @param username  用于展示的账号标识（account_id 或 mid）
-   * @param cookie    完整 Cookie 字符串
+   * 登录成功后统一处理：委托给 BBSRepository.login() 完成所有 DB 操作，
+   * 拿到结果后组装 AccountVM 通知 View 跳转。
    */
   private async finalizeLogin(username: string, cookie: string): Promise<void> {
-    // 1. 写入账号
-    const now = Math.floor(Date.now() / 1000);
-    const accountRow = new AccountRow();
-    accountRow.id = 0; // 新账号，自增
-    accountRow.username = username;
-    accountRow.cookie = cookie;
-    accountRow.isActive = 1;
-    accountRow.createTime = now;
-    accountRow.updateTime = now;
-    await CoreInitializer.bbsRepository.saveAccount(accountRow);
+    await CoreInitializer.waitForReady();
 
-    // 查询刚写入的账号 id
-    const savedAccount = await CoreInitializer.bbsRepository.getAccountByUsername(username);
-    const accountId = savedAccount !== null ? savedAccount.id : 0;
-
-    // 2. 拉取游戏角色并写入
+    // 全部 DB 操作和环境适配委托给 core 层，entry 不感知 mock/release 环境
+    let loginResult: LoginResult;
     try {
-      const roles = await AuthRepository.getUserGameRoles(cookie);
-      if (roles.length > 0) {
-        // 额外调用账号详情接口，补充 bgImageUrl 和 statsJson
-        try {
-          const uid = LoginViewModel.extractCookieField(cookie, 'account_id') ||
-                      LoginViewModel.extractCookieField(cookie, 'ltuid_v2') ||
-                      username;
-          const detailRoles = await AuthRepository.getGameRecordCard(cookie, uid);
-          for (let i = 0; i < roles.length; i++) {
-            for (let j = 0; j < detailRoles.length; j++) {
-              if (detailRoles[j].gameId === roles[i].gameId &&
-                  detailRoles[j].roleId === roles[i].roleId) {
-                roles[i].bgImageUrl = detailRoles[j].bgImageUrl;
-                roles[i].statsJson = detailRoles[j].statsJson;
-                break;
-              }
-            }
-          }
-        } catch (_) {
-          // 账号详情拉取失败不阻断流程
-        }
-        // 转换为 GameRoleRow 并保存
-        const roleRows: GameRoleRow[] = [];
-        for (let i = 0; i < roles.length; i++) {
-          const r = roles[i];
-          const roleRow = new GameRoleRow();
-          roleRow.id = 0;
-          roleRow.accountId = accountId;
-          roleRow.gameId = r.gameId;
-          roleRow.roleId = r.roleId;
-          roleRow.nickname = r.nickname;
-          roleRow.level = r.level;
-          roleRow.server = r.server;
-          roleRow.bgImageUrl = r.bgImageUrl;
-          roleRow.statsJson = r.statsJson;
-          roleRows[roleRows.length] = roleRow;
-        }
-        await CoreInitializer.bbsRepository.saveGameRoles(roleRows);
-      }
-    } catch (error) {
-      // 角色拉取失败不阻断登录流程，只记录 warn
-      const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.warn(TAG, `getUserGameRoles failed (non-fatal): ${msg}`);
-    }
-
-    // 3. 拉取 BBS 账号详情（nickname、avatarUrl）
-    try {
-      const bbsDetail = await AuthRepository.getBbsAccountDetail(cookie);
-      if (bbsDetail.nickname || bbsDetail.avatarUrl) {
-        const latestRow = await CoreInitializer.bbsRepository.getAccountById(accountId);
-        if (latestRow !== null) {
-          latestRow.nickname = bbsDetail.nickname;
-          latestRow.avatarUrl = bbsDetail.avatarUrl;
-          await CoreInitializer.bbsRepository.saveAccount(latestRow);
-        }
-      }
+      loginResult = await CoreInitializer.bbsRepository.login(username, cookie);
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.warn(TAG, `getBbsAccountDetail failed (non-fatal): ${msg}`);
+      Logger.error(TAG, `login failed: ${msg}`);
+      this.errorMsg = msg;
+      return;
     }
 
-    // 4. 组装 AccountVM 并通知 View 跳转
-    try {
-      const row = await CoreInitializer.bbsRepository.getAccountById(accountId);
-      if (row !== null) {
-        const roleRows = await CoreInitializer.bbsRepository.getGameRoles(accountId);
-        const roleVMs: MyGameRoleVM[] = [];
-        for (let i = 0; i < roleRows.length; i++) {
-          const r = roleRows[i];
-          const rawStats = RoleStatItem.parseAll(r.statsJson);
-          const stats: GameStatItem[] = [];
-          for (let j = 0; j < rawStats.length; j++) {
-            stats[stats.length] = new GameStatItem(rawStats[j].name, rawStats[j].value);
-          }
-          roleVMs[roleVMs.length] = new MyGameRoleVM(
-            r.gameId, gameIdToName(r.gameId), gameIdToColor(r.gameId),
-            r.roleId, r.nickname, serverDisplayName(r.server, r.gameId) ?? r.server,
-            r.level, r.bgImageUrl, stats
-          );
-        }
-        this.loginedAccountVM = new MyAccountVM(row.id, row.username, roleVMs, row.nickname, row.avatarUrl);
+    // 组装 AccountVM 并通知 View 跳转
+    const roleVMs: MyGameRoleVM[] = [];
+    for (let i = 0; i < loginResult.roles.length; i++) {
+      const r = loginResult.roles[i];
+      const rawStats = RoleStatItem.parseAll(r.statsJson);
+      const stats: GameStatItem[] = [];
+      for (let j = 0; j < rawStats.length; j++) {
+        stats[stats.length] = new GameStatItem(rawStats[j].name, rawStats[j].value);
       }
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.warn(TAG, `buildLoginedAccountVM failed (non-fatal): ${msg}`);
+      roleVMs[roleVMs.length] = new MyGameRoleVM(
+        r.gameId, gameIdToName(r.gameId), gameIdToColor(r.gameId),
+        r.roleId, r.nickname, serverDisplayName(r.server, r.gameId) ?? r.server,
+        r.level, r.bgImageUrl, stats
+      );
     }
-    this.loginedAccountId = accountId;
+    this.loginedAccountVM = new MyAccountVM(
+      loginResult.accountId, loginResult.username, roleVMs,
+      loginResult.nickname, loginResult.avatarUrl
+    );
+    this.loginedAccountId = loginResult.accountId;
     this.loginSuccess = true;
   }
 

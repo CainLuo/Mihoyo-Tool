@@ -5,27 +5,27 @@
  */
 
 import { describe, it, expect } from '@ohos/hypium';
-import { AccountRow } from '../main/ets/models/v2/AccountRowV2';
-import { GameRoleRow } from '../main/ets/models/v2/GameRoleRowV2';
+import { AccountRow } from '../main/ets/models/AccountRow';
+import { GameRoleRow } from '../main/ets/models/GameRoleRow';
 import {
   GenshinCharacterListRow,
   GenshinDailyNoteRow,
   GenshinCharacterDetailRow,
   GenshinCharacterComputeRow
-} from '../main/ets/models/v2/GenshinRows';
+} from '../main/ets/models/GenshinRows';
 import {
   StarRailAvatarBasicRow,
   StarRailDailyNoteRow,
   StarRailAvatarInfoRow,
   StarRailAvatarComputeRow
-} from '../main/ets/models/v2/StarRailRows';
+} from '../main/ets/models/StarRailRows';
 import {
   ZZZAvatarBasicRow,
   ZZZDailyNoteRow,
   ZZZAvatarInfoRow,
   ZZZAvatarComputeRow
-} from '../main/ets/models/v2/ZZZRows';
-import { SyncMetaRow } from '../main/ets/models/v2/SyncMetaRow';
+} from '../main/ets/models/ZZZRows';
+import { SyncMetaRow } from '../main/ets/models/SyncMetaRow';
 
 export default function rowModelsTest() {
   describe('AccountRowV2', () => {
@@ -66,6 +66,9 @@ export default function rowModelsTest() {
       expect(row.level).assertEqual(0);
       expect(row.fetter).assertEqual(0);
       expect(row.activedConstellationNum).assertEqual(0);
+      expect(row.weaponIconUrl).assertEqual('');
+      expect(row.image).assertEqual('');
+      expect(row.isChosen).assertEqual(0);
     });
   });
 
@@ -110,6 +113,8 @@ export default function rowModelsTest() {
       expect(row.rank).assertEqual(0);
       expect(row.baseType).assertEqual(0);
       expect(row.elementId).assertEqual(0);
+      expect(row.equipIconUrl).assertEqual('');
+      expect(row.isChosen).assertEqual(0);
     });
   });
 
@@ -151,6 +156,8 @@ export default function rowModelsTest() {
       expect(row.rank).assertEqual(0);
       expect(row.elementType).assertEqual(0);
       expect(row.avatarProfession).assertEqual(0);
+      expect(row.awakenState).assertEqual(0);
+      expect(row.isChosen).assertEqual(0);
     });
   });
 

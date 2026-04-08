@@ -183,7 +183,7 @@ export struct AccountRolesSection {
 
 @Preview
 @ComponentV2
-struct AccountRolesSectionPreview {
+export struct AccountRolesSectionPreview {
   build() {
     Column() {
       AccountRolesSection({

@@ -48,7 +48,7 @@ function makeMockHeroPanelVM(element: GenshinElement, name: string, cons: number
 // ── Preview：WIDE 模式 ──
 @Preview
 @ComponentV2
-struct CharDetailHeroPanelPreviewWide {
+export struct CharDetailHeroPanelPreviewWide {
   build() {
     CharDetailHeroPanel({
       vm: makeMockHeroPanelVM(GenshinElement.HYDRO, '夜兰', 6),
@@ -62,7 +62,7 @@ struct CharDetailHeroPanelPreviewWide {
 // ── Preview：PORTRAIT 模式 ──
 @Preview
 @ComponentV2
-struct CharDetailHeroPanelPreviewPortrait {
+export struct CharDetailHeroPanelPreviewPortrait {
   build() {
     CharDetailHeroPanel({
       vm: makeMockHeroPanelVM(GenshinElement.PYRO, '胡桃', 1),
@@ -76,7 +76,7 @@ struct CharDetailHeroPanelPreviewPortrait {
 // ── Preview：LANDSCAPE 模式 ──
 @Preview
 @ComponentV2
-struct CharDetailHeroPanelPreviewLandscape {
+export struct CharDetailHeroPanelPreviewLandscape {
   build() {
     CharDetailHeroPanel({
       vm: makeMockHeroPanelVM(GenshinElement.ELECTRO, '雷电将军', 6),

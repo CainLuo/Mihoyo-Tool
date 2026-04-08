@@ -46,7 +46,7 @@ function makeMockWideVM(): GenshinCharacterDetailViewModel {
 // ── Preview：宽屏立绘区 ──
 @Preview
 @ComponentV2
-struct CharDetailHeroPanelWidePreview {
+export struct CharDetailHeroPanelWidePreview {
   build() {
     CharDetailHeroPanelWide({ vm: makeMockWideVM() })
       .width(themeManager.current.value400)

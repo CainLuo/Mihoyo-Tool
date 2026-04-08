@@ -44,7 +44,7 @@ function makeMockLandscapeVM(): GenshinCharacterDetailViewModel {
 // ── Preview：Phone 横屏立绘区 ──
 @Preview
 @ComponentV2
-struct CharDetailHeroPanelLandscapePreview {
+export struct CharDetailHeroPanelLandscapePreview {
   build() {
     CharDetailHeroPanelLandscape({ vm: makeMockLandscapeVM() })
       .width(themeManager.current.value200)

@@ -384,7 +384,11 @@ https://developer.huawei.com/consumer/cn/doc/
   ```typescript
   import { BBSRepository, GenshinRepository } from "core";
   ```
-- **禁区**：严禁在页面文件中直接编写底层 HTTP 请求代码或复杂加解密算法，必须委托给 `core`
+- **禁区**：
+  - 严禁直接操作数据库（`RdbManager`、DAO 类、`Row` 模型写入）
+  - 严禁直接调用 `ApiService` 网络方法后自己写 DB
+  - 严禁判断 `isMock`、`APP_RUNTIME_ENV` 等环境变量做业务分支
+  - 唯一例外：`EntryAbility.onCreate` 负责从 `BuildProfile` 读取环境并通过 `CoreInitializer.initCore({ isMock })` 传给 core，这是 entry 唯一感知环境的地方
 
 ### 测试隔离
 

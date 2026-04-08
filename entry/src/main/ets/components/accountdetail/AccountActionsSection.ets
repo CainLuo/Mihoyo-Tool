@@ -30,7 +30,7 @@ export struct AccountActionsSection {
 
 @Preview
 @ComponentV2
-struct AccountActionsSectionPreview {
+export struct AccountActionsSectionPreview {
   build() {
     Column() {
       AccountActionsSection({ tm: themeManager })

@@ -19,17 +19,16 @@
 
 被测类：`entry/src/main/ets/viewmodel/HomeViewModel.ets`
 
-| 测试用例                                 | 前置条件            | 操作                      | 预期结果                          |
-| ---------------------------------------- | ------------------- | ------------------------- | --------------------------------- |
-| 初始 viewState 为 LOADING                | 新建实例            | `new HomeViewModel()`     | `viewState === ViewState.LOADING` |
-| 初始 accounts 为空数组                   | 新建实例            | `new HomeViewModel()`     | `accounts.length === 0`           |
-| 初始 isRefreshing 为 false               | 新建实例            | `new HomeViewModel()`     | `isRefreshing === false`          |
-| 初始 networkErrorMsg 为空                | 新建实例            | `new HomeViewModel()`     | `networkErrorMsg === ''`          |
-| 初始 geetestTrigger 为 null              | 新建实例            | `new HomeViewModel()`     | `geetestTrigger === null`         |
-| refresh 时 isRefreshing 已为 true 则跳过 | `isRefreshing=true` | `refresh()`               | 不重复触发                        |
-| resinRecoveryDesc 秒数转换 — 超过 1 小时 | 输入 `3660` 秒      | `resinRecoveryDesc(3660)` | 包含 '1 小时'                     |
-| resinRecoveryDesc 秒数转换 — 不足 1 小时 | 输入 `600` 秒       | `resinRecoveryDesc(600)`  | 包含 '10 分钟'                    |
-| resinRecoveryDesc 秒数为 0               | 输入 `0`            | `resinRecoveryDesc(0)`    | 返回 `''`                         |
+| 测试用例                                 | 前置条件            | 操作                  | 预期结果                          |
+| ---------------------------------------- | ------------------- | --------------------- | --------------------------------- |
+| 初始 viewState 为 LOADING                | 新建实例            | `new HomeViewModel()` | `viewState === ViewState.LOADING` |
+| 初始 accounts 为空数组                   | 新建实例            | `new HomeViewModel()` | `accounts.length === 0`           |
+| 初始 isRefreshing 为 false               | 新建实例            | `new HomeViewModel()` | `isRefreshing === false`          |
+| 初始 networkErrorMsg 为空                | 新建实例            | `new HomeViewModel()` | `networkErrorMsg === ''`          |
+| 初始 geetestTrigger 为 null              | 新建实例            | `new HomeViewModel()` | `geetestTrigger === null`         |
+| refresh 时 isRefreshing 已为 true 则跳过 | `isRefreshing=true` | `refresh()`           | 不重复触发                        |
+
+> 注：`resinRecoveryDesc` 方法已移至 View 层 `TimeFormatUtil`，不再在 ViewModel 中测试。
 
 ---
 
@@ -37,16 +36,21 @@
 
 被测类：`entry/src/main/ets/viewmodel/CharactersViewModel.ets`
 
-| 测试用例                                 | 前置条件                              | 操作                                        | 预期结果                          |
-| ---------------------------------------- | ------------------------------------- | ------------------------------------------- | --------------------------------- |
-| 初始 viewState 为 LOADING                | 新建实例                              | `new CharactersViewModel()`                 | `viewState === ViewState.LOADING` |
-| 初始 selectedAccountIdx 为 0             | 新建实例                              | `new CharactersViewModel()`                 | `selectedAccountIdx === 0`        |
-| 初始 selectedGameIdx 为 0                | 新建实例                              | `new CharactersViewModel()`                 | `selectedGameIdx === 0`           |
-| 初始 characters 为空数组                 | 新建实例                              | `new CharactersViewModel()`                 | `characters.length === 0`         |
-| selectAccount 相同 idx 不触发重载        | `selectedAccountIdx=0`                | `selectAccount(0)`                          | 不改变 selectedAccountIdx         |
-| selectGame 相同 idx 不触发重载           | `selectedGameIdx=0`                   | `selectGame(0)`                             | 不改变 selectedGameIdx            |
-| refresh 时 isRefreshing 已为 true 则跳过 | `isRefreshing=true`                   | `refresh()`                                 | 不重复触发                        |
-| toSelectOptions 转换正确                 | `opts=[{accountId:1, username:'u1'}]` | `CharactersViewModel.toSelectOptions(opts)` | 返回 `[{value:'u1'}]`             |
+| 测试用例                                       | 前置条件                                              | 操作                                           | 预期结果                           |
+| ---------------------------------------------- | ----------------------------------------------------- | ---------------------------------------------- | ---------------------------------- |
+| 初始 viewState 为 LOADING                      | 新建实例                                              | `new CharactersViewModel()`                    | `viewState === ViewState.LOADING`  |
+| 初始 selectedAccountIdx 为 0                   | 新建实例                                              | `new CharactersViewModel()`                    | `selectedAccountIdx === 0`         |
+| 初始 selectedGameIdx 为 0                      | 新建实例                                              | `new CharactersViewModel()`                    | `selectedGameIdx === 0`            |
+| 初始 characters 为空数组                       | 新建实例                                              | `new CharactersViewModel()`                    | `characters.length === 0`          |
+| 初始 showAccountSwitcher 为 false              | 新建实例                                              | `new CharactersViewModel()`                    | `showAccountSwitcher === false`    |
+| 初始 showRefreshButton 为 false                | 新建实例                                              | `new CharactersViewModel()`                    | `showRefreshButton === false`      |
+| selectAccount 相同 idx 不触发重载              | `selectedAccountIdx=0`                                | `selectAccount(0)`                             | 不改变 selectedAccountIdx          |
+| selectGame 相同 idx 不触发重载                 | `selectedGameIdx=0`                                   | `selectGame(0)`                                | 不改变 selectedGameIdx             |
+| refresh 时 isRefreshing 已为 true 则跳过       | `isRefreshing=true`                                   | `refresh()`                                    | 不重复触发                         |
+| toSelectOptions 转换正确（使用 username）      | `opts=[new AccountOption(1,'u1','旅行者','','uid1')]` | `CharactersViewModel.toSelectOptions(opts)`    | 返回 `[{value:'u1'}]`              |
+| AccountOption 仅传两个参数时其余字段为空字符串 | —                                                     | `new AccountOption(1, 'user1')`                | `nickname/avatarUrl/uid` 均为 `''` |
+| AccountOption 传全部参数时正确赋值             | —                                                     | `new AccountOption(2,'u2','昵称','url','uid')` | 各字段正确赋值                     |
+| selectAccount 超出范围的 idx 不崩溃            | `accountOptions=[]`                                   | `selectAccount(999)`                           | 不崩溃                             |
 
 ---
 
@@ -162,16 +166,24 @@
 
 **UI 测试用例**
 
-| 用例                         | 前置条件                      | 操作                           | 预期结果                         |
-| ---------------------------- | ----------------------------- | ------------------------------ | -------------------------------- |
-| 无账号时显示登录占位         | Mock 环境，无账号数据         | 进入 Characters Tab            | HomePlaceholderView 可见         |
-| 有账号无角色数据时显示骨架屏 | Mock 环境，有账号但无角色数据 | 进入 Characters Tab            | CharactersSkeleton 可见          |
-| 有角色数据时显示角色网格     | Mock 环境，有原神角色数据     | 进入 Characters Tab，等待 1 秒 | CharacterCard 可见               |
-| 多游戏时显示 Tab 栏          | Mock 环境，有原神+星铁数据    | 进入 Characters Tab            | GameTabBar 可见                  |
-| 点击 Tab 切换游戏            | 有原神+星铁数据               | 点击星铁 Tab                   | 显示星铁角色数据                 |
-| 点击角色卡片跳转详情         | 有原神角色数据                | 点击角色卡片                   | 跳转到 GenshinCharacterDetail 页 |
-| 刷新冷却时弹出 Dialog        | 30 分钟内已同步               | 点击刷新                       | 弹出冷却 Dialog                  |
-| 冷却 Dialog 点击强制同步     | 冷却 Dialog 已弹出            | 点击"立即同步"按钮             | 触发 forceRefresh                |
+| 用例                           | 前置条件                      | 操作                           | 预期结果                         |
+| ------------------------------ | ----------------------------- | ------------------------------ | -------------------------------- |
+| 无账号时显示登录占位           | Mock 环境，无账号数据         | 进入 Characters Tab            | HomePlaceholderView 可见         |
+| 有账号无角色数据时显示骨架屏   | Mock 环境，有账号但无角色数据 | 进入 Characters Tab            | CharactersSkeleton 可见          |
+| 有角色数据时显示角色网格       | Mock 环境，有原神角色数据     | 进入 Characters Tab，等待 1 秒 | CharacterCard 可见               |
+| 多游戏时显示 Tab 栏            | Mock 环境，有原神+星铁数据    | 进入 Characters Tab            | GameTabBar 可见                  |
+| 点击 Tab 切换游戏              | 有原神+星铁数据               | 点击星铁 Tab                   | 显示星铁角色数据                 |
+| 点击角色卡片跳转详情           | 有原神角色数据                | 点击角色卡片                   | 跳转到 GenshinCharacterDetail 页 |
+| 刷新冷却时弹出 Dialog          | 30 分钟内已同步               | 点击刷新                       | 弹出冷却 Dialog                  |
+| 冷却 Dialog 点击强制同步       | 冷却 Dialog 已弹出            | 点击"立即同步"按钮             | 触发 forceRefresh                |
+| 单账号时右上角不显示切换按钮   | Mock 环境，只有 1 个账号      | 进入 Characters Tab            | 账号切换按钮不可见               |
+| 多账号时右上角显示切换按钮     | Mock 环境，有 2 个以上账号    | 进入 Characters Tab            | 账号切换按钮（👥）可见           |
+| 点击切换按钮弹出账号 Menu      | 有 2 个账号                   | 点击切换按钮                   | Menu 弹出，显示 2 个账号 item    |
+| Menu item 显示昵称和 UID       | 账号有昵称和 uid              | 弹出 Menu                      | 昵称文字和 UID 文字可见          |
+| 点击 Menu item 切换账号        | Menu 已弹出，有 2 个账号      | 点击第 2 个账号 item           | 角色列表切换为第 2 个账号的数据  |
+| 切换账号后当前账号有 ✓ 标记    | 已选中第 2 个账号             | 再次打开 Menu                  | 第 2 个 item 有选中标记          |
+| 删除账号后 Characters 自动刷新 | 在 My 页删除一个账号          | 确认删除，返回 Characters Tab  | 账号列表更新，已删除账号消失     |
+| 删除当前选中账号后不越界       | 选中最后一个账号，删除它      | 确认删除                       | selectedAccountIdx 自动 clamp    |
 
 ---
 
@@ -274,16 +286,19 @@
 
 **UI 测试用例**
 
-| 用例                       | 前置条件                | 操作                 | 预期结果              |
-| -------------------------- | ----------------------- | -------------------- | --------------------- |
-| 默认显示 Home Tab          | 启动应用                | 查看底部 Tab 栏      | Home Tab 高亮         |
-| 点击 Characters Tab 切换   | 在 Home Tab             | 点击 Characters Tab  | Characters 内容区可见 |
-| 点击 My Tab 切换           | 在 Home Tab             | 点击 My Tab          | My 内容区可见         |
-| 切换 Tab 不重置导航栈      | 在 Home Tab 进入详情页  | 切换到 My Tab 再切回 | Home Tab 仍显示详情页 |
-| Phone 模式显示底部 Tab 栏  | Phone 设备              | 查看底部             | 底部 Tab 栏可见       |
-| 宽屏模式显示侧边导航       | 平板/PC 设备            | 查看左侧             | 侧边导航可见          |
-| Home Tab 显示刷新按钮      | 在 Home Tab，有账号数据 | 查看右上角           | 刷新按钮可见          |
-| 非 Home Tab 不显示刷新按钮 | 在 Characters Tab       | 查看右上角           | 刷新按钮不可见        |
+| 用例                                | 前置条件                         | 操作                 | 预期结果                   |
+| ----------------------------------- | -------------------------------- | -------------------- | -------------------------- |
+| 默认显示 Home Tab                   | 启动应用                         | 查看底部 Tab 栏      | Home Tab 高亮              |
+| 点击 Characters Tab 切换            | 在 Home Tab                      | 点击 Characters Tab  | Characters 内容区可见      |
+| 点击 My Tab 切换                    | 在 Home Tab                      | 点击 My Tab          | My 内容区可见              |
+| 切换 Tab 不重置导航栈               | 在 Home Tab 进入详情页           | 切换到 My Tab 再切回 | Home Tab 仍显示详情页      |
+| Phone 模式显示底部 Tab 栏           | Phone 设备                       | 查看底部             | 底部 Tab 栏可见            |
+| 宽屏模式显示侧边导航                | 平板/PC 设备                     | 查看左侧             | 侧边导航可见               |
+| Home Tab 显示刷新按钮               | 在 Home Tab，有账号数据          | 查看右上角           | 刷新按钮可见               |
+| Characters Tab 显示刷新按钮         | 在 Characters Tab，有角色数据    | 查看右上角           | 刷新按钮可见               |
+| Characters Tab 单账号不显示切换按钮 | 在 Characters Tab，只有 1 个账号 | 查看右上角           | 账号切换按钮不可见         |
+| Characters Tab 多账号显示切换按钮   | 在 Characters Tab，有 2+ 个账号  | 查看右上角           | 账号切换按钮可见           |
+| My Tab 不显示刷新和切换按钮         | 在 My Tab                        | 查看右上角           | 刷新按钮和切换按钮均不可见 |
 
 ---
 
@@ -411,14 +426,16 @@ export default function testsuite() {
 
 ### 4.5 AccountDetail 页 — 异常场景（AccountDetailPageTest.test.ets）
 
-| 用例                   | 操作                   | 预期结果                           |
-| ---------------------- | ---------------------- | ---------------------------------- |
-| 账号无游戏角色         | roles=[]               | 显示空态提示，不崩溃               |
-| 角色背景图 URL 无效    | bgImageUrl='invalid'   | 图片加载失败，显示纯色背景，不崩溃 |
-| 角色统计数据为空       | stats=[]               | 不显示统计格子，不崩溃             |
-| 删除账号时网络/DB 失败 | deleteAccount 抛出错误 | errorMsg 更新，不跳转，不崩溃      |
-| 快速连续点击删除按钮   | 快速双击删除按钮       | 只弹出一次确认 Dialog              |
-| 确认删除后立即按返回键 | 确认删除，立即按返回   | 不崩溃，最终返回 My 页             |
+| 用例                               | 操作                   | 预期结果                                                   |
+| ---------------------------------- | ---------------------- | ---------------------------------------------------------- |
+| 账号无游戏角色                     | roles=[]               | 显示空态提示，不崩溃                                       |
+| 角色背景图 URL 无效                | bgImageUrl='invalid'   | 图片加载失败，显示纯色背景，不崩溃                         |
+| 角色统计数据为空                   | stats=[]               | 不显示统计格子，不崩溃                                     |
+| 删除账号时网络/DB 失败             | deleteAccount 抛出错误 | errorMsg 更新，不跳转，不崩溃                              |
+| 快速连续点击删除按钮               | 快速双击删除按钮       | 只弹出一次确认 Dialog                                      |
+| 确认删除后立即按返回键             | 确认删除，立即按返回   | 不崩溃，最终返回 My 页                                     |
+| 删除账号后 Home Tab 自动刷新       | 确认删除               | Home Tab 账号卡片消失（AccountSignal.notify() 触发重载）   |
+| 删除账号后 Characters Tab 自动刷新 | 确认删除               | Characters Tab 账号列表更新（AccountSignal.notify() 触发） |
 
 ---
 
@@ -492,8 +509,10 @@ export default function testsuite() {
 
 **CharactersViewModel**
 
-| 用例                          | 操作                                 | 预期结果               |
-| ----------------------------- | ------------------------------------ | ---------------------- |
-| selectAccount 超出范围的 idx  | `selectAccount(999)`                 | 不崩溃（数组越界保护） |
-| selectGame 超出范围的 idx     | `selectGame(999)`                    | 不崩溃                 |
-| forceRefresh 时 gameTabs 为空 | `gameTabs=[]`，调用 `forceRefresh()` | 不崩溃，直接返回       |
+| 用例                                          | 操作                                 | 预期结果                                 |
+| --------------------------------------------- | ------------------------------------ | ---------------------------------------- |
+| selectAccount 超出范围的 idx                  | `selectAccount(999)`                 | 不崩溃（数组越界保护）                   |
+| selectGame 超出范围的 idx                     | `selectGame(999)`                    | 不崩溃                                   |
+| forceRefresh 时 gameTabs 为空                 | `gameTabs=[]`，调用 `forceRefresh()` | 不崩溃，直接返回                         |
+| loadData 后 selectedAccountIdx clamp          | 已选中 idx=2，账号减少到 1 个        | selectedAccountIdx 被 clamp 为 0，不越界 |
+| loadData 后 selectedAccountIdx 保留（未越界） | 已选中 idx=1，账号仍有 3 个          | selectedAccountIdx 保持为 1，不重置为 0  |

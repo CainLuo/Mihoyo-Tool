@@ -48,8 +48,8 @@ export class StarRailAvatarBasicDao {
         await RdbManager.upsertRow(TableName.STARRAIL_AVATAR_BASIC, columns, [
           idVal, row.accountId, row.roleUid, row.avatarId, row.name, row.element,
           row.rarity, row.level, row.rank, row.baseType, row.equipId, row.equipName,
-          row.equipRarity, row.equipLevel, row.equipRank, row.icon, row.figurePath,
-          row.elementId, row.rawJson, row.updateTime
+          row.equipRarity, row.equipLevel, row.equipRank, row.equipIconUrl, row.isChosen,
+          row.icon, row.figurePath, row.elementId, row.rawJson, row.updateTime
         ]);
       }
     } catch (e) {
@@ -125,6 +125,8 @@ export class StarRailAvatarBasicDao {
       row.equipRarity = r.num(StarRailAvatarBasicCol.EQUIP_RARITY);
       row.equipLevel  = r.num(StarRailAvatarBasicCol.EQUIP_LEVEL);
       row.equipRank   = r.num(StarRailAvatarBasicCol.EQUIP_RANK);
+      row.equipIconUrl = r.str(StarRailAvatarBasicCol.EQUIP_ICON_URL);
+      row.isChosen    = r.num(StarRailAvatarBasicCol.IS_CHOSEN);
       row.icon        = r.str(StarRailAvatarBasicCol.ICON);
       row.figurePath  = r.str(StarRailAvatarBasicCol.FIGURE_PATH);
       row.elementId   = r.num(StarRailAvatarBasicCol.ELEMENT_ID);

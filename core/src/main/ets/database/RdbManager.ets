@@ -9,7 +9,7 @@ import { ALL_TABLES, ALL_INDEXES, TableName } from './TableSchema';
 export class RdbManager {
   private static rdbStore: relationalStore.RdbStore | null = null;
   private static readonly DB_NAME: string = 'mihoyo_tool_v2.db';
-  private static readonly DB_VERSION: number = 1;
+  private static readonly DB_VERSION: number = 2;
 
   /**
    * 初始化数据库，使用 SecurityLevel.S2 加密
@@ -56,7 +56,11 @@ export class RdbManager {
 
     try {
       await fn();
-      store.commit();
+      try {
+        store.commit();
+      } catch (commitError) {
+        throw new Error(`commit failed: ${RdbManager.toErrorMessage(commitError)}`);
+      }
     } catch (error) {
       const actionError: string = RdbManager.toErrorMessage(error);
       try {
