@@ -1,39 +1,25 @@
 /**
- * Characters — 角色 Tab 页（View 层，纯内容组件）
+ * Characters — 角色 Tab 页（View 层，普通内容组件）
  *
- * ViewModel 由 Characters 自己持有，标题栏菜单 Builder 通过 @BuilderParam 暴露给 Main，
- * Main 直接把它传给 Navigation.menus()，不感知任何业务状态。
+ * ViewModel 由 Characters 自己持有。
+ * 通过 @Param 回调把操作函数和状态上报给 Main，由 Main 挂到 Navigation.menus()。
  */
 import { BusinessError } from '@kit.BasicServicesKit'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { CharactersViewModel, AccountOption } from '../viewmodel/CharactersViewModel'
 import { CharactersContent } from '../components/characters/CharactersContent'
 import { Logger } from '../utils/Logger'
-import { GenshinCharacterDetailParam, GenshinCharacterDetail } from './GenshinCharacterDetail'
+import { GenshinCharacterDetailParam } from './GenshinCharacterDetail'
 import { GameDataSummary } from 'core'
 import { AccountSignal } from '../utils/AccountSignal'
 
-@Builder
-export function charDetailBuilder(name: string, param: Object) {
-  if (name === 'CharDetail') {
-    GenshinCharacterDetail({ routerParam: param as GenshinCharacterDetailParam })
-  }
-}
-
 @ComponentV2
 export struct Characters {
-  @Local private tm: ThemeManager = themeManager
-  @Local private vm: CharactersViewModel = new CharactersViewModel()
-  @Local private signal: AccountSignal = AccountSignal.instance()
-  private uiCtx: UIContext | null = null
-  private scroller: Scroller = new Scroller()
-  @Param detailStack: NavPathStack | null = null
+  @Param detailStack: NavPathStack = new NavPathStack()
   @Param isSplit: boolean = false
-  /** Main 通过此回调注册操作函数 */
-  @Event onReady: (doRefresh: () => void, doSelectAccount: (idx: number) => void) => void =
+  @Param onReady: (doRefresh: () => void, doSelectAccount: (idx: number) => void) => void =
     (_r: () => void, _s: (idx: number) => void) => {}
-  /** Main 通过此回调感知标题栏按钮状态 */
-  @Event onMenuStateChange: (
+  @Param onMenuStateChange: (
     showRefresh: boolean,
     showSwitcher: boolean,
     isRefreshing: boolean,
@@ -41,18 +27,28 @@ export struct Characters {
     selectedIdx: number
   ) => void = (_sr: boolean, _ss: boolean, _ir: boolean, _ao: AccountOption[], _si: number) => {}
 
+  @Local private tm: ThemeManager = themeManager
+  @Local private vm: CharactersViewModel = new CharactersViewModel()
+  @Local private signal: AccountSignal = AccountSignal.instance()
+  private uiCtx: UIContext | null = null
+  private scroller: Scroller = new Scroller()
+
   aboutToAppear(): void {
     this.uiCtx = this.getUIContext()
     this.onReady(
       () => { this.vm.refresh() },
       (idx: number) => { this.vm.selectAccount(idx).catch((_: Error | object) => {}) }
     )
-    this.vm.loadData().catch((_: Error | object) => {})
+    this.vm.loadData().then(() => {
+      this.notifyMenuState()
+    }).catch((_: Error | object) => {})
   }
 
   @Monitor('signal.version')
   onAccountDataChanged(_monitor: IMonitor): void {
-    this.vm.loadData().catch((_: Error | object) => {})
+    this.vm.loadData().then(() => {
+      this.notifyMenuState()
+    }).catch((_: Error | object) => {})
   }
 
   @Monitor('vm.showRefreshButton')
@@ -108,9 +104,7 @@ export struct Characters {
         { text: $r('app.string.dialog_sync'), color: $r('app.color.color_accent') }
       ]
     }).then((result) => {
-      if (result.index === 1) {
-        this.vm.forceRefresh()
-      }
+      if (result.index === 1) { this.vm.forceRefresh() }
     }).catch((e: BusinessError) => {
       Logger.warn('Characters', 'showDialog cooldown failed: ' + e.message)
     })
@@ -127,11 +121,10 @@ export struct Characters {
     param.accountId = accountId
     param.roleUid = roleUid
     param.entityId = character.entityId
-
     if (this.isSplit) {
-      this.detailStack?.replacePath({ name: 'CharDetail', param: param })
+      this.detailStack.replacePath({ name: 'CharDetail', param: param })
     } else {
-      this.detailStack?.pushPath({ name: 'CharDetail', param: param })
+      this.detailStack.pushPath({ name: 'CharDetail', param: param })
     }
   }
 

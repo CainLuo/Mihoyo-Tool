@@ -380,7 +380,7 @@ export class LoginViewModel {
     }
     this.loginedAccountVM = new MyAccountVM(
       loginResult.accountId, loginResult.username, roleVMs,
-      loginResult.nickname, loginResult.avatarUrl
+      loginResult.nickname, loginResult.avatarUrl, loginResult.uid
     );
     this.loginedAccountId = loginResult.accountId;
     this.loginSuccess = true;

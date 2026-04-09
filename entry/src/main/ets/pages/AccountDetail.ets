@@ -61,7 +61,7 @@ export struct AccountDetail {
                 .fontColor(this.tm.current.colorTextPrimary)
                 .maxLines(1)
                 .textOverflow({ overflow: TextOverflow.Ellipsis })
-              Text('UID ' + this.account.username + ' · ' + this.account.roles.length.toString() + ' 个游戏角色')
+              Text('UID ' + (this.account.uid !== '' ? this.account.uid : this.account.username) + ' · ' + this.account.roles.length.toString() + ' 个游戏角色')
                 .font(this.tm.current.body13)
                 .fontColor(this.tm.current.colorTextSecondary)
             }

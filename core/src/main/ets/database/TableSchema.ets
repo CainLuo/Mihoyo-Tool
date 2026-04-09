@@ -100,6 +100,8 @@ export enum AccountCol {
   AVATAR_URL  = 'avatar_url',
   /** 米游社个人简介 */
   INTRODUCE   = 'introduce',
+  /** 原始 API 响应 JSON（来自 getUserFullInfo） */
+  RAW_JSON    = 'raw_json',
 }
 
 /**
@@ -551,6 +553,7 @@ export const ACCOUNT_TABLE = new TableDef(TableName.ACCOUNT, [
   new ColumnDef('nickname',    'TEXT',    "DEFAULT ''"),
   new ColumnDef('avatar_url',  'TEXT',    "DEFAULT ''"),
   new ColumnDef('introduce',   'TEXT',    "DEFAULT ''"),
+  new ColumnDef('raw_json',    'TEXT',    "DEFAULT ''"),
 ]);
 
 // ── 表 2：game_role_table ────────────────────────────────────

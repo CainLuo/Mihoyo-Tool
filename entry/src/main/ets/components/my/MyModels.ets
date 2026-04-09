@@ -55,17 +55,17 @@ export class GameStatItem {
 export class MyAccountVM {
   accountId: number = 0
   username: string = ''
-  /** 米游社昵称（来自 bbs 账号详情接口） */
+  uid: string = ''
   nickname: string = ''
-  /** 米游社头像 URL（来自 bbs 账号详情接口） */
   avatarUrl: string = ''
   roles: MyGameRoleVM[] = []
 
-  constructor(accountId: number, username: string, roles: MyGameRoleVM[], nickname: string = '', avatarUrl: string = '') {
+  constructor(accountId: number, username: string, roles: MyGameRoleVM[], nickname: string = '', avatarUrl: string = '', uid: string = '') {
     this.accountId = accountId
     this.username = username
     this.roles = roles
     this.nickname = nickname
     this.avatarUrl = avatarUrl
+    this.uid = uid
   }
 }

@@ -320,8 +320,10 @@ interface BbsAccountDetailResponse {
 
 /** BBS 账号详情结果 class（供外部使用） */
 export class BbsAccountDetailResult {
+  uid: string = '';
   nickname: string = '';
   avatarUrl: string = '';
+  rawJson: string = '';
 }
 
 /** 登录成功后组装的完整 Cookie 字符串所需的字段 */
@@ -681,8 +683,10 @@ export class AuthRepository {
         throw new Error(`getBbsAccountDetail failed: [${resp.retcode}] ${resp.message}`);
       }
       const result = new BbsAccountDetailResult();
+      result.uid = resp.data.user_info.uid ?? '';
       result.nickname = resp.data.user_info.nickname ?? '';
       result.avatarUrl = resp.data.user_info.avatar_url ?? '';
+      result.rawJson = JSON.stringify(resp.data);
       return result;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;

@@ -1,17 +1,15 @@
 /**
  * Main — 应用主框架
  *
- * 每个 Tab 有独立的 NavPathStack。
- *
- * 架构说明：
- * Navigation.menus() 是 Navigation 组件的属性，必须在 Navigation 所在的组件里定义。
- * 因此 homeMenus/charMenus 的 @Builder 写在 Main 里是框架约束，不是设计选择。
- * 但 Main 不持有任何 ViewModel 实例，menu 按钮的显示逻辑由各 Tab 页的 ViewModel 决定，
- * 通过 @Event 回调把操作函数和状态上报给 Main。
+ * Navigation 管底部 toolbarConfiguration（Tab 栏）、title、menus 和路由。
+ * menus 使用 NavigationMenuItem[] 实现，由系统统一渲染样式。
+ * 各 Tab 页的 ViewModel 通过 @Param 回调把状态和操作函数传给 Main。
  */
 import { ComponentContent, SymbolGlyphModifier } from '@kit.ArkUI'
+import { promptAction } from '@kit.ArkUI'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { AccountOption } from '../viewmodel/CharactersViewModel'
+import { AccountSwitchDialog, AccountSwitchDialogParams } from '../components/characters/AccountSwitchDialog'
 import { Home } from './Home'
 import { Characters } from './Characters'
 import { My } from './My'
@@ -22,6 +20,11 @@ import { Login } from './Login'
 import { MyAccountVM } from '../components/my/MyModels'
 import { AppRoutes } from '../constants/AppRoutes'
 import { splitPlaceholderBuilder } from '../components/SplitPlaceholder'
+
+@Builder
+function accountSwitchDialogBuilder(params: AccountSwitchDialogParams) {
+  AccountSwitchDialog({ params: params })
+}
 
 @Builder
 function allDetailBuilder(name: string, param: Object) {
@@ -46,17 +49,16 @@ export struct Main {
   @Local private selectedTab: number = TAB_HOME
   @Local private isSplit: boolean = false
 
-  // 每个 Tab 独立的导航栈
-  readonly homeStack: NavPathStack = new NavPathStack()
-  readonly charStack: NavPathStack = new NavPathStack()
-  readonly myStack: NavPathStack = new NavPathStack()
+  readonly stack: NavPathStack = new NavPathStack()
+  private placeholder: ComponentContent<object> | null = null
+  private uiCtx: UIContext | null = null
 
-  // ── Home 标题栏状态（由 Home 页通过 @Event 上报）──────────────
+  // ── Home 标题栏状态（由 Home 页通过 @Param 回调上报）──────────
   @Local private homeShowRefresh: boolean = false
   @Local private homeIsRefreshing: boolean = false
   private homeDoRefresh: () => void = () => {}
 
-  // ── Characters 标题栏状态（由 Characters 页通过 @Event 上报）──
+  // ── Characters 标题栏状态（由 Characters 页通过 @Param 回调上报）
   @Local private charShowRefresh: boolean = false
   @Local private charShowSwitcher: boolean = false
   @Local private charIsRefreshing: boolean = false
@@ -64,9 +66,6 @@ export struct Main {
   @Local private charSelectedIdx: number = 0
   private charDoRefresh: () => void = () => {}
   private charDoSelectAccount: (idx: number) => void = (_idx: number) => {}
-
-  private placeholder: ComponentContent<object> | null = null
-  private uiCtx: UIContext | null = null
 
   aboutToAppear(): void {
     this.uiCtx = this.getUIContext()
@@ -96,72 +95,58 @@ export struct Main {
     ]
   }
 
-  // Navigation.menus() 必须在 Navigation 所在组件里定义，这是框架约束
-  @Builder
-  homeMenus() {
-    if (this.homeShowRefresh) {
-      Button({ type: ButtonType.Circle }) {
-        Image($r('app.media.ic_refresh'))
-          .width(this.tm.current.value22)
-          .height(this.tm.current.value22)
-          .fillColor(this.homeIsRefreshing
-            ? this.tm.current.colorTextSecondary
-            : this.tm.current.colorTextPrimary)
-      }
-      .width(this.tm.current.value56)
-      .height(this.tm.current.value56)
-      .backgroundColor(this.tm.current.colorTransparent)
-      .enabled(!this.homeIsRefreshing)
-      .onClick(() => { this.homeDoRefresh() })
-    }
+  private get homeMenuItems(): NavigationMenuItem[] {
+    if (!this.homeShowRefresh) { return []; }
+    return [{
+      value: 'refresh',
+      symbolIcon: new SymbolGlyphModifier($r('sys.symbol.arrow_clockwise')),
+      isEnabled: !this.homeIsRefreshing,
+      action: () => { this.homeDoRefresh() }
+    }];
   }
 
-  @Builder
-  charMenus() {
-    Row({ space: this.tm.current.value8 }) {
-      if (this.charShowSwitcher) {
-        Button({ type: ButtonType.Circle }) {
-          SymbolGlyph($r('sys.symbol.person_2'))
-            .fontSize(this.tm.current.value20)
-            .fontColor([this.tm.current.colorTextPrimary])
-        }
-        .width(this.tm.current.value36)
-        .height(this.tm.current.value36)
-        .backgroundColor(this.tm.current.colorTransparent)
-        .bindMenu(this.accountMenuBuilder)
-      }
-      if (this.charShowRefresh) {
-        Button({ type: ButtonType.Circle }) {
-          SymbolGlyph($r('sys.symbol.arrow_clockwise'))
-            .fontSize(this.tm.current.value20)
-            .fontColor([this.charIsRefreshing
-              ? this.tm.current.colorTextSecondary
-              : this.tm.current.colorTextPrimary])
-        }
-        .width(this.tm.current.value36)
-        .height(this.tm.current.value36)
-        .backgroundColor(this.tm.current.colorTransparent)
-        .enabled(!this.charIsRefreshing)
-        .onClick(() => { this.charDoRefresh() })
-      }
+  private get charMenuItems(): NavigationMenuItem[] {
+    const items: NavigationMenuItem[] = [];
+    if (this.charShowSwitcher) {
+      items[items.length] = {
+        value: 'switch_account',
+        symbolIcon: new SymbolGlyphModifier($r('sys.symbol.person_2')),
+        action: () => { this.showAccountSwitchSheet() }
+      };
     }
+    if (this.charShowRefresh) {
+      items[items.length] = {
+        value: 'refresh',
+        symbolIcon: new SymbolGlyphModifier($r('sys.symbol.arrow_clockwise')),
+        isEnabled: !this.charIsRefreshing,
+        action: () => { this.charDoRefresh() }
+      };
+    }
+    return items;
   }
 
-  @Builder
-  accountMenuBuilder() {
-    Menu() {
-      ForEach(this.charAccountOptions, (opt: AccountOption, i: number) => {
-        MenuItem({
-          content: opt.nickname !== '' ? opt.nickname : opt.username,
-          labelInfo: opt.uid !== '' ? 'UID: ' + opt.uid : '',
-          symbolEndIcon: i === this.charSelectedIdx
-            ? new SymbolGlyphModifier($r('sys.symbol.checkmark'))
-            : undefined
-        })
-        .selected(i === this.charSelectedIdx)
-        .onClick(() => { this.charDoSelectAccount(i) })
-      }, (opt: AccountOption) => opt.accountId.toString())
-    }
+  private get currentMenuItems(): NavigationMenuItem[] {
+    if (this.selectedTab === TAB_HOME) { return this.homeMenuItems; }
+    if (this.selectedTab === TAB_CHARACTERS) { return this.charMenuItems; }
+    return [];
+  }
+
+  private showAccountSwitchSheet(): void {
+    const ctx = this.uiCtx;
+    if (ctx === null || this.charAccountOptions.length === 0) { return; }
+    const params = new AccountSwitchDialogParams();
+    params.options = this.charAccountOptions;
+    params.selectedIdx = this.charSelectedIdx;
+    params.onSelect = (idx: number) => { this.charDoSelectAccount(idx); };
+    const content = new ComponentContent(ctx, wrapBuilder(accountSwitchDialogBuilder), params);
+    params.onClose = () => { ctx.getPromptAction().closeCustomDialog(content); };
+    ctx.getPromptAction().openCustomDialog(content, {
+      alignment: DialogAlignment.Bottom,
+      offset: { dx: 0, dy: 0 },
+      maskColor: 'rgba(0,0,0,0.5)',
+      isModal: true,
+      autoCancel: true
+    });
   }
 
   private tabTitle(): Resource {
@@ -170,18 +155,12 @@ export struct Main {
     return $r('app.string.main_tab_my')
   }
 
-  private get currentStack(): NavPathStack {
-    if (this.selectedTab === TAB_HOME) { return this.homeStack }
-    if (this.selectedTab === TAB_CHARACTERS) { return this.charStack }
-    return this.myStack
-  }
-
   build() {
     NavDestination() {
-      Navigation(this.currentStack) {
+      Navigation(this.stack) {
         Stack() {
           Home({
-            detailStack: this.homeStack,
+            detailStack: this.stack,
             isSplit: this.isSplit,
             onReady: (doRefresh: () => void) => {
               this.homeDoRefresh = doRefresh
@@ -193,7 +172,7 @@ export struct Main {
           })
           .visibility(this.selectedTab === TAB_HOME ? Visibility.Visible : Visibility.None)
           Characters({
-            detailStack: this.charStack,
+            detailStack: this.stack,
             isSplit: this.isSplit,
             onReady: (doRefresh: () => void, doSelectAccount: (idx: number) => void) => {
               this.charDoRefresh = doRefresh
@@ -214,7 +193,7 @@ export struct Main {
             }
           })
           .visibility(this.selectedTab === TAB_CHARACTERS ? Visibility.Visible : Visibility.None)
-          My({ detailStack: this.myStack, isSplit: this.isSplit })
+          My({ detailStack: this.stack, isSplit: this.isSplit })
             .visibility(this.selectedTab === TAB_MY ? Visibility.Visible : Visibility.None)
         }
         .width(this.tm.current.full)
@@ -222,9 +201,7 @@ export struct Main {
       }
       .navDestination(allDetailBuilder)
       .title(this.tabTitle())
-      .menus(this.selectedTab === TAB_HOME ? this.homeMenus
-        : this.selectedTab === TAB_CHARACTERS ? this.charMenus
-        : null)
+      .menus(this.currentMenuItems)
       .toolbarConfiguration(this.tabItems)
       .mode(NavigationMode.Auto)
       .navBarWidth(this.tm.current.pct45)

@@ -1,5 +1,5 @@
 /**
- * My — 我的页面（Tab 内嵌页）
+ * My — 我的页面（View 层，普通内容组件）
  */
 import { ConfigurationConstant, common } from '@kit.AbilityKit'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'

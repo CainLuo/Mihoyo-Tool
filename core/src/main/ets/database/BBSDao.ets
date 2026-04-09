@@ -23,7 +23,7 @@ export class AccountDao {
           ACCOUNT_TABLE.columnNames().filter(c => c !== CommonCol.ID),
           [row.username, row.cookie, row.stoken, row.stuid, row.mid,
            row.isActive, row.createTime, row.updateTime, row.uid, row.nickname,
-           row.avatarUrl, row.introduce],
+           row.avatarUrl, row.introduce, row.rawJson],
           [CommonCol.ID],
           [row.id]
         );
@@ -38,7 +38,7 @@ export class AccountDao {
       await RdbManager.upsertRow(TableName.ACCOUNT, ACCOUNT_TABLE.columnNames(), [
         idVal, row.username, row.cookie, row.stoken, row.stuid, row.mid,
         row.isActive, row.createTime, row.updateTime, row.uid, row.nickname,
-        row.avatarUrl, row.introduce
+        row.avatarUrl, row.introduce, row.rawJson
       ]);
     } catch (e) {
       throw new Error(`AccountDao.upsert failed: ${e instanceof Error ? e.message : e}`);
@@ -89,8 +89,8 @@ export class AccountDao {
   async insertOrIgnore(username: string, cookie: string, now: number): Promise<void> {
     try {
       await RdbManager.executeSql(
-        `INSERT OR IGNORE INTO account_table (username, cookie, stoken, stuid, mid, is_active, create_time, update_time, uid, nickname, avatar_url, introduce) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [username, cookie, '', '', '', 1, now, now, '', '', '', '']
+        `INSERT OR IGNORE INTO account_table (username, cookie, stoken, stuid, mid, is_active, create_time, update_time, uid, nickname, avatar_url, introduce, raw_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [username, cookie, '', '', '', 1, now, now, '', '', '', '', '']
       );
     } catch (e) {
       throw new Error(`AccountDao.insertOrIgnore failed: ${e instanceof Error ? e.message : e}`);
@@ -144,6 +144,7 @@ export class AccountDao {
       row.nickname   = r.str(AccountCol.NICKNAME);
       row.avatarUrl  = r.str(AccountCol.AVATAR_URL);
       row.introduce  = r.str(AccountCol.INTRODUCE);
+      row.rawJson    = r.str(AccountCol.RAW_JSON);
       return row;
     } catch (e) {
       throw new Error(`AccountDao.mapRow failed: ${e instanceof Error ? e.message : e}`);

@@ -9,6 +9,7 @@ import { CoreInitializer } from '../CoreInitializer';
 export class LoginResult {
   accountId: number = 0;
   username: string = '';
+  uid: string = '';
   nickname: string = '';
   avatarUrl: string = '';
   roles: GameRoleRow[] = [];
@@ -88,18 +89,22 @@ export class BBSRepository {
       }
     } catch (_) {}
 
-    // 3. 补充 BBS 账号详情（nickname、avatarUrl）
+    // 3. 补充 BBS 账号详情（nickname、avatarUrl、uid）
     let nickname = '';
     let avatarUrl = '';
+    let uid = '';
     try {
       const bbsDetail = await AuthRepository.getBbsAccountDetail(effectiveCookie);
-      if (bbsDetail.nickname || bbsDetail.avatarUrl) {
+      if (bbsDetail.nickname || bbsDetail.avatarUrl || bbsDetail.uid) {
         nickname = bbsDetail.nickname;
         avatarUrl = bbsDetail.avatarUrl;
+        uid = bbsDetail.uid;
         const latestRow = await this.accountDao.findById(accountId);
         if (latestRow !== null) {
           latestRow.nickname = nickname;
           latestRow.avatarUrl = avatarUrl;
+          latestRow.uid = uid;
+          latestRow.rawJson = bbsDetail.rawJson;
           await this.accountDao.upsert(latestRow);
         }
       }
@@ -109,6 +114,7 @@ export class BBSRepository {
     const result = new LoginResult();
     result.accountId = accountId;
     result.username = effectiveUsername;
+    result.uid = uid;
     result.nickname = nickname;
     result.avatarUrl = avatarUrl;
     result.roles = await this.gameRoleDao.findByAccountId(accountId);

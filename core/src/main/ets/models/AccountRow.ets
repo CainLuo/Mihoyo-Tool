@@ -12,4 +12,5 @@ export class AccountRow {
   nickname: string = '';
   avatarUrl: string = '';
   introduce: string = '';
+  rawJson: string = '';
 }

@@ -1,8 +1,8 @@
 /**
- * Home — 首页（View 层）
+ * Home — 首页（View 层，普通内容组件）
  *
- * ViewModel 由 Home 自己持有，标题栏菜单 Builder 通过 @BuilderParam 暴露给 Main，
- * Main 直接把它传给 Navigation.menus()，不感知任何业务状态。
+ * ViewModel 由 Home 自己持有。
+ * 通过 @Param 回调把操作函数和状态上报给 Main，由 Main 挂到 Navigation.menus()。
  */
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { HomeViewModel } from '../viewmodel/HomeViewModel'
@@ -23,10 +23,8 @@ import { ViewState } from '../constants/ViewStates'
 export struct Home {
   @Param detailStack: NavPathStack = new NavPathStack()
   @Param isSplit: boolean = false
-  /** Main 通过此回调注册操作函数 */
-  @Event onReady: (doRefresh: () => void) => void = (_fn: () => void) => {}
-  /** Main 通过此回调感知标题栏按钮状态 */
-  @Event onMenuStateChange: (showRefresh: boolean, isRefreshing: boolean) => void =
+  @Param onReady: (doRefresh: () => void) => void = (_fn: () => void) => {}
+  @Param onMenuStateChange: (showRefresh: boolean, isRefreshing: boolean) => void =
     (_s: boolean, _r: boolean) => {}
   @Local vm: HomeViewModel = new HomeViewModel()
   @Local private tm: ThemeManager = themeManager
@@ -87,9 +85,7 @@ export struct Home {
         { text: $r('app.string.dialog_sync'), color: $r('app.color.color_accent') }
       ]
     }).then((result) => {
-      if (result.index === 1) {
-        this.vm.forceRefresh()
-      }
+      if (result.index === 1) { this.vm.forceRefresh() }
     }).catch((e: BusinessError) => {
       Logger.warn('Home', 'showDialog cooldown failed: ' + e.message)
     })
@@ -121,7 +117,6 @@ export struct Home {
             UserGameSection({
               account: account,
               onCardTap: (card: GameRoleCardVM) => {
-                Logger.info('Home', `card tapped: ${card.gameId} ${card.roleUid}`)
                 this.navigateToDetail(account.accountId, card)
               }
             })

@@ -1,5 +1,7 @@
 /**
  * UserGameSection — 单个米游社账号的游戏卡片组
+ *
+ * 支持点击 header 折叠/展开卡片列表，带 animateTo 动画。
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 import { MihoyoAccountVM, GameRoleCardVM } from './HomeModels'
@@ -11,10 +13,15 @@ export struct UserGameSection {
   @Param onCardTap: (card: GameRoleCardVM) => void = (_c: GameRoleCardVM) => {}
 
   @Local private tm: ThemeManager = themeManager
+  @Local private collapsed: boolean = false
+
+  private toggleCollapsed(): void {
+    this.collapsed = !this.collapsed;
+  }
 
   build() {
     Column({ space: this.tm.current.value8 }) {
-      // 账号标题行
+      // 账号标题行（可点击折叠/展开）
       Row({ space: this.tm.current.value8 }) {
         if (this.account.avatarUrl !== '') {
           Image(this.account.avatarUrl)
@@ -41,19 +48,30 @@ export struct UserGameSection {
         Text($r('app.string.home_game_count_format', this.account.roles.length))
           .font(this.tm.current.body13)
           .fontColor(this.tm.current.colorTextSecondary)
+        // 折叠/展开箭头
+        SymbolGlyph($r('sys.symbol.chevron_down'))
+          .fontSize(this.tm.current.value16)
+          .fontColor([this.tm.current.colorTextSecondary])
+          .rotate({ angle: this.collapsed ? -90 : 0 })
+          .animation({ duration: 250, curve: Curve.EaseInOut })
       }
       .width(this.tm.current.full)
       .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
       .alignItems(VerticalAlign.Center)
+      .onClick(() => { this.toggleCollapsed() })
 
-      // 游戏卡片列表（垂直排列）
-      Column({ space: this.tm.current.value12 }) {
-        ForEach(this.account.roles, (card: GameRoleCardVM) => {
-          GameToolCard({ card: card, onTap: this.onCardTap })
-        }, (card: GameRoleCardVM) => card.roleUid + card.gameId)
+      // 游戏卡片列表（折叠时隐藏）
+      if (!this.collapsed) {
+        Column({ space: this.tm.current.value12 }) {
+          ForEach(this.account.roles, (card: GameRoleCardVM) => {
+            GameToolCard({ card: card, onTap: this.onCardTap })
+          }, (card: GameRoleCardVM) => card.roleUid + card.gameId)
+        }
+        .width(this.tm.current.full)
+        .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
+        .transition(TransitionEffect.OPACITY.animation({ duration: 200, curve: Curve.EaseInOut })
+          .combine(TransitionEffect.translate({ y: -8 })))
       }
-      .width(this.tm.current.full)
-      .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
     }
     .width(this.tm.current.full)
   }

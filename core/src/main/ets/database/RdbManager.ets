@@ -101,12 +101,8 @@ export class RdbManager {
     }
 
     if (currentVersion === 0) {
-      // 首次安装：建全部 15 张表
       await RdbManager.createTables();
       await RdbManager.executeSqlInternal(`PRAGMA user_version = ${RdbManager.DB_VERSION}`, []);
-    } else if (currentVersion < RdbManager.DB_VERSION) {
-      // 按版本顺序执行迁移（当前版本 1 无需迁移逻辑）
-      // 未来版本在此处添加 if (currentVersion < 2) { ... } 等
     }
     // currentVersion === DB_VERSION 时跳过
   }

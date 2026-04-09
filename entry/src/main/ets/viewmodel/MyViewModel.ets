@@ -47,7 +47,7 @@ export class MyViewModel {
             r.level, r.bgImageUrl, stats
           );
         }
-        vms[vms.length] = new MyAccountVM(row.id, row.username, roleVMs, row.nickname, row.avatarUrl);
+        vms[vms.length] = new MyAccountVM(row.id, row.username, roleVMs, row.nickname, row.avatarUrl, row.uid);
       }
       this.accounts = vms;
       this.viewState = vms.length > 0 ? ViewState.DATA : ViewState.EMPTY;
