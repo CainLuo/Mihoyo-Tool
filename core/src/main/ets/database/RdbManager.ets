@@ -1,28 +1,19 @@
 import { relationalStore } from '@kit.ArkData';
 import { common } from '@kit.AbilityKit';
-
-/**
- * 游戏资产接口
- */
-interface GameAsset {
-  type: string;
-  entityId: string;
-  level: number;
-  element: string;
-  rawJson: string;
-}
+import { ALL_TABLES, ALL_INDEXES, TableName } from './TableSchema';
 
 /**
  * 数据库管理器
- * 负责数据库的初始化、建表和基本操作
+ * 全新 V1.0 架构，15 张专用表，SecurityLevel.S2 加密
  */
 export class RdbManager {
   private static rdbStore: relationalStore.RdbStore | null = null;
-  private static readonly DB_NAME: string = 'mihoyo_tool.db';
+  private static readonly DB_NAME: string = 'mihoyo_tool_v2.db';
+  private static readonly DB_VERSION: number = 2;
 
   /**
-   * 初始化数据库
-   * @param context 能力上下文
+   * 初始化数据库，使用 SecurityLevel.S2 加密
+   * 初始化后执行 PRAGMA foreign_keys = ON 并运行迁移
    */
   public static async init(context: common.UIAbilityContext): Promise<void> {
     if (RdbManager.rdbStore !== null) {
@@ -30,314 +21,263 @@ export class RdbManager {
     }
     const storeConfig: relationalStore.StoreConfig = {
       name: RdbManager.DB_NAME,
-      securityLevel: relationalStore.SecurityLevel.S1
+      securityLevel: relationalStore.SecurityLevel.S2
     };
     try {
       RdbManager.rdbStore = await relationalStore.getRdbStore(context, storeConfig);
-      await RdbManager.createTables();
+      await RdbManager.executeSqlInternal('PRAGMA foreign_keys = ON', []);
+      await RdbManager.runMigrations();
     } catch (error) {
-      throw new Error(`Rdb init failed: ${RdbManager.toErrorMessage(error)}`);
+      throw new Error(`RdbManager init failed: ${RdbManager.toErrorMessage(error)}`);
     }
   }
 
   /**
-   * 创建数据表
-   * 表结构详见 .kiro/steering/database-architecture.md
-   */
-  private static async createTables(): Promise<void> {
-    const store: relationalStore.RdbStore = RdbManager.getRdbStore();
-
-    // ── 账号表 ──────────────────────────────────────────────────
-    const createAccountTableSql: string = `
-      CREATE TABLE IF NOT EXISTS account_table (
-        id          INTEGER PRIMARY KEY AUTOINCREMENT,
-        username    TEXT UNIQUE,
-        cookie      TEXT,
-        is_active   INTEGER DEFAULT 0,
-        create_time INTEGER,
-        update_time INTEGER,
-        nickname    TEXT DEFAULT '',
-        avatar_url  TEXT DEFAULT ''
-      );
-    `;
-
-    // ── 游戏角色表（各游戏 UID）──────────────────────────────────
-    const createGameRoleTableSql: string = `
-      CREATE TABLE IF NOT EXISTS game_role_table (
-        id         INTEGER PRIMARY KEY AUTOINCREMENT,
-        account_id INTEGER,
-        game_id    TEXT,
-        role_id    TEXT,
-        nickname   TEXT,
-        level      INTEGER,
-        server     TEXT,
-        FOREIGN KEY (account_id) REFERENCES account_table(id)
-      );
-    `;
-
-    // ── 核心数据表：所有游戏所有数据类型 ────────────────────────
-    // data_type 枚举：character / weapon / relic / activity /
-    //                 gacha_record / gacha_summary / daily_note / abyss
-    // extra_int1/extra_int2/extra_text1/extra_text2 语义由 data_type 决定，详见架构文档
-    //
-    // extra_text2 新增语义：
-    //   character（原神）：weapon_type（武器类型数字字符串，如 "1"=单手剑）
-    //   character（星铁）：base_type（命途数字字符串，如 "1"=巡猎）
-    //   character（绝区零）：avatar_profession（职业数字字符串）+ camp（阵营名，JSON格式）
-    const createGameDataTableSql: string = `
-      CREATE TABLE IF NOT EXISTS game_data (
-        id          INTEGER PRIMARY KEY AUTOINCREMENT,
-        game_id     TEXT    NOT NULL,
-        role_uid    TEXT    NOT NULL,
-        data_type   TEXT    NOT NULL,
-        entity_id   TEXT    NOT NULL,
-        name        TEXT,
-        rarity      INTEGER,
-        level       INTEGER,
-        extra_int1  INTEGER,
-        extra_int2  INTEGER,
-        extra_text1 TEXT,
-        extra_text2 TEXT,
-        raw_json    TEXT    NOT NULL,
-        update_time INTEGER
-      );
-    `;
-    // 唯一索引：防止重复写入
-    const createGameDataUniqueIdxSql: string = `
-      CREATE UNIQUE INDEX IF NOT EXISTS idx_game_data_unique
-        ON game_data(game_id, role_uid, data_type, entity_id);
-    `;
-    // 查询索引：按游戏+用户+类型批量查
-    const createGameDataQueryIdxSql: string = `
-      CREATE INDEX IF NOT EXISTS idx_game_data_query
-        ON game_data(game_id, role_uid, data_type);
-    `;
-    // 活动索引：按结束时间过滤未结束活动
-    const createGameDataActivityIdxSql: string = `
-      CREATE INDEX IF NOT EXISTS idx_game_data_activity
-        ON game_data(game_id, data_type, extra_int2);
-    `;
-
-    // ── 统计结果表：预计算，供统计页直接查询 ────────────────────
-    // stat_key 枚举：relic_score / is_graduated / crit_rate /
-    //                crit_dmg / pity_count / up_pity_count
-    const createGameStatsTableSql: string = `
-      CREATE TABLE IF NOT EXISTS game_stats (
-        id          INTEGER PRIMARY KEY AUTOINCREMENT,
-        game_id     TEXT NOT NULL,
-        role_uid    TEXT NOT NULL,
-        entity_id   TEXT NOT NULL,
-        stat_key    TEXT NOT NULL,
-        stat_value  REAL,
-        update_time INTEGER
-      );
-    `;
-    const createGameStatsUniqueIdxSql: string = `
-      CREATE UNIQUE INDEX IF NOT EXISTS idx_game_stats_unique
-        ON game_stats(game_id, role_uid, entity_id, stat_key);
-    `;
-
-    // ── 同步状态表：追踪每种数据的最后同步时间和状态 ────────────
-    const createSyncMetaTableSql: string = `
-      CREATE TABLE IF NOT EXISTS sync_meta (
-        id             INTEGER PRIMARY KEY AUTOINCREMENT,
-        game_id        TEXT NOT NULL,
-        role_uid       TEXT NOT NULL,
-        data_type      TEXT NOT NULL,
-        last_sync_time INTEGER,
-        sync_status    TEXT,
-        error_msg      TEXT
-      );
-    `;
-    const createSyncMetaUniqueIdxSql: string = `
-      CREATE UNIQUE INDEX IF NOT EXISTS idx_sync_meta_unique
-        ON sync_meta(game_id, role_uid, data_type);
-    `;
-
-    try {
-      await store.executeSql(createAccountTableSql, []);
-      await store.executeSql(createGameRoleTableSql, []);
-      await store.executeSql(createGameDataTableSql, []);
-      await store.executeSql(createGameDataUniqueIdxSql, []);
-      await store.executeSql(createGameDataQueryIdxSql, []);
-      await store.executeSql(createGameDataActivityIdxSql, []);
-      await store.executeSql(createGameStatsTableSql, []);
-      await store.executeSql(createGameStatsUniqueIdxSql, []);
-      await store.executeSql(createSyncMetaTableSql, []);
-      await store.executeSql(createSyncMetaUniqueIdxSql, []);
-      // 数据库迁移：为旧版本数据库补充 extra_text2 列（已存在时忽略错误）
-      await RdbManager.migrateAddColumn(store, 'game_data', 'extra_text2', 'TEXT');
-      // 数据库迁移：为 game_role_table 补充 bg_image_url 和 stats_json 列
-      await RdbManager.migrateAddColumn(store, 'game_role_table', 'bg_image_url', 'TEXT');
-      await RdbManager.migrateAddColumn(store, 'game_role_table', 'stats_json', 'TEXT');
-      // 数据库迁移：为 account_table 补充 nickname 和 avatar_url 列
-      await RdbManager.migrateAddColumn(store, 'account_table', 'nickname', 'TEXT');
-      await RdbManager.migrateAddColumn(store, 'account_table', 'avatar_url', 'TEXT');
-    } catch (error) {
-      throw new Error(`Create tables failed: ${RdbManager.toErrorMessage(error)}`);
-    }
-  }
-
-  /**
-   * 获取 RdbStore 实例
+   * 获取 RdbStore 实例（内部使用）
    */
   public static getRdbStore(): relationalStore.RdbStore {
     if (RdbManager.rdbStore === null) {
-      throw new Error('RdbStore not initialized');
+      throw new Error('RdbManager: RdbStore not initialized');
     }
     return RdbManager.rdbStore;
   }
 
   /**
-   * 通用查询方法
+   * 在事务中执行操作，失败时自动回滚
+   * beginTransaction / commit / rollBack 均为同步 API，不可 await
    */
-  public static async query(
-    predicates: relationalStore.RdbPredicates,
-    columns?: string[]
-  ): Promise<relationalStore.ResultSet> {
+  public static async runInTransaction(fn: () => Promise<void>): Promise<void> {
     const store: relationalStore.RdbStore = RdbManager.getRdbStore();
-    try {
-      return await store.query(predicates, columns);
-    } catch (error) {
-      throw new Error(`Query failed: ${RdbManager.toErrorMessage(error)}`);
-    }
-  }
-
-  /**
-   * 插入数据，返回插入的行 ID
-   */
-  public static async insert(
-    tableName: string,
-    values: relationalStore.ValuesBucket
-  ): Promise<number> {
-    const store: relationalStore.RdbStore = RdbManager.getRdbStore();
-    try {
-      return await store.insert(tableName, values);
-    } catch (error) {
-      throw new Error(`Insert failed: ${RdbManager.toErrorMessage(error)}`);
-    }
-  }
-
-  /**
-   * 批量插入数据
-   */
-  public static async batchInsert(
-    tableName: string,
-    valuesList: relationalStore.ValuesBucket[]
-  ): Promise<void> {
-    const store: relationalStore.RdbStore = RdbManager.getRdbStore();
-    await RdbManager.runInTransaction(store, 'Batch insert', async () => {
-      for (const values of valuesList) {
-        await store.insert(tableName, values);
-      }
-    });
-  }
-
-  /**
-   * 更新数据，返回更新的行数
-   * @param predicates 更新条件（表名已在 RdbPredicates 构造时绑定）
-   */
-  public static async update(
-    values: relationalStore.ValuesBucket,
-    predicates: relationalStore.RdbPredicates
-  ): Promise<number> {
-    const store: relationalStore.RdbStore = RdbManager.getRdbStore();
-    try {
-      return await store.update(values, predicates);
-    } catch (error) {
-      throw new Error(`Update failed: ${RdbManager.toErrorMessage(error)}`);
-    }
-  }
-
-  /**
-   * 删除数据，返回删除的行数
-   * @param predicates 删除条件（表名已在 RdbPredicates 构造时绑定）
-   */
-  public static async delete(
-    predicates: relationalStore.RdbPredicates
-  ): Promise<number> {
-    const store: relationalStore.RdbStore = RdbManager.getRdbStore();
-    try {
-      return await store.delete(predicates);
-    } catch (error) {
-      throw new Error(`Delete failed: ${RdbManager.toErrorMessage(error)}`);
-    }
-  }
-
-  /**
-   * 执行 SQL 语句
-   */
-  public static async executeSql(
-    sql: string,
-    bindArgs?: Array<string | number | boolean | null>
-  ): Promise<void> {
-    const store: relationalStore.RdbStore = RdbManager.getRdbStore();
-    try {
-      await store.executeSql(sql, bindArgs ?? []);
-    } catch (error) {
-      throw new Error(`Execute SQL failed: ${RdbManager.toErrorMessage(error)}`);
-    }
-  }
-
-  /**
-   * 全量替换游戏资产数据（先删后插，在事务中执行）
-   */
-  public static async replaceGameAssets(
-    roleId: string,
-    gameId: string,
-    assets: Array<GameAsset>
-  ): Promise<void> {
-    const store: relationalStore.RdbStore = RdbManager.getRdbStore();
-    await RdbManager.runInTransaction(store, 'Replace game assets', async () => {
-      const deletePredicates: relationalStore.RdbPredicates =
-        new relationalStore.RdbPredicates('game_asset_table')
-          .equalTo('role_id', roleId)
-          .equalTo('game_id', gameId);
-      await store.delete(deletePredicates);
-
-      for (const asset of assets) {
-        const values: relationalStore.ValuesBucket = {
-          'role_id': roleId,
-          'game_id': gameId,
-          'type': asset.type,
-          'entity_id': asset.entityId,
-          'level': asset.level,
-          'element': asset.element,
-          'raw_json': asset.rawJson
-        };
-        await store.insert('game_asset_table', values);
-      }
-    });
-  }
-
-  /**
-   * 在事务中执行操作。
-   * beginTransaction / commit / rollBack 均为同步 API，不可 await。
-   */
-  private static async runInTransaction(
-    store: relationalStore.RdbStore,
-    actionName: string,
-    action: () => Promise<void>
-  ): Promise<void> {
     try {
       store.beginTransaction();
     } catch (error) {
-      throw new Error(`${actionName} beginTransaction failed: ${RdbManager.toErrorMessage(error)}`);
+      throw new Error(`beginTransaction failed: ${RdbManager.toErrorMessage(error)}`);
     }
 
     try {
-      await action();
-      store.commit();
+      await fn();
+      try {
+        store.commit();
+      } catch (commitError) {
+        throw new Error(`commit failed: ${RdbManager.toErrorMessage(commitError)}`);
+      }
     } catch (error) {
       const actionError: string = RdbManager.toErrorMessage(error);
       try {
         store.rollBack();
       } catch (rollbackError) {
         throw new Error(
-          `${actionName} failed: ${actionError}; rollBack failed: ${RdbManager.toErrorMessage(rollbackError)}`
+          `Transaction failed: ${actionError}; rollBack also failed: ${RdbManager.toErrorMessage(rollbackError)}`
         );
       }
-      throw new Error(`${actionName} failed: ${actionError}`);
+      throw new Error(`Transaction failed: ${actionError}`);
+    }
+  }
+
+  /**
+   * 检查 user_version，首次安装时建全部 15 张表并设 user_version=1
+   */
+  private static async runMigrations(): Promise<void> {
+    const store: relationalStore.RdbStore = RdbManager.getRdbStore();
+
+    // 查询当前 user_version
+    let currentVersion: number = 0;
+    try {
+      const rs: relationalStore.ResultSet = await store.querySql('PRAGMA user_version', []);
+      try {
+        if (rs.goToFirstRow()) {
+          const val: relationalStore.ValueType = rs.getValue(0);
+          if (typeof val === 'number') {
+            currentVersion = val;
+          }
+        }
+      } catch (readError) {
+        // getValue 失败时保持 currentVersion=0，触发首次建表
+      } finally {
+        rs.close();
+      }
+    } catch (error) {
+      throw new Error(`runMigrations: query user_version failed: ${RdbManager.toErrorMessage(error)}`);
+    }
+
+    if (currentVersion === 0) {
+      await RdbManager.createTables();
+      await RdbManager.executeSqlInternal(`PRAGMA user_version = ${RdbManager.DB_VERSION}`, []);
+    }
+    // currentVersion === DB_VERSION 时跳过
+  }
+
+  /**
+   * 创建全部 15 张表（含索引）
+   * 表结构定义在 TableSchema.ets 中，通过 buildCreateSql() 生成 DDL
+   */
+  private static async createTables(): Promise<void> {
+    for (let i = 0; i < ALL_TABLES.length; i++) {
+      await RdbManager.executeSqlInternal(ALL_TABLES[i].buildCreateSql(), []);
+    }
+    for (let i = 0; i < ALL_INDEXES.length; i++) {
+      await RdbManager.executeSqlInternal(ALL_INDEXES[i].buildCreateSql(), []);
+    }
+  }
+
+  /**
+   * 执行 SQL 语句（内部使用）
+   */
+  private static async executeSqlInternal(
+    sql: string,
+    bindArgs: Array<relationalStore.ValueType>
+  ): Promise<void> {
+    const store: relationalStore.RdbStore = RdbManager.getRdbStore();
+    await store.executeSql(sql, bindArgs);
+  }
+
+  /**
+   * 执行 SQL 语句（公开接口，供 DAO 使用）
+   */
+  public static async executeSql(
+    sql: string,
+    bindArgs?: Array<relationalStore.ValueType>
+  ): Promise<void> {
+    try {
+      await RdbManager.executeSqlInternal(sql, bindArgs ?? []);
+    } catch (error) {
+      throw new Error(`executeSql failed: ${RdbManager.toErrorMessage(error)}`);
+    }
+  }
+
+  /**
+   * 执行 INSERT OR REPLACE 写入单行数据
+   * 根据表名和列名数组自动生成 SQL，避免手写字符串出错
+   *
+   * @param table   表名
+   * @param columns 列名数组（顺序与 values 一一对应）
+   * @param values  值数组（顺序与 columns 一一对应）
+   */
+  public static async upsertRow(
+    table: TableName,
+    columns: string[],
+    values: Array<relationalStore.ValueType>
+  ): Promise<void> {
+    const placeholders: string[] = [];
+    for (let i = 0; i < columns.length; i++) {
+      placeholders.push('?');
+    }
+    const sql = `INSERT OR REPLACE INTO ${table} (${columns.join(', ')}) VALUES (${placeholders.join(', ')})`;
+    try {
+      await RdbManager.executeSqlInternal(sql, values);
+    } catch (error) {
+      throw new Error(`upsertRow(${table}) failed: ${RdbManager.toErrorMessage(error)}`);
+    }
+  }
+
+  /**
+   * 执行 DELETE 删除匹配条件的行
+   */
+  public static async deleteRows(predicates: relationalStore.RdbPredicates): Promise<void> {
+    const store = RdbManager.getRdbStore();
+    try {
+      await store.delete(predicates);
+    } catch (error) {
+      throw new Error(`deleteRows failed: ${RdbManager.toErrorMessage(error)}`);
+    }
+  }
+
+  /**
+   * 执行 UPDATE 更新匹配条件的行
+   * @param table      表名
+   * @param setClauses 要更新的列名数组
+   * @param setValues  对应的新值数组
+   * @param whereCols  WHERE 条件列名数组（用 AND 连接）
+   * @param whereVals  WHERE 条件值数组
+   */
+  public static async updateRows(
+    table: TableName,
+    setClauses: string[],
+    setValues: Array<relationalStore.ValueType>,
+    whereCols: string[],
+    whereVals: Array<relationalStore.ValueType>
+  ): Promise<void> {
+    const setStr: string[] = [];
+    for (let i = 0; i < setClauses.length; i++) {
+      setStr.push(`${setClauses[i]} = ?`);
+    }
+    const whereStr: string[] = [];
+    for (let i = 0; i < whereCols.length; i++) {
+      whereStr.push(`${whereCols[i]} = ?`);
+    }
+    const sql = `UPDATE ${table} SET ${setStr.join(', ')} WHERE ${whereStr.join(' AND ')}`;
+    const params: Array<relationalStore.ValueType> = [];
+    for (let i = 0; i < setValues.length; i++) {
+      params.push(setValues[i]);
+    }
+    for (let i = 0; i < whereVals.length; i++) {
+      params.push(whereVals[i]);
+    }
+    try {
+      await RdbManager.executeSqlInternal(sql, params);
+    } catch (error) {
+      throw new Error(`updateRows(${table}) failed: ${RdbManager.toErrorMessage(error)}`);
+    }
+  }
+
+  /**
+   * 查询并返回第一条记录，不存在时返回 null
+   * 封装 query → goToFirstRow → mapRow → close，消除 DAO 中的 ResultSet 直接操作
+   */
+  public static async queryFirst<T>(
+    predicates: relationalStore.RdbPredicates,
+    columns: string[],
+    mapRow: (rs: relationalStore.ResultSet) => T
+  ): Promise<T | null> {
+    const store = RdbManager.getRdbStore();
+    let rs: relationalStore.ResultSet | null = null;
+    try {
+      rs = await store.query(predicates, columns);
+      try {
+        if (rs.goToFirstRow()) {
+          return mapRow(rs);
+        }
+        return null;
+      } catch (readError) {
+        throw new Error(`queryFirst: read failed: ${RdbManager.toErrorMessage(readError)}`);
+      }
+    } catch (error) {
+      throw new Error(`queryFirst failed: ${RdbManager.toErrorMessage(error)}`);
+    } finally {
+      if (rs !== null) {
+        try { rs.close(); } catch (_) {}
+      }
+    }
+  }
+
+  /**
+   * 查询并返回所有记录
+   * 封装 query → goToNextRow 循环 → mapRow → close，消除 DAO 中的 ResultSet 直接操作
+   */
+  public static async queryAll<T>(
+    predicates: relationalStore.RdbPredicates,
+    columns: string[],
+    mapRow: (rs: relationalStore.ResultSet) => T
+  ): Promise<T[]> {
+    const store = RdbManager.getRdbStore();
+    let rs: relationalStore.ResultSet | null = null;
+    try {
+      rs = await store.query(predicates, columns);
+      const result: T[] = [];
+      try {
+        while (rs.goToNextRow()) {
+          result.push(mapRow(rs));
+        }
+      } catch (readError) {
+        throw new Error(`queryAll: read failed: ${RdbManager.toErrorMessage(readError)}`);
+      }
+      return result;
+    } catch (error) {
+      throw new Error(`queryAll failed: ${RdbManager.toErrorMessage(error)}`);
+    } finally {
+      if (rs !== null) {
+        try { rs.close(); } catch (_) {}
+      }
     }
   }
 
@@ -346,22 +286,5 @@ export class RdbManager {
       return error.message;
     }
     return `${error}`;
-  }
-
-  /**
-   * 安全地为已有表添加新列（列已存在时静默忽略）。
-   * 用于数据库版本迁移，避免重装时报错。
-   */
-  private static async migrateAddColumn(
-    store: relationalStore.RdbStore,
-    tableName: string,
-    columnName: string,
-    columnType: string
-  ): Promise<void> {
-    try {
-      await store.executeSql(`ALTER TABLE ${tableName} ADD COLUMN ${columnName} ${columnType}`, []);
-    } catch (_) {
-      // 列已存在时 SQLite 会报错，直接忽略
-    }
   }
 }

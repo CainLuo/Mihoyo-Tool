@@ -13,14 +13,14 @@
 export class ExpeditionVM {
   /** 角色头像 URL（可为空，显示占位图） */
   avatarUrl: string = ''
-  /** 剩余时间描述，如 "8小时14分钟" / "已完成" */
-  remainTime: string = ''
+  /** 剩余秒数（0 表示已完成） */
+  remainSeconds: number = 0
   /** 是否已完成 */
   finished: boolean = false
 
-  constructor(avatarUrl: string, remainTime: string, finished: boolean) {
+  constructor(avatarUrl: string, remainSeconds: number, finished: boolean) {
     this.avatarUrl = avatarUrl
-    this.remainTime = remainTime
+    this.remainSeconds = remainSeconds
     this.finished = finished
   }
 }
@@ -57,15 +57,15 @@ export class GenshinDailyNoteVM {
   currentResin: number = 0
   /** 最大树脂，固定 200 */
   maxResin: number = 200
-  /** 树脂恢复描述，如 "将于14小时4分钟后全部恢复" / "已全部恢复" */
-  resinRecoveryDesc: string = ''
+  /** 树脂恢复剩余秒数（0 表示已满） */
+  resinRecoverySeconds: number = 0
 
   /** 当前洞天宝钱 */
   currentHomeCoin: number = 0
   /** 最大洞天宝钱 */
   maxHomeCoin: number = 2400
-  /** 宝钱恢复描述 */
-  homeCoinRecoveryDesc: string = ''
+  /** 宝钱恢复剩余秒数（0 表示已满） */
+  homeCoinRecoverySeconds: number = 0
 
   /** 每日委托 */
   dailyTask: GenshinDailyTaskVM = new GenshinDailyTaskVM(0, 4, false, -1)
@@ -77,8 +77,10 @@ export class GenshinDailyNoteVM {
 
   /** 参量质变仪是否可用 */
   transformerReady: boolean = false
-  /** 参量质变仪剩余时间描述（可用时为空） */
-  transformerDesc: string = ''
+  /** 参量质变仪剩余天/时/分（可用时均为 0） */
+  transformerDay: number = 0
+  transformerHour: number = 0
+  transformerMinute: number = 0
 
   /** 派遣列表 */
   expeditions: ExpeditionVM[] = []
@@ -99,8 +101,8 @@ export class StarRailDailyNoteVM {
   currentStamina: number = 0
   /** 最大开拓力，固定 240 */
   maxStamina: number = 240
-  /** 恢复描述 */
-  staminaRecoveryDesc: string = ''
+  /** 恢复剩余秒数 */
+  staminaRecoverySeconds: number = 0
 
   /** 每日实训完成数 */
   currentTrainScore: number = 0
@@ -126,8 +128,8 @@ export class ZZZDailyNoteVM {
   currentEnergy: number = 0
   /** 最大电量，固定 240 */
   maxEnergy: number = 240
-  /** 恢复描述 */
-  energyRecoveryDesc: string = ''
+  /** 恢复剩余秒数 */
+  energyRecoverySeconds: number = 0
 
   /** 每日活跃度 */
   currentVitality: number = 0

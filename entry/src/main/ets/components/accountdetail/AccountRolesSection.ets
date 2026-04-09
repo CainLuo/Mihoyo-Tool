@@ -5,7 +5,7 @@
  *   顶部：游戏 logo + 游戏名 + 昵称 + 等级标签（纯色背景）
  *   底部：服务器/UID 行 + 统计数据格子（叠在背景图上）
  */
-import { ThemeManager } from '../../theme/ThemeManager'
+import { ThemeManager, themeManager } from '../../theme/ThemeManager'
 import { MyGameRoleVM, GameStatItem } from '../my/MyModels'
 import { GameId } from '../../constants/GameId'
 
@@ -176,5 +176,29 @@ export struct AccountRolesSection {
       }
     }
     .width(this.tm.current.full)
+  }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct AccountRolesSectionPreview {
+  build() {
+    Column() {
+      AccountRolesSection({
+        tm: themeManager,
+        roles: [
+          new MyGameRoleVM('genshin', $r('app.string.game_name_genshin'), $r('app.color.game_color_genshin'), '123456789', '旅行者', '天空岛', 60, '', [
+            new GameStatItem('活跃天数', '365'),
+            new GameStatItem('成就数', '800'),
+            new GameStatItem('角色数', '50'),
+            new GameStatItem('深渊', '12-3')
+          ])
+        ]
+      })
+    }
+    .padding(16)
+    .backgroundColor('#1a1a2e')
   }
 }

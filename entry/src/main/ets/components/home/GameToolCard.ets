@@ -2,7 +2,7 @@
  * GameToolCard — 游戏战绩工具卡片（首页）
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
-import { GameRoleCardVM } from './HomeModels'
+import { GameRoleCardVM, GameNoteSnapshotVM } from './HomeModels'
 import { gameIdToName, gameIdToPrimaryLabel } from '../../utils/GameIdUtil'
 import { GameId } from '../../constants/GameId'
 import { GenshinGameToolCardContent } from './GenshinGameToolCardContent'
@@ -142,5 +142,24 @@ export struct GameToolCard {
     })
     .clip(true)
     .onClick(() => { this.onTap(this.card) })
+  }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct GameToolCardPreview {
+  @Local private snap: GameNoteSnapshotVM = new GameNoteSnapshotVM('genshin', 120, 200, 10800, '', '', false);
+  @Local private card1: GameRoleCardVM = new GameRoleCardVM('genshin', 'genshin', $r('app.color.game_color_genshin'), '123456789', '旅行者', '天空岛', null, 'sync_just_now');
+  @Local private card2: GameRoleCardVM = new GameRoleCardVM('starrail', 'starrail', $r('app.color.game_color_starrail'), '987654321', '开拓者', '星穹列车', null, 'sync_not_synced');
+
+  build() {
+    Column({ space: 12 }) {
+      GameToolCard({ card: this.card1 })
+      GameToolCard({ card: this.card2 })
+    }
+    .padding(16)
+    .backgroundColor('#1a1a2e')
   }
 }

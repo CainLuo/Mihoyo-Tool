@@ -3,25 +3,28 @@ import { GenshinDailyNoteVM, ExpeditionVM, GenshinDailyTaskVM } from './DailyNot
 import { DailyNoteCard } from './DailyNoteCard'
 import { ExpeditionItem } from './ExpeditionItem'
 import { GenshinConstants } from '../../constants/GenshinConstants'
+import { TimeFormatUtil } from '../../utils/TimeFormatUtil'
 
 /** 构造完整 mock 便签数据 */
 function makeMockNote(resin: number): GenshinDailyNoteVM {
   const note = new GenshinDailyNoteVM();
   note.currentResin = resin;
   note.maxResin = 200;
-  note.resinRecoveryDesc = resin >= 200 ? '' : '将于4小时后全部恢复';
+  note.resinRecoverySeconds = resin >= 200 ? 0 : 14400; // 4小时
   note.currentHomeCoin = 1800;
   note.maxHomeCoin = 2400;
-  note.homeCoinRecoveryDesc = '将于12小时后存满';
+  note.homeCoinRecoverySeconds = 43200; // 12小时
   note.dailyTask = new GenshinDailyTaskVM(4, 4, true, 2);
   note.remainResinDiscountNum = 1;
   note.resinDiscountNumLimit = 3;
   note.transformerReady = true;
-  note.transformerDesc = '';
+  note.transformerDay = 0;
+  note.transformerHour = 0;
+  note.transformerMinute = 0;
   note.expeditions = [
-    new ExpeditionVM('', '8小时14分钟', false),
-    new ExpeditionVM('', '已完成', true),
-    new ExpeditionVM('', '2小时30分钟', false),
+    new ExpeditionVM('', 29640, false),  // 8小时14分钟
+    new ExpeditionVM('', 0, true),
+    new ExpeditionVM('', 9000, false),   // 2小时30分钟
   ];
   note.maxExpeditionNum = 5;
   note.archonQuestDone = false;
@@ -32,7 +35,7 @@ function makeMockNote(resin: number): GenshinDailyNoteVM {
 // ── Preview：正常状态（树脂未满）──
 @Preview
 @ComponentV2
-struct DailyNoteGenshinPreviewNormal {
+export struct DailyNoteGenshinPreviewNormal {
   @Local private tm: ThemeManager = themeManager
   build() {
     Scroll() {
@@ -47,7 +50,7 @@ struct DailyNoteGenshinPreviewNormal {
 // ── Preview：树脂已满（红色警告）──
 @Preview
 @ComponentV2
-struct DailyNoteGenshinPreviewFull {
+export struct DailyNoteGenshinPreviewFull {
   build() {
     Scroll() {
       DailyNoteGenshin({ data: makeMockNote(200) })
@@ -144,8 +147,8 @@ export struct DailyNoteGenshin {
 
       DailyNoteCard({
         title: $r('app.string.daily_note_resin_title'),
-        subtitle: this.data.resinRecoveryDesc,
-        hasSubtitle: this.data.resinRecoveryDesc !== '',
+        subtitle: TimeFormatUtil.formatSeconds(this.data.resinRecoverySeconds, this.getUIContext()),
+        hasSubtitle: this.data.resinRecoverySeconds > 0,
         valueText: this.data.currentResin.toString() + '/' + this.data.maxResin.toString(),
         hasValueText: true,
         valueColor: this.resinColor(),
@@ -153,8 +156,8 @@ export struct DailyNoteGenshin {
 
       DailyNoteCard({
         title: $r('app.string.daily_note_home_coin_title'),
-        subtitle: this.data.homeCoinRecoveryDesc,
-        hasSubtitle: this.data.homeCoinRecoveryDesc !== '',
+        subtitle: TimeFormatUtil.formatSeconds(this.data.homeCoinRecoverySeconds, this.getUIContext()),
+        hasSubtitle: this.data.homeCoinRecoverySeconds > 0,
         valueText: this.data.currentHomeCoin.toString() + '/' + this.data.maxHomeCoin.toString(),
         hasValueText: true,
       })
@@ -177,7 +180,8 @@ export struct DailyNoteGenshin {
       DailyNoteCard({
         title: $r('app.string.daily_note_transformer_title'),
         subtitle: this.data.transformerReady
-          ? $r('app.string.daily_note_transformer_done') : this.data.transformerDesc,
+          ? $r('app.string.daily_note_transformer_done')
+          : TimeFormatUtil.formatTransformer(this.data.transformerDay, this.data.transformerHour, this.data.transformerMinute, this.getUIContext()),
         hasSubtitle: true,
         valueText: this.data.transformerReady ? $r('app.string.daily_note_transformer_ready') : '',
         hasValueText: this.data.transformerReady,

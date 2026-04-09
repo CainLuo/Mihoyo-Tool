@@ -6,7 +6,8 @@
  */
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
-import { GenshinCharacterDetailViewModel, CharDetailConstellation, CharDetailSkill } from '../../viewmodel/GenshinCharacterDetailViewModel';
+import { GenshinCharacterDetailViewModel } from '../../viewmodel/GenshinCharacterDetailViewModel';
+import { CharDetailConstellation, CharDetailSkill } from './CharDetailModels';
 import { elementColor } from '../characters/CharacterCard';
 import { GenshinElement } from '../../constants/GenshinElement';
 import { CharDetailConsColumn } from './CharDetailConsColumn';
@@ -18,7 +19,6 @@ function makeMockWideVM(): GenshinCharacterDetailViewModel {
   vm.viewState = ViewState.DATA;
   vm.charName = '神里绫华';
   vm.charLevel = 90;
-  vm.charMaxLevel = 90;
   vm.charFetter = 10;
   vm.charElement = GenshinElement.CRYO;
   vm.charImageUrl = '';
@@ -46,7 +46,7 @@ function makeMockWideVM(): GenshinCharacterDetailViewModel {
 // ── Preview：宽屏立绘区 ──
 @Preview
 @ComponentV2
-struct CharDetailHeroPanelWidePreview {
+export struct CharDetailHeroPanelWidePreview {
   build() {
     CharDetailHeroPanelWide({ vm: makeMockWideVM() })
       .width(themeManager.current.value400)
@@ -120,7 +120,7 @@ export struct CharDetailHeroPanelWide {
           .fontWeight(FontWeight.Bold)
           .fontColor(this.tm.current.textOnDarkHigh)
           .textShadow({ radius: this.tm.current.value8, color: this.tm.current.overlayShadow, offsetY: 2 })
-        Text(`Lv.${this.vm.charLevel}/${this.vm.charMaxLevel}`)
+        Text(`Lv.${this.vm.charLevel}`)
           .fontSize(this.tm.current.body12.size)
           .fontColor(this.tm.current.textOnDarkMedium)
         Text($r('app.string.char_detail_fetter_label'))

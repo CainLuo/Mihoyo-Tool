@@ -1,195 +1,114 @@
 /**
- * SyncMetaDao.ets
+ * SyncMetaDao — sync_meta 表的 DAO
  *
- * 基于 sync_meta 表的数据访问对象。
- * 负责记录每个 (game_id, role_uid, data_type) 的同步状态和时间戳，
- * 供 Repository 层在 sync 前后调用，实现跨重启的持久化调度。
+ * sync_meta 表记录每个角色（account_id + role_uid）每种数据类型（data_type）
+ * 的最后同步时间和同步状态，供 Repository 层判断是否需要重新同步。
  *
- * 典型用法（在 DailyNoteRepository 中）：
- *   // 同步开始前
- *   await SyncMetaDao.markSyncing(gameId, roleUid, DataType.DAILY_NOTE);
- *   // 同步成功后
- *   await SyncMetaDao.markSuccess(gameId, roleUid, DataType.DAILY_NOTE);
- *   // 同步失败后
- *   await SyncMetaDao.markFailed(gameId, roleUid, DataType.DAILY_NOTE, errorMsg);
- *
- * 查询上次同步时间（用于判断是否需要重新同步）：
- *   const meta = await SyncMetaDao.find(gameId, roleUid, DataType.DAILY_NOTE);
- *   const needSync = meta === null || (now - meta.lastSyncTime) > 1800;
+ * data_type 的值与 TableName enum 对齐（如 'genshin_character_list'），
+ * 通过 SyncDataType（即 TableName 的别名）引用，禁止直接写字符串。
  */
-
 import { relationalStore } from '@kit.ArkData';
 import { RdbManager } from './RdbManager';
-import { QueryBuilder } from './QueryBuilder';
-import { SyncMetaRow, SyncStatus } from '../models/SyncMetaRow';
+import { RsReader } from './RsReader';
+import { TableName, CommonCol, SyncMetaCol, SYNC_META_TABLE } from './TableSchema';
+import { SyncMetaRow } from '../models/SyncMetaRow';
 
-const TABLE_NAME: string = 'sync_meta';
-
+// ─────────────────────────────────────────────
+// SyncMetaDao：操作 sync_meta
+// ─────────────────────────────────────────────
 export class SyncMetaDao {
 
   /**
-   * 查询指定 (game_id, role_uid, data_type) 的同步元数据。
-   * 返回 null 表示从未同步过。
+   * INSERT OR REPLACE
    */
-  static async find(
-    gameId: string,
-    roleUid: string,
-    dataType: string
-  ): Promise<SyncMetaRow | null> {
+  async upsert(row: SyncMetaRow): Promise<void> {
+    const idVal: relationalStore.ValueType = row.id > 0 ? row.id : null;
     try {
-      const builder = new QueryBuilder(TABLE_NAME)
-        .equalTo('game_id', gameId)
-        .equalTo('role_uid', roleUid)
-        .equalTo('data_type', dataType);
-      const rs = await RdbManager.query(builder.build());
-      if (!rs.goToFirstRow()) {
-        SyncMetaDao.closeRs(rs);
-        return null;
-      }
-      const row = new SyncMetaRow();
-      row.id = rs.getLong(rs.getColumnIndex('id'));
-      row.gameId = rs.getString(rs.getColumnIndex('game_id'));
-      row.roleUid = rs.getString(rs.getColumnIndex('role_uid'));
-      row.dataType = rs.getString(rs.getColumnIndex('data_type'));
-      row.lastSyncTime = rs.getLong(rs.getColumnIndex('last_sync_time'));
-      row.syncStatus = rs.getString(rs.getColumnIndex('sync_status')) as SyncStatus;
-      row.errorMsg = rs.getString(rs.getColumnIndex('error_msg'));
-      SyncMetaDao.closeRs(rs);
-      return row;
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      throw new Error(`SyncMetaDao.find failed: ${msg}`);
+      await RdbManager.upsertRow(TableName.SYNC_META, SYNC_META_TABLE.columnNames(), [
+        idVal, row.accountId, row.roleUid, row.dataType,
+        row.lastSyncTime, row.syncStatus, row.errorMsg
+      ]);
+    } catch (e) {
+      throw new Error(`SyncMetaDao.upsert failed: ${e instanceof Error ? e.message : e}`);
     }
   }
 
   /**
-   * 标记为"同步中"，在发起网络请求前调用。
-   * last_sync_time 不更新（保留上次成功时间，供 UI 展示）。
+   * 查询单条同步状态记录
    */
-  static async markSyncing(
-    gameId: string,
-    roleUid: string,
-    dataType: string
-  ): Promise<void> {
-    await SyncMetaDao.upsertStatus(gameId, roleUid, dataType, 'syncing', 0, '');
+  async findOne(accountId: number, roleUid: string, dataType: string): Promise<SyncMetaRow | null> {
+    const predicates = new relationalStore.RdbPredicates(TableName.SYNC_META);
+    predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
+    predicates.and();
+    predicates.equalTo(CommonCol.ROLE_UID, roleUid);
+    predicates.and();
+    predicates.equalTo(CommonCol.DATA_TYPE, dataType);
+    try {
+      return await RdbManager.queryFirst(predicates, SYNC_META_TABLE.columnNames(), (rs) => SyncMetaDao.mapRow(rs));
+    } catch (e) {
+      throw new Error(`SyncMetaDao.findOne failed: ${e instanceof Error ? e.message : e}`);
+    }
   }
 
   /**
-   * 标记为"同步成功"，更新 last_sync_time 为当前时间。
-   */
-  static async markSuccess(
-    gameId: string,
-    roleUid: string,
-    dataType: string
-  ): Promise<void> {
-    const now = Math.floor(Date.now() / 1000);
-    await SyncMetaDao.upsertStatus(gameId, roleUid, dataType, 'success', now, '');
-  }
-
-  /**
-   * 标记为"同步失败"，更新 last_sync_time 为当前时间，记录错误信息。
-   * last_sync_time 仍然更新，避免失败后立即重试。
-   */
-  static async markFailed(
-    gameId: string,
-    roleUid: string,
-    dataType: string,
-    errorMsg: string
-  ): Promise<void> {
-    const now = Math.floor(Date.now() / 1000);
-    await SyncMetaDao.upsertStatus(gameId, roleUid, dataType, 'failed', now, errorMsg);
-  }
-
-  /**
-   * 判断是否需要重新同步。
-   * 返回 true 的条件：从未同步过，或上次同步距今超过 intervalSeconds 秒。
-   * 注意：sync_status = 'syncing' 时也返回 false，避免并发重复同步。
+   * 更新同步状态。
+   * - status='syncing'：标记同步开始，不更新 last_sync_time
+   * - status='success'：标记同步成功，同时将 last_sync_time 更新为当前 Unix 秒
+   * - status='failed'：标记同步失败，记录错误信息，不更新 last_sync_time
    *
-   * @param intervalSeconds 同步间隔，默认 1800（30 分钟）
+   * 若记录不存在（UPDATE 0 行），不抛异常，由调用方决定是否先 upsert。
+   *
+   * @param accountId 米游社账号 ID
+   * @param roleUid   游戏角色 UID
+   * @param dataType  数据类型（使用 SyncDataType enum 值）
+   * @param status    同步状态字符串（'syncing' | 'success' | 'failed'）
+   * @param errorMsg  失败时的错误信息（可选，默认为空字符串）
    */
-  static async needsSync(
-    gameId: string,
+  async updateStatus(
+    accountId: number,
     roleUid: string,
     dataType: string,
-    intervalSeconds: number = 1800
-  ): Promise<boolean> {
+    status: string,
+    errorMsg?: string
+  ): Promise<void> {
+    const now = Math.floor(Date.now() / 1000);
+    const msg = errorMsg !== undefined ? errorMsg : '';
+    const whereCols = [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, CommonCol.DATA_TYPE];
+    const whereVals: Array<relationalStore.ValueType> = [accountId, roleUid, dataType];
     try {
-      const meta = await SyncMetaDao.find(gameId, roleUid, dataType);
-      if (meta === null) {
-        return true;
+      if (status === 'success') {
+        await RdbManager.updateRows(TableName.SYNC_META,
+          [SyncMetaCol.SYNC_STATUS, SyncMetaCol.ERROR_MSG, SyncMetaCol.LAST_SYNC_TIME],
+          [status, msg, now],
+          whereCols, whereVals
+        );
+      } else {
+        await RdbManager.updateRows(TableName.SYNC_META,
+          [SyncMetaCol.SYNC_STATUS, SyncMetaCol.ERROR_MSG],
+          [status, msg],
+          whereCols, whereVals
+        );
       }
-      if (meta.syncStatus === 'syncing') {
-        return false;
-      }
-      const now = Math.floor(Date.now() / 1000);
-      return (now - meta.lastSyncTime) >= intervalSeconds;
-    } catch (error) {
-      // 查询失败时保守返回 true，让上层决定是否同步
-      return true;
+    } catch (e) {
+      throw new Error(`SyncMetaDao.updateStatus failed: ${e instanceof Error ? e.message : e}`);
     }
   }
 
-  /**
-   * 重置同步时间为 0，使 needsSync 下次必然返回 true。
-   * Mock 模式下数据格式升级时调用。
-   */
-  static async resetSyncTime(
-    gameId: string,
-    roleUid: string,
-    dataType: string
-  ): Promise<void> {
-    await SyncMetaDao.upsertStatus(gameId, roleUid, dataType, 'failed', 1, 'reset');
-  }
-
-  // ─── 私有方法 ────────────────────────────────────────────────
-
-  /**
-   * upsert sync_meta 行：存在则更新，不存在则插入。
-   * updateTime = 0 时不更新 last_sync_time（用于 markSyncing）。
-   */
-  private static async upsertStatus(
-    gameId: string,
-    roleUid: string,
-    dataType: string,
-    status: SyncStatus,
-    lastSyncTime: number,
-    errorMsg: string
-  ): Promise<void> {
+  /** 将 ResultSet 当前行映射为 SyncMetaRow */
+  private static mapRow(rs: relationalStore.ResultSet): SyncMetaRow {
     try {
-      const existing = await SyncMetaDao.find(gameId, roleUid, dataType);
-      const values: relationalStore.ValuesBucket = {};
-      values['game_id'] = gameId;
-      values['role_uid'] = roleUid;
-      values['data_type'] = dataType;
-      values['sync_status'] = status;
-      values['error_msg'] = errorMsg;
-      // lastSyncTime = 0 表示不更新（markSyncing 场景）
-      if (lastSyncTime > 0) {
-        values['last_sync_time'] = lastSyncTime;
-      } else if (existing !== null) {
-        values['last_sync_time'] = existing.lastSyncTime;
-      } else {
-        values['last_sync_time'] = 0;
-      }
-
-      if (existing !== null) {
-        const builder = new QueryBuilder(TABLE_NAME)
-          .equalTo('game_id', gameId)
-          .equalTo('role_uid', roleUid)
-          .equalTo('data_type', dataType);
-        await RdbManager.update(values, builder.build());
-      } else {
-        await RdbManager.insert(TABLE_NAME, values);
-      }
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      throw new Error(`SyncMetaDao.upsertStatus failed: ${msg}`);
+      const r = new RsReader(rs);
+      const row = new SyncMetaRow();
+      row.id           = r.num(CommonCol.ID);
+      row.accountId    = r.num(CommonCol.ACCOUNT_ID);
+      row.roleUid      = r.str(CommonCol.ROLE_UID);
+      row.dataType     = r.str(CommonCol.DATA_TYPE);
+      row.lastSyncTime = r.num(SyncMetaCol.LAST_SYNC_TIME);
+      row.syncStatus   = r.str(SyncMetaCol.SYNC_STATUS);
+      row.errorMsg     = r.str(SyncMetaCol.ERROR_MSG);
+      return row;
+    } catch (e) {
+      throw new Error(`SyncMetaDao.mapRow failed: ${e instanceof Error ? e.message : e}`);
     }
-  }
-
-  private static closeRs(rs: relationalStore.ResultSet): void {
-    try {
-      rs.close();
-    } catch (_) {}
   }
 }

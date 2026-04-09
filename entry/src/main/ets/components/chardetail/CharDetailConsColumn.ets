@@ -6,7 +6,7 @@
  */
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
-import { CharDetailConstellation } from '../../viewmodel/GenshinCharacterDetailViewModel';
+import { CharDetailConstellation } from './CharDetailModels';
 
 /** 构造 mock 命座数据 */
 function makeMockCons(activatedCount: number): CharDetailConstellation[] {
@@ -25,7 +25,7 @@ function makeMockCons(activatedCount: number): CharDetailConstellation[] {
 // ── Preview：6命全激活 ──
 @Preview
 @ComponentV2
-struct CharDetailConsColumnPreviewFull {
+export struct CharDetailConsColumnPreviewFull {
   build() {
     CharDetailConsColumn({ constellations: makeMockCons(6) })
       .padding(themeManager.current.value16)
@@ -36,7 +36,7 @@ struct CharDetailConsColumnPreviewFull {
 // ── Preview：2命（部分激活）──
 @Preview
 @ComponentV2
-struct CharDetailConsColumnPreviewPartial {
+export struct CharDetailConsColumnPreviewPartial {
   build() {
     CharDetailConsColumn({ constellations: makeMockCons(2) })
       .padding(themeManager.current.value16)

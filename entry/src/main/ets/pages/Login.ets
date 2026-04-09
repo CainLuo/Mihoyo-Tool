@@ -27,6 +27,7 @@ export struct Login {
     if (!this.vm.loginSuccess) { return }
     const stack = this.localStack
     if (stack === null) { return }
+    AccountSignal.instance().notify()
     const accountVM = this.vm.loginedAccountVM
     if (accountVM === null) {
       Logger.error(TAG, 'loginedAccountVM is null after loginSuccess')
@@ -34,7 +35,6 @@ export struct Login {
       return
     }
     stack.replacePath({ name: AppRoutes.ACCOUNT_DETAIL, param: accountVM })
-    AccountSignal.instance().notify()
   }
 
   build() {

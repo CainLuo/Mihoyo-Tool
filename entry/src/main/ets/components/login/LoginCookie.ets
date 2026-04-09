@@ -73,3 +73,17 @@ export struct LoginCookie {
     .width(this.tm.current.full)
   }
 }
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct LoginCookiePreview {
+  build() {
+    Column() {
+      LoginCookie({ vm: new LoginViewModel() })
+    }
+    .padding(16)
+    .backgroundColor('#1a1a2e')
+  }
+}

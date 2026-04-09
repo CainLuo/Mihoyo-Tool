@@ -5,7 +5,8 @@
  */
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
-import { GenshinCharacterDetailViewModel, CharDetailSkill, CharDetailConstellation } from '../../viewmodel/GenshinCharacterDetailViewModel';
+import { GenshinCharacterDetailViewModel } from '../../viewmodel/GenshinCharacterDetailViewModel';
+import { CharDetailSkill, CharDetailConstellation } from './CharDetailModels';
 import { elementColor } from '../characters/CharacterCard';
 import { CharDetailConsColumn } from './CharDetailConsColumn';
 import { GenshinElement } from '../../constants/GenshinElement';
@@ -16,7 +17,6 @@ function makeMockLandscapeVM(): GenshinCharacterDetailViewModel {
   vm.viewState = ViewState.DATA;
   vm.charName = '雷电将军';
   vm.charLevel = 90;
-  vm.charMaxLevel = 90;
   vm.charFetter = 10;
   vm.charElement = GenshinElement.ELECTRO;
   vm.charImageUrl = '';
@@ -44,7 +44,7 @@ function makeMockLandscapeVM(): GenshinCharacterDetailViewModel {
 // ── Preview：Phone 横屏立绘区 ──
 @Preview
 @ComponentV2
-struct CharDetailHeroPanelLandscapePreview {
+export struct CharDetailHeroPanelLandscapePreview {
   build() {
     CharDetailHeroPanelLandscape({ vm: makeMockLandscapeVM() })
       .width(themeManager.current.value200)

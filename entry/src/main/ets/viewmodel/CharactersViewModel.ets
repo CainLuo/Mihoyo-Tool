@@ -11,13 +11,20 @@
  *   - characters: 当前账号 × 当前游戏的角色摘要列表
  *
  * 状态机（viewState）：
- *   loading  — 冷启动读 DB
- *   empty    — 无账号或无角色数据，显示 Placeholder
- *   data     — 正常展示角色网格
+ *   LOADING  — 冷启动读 DB
+ *   EMPTY    — 无账号或无角色数据，显示 Placeholder
+ *   DATA     — 正常展示角色网格
  */
 
-import { AccountRepository, AccountWithRoles, CharacterRepository, SyncMetaDao, DataType, CoreInitializer, GameDataDao } from 'core';
-import { GameDataSummary } from 'core';
+import {
+  CoreInitializer,
+  GameDataSummary,
+  AccountRow,
+  GameRoleRow,
+  GenshinCharacterListRow,
+  StarRailAvatarBasicRow,
+  ZZZAvatarBasicRow
+} from 'core';
 import { Logger } from '../utils/Logger';
 import { ViewState } from '../constants/ViewStates';
 import { AppConstants } from '../constants/AppConstants';
@@ -31,14 +38,20 @@ import { CharacterDataSource } from '../components/characters/CharacterDataSourc
 
 const TAG: string = 'CharactersViewModel';
 
-/** 账号选项（用于 Select 组件） */
+/** 账号选项（用于账号切换 Menu） */
 export class AccountOption {
   accountId: number = 0;
   username: string = '';
+  nickname: string = '';
+  avatarUrl: string = '';
+  uid: string = '';
 
-  constructor(accountId: number, username: string) {
+  constructor(accountId: number, username: string, nickname: string = '', avatarUrl: string = '', uid: string = '') {
     this.accountId = accountId;
     this.username = username;
+    this.nickname = nickname;
+    this.avatarUrl = avatarUrl;
+    this.uid = uid;
   }
 }
 
@@ -68,6 +81,10 @@ export class CharactersViewModel {
 
   @Trace viewState: ViewState = ViewState.LOADING;
   @Trace accountOptions: AccountOption[] = [];
+  /** 是否显示账号切换按钮（多账号时为 true） */
+  @Trace showAccountSwitcher: boolean = false;
+  /** 是否显示刷新按钮（有游戏数据时为 true） */
+  @Trace showRefreshButton: boolean = false;
   @Trace selectedAccountIdx: number = 0;
   @Trace gameTabs: GameTabItem[] = [];
   @Trace selectedGameIdx: number = 0;
@@ -80,29 +97,38 @@ export class CharactersViewModel {
   readonly dataSource: CharacterDataSource = new CharacterDataSource();
 
   // 原始账号+角色数据，切换时复用
-  private allPairs: AccountWithRoles[] = [];
+  private allAccounts: AccountRow[] = [];
+  private allRoles: GameRoleRow[][] = [];
 
   // ─── 公开方法 ────────────────────────────────────────────────
 
   async loadData(): Promise<void> {
-    // 等待 RDB 初始化完成（CoreInitializer.initCore 是异步的）
     await CoreInitializer.waitForReady();
     this.viewState = ViewState.LOADING;
     try {
-      this.allPairs = await AccountRepository.findAllAccountsWithRoles();
-      if (this.allPairs.length === 0) {
+      this.allAccounts = await CoreInitializer.bbsRepository.getAllAccounts();
+      this.allRoles = [];
+      for (let i = 0; i < this.allAccounts.length; i++) {
+        const roles = await CoreInitializer.bbsRepository.getGameRoles(this.allAccounts[i].id);
+        this.allRoles[this.allRoles.length] = roles;
+      }
+      if (this.allAccounts.length === 0) {
+        this.showAccountSwitcher = false;
+        this.showRefreshButton = false;
         this.viewState = ViewState.EMPTY;
         return;
       }
-      this.accountOptions = CharactersViewModel.buildAccountOptions(this.allPairs);
-      this.selectedAccountIdx = 0;
+      this.accountOptions = CharactersViewModel.buildAccountOptions(this.allAccounts);
+      this.showAccountSwitcher = this.accountOptions.length > 1;
+      // 保留上次选中的账号（账号被删除时 clamp 到最后一个）
+      this.selectedAccountIdx = Math.min(this.selectedAccountIdx, this.allAccounts.length - 1);
+      if (this.selectedAccountIdx < 0) { this.selectedAccountIdx = 0; }
       await this.reloadGameTabs();
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `loadData failed: ${msg}`);
       this.viewState = ViewState.EMPTY;
     }
-    // 若本地无数据，转为 EMPTY（不再自动触发网络同步）
     if (this.viewState === ViewState.LOADING) {
       this.viewState = ViewState.EMPTY;
     }
@@ -133,13 +159,14 @@ export class CharactersViewModel {
     if (this.isRefreshing || this.gameTabs.length === 0) {
       return;
     }
-    // 检查冷却：30 分钟内已同步过则提示用户
     const tab = this.gameTabs[this.selectedGameIdx];
+    // 检查冷却：使用 needsSync
     let inCooldown = false;
     try {
-      inCooldown = !(await SyncMetaDao.needsSync(
-        tab.gameId, tab.roleUid, DataType.CHARACTER, AppConstants.AUTO_REFRESH_INTERVAL_MS
-      ));
+      const needed = await CharactersViewModel.needsCharacterSync(
+        this.allAccounts[this.selectedAccountIdx].id, tab.roleUid, tab.gameId
+      );
+      inCooldown = !needed;
     } catch (_) {
       inCooldown = false;
     }
@@ -149,10 +176,9 @@ export class CharactersViewModel {
     }
     this.isRefreshing = true;
     try {
-      const pair = this.allPairs[this.selectedAccountIdx];
-      await CharacterRepository.syncCharacters(
-        tab.gameId, tab.roleUid, this.findServer(tab.roleUid), pair.account.cookie
-      );
+      const account = this.allAccounts[this.selectedAccountIdx];
+      const server = this.findServer(tab.roleUid);
+      await this.syncCharacters(account, tab.gameId, tab.roleUid, server);
       await this.reloadCharacters();
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -171,10 +197,8 @@ export class CharactersViewModel {
     this.isRefreshing = true;
     try {
       const tab = this.gameTabs[this.selectedGameIdx];
-      const pair = this.allPairs[this.selectedAccountIdx];
-      await CharacterRepository.syncCharacters(
-        tab.gameId, tab.roleUid, this.findServer(tab.roleUid), pair.account.cookie
-      );
+      const account = this.allAccounts[this.selectedAccountIdx];
+      await this.syncCharacters(account, tab.gameId, tab.roleUid, this.findServer(tab.roleUid));
       await this.reloadCharacters();
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -189,48 +213,32 @@ export class CharactersViewModel {
 
   /** 重建当前账号的游戏 Tab 列表，并加载第一个游戏的角色 */
   private async reloadGameTabs(): Promise<void> {
-    if (this.allPairs.length === 0) {
+    if (this.allAccounts.length === 0) {
       this.viewState = ViewState.EMPTY;
       return;
     }
-    const pair = this.allPairs[this.selectedAccountIdx];
-    let tabs: GameTabItem[] = [];
+    const roles = this.allRoles[this.selectedAccountIdx];
+    const tabs: GameTabItem[] = [];
 
-    if (pair.roles.length > 0) {
-      // 优先用 game_role_table 里的角色记录构建 Tab
-      for (let i = 0; i < pair.roles.length; i++) {
-        const role = pair.roles[i];
+    if (roles.length > 0) {
+      for (let i = 0; i < roles.length; i++) {
+        const role = roles[i];
         tabs[tabs.length] = new GameTabItem(
           role.gameId,
           role.roleId,
           CharactersViewModel.gameNameResource(role.gameId)
         );
       }
-    } else {
-      // Fallback：game_role_table 为空（Mock 模式或登录时角色拉取失败），
-      // 改为查 game_data 里实际有 character 数据的 (gameId, roleUid) 组合
-      try {
-        const pairs = await GameDataDao.findDistinctGameRoles(DataType.CHARACTER);
-        for (let i = 0; i < pairs.length; i++) {
-          tabs[tabs.length] = new GameTabItem(
-            pairs[i].gameId,
-            pairs[i].roleUid,
-            CharactersViewModel.gameNameResource(pairs[i].gameId)
-          );
-        }
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : `${error}`;
-        Logger.warn(TAG, `findDistinctGameRoles failed: ${msg}`);
-      }
     }
 
     this.gameTabs = tabs;
     if (tabs.length === 0) {
       this.setCharacters([]);
+      this.showRefreshButton = false;
       this.viewState = ViewState.EMPTY;
       return;
     }
-    // 只加载第一个 tab，其余 tab 切换时懒加载
+    this.showRefreshButton = true;
     await this.reloadCharacters();
   }
 
@@ -242,13 +250,13 @@ export class CharactersViewModel {
       return;
     }
     const tab = this.gameTabs[this.selectedGameIdx];
+    const accountId = this.allAccounts[this.selectedAccountIdx].id;
     try {
-      const rows = await CharacterRepository.findAll(tab.gameId, tab.roleUid);
+      const rows = await CharactersViewModel.loadCharacters(accountId, tab.gameId, tab.roleUid);
       if (rows.length > 0) {
         this.setCharacters(rows);
         this.viewState = ViewState.DATA;
       } else {
-        // DB 无数据，先显示 loading，后台触发同步
         this.viewState = ViewState.LOADING;
         this.autoSyncCharacters(tab.gameId, tab.roleUid);
       }
@@ -260,18 +268,125 @@ export class CharactersViewModel {
     }
   }
 
+  /** 从 Repository 读取角色数据并转换为 GameDataSummary */
+  private static async loadCharacters(
+    accountId: number,
+    gameId: string,
+    roleUid: string
+  ): Promise<GameDataSummary[]> {
+    if (gameId === GAME_GENSHIN) {
+      const rows = await CoreInitializer.genshinRepository.getAvatarList(accountId, roleUid);
+      return CharactersViewModel.genshinRowsToSummaries(rows, roleUid);
+    }
+    if (gameId === GAME_STARRAIL) {
+      const rows = await CoreInitializer.starRailRepository.getAvatarList(accountId, roleUid);
+      return CharactersViewModel.starRailRowsToSummaries(rows, roleUid);
+    }
+    if (gameId === GAME_ZZZ) {
+      const rows = await CoreInitializer.zzzRepository.getAvatarList(accountId, roleUid);
+      return CharactersViewModel.zzzRowsToSummaries(rows, roleUid);
+    }
+    return [];
+  }
+
+  /** 将 GenshinCharacterListRow[] 转换为 GameDataSummary[] */
+  private static genshinRowsToSummaries(rows: GenshinCharacterListRow[], roleUid: string): GameDataSummary[] {
+    const result: GameDataSummary[] = [];
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i];
+      const s = new GameDataSummary();
+      s.gameId = GAME_GENSHIN;
+      s.roleUid = roleUid;
+      s.entityId = r.avatarId;
+      s.name = r.name;
+      s.rarity = r.rarity;
+      s.level = r.level;
+      s.extraInt1 = r.activedConstellationNum;
+      s.extraInt2 = r.fetter;
+      s.extraText1 = r.element;
+      s.extraText2 = `${r.weaponType}`;
+      s.iconUrl = r.icon;
+      s.squareIconUrl = r.sideIcon;
+      s.weaponName = r.weaponName;
+      s.weaponLevel = r.weaponLevel;
+      s.weaponAffix = r.weaponAffixLevel;
+      s.weaponRarity = r.weaponRarity;
+      s.weaponIconUrl = r.weaponIconUrl;
+      s.hasWeaponSlot = true;
+      s.updateTime = r.updateTime;
+      result[result.length] = s;
+    }
+    return result;
+  }
+
+  /** 将 StarRailAvatarBasicRow[] 转换为 GameDataSummary[] */
+  private static starRailRowsToSummaries(rows: StarRailAvatarBasicRow[], roleUid: string): GameDataSummary[] {
+    const result: GameDataSummary[] = [];
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i];
+      const s = new GameDataSummary();
+      s.gameId = GAME_STARRAIL;
+      s.roleUid = roleUid;
+      s.entityId = r.avatarId;
+      s.name = r.name;
+      s.rarity = r.rarity;
+      s.level = r.level;
+      s.extraInt1 = r.rank;
+      s.extraInt2 = 0;
+      s.extraText1 = r.element;
+      s.extraText2 = `${r.baseType}`;
+      s.iconUrl = r.icon;
+      s.squareIconUrl = r.figurePath;
+      s.weaponName = r.equipName;
+      s.weaponLevel = r.equipLevel;
+      s.weaponAffix = r.equipRank;
+      s.weaponRarity = r.equipRarity;
+      s.weaponIconUrl = r.equipIconUrl;
+      s.hasWeaponSlot = true;
+      s.updateTime = r.updateTime;
+      result[result.length] = s;
+    }
+    return result;
+  }
+
+  /** 将 ZZZAvatarBasicRow[] 转换为 GameDataSummary[] */
+  private static zzzRowsToSummaries(rows: ZZZAvatarBasicRow[], roleUid: string): GameDataSummary[] {
+    const result: GameDataSummary[] = [];
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i];
+      const s = new GameDataSummary();
+      s.gameId = GAME_ZZZ;
+      s.roleUid = roleUid;
+      s.entityId = r.avatarId;
+      s.name = r.nameMi18n;
+      s.fullName = r.fullNameMi18n;
+      s.rarity = r.rarity === 'S' ? 5 : 4;
+      s.level = r.level;
+      s.extraInt1 = r.rank;
+      s.extraInt2 = 0;
+      s.extraText1 = `${r.elementType}`;
+      s.extraText2 = `${r.avatarProfession}`;
+      s.iconUrl = r.hollowIconPath;
+      s.squareIconUrl = r.roleSquareUrl;
+      s.groupIconUrl = r.groupIconPath;
+      s.updateTime = r.updateTime;
+      result[result.length] = s;
+    }
+    return result;
+  }
+
   /** 后台静默同步角色数据，完成后若仍是当前选中 tab 则刷新 UI */
   private autoSyncCharacters(gameId: string, roleUid: string): void {
-    if (this.allPairs.length === 0) { return; }
-    const pair = this.allPairs[this.selectedAccountIdx];
+    if (this.allAccounts.length === 0) { return; }
+    const account = this.allAccounts[this.selectedAccountIdx];
     const server = this.findServer(roleUid);
-    CharacterRepository.syncCharacters(gameId, roleUid, server, pair.account.cookie)
+    const accountId = account.id;
+    this.syncCharacters(account, gameId, roleUid, server)
       .then(async () => {
-        // 只有当前选中 tab 仍是这个游戏时才更新 UI
         if (this.gameTabs.length > 0 &&
             this.gameTabs[this.selectedGameIdx].gameId === gameId &&
             this.gameTabs[this.selectedGameIdx].roleUid === roleUid) {
-          const rows = await CharacterRepository.findAll(gameId, roleUid);
+          const rows = await CharactersViewModel.loadCharacters(accountId, gameId, roleUid);
           this.setCharacters(rows);
           this.viewState = rows.length > 0 ? ViewState.DATA : ViewState.EMPTY;
         }
@@ -279,7 +394,6 @@ export class CharactersViewModel {
       .catch((error: Error | object) => {
         const msg = error instanceof Error ? error.message : `${error}`;
         Logger.warn(TAG, `autoSyncCharacters failed for ${gameId}/${roleUid}: ${msg}`);
-        // 无论当前 tab 是否匹配，只要还在 LOADING 就转 EMPTY，避免永久卡住
         if (this.viewState === ViewState.LOADING) {
           this.viewState = ViewState.EMPTY;
         }
@@ -291,23 +405,57 @@ export class CharactersViewModel {
     this.dataSource.setData(rows);
   }
 
+  /**
+   * 角色列表同步：委托给对应游戏 Repository 完成 API 调用 + 解析 + 写 DB。
+   */
+  private async syncCharacters(
+    account: AccountRow,
+    gameId: string,
+    roleUid: string,
+    server: string
+  ): Promise<void> {
+    if (gameId === GAME_GENSHIN) {
+      await CoreInitializer.genshinRepository.syncAvatarList(account.id, roleUid, server, account.cookie);
+    } else if (gameId === GAME_STARRAIL) {
+      await CoreInitializer.starRailRepository.syncAvatarList(account.id, roleUid, server, account.cookie);
+    } else if (gameId === GAME_ZZZ) {
+      await CoreInitializer.zzzRepository.syncAvatarList(account.id, roleUid, server, account.cookie);
+    }
+    // 其他 gameId 静默跳过
+  }
+
   private findServer(roleUid: string): string {
-    if (this.allPairs.length === 0) {
+    if (this.allRoles.length === 0 || this.selectedAccountIdx >= this.allRoles.length) {
       return '';
     }
-    const pair = this.allPairs[this.selectedAccountIdx];
-    for (let i = 0; i < pair.roles.length; i++) {
-      if (pair.roles[i].roleId === roleUid) {
-        return pair.roles[i].server;
+    const roles = this.allRoles[this.selectedAccountIdx];
+    for (let i = 0; i < roles.length; i++) {
+      if (roles[i].roleId === roleUid) {
+        return roles[i].server;
       }
     }
     return '';
   }
 
-  private static buildAccountOptions(pairs: AccountWithRoles[]): AccountOption[] {
+  /** 检查指定游戏角色是否需要同步角色数据 */
+  private static async needsCharacterSync(accountId: number, roleUid: string, gameId: string): Promise<boolean> {
+    if (gameId === GAME_GENSHIN) {
+      return CoreInitializer.genshinRepository.needsAvatarListSync(accountId, roleUid);
+    }
+    if (gameId === GAME_STARRAIL) {
+      return CoreInitializer.starRailRepository.needsAvatarListSync(accountId, roleUid);
+    }
+    if (gameId === GAME_ZZZ) {
+      return CoreInitializer.zzzRepository.needsAvatarListSync(accountId, roleUid);
+    }
+    return true;
+  }
+
+  private static buildAccountOptions(accounts: AccountRow[]): AccountOption[] {
     const opts: AccountOption[] = [];
-    for (let i = 0; i < pairs.length; i++) {
-      opts[opts.length] = new AccountOption(pairs[i].account.id, pairs[i].account.username);
+    for (let i = 0; i < accounts.length; i++) {
+      const a = accounts[i];
+      opts[opts.length] = new AccountOption(a.id, a.username, a.nickname, a.avatarUrl, a.uid);
     }
     return opts;
   }

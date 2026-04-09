@@ -59,12 +59,11 @@ export struct LoginPhone {
         Logger.error(TAG, 'uiContext is null')
         return
       }
-      const createResult: GeetestCreateResult = {
-        gt: mmt.gt ?? '',
-        challenge: mmt.challenge,
-        risk_type: mmt.risk_type,
-        new_captcha: mmt.new_captcha === 1
-      }
+      const createResult: GeetestCreateResult = new GeetestCreateResult();
+      createResult.gt = mmt.gt ?? '';
+      createResult.challenge = mmt.challenge ?? '';
+      createResult.risk_type = mmt.risk_type ?? '';
+      createResult.new_captcha = mmt.new_captcha === 1 ? 1 : 0;
       showGeetestDialog(this.uiContext, createResult).then((verifyInput) => {
         if (verifyInput === null) { return }
         this.vm.sendSmsCode(

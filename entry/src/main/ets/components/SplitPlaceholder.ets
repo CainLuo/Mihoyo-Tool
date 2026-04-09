@@ -24,3 +24,13 @@ export struct SplitPlaceholder {
 export function splitPlaceholderBuilder() {
   SplitPlaceholder()
 }
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct SplitPlaceholderPreview {
+  build() {
+    SplitPlaceholder()
+  }
+}

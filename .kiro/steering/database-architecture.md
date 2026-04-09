@@ -1,200 +1,103 @@
 # 数据库架构设计文档
 
-## 概述
+## 重要说明
 
-本项目采用**混合分层存储 + Query Builder + Repository 模式**，支持米游社旗下所有游戏（原神、星穹铁道、绝区零、崩坏3等）的本地持久化数据管理。
+本项目数据库已完成 V1.0 全新重构，**旧版通用表设计（`game_data`、`game_stats`、`QueryBuilder`、`Calculator`）已废弃**，请勿参考旧版内容。
 
-设计目标：
+**新版设计文档位置：**
 
-- 业务代码零 SQL 字符串
-- 新增游戏只加 Parser/Calculator，数据库表不动
-- 新增统计指标只加 stat_key，表不动
-- 支持大批量查询、统计计算、跨游戏数据聚合
+- 数据库设计：`.kiro/specs/game-data-database-redesign/design.md`
+- API 网络层设计：`.kiro/specs/mihoyo-api-redesign/design.md`
+- Mock 环境设计：`.kiro/specs/mihoyo-mock-redesign/design.md`
 
----
+## 新版架构概要
 
-## 表结构
+新版采用**按游戏类型分离的专用表**设计，共 15 张表：
 
-### 1. `account_table` — 米游社账号
+- 基础表 2 张：`account_table`（含 `stoken`/`stuid`/`mid` 字段）、`game_role_table`
+- 原神专用表 4 张：`genshin_character_list`、`genshin_daily_note`、`genshin_character_detail`、`genshin_character_compute`
+- 星穹铁道专用表 4 张：`starrail_avatar_basic`、`starrail_daily_note`、`starrail_avatar_info`、`starrail_avatar_compute`
+- 绝区零专用表 4 张：`zzz_avatar_basic`、`zzz_daily_note`、`zzz_avatar_info`、`zzz_avatar_compute`
+- 辅助表 1 张：`sync_meta`
 
-```sql
-CREATE TABLE IF NOT EXISTS account_table (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  username    TEXT UNIQUE,
-  cookie      TEXT,
-  is_active   INTEGER DEFAULT 0,
-  create_time INTEGER,
-  update_time INTEGER
-);
-```
+> 注意：各 compute 表已拆分为多个 JSON 字段（原神：`avatar_consume_json`/`skill_consume_json`/`weapon_consume_json`；星铁：`avatar_consume_json`/`skill_consume_json`/`equipment_consume_json`），不再使用单一的 `consume_items_json`。
 
-### 2. `game_role_table` — 各游戏角色（UID）
-
-```sql
-CREATE TABLE IF NOT EXISTS game_role_table (
-  id         INTEGER PRIMARY KEY AUTOINCREMENT,
-  account_id INTEGER,
-  game_id    TEXT,   -- "genshin" / "starrail" / "zzz" / "honkai3"
-  role_id    TEXT,   -- 游戏内 UID
-  nickname   TEXT,
-  level      INTEGER,
-  server     TEXT,
-  FOREIGN KEY (account_id) REFERENCES account_table(id)
-);
-```
-
-### 3. `game_data` — 所有游戏所有数据类型（核心表）
-
-```sql
-CREATE TABLE IF NOT EXISTS game_data (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  game_id     TEXT    NOT NULL,  -- 游戏标识
-  role_uid    TEXT    NOT NULL,  -- 游戏内 UID，公共数据填 "global"
-  data_type   TEXT    NOT NULL,  -- 数据类型，见下方枚举
-  entity_id   TEXT    NOT NULL,  -- 数据唯一标识
-  name        TEXT,              -- 名称（可搜索）
-  rarity      INTEGER,           -- 星级（可过滤）
-  level       INTEGER,           -- 等级（可过滤）
-  extra_int1  INTEGER,           -- 扩展整数字段1，语义由 data_type 决定
-  extra_int2  INTEGER,           -- 扩展整数字段2
-  extra_text1 TEXT,              -- 扩展文本字段1
-  extra_text2 TEXT,              -- 扩展文本字段2（v1.1 新增，旧库通过 ALTER TABLE 迁移）
-  raw_json    TEXT    NOT NULL,  -- 完整原始 JSON
-  update_time INTEGER            -- 最后更新时间戳（Unix 秒）
-);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_game_data_unique
-  ON game_data(game_id, role_uid, data_type, entity_id);
-CREATE INDEX IF NOT EXISTS idx_game_data_query
-  ON game_data(game_id, role_uid, data_type);
-CREATE INDEX IF NOT EXISTS idx_game_data_activity
-  ON game_data(game_id, data_type, extra_int2);
-```
-
-#### `data_type` 枚举说明
-
-| data_type     | 含义           | extra_int1       | extra_int2     | extra_text1 | extra_text2                                                            |
-| ------------- | -------------- | ---------------- | -------------- | ----------- | ---------------------------------------------------------------------- |
-| character     | 角色/代理人    | 命座/星魂/影画数 | 好感度（原神） | 元素属性    | 原神=weapon_type数字；星铁=base_type命途；绝区零=avatar_profession职业 |
-| weapon        | 武器/光锥/音擎 | 精炼/叠影等级    | -              | 武器类型    | -                                                                      |
-| relic         | 圣遗物/遗器    | 部位(1-6)        | 套装 ID        | -           | -                                                                      |
-| activity      | 活动           | 开始时间         | 结束时间       | 活动类型    | -                                                                      |
-| gacha_record  | 抽卡记录(单条) | 卡池类型         | 是否UP(0/1)    | 物品类型    | -                                                                      |
-| gacha_summary | 抽卡统计摘要   | 卡池类型         | 总抽数         | -           |
-| daily_note    | 实时便笺       | 当前树脂/开拓力  | 最大值         | -           |
-| abyss         | 深渊/混沌回忆  | 层数             | 星数           | 赛季标识    |
-
-### 4. `game_stats` — 预计算统计结果
-
-```sql
-CREATE TABLE IF NOT EXISTS game_stats (
-  id          INTEGER PRIMARY KEY AUTOINCREMENT,
-  game_id     TEXT NOT NULL,
-  role_uid    TEXT NOT NULL,
-  entity_id   TEXT NOT NULL,  -- 关联 game_data.entity_id
-  stat_key    TEXT NOT NULL,  -- 统计指标名，见下方说明
-  stat_value  REAL,           -- 数值结果
-  update_time INTEGER
-);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_game_stats_unique
-  ON game_stats(game_id, role_uid, entity_id, stat_key);
-```
-
-#### `stat_key` 约定
-
-| stat_key        | 含义                   | 适用游戏           |
-| --------------- | ---------------------- | ------------------ |
-| relic_score     | 圣遗物/遗器/驱动盘评分 | 原神、星铁、绝区零 |
-| is_graduated    | 是否毕业(1=是, 0=否)   | 原神、星铁、绝区零 |
-| crit_rate       | 暴击率(%)              | 原神、星铁、绝区零 |
-| crit_dmg        | 暴击伤害(%)            | 原神、星铁、绝区零 |
-| pity_count      | 当前保底计数           | 所有抽卡游戏       |
-| up_pity_count   | 大保底计数(0或1)       | 所有抽卡游戏       |
-| anomaly_mastery | 异常精通               | 绝区零             |
-| break_effect    | 击破特攻(%)            | 星铁               |
-
-### 5. `sync_meta` — 同步状态追踪
-
-```sql
-CREATE TABLE IF NOT EXISTS sync_meta (
-  id             INTEGER PRIMARY KEY AUTOINCREMENT,
-  game_id        TEXT NOT NULL,
-  role_uid       TEXT NOT NULL,
-  data_type      TEXT NOT NULL,
-  last_sync_time INTEGER,
-  sync_status    TEXT,  -- "success" / "failed" / "syncing"
-  error_msg      TEXT
-);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_sync_meta_unique
-  ON sync_meta(game_id, role_uid, data_type);
-```
-
----
-
-## 代码层架构
+## 新版代码目录结构
 
 ```
 core/src/main/ets/
-├── database/
-│   ├── RdbManager.ets          # 底层 RDB 封装（CRUD + 事务）
-│   ├── QueryBuilder.ets        # 链式 Query Builder，翻译为 RdbPredicates
-│   ├── GameDataDao.ets         # 基于 game_data 表的通用 DAO
-│   ├── GameStatsDao.ets        # 基于 game_stats 表的统计 DAO
-│   └── index.ets               # 数据库模块导出
-├── models/
-│   ├── GameDataRow.ets         # game_data 行模型
-│   ├── GameStatsRow.ets        # game_stats 行模型
-│   └── index.ts                # 模型导出
-├── repository/
-│   ├── CharacterRepository.ets # 角色数据 Repository
-│   ├── ActivityRepository.ets  # 活动数据 Repository
-│   ├── GachaRepository.ets     # 抽卡记录 Repository
-│   └── index.ts                # Repository 导出
-├── parsers/                    # 各游戏 raw_json → 业务模型（待实现）
-│   └── genshin/
-│       └── GenshinCharacterParser.ets
-└── calculators/                # 各游戏统计计算（待实现）
-    └── genshin/
-        └── GenshinScoreCalculator.ets
+├── database/v2/
+│   ├── RdbManagerV2.ets       ← 数据库管理器（建表 + 事务 + 写入队列）
+│   ├── BBSDao.ets             ← 账号/角色表 DAO
+│   ├── GenshinDao.ets         ← 原神四张表 DAO
+│   ├── StarRailDao.ets        ← 星穹铁道四张表 DAO
+│   ├── ZZZDao.ets             ← 绝区零四张表 DAO
+│   └── SyncMetaDaoV2.ets      ← 同步状态 DAO（过渡期加 V2 后缀）
+├── repository/v2/
+│   ├── GameRepository.ets     ← 抽象基类（仅游戏数据）
+│   ├── BBSRepository.ets      ← 账号 + 游戏角色（独立，不继承 GameRepository）
+│   ├── GenshinRepository.ets
+│   ├── StarRailRepository.ets
+│   ├── ZZZRepository.ets
+│   └── SignRepository.ets     ← 签到
+├── network/v2/
+│   ├── MihoyoDomain.ets       ← Domain 枚举（7 个 Host）
+│   ├── MihoyoHeaderBuilder.ets← 请求头构建器（HeaderProfile 枚举）
+│   ├── ApiConfigV2.ets        ← 应用配置常量（APP_VERSION、device_id/fp）
+│   ├── DSUtilV2.ets           ← DS 动态签名生成
+│   ├── MihoyoEnvironment.ets  ← 运行环境枚举（MOCK / RELEASE）
+│   ├── MihoyoApiServiceFactory.ets ← Service 工厂
+│   ├── MihoyoAccountApiService.ets
+│   ├── GenshinApiService.ets
+│   ├── StarRailApiService.ets
+│   ├── ZZZApiService.ets
+│   ├── SignApiService.ets
+│   └── mock/                  ← Mock Service 实现
+└── constants/
+    └── SyncDataType.ets       ← sync_meta.data_type 枚举（禁止直接写字符串）
+
+core/src/main/ets/errors/
+└── ApiErrors.ets              ← 业务错误类型（AuthExpiredError / GeetestRequiredError 等）
 ```
 
----
+## 模块边界原则（最高优先级）
 
-## 数据流
+**entry 模块严禁直接操作数据库，也不感知运行环境（mock/release）**，所有数据操作和环境适配必须通过 core 层 Repository 完成：
 
-```
-网络拉取 → 写入 game_data（raw_json）
-                ↓
-         触发后台计算（TaskPool）
-                ↓
-         Calculator.calculate(rawJson)
-                ↓
-         写入 game_stats（预计算结果）
+- entry ViewModel 只调用 Repository 的高层方法（如 `login()`、`syncDailyNote()`、`syncAvatarList()`）
+- entry 不得 import `RdbManager`、任何 DAO 类、`Row` 模型（用于写入）
+- entry 不得直接调用 `ApiService.getDailyNote()` 等网络方法后自己写 DB
+- entry 不得判断 `isMock`、`APP_RUNTIME_ENV` 等环境变量做业务分支
+- 唯一例外：`EntryAbility.onCreate` 负责从 `BuildProfile` 读取环境并通过 `CoreInitializer.initCore({ isMock })` 传给 core，这是 entry 唯一感知环境的地方
+- mock 环境下的 username/cookie 替换逻辑由 `BBSRepository.login()` 内部处理，entry 传入原始值即可
 
-查询时：
-  列表页 → Repository.findAll() → GameDataDao（只查通用列，不读 raw_json）
-  详情页 → Repository.findById() → GameDataDao（读 raw_json）→ Parser.parse()
-  统计页 → Repository.findTopByScore() → GameStatsDao（纯 SQL，极快）
-```
+数据流：entry ViewModel → core Repository（内部完成环境适配 + API 调用 + 解析 + DB 写入）→ 返回结果给 ViewModel
 
----
+### BBSRepository 高层方法
 
-## 扩展指南
+| 方法                      | 说明                                                       |
+| ------------------------- | ---------------------------------------------------------- |
+| `login(username, cookie)` | 完整登录流程：写账号 + 拉角色 + 补详情，返回 `LoginResult` |
+| `getAllAccounts()`        | 读所有账号                                                 |
+| `getGameRoles(accountId)` | 读账号下所有游戏角色                                       |
+| `deleteAccount(id)`       | 删除账号（级联删除所有子表数据）                           |
 
-### 新增游戏（如绝区零）
+### 游戏 Repository 高层方法（三个游戏统一）
 
-1. 在 `parsers/zzz/` 下新建 `ZZZAgentParser.ets`
-2. 在 `calculators/zzz/` 下新建 `ZZZScoreCalculator.ets`
-3. 约定新的 `data_type` 和 `extra_*` 字段语义（更新本文档）
-4. 数据库表结构**不需要任何改动**
+| 方法                                                 | 说明                        |
+| ---------------------------------------------------- | --------------------------- |
+| `syncAvatarList(accountId, roleUid, server, cookie)` | 拉取角色列表 → 解析 → 写 DB |
+| `syncDailyNote(accountId, roleUid, server, cookie)`  | 拉取便笺 → 写 DB            |
+| `getAvatarList(accountId, roleUid)`                  | 读角色列表                  |
+| `getDailyNote(accountId, roleUid)`                   | 读便笺                      |
+| `needsAvatarListSync(accountId, roleUid)`            | 检查是否需要同步            |
+| `needsDailyNoteSync(accountId, roleUid)`             | 检查是否需要同步            |
 
-### 新增统计指标
-
-1. 在对应 Calculator 中新增计算逻辑
-2. 约定新的 `stat_key`（更新本文档）
-3. 数据库表结构**不需要任何改动**
-
-### 新增数据类型（如排行榜）
-
-1. 约定新的 `data_type` 值和 `extra_*` 字段语义
-2. 在对应 Repository 中新增方法
-3. 数据库表结构**不需要任何改动**
+1. **全新数据库，无旧表兼容，无迁移逻辑**（V1.0 起点）
+2. 所有表使用 `CREATE TABLE IF NOT EXISTS`，保证幂等性
+3. 通过 `account_id + role_uid` 实现多账号数据隔离
+4. UI 直接显示 API 返回数据，DB 写入走后台异步队列（任务数组 + runner 协程，无 Promise 链增长）
+5. `sync_meta.data_type` 必须使用 `SyncDataType` 枚举，禁止字符串字面量
+6. Cookie 刷新：`stoken` 长期有效，`cookie_token`/`ltoken`/`ltoken_v2` 过期时用 `stoken` 自动刷新
+7. 数据库使用 `SecurityLevel.S2` 加密，每次连接后必须执行 `PRAGMA foreign_keys = ON`
+8. compute 接口和大别野签到接口的 mock 文件名不遵循自动映射规则，需要特殊映射表处理

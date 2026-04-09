@@ -1,40 +1,79 @@
 /**
- * Characters — 角色 Tab 页（View 层，纯内容组件）
+ * Characters — 角色 Tab 页（View 层，普通内容组件）
+ *
+ * ViewModel 由 Characters 自己持有。
+ * 通过 @Param 回调把操作函数和状态上报给 Main，由 Main 挂到 Navigation.menus()。
  */
 import { BusinessError } from '@kit.BasicServicesKit'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
-import { CharactersViewModel } from '../viewmodel/CharactersViewModel'
+import { CharactersViewModel, AccountOption } from '../viewmodel/CharactersViewModel'
 import { CharactersContent } from '../components/characters/CharactersContent'
 import { Logger } from '../utils/Logger'
-import { GenshinCharacterDetailParam, GenshinCharacterDetail } from './GenshinCharacterDetail'
+import { GenshinCharacterDetailParam } from './GenshinCharacterDetail'
 import { GameDataSummary } from 'core'
 import { AccountSignal } from '../utils/AccountSignal'
 
-@Builder
-export function charDetailBuilder(name: string, param: Object) {
-  if (name === 'CharDetail') {
-    GenshinCharacterDetail({ routerParam: param as GenshinCharacterDetailParam })
-  }
-}
-
 @ComponentV2
 export struct Characters {
+  @Param detailStack: NavPathStack = new NavPathStack()
+  @Param isSplit: boolean = false
+  @Param onReady: (doRefresh: () => void, doSelectAccount: (idx: number) => void) => void =
+    (_r: () => void, _s: (idx: number) => void) => {}
+  @Param onMenuStateChange: (
+    showRefresh: boolean,
+    showSwitcher: boolean,
+    isRefreshing: boolean,
+    accountOptions: AccountOption[],
+    selectedIdx: number
+  ) => void = (_sr: boolean, _ss: boolean, _ir: boolean, _ao: AccountOption[], _si: number) => {}
+
   @Local private tm: ThemeManager = themeManager
   @Local private vm: CharactersViewModel = new CharactersViewModel()
   @Local private signal: AccountSignal = AccountSignal.instance()
   private uiCtx: UIContext | null = null
   private scroller: Scroller = new Scroller()
-  @Param detailStack: NavPathStack | null = null
-  @Param isSplit: boolean = false
 
   aboutToAppear(): void {
     this.uiCtx = this.getUIContext()
-    this.vm.loadData()
+    this.onReady(
+      () => { this.vm.refresh() },
+      (idx: number) => { this.vm.selectAccount(idx).catch((_: Error | object) => {}) }
+    )
+    this.vm.loadData().then(() => {
+      this.notifyMenuState()
+    }).catch((_: Error | object) => {})
   }
 
   @Monitor('signal.version')
   onAccountDataChanged(_monitor: IMonitor): void {
-    this.vm.loadData()
+    this.vm.loadData().then(() => {
+      this.notifyMenuState()
+    }).catch((_: Error | object) => {})
+  }
+
+  @Monitor('vm.showRefreshButton')
+  onShowRefreshChanged(_monitor: IMonitor): void { this.notifyMenuState() }
+
+  @Monitor('vm.showAccountSwitcher')
+  onShowSwitcherChanged(_monitor: IMonitor): void { this.notifyMenuState() }
+
+  @Monitor('vm.isRefreshing')
+  onIsRefreshingChanged(_monitor: IMonitor): void { this.notifyMenuState() }
+
+  @Monitor('vm.accountOptions')
+  onAccountOptionsChanged(_monitor: IMonitor): void { this.notifyMenuState() }
+
+  @Monitor('vm.selectedAccountIdx')
+  onSelectedAccountIdxChanged(_monitor: IMonitor): void { this.notifyMenuState() }
+
+  private notifyMenuState(): void {
+    this.onMenuStateChange(
+      this.vm.showRefreshButton,
+      this.vm.showAccountSwitcher,
+      this.vm.isRefreshing,
+      this.vm.accountOptions,
+      this.vm.selectedAccountIdx
+    )
   }
 
   @Monitor(CharactersViewModel.KEYS.networkErrorMsg)
@@ -65,9 +104,7 @@ export struct Characters {
         { text: $r('app.string.dialog_sync'), color: $r('app.color.color_accent') }
       ]
     }).then((result) => {
-      if (result.index === 1) {
-        this.vm.forceRefresh()
-      }
+      if (result.index === 1) { this.vm.forceRefresh() }
     }).catch((e: BusinessError) => {
       Logger.warn('Characters', 'showDialog cooldown failed: ' + e.message)
     })
@@ -78,15 +115,16 @@ export struct Characters {
       ? this.vm.gameTabs[this.vm.selectedGameIdx].gameId : 'genshin'
     const roleUid = this.vm.gameTabs.length > 0
       ? this.vm.gameTabs[this.vm.selectedGameIdx].roleUid : ''
+    const accountId = this.vm.accountOptions.length > 0
+      ? this.vm.accountOptions[this.vm.selectedAccountIdx].accountId : 0
     const param = new GenshinCharacterDetailParam()
-    param.gameId = gameId
+    param.accountId = accountId
     param.roleUid = roleUid
     param.entityId = character.entityId
-
     if (this.isSplit) {
-      this.detailStack?.replacePath({ name: 'CharDetail', param: param })
+      this.detailStack.replacePath({ name: 'CharDetail', param: param })
     } else {
-      this.detailStack?.pushPath({ name: 'CharDetail', param: param })
+      this.detailStack.pushPath({ name: 'CharDetail', param: param })
     }
   }
 

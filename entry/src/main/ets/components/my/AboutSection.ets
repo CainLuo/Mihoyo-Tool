@@ -43,3 +43,17 @@ export struct AboutSection {
     .alignItems(VerticalAlign.Center)
   }
 }
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct AboutSectionPreview {
+  build() {
+    Column() {
+      AboutSection()
+    }
+    .padding(16)
+    .backgroundColor('#1a1a2e')
+  }
+}

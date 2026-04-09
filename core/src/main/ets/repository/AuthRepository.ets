@@ -28,8 +28,51 @@
 
 import { NetworkFactory } from '../network/NetworkFactory';
 import { RequestParams, RequestOptions } from '../network/APIs';
-import { GameRoleRow } from './AccountRepository';
-import { GameId } from '../models/GameDataRow';
+import { GameId } from '../constants/GameId';
+
+// ─── 旧版游戏角色数据模型（供 AuthRepository 返回值和 entry 层使用）────────────
+
+/** 游戏角色信息（来自 API 响应，供 AuthRepository 网络层使用） */
+export class GameRoleRecord {
+  id: number = 0;
+  accountId: number = 0;
+  gameId: string = '';
+  roleId: string = '';
+  nickname: string = '';
+  level: number = 0;
+  server: string = '';
+  /** 游戏背景图 URL */
+  bgImageUrl: string = '';
+  /** 游戏内统计数据 JSON 字符串 */
+  statsJson: string = '';
+}
+
+/** 游戏内统计数据项（从 statsJson 解析而来） */
+export class RoleStatItem {
+  name: string = '';
+  value: string = '';
+
+  constructor(name: string, value: string) {
+    this.name = name;
+    this.value = value;
+  }
+
+  /** 将 statsJson 字符串解析为 RoleStatItem 数组，解析失败返回空数组 */
+  static parseAll(statsJson: string): RoleStatItem[] {
+    if (!statsJson || statsJson === '') { return []; }
+    try {
+      interface RawStat { name: string; value: string }
+      const parsed = JSON.parse(statsJson) as RawStat[];
+      const result: RoleStatItem[] = [];
+      for (let i = 0; i < parsed.length; i++) {
+        result[result.length] = new RoleStatItem(parsed[i].name, parsed[i].value);
+      }
+      return result;
+    } catch (_) {
+      return [];
+    }
+  }
+}
 
 // ─── 国服 API 基础路径 ────────────────────────────────────────────
 
@@ -206,7 +249,7 @@ interface GetCookieBySTokenData {
 }
 
 /** 游戏角色信息（来自 getUserGameRolesByCookie） */
-export interface GameRoleInfo {
+export interface GameRoleApiInfo {
   game_biz: string;
   region: string;
   game_uid: string;
@@ -225,7 +268,7 @@ export interface GameRolesResponse {
 }
 
 interface GameRolesData {
-  list: GameRoleInfo[];
+  list: GameRoleApiInfo[];
 }
 
 /** 账号详情接口返回的游戏数据项 */
@@ -277,8 +320,10 @@ interface BbsAccountDetailResponse {
 
 /** BBS 账号详情结果 class（供外部使用） */
 export class BbsAccountDetailResult {
+  uid: string = '';
   nickname: string = '';
   avatarUrl: string = '';
+  rawJson: string = '';
 }
 
 /** 登录成功后组装的完整 Cookie 字符串所需的字段 */
@@ -638,8 +683,10 @@ export class AuthRepository {
         throw new Error(`getBbsAccountDetail failed: [${resp.retcode}] ${resp.message}`);
       }
       const result = new BbsAccountDetailResult();
+      result.uid = resp.data.user_info.uid ?? '';
       result.nickname = resp.data.user_info.nickname ?? '';
       result.avatarUrl = resp.data.user_info.avatar_url ?? '';
+      result.rawJson = JSON.stringify(resp.data);
       return result;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -651,7 +698,7 @@ export class AuthRepository {
    * 获取账号绑定的所有游戏角色
    * 接口：GET https://api-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie
    */
-  static async getUserGameRoles(cookie: string): Promise<GameRoleRow[]> {
+  static async getUserGameRoles(cookie: string): Promise<GameRoleRecord[]> {
     try {
       const options = new RequestOptions();
       options.extraHeaders.set('Cookie', cookie);
@@ -663,9 +710,9 @@ export class AuthRepository {
       if (resp.retcode !== 0) {
         throw new Error(`getUserGameRoles failed: [${resp.retcode}] ${resp.message}`);
       }
-      const rows: GameRoleRow[] = [];
+      const rows: GameRoleRecord[] = [];
       for (const info of resp.data.list) {
-        const row = new GameRoleRow();
+        const row = new GameRoleRecord();
         row.gameId = gameBizToGameId(info.game_biz);
         row.roleId = info.game_uid;
         row.nickname = info.nickname;
@@ -684,7 +731,7 @@ export class AuthRepository {
    * 获取账号详情（含 background_image_v2 和游戏内统计数据）
    * 接口：GET https://api-takumi-record.mihoyo.com/game_record/app/card/wapi/getGameRecordCard
    */
-  static async getGameRecordCard(cookie: string, uid: string): Promise<GameRoleRow[]> {
+  static async getGameRecordCard(cookie: string, uid: string): Promise<GameRoleRecord[]> {
     try {
       const options = new RequestOptions();
       options.extraHeaders.set('Cookie', cookie);
@@ -698,9 +745,9 @@ export class AuthRepository {
       if (resp.retcode !== 0) {
         throw new Error(`getGameRecordCard failed: [${resp.retcode}] ${resp.message}`);
       }
-      const rows: GameRoleRow[] = [];
+      const rows: GameRoleRecord[] = [];
       for (const item of resp.data.list) {
-        const row = new GameRoleRow();
+        const row = new GameRoleRecord();
         row.gameId = GameId.fromMihoyoGameId(item.game_id);
         row.roleId = item.game_role_id;
         row.nickname = item.nickname;

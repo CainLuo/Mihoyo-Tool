@@ -7,18 +7,19 @@
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 import { ExpeditionVM } from './DailyNoteModels'
+import { TimeFormatUtil } from '../../utils/TimeFormatUtil'
 
 // ── Preview：派遣进行中 ──
 @Preview
 @ComponentV2
-struct ExpeditionItemPreviewOngoing {
+export struct ExpeditionItemPreviewOngoing {
   build() {
     Column() {
       ExpeditionItem({
-        expedition: new ExpeditionVM('', '8小时14分钟', false)
+        expedition: new ExpeditionVM('', 29640, false)  // 8小时14分钟
       })
       ExpeditionItem({
-        expedition: new ExpeditionVM('', '已完成', true)
+        expedition: new ExpeditionVM('', 0, true)
       })
     }
     .backgroundColor(themeManager.current.colorSurfaceCard)
@@ -28,7 +29,7 @@ struct ExpeditionItemPreviewOngoing {
 
 @ComponentV2
 export struct ExpeditionItem {
-  @Param expedition: ExpeditionVM = new ExpeditionVM('', '', false)
+  @Param expedition: ExpeditionVM = new ExpeditionVM('', 0, false)
   @Local private tm: ThemeManager = themeManager
 
   build() {
@@ -60,7 +61,7 @@ export struct ExpeditionItem {
           Text($r('app.string.daily_note_expedition_remain_prefix'))
             .font(this.tm.current.body16)
             .fontColor(this.tm.current.colorTextSecondary)
-          Text(this.expedition.remainTime)
+          Text(TimeFormatUtil.formatSeconds(this.expedition.remainSeconds, this.getUIContext()))
             .font(this.tm.current.body16)
             .fontColor(this.tm.current.colorTextSecondary)
         }

@@ -1,7 +1,7 @@
 /**
  * LoginLogoSection — 登录页 Logo 区
  */
-import { ThemeManager } from '../../theme/ThemeManager'
+import { ThemeManager, themeManager } from '../../theme/ThemeManager'
 
 @ComponentV2
 export struct LoginLogoSection {
@@ -22,5 +22,19 @@ export struct LoginLogoSection {
         .fontColor(this.tm.current.colorTextSecondary)
     }
     .alignItems(HorizontalAlign.Center)
+  }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct LoginLogoSectionPreview {
+  build() {
+    Column() {
+      LoginLogoSection({ tm: themeManager, logoSize: 64 })
+    }
+    .padding(32)
+    .backgroundColor('#1a1a2e')
   }
 }

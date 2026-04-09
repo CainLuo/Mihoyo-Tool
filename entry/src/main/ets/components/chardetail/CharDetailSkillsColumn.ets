@@ -6,7 +6,7 @@
  */
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
-import { CharDetailSkill } from '../../viewmodel/GenshinCharacterDetailViewModel';
+import { CharDetailSkill } from './CharDetailModels';
 import { elementColor } from '../characters/CharacterCard';
 import { GenshinElement } from '../../constants/GenshinElement';
 
@@ -25,7 +25,7 @@ function makeMockSkills(): CharDetailSkill[] {
 // ── Preview：水元素技能列 ──
 @Preview
 @ComponentV2
-struct CharDetailSkillsColumnPreview {
+export struct CharDetailSkillsColumnPreview {
   build() {
     CharDetailSkillsColumn({
       skills: makeMockSkills(),

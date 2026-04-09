@@ -1,7 +1,32 @@
 /**
  * characters.js — 角色页渲染逻辑
  */
-var charactersState = { view: "data", game: "genshin", imgRatio: "crop" };
+var charactersState = {
+  view: "data",
+  game: "genshin",
+  imgRatio: "crop",
+  accountCount: "multi", // single | multi
+  menuOpen: false,
+  selectedAccount: 0,
+};
+
+var MOCK_ACCOUNTS = [
+  {
+    nickname: "CainLuo",
+    uid: "100000001",
+    avatarUrl: "https://bbs-static.miyoushe.com/avatar/avatar1.png",
+  },
+  {
+    nickname: "旅行者",
+    uid: "200000002",
+    avatarUrl: "",
+  },
+  {
+    nickname: "钟离",
+    uid: "300000003",
+    avatarUrl: "",
+  },
+];
 
 var CHARS_GENSHIN = [
   {
@@ -83,6 +108,16 @@ var CHARS_GENSHIN = [
     cons: 0,
     weaponLv: 60,
     weaponAffix: 2,
+  },
+  {
+    name: "无武器角色",
+    lv: 70,
+    fetter: 5,
+    elem: "冰",
+    elemColor: "#4FC3F7",
+    cons: 2,
+    weaponLv: 0,
+    weaponAffix: 0,
   },
 ];
 
@@ -174,6 +209,17 @@ var CHARS_STARRAIL = [
     rank: 3,
     weaponLv: 40,
     weaponAffix: 2,
+  },
+  {
+    name: "无光锥角色",
+    lv: 60,
+    elem: "冰",
+    elemColor: "#4FC3F7",
+    path: "存护",
+    pathColor: "#2196F3",
+    rank: 0,
+    weaponLv: 0,
+    weaponAffix: 0,
   },
 ];
 
@@ -272,12 +318,174 @@ function renderCharacters(w, h) {
   var game = charactersState.game;
   var nameSz = isPhone ? "11" : "12";
   var imgRatio = charactersState.imgRatio;
+  var isMulti = charactersState.accountCount === "multi";
+  var menuOpen = charactersState.menuOpen;
+  var selectedIdx = charactersState.selectedAccount;
+  var accounts = isMulti ? MOCK_ACCOUNTS : [MOCK_ACCOUNTS[0]];
+  var currentAccount = accounts[Math.min(selectedIdx, accounts.length - 1)];
   // 星铁图片原始比例 160:188，绝区零 300:368
   var srRatio = imgRatio === "native" ? "160/188" : "1/1";
   var zzzRatio = imgRatio === "native" ? "300/368" : "1/1";
 
-  // 武器浮层：右下角独立区块，含图标占位 + Lv + 精炼标签
+  // ── 账号切换 Menu ─────────────────────────────────────────────
+  function accountMenu() {
+    if (!menuOpen || !isMulti) return "";
+    var items = "";
+    for (var i = 0; i < accounts.length; i++) {
+      var acc = accounts[i];
+      var isSelected = i === selectedIdx;
+      var avatarContent = acc.avatarUrl
+        ? '<img src="' +
+          acc.avatarUrl +
+          '" style="width:32px;height:32px;border-radius:8px;object-fit:cover;flex-shrink:0;border:1px solid ' +
+          (isSelected ? c.primary : c.border) +
+          '" onerror="this.style.background=\'' +
+          c.primary +
+          "';this.src=''\"/>"
+        : '<div style="width:32px;height:32px;border-radius:8px;background:' +
+          c.primary +
+          "33;border:1px solid " +
+          (isSelected ? c.primary : c.border) +
+          ';display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">👤</div>';
+      items +=
+        '<div onclick="charactersState.selectedAccount=' +
+        i +
+        ';charactersState.menuOpen=false;refresh()" style="display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;' +
+        (isSelected ? "background:" + c.primary + "18;" : "") +
+        'transition:background .15s" onmouseover="this.style.background=\'' +
+        c.primary +
+        "12'\" onmouseout=\"this.style.background='" +
+        (isSelected ? c.primary + "18" : "transparent") +
+        "'\">" +
+        avatarContent +
+        '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:13px;font-weight:' +
+        (isSelected ? "600" : "400") +
+        ";color:" +
+        (isSelected ? c.primary : c.txt) +
+        ';white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' +
+        acc.nickname +
+        "</div>" +
+        '<div style="font-size:11px;color:' +
+        c.txt2 +
+        ';margin-top:1px">UID: ' +
+        acc.uid +
+        "</div>" +
+        "</div>" +
+        (isSelected
+          ? '<div style="font-size:14px;color:' + c.primary + '">✓</div>'
+          : "") +
+        "</div>";
+      if (i < accounts.length - 1) {
+        items +=
+          '<div style="height:1px;background:' +
+          c.div +
+          ';margin:0 14px"></div>';
+      }
+    }
+    return (
+      '<div style="position:absolute;top:100%;right:0;z-index:100;min-width:220px;' +
+      "background:" +
+      c.cardBg +
+      ";border:1px solid " +
+      c.border +
+      ";border-radius:12px;" +
+      'box-shadow:0 8px 24px rgba(0,0,0,.4);overflow:hidden;margin-top:4px">' +
+      '<div style="padding:8px 14px 6px;font-size:11px;color:' +
+      c.txt2 +
+      ';font-weight:600;letter-spacing:.5px">切换账号</div>' +
+      '<div style="height:1px;background:' +
+      c.div +
+      ';margin-bottom:4px"></div>' +
+      items +
+      "</div>"
+    );
+  }
+
+  // ── 标题栏（含账号切换按钮） ──────────────────────────────────
+  var currentAvatarContent = currentAccount.avatarUrl
+    ? '<img src="' +
+      currentAccount.avatarUrl +
+      '" style="width:28px;height:28px;border-radius:7px;object-fit:cover;border:1px solid ' +
+      c.primary +
+      '55" onerror="this.style.background=\'' +
+      c.primary +
+      "';this.src=''\"/>"
+    : '<div style="width:28px;height:28px;border-radius:7px;background:' +
+      c.primary +
+      "33;border:1px solid " +
+      c.primary +
+      '55;display:flex;align-items:center;justify-content:center;font-size:13px">👤</div>';
+
+  var titleBar =
+    '<div style="display:flex;align-items:center;gap:8px;padding:10px 16px 8px;flex-shrink:0;position:relative">' +
+    // 左侧：当前账号头像 + 昵称
+    '<div style="flex:1;display:flex;align-items:center;gap:8px">' +
+    currentAvatarContent +
+    "<div>" +
+    '<div style="font-size:14px;font-weight:600;color:' +
+    c.txt +
+    '">' +
+    currentAccount.nickname +
+    "</div>" +
+    '<div style="font-size:11px;color:' +
+    c.txt2 +
+    '">UID: ' +
+    currentAccount.uid +
+    "</div>" +
+    "</div>" +
+    "</div>" +
+    // 右侧按钮组
+    '<div style="display:flex;align-items:center;gap:8px;position:relative">' +
+    // 账号切换按钮（多账号时才显示）
+    (isMulti
+      ? '<div onclick="charactersState.menuOpen=!charactersState.menuOpen;refresh()" style="width:32px;height:32px;border-radius:8px;background:' +
+        (menuOpen ? c.primary + "22" : c.surfCard) +
+        ";border:1px solid " +
+        (menuOpen ? c.primary + "66" : c.border) +
+        ';display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:16px;transition:all .15s" title="切换账号">👥</div>'
+      : "") +
+    // 刷新按钮
+    '<div style="width:32px;height:32px;border-radius:8px;background:' +
+    c.surfCard +
+    ";border:1px solid " +
+    c.border +
+    ';display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px" title="刷新">↻</div>' +
+    // Menu 下拉
+    accountMenu() +
+    "</div>" +
+    "</div>";
+
+  // 点击空白关闭 menu 的遮罩
+  var menuOverlay =
+    menuOpen && isMulti
+      ? '<div onclick="charactersState.menuOpen=false;refresh()" style="position:fixed;inset:0;z-index:99"></div>'
+      : "";
+
+  // 武器浮层：右下角独立区块
+  // lv=0 时显示"未装备"占位状态（无等级、无精炼标签）
   function weaponBlock(lv, affix, prefix) {
+    if (lv === 0) {
+      // 未装备武器：显示禁止图标 + 暗色提示
+      return (
+        '<div style="position:absolute;bottom:0;right:0;width:56px;height:60px;' +
+        "background:rgba(10,10,20,.75);border-top-left-radius:8px;" +
+        "border-top:1px solid rgba(255,255,255,.1);border-left:1px solid rgba(255,255,255,.1);" +
+        'display:flex;flex-direction:column;overflow:hidden">' +
+        // 图标区：禁止符号
+        '<div style="flex:1;display:flex;align-items:center;justify-content:center">' +
+        '<div style="width:22px;height:22px;border-radius:50%;border:2px solid rgba(255,255,255,.25);' +
+        'display:flex;align-items:center;justify-content:center;position:relative;opacity:.5">' +
+        // 斜线
+        '<div style="position:absolute;width:2px;height:26px;background:rgba(255,255,255,.4);transform:rotate(45deg)"></div>' +
+        "</div>" +
+        "</div>" +
+        // 底部提示文字
+        '<div style="display:flex;align-items:center;justify-content:center;height:18px;background:rgba(0,0,0,.5)">' +
+        '<span style="font-size:8px;color:rgba(255,255,255,.35);letter-spacing:.3px">未装备</span>' +
+        "</div></div>"
+      );
+    }
     return (
       '<div style="position:absolute;bottom:0;right:0;width:56px;height:60px;' +
       "background:rgba(10,10,20,.75);border-top-left-radius:8px;" +
@@ -574,6 +782,7 @@ function renderCharacters(w, h) {
   return (
     baseCss(w, h) +
     "<style>@keyframes sk{0%,100%{opacity:.4}50%{opacity:.9}}</style>" +
+    menuOverlay +
     '<div style="width:' +
     w +
     "px;height:" +
@@ -581,60 +790,13 @@ function renderCharacters(w, h) {
     "px;display:flex;flex-direction:column;background:" +
     c.pageBg +
     '">' +
+    titleBar +
+    '<div style="height:1px;background:' +
+    c.div +
+    ';flex-shrink:0"></div>' +
     gameTabs +
     content +
     tabBar("characters") +
     "</div>"
   );
 }
-
-function charactersControls() {
-  return [
-    {
-      id: "game",
-      label: "游戏",
-      options: [
-        { value: "genshin", label: "原神" },
-        { value: "starrail", label: "崩坏：星穹铁道" },
-        { value: "zzz", label: "绝区零" },
-      ],
-      current: function () {
-        return charactersState.game;
-      },
-      onChange: function (v) {
-        charactersState.game = v;
-      },
-    },
-    {
-      id: "imgRatio",
-      label: "图片比例",
-      options: [
-        { value: "crop", label: "1:1 裁切" },
-        { value: "native", label: "原始比例" },
-      ],
-      current: function () {
-        return charactersState.imgRatio;
-      },
-      onChange: function (v) {
-        charactersState.imgRatio = v;
-      },
-    },
-    {
-      id: "view",
-      label: "视图",
-      options: [
-        { value: "data", label: "有数据" },
-        { value: "empty", label: "空状态" },
-        { value: "loading", label: "加载中" },
-      ],
-      current: function () {
-        return charactersState.view;
-      },
-      onChange: function (v) {
-        charactersState.view = v;
-      },
-    },
-  ];
-}
-
-// 补充：imgRatio 相关变量在 renderCharacters 内部已通过 charactersState.imgRatio 读取

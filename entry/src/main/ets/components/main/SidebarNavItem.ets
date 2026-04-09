@@ -40,3 +40,22 @@ export struct SidebarNavItem {
     .onClick(() => { this.onSelect(this.tab) })
   }
 }
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+import { themeManager } from '../../theme/ThemeManager';
+
+@Preview
+@ComponentV2
+export struct SidebarNavItemPreview {
+  build() {
+    Column({ space: 4 }) {
+      SidebarNavItem({ tm: themeManager, tab: 0, selectedTab: 0, label: $r('app.string.main_tab_home') })
+      SidebarNavItem({ tm: themeManager, tab: 1, selectedTab: 0, label: $r('app.string.main_tab_characters') })
+      SidebarNavItem({ tm: themeManager, tab: 2, selectedTab: 0, label: $r('app.string.main_tab_my') })
+    }
+    .padding(16)
+    .width(200)
+    .backgroundColor('#1a1a2e')
+  }
+}

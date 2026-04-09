@@ -30,3 +30,22 @@ export struct BottomTabItem {
     .onClick(() => { this.onSelect(this.tab) })
   }
 }
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+import { themeManager } from '../../theme/ThemeManager';
+
+@Preview
+@ComponentV2
+export struct BottomTabItemPreview {
+  build() {
+    Row() {
+      BottomTabItem({ tm: themeManager, tab: 0, selectedTab: 0, label: $r('app.string.main_tab_home'), icon: '🏠' })
+      BottomTabItem({ tm: themeManager, tab: 1, selectedTab: 0, label: $r('app.string.main_tab_characters'), icon: '⚔️' })
+      BottomTabItem({ tm: themeManager, tab: 2, selectedTab: 0, label: $r('app.string.main_tab_my'), icon: '👤' })
+    }
+    .width('100%')
+    .height(56)
+    .backgroundColor('#1a1a2e')
+  }
+}

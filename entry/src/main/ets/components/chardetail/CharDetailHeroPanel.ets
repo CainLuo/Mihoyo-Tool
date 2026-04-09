@@ -7,7 +7,8 @@
  *   LANDSCAPE → CharDetailHeroPanelLandscape（Phone 横屏）
  */
 
-import { GenshinCharacterDetailViewModel, CharDetailConstellation, CharDetailSkill } from '../../viewmodel/GenshinCharacterDetailViewModel';
+import { GenshinCharacterDetailViewModel } from '../../viewmodel/GenshinCharacterDetailViewModel';
+import { CharDetailConstellation, CharDetailSkill } from './CharDetailModels';
 import { HeroPanelMode } from '../../constants/HeroPanelMode';
 import { CharDetailHeroPanelWide } from './CharDetailHeroPanelWide';
 import { CharDetailHeroPanelPortrait } from './CharDetailHeroPanelPortrait';
@@ -21,7 +22,6 @@ function makeMockHeroPanelVM(element: GenshinElement, name: string, cons: number
   vm.viewState = ViewState.DATA;
   vm.charName = name;
   vm.charLevel = 90;
-  vm.charMaxLevel = 90;
   vm.charFetter = 10;
   vm.charElement = element;
   vm.charImageUrl = '';
@@ -48,7 +48,7 @@ function makeMockHeroPanelVM(element: GenshinElement, name: string, cons: number
 // ── Preview：WIDE 模式 ──
 @Preview
 @ComponentV2
-struct CharDetailHeroPanelPreviewWide {
+export struct CharDetailHeroPanelPreviewWide {
   build() {
     CharDetailHeroPanel({
       vm: makeMockHeroPanelVM(GenshinElement.HYDRO, '夜兰', 6),
@@ -62,7 +62,7 @@ struct CharDetailHeroPanelPreviewWide {
 // ── Preview：PORTRAIT 模式 ──
 @Preview
 @ComponentV2
-struct CharDetailHeroPanelPreviewPortrait {
+export struct CharDetailHeroPanelPreviewPortrait {
   build() {
     CharDetailHeroPanel({
       vm: makeMockHeroPanelVM(GenshinElement.PYRO, '胡桃', 1),
@@ -76,7 +76,7 @@ struct CharDetailHeroPanelPreviewPortrait {
 // ── Preview：LANDSCAPE 模式 ──
 @Preview
 @ComponentV2
-struct CharDetailHeroPanelPreviewLandscape {
+export struct CharDetailHeroPanelPreviewLandscape {
   build() {
     CharDetailHeroPanel({
       vm: makeMockHeroPanelVM(GenshinElement.ELECTRO, '雷电将军', 6),

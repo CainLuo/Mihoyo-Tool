@@ -1,7 +1,7 @@
 /**
  * AccountDetailViewModel.ets — 账号详情页 ViewModel
  */
-import { AccountRepository } from 'core';
+import { CoreInitializer } from 'core';
 import { Logger } from '../utils/Logger';
 
 const TAG: string = 'AccountDetailViewModel';
@@ -22,7 +22,7 @@ export class AccountDetailViewModel {
 
   async deleteAccount(accountId: number): Promise<void> {
     try {
-      await AccountRepository.deleteAccount(accountId);
+      await CoreInitializer.bbsRepository.deleteAccount(accountId);
       Logger.info(TAG, `account deleted: ${accountId}`);
       this.deleted = true;
     } catch (error) {

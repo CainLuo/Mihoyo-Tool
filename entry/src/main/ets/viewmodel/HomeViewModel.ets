@@ -19,16 +19,12 @@
  */
 
 import {
-  AccountRepository,
-  GameRoleRow,
-  DailyNoteRepository,
-  GameDataDao,
-  SyncMetaDao,
-  DataType,
   GeetestService,
   GeetestCreateResult,
   GeetestVerifyInput,
-  CoreInitializer
+  CoreInitializer,
+  AccountRow,
+  GameRoleRow
 } from 'core';
 import { GenshinDailyNoteParser } from 'core';
 import { StarRailDailyNoteParser } from 'core';
@@ -43,6 +39,7 @@ import {
   GAME_ZZZ,
   GAME_HONKAI3
 } from '../components/home/HomeModels';
+import { ZZZVideoStoreState, ZZZCardSign } from '../constants/ZZZEnums';
 import { Logger } from '../utils/Logger';
 import { ViewState } from '../constants/ViewStates';
 import { ApiErrorCodes } from 'core';
@@ -59,19 +56,22 @@ export class GeetestTrigger {
   gameId: string;
   roleId: string;
   server: string;
+  accountId: number;
 
   constructor(
     createResult: GeetestCreateResult,
     cookie: string,
     gameId: string,
     roleId: string,
-    server: string
+    server: string,
+    accountId: number
   ) {
     this.createResult = createResult;
     this.cookie = cookie;
     this.gameId = gameId;
     this.roleId = roleId;
     this.server = server;
+    this.accountId = accountId;
   }
 }
 
@@ -131,8 +131,8 @@ export class HomeViewModel {
         this.accounts = refreshed;
         this.viewState = refreshed.length > 0 ? ViewState.DATA : ViewState.EMPTY;
       } catch (e) {
-        const msg = e instanceof Error ? e.message : `${e}`
-        Logger.error(TAG, `syncAllDailyNotes path failed: ${msg}`)
+        const msg = e instanceof Error ? e.message : `${e}`;
+        Logger.error(TAG, `syncAllDailyNotes path failed: ${msg}`);
       }
     } else {
       this.syncIfNeeded().then(async () => {
@@ -148,7 +148,6 @@ export class HomeViewModel {
 
   /**
    * 手动刷新：触发网络同步，完成后重新读 DB。
-   * 不切换到 loading/skeleton，isRefreshing 驱动刷新按钮状态。
    */
   async refresh(): Promise<void> {
     if (this.isRefreshing) {
@@ -174,7 +173,6 @@ export class HomeViewModel {
 
   /**
    * 强制刷新：跳过冷却检查，直接触发同步。
-   * 由 View 层在用户确认冷却 Dialog 后调用。
    */
   async forceRefresh(): Promise<void> {
     if (this.isRefreshing) {
@@ -194,7 +192,6 @@ export class HomeViewModel {
 
   /**
    * View 层 GeetestDialog 完成后调用此方法。
-   * result 为 null 表示用户取消，非 null 则继续重试同步。
    */
   async onGeetestResult(result: GeetestVerifyInput | null): Promise<void> {
     const trigger = this.geetestTrigger;
@@ -204,20 +201,15 @@ export class HomeViewModel {
       return;
     }
 
-    // 提交验证结果换取新 challenge
     try {
-      const newChallenge = await GeetestService.verifyVerification(result, trigger.cookie);
-      // 用新 challenge 重试 syncDailyNote
-      await DailyNoteRepository.syncDailyNoteWithChallenge(
+      await GeetestService.verifyVerification(result, trigger.cookie);
+      await this.syncDailyNoteWithChallenge(
+        trigger.accountId,
+        trigger.cookie,
         trigger.gameId,
         trigger.roleId,
-        trigger.server,
-        trigger.cookie,
-        newChallenge,
-        result.geetest_validate,
-        result.geetest_seccode
+        trigger.server
       );
-      // 重试成功后刷新 UI
       const loaded = await this.fetchFromLocal();
       this.accounts = loaded;
       this.viewState = loaded.length > 0 ? ViewState.DATA : ViewState.EMPTY;
@@ -260,16 +252,65 @@ export class HomeViewModel {
   }
 
   /**
-   * 按需同步：遍历所有角色，只对距上次成功超过 30 分钟的角色触发同步。
-   * 用于冷启动和定时器回调，避免每次都无条件请求网络。
+   * 单个角色的便笺同步：委托给对应游戏 Repository 完成 API 调用 + 写 DB。
+   */
+  private async syncDailyNote(account: AccountRow, role: GameRoleRow): Promise<void> {
+    const gameId = role.gameId;
+    try {
+      if (gameId === GAME_GENSHIN) {
+        await CoreInitializer.genshinRepository.syncDailyNote(
+          account.id, role.roleId, role.server, account.cookie
+        );
+      } else if (gameId === GAME_STARRAIL) {
+        await CoreInitializer.starRailRepository.syncDailyNote(
+          account.id, role.roleId, role.server, account.cookie
+        );
+      } else if (gameId === GAME_ZZZ) {
+        await CoreInitializer.zzzRepository.syncDailyNote(
+          account.id, role.roleId, role.server, account.cookie
+        );
+      }
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      if (msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED}`) !== -1) {
+        await this.handleGeetest(account, role);
+      } else {
+        this.networkErrorMsg = msg;
+      }
+    }
+  }
+
+  /** Geetest 验证后重新拉取便笺 */
+  private async syncDailyNoteWithChallenge(
+    accountId: number,
+    cookie: string,
+    gameId: string,
+    roleId: string,
+    server: string
+  ): Promise<void> {
+    const fakeAccount = new AccountRow();
+    fakeAccount.id = accountId;
+    fakeAccount.cookie = cookie;
+    const fakeRole = new GameRoleRow();
+    fakeRole.gameId = gameId;
+    fakeRole.roleId = roleId;
+    fakeRole.server = server;
+    await this.syncDailyNote(fakeAccount, fakeRole);
+  }
+
+  /**
+   * 按需同步：遍历所有账号角色，只对需要同步的角色触发同步。
    */
   private async syncIfNeeded(): Promise<void> {
-    const pairs = await AccountRepository.findAllAccountsWithRoles();
-    for (const pair of pairs) {
-      for (const role of pair.roles) {
+    const accounts = await CoreInitializer.bbsRepository.getAllAccounts();
+    for (let ai = 0; ai < accounts.length; ai++) {
+      const account = accounts[ai];
+      const roles = await CoreInitializer.bbsRepository.getGameRoles(account.id);
+      for (let ri = 0; ri < roles.length; ri++) {
+        const role = roles[ri];
         let needed = false;
         try {
-          needed = await SyncMetaDao.needsSync(role.gameId, role.roleId, DataType.DAILY_NOTE);
+          needed = await HomeViewModel.needsDailyNoteSync(account.id, role.roleId, role.gameId);
         } catch (_) {
           needed = true;
         }
@@ -277,70 +318,39 @@ export class HomeViewModel {
           Logger.info(TAG, `skip sync (within 30min): ${role.gameId}/${role.roleId}`);
           continue;
         }
-        try {
-          await DailyNoteRepository.syncDailyNote(
-            role.gameId,
-            role.roleId,
-            role.server,
-            pair.account.cookie
-          );
-        } catch (error) {
-          const msg = error instanceof Error ? error.message : `${error}`;
-          if (msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED}`) !== -1) {
-            Logger.info(TAG, `Geetest required for ${role.gameId}/${role.roleId}`);
-            await this.handleGeetest(pair.account.cookie, role);
-          } else {
-            Logger.warn(TAG, `syncIfNeeded failed for ${role.gameId}/${role.roleId}: ${msg}`);
-            this.networkErrorMsg = msg;
-          }
-        }
+        await this.syncDailyNote(account, role);
       }
     }
   }
 
   /**
-   * 遍历所有账号角色，逐一调用 DailyNoteRepository.syncDailyNote。
-   * 单个角色失败不中断整体：
-   *   - retcode=10035 → 触发 Geetest 流程
-   *   - 其他错误 → 通知 View 弹 Alert，保留旧数据
+   * 遍历所有账号角色，逐一调用 syncDailyNote 进行全量同步。
    */
   private async syncAllDailyNotes(): Promise<void> {
-    const pairs = await AccountRepository.findAllAccountsWithRoles();
-    for (const pair of pairs) {
-      for (const role of pair.roles) {
-        try {
-          await DailyNoteRepository.syncDailyNote(
-            role.gameId,
-            role.roleId,
-            role.server,
-            pair.account.cookie
-          );
-        } catch (error) {
-          const msg = error instanceof Error ? error.message : `${error}`;
-          if (msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED}`) !== -1) {
-            Logger.info(TAG, `Geetest required for ${role.gameId}/${role.roleId}`);
-            await this.handleGeetest(pair.account.cookie, role);
-          } else {
-            Logger.warn(TAG, `syncDailyNote failed for ${role.gameId}/${role.roleId}: ${msg}`);
-            this.networkErrorMsg = msg;
-          }
-        }
+    const accounts = await CoreInitializer.bbsRepository.getAllAccounts();
+    for (let ai = 0; ai < accounts.length; ai++) {
+      const account = accounts[ai];
+      const roles = await CoreInitializer.bbsRepository.getGameRoles(account.id);
+      for (let ri = 0; ri < roles.length; ri++) {
+        const role = roles[ri];
+        await this.syncDailyNote(account, role);
       }
     }
   }
 
   /**
-   * 触发 Geetest 流程：先调 createVerification 拿到参数，再通知 View 弹窗。
+   * 触发 Geetest 流程
    */
-  private async handleGeetest(cookie: string, role: GameRoleRow): Promise<void> {
+  private async handleGeetest(account: AccountRow, role: GameRoleRow): Promise<void> {
     try {
-      const createResult = await GeetestService.createVerification(cookie);
+      const createResult = await GeetestService.createVerification(account.cookie);
       this.geetestTrigger = new GeetestTrigger(
         createResult,
-        cookie,
+        account.cookie,
         role.gameId,
         role.roleId,
-        role.server
+        role.server,
+        account.id
       );
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -349,24 +359,45 @@ export class HomeViewModel {
     }
   }
 
+  /**
+   * 检查指定游戏角色是否需要同步 daily_note
+   */
+  private static async needsDailyNoteSync(accountId: number, roleUid: string, gameId: string): Promise<boolean> {
+    if (gameId === GAME_GENSHIN) {
+      return CoreInitializer.genshinRepository.needsDailyNoteSync(accountId, roleUid);
+    }
+    if (gameId === GAME_STARRAIL) {
+      return CoreInitializer.starRailRepository.needsDailyNoteSync(accountId, roleUid);
+    }
+    if (gameId === GAME_ZZZ) {
+      return CoreInitializer.zzzRepository.needsDailyNoteSync(accountId, roleUid);
+    }
+    return true;
+  }
+
   /** 从本地 DB 读取账号 + 角色 + daily_note，组装 UI ViewModel */
   private async fetchFromLocal(): Promise<MihoyoAccountVM[]> {
-    const pairs = await AccountRepository.findAllAccountsWithRoles();
+    const accounts = await CoreInitializer.bbsRepository.getAllAccounts();
     const result: MihoyoAccountVM[] = [];
-    for (const pair of pairs) {
-      const cards = await this.buildRoleCards(pair.roles);
-      result[result.length] = new MihoyoAccountVM(pair.account.id, pair.account.username, cards, pair.account.nickname, pair.account.avatarUrl);
+    for (let ai = 0; ai < accounts.length; ai++) {
+      const account = accounts[ai];
+      const roles = await CoreInitializer.bbsRepository.getGameRoles(account.id);
+      const cards = await this.buildRoleCards(account, roles);
+      result[result.length] = new MihoyoAccountVM(
+        account.id, account.username, cards, account.nickname, account.avatarUrl
+      );
     }
     return result;
   }
 
   /** 将 GameRoleRow[] 转换为 GameRoleCardVM[]，每个角色查一次 daily_note */
-  private async buildRoleCards(roles: GameRoleRow[]): Promise<GameRoleCardVM[]> {
+  private async buildRoleCards(account: AccountRow, roles: GameRoleRow[]): Promise<GameRoleCardVM[]> {
     const cards: GameRoleCardVM[] = [];
-    for (const role of roles) {
-      const snapshot = await this.loadDailyNoteSnapshot(role.gameId, role.roleId);
+    for (let ri = 0; ri < roles.length; ri++) {
+      const role = roles[ri];
+      const snapshot = await this.loadDailyNoteSnapshot(account.id, role.gameId, role.roleId);
       if (snapshot === null) {
-        continue; // 没有 daily_note 数据的游戏不显示卡片
+        continue;
       }
       cards[cards.length] = new GameRoleCardVM(
         role.gameId,
@@ -374,7 +405,7 @@ export class HomeViewModel {
         HomeViewModel.gameColor(role.gameId),
         role.roleId,
         role.nickname,
-        serverDisplayName(role.server, role.gameId),
+        serverDisplayName(role.server, role.gameId) ?? role.server,
         snapshot,
         'sync_just_now'
       );
@@ -383,25 +414,24 @@ export class HomeViewModel {
   }
 
   /**
-   * 从 game_data 表读取 daily_note，解析为 GameNoteSnapshotVM。
-   * 找不到数据时返回 null（UI 显示"未同步"状态）。
+   * 从 DB 读取 daily_note，解析为 GameNoteSnapshotVM。
    */
   private async loadDailyNoteSnapshot(
+    accountId: number,
     gameId: string,
     roleUid: string
   ): Promise<GameNoteSnapshotVM | null> {
     try {
-      const row = await GameDataDao.findOne(gameId, roleUid, DataType.DAILY_NOTE, 'daily_note');
-      if (row === null) {
-        return null;
-      }
-
       if (gameId === GAME_GENSHIN) {
+        const row = await CoreInitializer.genshinRepository.getDailyNote(accountId, roleUid);
+        if (row === null) {
+          return null;
+        }
         const data = GenshinDailyNoteParser.parse(row.rawJson);
         const isFull = data.currentResin >= data.maxResin && data.maxResin > 0;
-        const recoveryDesc = isFull ? '' : HomeViewModel.resinRecoveryDesc(data.resinRecoveryTime);
+        const recoverySec = isFull ? 0 : data.resinRecoveryTime;
         const snap = new GameNoteSnapshotVM(
-          gameId, data.currentResin, data.maxResin, recoveryDesc, '', '', isFull
+          gameId, data.currentResin, data.maxResin, recoverySec, '', '', isFull
         );
         snap.expeditionCurrent = data.expeditions.length;
         snap.expeditionMax = data.maxExpeditionNum;
@@ -414,14 +444,17 @@ export class HomeViewModel {
       }
 
       if (gameId === GAME_STARRAIL) {
-        // 崩铁：用 Parser 解析 raw_json，填充所有字段
+        const row = await CoreInitializer.starRailRepository.getDailyNote(accountId, roleUid);
+        if (row === null) {
+          return null;
+        }
         const data = StarRailDailyNoteParser.parse(row.rawJson);
-        const stamina = data.currentStamina > 0 ? data.currentStamina : row.extraInt1;
-        const maxStamina = data.maxStamina > 0 ? data.maxStamina : row.extraInt2;
+        const stamina = data.currentStamina > 0 ? data.currentStamina : row.currentStamina;
+        const maxStamina = data.maxStamina > 0 ? data.maxStamina : row.maxStamina;
         const isFull = stamina >= maxStamina && maxStamina > 0;
-        const recoveryDesc = isFull ? '' : HomeViewModel.resinRecoveryDesc(data.staminaRecoverTime);
+        const recoverySec = isFull ? 0 : data.staminaRecoverTime;
         const snap = new GameNoteSnapshotVM(
-          gameId, stamina, maxStamina, recoveryDesc, '', '', isFull
+          gameId, stamina, maxStamina, recoverySec, '', '', isFull
         );
         snap.reserveStamina = data.currentReserveStamina;
         snap.trainScoreCurrent = data.currentTrainScore;
@@ -436,46 +469,41 @@ export class HomeViewModel {
       }
 
       if (gameId === GAME_ZZZ) {
+        const row = await CoreInitializer.zzzRepository.getDailyNote(accountId, roleUid);
+        if (row === null) {
+          return null;
+        }
         const data = ZZZDailyNoteParser.parse(row.rawJson);
-        const energy = data.currentEnergy > 0 ? data.currentEnergy : row.extraInt1;
-        const maxEnergy = data.maxEnergy > 0 ? data.maxEnergy : row.extraInt2;
+        const energy = data.currentEnergy > 0 ? data.currentEnergy : row.energyCurrent;
+        const maxEnergy = data.maxEnergy > 0 ? data.maxEnergy : row.energyMax;
         const zzzisFull = energy >= maxEnergy && maxEnergy > 0;
-        const zzzRecovery = zzzisFull ? '' : HomeViewModel.resinRecoveryDesc(data.energyRecoverTime);
-        const snap = new GameNoteSnapshotVM(gameId, energy, maxEnergy, zzzRecovery, '', '', zzzisFull);
+        const zzzRecoverySec = zzzisFull ? 0 : data.energyRecoverTime;
+        const snap = new GameNoteSnapshotVM(gameId, energy, maxEnergy, zzzRecoverySec, '', '', zzzisFull);
         snap.vitalityCurrent = data.currentVitality;
         snap.vitalityMax = data.maxVitality;
-        snap.scratchCardDone = data.cardSign === 'CardSignDone';
+        snap.scratchCardSign = data.cardSign === 'CardSignDone' ? ZZZCardSign.DONE : ZZZCardSign.TODO;
         if (data.videoStoreState === 'SaleStateDone') {
-          snap.videoStoreState = 'done';
+          snap.videoStoreState = ZZZVideoStoreState.DONE;
         } else if (data.videoStoreState === 'SaleStateDoing') {
-          snap.videoStoreState = 'open';
+          snap.videoStoreState = ZZZVideoStoreState.OPEN;
+        } else if (data.videoStoreState === 'SaleStateNo') {
+          snap.videoStoreState = ZZZVideoStoreState.CLOSED;
         } else {
-          snap.videoStoreState = 'closed';
+          snap.videoStoreState = ZZZVideoStoreState.UNKNOWN;
         }
         return snap;
       }
 
-      // 其他游戏：沿用旧逻辑（extraInt1/extraInt2）
-      const isFull = row.extraInt1 >= row.extraInt2 && row.extraInt2 > 0;
-      return new GameNoteSnapshotVM(gameId, row.extraInt1, row.extraInt2, '', '', '', isFull);
+      return null;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.warn(TAG, `loadDailyNoteSnapshot failed for ${gameId}/${roleUid}: ${msg}`);
+      Logger.warn(TAG, `loadDailyNoteSnapshotV2 failed for ${gameId}/${roleUid}: ${msg}`);
       return null;
     }
   }
 
-  /** 将剩余恢复秒数转为描述文字 */
-  private static resinRecoveryDesc(seconds: number): string {
-    if (!seconds || seconds <= 0) { return ''; }
-    const h = Math.floor(seconds / 3600);
-    const m = Math.floor((seconds % 3600) / 60);
-    if (h > 0) { return `将于 ${h} 小时 ${m} 分钟后全部恢复`; }
-    return `将于 ${m} 分钟后全部恢复`;
-  }
-
   /** 根据 gameId 返回对应的游戏主题色资源引用 */
-  private static gameColor(gameId: string): ResourceColor {
+  static gameColor(gameId: string): ResourceColor {
     if (gameId === GAME_GENSHIN) {
       return $r('app.color.game_color_genshin');
     }

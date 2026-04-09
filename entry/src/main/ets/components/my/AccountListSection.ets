@@ -5,7 +5,7 @@
  * My 页和 Setting 页均可复用。
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
-import { MyAccountVM } from './MyModels'
+import { MyAccountVM, MyGameRoleVM } from './MyModels'
 
 @ComponentV2
 export struct AccountListSection {
@@ -49,7 +49,7 @@ export struct AccountListSection {
                   .fontColor(this.tm.current.colorTextPrimary)
                   .maxLines(1)
                   .textOverflow({ overflow: TextOverflow.Ellipsis })
-                Text('UID ' + account.username + ' · ' + account.roles.length.toString() + ' 个游戏角色')
+                Text('UID ' + (account.uid !== '' ? account.uid : account.username) + ' · ' + account.roles.length.toString() + ' 个游戏角色')
                   .font(this.tm.current.body13)
                   .fontColor(this.tm.current.colorTextSecondary)
               }
@@ -92,5 +92,29 @@ export struct AccountListSection {
     .backgroundColor(this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
     .clip(true)
+  }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct AccountListSectionPreview {
+  build() {
+    Column({ space: 16 }) {
+      // 有账号
+      AccountListSection({
+        accounts: [
+          new MyAccountVM(1, 'user001', [
+            new MyGameRoleVM('genshin', $r('app.string.game_name_genshin'), $r('app.color.game_color_genshin'), '123456789', '旅行者', '天空岛', 60, '', [])
+          ], '旅行者', ''),
+          new MyAccountVM(2, 'user002', [], '开拓者', '')
+        ]
+      })
+      // 空账号
+      AccountListSection({ accounts: [] })
+    }
+    .padding(16)
+    .backgroundColor('#1a1a2e')
   }
 }

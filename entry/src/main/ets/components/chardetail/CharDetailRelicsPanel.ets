@@ -7,10 +7,9 @@
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import {
-  GenshinCharacterDetailViewModel,
-  CharDetailRelic,
-  RelicSubStat
+  GenshinCharacterDetailViewModel
 } from '../../viewmodel/GenshinCharacterDetailViewModel';
+import { CharDetailRelic, RelicSubStat } from './CharDetailModels';
 import { GenshinElement } from '../../constants/GenshinElement';
 import { ViewState } from '../../constants/ViewStates';
 
@@ -56,7 +55,7 @@ function makeMockRelicsPanelVM(): GenshinCharacterDetailViewModel {
 // ── Preview：宽屏模式（5行等分）──
 @Preview
 @ComponentV2
-struct CharDetailRelicsPanelPreviewWide {
+export struct CharDetailRelicsPanelPreviewWide {
   build() {
     CharDetailRelicsPanel({
       vm: makeMockRelicsPanelVM(),
@@ -71,7 +70,7 @@ struct CharDetailRelicsPanelPreviewWide {
 // ── Preview：Phone 模式（2列网格卡片）──
 @Preview
 @ComponentV2
-struct CharDetailRelicsPanelPreviewPhone {
+export struct CharDetailRelicsPanelPreviewPhone {
   build() {
     Scroll() {
       CharDetailRelicsPanel({

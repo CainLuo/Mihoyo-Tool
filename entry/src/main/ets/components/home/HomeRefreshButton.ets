@@ -29,3 +29,19 @@ export struct HomeRefreshButton {
     }
   }
 }
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct HomeRefreshButtonPreview {
+  build() {
+    Row({ space: 16 }) {
+      HomeRefreshButton({ viewState: ViewState.DATA, isRefreshing: false })
+      HomeRefreshButton({ viewState: ViewState.DATA, isRefreshing: true })
+      HomeRefreshButton({ viewState: ViewState.LOADING, isRefreshing: false })
+    }
+    .padding(16)
+    .backgroundColor('#1a1a2e')
+  }
+}

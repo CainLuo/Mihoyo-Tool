@@ -15,7 +15,7 @@ import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 // ── Preview：简单文字值卡片 ──
 @Preview
 @ComponentV2
-struct DailyNoteCardPreviewSimple {
+export struct DailyNoteCardPreviewSimple {
   @Local private tm: ThemeManager = themeManager
   build() {
     Column({ space: 8 }) {

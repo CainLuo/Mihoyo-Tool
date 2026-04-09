@@ -36,3 +36,15 @@ export function elementFromString(s: string): GenshinElement {
   if (s === GenshinElement.DENDRO) { return GenshinElement.DENDRO; }
   return GenshinElement.UNKNOWN;
 }
+
+/** 根据元素枚举返回对应的 icon 资源 */
+export function elementIcon(element: GenshinElement): Resource | null {
+  if (element === GenshinElement.HYDRO)   { return $r('app.media.icn_element_hydro'); }
+  if (element === GenshinElement.PYRO)    { return $r('app.media.icn_element_pyro'); }
+  if (element === GenshinElement.ELECTRO) { return $r('app.media.icn_element_electro'); }
+  if (element === GenshinElement.ANEMO)   { return $r('app.media.icn_element_anemo'); }
+  if (element === GenshinElement.GEO)     { return $r('app.media.icn_element_geo'); }
+  if (element === GenshinElement.CRYO)    { return $r('app.media.icn_element_cryo'); }
+  if (element === GenshinElement.DENDRO)  { return $r('app.media.icn_element_dendro'); }
+  return null;
+}

@@ -293,6 +293,18 @@
       "value": "Honkai Impact 3rd"
     },
     {
+      "name": "server_genshin_cn_official",
+      "value": "Tianqiu (Official)"
+    },
+    {
+      "name": "server_starrail_cn_official",
+      "value": "Nameless Honor (Official)"
+    },
+    {
+      "name": "server_zzz_cn_official",
+      "value": "New Eridu (Official)"
+    },
+    {
       "name": "sync_just_now",
       "value": "Just synced"
     },
@@ -327,6 +339,10 @@
     {
       "name": "characters_tab_title",
       "value": "Characters"
+    },
+    {
+      "name": "characters_switch_account_title",
+      "value": "Switch Account"
     },
     {
       "name": "characters_placeholder_title",
@@ -395,6 +411,10 @@
     {
       "name": "character_weapon_level_prefix",
       "value": "Lv.%d"
+    },
+    {
+      "name": "character_weapon_none",
+      "value": "No Weapon"
     },
     {
       "name": "character_level_value",
@@ -474,7 +494,7 @@
     },
     {
       "name": "char_detail_weapon_lv_prefix",
-      "value": "Lv.%d/%d"
+      "value": "Lv.%d"
     },
     {
       "name": "prop_hp_flat",
@@ -695,6 +715,42 @@
     {
       "name": "home_refresh_cooldown_msg",
       "value": "Synced within 30 minutes. Frequent refreshes may trigger CAPTCHA. Continue anyway?"
+    },
+    {
+      "name": "time_hours_minutes_recovery",
+      "value": "Recovers in %d h %d min"
+    },
+    {
+      "name": "time_minutes_recovery",
+      "value": "Recovers in %d min"
+    },
+    {
+      "name": "time_hours_minutes_after",
+      "value": "Recovers in %dh %dm"
+    },
+    {
+      "name": "time_minutes_after",
+      "value": "Recovers in %d min"
+    },
+    {
+      "name": "time_soon",
+      "value": "Recovering soon"
+    },
+    {
+      "name": "time_days_hours_available",
+      "value": "Available in %dd %dh"
+    },
+    {
+      "name": "time_hours_minutes_available",
+      "value": "Available in %dh %dm"
+    },
+    {
+      "name": "time_minutes_available",
+      "value": "Available in %d min"
+    },
+    {
+      "name": "time_soon_available",
+      "value": "Available soon"
     }
   ]
 }

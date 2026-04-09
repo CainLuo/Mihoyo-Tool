@@ -1,8 +1,8 @@
 /**
- * Home — 首页（View 层）
+ * Home — 首页（View 层，普通内容组件）
  *
- * vm 由 Home 自己持有（@Local），通过 onVmReady 回调把引用传给 Main，
- * 让 Main 的刷新按钮能访问 vm 状态，同时避免双实例问题。
+ * ViewModel 由 Home 自己持有。
+ * 通过 @Param 回调把操作函数和状态上报给 Main，由 Main 挂到 Navigation.menus()。
  */
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { HomeViewModel } from '../viewmodel/HomeViewModel'
@@ -23,8 +23,9 @@ import { ViewState } from '../constants/ViewStates'
 export struct Home {
   @Param detailStack: NavPathStack = new NavPathStack()
   @Param isSplit: boolean = false
-  /** Main 通过此回调拿到 vm 引用，用于刷新按钮 */
-  @Event onVmReady: (vm: HomeViewModel) => void = (_vm: HomeViewModel) => {}
+  @Param onReady: (doRefresh: () => void) => void = (_fn: () => void) => {}
+  @Param onMenuStateChange: (showRefresh: boolean, isRefreshing: boolean) => void =
+    (_s: boolean, _r: boolean) => {}
   @Local vm: HomeViewModel = new HomeViewModel()
   @Local private tm: ThemeManager = themeManager
   @Local private signal: AccountSignal = AccountSignal.instance()
@@ -33,7 +34,7 @@ export struct Home {
 
   aboutToAppear(): void {
     this.uiCtx = this.getUIContext()
-    this.onVmReady(this.vm)
+    this.onReady(() => { this.vm.refresh() })
     this.vm.loadData()
   }
 
@@ -44,6 +45,16 @@ export struct Home {
   @Monitor('signal.version')
   onAccountDataChanged(_monitor: IMonitor): void {
     this.vm.loadData()
+  }
+
+  @Monitor('vm.viewState')
+  onViewStateChanged(_monitor: IMonitor): void {
+    this.onMenuStateChange(this.vm.viewState === ViewState.DATA, this.vm.isRefreshing)
+  }
+
+  @Monitor('vm.isRefreshing')
+  onIsRefreshingChanged(_monitor: IMonitor): void {
+    this.onMenuStateChange(this.vm.viewState === ViewState.DATA, this.vm.isRefreshing)
   }
 
   @Monitor('vm.networkErrorMsg')
@@ -74,9 +85,7 @@ export struct Home {
         { text: $r('app.string.dialog_sync'), color: $r('app.color.color_accent') }
       ]
     }).then((result) => {
-      if (result.index === 1) {
-        this.vm.forceRefresh()
-      }
+      if (result.index === 1) { this.vm.forceRefresh() }
     }).catch((e: BusinessError) => {
       Logger.warn('Home', 'showDialog cooldown failed: ' + e.message)
     })
@@ -108,8 +117,7 @@ export struct Home {
             UserGameSection({
               account: account,
               onCardTap: (card: GameRoleCardVM) => {
-                Logger.info('Home', `card tapped: ${card.gameId} ${card.roleUid}`)
-                this.navigateToDetail(card)
+                this.navigateToDetail(account.accountId, card)
               }
             })
           }, (account: MihoyoAccountVM) => `${account.accountId}_${account.roles.length}`)
@@ -126,10 +134,10 @@ export struct Home {
     }
   }
 
-  private navigateToDetail(card: GameRoleCardVM): void {
+  private navigateToDetail(accountId: number, card: GameRoleCardVM): void {
     if (card.gameId === GameId.GENSHIN) {
       const param = new GenshinDailyDetailParam()
-      param.gameId = card.gameId
+      param.accountId = accountId
       param.roleUid = card.roleUid
       if (this.isSplit) {
         this.detailStack.replacePath({ name: AppRoutes.GENSHIN_DAILY_DETAIL, param: param })

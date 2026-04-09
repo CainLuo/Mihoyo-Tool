@@ -18,14 +18,14 @@ export default class EntryAbility extends UIAbility {
     const runtimeEnv: RuntimeEnv = Logger.getRuntimeEnv();
     const isMock: boolean = runtimeEnv === RuntimeEnv.MOCK;
 
-    // initCore 现在是 async（内部完成 RDB 初始化 + Mock 数据预填充）
+    // 初始化数据库层
     CoreInitializer.initCore({ isMock, context: this.context })
       .then(() => {
-        Logger.info(TAG, `Core initialized. isMock=${isMock}`);
+        Logger.info(TAG, `CoreV2 initialized. isMock=${isMock}`);
         this.runStartupTaskByEnv(runtimeEnv);
       })
       .catch((error: Error | object) => {
-        Logger.warning(TAG, `CoreInitializer.initCore failed: ${JSON.stringify(error)}`);
+        Logger.warning(TAG, `CoreInitializerV2.initCore failed: ${JSON.stringify(error)}`);
       });
 
     Logger.info(TAG, `Detected environment: ${Logger.getRuntimeEnvDetail()}`);

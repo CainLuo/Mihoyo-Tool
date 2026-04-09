@@ -293,6 +293,18 @@
       "value": "崩壞3"
     },
     {
+      "name": "server_genshin_cn_official",
+      "value": "天空島"
+    },
+    {
+      "name": "server_starrail_cn_official",
+      "value": "星穹列車"
+    },
+    {
+      "name": "server_zzz_cn_official",
+      "value": "新艾利都"
+    },
+    {
       "name": "sync_just_now",
       "value": "剛剛同步"
     },
@@ -397,6 +409,10 @@
       "value": "Lv.%d"
     },
     {
+      "name": "character_weapon_none",
+      "value": "未裝備"
+    },
+    {
       "name": "character_level_value",
       "value": "Lv.%d"
     },
@@ -474,7 +490,7 @@
     },
     {
       "name": "char_detail_weapon_lv_prefix",
-      "value": "Lv.%d/%d"
+      "value": "Lv.%d"
     },
     {
       "name": "prop_hp_flat",
@@ -695,6 +711,42 @@
     {
       "name": "home_refresh_cooldown_msg",
       "value": "30 分鐘內已同步過，頻繁刷新可能觸發人機校驗，是否繼續刷新？"
+    },
+    {
+      "name": "time_hours_minutes_recovery",
+      "value": "將於 %d 小時 %d 分鐘後全部恢復"
+    },
+    {
+      "name": "time_minutes_recovery",
+      "value": "將於 %d 分鐘後全部恢復"
+    },
+    {
+      "name": "time_hours_minutes_after",
+      "value": "%d小時%d分鐘後恢復"
+    },
+    {
+      "name": "time_minutes_after",
+      "value": "%d分鐘後恢復"
+    },
+    {
+      "name": "time_soon",
+      "value": "即將恢復"
+    },
+    {
+      "name": "time_days_hours_available",
+      "value": "%d天%d小時後可用"
+    },
+    {
+      "name": "time_hours_minutes_available",
+      "value": "%d小時%d分鐘後可用"
+    },
+    {
+      "name": "time_minutes_available",
+      "value": "%d分鐘後可用"
+    },
+    {
+      "name": "time_soon_available",
+      "value": "即將可用"
     }
   ]
 }

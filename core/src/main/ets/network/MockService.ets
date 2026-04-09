@@ -25,16 +25,13 @@ export class MockService extends BaseApiService {
       return this.rm;
     }
     const context = CoreInitializer.getContext();
-    if (!context.abilityInfo.bundleName) {
-      throw new Error('Invalid UIAbilityContext or missing bundleName');
-    }
     this.rm = context.resourceManager;
     return this.rm;
   }
 
   /**
    * 从 Cookie 字符串中提取 account_id，用于定位 mock 子目录
-   * account_id=1 → account1，account_id=2 → account2，其他 → 根目录
+   * account_id=1 → account1/，account_id=2 → account2/，其他 → 根目录
    */
   private getAccountDir(options?: RequestOptions): string {
     if (!options) { return '' }

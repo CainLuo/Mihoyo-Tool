@@ -1,43 +1,106 @@
 // Core library export file
 
-// Core initializer
-export * from './src/main/ets/CoreInitializer';
-
 // Network module
 export * from './src/main/ets/network/APIs';
-export * from './src/main/ets/network/ApiConfig';
 export * from './src/main/ets/network/NetworkFactory';
 export * from './src/main/ets/network/CookieManager';
 export * from './src/main/ets/network/GeetestService';
 
 // Database module
-export * from './src/main/ets/database/RdbManager';
-export * from './src/main/ets/database/QueryBuilder';
-export * from './src/main/ets/database/GameDataDao';
-export * from './src/main/ets/database/GameStatsDao';
-export * from './src/main/ets/database/SyncMetaDao';
 
 // Models
-export * from './src/main/ets/models/GameDataRow';
-export * from './src/main/ets/models/GameStatsRow';
-export * from './src/main/ets/models/SyncMetaRow';
 
 // Repository
-export * from './src/main/ets/repository/AccountRepository';
 export * from './src/main/ets/repository/AuthRepository';
-export * from './src/main/ets/repository/CharacterRepository';
-export * from './src/main/ets/repository/ActivityRepository';
-export * from './src/main/ets/repository/GachaRepository';
-export * from './src/main/ets/repository/DailyNoteRepository';
 
 // Constants
 export * from './src/main/ets/constants/ApiErrorCodes';
 export * from './src/main/ets/constants/GenshinPropertyType';
 
-// Utils module
-export * from './src/main/ets/utils/TaskPoolUtil';
-
 // Parsers
 export * from './src/main/ets/parsers/genshin/GenshinDailyNoteParser';
 export * from './src/main/ets/parsers/starrail/StarRailDailyNoteParser';
 export * from './src/main/ets/parsers/zzz/ZZZDailyNoteParser';
+
+// ── 核心导出 ──────────────────────────────────────────────────
+
+// 核心初始化器
+export * from './src/main/ets/CoreInitializer';
+
+// 数据库层
+export * from './src/main/ets/database/RdbManager';
+export * from './src/main/ets/database/BBSDao';
+export * from './src/main/ets/database/GenshinDao';
+export * from './src/main/ets/database/StarRailDao';
+export * from './src/main/ets/database/ZZZDao';
+export * from './src/main/ets/database/SyncMetaDao';
+
+// 数据模型
+export * from './src/main/ets/models/AccountRow';
+export * from './src/main/ets/models/GameRoleRow';
+export * from './src/main/ets/models/GenshinRows';
+export * from './src/main/ets/models/StarRailRows';
+export * from './src/main/ets/models/ZZZRows';
+export * from './src/main/ets/models/GameDataSummary';
+export * from './src/main/ets/models/SyncMetaRow';
+
+// Repository 层
+export * from './src/main/ets/repository/GameRepository';
+export * from './src/main/ets/repository/BBSRepository';
+export * from './src/main/ets/repository/GenshinRepository';
+export * from './src/main/ets/repository/StarRailRepository';
+export * from './src/main/ets/repository/ZZZRepository';
+export * from './src/main/ets/repository/SignRepository';
+
+// 网络层（抽象基类和环境枚举）
+export * from './src/main/ets/network/MihoyoApiService';
+export * from './src/main/ets/network/MihoyoEnvironment';
+
+// 常量
+export * from './src/main/ets/constants/SyncDataType';
+export * from './src/main/ets/constants/GenshinPropertyType';
+export * from './src/main/ets/constants/StarRailPropertyType';
+export * from './src/main/ets/constants/ZZZPropertyId';
+export * from './src/main/ets/constants/GameServer';
+export * from './src/main/ets/constants/GameId';
+export * from './src/main/ets/database/TableSchema';
+
+// ── 网络层完整导出 ──────────────────────────────────────────
+
+// Domain 和 Path 枚举
+export * from './src/main/ets/network/MihoyoDomain';
+export * from './src/main/ets/network/MihoyoAccountApiPath';
+export * from './src/main/ets/network/PassportApiPath';
+export * from './src/main/ets/network/GenshinApiPath';
+export * from './src/main/ets/network/StarRailApiPath';
+export * from './src/main/ets/network/ZZZApiPath';
+export * from './src/main/ets/network/SignApiPath';
+
+// 请求头构建器
+export * from './src/main/ets/network/MihoyoHeaderBuilder';
+
+// 配置和工具
+export * from './src/main/ets/network/ApiConfig';
+export * from './src/main/ets/network/DSUtil';
+
+// Service 工厂
+export * from './src/main/ets/network/MihoyoApiServiceFactory';
+
+// Release Service 实现
+export * from './src/main/ets/network/MihoyoAccountApiService';
+export * from './src/main/ets/network/GenshinApiService';
+export * from './src/main/ets/network/StarRailApiService';
+export * from './src/main/ets/network/ZZZApiService';
+export * from './src/main/ets/network/SignApiService';
+
+// 业务错误类型
+export { AuthExpiredError, GeetestRequiredError, GeetestSignRequiredError, RoleNotPublicError } from './src/main/ets/errors/ApiErrors';
+export { GeetestCreateResult, GeetestVerifyInput } from './src/main/ets/errors/ApiErrors';
+
+// Mock Service 实现
+export * from './src/main/ets/network/mock/MockServiceBase';
+export * from './src/main/ets/network/mock/MihoyoAccountMockService';
+export * from './src/main/ets/network/mock/GenshinMockService';
+export * from './src/main/ets/network/mock/StarRailMockService';
+export * from './src/main/ets/network/mock/ZZZMockService';
+export * from './src/main/ets/network/mock/SignMockService';

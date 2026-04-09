@@ -401,6 +401,18 @@
       "value": "崩坏3"
     },
     {
+      "name": "server_genshin_cn_official",
+      "value": "天空岛"
+    },
+    {
+      "name": "server_starrail_cn_official",
+      "value": "星穹列车"
+    },
+    {
+      "name": "server_zzz_cn_official",
+      "value": "新艾利都"
+    },
+    {
       "name": "sync_just_now",
       "value": "刚刚同步"
     },
@@ -435,6 +447,10 @@
     {
       "name": "characters_tab_title",
       "value": "角色"
+    },
+    {
+      "name": "characters_switch_account_title",
+      "value": "切换账号"
     },
     {
       "name": "characters_placeholder_title",
@@ -503,6 +519,10 @@
     {
       "name": "character_weapon_level_prefix",
       "value": "Lv.%d"
+    },
+    {
+      "name": "character_weapon_none",
+      "value": "未装备"
     },
     {
       "name": "character_level_value",
@@ -582,7 +602,7 @@
     },
     {
       "name": "char_detail_weapon_lv_prefix",
-      "value": "Lv.%d/%d"
+      "value": "Lv.%d"
     },
     {
       "name": "prop_hp_flat",
@@ -803,6 +823,42 @@
     {
       "name": "home_refresh_cooldown_msg",
       "value": "30 分钟内已同步过，频繁刷新可能触发人机校验，是否继续刷新？"
+    },
+    {
+      "name": "time_hours_minutes_recovery",
+      "value": "将于 %d 小时 %d 分钟后全部恢复"
+    },
+    {
+      "name": "time_minutes_recovery",
+      "value": "将于 %d 分钟后全部恢复"
+    },
+    {
+      "name": "time_hours_minutes_after",
+      "value": "%d小时%d分钟后恢复"
+    },
+    {
+      "name": "time_minutes_after",
+      "value": "%d分钟后恢复"
+    },
+    {
+      "name": "time_soon",
+      "value": "即将恢复"
+    },
+    {
+      "name": "time_days_hours_available",
+      "value": "%d天%d小时后可用"
+    },
+    {
+      "name": "time_hours_minutes_available",
+      "value": "%d小时%d分钟后可用"
+    },
+    {
+      "name": "time_minutes_available",
+      "value": "%d分钟后可用"
+    },
+    {
+      "name": "time_soon_available",
+      "value": "即将可用"
     }
   ]
 }

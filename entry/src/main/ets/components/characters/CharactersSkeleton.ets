@@ -10,7 +10,7 @@ import { AppConstants } from '../../constants/AppConstants';
 
 @Preview
 @ComponentV2
-struct CharactersSkeletonPreview {
+export struct CharactersSkeletonPreview {
   build() {
     CharactersSkeleton()
       .height(themeManager.current.value600)

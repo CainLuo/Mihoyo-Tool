@@ -4,10 +4,11 @@
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 import { GameNoteSnapshotVM } from './HomeModels'
 import { GameDataRow } from './GameDataRow'
+import { TimeFormatUtil } from '../../utils/TimeFormatUtil'
 
 @ComponentV2
 export struct GenshinGameToolCardContent {
-  @Param snap: GameNoteSnapshotVM = new GameNoteSnapshotVM('', 0, 0, '', '', '', false)
+  @Param snap: GameNoteSnapshotVM = new GameNoteSnapshotVM('', 0, 0, 0, '', '', false)
   @Param primaryColor: ResourceColor = $r('app.color.color_primary')
   @Param progressRatio: number = 0
   @Local private tm: ThemeManager = themeManager
@@ -41,8 +42,8 @@ export struct GenshinGameToolCardContent {
           }
           .alignItems(VerticalAlign.Bottom)
 
-          if (this.snap.primaryRecoveryDesc !== '') {
-            Text(this.snap.primaryRecoveryDesc)
+          if (this.snap.primaryRecoverySeconds > 0) {
+            Text(TimeFormatUtil.recoveryDesc(this.snap.primaryRecoverySeconds, this.getUIContext()))
               .font(this.tm.current.body13)
               .fontColor(this.snap.isFull ? this.tm.current.colorDanger : this.tm.current.colorTextSecondary)
               .maxLines(1)
@@ -89,7 +90,7 @@ export struct GenshinGameToolCardContent {
           emoji: '📋',
           label: $r('app.string.daily_note_daily_task_title'),
           value: this.snap.dailyTaskAllReceived
-            ? '已全部领取'
+            ? $r('app.string.daily_note_task_all_received')
             : this.snap.dailyTaskFinished.toString() + '/' + this.snap.dailyTaskTotal.toString(),
           valueColor: this.snap.dailyTaskAllReceived
             ? this.tm.current.colorPrimary
@@ -105,5 +106,32 @@ export struct GenshinGameToolCardContent {
       bottom: this.tm.current.value12
     })
     .alignItems(HorizontalAlign.Start)
+  }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct GenshinGameToolCardContentPreview {
+  build() {
+    Column() {
+      GenshinGameToolCardContent({
+        snap: (() => {
+          const snap = new GameNoteSnapshotVM('genshin', 140, 200, 14400, '', '', false);
+          snap.expeditionCurrent = 3;
+          snap.expeditionMax = 5;
+          snap.homeCoinCurrent = 1800;
+          snap.homeCoinMax = 2400;
+          snap.dailyTaskFinished = 4;
+          snap.dailyTaskTotal = 4;
+          snap.dailyTaskAllReceived = true;
+          return snap;
+        })(),
+        primaryColor: $r('app.color.game_color_genshin'),
+        progressRatio: 0.7
+      })
+    }
+    .backgroundColor('#1a1a2e')
   }
 }

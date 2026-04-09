@@ -9,7 +9,8 @@ export class MyGameRoleVM {
   gameColor: ResourceColor = $r('app.color.color_primary')
   roleUid: string = ''
   nickname: string = ''
-  server: string = ''
+  /** 服务器显示名称，优先使用国际化 Resource，未知服务器时降级为原始 region 字符串 */
+  server: ResourceStr = ''
   level: number = 0
   /** 游戏背景图 URL */
   bgImageUrl: string = ''
@@ -22,7 +23,7 @@ export class MyGameRoleVM {
     gameColor: ResourceColor,
     roleUid: string,
     nickname: string,
-    server: string,
+    server: ResourceStr,
     level: number = 0,
     bgImageUrl: string = '',
     stats: GameStatItem[] = []
@@ -54,17 +55,17 @@ export class GameStatItem {
 export class MyAccountVM {
   accountId: number = 0
   username: string = ''
-  /** 米游社昵称（来自 bbs 账号详情接口） */
+  uid: string = ''
   nickname: string = ''
-  /** 米游社头像 URL（来自 bbs 账号详情接口） */
   avatarUrl: string = ''
   roles: MyGameRoleVM[] = []
 
-  constructor(accountId: number, username: string, roles: MyGameRoleVM[], nickname: string = '', avatarUrl: string = '') {
+  constructor(accountId: number, username: string, roles: MyGameRoleVM[], nickname: string = '', avatarUrl: string = '', uid: string = '') {
     this.accountId = accountId
     this.username = username
     this.roles = roles
     this.nickname = nickname
     this.avatarUrl = avatarUrl
+    this.uid = uid
   }
 }

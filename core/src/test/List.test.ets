@@ -1,9 +1,13 @@
-import localUnitTest from './LocalUnit.test';
-import queryBuilderTest from './QueryBuilder.test';
-import modelsTest from './Models.test';
+import dsUtilTest from './DSUtilV2.test';
+import mockServiceBaseTest from './MockServiceBase.test';
+import syncDataTypeTest from './SyncDataType.test';
+import rowModelsTest from './RowModels.test';
+import starRailAvatarBasicParserTest from './StarRailAvatarBasicParser.test';
 
 export default function testsuite() {
-  localUnitTest();
-  queryBuilderTest();
-  modelsTest();
+  dsUtilTest();
+  mockServiceBaseTest();
+  syncDataTypeTest();
+  rowModelsTest();
+  starRailAvatarBasicParserTest();
 }
