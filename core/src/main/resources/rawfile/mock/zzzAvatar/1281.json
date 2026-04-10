@@ -1,0 +1,895 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "avatar_list": [
+      {
+        "id": 1281,
+        "level": 60,
+        "name_mi18n": "派派",
+        "full_name_mi18n": "派派·韦尔",
+        "element_type": 200,
+        "camp_name_mi18n": "卡吕冬之子",
+        "avatar_profession": 3,
+        "rarity": "A",
+        "group_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/e18c52a56b163d4fce6dfa0745a76120.png",
+        "hollow_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/c34161b6c8fb0a7c6186344b3ce92dbf.png",
+        "equip": [
+          {
+            "id": 31331,
+            "level": 12,
+            "name": "自由蓝调[1]",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/dd2134953d7818e76a9a264f8d27186e.png",
+            "rarity": "A",
+            "properties": [
+              {
+                "property_name": "暴击率",
+                "property_id": 20103,
+                "base": "3.2%",
+                "level": 2,
+                "valid": false,
+                "system_id": 201,
+                "add": 1
+              },
+              {
+                "property_name": "攻击力",
+                "property_id": 12103,
+                "base": "13",
+                "level": 1,
+                "valid": false,
+                "system_id": 121,
+                "add": 0
+              },
+              {
+                "property_name": "防御力",
+                "property_id": 13103,
+                "base": "10",
+                "level": 1,
+                "valid": false,
+                "system_id": 131,
+                "add": 0
+              },
+              {
+                "property_name": "攻击力",
+                "property_id": 12102,
+                "base": "4%",
+                "level": 2,
+                "valid": true,
+                "system_id": 121,
+                "add": 1
+              }
+            ],
+            "main_properties": [
+              {
+                "property_name": "生命值",
+                "property_id": 11103,
+                "base": "1468",
+                "level": 1,
+                "valid": false,
+                "system_id": 111,
+                "add": 0
+              }
+            ],
+            "equip_suit": {
+              "suit_id": 31300,
+              "name": "自由蓝调",
+              "own": 4,
+              "desc1": "异常精通+30点。",
+              "desc2": "<color=#FFFFFF>[强化特殊技]</color>命中敌人时，根据装备者的属性类型，使目标对应属性异常积蓄抗性降低20%，持续8秒，相同属性类型的效果不可叠加。"
+            },
+            "equipment_type": 1,
+            "invalid_property_cnt": 1,
+            "all_hit": false
+          },
+          {
+            "id": 31342,
+            "level": 15,
+            "name": "自由蓝调[2]",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/dd2134953d7818e76a9a264f8d27186e.png",
+            "rarity": "S",
+            "properties": [
+              {
+                "property_name": "暴击率",
+                "property_id": 20103,
+                "base": "2.4%",
+                "level": 1,
+                "valid": false,
+                "system_id": 201,
+                "add": 0
+              },
+              {
+                "property_name": "防御力",
+                "property_id": 13103,
+                "base": "45",
+                "level": 3,
+                "valid": false,
+                "system_id": 131,
+                "add": 2
+              },
+              {
+                "property_name": "生命值",
+                "property_id": 11103,
+                "base": "224",
+                "level": 2,
+                "valid": false,
+                "system_id": 111,
+                "add": 1
+              },
+              {
+                "property_name": "暴击伤害",
+                "property_id": 21103,
+                "base": "14.4%",
+                "level": 3,
+                "valid": false,
+                "system_id": 211,
+                "add": 2
+              }
+            ],
+            "main_properties": [
+              {
+                "property_name": "攻击力",
+                "property_id": 12103,
+                "base": "316",
+                "level": 1,
+                "valid": false,
+                "system_id": 121,
+                "add": 0
+              }
+            ],
+            "equip_suit": {
+              "suit_id": 31300,
+              "name": "自由蓝调",
+              "own": 4,
+              "desc1": "异常精通+30点。",
+              "desc2": "<color=#FFFFFF>[强化特殊技]</color>命中敌人时，根据装备者的属性类型，使目标对应属性异常积蓄抗性降低20%，持续8秒，相同属性类型的效果不可叠加。"
+            },
+            "equipment_type": 2,
+            "invalid_property_cnt": 5,
+            "all_hit": false
+          },
+          {
+            "id": 31333,
+            "level": 0,
+            "name": "自由蓝调[3]",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/dd2134953d7818e76a9a264f8d27186e.png",
+            "rarity": "A",
+            "properties": [
+              {
+                "property_name": "暴击率",
+                "property_id": 20103,
+                "base": "1.6%",
+                "level": 1,
+                "valid": false,
+                "system_id": 201,
+                "add": 0
+              },
+              {
+                "property_name": "防御力",
+                "property_id": 13102,
+                "base": "3.2%",
+                "level": 1,
+                "valid": false,
+                "system_id": 131,
+                "add": 0
+              },
+              {
+                "property_name": "穿透值",
+                "property_id": 23203,
+                "base": "6",
+                "level": 1,
+                "valid": false,
+                "system_id": 232,
+                "add": 0
+              }
+            ],
+            "main_properties": [
+              {
+                "property_name": "防御力",
+                "property_id": 13103,
+                "base": "31",
+                "level": 1,
+                "valid": false,
+                "system_id": 131,
+                "add": 0
+              }
+            ],
+            "equip_suit": {
+              "suit_id": 31300,
+              "name": "自由蓝调",
+              "own": 4,
+              "desc1": "异常精通+30点。",
+              "desc2": "<color=#FFFFFF>[强化特殊技]</color>命中敌人时，根据装备者的属性类型，使目标对应属性异常积蓄抗性降低20%，持续8秒，相同属性类型的效果不可叠加。"
+            },
+            "equipment_type": 3,
+            "invalid_property_cnt": 0,
+            "all_hit": false
+          },
+          {
+            "id": 31344,
+            "level": 15,
+            "name": "自由蓝调[4]",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/dd2134953d7818e76a9a264f8d27186e.png",
+            "rarity": "S",
+            "properties": [
+              {
+                "property_name": "暴击伤害",
+                "property_id": 21103,
+                "base": "14.4%",
+                "level": 3,
+                "valid": false,
+                "system_id": 211,
+                "add": 2
+              },
+              {
+                "property_name": "生命值",
+                "property_id": 11103,
+                "base": "112",
+                "level": 1,
+                "valid": false,
+                "system_id": 111,
+                "add": 0
+              },
+              {
+                "property_name": "攻击力",
+                "property_id": 12103,
+                "base": "38",
+                "level": 2,
+                "valid": false,
+                "system_id": 121,
+                "add": 1
+              },
+              {
+                "property_name": "防御力",
+                "property_id": 13102,
+                "base": "9.6%",
+                "level": 2,
+                "valid": false,
+                "system_id": 131,
+                "add": 1
+              }
+            ],
+            "main_properties": [
+              {
+                "property_name": "异常精通",
+                "property_id": 31203,
+                "base": "92",
+                "level": 1,
+                "valid": false,
+                "system_id": 312,
+                "add": 0
+              }
+            ],
+            "equip_suit": {
+              "suit_id": 31300,
+              "name": "自由蓝调",
+              "own": 4,
+              "desc1": "异常精通+30点。",
+              "desc2": "<color=#FFFFFF>[强化特殊技]</color>命中敌人时，根据装备者的属性类型，使目标对应属性异常积蓄抗性降低20%，持续8秒，相同属性类型的效果不可叠加。"
+            },
+            "equipment_type": 4,
+            "invalid_property_cnt": 4,
+            "all_hit": false
+          },
+          {
+            "id": 31345,
+            "level": 15,
+            "name": "自由蓝调[5]",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/dd2134953d7818e76a9a264f8d27186e.png",
+            "rarity": "S",
+            "properties": [
+              {
+                "property_name": "暴击率",
+                "property_id": 20103,
+                "base": "9.6%",
+                "level": 4,
+                "valid": false,
+                "system_id": 201,
+                "add": 3
+              },
+              {
+                "property_name": "暴击伤害",
+                "property_id": 21103,
+                "base": "4.8%",
+                "level": 1,
+                "valid": false,
+                "system_id": 211,
+                "add": 0
+              },
+              {
+                "property_name": "穿透值",
+                "property_id": 23203,
+                "base": "9",
+                "level": 1,
+                "valid": false,
+                "system_id": 232,
+                "add": 0
+              },
+              {
+                "property_name": "防御力",
+                "property_id": 13102,
+                "base": "9.6%",
+                "level": 2,
+                "valid": false,
+                "system_id": 131,
+                "add": 1
+              }
+            ],
+            "main_properties": [
+              {
+                "property_name": "物理伤害加成",
+                "property_id": 31503,
+                "base": "30%",
+                "level": 1,
+                "valid": false,
+                "system_id": 315,
+                "add": 0
+              }
+            ],
+            "equip_suit": {
+              "suit_id": 31300,
+              "name": "自由蓝调",
+              "own": 4,
+              "desc1": "异常精通+30点。",
+              "desc2": "<color=#FFFFFF>[强化特殊技]</color>命中敌人时，根据装备者的属性类型，使目标对应属性异常积蓄抗性降低20%，持续8秒，相同属性类型的效果不可叠加。"
+            },
+            "equipment_type": 5,
+            "invalid_property_cnt": 4,
+            "all_hit": false
+          },
+          {
+            "id": 31336,
+            "level": 12,
+            "name": "自由蓝调[6]",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/dd2134953d7818e76a9a264f8d27186e.png",
+            "rarity": "A",
+            "properties": [
+              {
+                "property_name": "攻击力",
+                "property_id": 12103,
+                "base": "13",
+                "level": 1,
+                "valid": false,
+                "system_id": 121,
+                "add": 0
+              },
+              {
+                "property_name": "异常精通",
+                "property_id": 31203,
+                "base": "6",
+                "level": 1,
+                "valid": true,
+                "system_id": 312,
+                "add": 0
+              },
+              {
+                "property_name": "穿透值",
+                "property_id": 23203,
+                "base": "12",
+                "level": 2,
+                "valid": false,
+                "system_id": 232,
+                "add": 1
+              },
+              {
+                "property_name": "防御力",
+                "property_id": 13103,
+                "base": "20",
+                "level": 2,
+                "valid": false,
+                "system_id": 131,
+                "add": 1
+              }
+            ],
+            "main_properties": [
+              {
+                "property_name": "攻击力",
+                "property_id": 12102,
+                "base": "20%",
+                "level": 1,
+                "valid": false,
+                "system_id": 121,
+                "add": 0
+              }
+            ],
+            "equip_suit": {
+              "suit_id": 31300,
+              "name": "自由蓝调",
+              "own": 4,
+              "desc1": "异常精通+30点。",
+              "desc2": "<color=#FFFFFF>[强化特殊技]</color>命中敌人时，根据装备者的属性类型，使目标对应属性异常积蓄抗性降低20%，持续8秒，相同属性类型的效果不可叠加。"
+            },
+            "equipment_type": 6,
+            "invalid_property_cnt": 2,
+            "all_hit": false
+          }
+        ],
+        "weapon": {
+          "id": 13128,
+          "level": 60,
+          "name": "轰鸣座驾",
+          "star": 1,
+          "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/9262dca4ff1595b31f0bee2be126a76d.png",
+          "rarity": "A",
+          "properties": [
+            {
+              "property_name": "攻击力",
+              "property_id": 12102,
+              "base": "25%",
+              "level": 0,
+              "valid": false,
+              "system_id": 0,
+              "add": 0
+            }
+          ],
+          "main_properties": [
+            {
+              "property_name": "基础攻击力",
+              "property_id": 12101,
+              "base": "624",
+              "level": 0,
+              "valid": false,
+              "system_id": 0,
+              "add": 0
+            }
+          ],
+          "talent_title": "碰撞势能",
+          "talent_content": "<color=#FFFFFF>[强化特殊技]</color>命中敌人时，随机触发以下三种效果中的一种，持续5秒，0.3秒内最多触发一次，同类效果不可叠加，重复触发时刷新持续时间，多个效果可以同时存在：装备者的攻击力提升<color=#2BAD00>8%</color>；装备者的异常精通提升<color=#2BAD00>40</color>点；装备者的属性异常积蓄效率提升<color=#2BAD00>25%</color>。",
+          "profession": 3
+        },
+        "properties": [
+          {
+            "property_name": "生命值",
+            "property_id": 1,
+            "base": "6976",
+            "add": "1804",
+            "final": "8780"
+          },
+          {
+            "property_name": "攻击力",
+            "property_id": 2,
+            "base": "1382",
+            "add": "1057",
+            "final": "2439"
+          },
+          {
+            "property_name": "防御力",
+            "property_id": 3,
+            "base": "612",
+            "add": "243",
+            "final": "855"
+          },
+          {
+            "property_name": "冲击力",
+            "property_id": 4,
+            "base": "",
+            "add": "",
+            "final": "86"
+          },
+          {
+            "property_name": "暴击率",
+            "property_id": 5,
+            "base": "",
+            "add": "",
+            "final": "21.8%"
+          },
+          {
+            "property_name": "暴击伤害",
+            "property_id": 6,
+            "base": "",
+            "add": "",
+            "final": "83.6%"
+          },
+          {
+            "property_name": "异常掌控",
+            "property_id": 7,
+            "base": "",
+            "add": "",
+            "final": "116"
+          },
+          {
+            "property_name": "异常精通",
+            "property_id": 8,
+            "base": "",
+            "add": "",
+            "final": "246"
+          },
+          {
+            "property_name": "穿透率",
+            "property_id": 9,
+            "base": "",
+            "add": "",
+            "final": "0.0%"
+          },
+          {
+            "property_name": "能量自动回复",
+            "property_id": 11,
+            "base": "",
+            "add": "",
+            "final": "1.56"
+          },
+          {
+            "property_name": "穿透值",
+            "property_id": 232,
+            "base": "",
+            "add": "",
+            "final": "27"
+          },
+          {
+            "property_name": "物理伤害加成",
+            "property_id": 315,
+            "base": "",
+            "add": "",
+            "final": "30.0%"
+          }
+        ],
+        "skills": [
+          {
+            "level": 14,
+            "skill_type": 0,
+            "items": [
+              {
+                "title": "普通攻击：准备发车",
+                "text": "点按 <IconMap:Icon_Normal> 发动：\\n向前方进行至多四段的斩击，造成<color=#F0D12B>物理伤害</color>；",
+                "awaken": false
+              }
+            ],
+            "awaken_state": "AwakenStateNotVisible"
+          },
+          {
+            "level": 15,
+            "skill_type": 1,
+            "items": [
+              {
+                "title": "特殊技：轮胎转",
+                "text": "点按 <IconMap:Icon_Special> 发动：\\n转动身体向周围发动旋转斩击，造成<color=#F0D12B>物理伤害</color>；\\n长按 <IconMap:Icon_Special> 可以延长招式的持续时间，发动越来越强的旋转斩击，并提升招式的蓄力等级，最多提升2次；\\n若衔接在<color=#FFFFFF>[普通攻击]</color>前三段、<color=#FFFFFF>[冲刺攻击]</color>或<color=#FFFFFF>[闪避反击]</color>之后，则能够以提升后的蓄力等级快速发动<color=#FFFFFF>[特殊技：轮胎转]</color>；\\n招式发动期间抗打断等级提升，受到的伤害降低40%。",
+                "awaken": false
+              },
+              {
+                "title": "特殊技：有亿点重",
+                "text": "在<color=#FFFFFF>[特殊技：轮胎转]</color>发动期间，松开 <IconMap:Icon_Special> 发动：\\n根据<color=#FFFFFF>[特殊技：轮胎转]</color>的蓄力等级，向前方发动下砸攻击，造成<color=#F0D12B>物理伤害</color>；\\n招式发动期间拥有无敌效果。",
+                "awaken": false
+              },
+              {
+                "title": "强化特殊技：引擎转",
+                "text": "能量足够时，在<color=#FFFFFF>[特殊技：轮胎转]</color>达到最高蓄力等级后，继续长按 <IconMap:Icon_SpecialReady> 发动：\\n快速转动身体，向周围发动旋转斩击，造成大量<color=#F0D12B>物理伤害</color>；\\n发动期间持续消耗能量，最多持续3秒；\\n招式发动期间抗打断等级提升，受到的伤害降低40%。",
+                "awaken": false
+              },
+              {
+                "title": "强化特殊技：非常重",
+                "text": "在<color=#FFFFFF>[强化特殊技：引擎转]</color>发动期间，松开 <IconMap:Icon_SpecialReady> 发动：\\n向前方发动强力的下砸攻击，造成大量<color=#F0D12B>物理伤害</color>；\\n在<color=#FFFFFF>[强化特殊技：引擎转]</color>发动期间，持续时间达到上限或能量降低至20点时，将会自动发动<color=#FFFFFF>[强化特殊技：非常重]</color>；\\n招式发动期间拥有无敌效果。",
+                "awaken": false
+              }
+            ],
+            "awaken_state": "AwakenStateNotVisible"
+          },
+          {
+            "level": 13,
+            "skill_type": 2,
+            "items": [
+              {
+                "title": "闪避：手刹漂移",
+                "text": "点按 <IconMap:Icon_Evade> 发动：\\n快速的冲刺闪避；\\n招式发动期间拥有无敌效果。",
+                "awaken": false
+              },
+              {
+                "title": "冲刺攻击：一脚油门",
+                "text": "闪避时，点按 <IconMap:Icon_Normal> 发动：\\n向前方进行斩击，造成<color=#F0D12B>物理伤害</color>。",
+                "awaken": false
+              },
+              {
+                "title": "闪避反击：动力漂移",
+                "text": "触发<color=#FFFFFF>[极限闪避]</color>后，点按 <IconMap:Icon_Normal> 发动：\\n对前方敌人发动下砸攻击，造成<color=#F0D12B>物理伤害</color>；\\n招式发动期间拥有无敌效果。",
+                "awaken": false
+              }
+            ],
+            "awaken_state": "AwakenStateNotVisible"
+          },
+          {
+            "level": 13,
+            "skill_type": 3,
+            "items": [
+              {
+                "title": "连携技：系好安全带",
+                "text": "触发<color=#FFFFFF>[连携技]</color>时，选择对应角色发动：\\n对前方敌人发动强力下砸攻击，造成大量<color=#F0D12B>物理伤害</color>；\\n招式发动期间拥有无敌效果。",
+                "awaken": false
+              },
+              {
+                "title": "终结技：坐~稳~啦~",
+                "text": "喧响等级达到<color=#FFFFFF>[极]</color>时，点按 <IconMap:Icon_UltimateReady> 发动：\\n快速转动身体，对前方大范围敌人发动强力的旋转斩击，随后发动下砸攻击，造成大量<color=#F0D12B>物理伤害</color>；\\n招式发动期间拥有无敌效果。",
+                "awaken": false
+              }
+            ],
+            "awaken_state": "AwakenStateNotVisible"
+          },
+          {
+            "level": 7,
+            "skill_type": 5,
+            "items": [
+              {
+                "title": "核心被动：动力蓄能",
+                "text": "派派在<color=#FFFFFF>[强化特殊技：引擎转]</color>或<color=#FFFFFF>[终结技]</color>中发动旋转斩击命中敌人时，获得1层<color=#FFFFFF>[动力]</color>，最多叠加20层，持续12秒，重复触发时刷新持续时间；每拥有一层<color=#FFFFFF>[动力]</color>，派派的<color=#F0D12B>物理异常积蓄效率</color>提升<color=#2BAD00>4%</color>。",
+                "awaken": false
+              },
+              {
+                "title": "额外能力：同步疾驰",
+                "text": "队伍中存在与自身属性或阵营相同的角色时触发：\\n派派拥有20层或以上<color=#FFFFFF>[动力]</color>时，全队角色造成的伤害提升18%。",
+                "awaken": false
+              }
+            ],
+            "awaken_state": "AwakenStateNotVisible"
+          },
+          {
+            "level": 13,
+            "skill_type": 6,
+            "items": [
+              {
+                "title": "快速支援：点刹",
+                "text": "当前操作中的角色被击飞时，点按 <IconMap:Icon_Switch> 发动：\\n对前方敌人发动下砸攻击，造成<color=#F0D12B>物理伤害</color>；\\n招式发动期间拥有无敌效果。",
+                "awaken": false
+              },
+              {
+                "title": "招架支援：极限刹车",
+                "text": "前场角色即将被攻击时，点按 <IconMap:Icon_Switch> 发动：\\n招架敌人的攻击，累积大量失衡值；\\n具有较为优秀的招架性能，承受高强度攻击时<color=#FFFFFF>[支援点数]</color>的消耗量降低；\\n招式发动期间拥有无敌效果。",
+                "awaken": false
+              },
+              {
+                "title": "支援突击：弯道超车",
+                "text": "发动<color=#FFFFFF>[招架支援]</color>后，点按 <IconMap:Icon_Normal> 发动：\\n对前方敌人发动突进斩击，造成<color=#F0D12B>物理伤害</color>；\\n招式发动期间拥有无敌效果。",
+                "awaken": false
+              }
+            ],
+            "awaken_state": "AwakenStateNotVisible"
+          }
+        ],
+        "rank": 5,
+        "ranks": [
+          {
+            "id": 1,
+            "name": "悠闲一刻",
+            "desc": "派派在<color=#FFFFFF>[特殊技：轮胎转]</color>、<color=#FFFFFF>[强化特殊技：引擎转]</color>或<color=#FFFFFF>[终结技]</color>中发动旋转斩击命中敌人时，\\n有50%概率额外获得1层<color=#FFFFFF>[动力]</color>，<color=#FFFFFF>[动力]</color>的叠加层数上限提升至30层。",
+            "pos": 1,
+            "is_unlocked": true
+          },
+          {
+            "id": 2,
+            "name": "上进心",
+            "desc": "在<color=#FFFFFF>[特殊技：轮胎转]</color>和<color=#FFFFFF>[强化特殊技：引擎转]</color>发动期间，派派的移动速度有所提升；\\n在<color=#FFFFFF>[特殊技：有亿点重]</color>、<color=#FFFFFF>[强化特殊技：非常重]</color>和<color=#FFFFFF>[终结技]</color>中发动下砸攻击命中敌人时，\\n招式造成的<color=#F0D12B>物理伤害</color>提升10%，每拥有1层<color=#FFFFFF>[动力]</color>，该增益效果额外提升1%。",
+            "pos": 2,
+            "is_unlocked": true
+          },
+          {
+            "id": 3,
+            "name": "卡车专家",
+            "desc": "<color=#FFFFFF>[普通攻击]</color>、<color=#FFFFFF>[闪避]</color>、<color=#FFFFFF>[支援技]</color>、<color=#FFFFFF>[特殊技]</color>、<color=#FFFFFF>[连携技]</color> 技能等级+2",
+            "pos": 3,
+            "is_unlocked": true
+          },
+          {
+            "id": 4,
+            "name": "技巧娴熟",
+            "desc": "队伍中任意角色对敌人施加属性异常效果时，派派回复20点能量，30秒内最多触发一次。",
+            "pos": 4,
+            "is_unlocked": true
+          },
+          {
+            "id": 5,
+            "name": "私人爱好",
+            "desc": "<color=#FFFFFF>[普通攻击]</color>、<color=#FFFFFF>[闪避]</color>、<color=#FFFFFF>[支援技]</color>、<color=#FFFFFF>[特殊技]</color>、<color=#FFFFFF>[连携技]</color> 技能等级+2",
+            "pos": 5,
+            "is_unlocked": true
+          },
+          {
+            "id": 6,
+            "name": "轻度兴奋",
+            "desc": "<color=#FFFFFF>[强化特殊技：引擎转]</color>的持续时间上限提升2秒，<color=#FFFFFF>[动力]</color>的持续时间提升4秒。",
+            "pos": 6,
+            "is_unlocked": false
+          }
+        ],
+        "role_vertical_painting_url": "https://act-webstatic.mihoyo.com/game_record/zzzv2/role_vertical_painting/role_vertical_painting_1281.png",
+        "equip_plan_info": {
+          "type": 1,
+          "game_default": {
+            "property_list": [
+              {
+                "id": 2,
+                "name": "攻击力",
+                "full_name": "攻击力",
+                "system_id": 2,
+                "is_select": false
+              },
+              {
+                "id": 8,
+                "name": "异常精通",
+                "full_name": "异常精通",
+                "system_id": 8,
+                "is_select": false
+              }
+            ]
+          },
+          "cultivate_info": {
+            "name": "【通用】【派派】【6+5】半辅助半异常副C",
+            "plan_id": "113",
+            "is_delete": false,
+            "old_plan": false
+          },
+          "custom_info": {
+            "property_list": [
+              {
+                "id": 11103,
+                "name": "生命值",
+                "full_name": "生命值",
+                "system_id": 111,
+                "is_select": false
+              },
+              {
+                "id": 11102,
+                "name": "生命值",
+                "full_name": "生命值百分比",
+                "system_id": 111,
+                "is_select": false
+              },
+              {
+                "id": 12103,
+                "name": "攻击力",
+                "full_name": "攻击力",
+                "system_id": 121,
+                "is_select": false
+              },
+              {
+                "id": 12102,
+                "name": "攻击力",
+                "full_name": "攻击力百分比",
+                "system_id": 121,
+                "is_select": false
+              },
+              {
+                "id": 13103,
+                "name": "防御力",
+                "full_name": "防御力",
+                "system_id": 131,
+                "is_select": false
+              },
+              {
+                "id": 13102,
+                "name": "防御力",
+                "full_name": "防御力百分比",
+                "system_id": 131,
+                "is_select": false
+              },
+              {
+                "id": 20103,
+                "name": "暴击率",
+                "full_name": "暴击率",
+                "system_id": 201,
+                "is_select": false
+              },
+              {
+                "id": 21103,
+                "name": "暴击伤害",
+                "full_name": "暴击伤害",
+                "system_id": 211,
+                "is_select": false
+              },
+              {
+                "id": 31203,
+                "name": "异常精通",
+                "full_name": "异常精通",
+                "system_id": 312,
+                "is_select": false
+              },
+              {
+                "id": 23203,
+                "name": "穿透值",
+                "full_name": "穿透值",
+                "system_id": 232,
+                "is_select": false
+              }
+            ]
+          },
+          "valid_property_cnt": 3,
+          "plan_only_special_property": false,
+          "equip_rating": "ER_Default",
+          "plan_effective_property_list": [
+            {
+              "id": 12102,
+              "name": "攻击力",
+              "full_name": "攻击力百分比",
+              "system_id": 121,
+              "is_select": false
+            },
+            {
+              "id": 31203,
+              "name": "异常精通",
+              "full_name": "异常精通",
+              "system_id": 312,
+              "is_select": false
+            }
+          ],
+          "equip_rating_score": 0
+        },
+        "us_full_name": "Piper Wheel",
+        "vertical_painting_color": "#e9d892",
+        "sub_element_type": 0,
+        "skin_list": [
+          {
+            "skin_id": 3112810,
+            "skin_name": "派派·快与慢",
+            "skin_vertical_painting_url": "https://act-webstatic.mihoyo.com/game_record/zzzv2/role_vertical_painting/role_vertical_painting_1281.png",
+            "skin_square_url": "https://act-webstatic.mihoyo.com/game_record/zzzv2/role_square_avatar/role_square_avatar_1281.png",
+            "skin_hollow_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/c34161b6c8fb0a7c6186344b3ce92dbf.png",
+            "skin_vertical_painting_color": "#e9d892",
+            "unlocked": true,
+            "rarity": "S",
+            "is_original": true
+          }
+        ],
+        "role_square_url": "https://act-webstatic.mihoyo.com/game_record/zzzv2/role_square_avatar/role_square_avatar_1281.png",
+        "awaken_state": "AwakenStateNotVisible",
+        "skill_awaken": {
+          "has_awaken_system": false,
+          "awaken_level": 0,
+          "awaken_max_level": 0,
+          "skill_awaken_items": []
+        }
+      }
+    ],
+    "equip_wiki": {
+      "31333": "https://baike.mihoyo.com/zzz/wiki/content/191/detail?bbs_presentation_style=fullscreen",
+      "31344": "https://baike.mihoyo.com/zzz/wiki/content/191/detail?bbs_presentation_style=fullscreen",
+      "31345": "https://baike.mihoyo.com/zzz/wiki/content/191/detail?bbs_presentation_style=fullscreen",
+      "31336": "https://baike.mihoyo.com/zzz/wiki/content/191/detail?bbs_presentation_style=fullscreen",
+      "31331": "https://baike.mihoyo.com/zzz/wiki/content/191/detail?bbs_presentation_style=fullscreen",
+      "31342": "https://baike.mihoyo.com/zzz/wiki/content/191/detail?bbs_presentation_style=fullscreen"
+    },
+    "weapon_wiki": {
+      "13128": "https://baike.mihoyo.com/zzz/wiki/content/494/detail?bbs_presentation_style=fullscreen"
+    },
+    "avatar_wiki": {
+      "1281": "https://baike.mihoyo.com/zzz/wiki/content/485/detail?bbs_presentation_style=fullscreen"
+    },
+    "strategy_wiki": {
+      "1281": "https://baike.mihoyo.com/zzz/wiki/content/525/detail?bbs_presentation_style=fullscreen"
+    },
+    "cultivate_index": {
+      "1281": "https://act.mihoyo.com/zzz/event/character-builder/index.html?game_biz=nap_cn&mhy_auth_required=1&mhy_presentation_style=fullscreen&utm_source=bbs&utm_medium=zzz&utm_campaign=zj-char#/?avatar_id=1281"
+    },
+    "cultivate_equip": {
+      "1281": "https://act.mihoyo.com/zzz/event/character-builder/index.html?game_biz=nap_cn&mhy_auth_required=1&mhy_presentation_style=fullscreen&utm_source=bbs&utm_medium=zzz&utm_campaign=zj-drive#/?avatar_id=1281"
+    },
+    "special_skill_icon": {
+      "1051": {
+        "special_skills": [
+          {
+            "skill_type": 1,
+            "icon": "https://fastcdn.mihoyo.com/static-resource-v2/2025/12/16/4c0f24030dcbf14ba91505c60ced058a_8226905411985297866.png"
+          }
+        ]
+      },
+      "1371": {
+        "special_skills": [
+          {
+            "skill_type": 1,
+            "icon": "https://fastcdn.mihoyo.com/static-resource-v2/2025/12/16/4c0f24030dcbf14ba91505c60ced058a_8226905411985297866.png"
+          }
+        ]
+      },
+      "1441": {
+        "special_skills": [
+          {
+            "skill_type": 1,
+            "icon": "https://fastcdn.mihoyo.com/static-resource-v2/2025/12/16/4c0f24030dcbf14ba91505c60ced058a_8226905411985297866.png"
+          }
+        ]
+      },
+      "1471": {
+        "special_skills": [
+          {
+            "skill_type": 1,
+            "icon": "https://fastcdn.mihoyo.com/static-resource-v2/2025/12/16/4c0f24030dcbf14ba91505c60ced058a_8226905411985297866.png"
+          }
+        ]
+      }
+    }
+  }
+}

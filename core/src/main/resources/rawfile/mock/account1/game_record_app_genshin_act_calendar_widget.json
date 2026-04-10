@@ -1,0 +1,105 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "current_resin": 38,
+    "max_resin": 200,
+    "resin_recovery_time": "77290",
+    "finished_task_num": 4,
+    "total_task_num": 4,
+    "is_extra_task_reward_received": true,
+    "current_home_coin": 570,
+    "max_home_coin": 2400,
+    "daily_task": null,
+    "home_url": "https://webstatic.mihoyo.com/app/community-game-records/?bbs_presentation_style=fullscreen&mhypresentationstyle=fullscreen&bbs_auth_required=true&gid=2",
+    "note_url": "https://webstatic.mihoyo.com/app/community-game-records/?bbs_presentation_style=fullscreen&bbs_auth_required=true#/ys/daily",
+    "act_list": [
+      {
+        "id": 223,
+        "name": "测定摹绘研学",
+        "start_timestamp": "1775786400",
+        "end_timestamp": "1776628799",
+        "status": 2,
+        "reward": {
+          "item_id": 201,
+          "name": "原石",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/a862d7fc50ffe15c045de4f6799a357b.png",
+          "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5566/detail?bbs_presentation_style=no_header",
+          "num": 420,
+          "rarity": "5",
+          "homepage_show": true
+        },
+        "is_finished": false,
+        "detail": "进行中",
+        "now_timestamp": "1775803208"
+      },
+      {
+        "id": 225,
+        "name": "千风凝滞之隙",
+        "start_timestamp": "1775602800",
+        "end_timestamp": "1782802799",
+        "status": 2,
+        "reward": {
+          "item_id": 201,
+          "name": "原石",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/a862d7fc50ffe15c045de4f6799a357b.png",
+          "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5566/detail?bbs_presentation_style=no_header",
+          "num": 400,
+          "rarity": "5",
+          "homepage_show": true
+        },
+        "is_finished": false,
+        "detail": "24%",
+        "now_timestamp": "1775803208"
+      },
+      {
+        "id": 220,
+        "name": "铸境研炼·奕思巧战",
+        "start_timestamp": "1775602800",
+        "end_timestamp": "1779231600",
+        "status": 2,
+        "reward": {
+          "item_id": 107021,
+          "name": "幸运牌币",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bddb5ec01f91494e65157d2201c2a165.png",
+          "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5353/detail?bbs_presentation_style=no_header",
+          "num": 8000,
+          "rarity": "3",
+          "homepage_show": true
+        },
+        "is_finished": false,
+        "detail": "进行中",
+        "now_timestamp": "1775803208"
+      },
+      {
+        "id": 0,
+        "name": "幻想真境剧诗",
+        "start_timestamp": "1774987200",
+        "end_timestamp": "1777579199",
+        "status": 2,
+        "reward": {
+          "item_id": 201,
+          "name": "原石",
+          "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/a862d7fc50ffe15c045de4f6799a357b.png",
+          "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5566/detail?bbs_presentation_style=no_header",
+          "num": 1000,
+          "rarity": "5",
+          "homepage_show": true
+        },
+        "is_finished": false,
+        "detail": "第-幕",
+        "now_timestamp": "1775803208"
+      }
+    ],
+    "act_calendar_link": "https://webstatic.mihoyo.com/app/community-game-records/?bbs_presentation_style=fullscreen&bbs_auth_required=true#/ys/calendar/?role_id=109050292&server=cn_gf01",
+    "config_map": {
+      "home": "https://webstatic.mihoyo.com/app/community-game-records/?bbs_presentation_style=fullscreen&mhypresentationstyle=fullscreen&bbs_auth_required=true&gid=2",
+      "note": "https://webstatic.mihoyo.com/app/community-game-records/?bbs_presentation_style=fullscreen&bbs_auth_required=true#/ys/daily",
+      "act_calendar_link": "https://webstatic.mihoyo.com/app/community-game-records/?bbs_presentation_style=fullscreen&bbs_auth_required=true#/ys/calendar/?role_id=%d&server=%s",
+      "game_config_id": "3",
+      "android_package_name": "com.miHoYo.Yuanshen",
+      "ios_url": "itms-apps://1467190251",
+      "ios_scheme_url": "yuanshen://"
+    }
+  }
+}

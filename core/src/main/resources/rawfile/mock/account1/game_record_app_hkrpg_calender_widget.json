@@ -1,0 +1,438 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "activities": [
+      {
+        "id": 243,
+        "version": "4.1",
+        "name": "花藏繁生",
+        "act_type": "ActivityTypeDouble",
+        "act_status": "DoubleRewardActStatusProgress",
+        "reward_list": [],
+        "total_progress": 84,
+        "current_progress": 60,
+        "time_info": {
+          "start_ts": "1775764800",
+          "end_ts": "1776628799",
+          "start_time": "2026-04-10 04:00:00",
+          "end_time": "2026-04-20 03:59:59",
+          "now": "1775803086"
+        },
+        "panel_id": 10108,
+        "panel_desc": "活动期间，成功挑战「拟造花萼（金）」「拟造花萼（赤）」可获得双倍奖励。",
+        "strategy": "",
+        "multiple_drop_type": 1,
+        "multiple_drop_type_list": [1, 5],
+        "count_refresh_type": 0,
+        "count_value": 84,
+        "drop_multiple": 2,
+        "is_after_version": false,
+        "sort_weight": 6002,
+        "special_reward": {
+          "item_id": 0,
+          "name": "",
+          "icon": "https://fastcdn.mihoyo.com/static-resource-v2/2024/07/30/7078fbf540a3b37dbfdd991941b94194_5565840791168846779.png",
+          "wiki_url": "",
+          "num": 0,
+          "rarity": "0",
+          "reward_type": "RewardTypeNormal"
+        },
+        "all_finished": false,
+        "show_text": "剩余次数60/84",
+        "act_time_type": "ActTimeTypeDefault"
+      },
+      {
+        "id": 245,
+        "version": "4.1",
+        "name": "巡星之礼",
+        "act_type": "ActivityTypeSign",
+        "act_status": "SignStatusFinish",
+        "reward_list": [
+          {
+            "item_id": 102,
+            "name": "星轨专票",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/ea29a5ce45cee6cc9cba54bcf2d0fb5c.png",
+            "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/209/detail?bbs_presentation_style=no_header",
+            "num": 10,
+            "rarity": "5",
+            "reward_type": "RewardTypeNormal"
+          }
+        ],
+        "total_progress": 7,
+        "current_progress": 7,
+        "time_info": {
+          "start_ts": "1774296000",
+          "end_ts": "1776715199",
+          "start_time": "2026-03-24 04:00:00",
+          "end_time": "2026-04-21 03:59:59",
+          "now": "1775803086"
+        },
+        "panel_id": 10142,
+        "panel_desc": "",
+        "strategy": "",
+        "multiple_drop_type": 0,
+        "multiple_drop_type_list": [],
+        "count_refresh_type": 0,
+        "count_value": 0,
+        "drop_multiple": 0,
+        "is_after_version": true,
+        "sort_weight": 7900,
+        "special_reward": {
+          "item_id": 102,
+          "name": "星轨专票",
+          "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/ea29a5ce45cee6cc9cba54bcf2d0fb5c.png",
+          "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/209/detail?bbs_presentation_style=no_header",
+          "num": 10,
+          "rarity": "5",
+          "reward_type": "RewardTypeNormal"
+        },
+        "all_finished": true,
+        "show_text": "已完成",
+        "act_time_type": "ActTimeTypeDefault"
+      },
+      {
+        "id": 244,
+        "version": "4.1",
+        "name": "位面分裂",
+        "act_type": "ActivityTypeDouble",
+        "act_status": "DoubleRewardActStatusFinish",
+        "reward_list": [],
+        "total_progress": 12,
+        "current_progress": 0,
+        "time_info": {
+          "start_ts": "1774814400",
+          "end_ts": "1776023999",
+          "start_time": "2026-03-30 04:00:00",
+          "end_time": "2026-04-13 03:59:59",
+          "now": "1775803086"
+        },
+        "panel_id": 10026,
+        "panel_desc": "活动期间，成功挑战「模拟宇宙」或「差分宇宙」，可获得位面饰品双倍奖励。",
+        "strategy": "",
+        "multiple_drop_type": 1,
+        "multiple_drop_type_list": [6],
+        "count_refresh_type": 0,
+        "count_value": 12,
+        "drop_multiple": 2,
+        "is_after_version": false,
+        "sort_weight": 6002,
+        "special_reward": {
+          "item_id": 0,
+          "name": "",
+          "icon": "https://fastcdn.mihoyo.com/static-resource-v2/2024/07/30/7078fbf540a3b37dbfdd991941b94194_5565840791168846779.png",
+          "wiki_url": "",
+          "num": 0,
+          "rarity": "0",
+          "reward_type": "RewardTypeNormal"
+        },
+        "all_finished": true,
+        "show_text": "已完成",
+        "act_time_type": "ActTimeTypeDefault"
+      }
+    ],
+    "challenges": [
+      {
+        "group_id": 1030,
+        "name_mi18n": "忘却之庭•网络谜踪",
+        "challenge_type": "ChallengeTypeChasm",
+        "total_progress": 36,
+        "current_progress": 30,
+        "status": "challengeStatusInProgress",
+        "time_info": {
+          "start_ts": "1772395200",
+          "end_ts": "1776024000",
+          "start_time": "2026-03-02 04:00:00",
+          "end_time": "2026-04-13 04:00:00",
+          "now": "1775803086"
+        },
+        "reward_list": [
+          {
+            "item_id": 1,
+            "name": "星琼",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/3a3ba18cc1c5faee1059cc0b259402a2.png",
+            "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/84/detail?bbs_presentation_style=no_header",
+            "num": 800,
+            "rarity": "5"
+          },
+          {
+            "item_id": 262,
+            "name": "璧羽",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/1cd7fb3c8a776f050ccb6056b0b40e6c.png",
+            "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/3225/detail?bbs_presentation_style=no_header",
+            "num": 600,
+            "rarity": "5"
+          },
+          {
+            "item_id": 213,
+            "name": "漫游指南",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/9ef5fc76cf74b7c7d7b9b405748d98aa.png",
+            "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/130/detail?bbs_presentation_style=no_header",
+            "num": 24,
+            "rarity": "4"
+          },
+          {
+            "item_id": 223,
+            "name": "提纯以太",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/57735d01c1cf2a37817c81926ae7eae9.png",
+            "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/522/detail?bbs_presentation_style=no_header",
+            "num": 12,
+            "rarity": "4"
+          },
+          {
+            "item_id": 233,
+            "name": "遗失晶块",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/580318eaed55096d9a1d8f458f2d1936.png",
+            "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/519/detail?bbs_presentation_style=no_header",
+            "num": 24,
+            "rarity": "4"
+          },
+          {
+            "item_id": 261,
+            "name": "流光余晖",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/b009e29bc9df6530c96948a7435e21a9.png",
+            "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/531/detail?bbs_presentation_style=no_header",
+            "num": 96,
+            "rarity": "4"
+          },
+          {
+            "item_id": 2,
+            "name": "信用点",
+            "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/8d5c99ec37ac80270e2a7b366f999e1a.png",
+            "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/204/detail?bbs_presentation_style=no_header",
+            "num": 360000,
+            "rarity": "3"
+          }
+        ],
+        "special_reward": {
+          "item_id": 1,
+          "name": "星琼",
+          "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/3a3ba18cc1c5faee1059cc0b259402a2.png",
+          "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/84/detail?bbs_presentation_style=no_header",
+          "num": 800,
+          "rarity": "5"
+        },
+        "show_text": "30/36",
+        "challenge_peak_rank_icon_type": "ChallengePeakRankIconTypeNone",
+        "challenge_peak_rank_icon": "",
+        "challenge_peak_start_version": ""
+      }
+    ],
+    "rogue_info": {
+      "tourn_unlocked": true,
+      "icon": "",
+      "current_score": "1000",
+      "max_score": "1000"
+    },
+    "base_info": {
+      "current_stamina": 52,
+      "max_stamina": 300,
+      "stamina_recover_time": 88934,
+      "current_reserve_stamina": 3,
+      "is_reserve_stamina_full": false,
+      "current_train_score": 500,
+      "max_train_score": 500
+    },
+    "extra_info": {
+      "game_record_url": "https://webstatic.mihoyo.com/app/community-game-records/rpg/index.html?mhy_presentation_style=fullscreen#/rpg",
+      "more_act_url": "https://webstatic.mihoyo.com/app/community-game-records/rpg/index.html?mhy_presentation_style=fullscreen&scroll_to_module=event#/rpg"
+    },
+    "activity_calendar_v2": {
+      "card_pool_list": [
+        {
+          "avatar_list": [
+            {
+              "item_id": "1504",
+              "item_name": "不死途",
+              "icon_url": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/dffa7bbfa7a574400ca622a628daae4b.png",
+              "damage_type": "8",
+              "rarity": "5",
+              "avatar_base_type": "2",
+              "is_forward": false,
+              "damage_type_name": "lightning"
+            }
+          ],
+          "title": [
+            {
+              "content": "剩余12天",
+              "is_highlight": false
+            }
+          ],
+          "id": "71"
+        },
+        {
+          "avatar_list": [
+            {
+              "item_id": "1315",
+              "item_name": "波提欧",
+              "icon_url": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/f69cc6acb2597167de20fcb774b43e8f.png",
+              "damage_type": "1",
+              "rarity": "5",
+              "avatar_base_type": "2",
+              "is_forward": false,
+              "damage_type_name": "physical"
+            }
+          ],
+          "title": [
+            {
+              "content": "剩余12天",
+              "is_highlight": false
+            }
+          ],
+          "id": "73"
+        }
+      ],
+      "activity_list": [
+        {
+          "panel_id": "10108",
+          "icon": "https://fastcdn.mihoyo.com/mi18n/hkrpg_cn/m20240725hy39iip4ao/upload/5f49c5fbcab11d69366bdcb03086b368_5240118410017160917.png",
+          "title": [
+            {
+              "content": "花藏繁生",
+              "is_highlight": false
+            }
+          ],
+          "progress": [
+            {
+              "content": "剩余次数",
+              "is_highlight": false
+            },
+            {
+              "content": "60",
+              "is_highlight": true
+            },
+            {
+              "content": "/84",
+              "is_highlight": false
+            }
+          ],
+          "count_down": [
+            {
+              "content": "剩余10天",
+              "is_highlight": false
+            }
+          ],
+          "dark_icon": "https://fastcdn.mihoyo.com/mi18n/hkrpg_cn/m20240725hy39iip4ao/upload/5f49c5fbcab11d69366bdcb03086b368_5240118410017160917.png"
+        },
+        {
+          "panel_id": "10142",
+          "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/ea29a5ce45cee6cc9cba54bcf2d0fb5c.png",
+          "title": [
+            {
+              "content": "巡星之礼",
+              "is_highlight": false
+            }
+          ],
+          "progress": [
+            {
+              "content": "已完成",
+              "is_highlight": false
+            }
+          ],
+          "count_down": [
+            {
+              "content": "剩余11天",
+              "is_highlight": false
+            }
+          ],
+          "dark_icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/ea29a5ce45cee6cc9cba54bcf2d0fb5c.png"
+        },
+        {
+          "panel_id": "10026",
+          "icon": "https://fastcdn.mihoyo.com/mi18n/hkrpg_cn/m20240725hy39iip4ao/upload/5f49c5fbcab11d69366bdcb03086b368_5240118410017160917.png",
+          "title": [
+            {
+              "content": "位面分裂",
+              "is_highlight": false
+            }
+          ],
+          "progress": [
+            {
+              "content": "已完成",
+              "is_highlight": false
+            }
+          ],
+          "count_down": [
+            {
+              "content": "剩余",
+              "is_highlight": false
+            },
+            {
+              "content": "3",
+              "is_highlight": true
+            },
+            {
+              "content": "天",
+              "is_highlight": false
+            }
+          ],
+          "dark_icon": "https://fastcdn.mihoyo.com/mi18n/hkrpg_cn/m20240725hy39iip4ao/upload/5f49c5fbcab11d69366bdcb03086b368_5240118410017160917.png"
+        },
+        {
+          "panel_id": "50092",
+          "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/3a3ba18cc1c5faee1059cc0b259402a2.png",
+          "title": [
+            {
+              "content": "尘灵乱世录",
+              "is_highlight": false
+            }
+          ],
+          "progress": [
+            {
+              "content": "已完成",
+              "is_highlight": false
+            }
+          ],
+          "count_down": [
+            {
+              "content": "剩余10天",
+              "is_highlight": false
+            }
+          ],
+          "dark_icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/3a3ba18cc1c5faee1059cc0b259402a2.png"
+        }
+      ],
+      "extra_info_map": {
+        "CRPG_Act_Android_Power": "https://oig.mihoyo.com/srcloud/?source=CRPGActAndroidPower&from=widget",
+        "CNRPG_Act_Android_Eventwarp": "https://oig.mihoyo.com/sr/?source=CNRPGActAndroidEventwarp&from=widget",
+        "CRPG_Act_Ios_Else": "https://oig.mihoyo.com/srcloud/?source=CRPGActIosElse&from=widget",
+        "BRPG_Act_Android_Power": "https://oig.mihoyo.com/srbilibili_android/?source=BRPGActAndroidPower&from=widget",
+        "BRPG_Act_Android_Activities": "https://oig.mihoyo.com/srbilibili_android/?source=BRPGActAndroidActivities&from=widget",
+        "CNRPG_Act_Android_Power": "https://oig.mihoyo.com/sr/?source=CNRPGActAndroidPower&from=widget",
+        "CNRPG_Act_Ios_Eventwarp": "https://oig.mihoyo.com/sr/?source=CNRPGActIosEventwarp&from=widget",
+        "CNRPG_Act_Android_Activities": "https://oig.mihoyo.com/sr/?source=CNRPGActAndroidActivities&from=widget",
+        "MYS_MAIN_PAGE": "mihoyobbs://homeForum?game_id=6",
+        "CNRPG_Act_Ios_Power": "https://oig.mihoyo.com/sr/?source=CNRPGActIosPower&from=widget",
+        "HOYO_LINK_TYPE_UNIVERSAL_LINK": "https://oig.mihoyo.com/sr/?default_url=https%3A%2F%2Foig.mihoyo.com%2Fsrcloud%2F%3Fdefault_url%3Dhttps%253A%252F%252Fsr.mihoyo.com%252Fcloud%252F%253Flaunch_client%253D1&deferred_deeplink=source%3DiosACTrpg",
+        "GAME_RECORD_ACT": "https://webstatic.mihoyo.com/app/community-game-records/rpg/index.html?mhy_presentation_style=fullscreen&scroll_to_module=event#/rpg",
+        "CRPG_Act_Ios_Startgame": "https://oig.mihoyo.com/srcloud/?source=CRPGActIosStartgame&from=widget",
+        "CRPG_Act_Ios_Power": "https://oig.mihoyo.com/srcloud/?source=CRPGActIosPower&from=widget",
+        "CRPG_Act_Android_Eventwarp": "https://oig.mihoyo.com/srcloud/?source=CRPGActAndroidEventwarp&from=widget",
+        "HOYO_LINK_TYPE_APP_LINK": "https://oig.mihoyo.com/sr/?default_url=https%3A%2F%2Foig.mihoyo.com%2Fsrcloud%2F%3Fdefault_url%3Dhttps%253A%252F%252Fsr.mihoyo.com%252Fcloud%252F%253Flaunch_client%253D1&deferred_deeplink=source%3DandroidACTrpg",
+        "BRPG_Act_Android_Else": "https://oig.mihoyo.com/srbilibili_android/?source=BRPGActAndroidElse&from=widget",
+        "CRPG_Act_Android_Else": "https://oig.mihoyo.com/srcloud/?source=CRPGActAndroidElse&from=widget",
+        "CRPG_Act_Ios_Eventwarp": "https://oig.mihoyo.com/srcloud/?source=CRPGActIosEventwarp&from=widget",
+        "CNRPG_Act_Ios_Else": "https://oig.mihoyo.com/sr/?source=CNRPGActIosElse&from=widget",
+        "BRPG_Act_Android_Eventwarp": "https://oig.mihoyo.com/srbilibili_android/?source=BRPGActAndroidEventwarp&from=widget",
+        "BRPG_Act_Android_Startgame": "https://oig.mihoyo.com/srbilibili_android/?source=BRPGActAndroidStartgame&from=widget",
+        "CNRPG_Act_Android_Else": "https://oig.mihoyo.com/sr/?source=CNRPGActAndroidElse&from=widget",
+        "GAME_RECORD": "https://webstatic.mihoyo.com/app/community-game-records/rpg/index.html?mhy_presentation_style=fullscreen#/rpg",
+        "CNRPG_Act_Ios_Startgame": "https://oig.mihoyo.com/sr/?source=CNRPGActIosStartgame&from=widget",
+        "CNRPG_Act_Android_Startgame": "https://oig.mihoyo.com/sr/?source=CNRPGActAndroidStartgame&from=widget",
+        "CRPG_Act_Android_Startgame": "https://oig.mihoyo.com/srcloud/?source=CRPGActAndroidStartgame&from=widget",
+        "HOYO_LINK_TYPE_DEEP_LINK": "starrailmihoyo://?deferred_deeplink=source%3DandroidACTrpg",
+        "CRPG_Act_Android_Activities": "https://oig.mihoyo.com/srcloud/?source=CRPGActAndroidActivities&from=widget",
+        "CNRPG_Act_Ios_Activities": "https://oig.mihoyo.com/sr/?source=CNRPGActIosActivities&from=widget",
+        "CRPG_Act_Ios_Activities": "https://oig.mihoyo.com/srcloud/?source=CRPGActIosActivities&from=widget"
+      },
+      "sign_info": {
+        "has_signed": true,
+        "sign_url": "https://act.mihoyo.com/bbs/event/signin/hkrpg/index.html?bbs_auth_required=true&act_id=e202304121516551&bbs_auth_required=true&bbs_presentation_style=fullscreen",
+        "home_url": "https://webstatic.mihoyo.com/app/community-game-records/rpg/index.html?mhy_presentation_style=fullscreen&game_id=6",
+        "note_url": "https://webstatic.mihoyo.com/app/community-game-records/rpg/index.html?mhy_presentation_style=fullscreen&game_id=6",
+        "game_record_url": "https://webstatic.mihoyo.com/app/community-game-records/rpg/index.html?mhy_presentation_style=fullscreen#/rpg",
+        "more_act_url": "https://webstatic.mihoyo.com/app/community-game-records/rpg/index.html?mhy_presentation_style=fullscreen&scroll_to_module=event#/rpg"
+      }
+    }
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "energy": {
+      "progress": {
+        "max": 240,
+        "current": 240
+      },
+      "restore": 0,
+      "day_type": 0,
+      "hour": 0,
+      "minute": 0
+    },
+    "vitality": {
+      "max": 400,
+      "current": 0
+    },
+    "vhs_sale": {
+      "sale_state": "SaleStateDone"
+    },
+    "card_sign": "CardSignNo",
+    "bounty_commission": null,
+    "survey_points": null,
+    "vitality_refresh": 49344,
+    "abyss_refresh": 0,
+    "s2_bounty_commission": null,
+    "has_signed": true,
+    "sign_url": "https://act.mihoyo.com/bbs/event/signin/zzz/e202406242138391.html?act_id=e202406242138391&mhy_auth_required=true&mhy_presentation_style=fullscreen&utm_source=h5&utm_medium=zzz&utm_campaign=zj",
+    "weekly_task": null,
+    "is_switch_new": true,
+    "note_list": [
+      {
+        "name": "占卜/刮刮卡",
+        "name_color": "A6FFFFFF",
+        "value": "未完成",
+        "value_color": "FFDE00",
+        "value_highlight": true
+      },
+      {
+        "name": "录像店经营",
+        "name_color": "A6FFFFFF",
+        "value": "待结算",
+        "value_color": "FFDE00",
+        "value_highlight": true
+      },
+      {
+        "name": "悬赏委托",
+        "name_color": "A6FFFFFF",
+        "value": "未解锁",
+        "value_color": "E5FFFFFF",
+        "value_highlight": false
+      },
+      {
+        "name": "丽都周纪积分",
+        "name_color": "A6FFFFFF",
+        "value": "未解锁",
+        "value_color": "E5FFFFFF",
+        "value_highlight": false
+      }
+    ],
+    "home_url": "https://act.mihoyo.com/app/mihoyo-zzz-game-record/m.html?mhy_presentation_style=fullscreen",
+    "note_url": "https://act.mihoyo.com/app/mihoyo-zzz-game-record/m.html?mhy_presentation_style=fullscreen",
+    "cafe_state": "CafeStateNo",
+    "activity_list": [
+      {
+        "activity_id": 5000136,
+        "state": "STATE_IN_PROGRESS",
+        "name": "灾潮特遣分队",
+        "monochrome_cnt": 300,
+        "monochrome_got_cnt": 0,
+        "left_start_ts": 0,
+        "left_end_ts": 826943,
+        "icon": "https://fastcdn.mihoyo.com/static-resource-v2/2026/01/09/065a90405fd05d4ecbd78fd5582d9541_4815400016808490515.png"
+      },
+      {
+        "activity_id": 5000134,
+        "state": "STATE_IN_PROGRESS",
+        "name": "滚烫寻鲜记",
+        "monochrome_cnt": 1100,
+        "monochrome_got_cnt": 0,
+        "left_start_ts": 0,
+        "left_end_ts": 2122943,
+        "icon": "https://fastcdn.mihoyo.com/static-resource-v2/2026/01/09/065a90405fd05d4ecbd78fd5582d9541_4815400016808490515.png"
+      },
+      {
+        "activity_id": 5000135,
+        "state": "STATE_NOT_START",
+        "name": "老朋友，新委托！",
+        "monochrome_cnt": 300,
+        "monochrome_got_cnt": 0,
+        "left_start_ts": 416544,
+        "left_end_ts": 2122943,
+        "icon": "https://fastcdn.mihoyo.com/static-resource-v2/2026/01/09/065a90405fd05d4ecbd78fd5582d9541_4815400016808490515.png"
+      },
+      {
+        "activity_id": 5000140,
+        "state": "STATE_NOT_START",
+        "name": "冒险影像定格帧",
+        "monochrome_cnt": 300,
+        "monochrome_got_cnt": 0,
+        "left_start_ts": 1021344,
+        "left_end_ts": 2122943,
+        "icon": "https://fastcdn.mihoyo.com/static-resource-v2/2026/01/09/065a90405fd05d4ecbd78fd5582d9541_4815400016808490515.png"
+      }
+    ],
+    "activity_calendar_url": "https://act.mihoyo.com/app/mihoyo-zzz-game-record/m.html?mhy_presentation_style=fullscreen",
+    "hoyo_link_cn": {
+      "HOYO_LINK_TYPE_APP_LINK": "https://oig.mihoyo.com/zenless/?default_url=https%3A%2F%2Foig.mihoyo.com%2Fzenlesscloud%2F%3Fdefault_url%3Dhttps%253A%252F%252Fzzz.mihoyo.com%252Fcloud-feat%252F%253Futm_source%253Dmedia%2526utm_medium%253Dmys%2526utm_campaign%253Dwidgets%252F%2523%252F&source=1&utm_source=media&utm_medium=mys&utm_campaign=widgets",
+      "HOYO_LINK_TYPE_UNIVERSAL_LINK": "https://oig.mihoyo.com/zenless/?default_url=https%3A%2F%2Foig.mihoyo.com%2Fzenlesscloud%2F%3Fdefault_url%3Dhttps%253A%252F%252Fzzz.mihoyo.com%252Fcloud-feat%252F%253Futm_source%253Dmedia%2526utm_medium%253Dmys%2526utm_campaign%253Dwidgets%252F%2523%252F&source=1&utm_source=media&utm_medium=mys&utm_campaign=widgets",
+      "HOYO_LINK_TYPE_DEEPLINK": "zenless://?utm_source=media&utm_medium=mys&utm_campaign=widgets",
+      "HOYO_LINK_TYPE_DEEPLINK_CLOUD": "zenlesscloud://?utm_source=media&utm_medium=mys&utm_campaign=widgets"
+    },
+    "weekly_task_icon": "https://fastcdn.mihoyo.com/static-resource-v2/2026/01/09/a5ab444b246d59efe268d91097c74e15_6233780551580630357.png",
+    "s2_bounty_commission_icon": "https://fastcdn.mihoyo.com/static-resource-v2/2026/01/09/f53b7374715909a04d55d54154dc3222_5589071752889643439.png",
+    "community_circle_url": "mihoyobbs://homeForum?game_id=8"
+  }
+}

@@ -1,0 +1,222 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "current_stamina": 49,
+    "max_stamina": 300,
+    "stamina_recover_time": 90164,
+    "accepted_expedition_num": 0,
+    "total_expedition_num": 4,
+    "expeditions": [],
+    "current_train_score": 500,
+    "max_train_score": 500,
+    "current_rogue_score": 14000,
+    "max_rogue_score": 14000,
+    "has_signed": true,
+    "sign_url": "https://act.mihoyo.com/bbs/event/signin/hkrpg/index.html?bbs_auth_required=true&act_id=e202304121516551&bbs_auth_required=true&bbs_presentation_style=fullscreen",
+    "current_reserve_stamina": 3,
+    "is_reserve_stamina_full": false,
+    "home_url": "https://webstatic.mihoyo.com/app/community-game-records/rpg/index.html?mhy_presentation_style=fullscreen&game_id=6",
+    "note_url": "https://webstatic.mihoyo.com/app/community-game-records/rpg/index.html?mhy_presentation_style=fullscreen&game_id=6",
+    "rogue_tourn_weekly_unlocked": true,
+    "rogue_tourn_weekly_max": 1000,
+    "rogue_tourn_weekly_cur": 1000,
+    "activity_calendar_v2": {
+      "card_pool_list": [
+        {
+          "avatar_list": [
+            {
+              "item_id": "1504",
+              "item_name": "不死途",
+              "icon_url": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/dffa7bbfa7a574400ca622a628daae4b.png",
+              "damage_type": "8",
+              "rarity": "5",
+              "avatar_base_type": "2",
+              "is_forward": false,
+              "damage_type_name": "lightning"
+            }
+          ],
+          "title": [
+            {
+              "content": "剩余12天",
+              "is_highlight": false
+            }
+          ],
+          "id": "71"
+        },
+        {
+          "avatar_list": [
+            {
+              "item_id": "1315",
+              "item_name": "波提欧",
+              "icon_url": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/f69cc6acb2597167de20fcb774b43e8f.png",
+              "damage_type": "1",
+              "rarity": "5",
+              "avatar_base_type": "2",
+              "is_forward": false,
+              "damage_type_name": "physical"
+            }
+          ],
+          "title": [
+            {
+              "content": "剩余12天",
+              "is_highlight": false
+            }
+          ],
+          "id": "73"
+        }
+      ],
+      "activity_list": [
+        {
+          "panel_id": "10108",
+          "icon": "https://fastcdn.mihoyo.com/mi18n/hkrpg_cn/m20240725hy39iip4ao/upload/db65efa3bc8194a433813192cdecffe6_7611353905279951264.png",
+          "title": [
+            {
+              "content": "花藏繁生",
+              "is_highlight": false
+            }
+          ],
+          "progress": [
+            {
+              "content": "剩余次数",
+              "is_highlight": false
+            },
+            {
+              "content": "60",
+              "is_highlight": true
+            },
+            {
+              "content": "/84",
+              "is_highlight": false
+            }
+          ],
+          "count_down": [
+            {
+              "content": "剩余10天",
+              "is_highlight": false
+            }
+          ],
+          "dark_icon": "https://fastcdn.mihoyo.com/mi18n/hkrpg_cn/m20240725hy39iip4ao/upload/5f49c5fbcab11d69366bdcb03086b368_7095124866512554658.png"
+        },
+        {
+          "panel_id": "10142",
+          "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/ea29a5ce45cee6cc9cba54bcf2d0fb5c.png",
+          "title": [
+            {
+              "content": "巡星之礼",
+              "is_highlight": false
+            }
+          ],
+          "progress": [
+            {
+              "content": "已完成",
+              "is_highlight": false
+            }
+          ],
+          "count_down": [
+            {
+              "content": "剩余11天",
+              "is_highlight": false
+            }
+          ],
+          "dark_icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/ea29a5ce45cee6cc9cba54bcf2d0fb5c.png"
+        },
+        {
+          "panel_id": "10026",
+          "icon": "https://fastcdn.mihoyo.com/mi18n/hkrpg_cn/m20240725hy39iip4ao/upload/db65efa3bc8194a433813192cdecffe6_7611353905279951264.png",
+          "title": [
+            {
+              "content": "位面分裂",
+              "is_highlight": false
+            }
+          ],
+          "progress": [
+            {
+              "content": "已完成",
+              "is_highlight": false
+            }
+          ],
+          "count_down": [
+            {
+              "content": "剩余",
+              "is_highlight": false
+            },
+            {
+              "content": "3",
+              "is_highlight": true
+            },
+            {
+              "content": "天",
+              "is_highlight": false
+            }
+          ],
+          "dark_icon": "https://fastcdn.mihoyo.com/mi18n/hkrpg_cn/m20240725hy39iip4ao/upload/5f49c5fbcab11d69366bdcb03086b368_7095124866512554658.png"
+        },
+        {
+          "panel_id": "50092",
+          "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/3a3ba18cc1c5faee1059cc0b259402a2.png",
+          "title": [
+            {
+              "content": "尘灵乱世录",
+              "is_highlight": false
+            }
+          ],
+          "progress": [
+            {
+              "content": "已完成",
+              "is_highlight": false
+            }
+          ],
+          "count_down": [
+            {
+              "content": "剩余10天",
+              "is_highlight": false
+            }
+          ],
+          "dark_icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/3a3ba18cc1c5faee1059cc0b259402a2.png"
+        }
+      ],
+      "extra_info_map": {
+        "BRPG_Br_Android_Eventwarp": "https://oig.mihoyo.com/srbilibili_android/?source=BRPGBrAndroidEventwarp&from=widget",
+        "CRPG_Br_Android_Power": "https://oig.mihoyo.com/srcloud/?source=CRPGBrAndroidPower&from=widget",
+        "CNRPG_Br_Android_Activities": "https://oig.mihoyo.com/sr/?source=CNRPGBrAndroidActivities&from=widget",
+        "CNRPG_Br_Android_Power": "https://oig.mihoyo.com/sr/?source=CNRPGBrAndroidPower&from=widget",
+        "CRPG_Br_Android_Startgame": "https://oig.mihoyo.com/srcloud/?source=CRPGBrAndroidStartgame&from=widget",
+        "CNRPG_Br_Ios_Else": "https://oig.mihoyo.com/sr/?source=CNRPGBrIosElse&from=widget",
+        "HOYO_LINK_TYPE_UNIVERSAL_LINK": "https://oig.mihoyo.com/sr/?default_url=https%3A%2F%2Foig.mihoyo.com%2Fsrcloud%2F%3Fdefault_url%3Dhttps%253A%252F%252Fsr.mihoyo.com%252Fcloud%252F%253Flaunch_client%253D1&deferred_deeplink=source%3DiosBRrpg",
+        "CRPG_Br_Android_Else": "https://oig.mihoyo.com/srcloud/?source=CRPGBrAndroidElse&from=widget",
+        "GAME_RECORD": "https://webstatic.mihoyo.com/app/community-game-records/rpg/index.html?mhy_presentation_style=fullscreen#/rpg",
+        "HOYO_LINK_TYPE_DEEP_LINK": "starrailmihoyo://?deferred_deeplink=source%3DandroidBRrpg",
+        "BRPG_Br_Android_Else": "https://oig.mihoyo.com/srbilibili_android/?source=BRPGBrAndroidElse&from=widget",
+        "CNRPG_Br_Android_Eventwarp": "https://oig.mihoyo.com/sr/?source=CNRPGBrAndroidEventwarp&from=widget",
+        "CRPG_Br_Android_Activities": "https://oig.mihoyo.com/srcloud/?source=CRPGBrAndroidActivities&from=widget",
+        "MYS_MAIN_PAGE": "mihoyobbs://homeForum?game_id=6",
+        "CRPG_Br_Android_Eventwarp": "https://oig.mihoyo.com/srcloud/?source=CRPGBrAndroidEventwarp&from=widget",
+        "CNRPG_Br_Ios_Eventwarp": "https://oig.mihoyo.com/sr/?source=CNRPGBrIosEventwarp&from=widget",
+        "CRPG_Br_Ios_Eventwarp": "https://oig.mihoyo.com/srcloud/?source=CRPGBrIosEventwarp&from=widget",
+        "CNRPG_Br_Ios_Power": "https://oig.mihoyo.com/sr/?source=CNRPGBrIosPower&from=widget",
+        "HOYO_LINK_TYPE_APP_LINK": "https://oig.mihoyo.com/sr/?default_url=https%3A%2F%2Foig.mihoyo.com%2Fsrcloud%2F%3Fdefault_url%3Dhttps%253A%252F%252Fsr.mihoyo.com%252Fcloud%252F%253Flaunch_client%253D1&deferred_deeplink=source%3DandroidBRrpg",
+        "CRPG_Br_Ios_Startgame": "https://oig.mihoyo.com/srcloud/?source=CRPGBrIosStartgame&from=widget",
+        "CNRPG_Br_Ios_Startgame": "https://oig.mihoyo.com/sr/?source=CNRPGBrIosStartgame&from=widget",
+        "CRPG_Br_Ios_Activities": "https://oig.mihoyo.com/srcloud/?source=CRPGBrIosActivities&from=widget",
+        "CNRPG_Br_Android_Else": "https://oig.mihoyo.com/sr/?source=CNRPGBrAndroidElse&from=widget",
+        "BRPG_Br_Android_Startgame": "https://oig.mihoyo.com/srbilibili_android/?source=BRPGBrAndroidStartgame&from=widget",
+        "BRPG_Br_Android_Power": "https://oig.mihoyo.com/srbilibili_android/?source=BRPGBrAndroidPower&from=widget",
+        "BRPG_Br_Android_Activities": "https://oig.mihoyo.com/srbilibili_android/?source=BRPGBrAndroidActivities&from=widget",
+        "CNRPG_Br_Android_Startgame": "https://oig.mihoyo.com/sr/?source=CNRPGBrAndroidStartgame&from=widget",
+        "CRPG_Br_Ios_Else": "https://oig.mihoyo.com/srcloud/?source=CRPGBrIosElse&from=widget",
+        "CRPG_Br_Ios_Power": "https://oig.mihoyo.com/srcloud/?source=CRPGBrIosPower&from=widget",
+        "GAME_RECORD_ACT": "https://webstatic.mihoyo.com/app/community-game-records/rpg/index.html?mhy_presentation_style=fullscreen&scroll_to_module=event#/rpg",
+        "CNRPG_Br_Ios_Activities": "https://oig.mihoyo.com/sr/?source=CNRPGBrIosActivities&from=widget"
+      },
+      "sign_info": {
+        "has_signed": true,
+        "sign_url": "https://act.mihoyo.com/bbs/event/signin/hkrpg/index.html?bbs_auth_required=true&act_id=e202304121516551&bbs_auth_required=true&bbs_presentation_style=fullscreen",
+        "home_url": "https://webstatic.mihoyo.com/app/community-game-records/rpg/index.html?mhy_presentation_style=fullscreen&game_id=6",
+        "note_url": "https://webstatic.mihoyo.com/app/community-game-records/rpg/index.html?mhy_presentation_style=fullscreen&game_id=6",
+        "game_record_url": "https://webstatic.mihoyo.com/app/community-game-records/rpg/index.html?mhy_presentation_style=fullscreen#/rpg",
+        "more_act_url": "https://webstatic.mihoyo.com/app/community-game-records/rpg/index.html?mhy_presentation_style=fullscreen&scroll_to_module=event#/rpg"
+      }
+    }
+  }
+}

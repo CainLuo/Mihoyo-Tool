@@ -72,6 +72,60 @@ x-rum-traceparent: 00-a573bbefa8bc732914397a9375cea86d-68300ec6c0907268-01
 
 ## 原神相关 API
 
+### 原神 Act Calendar Widget
+
+- API：https://api-takumi-record.mihoyo.com/game_record/app/genshin/aapi/act_calendar/widget
+- 请求方式：GET
+- 请求头示例参数：
+
+```text
+GET /game_record/app/genshin/aapi/act_calendar/widget HTTP/1.1
+Host: api-takumi-record.mihoyo.com
+DS: 1775803207,109163,dbf8d571706875327530f1887f7c3bb8
+Accept: */*
+x-rpc-device_fp:
+x-rpc-client_type: 1
+x-rpc-device_id: 4DC5ED80-3B76-4E65-9DB1-AB5B41FDDF9A
+x-rpc-channel: appstore
+Accept-Language: zh-CN,zh-Hans;q=0.9
+Accept-Encoding: gzip, deflate, br
+x-rpc-device_model: iPad14,1
+Referer: https://app.mihoyo.com
+x-rpc-device_name:
+x-rpc-app_version: 2.104.0
+User-Agent: WidgetExtension/550 CFNetwork/1335.0.3 Darwin/21.6.0
+Connection: keep-alive
+Cookie: stuid=182692936;stoken=v2_FZPxCrn9_KEpey-6PlTsyv-xBS1rg8jCHmbhoXyJz7UI_uETHLNUtj0-skDCvkbIWNueHwoZ0rW4ShupHj5ziCUWYmlsJ1pFaAjtOsEN_VfIlwbsz6k8lWU2LXdoMWCfGpZpsQGwxIEgGcA3Ow==.CAE=;mid=0otk3b2k90_mhy;
+x-rpc-sys_version: 15.7.1
+```
+
+### 原神 Widget
+
+- API：https://api-takumi-record.mihoyo.com/game_record/app/genshin/aapi/widget/v2
+- 请求方式：GET
+- 请求头示例参数：
+
+```text
+GET /game_record/app/genshin/aapi/widget/v2 HTTP/1.1
+Host: api-takumi-record.mihoyo.com
+DS: 1775801855,108104,57e991d9ef9c9cf6dbff9d697ee4f92d
+Accept: */*
+x-rpc-device_fp:
+x-rpc-client_type: 1
+x-rpc-device_id: 4DC5ED80-3B76-4E65-9DB1-AB5B41FDDF9A
+x-rpc-channel: appstore
+Accept-Language: zh-CN,zh-Hans;q=0.9
+Accept-Encoding: gzip, deflate, br
+x-rpc-device_model: iPad14,1
+Referer: https://app.mihoyo.com
+x-rpc-device_name:
+x-rpc-app_version: 2.104.0
+User-Agent: WidgetExtension/550 CFNetwork/1335.0.3 Darwin/21.6.0
+Connection: keep-alive
+Cookie: stuid=182692936;stoken=v2_FZPxCrn9_KEpey-6PlTsyv-xBS1rg8jCHmbhoXyJz7UI_uETHLNUtj0-skDCvkbIWNueHwoZ0rW4ShupHj5ziCUWYmlsJ1pFaAjtOsEN_VfIlwbsz6k8lWU2LXdoMWCfGpZpsQGwxIEgGcA3Ow==.CAE=;mid=0otk3b2k90_mhy;
+x-rpc-sys_version: 15.7.1
+```
+
 ### 实时便笺
 
 - API：https://api-takumi-record.mihoyo.com/game_record/app/genshin/api/dailyNote?role_id=109050292&server=cn_gf01
@@ -404,6 +458,60 @@ Connection: keep-alive
 
 ## 崩坏：星穹铁道相关 API
 
+### 崩坏：星穹铁道 Act Calender Widget
+
+- API：https://api-takumi-record.mihoyo.com/game_record/app/hkrpg/aapi/get_act_calender_widget
+- 请求方式：GET
+- 请求头示例参数：
+
+```text
+GET /game_record/app/hkrpg/aapi/get_act_calender_widget HTTP/1.1
+Host: api-takumi-record.mihoyo.com
+DS: 1775803086,109068,5333e77414b9298ab108b3bd40a0e80b
+Accept: */*
+x-rpc-device_fp:
+x-rpc-client_type: 1
+x-rpc-device_id: 4DC5ED80-3B76-4E65-9DB1-AB5B41FDDF9A
+x-rpc-channel: appstore
+Accept-Language: zh-CN,zh-Hans;q=0.9
+Accept-Encoding: gzip, deflate, br
+x-rpc-sys_version: 15.7.1
+Referer: https://app.mihoyo.com
+x-rpc-device_name:
+x-rpc-app_version: 2.104.0
+User-Agent: WidgetExtension/550 CFNetwork/1335.0.3 Darwin/21.6.0
+Connection: keep-alive
+Cookie: stuid=182692936;stoken=v2_FZPxCrn9_KEpey-6PlTsyv-xBS1rg8jCHmbhoXyJz7UI_uETHLNUtj0-skDCvkbIWNueHwoZ0rW4ShupHj5ziCUWYmlsJ1pFaAjtOsEN_VfIlwbsz6k8lWU2LXdoMWCfGpZpsQGwxIEgGcA3Ow==.CAE=;mid=0otk3b2k90_mhy;
+x-rpc-device_model: iPad14,1
+```
+
+### 崩坏：星穹铁道 Widget
+
+- API：https://api-takumi-record.mihoyo.com/game_record/app/hkrpg/aapi/widget
+- 请求方式：GET
+- 请求头示例参数：
+
+```text
+GET /game_record/app/hkrpg/aapi/widget HTTP/1.1
+Host: api-takumi-record.mihoyo.com
+DS: 1775801855,108104,57e991d9ef9c9cf6dbff9d697ee4f92d
+Accept: */*
+x-rpc-device_fp:
+x-rpc-client_type: 1
+x-rpc-device_id: 4DC5ED80-3B76-4E65-9DB1-AB5B41FDDF9A
+x-rpc-channel: appstore
+Accept-Language: zh-CN,zh-Hans;q=0.9
+Accept-Encoding: gzip, deflate, br
+x-rpc-sys_version: 15.7.1
+Referer: https://app.mihoyo.com
+x-rpc-device_name:
+x-rpc-app_version: 2.104.0
+User-Agent: WidgetExtension/550 CFNetwork/1335.0.3 Darwin/21.6.0
+Connection: keep-alive
+Cookie: stuid=182692936;stoken=v2_FZPxCrn9_KEpey-6PlTsyv-xBS1rg8jCHmbhoXyJz7UI_uETHLNUtj0-skDCvkbIWNueHwoZ0rW4ShupHj5ziCUWYmlsJ1pFaAjtOsEN_VfIlwbsz6k8lWU2LXdoMWCfGpZpsQGwxIEgGcA3Ow==.CAE=;mid=0otk3b2k90_mhy;
+x-rpc-device_model: iPad14,1
+```
+
 ### 实时便笺：
 
 - API：https://api-takumi-record.mihoyo.com/game_record/app/hkrpg/api/note?server=prod_gf_cn&role_id=102731382
@@ -617,6 +725,33 @@ Accept-Language: zh-CN,zh-Hans;q=0.9
 ```
 
 ## 绝区零相关 API
+
+### 绝区零 Widget
+
+- API: https://api-takumi-record.mihoyo.com/event/game_record_zzz/api/zzz/widget
+- 请求方式：GET
+- 请求头示例参数：
+
+```text
+GET /event/game_record_zzz/api/zzz/widget HTTP/1.1
+Host: api-takumi-record.mihoyo.com
+DS: 1775801856,108105,df6e648a0efce71574def1a66592ced2
+Accept: */*
+x-rpc-device_fp:
+x-rpc-client_type: 1
+x-rpc-device_id: 4DC5ED80-3B76-4E65-9DB1-AB5B41FDDF9A
+x-rpc-channel: appstore
+Accept-Language: zh-CN,zh-Hans;q=0.9
+Accept-Encoding: gzip, deflate, br
+x-rpc-sys_version: 15.7.1
+Referer: https://app.mihoyo.com
+x-rpc-device_name:
+x-rpc-app_version: 2.104.0
+User-Agent: WidgetExtension/550 CFNetwork/1335.0.3 Darwin/21.6.0
+Connection: keep-alive
+Cookie: stuid=182692936;stoken=v2_FZPxCrn9_KEpey-6PlTsyv-xBS1rg8jCHmbhoXyJz7UI_uETHLNUtj0-skDCvkbIWNueHwoZ0rW4ShupHj5ziCUWYmlsJ1pFaAjtOsEN_VfIlwbsz6k8lWU2LXdoMWCfGpZpsQGwxIEgGcA3Ow==.CAE=;mid=0otk3b2k90_mhy;
+x-rpc-device_model: iPad14,1
+```
 
 ### 养成材料计算：
 
