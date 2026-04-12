@@ -17,15 +17,21 @@ export class ZZZMockService extends MockServiceBase {
   }
 
   async getDailyNote(roleId: string, server: string, cookie: string): Promise<object> {
-    return this.readMockFile(ZZZApiPath.DAILY_NOTE, cookie);
+    return this.readMockFile(ZZZApiPath.DAILY_NOTE, cookie, roleId);
   }
 
   async getAvatarBasic(roleId: string, server: string, cookie: string): Promise<object> {
-    return this.readMockFile(ZZZApiPath.AVATAR_BASIC, cookie);
+    return this.readMockFile(ZZZApiPath.AVATAR_BASIC, cookie, roleId);
   }
 
   async getAvatarInfo(roleId: string, server: string, idList: string[], cookie: string): Promise<object> {
-    return this.readMockFile(ZZZApiPath.AVATAR_INFO, cookie);
+    // 绝区零：用 idList[0] 作为文件名，路由到 {accountId}/{roleId}/{avatarId}.json
+    const avatarId = idList.length > 0 ? idList[0] : '';
+    return this.readMockFile(ZZZApiPath.AVATAR_INFO, cookie, roleId, avatarId);
+  }
+
+  async getBuddyList(roleId: string, server: string, cookie: string): Promise<object> {
+    return this.readMockFile(ZZZApiPath.BUDDY_LIST, cookie, roleId);
   }
 
   async compute(

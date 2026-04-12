@@ -141,8 +141,8 @@ export class GameRoleCardVM {
 /** 单个米游社账号 ViewModel */
 @ObservedV2
 export class MihoyoAccountVM {
-  /** 账号 ID */
-  @Trace accountId: number = 0
+  /** 米游社 UID */
+  @Trace accountId: string = ''
   /** 米游社用户名（UID） */
   @Trace username: string = ''
   /** 米游社昵称 */
@@ -152,7 +152,7 @@ export class MihoyoAccountVM {
   /** 该账号下的游戏角色列表（二维数组的"行"） */
   @Trace roles: GameRoleCardVM[] = []
 
-  constructor(accountId: number, username: string, roles: GameRoleCardVM[], nickname: string = '', avatarUrl: string = '') {
+  constructor(accountId: string, username: string, roles: GameRoleCardVM[], nickname: string = '', avatarUrl: string = '') {
     this.accountId = accountId
     this.username = username
     this.roles = roles

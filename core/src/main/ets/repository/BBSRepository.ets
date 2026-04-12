@@ -1,13 +1,14 @@
 import { MihoyoApiService } from '../network/MihoyoApiService';
+import { MihoyoAccountApiService } from '../network/MihoyoAccountApiService';
 import { AccountDao, GameRoleDao } from '../database/BBSDao';
 import { AccountRow } from '../models/AccountRow';
 import { GameRoleRow } from '../models/GameRoleRow';
 import { AuthRepository } from './AuthRepository';
-import { CoreInitializer } from '../CoreInitializer';
+import { SyncQueueRunner } from './SyncQueueRunner';
 
 /** login() 方法的返回值，供 entry 层组装 AccountVM */
 export class LoginResult {
-  accountId: number = 0;
+  accountId: string = '';
   username: string = '';
   uid: string = '';
   nickname: string = '';
@@ -22,6 +23,10 @@ export class BBSRepository {
 
   setService(service: MihoyoApiService): void {
     this.service = service;
+    // 同步给 AuthRepository，让登录接口走同一个 service（mock/release 统一）
+    if (service instanceof MihoyoAccountApiService) {
+      AuthRepository.accountService = service;
+    }
   }
 
   private toErrorMessage(error: Error | object): string {
@@ -38,19 +43,14 @@ export class BBSRepository {
    * 确保 MockService 能路由到正确的 account1/ 或 account2/ 目录。
    */
   async login(username: string, cookie: string): Promise<LoginResult> {
-    // mock 环境：username 和 cookie 里的 account_id 统一使用 mockIdx，保证一致性
-    // 此逻辑由 core 内部处理，entry 层不感知环境
-    let effectiveCookie = cookie;
-    let effectiveUsername = username;
-    if (CoreInitializer.getIsMock()) {
-      const allAccounts = await this.accountDao.findAll();
-      const mockIdx = (allAccounts.length % 2) + 1;
-      effectiveCookie = `account_id=${mockIdx}; cookie_token=mock_token; ltoken=mock_ltoken; ltuid=${mockIdx}`;
-      effectiveUsername = `${mockIdx}`;
-    }
+    // entry 层传入的 username 和 cookie 直接使用，core 不做任何替换
+    const effectiveCookie = cookie;
+    const effectiveUsername = username;
 
     // 1. 写入账号（INSERT OR IGNORE + UPDATE，不触发 CASCADE）
-    const accountId = await this.upsertOrUpdateAccount(effectiveUsername, effectiveCookie);
+    await this.upsertOrUpdateAccount(effectiveUsername, effectiveCookie);
+    // username 就是 Cookie 里的 account_id（米游社 UID），直接用作 accountId
+    const accountId = effectiveUsername;
 
     // 2. 拉取游戏角色并写入
     try {
@@ -99,7 +99,7 @@ export class BBSRepository {
         nickname = bbsDetail.nickname;
         avatarUrl = bbsDetail.avatarUrl;
         uid = bbsDetail.uid;
-        const latestRow = await this.accountDao.findById(accountId);
+        const latestRow = await this.accountDao.findByUsername(effectiveUsername);
         if (latestRow !== null) {
           latestRow.nickname = nickname;
           latestRow.avatarUrl = avatarUrl;
@@ -111,13 +111,23 @@ export class BBSRepository {
     } catch (_) {}
 
     // 4. 返回结果
+    const finalUid = uid !== '' ? uid : accountId;
+    // 重新从 DB 读取最新账号数据，确保 nickname/avatarUrl 是 step 3 写入后的最新值
+    const latestAccount = await this.accountDao.findByUsername(effectiveUsername);
     const result = new LoginResult();
-    result.accountId = accountId;
+    result.accountId = finalUid;
     result.username = effectiveUsername;
-    result.uid = uid;
-    result.nickname = nickname;
-    result.avatarUrl = avatarUrl;
-    result.roles = await this.gameRoleDao.findByAccountId(accountId);
+    result.uid = finalUid;
+    result.nickname = latestAccount?.nickname ?? nickname;
+    result.avatarUrl = latestAccount?.avatarUrl ?? avatarUrl;
+    result.roles = await this.gameRoleDao.findByAccountId(finalUid);
+
+    // 5. 后台异步同步各游戏角色列表和详情（持久化队列，防止 App 被杀后丢失）
+    const tasks = SyncQueueRunner.buildTasksForRoles(finalUid, result.roles, effectiveCookie);
+    SyncQueueRunner.enqueue(tasks)
+      .then(() => SyncQueueRunner.runTasks(tasks))
+      .catch((_: Error | object) => {});
+
     return result;
   }
 
@@ -130,14 +140,14 @@ export class BBSRepository {
 
   /**
    * 登录时写入账号：INSERT OR IGNORE + UPDATE cookie，不触发 CASCADE。
-   * @returns 写入后的账号数据库 id
+   * @returns 写入后的账号 uid（米游社 UID，string）
    */
-  async upsertOrUpdateAccount(username: string, cookie: string): Promise<number> {
+  async upsertOrUpdateAccount(username: string, cookie: string): Promise<string> {
     const now = Math.floor(Date.now() / 1000);
     await this.accountDao.insertOrIgnore(username, cookie, now);
     await this.accountDao.updateCookie(username, cookie, now);
     const saved = await this.accountDao.findByUsername(username);
-    return saved !== null ? saved.id : 0;
+    return saved !== null ? saved.uid : '';
   }
 
   /** 查询所有账号 */
@@ -155,25 +165,33 @@ export class BBSRepository {
     return this.accountDao.findByUsername(username);
   }
 
-  /** 删除账号 */
-  async deleteAccount(id: number): Promise<void> {
-    await this.accountDao.deleteById(id);
+  /** 按 uid 查询账号（米游社 UID） */
+  async getAccountByUid(uid: string): Promise<AccountRow | null> {
+    return this.accountDao.findByUid(uid);
+  }
+
+  /** 删除账号（按米游社 UID） */
+  async deleteAccount(uid: string): Promise<void> {
+    const row = await this.accountDao.findByUid(uid);
+    if (row !== null) {
+      await this.accountDao.deleteById(row.id);
+    }
   }
 
   // ── 游戏角色操作 ──────────────────────────────────────────────
 
   /** 查询账号下所有游戏角色 */
-  async getGameRoles(accountId: number): Promise<GameRoleRow[]> {
+  async getGameRoles(accountId: string): Promise<GameRoleRow[]> {
     return this.gameRoleDao.findByAccountId(accountId);
   }
 
   /** 查询账号下指定游戏的角色 */
-  async getGameRolesByGame(accountId: number, gameId: string): Promise<GameRoleRow[]> {
+  async getGameRolesByGame(accountId: string, gameId: string): Promise<GameRoleRow[]> {
     return this.gameRoleDao.findByAccountAndGame(accountId, gameId);
   }
 
   /** 删除账号下所有游戏角色 */
-  async deleteGameRoles(accountId: number): Promise<void> {
+  async deleteGameRoles(accountId: string): Promise<void> {
     await this.gameRoleDao.deleteByAccountId(accountId);
   }
 

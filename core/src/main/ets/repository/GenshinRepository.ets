@@ -53,37 +53,37 @@ export class GenshinRepository extends GameRepository {
 
   // ── 角色列表 ──────────────────────────────────────────────────
 
-  async getAvatarList(accountId: number, roleUid: string): Promise<GenshinCharacterListRow[]> {
+  async getAvatarList(accountId: string, roleUid: string): Promise<GenshinCharacterListRow[]> {
     return this.characterListDao.findAll(accountId, roleUid);
   }
 
-  async upsertAvatarList(accountId: number, roleUid: string, rows: GenshinCharacterListRow[]): Promise<void> {
+  async upsertAvatarList(accountId: string, roleUid: string, rows: GenshinCharacterListRow[]): Promise<void> {
     await this.runInTransaction(async () => {
       await this.characterListDao.upsertAll(rows);
       await this.markSuccess(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_LIST);
     });
   }
 
-  async deleteAvatarList(accountId: number, roleUid: string): Promise<void> {
+  async deleteAvatarList(accountId: string, roleUid: string): Promise<void> {
     await this.characterListDao.deleteAll(accountId, roleUid);
   }
 
-  async needsAvatarListSync(accountId: number, roleUid: string): Promise<boolean> {
+  async needsAvatarListSync(accountId: string, roleUid: string): Promise<boolean> {
     return this.needsSync(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_LIST);
   }
 
-  async markAvatarListSyncing(accountId: number, roleUid: string): Promise<void> {
+  async markAvatarListSyncing(accountId: string, roleUid: string): Promise<void> {
     await this.markSyncing(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_LIST);
   }
 
-  async markAvatarListFailed(accountId: number, roleUid: string, errorMsg: string): Promise<void> {
+  async markAvatarListFailed(accountId: string, roleUid: string, errorMsg: string): Promise<void> {
     await this.markFailed(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_LIST, errorMsg);
   }
 
   /**
    * 拉取角色列表 → 解析 → 写 DB（entry 层只需调用此方法）
    */
-  async syncAvatarList(accountId: number, roleUid: string, server: string, cookie: string): Promise<void> {
+  async syncAvatarList(accountId: string, roleUid: string, server: string, cookie: string): Promise<void> {
     await this.markSyncing(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_LIST);
     try {
       const resp = await (this.getService() as GenshinApiService).getCharacterList(roleUid, server, cookie);
@@ -98,43 +98,60 @@ export class GenshinRepository extends GameRepository {
 
   // ── 实时便笺 ──────────────────────────────────────────────────
 
-  async getDailyNote(accountId: number, roleUid: string): Promise<GenshinDailyNoteRow | null> {
+  async getDailyNote(accountId: string, roleUid: string): Promise<GenshinDailyNoteRow | null> {
     return this.dailyNoteDao.findOne(accountId, roleUid);
   }
 
-  async upsertDailyNote(accountId: number, roleUid: string, row: GenshinDailyNoteRow): Promise<void> {
+  async upsertDailyNote(accountId: string, roleUid: string, row: GenshinDailyNoteRow): Promise<void> {
     await this.runInTransaction(async () => {
       await this.dailyNoteDao.upsert(row);
       await this.markSuccess(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE);
     });
   }
 
-  async needsDailyNoteSync(accountId: number, roleUid: string): Promise<boolean> {
+  async needsDailyNoteSync(accountId: string, roleUid: string): Promise<boolean> {
     return this.needsSync(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE);
   }
 
-  async markDailyNoteSyncing(accountId: number, roleUid: string): Promise<void> {
+  async markDailyNoteSyncing(accountId: string, roleUid: string): Promise<void> {
     await this.markSyncing(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE);
   }
 
-  async markDailyNoteFailed(accountId: number, roleUid: string, errorMsg: string): Promise<void> {
+  async markDailyNoteFailed(accountId: string, roleUid: string, errorMsg: string): Promise<void> {
     await this.markFailed(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE, errorMsg);
   }
 
   /**
    * 拉取便笺 → 写 DB（entry 层只需调用此方法）
    */
-  async syncDailyNote(accountId: number, roleUid: string, server: string, cookie: string): Promise<void> {
+  async syncDailyNote(accountId: string, roleUid: string, server: string, cookie: string): Promise<void> {
     await this.markSyncing(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE);
     try {
       const resp = await (this.getService() as GenshinApiService).getDailyNote(roleUid, server, cookie);
       const respData = resp as Record<string, object>;
       const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
+      const d = dataObj as Record<string, object>;
       const row = new GenshinDailyNoteRow();
       row.accountId = accountId;
       row.roleUid = roleUid;
       row.rawJson = JSON.stringify(dataObj);
       row.updateTime = Math.floor(Date.now() / 1000);
+      // 独立字段：从 API 响应直接读取，不硬编码上限值
+      row.currentResin = Number(d['current_resin'] ?? 0);
+      row.maxResin = Number(d['max_resin'] ?? 0);
+      row.resinRecoveryTime = parseInt(`${d['resin_recovery_time'] ?? '0'}`) || 0;
+      row.finishedTaskNum = Number(d['finished_task_num'] ?? 0);
+      row.totalTaskNum = Number(d['total_task_num'] ?? 0);
+      row.remainResinDiscountNum = Number(d['remain_resin_discount_num'] ?? 0);
+      row.currentExpeditionNum = Number(d['current_expedition_num'] ?? 0);
+      row.maxExpeditionNum = Number(d['max_expedition_num'] ?? 0);
+      row.currentHomeCoin = Number(d['current_home_coin'] ?? 0);
+      row.maxHomeCoin = Number(d['max_home_coin'] ?? 0);
+      const transformer = d['transformer'] as Record<string, object> | null;
+      if (transformer) {
+        const rt = transformer['recovery_time'] as Record<string, object> | null;
+        row.transformerRecoveryDay = rt ? Number(rt['Day'] ?? 0) : 0;
+      }
       await this.upsertDailyNote(accountId, roleUid, row);
     } catch (error) {
       const msg = this.toErrorMessage(error);
@@ -145,36 +162,104 @@ export class GenshinRepository extends GameRepository {
 
   // ── 角色详情 ──────────────────────────────────────────────────
 
-  async getAvatarDetail(accountId: number, roleUid: string, avatarId: string): Promise<GenshinCharacterDetailRow | null> {
+  async getAvatarDetail(accountId: string, roleUid: string, avatarId: string): Promise<GenshinCharacterDetailRow | null> {
     return this.characterDetailDao.findByAvatarId(accountId, roleUid, avatarId);
   }
 
-  async upsertAvatarDetails(accountId: number, roleUid: string, rows: GenshinCharacterDetailRow[]): Promise<void> {
+  async upsertAvatarDetails(accountId: string, roleUid: string, rows: GenshinCharacterDetailRow[]): Promise<void> {
     await this.runInTransaction(async () => {
       await this.characterDetailDao.upsertAll(rows);
       await this.markSuccess(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_DETAIL);
     });
   }
 
-  async needsAvatarDetailSync(accountId: number, roleUid: string): Promise<boolean> {
+  async needsAvatarDetailSync(accountId: string, roleUid: string): Promise<boolean> {
     return this.needsSync(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_DETAIL);
   }
 
-  async markAvatarDetailSyncing(accountId: number, roleUid: string): Promise<void> {
+  async markAvatarDetailSyncing(accountId: string, roleUid: string): Promise<void> {
     await this.markSyncing(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_DETAIL);
   }
 
-  async markAvatarDetailFailed(accountId: number, roleUid: string, errorMsg: string): Promise<void> {
+  async markAvatarDetailFailed(accountId: string, roleUid: string, errorMsg: string): Promise<void> {
     await this.markFailed(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_DETAIL, errorMsg);
+  }
+
+  /** 拉取角色详情（批量，传空数组拉取全部）→ 解析 → 写 DB */
+  async syncAvatarDetail(accountId: string, roleUid: string, server: string, cookie: string): Promise<void> {
+    await this.markSyncing(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_DETAIL);
+    try {
+      const resp = await (this.getService() as GenshinApiService).getCharacterDetail(roleUid, server, [], cookie);
+      const rows = GenshinRepository.parseCharacterDetail(accountId, roleUid, resp);
+      await this.upsertAvatarDetails(accountId, roleUid, rows);
+    } catch (error) {
+      const msg = this.toErrorMessage(error);
+      await this.markFailed(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_DETAIL, msg);
+      throw new Error(msg);
+    }
+  }
+
+  static parseCharacterDetail(accountId: string, roleUid: string, resp: object): GenshinCharacterDetailRow[] {
+    const result: GenshinCharacterDetailRow[] = [];
+    try {
+      const respRecord = resp as Record<string, object>;
+      const dataObj = respRecord['data'] !== undefined ? respRecord['data'] : resp;
+      const data = dataObj as Record<string, object>;
+      const list = data['list'] as Record<string, object>[];
+      if (!list || list.length === 0) { return result; }
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i];
+        const base = item['base'] as Record<string, object>;
+        if (!base) { continue; }
+
+        const row = new GenshinCharacterDetailRow();
+        row.accountId = accountId;
+        row.roleUid = roleUid;
+        row.avatarId = `${base['id']}`;
+        row.rawJson = JSON.stringify(item);
+        row.updateTime = Math.floor(Date.now() / 1000);
+
+        // 提取武器 id（用于快速查询索引）
+        const weapon = item['weapon'] as Record<string, object> | null;
+        if (weapon) {
+          row.weaponId = `${weapon['id'] ?? ''}`;
+          row.weaponLevel = Number(weapon['level'] ?? 0);
+          row.weaponAffixLevel = Number(weapon['affix_level'] ?? 0);
+        }
+
+        // 提取圣遗物 id 列表（逗号分隔）
+        const relics = item['relics'] as Record<string, object>[];
+        if (relics && relics.length > 0) {
+          const ids: string[] = [];
+          for (let j = 0; j < relics.length; j++) {
+            ids[ids.length] = `${relics[j]['id'] ?? ''}`;
+          }
+          row.relicIds = ids.join(',');
+        }
+
+        // 提取技能等级列表（逗号分隔）
+        const skills = item['skills'] as Record<string, object>[];
+        if (skills && skills.length > 0) {
+          const levels: string[] = [];
+          for (let j = 0; j < skills.length; j++) {
+            levels[levels.length] = `${skills[j]['level_current'] ?? skills[j]['level'] ?? 0}`;
+          }
+          row.skillLevels = levels.join(',');
+        }
+
+        result[result.length] = row;
+      }
+    } catch (_) {}
+    return result;
   }
 
   // ── 养成材料计算 ──────────────────────────────────────────────
 
-  async getAvatarCompute(accountId: number, roleUid: string, avatarId: string): Promise<GenshinCharacterComputeRow | null> {
+  async getAvatarCompute(accountId: string, roleUid: string, avatarId: string): Promise<GenshinCharacterComputeRow | null> {
     return this.characterComputeDao.findByAvatarId(accountId, roleUid, avatarId);
   }
 
-  async upsertAvatarCompute(accountId: number, roleUid: string, row: GenshinCharacterComputeRow): Promise<void> {
+  async upsertAvatarCompute(accountId: string, roleUid: string, row: GenshinCharacterComputeRow): Promise<void> {
     await this.runInTransaction(async () => {
       await this.characterComputeDao.upsert(row);
       await this.markSuccess(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_COMPUTE);
@@ -183,7 +268,7 @@ export class GenshinRepository extends GameRepository {
 
   // ── 解析方法 ─────────────────────────────────────────────────
 
-  static parseCharacterList(accountId: number, roleUid: string, resp: object): GenshinCharacterListRow[] {
+  static parseCharacterList(accountId: string, roleUid: string, resp: object): GenshinCharacterListRow[] {
     const result: GenshinCharacterListRow[] = [];
     try {
       const respRecord = resp as Record<string, object>;

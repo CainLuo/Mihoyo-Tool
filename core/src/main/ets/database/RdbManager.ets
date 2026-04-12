@@ -9,7 +9,7 @@ import { ALL_TABLES, ALL_INDEXES, TableName } from './TableSchema';
 export class RdbManager {
   private static rdbStore: relationalStore.RdbStore | null = null;
   private static readonly DB_NAME: string = 'mihoyo_tool_v2.db';
-  private static readonly DB_VERSION: number = 2;
+  private static readonly DB_VERSION: number = 1;
 
   /**
    * 初始化数据库，使用 SecurityLevel.S2 加密
@@ -75,12 +75,11 @@ export class RdbManager {
   }
 
   /**
-   * 检查 user_version，首次安装时建全部 15 张表并设 user_version=1
+   * 检查 user_version，首次安装时建全部表并设 user_version=1
    */
   private static async runMigrations(): Promise<void> {
     const store: relationalStore.RdbStore = RdbManager.getRdbStore();
 
-    // 查询当前 user_version
     let currentVersion: number = 0;
     try {
       const rs: relationalStore.ResultSet = await store.querySql('PRAGMA user_version', []);
@@ -101,10 +100,11 @@ export class RdbManager {
     }
 
     if (currentVersion === 0) {
+      // 首次安装：建全部表
       await RdbManager.createTables();
       await RdbManager.executeSqlInternal(`PRAGMA user_version = ${RdbManager.DB_VERSION}`, []);
     }
-    // currentVersion === DB_VERSION 时跳过
+    // currentVersion === DB_VERSION 时跳过，无迁移逻辑
   }
 
   /**

@@ -1,26 +1,16 @@
 /**
  * LoginPhone.ets — 手机号 + 短信验证码登录组件
  */
-import { MmtData, GeetestCreateResult } from 'core'
 import { LoginViewModel } from '../../viewmodel/LoginViewModel'
 import { PhoneStep } from '../../constants/LoginTabEnum'
-import { showGeetestDialog } from '../GeetestDialog'
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 import { LoginPhoneInput } from './LoginPhoneInput'
 import { LoginCodeInput } from './LoginCodeInput'
-import { Logger } from '../../utils/Logger'
-
-const TAG: string = 'LoginPhone'
 
 @ComponentV2
 export struct LoginPhone {
   @Param vm: LoginViewModel = new LoginViewModel()
   @Local private tm: ThemeManager = themeManager
-  private uiContext: UIContext | null = null
-
-  aboutToAppear(): void {
-    this.uiContext = this.getUIContext()
-  }
 
   build() {
     Column({ space: this.tm.current.value16 }) {
@@ -28,13 +18,13 @@ export struct LoginPhone {
         LoginPhoneInput({
           tm: this.tm,
           vm: this.vm,
-          onSendSms: () => { this.handleSendSms() }
+          onSendSms: () => { this.vm.sendSmsCode() }
         })
       } else {
         LoginCodeInput({
           tm: this.tm,
           vm: this.vm,
-          onResendSms: () => { this.handleSendSms() }
+          onResendSms: () => { this.vm.sendSmsCode() }
         })
       }
 
@@ -47,36 +37,5 @@ export struct LoginPhone {
       }
     }
     .width(this.tm.current.full)
-  }
-
-  private handleSendSms(): void {
-    this.vm.prepareSendSms().then((mmt: MmtData) => {
-      if (mmt.use_v4 !== true && mmt.gt === undefined) {
-        this.vm.sendSmsCode()
-        return
-      }
-      if (this.uiContext === null) {
-        Logger.error(TAG, 'uiContext is null')
-        return
-      }
-      const createResult: GeetestCreateResult = new GeetestCreateResult();
-      createResult.gt = mmt.gt ?? '';
-      createResult.challenge = mmt.challenge ?? '';
-      createResult.risk_type = mmt.risk_type ?? '';
-      createResult.new_captcha = mmt.new_captcha === 1 ? 1 : 0;
-      showGeetestDialog(this.uiContext, createResult).then((verifyInput) => {
-        if (verifyInput === null) { return }
-        this.vm.sendSmsCode(
-          undefined,
-          verifyInput.geetest_challenge,
-          verifyInput.geetest_validate,
-          verifyInput.geetest_seccode
-        )
-      }).catch((e: Error) => {
-        Logger.error(TAG, 'showGeetestDialog failed: ' + e.message)
-      })
-    }).catch((e: Error) => {
-      Logger.error(TAG, 'prepareSendSms failed: ' + e.message)
-    })
   }
 }

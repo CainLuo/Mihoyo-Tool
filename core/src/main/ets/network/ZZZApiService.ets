@@ -62,6 +62,21 @@ export class ZZZApiService extends MihoyoApiService {
     return HttpClient.get(url, undefined, opts);
   }
 
+  /** 邦布列表 — GET，Domain=TAKUMI_RECORD，Profile=ZZZ_GAME_RECORD */
+  async getBuddyList(roleId: string, server: string, cookie: string): Promise<object> {
+    const params = new RequestParams();
+    params.set('role_id', roleId);
+    params.set('server', server);
+    const headers = MihoyoHeaderBuilder.build(HeaderProfile.ZZZ_GAME_RECORD, cookie, params);
+    const opts = new RequestOptions();
+    opts.extraHeaders = headers;
+    return HttpClient.get(
+      MihoyoDomain.TAKUMI_RECORD + ZZZApiPath.BUDDY_LIST,
+      params,
+      opts,
+    );
+  }
+
   /**
    * 养成材料计算 — POST，Domain=ACT_TAKUMI，Profile=ZZZ_GAME_RECORD
    * uid 和 region 作为 URL query 参数

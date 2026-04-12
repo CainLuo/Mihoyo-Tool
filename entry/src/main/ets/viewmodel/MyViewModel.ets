@@ -32,7 +32,7 @@ export class MyViewModel {
       for (let ai = 0; ai < accountRows.length; ai++) {
         const row = accountRows[ai];
         // 只读取 DB 数据，不做任何写操作（写操作在登录时完成）
-        const roles = await CoreInitializer.bbsRepository.getGameRoles(row.id);
+        const roles = await CoreInitializer.bbsRepository.getGameRoles(row.uid);
         const roleVMs: MyGameRoleVM[] = [];
         for (let ri = 0; ri < roles.length; ri++) {
           const r = roles[ri];
@@ -47,7 +47,7 @@ export class MyViewModel {
             r.level, r.bgImageUrl, stats
           );
         }
-        vms[vms.length] = new MyAccountVM(row.id, row.username, roleVMs, row.nickname, row.avatarUrl, row.uid);
+        vms[vms.length] = new MyAccountVM(row.uid, row.username, roleVMs, row.nickname, row.avatarUrl, row.uid);
       }
       this.accounts = vms;
       this.viewState = vms.length > 0 ? ViewState.DATA : ViewState.EMPTY;

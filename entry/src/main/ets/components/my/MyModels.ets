@@ -53,14 +53,14 @@ export class GameStatItem {
 
 /** My 页面账号 ViewModel */
 export class MyAccountVM {
-  accountId: number = 0
+  accountId: string = ''
   username: string = ''
   uid: string = ''
   nickname: string = ''
   avatarUrl: string = ''
   roles: MyGameRoleVM[] = []
 
-  constructor(accountId: number, username: string, roles: MyGameRoleVM[], nickname: string = '', avatarUrl: string = '', uid: string = '') {
+  constructor(accountId: string, username: string, roles: MyGameRoleVM[], nickname: string = '', avatarUrl: string = '', uid: string = '') {
     this.accountId = accountId
     this.username = username
     this.roles = roles

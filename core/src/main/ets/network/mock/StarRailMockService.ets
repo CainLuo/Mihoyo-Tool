@@ -17,19 +17,19 @@ export class StarRailMockService extends MockServiceBase {
   }
 
   async getDailyNote(roleId: string, server: string, cookie: string): Promise<object> {
-    return this.readMockFile(StarRailApiPath.DAILY_NOTE, cookie);
+    return this.readMockFile(StarRailApiPath.DAILY_NOTE, cookie, roleId);
   }
 
   async getAvatarBasic(roleId: string, server: string, cookie: string): Promise<object> {
-    return this.readMockFile(StarRailApiPath.AVATAR_BASIC, cookie);
+    return this.readMockFile(StarRailApiPath.AVATAR_BASIC, cookie, roleId);
   }
 
   async getAvatarInfo(roleId: string, server: string, id: string, cookie: string): Promise<object> {
-    return this.readMockFile(StarRailApiPath.AVATAR_INFO, cookie);
+    return this.readMockFile(StarRailApiPath.AVATAR_INFO, cookie, roleId);
   }
 
   async compute(avatar: object, skillList: object[], uid: string, region: string, cookie: string): Promise<object> {
-    return this.readMockFile(StarRailApiPath.COMPUTE, cookie);
+    return this.readMockFile(StarRailApiPath.COMPUTE, cookie, uid);
   }
 
   private extractCookie(options?: RequestOptions): string {

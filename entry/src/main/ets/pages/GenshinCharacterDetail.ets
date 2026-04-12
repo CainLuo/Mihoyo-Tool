@@ -13,7 +13,7 @@ import { CharDetailWideLayout } from '../components/chardetail/CharDetailWideLay
 import { ViewState } from '../constants/ViewStates'
 
 export class GenshinCharacterDetailParam {
-  accountId: number = 0
+  accountId: string = ''
   roleUid: string = ''
   entityId: string = ''
 }

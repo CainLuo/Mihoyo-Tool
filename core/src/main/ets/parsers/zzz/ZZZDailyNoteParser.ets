@@ -25,6 +25,18 @@ export class ZZZDailyNoteData {
 
   /** 是否已订阅月卡 */
   memberCardIsOpen: boolean = false;
+
+  /** 会员卡状态字符串：'MemberCardStateNo'/'MemberCardStateActive'/'MemberCardStateExpired' */
+  memberCardState: string = '';
+
+  /** 咖啡厅状态：'CafeStateNo'/'CafeStateOpen'/'CafeStateDone' */
+  cafeState: string = '';
+
+  /** 式舆防卫战派遣状态：'ExpeditionStateUnknown'/'ExpeditionStateRunning'/'ExpeditionStateDone'/'ExpeditionStateIdle' */
+  templeExpeditionState: string = '';
+
+  /** 式舆防卫战当前货币数量 */
+  templeCurrentCurrency: number = 0;
 }
 
 // ─── JSON 接口声明 ────────────────────────────────────────────────
@@ -53,6 +65,11 @@ interface RawZZZMemberCard {
   member_card_state: string;
 }
 
+interface RawZZZTempleRunning {
+  expedition_state: string;
+  current_currency: string;
+}
+
 interface RawZZZNoteData {
   energy: RawZZZEnergy;
   vitality: RawZZZVitality;
@@ -60,6 +77,8 @@ interface RawZZZNoteData {
   vhs_sale: RawZZZVhsSale;
   abyss_refresh: number;
   member_card: RawZZZMemberCard;
+  cafe_state: string;
+  temple_running: RawZZZTempleRunning;
 }
 
 // ─── Parser ──────────────────────────────────────────────────────
@@ -86,6 +105,12 @@ export class ZZZDailyNoteParser {
     data.videoStoreState = raw.vhs_sale ? raw.vhs_sale.sale_state : '';
     data.abyssRefresh = raw.abyss_refresh ?? 0;
     data.memberCardIsOpen = raw.member_card ? raw.member_card.is_open : false;
+    data.memberCardState = raw.member_card ? (raw.member_card.member_card_state ?? '') : '';
+    data.cafeState = raw.cafe_state ?? '';
+    if (raw.temple_running) {
+      data.templeExpeditionState = raw.temple_running.expedition_state ?? '';
+      data.templeCurrentCurrency = parseInt(raw.temple_running.current_currency ?? '0', 10) || 0;
+    }
     return data;
   }
 }

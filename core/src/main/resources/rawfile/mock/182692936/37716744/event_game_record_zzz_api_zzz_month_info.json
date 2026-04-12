@@ -1,0 +1,71 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "uid": "37716744",
+    "region": "prod_gf_cn",
+    "current_month": "202604",
+    "data_month": "202604",
+    "month_data": {
+      "list": [
+        {
+          "data_type": "PolychromesData",
+          "count": 0,
+          "data_name": "菲林"
+        },
+        {
+          "data_type": "MatserTapeData",
+          "count": 0,
+          "data_name": "加密母带 & 原装母带"
+        },
+        {
+          "data_type": "BooponsData",
+          "count": 0,
+          "data_name": "邦布券"
+        }
+      ],
+      "income_components": [
+        {
+          "action": "daily_activity_rewards",
+          "num": 0,
+          "percent": 0
+        },
+        {
+          "action": "growth_rewards",
+          "num": 0,
+          "percent": 0
+        },
+        {
+          "action": "event_rewards",
+          "num": 0,
+          "percent": 0
+        },
+        {
+          "action": "hollow_rewards",
+          "num": 0,
+          "percent": 0
+        },
+        {
+          "action": "shiyu_rewards",
+          "num": 0,
+          "percent": 0
+        },
+        {
+          "action": "mail_rewards",
+          "num": 0,
+          "percent": 0
+        },
+        {
+          "action": "other_rewards",
+          "num": 0,
+          "percent": 0
+        }
+      ]
+    },
+    "optional_month": ["202604", "202603", "202602"],
+    "role_info": {
+      "nickname": "凹凸曼的小怪兽",
+      "avatar": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/619915fe3d110b5219f8ade560d00f1a.png"
+    }
+  }
+}

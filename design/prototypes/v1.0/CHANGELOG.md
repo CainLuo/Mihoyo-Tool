@@ -75,3 +75,27 @@
 
 此版本已经用户确认，**禁止直接修改本目录下的文件**。
 如需改版，在 `design/prototypes/` 下新建 `v1.1/` 目录，复制文件后修改，并在本文件追加新版本记录。
+
+---
+
+## 补丁 — 2026-04-11（角色详情 UI 统一）
+
+### 变更内容
+
+**三游戏角色详情页 UI 统一**，以原神为基准，星铁和绝区零同步对齐：
+
+1. section 标题移到卡片外面（原神一直如此，星铁/绝区零之前标题在卡片内部）
+2. 遗器/驱动盘卡片格式统一为：图标+名称+强化等级标签 / 主词条名（高亮色）+主词条值（粗体）/ 副词条列表（名称左对齐，数值右对齐）
+3. 星铁遗器副词条补充属性名（之前只显示数值）
+4. 绝区零驱动盘副词条改为列表格式（之前是 Grid 2列 badge 样式）
+5. 绝区零驱动盘补充 placeholder（6个位置始终显示）
+6. 字号全局 +1：body10→11，body12→13，body13/Bold→14，body15Bold→16，body16/Medium→17，value9→10
+
+### 影响文件
+
+- `entry/src/main/ets/components/chardetail/StarRailCharDetailContent.ets`
+- `entry/src/main/ets/components/chardetail/ZZZCharDetailContent.ets`
+- `entry/src/main/ets/viewmodel/StarRailCharacterDetailViewModel.ets`（副词条属性名修复）
+- `entry/src/main/ets/theme/DefaultTheme.ets`（字号 +1）
+- `design/prototypes/v1.0/viewer/pages/starrail-char-detail.js`（卡片格式同步）
+- `design/prototypes/v1.0/viewer/pages/zzz-char-detail.js`（卡片格式同步）

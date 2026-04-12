@@ -751,6 +751,302 @@
     {
       "name": "time_soon_available",
       "value": "Available soon"
+    },
+    {
+      "name": "starrail_char_detail_title",
+      "value": "Character Detail"
+    },
+    {
+      "name": "starrail_char_detail_rank_label",
+      "value": "Eidolons"
+    },
+    {
+      "name": "starrail_char_detail_skills_main",
+      "value": "Main Skills"
+    },
+    {
+      "name": "starrail_char_detail_skills_extra",
+      "value": "Bonus Abilities"
+    },
+    {
+      "name": "starrail_char_detail_skills_attr",
+      "value": "Stat Boosts"
+    },
+    {
+      "name": "starrail_char_detail_equip_title",
+      "value": "Light Cone"
+    },
+    {
+      "name": "starrail_char_detail_no_equip",
+      "value": "No Light Cone"
+    },
+    {
+      "name": "starrail_char_detail_relics_title",
+      "value": "Relics"
+    },
+    {
+      "name": "starrail_char_detail_ornaments_title",
+      "value": "Ornaments"
+    },
+    {
+      "name": "starrail_char_detail_no_relic",
+      "value": "No Relic"
+    },
+    {
+      "name": "starrail_char_detail_props_title",
+      "value": "Stats"
+    },
+    {
+      "name": "starrail_char_detail_rank_prefix",
+      "value": "E%d"
+    },
+    {
+      "name": "zzz_char_detail_title",
+      "value": "Agent Detail"
+    },
+    {
+      "name": "zzz_char_detail_rank_label",
+      "value": "Mindscapes"
+    },
+    {
+      "name": "zzz_char_detail_skills_title",
+      "value": "Skills"
+    },
+    {
+      "name": "zzz_char_detail_weapon_title",
+      "value": "W-Engine"
+    },
+    {
+      "name": "zzz_char_detail_no_weapon",
+      "value": "No W-Engine"
+    },
+    {
+      "name": "zzz_char_detail_equip_title",
+      "value": "Drive Discs"
+    },
+    {
+      "name": "zzz_char_detail_no_equip",
+      "value": "No Drive Disc"
+    },
+    {
+      "name": "zzz_char_detail_props_title",
+      "value": "Stats"
+    },
+    {
+      "name": "zzz_char_detail_suit_pieces",
+      "value": "%d pcs"
+    },
+    {
+      "name": "zzz_char_detail_rank_prefix",
+      "value": "M%d"
+    },
+    {
+      "name": "char_detail_section_skills",
+      "value": "Skills"
+    },
+    {
+      "name": "char_detail_section_weapon",
+      "value": "Weapon"
+    },
+    {
+      "name": "char_detail_section_stats",
+      "value": "Stats"
+    },
+    {
+      "name": "char_detail_section_relics",
+      "value": "Artifacts"
+    },
+    {
+      "name": "char_detail_no_weapon",
+      "value": "No Weapon"
+    },
+    {
+      "name": "char_detail_relic_pos_flower",
+      "value": "Flower of Life"
+    },
+    {
+      "name": "char_detail_relic_pos_plume",
+      "value": "Plume of Death"
+    },
+    {
+      "name": "char_detail_relic_pos_sands",
+      "value": "Sands of Eon"
+    },
+    {
+      "name": "char_detail_relic_pos_goblet",
+      "value": "Goblet of Eonothem"
+    },
+    {
+      "name": "char_detail_relic_pos_circlet",
+      "value": "Circlet of Logos"
+    },
+    {
+      "name": "starrail_daily_title",
+      "value": "Star Rail Notes"
+    },
+    {
+      "name": "zzz_daily_title",
+      "value": "ZZZ Notes"
+    },
+    {
+      "name": "daily_note_section_daily",
+      "value": "Daily"
+    },
+    {
+      "name": "daily_note_section_universe",
+      "value": "Universe"
+    },
+    {
+      "name": "daily_note_section_shop",
+      "value": "Shop"
+    },
+    {
+      "name": "daily_note_section_other",
+      "value": "Other"
+    },
+    {
+      "name": "daily_note_stamina",
+      "value": "Trailblaze Power"
+    },
+    {
+      "name": "daily_note_reserve_stamina",
+      "value": "Reserve Stamina"
+    },
+    {
+      "name": "daily_note_reserve_full",
+      "value": "Full"
+    },
+    {
+      "name": "daily_note_expedition_sr",
+      "value": "Expeditions"
+    },
+    {
+      "name": "daily_note_train_score",
+      "value": "Daily Training"
+    },
+    {
+      "name": "daily_note_cocoon",
+      "value": "Echo of War"
+    },
+    {
+      "name": "daily_note_rogue_score",
+      "value": "Simulated Universe"
+    },
+    {
+      "name": "daily_note_rogue_tourn",
+      "value": "Divergent Universe"
+    },
+    {
+      "name": "daily_note_rogue_tourn_locked",
+      "value": "Locked"
+    },
+    {
+      "name": "daily_note_rogue_exp_full",
+      "value": "EXP Full"
+    },
+    {
+      "name": "daily_note_grid_fight",
+      "value": "Gold & Gears"
+    },
+    {
+      "name": "daily_note_grid_fight_locked",
+      "value": "Locked"
+    },
+    {
+      "name": "daily_note_energy",
+      "value": "Battery"
+    },
+    {
+      "name": "daily_note_vitality",
+      "value": "Vitality"
+    },
+    {
+      "name": "daily_note_vitality_done",
+      "value": "Daily vitality complete"
+    },
+    {
+      "name": "daily_note_vitality_hint",
+      "value": "Complete daily tasks for vitality"
+    },
+    {
+      "name": "daily_note_vhs_sale",
+      "value": "Video Store"
+    },
+    {
+      "name": "daily_note_card_sign",
+      "value": "Scratch Card"
+    },
+    {
+      "name": "daily_note_temple",
+      "value": "Hollow Zero"
+    },
+    {
+      "name": "daily_note_member_card",
+      "value": "Member Card"
+    },
+    {
+      "name": "daily_note_cafe",
+      "value": "Café"
+    },
+    {
+      "name": "daily_note_vhs_done",
+      "value": "Settled"
+    },
+    {
+      "name": "daily_note_vhs_doing",
+      "value": "Open"
+    },
+    {
+      "name": "daily_note_vhs_no",
+      "value": "Closed"
+    },
+    {
+      "name": "daily_note_card_done",
+      "value": "Done"
+    },
+    {
+      "name": "daily_note_card_no",
+      "value": "Not Done"
+    },
+    {
+      "name": "daily_note_temple_unknown",
+      "value": "Unknown"
+    },
+    {
+      "name": "daily_note_temple_running",
+      "value": "Running"
+    },
+    {
+      "name": "daily_note_temple_done",
+      "value": "Done"
+    },
+    {
+      "name": "daily_note_temple_idle",
+      "value": "Idle"
+    },
+    {
+      "name": "daily_note_member_no",
+      "value": "Not Active"
+    },
+    {
+      "name": "daily_note_member_active",
+      "value": "Active"
+    },
+    {
+      "name": "daily_note_member_expired",
+      "value": "Expired"
+    },
+    {
+      "name": "daily_note_cafe_no",
+      "value": "Closed"
+    },
+    {
+      "name": "daily_note_cafe_open",
+      "value": "Open"
+    },
+    {
+      "name": "daily_note_cafe_done",
+      "value": "Settled"
     }
   ]
 }

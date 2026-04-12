@@ -1,6 +1,6 @@
 export class ZZZAvatarBasicRow {
   id: number = 0;
-  accountId: number = 0;
+  accountId: string = '';
   roleUid: string = '';
   avatarId: string = '';
   nameMi18n: string = '';
@@ -25,7 +25,7 @@ export class ZZZAvatarBasicRow {
 
 export class ZZZDailyNoteRow {
   id: number = 0;
-  accountId: number = 0;
+  accountId: string = '';
   roleUid: string = '';
   energyCurrent: number = 0;
   energyMax: number = 0;
@@ -40,7 +40,7 @@ export class ZZZDailyNoteRow {
 
 export class ZZZAvatarInfoRow {
   id: number = 0;
-  accountId: number = 0;
+  accountId: string = '';
   roleUid: string = '';
   avatarId: string = '';
   weaponId: string = '';
@@ -55,11 +55,31 @@ export class ZZZAvatarInfoRow {
 
 export class ZZZAvatarComputeRow {
   id: number = 0;
-  accountId: number = 0;
+  accountId: string = '';
   roleUid: string = '';
   avatarId: string = '';
   avatarConsumeJson: string = '';
   weaponConsumeJson: string = '';
   skillConsumeJson: string = '';
+  updateTime: number = 0;
+}
+
+export class ZZZBuddyRow {
+  id: number = 0;
+  accountId: string = '';
+  roleUid: string = '';
+  /** 邦布 ID */
+  buddyId: string = '';
+  /** 邦布名称 */
+  name: string = '';
+  /** 稀有度（'S' 或 'A'） */
+  rarity: string = '';
+  /** 邦布等级（1-60） */
+  level: number = 0;
+  /** 精炼等级（1-5，对应 star 字段） */
+  star: number = 0;
+  /** 邦布方形图标 URL */
+  bangbooSquareUrl: string = '';
+  rawJson: string = '';
   updateTime: number = 0;
 }

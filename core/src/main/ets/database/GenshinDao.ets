@@ -63,7 +63,7 @@ export class GenshinCharacterListDao {
    * @param accountId 米游社账号 ID
    * @param roleUid   游戏角色 UID
    */
-  async findAll(accountId: number, roleUid: string): Promise<GenshinCharacterListRow[]> {
+  async findAll(accountId: string, roleUid: string): Promise<GenshinCharacterListRow[]> {
     const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_CHARACTER_LIST);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -82,7 +82,7 @@ export class GenshinCharacterListDao {
    * @param avatarId  角色 ID
    * @returns 找到时返回对应行，否则返回 null
    */
-  async findByAvatarId(accountId: number, roleUid: string, avatarId: string): Promise<GenshinCharacterListRow | null> {
+  async findByAvatarId(accountId: string, roleUid: string, avatarId: string): Promise<GenshinCharacterListRow | null> {
     const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_CHARACTER_LIST);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -100,7 +100,7 @@ export class GenshinCharacterListDao {
    * 删除指定账号和角色的所有原神角色列表记录。
    * 通常在重新同步前调用，配合 upsertAll 实现全量刷新。
    */
-  async deleteAll(accountId: number, roleUid: string): Promise<void> {
+  async deleteAll(accountId: string, roleUid: string): Promise<void> {
     const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_CHARACTER_LIST);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -120,7 +120,7 @@ export class GenshinCharacterListDao {
       const r = new RsReader(rs);
       const row = new GenshinCharacterListRow();
       row.id                      = r.num(CommonCol.ID);
-      row.accountId               = r.num(CommonCol.ACCOUNT_ID);
+      row.accountId               = r.str(CommonCol.ACCOUNT_ID);
       row.roleUid                 = r.str(CommonCol.ROLE_UID);
       row.avatarId                = r.str(CommonCol.AVATAR_ID);
       row.name                    = r.str(GenshinCharListCol.NAME);
@@ -178,7 +178,7 @@ export class GenshinDailyNoteDao {
    * 查询指定角色的原神实时便笺。
    * @returns 找到时返回便笺行，否则返回 null（表示从未同步）
    */
-  async findOne(accountId: number, roleUid: string): Promise<GenshinDailyNoteRow | null> {
+  async findOne(accountId: string, roleUid: string): Promise<GenshinDailyNoteRow | null> {
     const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_DAILY_NOTE);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -191,7 +191,7 @@ export class GenshinDailyNoteDao {
   }
 
   /** 删除指定角色的原神实时便笺记录 */
-  async deleteOne(accountId: number, roleUid: string): Promise<void> {
+  async deleteOne(accountId: string, roleUid: string): Promise<void> {
     const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_DAILY_NOTE);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -209,7 +209,7 @@ export class GenshinDailyNoteDao {
       const r = new RsReader(rs);
       const row = new GenshinDailyNoteRow();
       row.id                    = r.num(CommonCol.ID);
-      row.accountId             = r.num(CommonCol.ACCOUNT_ID);
+      row.accountId             = r.str(CommonCol.ACCOUNT_ID);
       row.roleUid               = r.str(CommonCol.ROLE_UID);
       row.currentResin          = r.num(GenshinDailyNoteCol.CURRENT_RESIN);
       row.maxResin              = r.num(GenshinDailyNoteCol.MAX_RESIN);
@@ -265,7 +265,7 @@ export class GenshinCharacterDetailDao {
    * 按 avatarId 查询原神角色详情。
    * @returns 找到时返回详情行，否则返回 null
    */
-  async findByAvatarId(accountId: number, roleUid: string, avatarId: string): Promise<GenshinCharacterDetailRow | null> {
+  async findByAvatarId(accountId: string, roleUid: string, avatarId: string): Promise<GenshinCharacterDetailRow | null> {
     const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_CHARACTER_DETAIL);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -280,7 +280,7 @@ export class GenshinCharacterDetailDao {
   }
 
   /** 删除指定账号和角色的所有原神角色详情记录 */
-  async deleteAll(accountId: number, roleUid: string): Promise<void> {
+  async deleteAll(accountId: string, roleUid: string): Promise<void> {
     const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_CHARACTER_DETAIL);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -298,7 +298,7 @@ export class GenshinCharacterDetailDao {
       const r = new RsReader(rs);
       const row = new GenshinCharacterDetailRow();
       row.id               = r.num(CommonCol.ID);
-      row.accountId        = r.num(CommonCol.ACCOUNT_ID);
+      row.accountId        = r.str(CommonCol.ACCOUNT_ID);
       row.roleUid          = r.str(CommonCol.ROLE_UID);
       row.avatarId         = r.str(CommonCol.AVATAR_ID);
       row.weaponId         = r.str(GenshinCharDetailCol.WEAPON_ID);
@@ -341,7 +341,7 @@ export class GenshinCharacterComputeDao {
    * 按 avatarId 查询原神角色养成计算数据。
    * @returns 找到时返回计算行，否则返回 null
    */
-  async findByAvatarId(accountId: number, roleUid: string, avatarId: string): Promise<GenshinCharacterComputeRow | null> {
+  async findByAvatarId(accountId: string, roleUid: string, avatarId: string): Promise<GenshinCharacterComputeRow | null> {
     const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_CHARACTER_COMPUTE);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -356,7 +356,7 @@ export class GenshinCharacterComputeDao {
   }
 
   /** 删除指定账号和角色的所有原神养成计算记录 */
-  async deleteAll(accountId: number, roleUid: string): Promise<void> {
+  async deleteAll(accountId: string, roleUid: string): Promise<void> {
     const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_CHARACTER_COMPUTE);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -374,7 +374,7 @@ export class GenshinCharacterComputeDao {
       const r = new RsReader(rs);
       const row = new GenshinCharacterComputeRow();
       row.id                = r.num(CommonCol.ID);
-      row.accountId         = r.num(CommonCol.ACCOUNT_ID);
+      row.accountId         = r.str(CommonCol.ACCOUNT_ID);
       row.roleUid           = r.str(CommonCol.ROLE_UID);
       row.avatarId          = r.str(CommonCol.AVATAR_ID);
       row.avatarConsumeJson = r.str(GenshinCharComputeCol.AVATAR_CONSUME_JSON);

@@ -6,7 +6,7 @@
  */
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
-import { GameTabItem } from '../../viewmodel/CharactersViewModel';
+import { GameTabItem } from '../../models/GameTabItem';
 
 // ── Preview：多游戏 Tab，第一个选中 ──
 @Preview

@@ -39,7 +39,8 @@ core/src/main/ets/
 │   ├── GenshinRepository.ets
 │   ├── StarRailRepository.ets
 │   ├── ZZZRepository.ets
-│   └── SignRepository.ets     ← 签到
+│   ├── SignRepository.ets     ← 签到
+│   └── SyncQueueRunner.ets    ← 持久化同步队列执行器
 ├── network/v2/
 │   ├── MihoyoDomain.ets       ← Domain 枚举（7 个 Host）
 │   ├── MihoyoHeaderBuilder.ets← 请求头构建器（HeaderProfile 枚举）
@@ -75,23 +76,59 @@ core/src/main/ets/errors/
 
 ### BBSRepository 高层方法
 
-| 方法                      | 说明                                                       |
-| ------------------------- | ---------------------------------------------------------- |
-| `login(username, cookie)` | 完整登录流程：写账号 + 拉角色 + 补详情，返回 `LoginResult` |
-| `getAllAccounts()`        | 读所有账号                                                 |
-| `getGameRoles(accountId)` | 读账号下所有游戏角色                                       |
-| `deleteAccount(id)`       | 删除账号（级联删除所有子表数据）                           |
+| 方法                      | 说明                                                                          |
+| ------------------------- | ----------------------------------------------------------------------------- |
+| `login(username, cookie)` | 完整登录流程：写账号 + 拉角色 + 补详情 + 触发后台同步队列，返回 `LoginResult` |
+| `getAllAccounts()`        | 读所有账号                                                                    |
+| `getGameRoles(accountId)` | 读账号下所有游戏角色                                                          |
+| `deleteAccount(id)`       | 删除账号（级联删除所有子表数据）                                              |
 
 ### 游戏 Repository 高层方法（三个游戏统一）
 
-| 方法                                                 | 说明                        |
-| ---------------------------------------------------- | --------------------------- |
-| `syncAvatarList(accountId, roleUid, server, cookie)` | 拉取角色列表 → 解析 → 写 DB |
-| `syncDailyNote(accountId, roleUid, server, cookie)`  | 拉取便笺 → 写 DB            |
-| `getAvatarList(accountId, roleUid)`                  | 读角色列表                  |
-| `getDailyNote(accountId, roleUid)`                   | 读便笺                      |
-| `needsAvatarListSync(accountId, roleUid)`            | 检查是否需要同步            |
-| `needsDailyNoteSync(accountId, roleUid)`             | 检查是否需要同步            |
+| 方法                                                   | 说明                                              |
+| ------------------------------------------------------ | ------------------------------------------------- |
+| `syncAvatarList(accountId, roleUid, server, cookie)`   | 拉取角色列表 → 解析 → 写 DB                       |
+| `syncAvatarDetail(accountId, roleUid, server, cookie)` | 拉取角色详情 → 写 DB（原神/星铁批量，绝区零逐个） |
+| `syncDailyNote(accountId, roleUid, server, cookie)`    | 拉取便笺 → 写 DB                                  |
+| `getAvatarList(accountId, roleUid)`                    | 读角色列表                                        |
+| `getAvatarDetail(accountId, roleUid, avatarId)`        | 读单个角色详情                                    |
+| `getDailyNote(accountId, roleUid)`                     | 读便笺                                            |
+| `needsAvatarListSync(accountId, roleUid)`              | 检查是否需要同步                                  |
+| `needsDailyNoteSync(accountId, roleUid)`               | 检查是否需要同步                                  |
+
+### SyncQueueRunner（持久化同步队列）
+
+所有同步任务必须通过 `SyncQueueRunner` 执行，禁止直接调用 Repository 的 `sync*` 方法：
+
+```typescript
+// 正确：通过队列执行
+const tasks = SyncQueueRunner.buildTasksForRoles(accountId, roles, cookie);
+await SyncQueueRunner.enqueue(tasks);
+await SyncQueueRunner.runTasks(tasks);
+
+// 错误：直接调用（不持久化，App 被杀后丢失）
+await CoreInitializer.genshinRepository.syncAvatarList(...);
+```
+
+**sync_meta 状态流转**：
+
+```
+pending → syncing → success
+                 → failed（可重试）
+```
+
+**App 启动时自动恢复**：`CoreInitializer.initCore()` 完成后调用 `SyncQueueRunner.resumeOnStartup()`，从 DB 读取所有 `pending` 任务并继续执行。
+
+### core 不做 UI 转换
+
+Repository 层直接存原始 API 数据（`JSON.stringify(item)`），ViewModel 层负责把原始数据转换为 UI 展示格式：
+
+```
+API 响应 → Repository.parse*() → rawJson（原始格式）→ DB
+DB → ViewModel.parseRawJson() → UI 展示模型
+```
+
+**禁止**在 Repository 层做任何 UI 相关的数据转换。
 
 1. **全新数据库，无旧表兼容，无迁移逻辑**（V1.0 起点）
 2. 所有表使用 `CREATE TABLE IF NOT EXISTS`，保证幂等性

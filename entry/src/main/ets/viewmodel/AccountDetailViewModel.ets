@@ -20,7 +20,7 @@ export class AccountDetailViewModel {
   @Trace deleted: boolean = false;
   @Trace errorMsg: string = '';
 
-  async deleteAccount(accountId: number): Promise<void> {
+  async deleteAccount(accountId: string): Promise<void> {
     try {
       await CoreInitializer.bbsRepository.deleteAccount(accountId);
       Logger.info(TAG, `account deleted: ${accountId}`);

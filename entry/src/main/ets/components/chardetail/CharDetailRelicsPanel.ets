@@ -2,13 +2,11 @@
  * CharDetailRelicsPanel — 圣遗物区
  *
  * 宽屏右栏：5个圣遗物等分高度，每条左侧图标+主词条+星级+强化，右侧2列×2行副词条
- * Phone：2列网格卡片（嵌入滚动区）
+ * Phone：2列网格卡片，始终显示5个位置，未装备的显示占位
  */
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
-import {
-  GenshinCharacterDetailViewModel
-} from '../../viewmodel/GenshinCharacterDetailViewModel';
+import { GenshinCharacterDetailViewModel } from '../../viewmodel/GenshinCharacterDetailViewModel';
 import { CharDetailRelic, RelicSubStat } from './CharDetailModels';
 import { GenshinElement } from '../../constants/GenshinElement';
 import { ViewState } from '../../constants/ViewStates';
@@ -52,32 +50,24 @@ function makeMockRelicsPanelVM(): GenshinCharacterDetailViewModel {
   return vm;
 }
 
-// ── Preview：宽屏模式（5行等分）──
 @Preview
 @ComponentV2
 export struct CharDetailRelicsPanelPreviewWide {
   build() {
-    CharDetailRelicsPanel({
-      vm: makeMockRelicsPanelVM(),
-      isPhone: false
-    })
-    .width(themeManager.current.value280)
-    .height(themeManager.current.value480)
-    .backgroundColor(themeManager.current.bgPageDeep)
+    CharDetailRelicsPanel({ vm: makeMockRelicsPanelVM(), isPhone: false })
+      .width(themeManager.current.value280)
+      .height(themeManager.current.value480)
+      .backgroundColor(themeManager.current.bgPageDeep)
   }
 }
 
-// ── Preview：Phone 模式（2列网格卡片）──
 @Preview
 @ComponentV2
 export struct CharDetailRelicsPanelPreviewPhone {
   build() {
     Scroll() {
-      CharDetailRelicsPanel({
-        vm: makeMockRelicsPanelVM(),
-        isPhone: true
-      })
-      .padding(themeManager.current.value8)
+      CharDetailRelicsPanel({ vm: makeMockRelicsPanelVM(), isPhone: true })
+        .padding(themeManager.current.value8)
     }
     .width(themeManager.current.value360)
     .height(themeManager.current.value600)
@@ -88,24 +78,34 @@ export struct CharDetailRelicsPanelPreviewPhone {
 @ComponentV2
 export struct CharDetailRelicsPanel {
   @Param vm: GenshinCharacterDetailViewModel = new GenshinCharacterDetailViewModel();
-  /** true = Phone 卡片模式，false = 宽屏等分行模式 */
   @Param isPhone: boolean = false;
   @Local private tm: ThemeManager = themeManager;
 
-  /** 星级文字 */
   private starsText(n: number): string {
     let s = '';
-    for (let i = 0; i < n; i++) {
-      s += '★';
-    }
+    for (let i = 0; i < n; i++) { s += '★'; }
     return s;
   }
 
-  /** 宽屏：单条圣遗物行（flex:1 等分高度） */
+  private relicPosName(pos: number): string {
+    if (pos === 1) { return '生之花'; }
+    if (pos === 2) { return '死之羽'; }
+    if (pos === 3) { return '时之沙'; }
+    if (pos === 4) { return '空之杯'; }
+    if (pos === 5) { return '理之冠'; }
+    return `${pos}`;
+  }
+
+  private findRelicByPos(pos: number): CharDetailRelic | null {
+    for (let i = 0; i < this.vm.relics.length; i++) {
+      if (this.vm.relics[i].pos === pos) { return this.vm.relics[i]; }
+    }
+    return null;
+  }
+
   @Builder
   RelicRow(relic: CharDetailRelic) {
     Row() {
-      // 左侧：图标 + 主词条 + 星级 + 强化
       Column({ space: this.tm.current.value2 }) {
         if (relic.iconUrl !== '') {
           Image(relic.iconUrl)
@@ -141,8 +141,6 @@ export struct CharDetailRelicsPanel {
       .justifyContent(FlexAlign.Center)
       .padding({ top: this.tm.current.value4, bottom: this.tm.current.value4 })
       .border({ width: { right: this.tm.current.value1 }, color: this.tm.current.surfaceGlassSm })
-
-      // 右侧：2列×2行副词条
       Grid() {
         ForEach(relic.subStats, (sub: RelicSubStat) => {
           GridItem() {
@@ -173,11 +171,9 @@ export struct CharDetailRelicsPanel {
     .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlassSm })
   }
 
-  /** Phone：单个圣遗物卡片 */
   @Builder
   RelicCard(relic: CharDetailRelic) {
     Column({ space: this.tm.current.value4 }) {
-      // 头部：图标 + 名称 + 强化等级
       Row({ space: this.tm.current.value4 }) {
         if (relic.iconUrl !== '') {
           Image(relic.iconUrl)
@@ -207,8 +203,6 @@ export struct CharDetailRelicsPanel {
       }
       .width(this.tm.current.full)
       .alignItems(VerticalAlign.Center)
-
-      // 主词条
       Row() {
         Text(relic.mainStatLabel ?? $r('app.string.char_detail_no_data'))
           .fontSize(this.tm.current.body10.size)
@@ -222,8 +216,6 @@ export struct CharDetailRelicsPanel {
       .width(this.tm.current.full)
       .padding({ top: this.tm.current.value2, bottom: this.tm.current.value2 })
       .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlassSm })
-
-      // 副词条
       Column() {
         ForEach(relic.subStats, (sub: RelicSubStat) => {
           Row() {
@@ -248,22 +240,94 @@ export struct CharDetailRelicsPanel {
     .borderRadius(this.tm.current.radius8)
   }
 
+  @Builder
+  RelicPlaceholder(pos: number) {
+    Column({ space: this.tm.current.value4 }) {
+      SymbolGlyph($r('sys.symbol.lock'))
+        .fontSize(this.tm.current.value20)
+        .fontColor([this.tm.current.textOnDarkMuted])
+      Text(this.relicPosName(pos))
+        .fontSize(this.tm.current.body12.size)
+        .fontColor(this.tm.current.textOnDarkMuted)
+    }
+    .width(this.tm.current.full)
+    .height(this.tm.current.value80)
+    .justifyContent(FlexAlign.Center)
+    .alignItems(HorizontalAlign.Center)
+    .backgroundColor(this.tm.current.surfaceGlassXs)
+    .border({ width: this.tm.current.value1, color: this.tm.current.surfaceInactiveBorder, style: BorderStyle.Dashed })
+    .borderRadius(this.tm.current.radius8)
+  }
+
+  /** Phone：pos1+pos2 一行 */
+  @Builder
+  RelicRow12() {
+    Row({ space: this.tm.current.value8 }) {
+      if (this.findRelicByPos(1) !== null) {
+        Column() { this.RelicCard(this.vm.relics[this.relicIdx(1)]) }.layoutWeight(1)
+      } else {
+        Column() { this.RelicPlaceholder(1) }.layoutWeight(1)
+      }
+      if (this.findRelicByPos(2) !== null) {
+        Column() { this.RelicCard(this.vm.relics[this.relicIdx(2)]) }.layoutWeight(1)
+      } else {
+        Column() { this.RelicPlaceholder(2) }.layoutWeight(1)
+      }
+    }
+    .width(this.tm.current.full)
+    .alignItems(VerticalAlign.Top)
+  }
+
+  /** Phone：pos3+pos4 一行 */
+  @Builder
+  RelicRow34() {
+    Row({ space: this.tm.current.value8 }) {
+      if (this.findRelicByPos(3) !== null) {
+        Column() { this.RelicCard(this.vm.relics[this.relicIdx(3)]) }.layoutWeight(1)
+      } else {
+        Column() { this.RelicPlaceholder(3) }.layoutWeight(1)
+      }
+      if (this.findRelicByPos(4) !== null) {
+        Column() { this.RelicCard(this.vm.relics[this.relicIdx(4)]) }.layoutWeight(1)
+      } else {
+        Column() { this.RelicPlaceholder(4) }.layoutWeight(1)
+      }
+    }
+    .width(this.tm.current.full)
+    .alignItems(VerticalAlign.Top)
+  }
+
+  /** Phone：pos5 单独一行（居左，右侧空白） */
+  @Builder
+  RelicRow5() {
+    Row({ space: this.tm.current.value8 }) {
+      if (this.findRelicByPos(5) !== null) {
+        Column() { this.RelicCard(this.vm.relics[this.relicIdx(5)]) }.layoutWeight(1)
+      } else {
+        Column() { this.RelicPlaceholder(5) }.layoutWeight(1)
+      }
+      Column().layoutWeight(1)
+    }
+    .width(this.tm.current.full)
+    .alignItems(VerticalAlign.Top)
+  }
+
+  private relicIdx(pos: number): number {
+    for (let i = 0; i < this.vm.relics.length; i++) {
+      if (this.vm.relics[i].pos === pos) { return i; }
+    }
+    return 0;
+  }
+
   build() {
     if (this.isPhone) {
-      // Phone：2列网格，由父级 Scroll 包裹
-      Grid() {
-        ForEach(this.vm.relics, (relic: CharDetailRelic) => {
-          GridItem() {
-            this.RelicCard(relic)
-          }
-        }, (relic: CharDetailRelic) => `relic_${relic.pos}`)
+      Column({ space: this.tm.current.value8 }) {
+        this.RelicRow12()
+        this.RelicRow34()
+        this.RelicRow5()
       }
-      .columnsTemplate('1fr 1fr')
-      .columnsGap(this.tm.current.value8)
-      .rowsGap(this.tm.current.value8)
       .width(this.tm.current.full)
     } else {
-      // 宽屏：5行等分，Column + layoutWeight(1)
       Column() {
         ForEach(this.vm.relics, (relic: CharDetailRelic) => {
           this.RelicRow(relic)

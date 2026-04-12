@@ -7,6 +7,7 @@
  */
 
 import { CoreInitializer, GenshinPropertyType, GenshinCharacterDetailRow } from 'core';
+import { GenshinCharacterDetailRaw } from 'core';
 import { Logger } from '../utils/Logger';
 import { ViewState } from '../constants/ViewStates';
 import { GenshinElement, elementFromString } from '../constants/GenshinElement';
@@ -18,6 +19,12 @@ import {
   CharDetailConstellation,
   CharDetailStat
 } from '../components/chardetail/CharDetailModels';
+import {
+  genshinPropertyTypeToResource,
+  GENSHIN_STAT_ORDER,
+  GENSHIN_STAT_LABELS,
+  GENSHIN_HIGHLIGHT_PROPS
+} from '../utils/GenshinPropertyUtil';
 
 const TAG: string = 'GenshinCharacterDetailViewModel';
 
@@ -26,69 +33,6 @@ const TAG: string = 'GenshinCharacterDetailViewModel';
 /** GenshinCharacterDetailViewModel @Monitor 路径常量类型 */
 export class GenshinCharacterDetailViewModelKeys {
   viewState: string = 'vm.viewState';
-}
-
-// ─── rawJson 内部接口（仅声明需要的字段）────────────────────────
-
-interface RawWeapon {
-  name: string;
-  icon: string;
-  level: number;
-  affix_level: number;
-  rarity: number;
-}
-
-interface RawStorageSubStat {
-  property_type: number;
-  value: string;
-}
-
-interface RawStorageRelic {
-  pos: number;
-  icon: string;
-  set_name: string;
-  level: number;
-  rarity: number;
-  main_property_type: number;
-  main_property_value: string;
-  sub_stats: RawStorageSubStat[];
-}
-
-interface RawStorageProperty {
-  property_type: number;
-  final: string;
-}
-
-/** 存储在 raw_json 中的命座数据 */
-interface RawStorageConstellation {
-  pos: number;
-  name: string;
-  icon: string;
-  effect: string;
-  is_actived: boolean;
-}
-
-interface CharacterRawJson {
-  name: string;
-  level: number;
-  fetter: number;
-  element: string;
-  image: string;
-  icon: string;
-  actived_constellation_num: number;
-  weapon: RawWeapon;
-  /** 武器基础攻击力（来自 detail 接口 weapon.main_property.final） */
-  weapon_base_atk: string;
-  /** 武器副词条 property_type（对应 GenshinPropertyType enum） */
-  weapon_sub_type: number;
-  /** 武器副词条值（来自 detail 接口 weapon.sub_property.final） */
-  weapon_sub_val: string;
-  relics_detail: RawStorageRelic[];
-  skill_icons: string[];
-  skill_levels: number[];
-  selected_properties: RawStorageProperty[];
-  /** 命座完整数据（含 icon、名称、效果描述、是否已激活） */
-  constellations_detail: RawStorageConstellation[];
 }
 
 // ─── ViewModel ───────────────────────────────────────────────────
@@ -123,11 +67,11 @@ export class GenshinCharacterDetailViewModel {
   // 技能（普攻/战技/爆发，最多3个）
   @Trace skills: CharDetailSkill[] = [];
 
-  private accountId: number = 0;
+  private accountId: string = '';
   private roleUid: string = '';
   private entityId: string = '';
 
-  init(accountId: number, roleUid: string, entityId: string): void {
+  init(accountId: string, roleUid: string, entityId: string): void {
     this.accountId = accountId;
     this.roleUid = roleUid;
     this.entityId = entityId;
@@ -152,20 +96,21 @@ export class GenshinCharacterDetailViewModel {
 
   private parseRawJson(rawJson: string): void {
     try {
-      const parsed = JSON.parse(rawJson) as CharacterRawJson;
-      this.charName = parsed.name ?? '';
-      this.charLevel = parsed.level ?? 0;
-      this.charFetter = parsed.fetter ?? 0;
-      this.charElement = elementFromString(parsed.element ?? '');
-      this.charImageUrl = parsed.image ?? '';
-      this.charIconUrl = parsed.icon ?? '';
-      this.activatedConstellations = parsed.actived_constellation_num ?? 0;
+      const parsed = JSON.parse(rawJson) as GenshinCharacterDetailRaw;
+      const base = parsed.base;
+      this.charName = base.name ?? '';
+      this.charLevel = base.level ?? 0;
+      this.charFetter = base.fetter ?? 0;
+      this.charElement = elementFromString(base.element ?? '');
+      this.charImageUrl = base.image ?? '';
+      this.charIconUrl = base.icon ?? '';
+      this.activatedConstellations = base.actived_constellation_num ?? 0;
 
-      // 命座（优先使用 constellations_detail 完整数据）
+      // 命座
       const cons: CharDetailConstellation[] = [];
-      if (parsed.constellations_detail && parsed.constellations_detail.length > 0) {
-        for (let i = 0; i < parsed.constellations_detail.length; i++) {
-          const c = parsed.constellations_detail[i];
+      if (parsed.constellations && parsed.constellations.length > 0) {
+        for (let i = 0; i < parsed.constellations.length; i++) {
+          const c = parsed.constellations[i];
           const cd = new CharDetailConstellation();
           cd.pos = c.pos;
           cd.name = c.name;
@@ -175,7 +120,6 @@ export class GenshinCharacterDetailViewModel {
           cons[cons.length] = cd;
         }
       } else {
-        // 兼容旧数据：仅有激活数量，无完整命座信息
         for (let i = 0; i < 6; i++) {
           const cd = new CharDetailConstellation();
           cd.pos = i + 1;
@@ -193,54 +137,58 @@ export class GenshinCharacterDetailViewModel {
         w.level = parsed.weapon.level ?? 0;
         w.affix = parsed.weapon.affix_level ?? 1;
         w.rarity = parsed.weapon.rarity ?? 3;
-        // 武器基础攻击力：weapon_base_atk 字段（property_type = BASE_ATK = 4）
-        const baseAtkStr = parsed.weapon_base_atk ?? '';
-        w.baseAtk = baseAtkStr !== '' ? parseInt(baseAtkStr) : 0;
-        // 武器副词条：weapon_sub_type 对应 GenshinPropertyType enum
-        w.subLabel = GenshinCharacterDetailViewModel.propertyTypeToResource(parsed.weapon_sub_type ?? 0);
-        w.subVal = parsed.weapon_sub_val ?? '';
+        if (parsed.weapon.main_property) {
+          const baseAtkStr = parsed.weapon.main_property.final ?? '';
+          w.baseAtk = baseAtkStr !== '' ? parseInt(baseAtkStr) : 0;
+        }
+        if (parsed.weapon.sub_property) {
+          w.subLabel = genshinPropertyTypeToResource(parsed.weapon.sub_property.property_type ?? 0);
+          w.subVal = parsed.weapon.sub_property.final ?? '';
+        }
         this.weapon = w;
       }
 
-      // 属性列表（从 selected_properties 按 GenshinPropertyType 映射）
+      // 属性列表
       this.stats = this.buildStats(parsed);
 
-      // 圣遗物（从 relics_detail 解析完整词条）
+      // 圣遗物
       const relics: CharDetailRelic[] = [];
-      if (parsed.relics_detail) {
-        for (let i = 0; i < parsed.relics_detail.length; i++) {
-          const r = parsed.relics_detail[i];
+      if (parsed.relics) {
+        for (let i = 0; i < parsed.relics.length; i++) {
+          const r = parsed.relics[i];
           const relic = new CharDetailRelic();
           relic.pos = r.pos ?? (i + 1);
           relic.iconUrl = r.icon ?? '';
-          relic.setName = r.set_name ?? '';
+          relic.setName = r.set ? r.set.name : '';
           relic.level = r.level ?? 0;
           relic.rarity = r.rarity ?? 5;
-          relic.mainStatLabel = GenshinCharacterDetailViewModel.propertyTypeToResource(r.main_property_type ?? 0);
-          relic.mainStatValue = r.main_property_value ?? '';
+          if (r.main_property) {
+            relic.mainStatLabel = genshinPropertyTypeToResource(r.main_property.property_type ?? 0);
+            relic.mainStatValue = r.main_property.value ?? '';
+          }
           const subs: RelicSubStat[] = [];
-          if (r.sub_stats) {
-            for (let j = 0; j < r.sub_stats.length; j++) {
+          if (r.sub_property_list) {
+            for (let j = 0; j < r.sub_property_list.length; j++) {
               const sub = new RelicSubStat();
-              sub.label = GenshinCharacterDetailViewModel.propertyTypeToResource(r.sub_stats[j].property_type ?? 0);
-              sub.value = r.sub_stats[j].value ?? '';
+              sub.label = genshinPropertyTypeToResource(r.sub_property_list[j].property_type ?? 0);
+              sub.value = r.sub_property_list[j].value ?? '';
               subs[subs.length] = sub;
             }
-          }
-          relic.subStats = subs;
+          }          relic.subStats = subs;
           relics[relics.length] = relic;
         }
       }
       this.relics = relics;
 
-      // 技能（取前3个：普攻/战技/爆发）
+      // 技能（取前3个）
       const skills: CharDetailSkill[] = [];
-      if (parsed.skill_icons && parsed.skill_levels) {
-        const count = Math.min(3, parsed.skill_icons.length);
+      if (parsed.skills) {
+        const count = Math.min(3, parsed.skills.length);
         for (let i = 0; i < count; i++) {
           const sk = new CharDetailSkill();
-          sk.iconUrl = parsed.skill_icons[i] ?? '';
-          sk.level = parsed.skill_levels[i] ?? 0;
+          sk.iconUrl = parsed.skills[i].icon ?? '';
+          sk.level = parsed.skills[i].level ?? 0;
+          sk.name = parsed.skills[i].name ?? '';
           skills[skills.length] = sk;
         }
       }
@@ -251,39 +199,12 @@ export class GenshinCharacterDetailViewModel {
     }
   }
 
-  private buildStats(parsed: CharacterRawJson): CharDetailStat[] {
+  private buildStats(parsed: GenshinCharacterDetailRaw): CharDetailStat[] {
     const result: CharDetailStat[] = [];
     if (!parsed.selected_properties) {
       return result;
     }
-    // 展示顺序：HP → ATK → DEF → EM → 暴击率 → 暴击伤害 → 充能效率 → 治疗加成
-    const ORDER: number[] = [
-      GenshinPropertyType.HP_FINAL,
-      GenshinPropertyType.ATK_FINAL,
-      GenshinPropertyType.DEF_FINAL,
-      GenshinPropertyType.ELEMENTAL_MASTERY,
-      GenshinPropertyType.CRIT_RATE,
-      GenshinPropertyType.CRIT_DMG,
-      GenshinPropertyType.ENERGY_RECHARGE,
-      GenshinPropertyType.HEALING_BONUS,
-    ];
-    // 属性面板标签（与 ORDER 一一对应）
-    const LABEL_KEYS: Resource[] = [
-      $r('app.string.char_detail_hp'),
-      $r('app.string.char_detail_atk'),
-      $r('app.string.char_detail_def'),
-      $r('app.string.char_detail_em'),
-      $r('app.string.char_detail_cr'),
-      $r('app.string.char_detail_cd'),
-      $r('app.string.char_detail_er'),
-      $r('app.string.char_detail_heal'),
-    ];
-    // 暴击率/暴击伤害高亮显示
-    const HIGHLIGHT: number[] = [
-      GenshinPropertyType.CRIT_RATE,
-      GenshinPropertyType.CRIT_DMG,
-    ];
-    // 建立 property_type → final 查找表（用数组模拟，避免 Map）
+    // 建立 property_type → final 查找表
     const ptArr: number[] = [];
     const valArr: string[] = [];
     for (let i = 0; i < parsed.selected_properties.length; i++) {
@@ -291,8 +212,8 @@ export class GenshinCharacterDetailViewModel {
       ptArr[ptArr.length] = sp.property_type;
       valArr[valArr.length] = sp.final;
     }
-    for (let i = 0; i < ORDER.length; i++) {
-      const pt = ORDER[i];
+    for (let i = 0; i < GENSHIN_STAT_ORDER.length; i++) {
+      const pt = GENSHIN_STAT_ORDER[i];
       let val: string = '';
       for (let k = 0; k < ptArr.length; k++) {
         if (ptArr[k] === pt) {
@@ -300,54 +221,17 @@ export class GenshinCharacterDetailViewModel {
           break;
         }
       }
-      if (val === '') {
-        continue;
-      }
+      if (val === '') { continue; }
       let isHighlight = false;
-      for (let j = 0; j < HIGHLIGHT.length; j++) {
-        if (HIGHLIGHT[j] === pt) {
+      for (let j = 0; j < GENSHIN_HIGHLIGHT_PROPS.length; j++) {
+        if (GENSHIN_HIGHLIGHT_PROPS[j] === pt) {
           isHighlight = true;
           break;
         }
       }
-      result[result.length] = new CharDetailStat(LABEL_KEYS[i], val, isHighlight);
+      result[result.length] = new CharDetailStat(GENSHIN_STAT_LABELS[i], val, isHighlight);
     }
     return result;
   }
 
-  /**
-   * GenshinPropertyType → Resource（用于圣遗物词条、武器副词条、属性面板等所有场景）
-   * 未知 property_type 返回 null。
-   */
-  static propertyTypeToResource(pt: number): Resource | null {
-    if (pt === GenshinPropertyType.HP_FLAT) { return $r('app.string.prop_hp_flat'); }
-    if (pt === GenshinPropertyType.HP_PCT) { return $r('app.string.prop_hp_pct'); }
-    if (pt === GenshinPropertyType.BASE_ATK) { return $r('app.string.prop_base_atk'); }
-    if (pt === GenshinPropertyType.ATK_FLAT) { return $r('app.string.prop_atk_flat'); }
-    if (pt === GenshinPropertyType.ATK_PCT) { return $r('app.string.prop_atk_pct'); }
-    if (pt === GenshinPropertyType.DEF_FLAT) { return $r('app.string.prop_def_flat'); }
-    if (pt === GenshinPropertyType.DEF_PCT) { return $r('app.string.prop_def_pct'); }
-    if (pt === GenshinPropertyType.BASE_HP) { return $r('app.string.prop_base_hp'); }
-    if (pt === GenshinPropertyType.BASE_DEF) { return $r('app.string.prop_base_def'); }
-    if (pt === GenshinPropertyType.CRIT_RATE) { return $r('app.string.prop_crit_rate'); }
-    if (pt === GenshinPropertyType.CRIT_DMG) { return $r('app.string.prop_crit_dmg'); }
-    if (pt === GenshinPropertyType.ENERGY_RECHARGE) { return $r('app.string.prop_energy_recharge'); }
-    if (pt === GenshinPropertyType.HEALING_BONUS) { return $r('app.string.prop_healing_bonus'); }
-    if (pt === GenshinPropertyType.INCOMING_HEALING_BONUS) { return $r('app.string.prop_incoming_healing'); }
-    if (pt === GenshinPropertyType.ELEMENTAL_MASTERY) { return $r('app.string.prop_elemental_mastery'); }
-    if (pt === GenshinPropertyType.HP_FINAL) { return $r('app.string.prop_hp_flat'); }
-    if (pt === GenshinPropertyType.ATK_FINAL) { return $r('app.string.prop_atk_flat'); }
-    if (pt === GenshinPropertyType.DEF_FINAL) { return $r('app.string.prop_def_flat'); }
-    if (pt === GenshinPropertyType.PYRO_DMG_BONUS) { return $r('app.string.prop_pyro_dmg'); }
-    if (pt === GenshinPropertyType.ELECTRO_DMG_BONUS) { return $r('app.string.prop_electro_dmg'); }
-    if (pt === GenshinPropertyType.HYDRO_DMG_BONUS) { return $r('app.string.prop_hydro_dmg'); }
-    if (pt === GenshinPropertyType.DENDRO_DMG_BONUS) { return $r('app.string.prop_dendro_dmg'); }
-    if (pt === GenshinPropertyType.ANEMO_DMG_BONUS) { return $r('app.string.prop_anemo_dmg'); }
-    if (pt === GenshinPropertyType.GEO_DMG_BONUS) { return $r('app.string.prop_geo_dmg'); }
-    if (pt === GenshinPropertyType.CRYO_DMG_BONUS) { return $r('app.string.prop_cryo_dmg'); }
-    if (pt === GenshinPropertyType.PHYSICAL_DMG_BONUS) { return $r('app.string.prop_physical_dmg'); }
-    if (pt === GenshinPropertyType.COOLDOWN_REDUCTION) { return $r('app.string.prop_cooldown_reduction'); }
-    if (pt === GenshinPropertyType.SHIELD_STRENGTH) { return $r('app.string.prop_shield_strength'); }
-    return null;
-  }
 }

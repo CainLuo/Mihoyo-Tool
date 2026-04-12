@@ -5,6 +5,8 @@ export enum ZZZApiPath {
   AVATAR_BASIC = '/event/game_record_zzz/api/zzz/avatar/basic',
   /** 代理人详情 */
   AVATAR_INFO = '/event/game_record_zzz/api/zzz/avatar/info',
+  /** 邦布列表 */
+  BUDDY_LIST = '/event/game_record_zzz/api/zzz/buddy/info',
   /** 养成材料计算 */
   COMPUTE = '/event/nap_cultivate_tool/avatar_calc',
 }

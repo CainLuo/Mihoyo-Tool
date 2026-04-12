@@ -14,7 +14,7 @@ import { ViewState } from '../constants/ViewStates'
 
 /** 系统 Navigation 传入的路由参数 */
 export class GenshinDailyDetailParam {
-  accountId: number = 0;
+  accountId: string = '';
   roleUid: string = '';
 }
 

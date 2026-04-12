@@ -8,7 +8,7 @@
 import { ComponentContent, SymbolGlyphModifier } from '@kit.ArkUI'
 import { promptAction } from '@kit.ArkUI'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
-import { AccountOption } from '../viewmodel/CharactersViewModel'
+import { AccountOption } from '../models/AccountOption'
 import { AccountSwitchDialog, AccountSwitchDialogParams } from '../components/characters/AccountSwitchDialog'
 import { Home } from './Home'
 import { Characters } from './Characters'

@@ -36,7 +36,7 @@ export class SyncMetaDao {
   /**
    * 查询单条同步状态记录
    */
-  async findOne(accountId: number, roleUid: string, dataType: string): Promise<SyncMetaRow | null> {
+  async findOne(accountId: string, roleUid: string, dataType: string): Promise<SyncMetaRow | null> {
     const predicates = new relationalStore.RdbPredicates(TableName.SYNC_META);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -47,6 +47,45 @@ export class SyncMetaDao {
       return await RdbManager.queryFirst(predicates, SYNC_META_TABLE.columnNames(), (rs) => SyncMetaDao.mapRow(rs));
     } catch (e) {
       throw new Error(`SyncMetaDao.findOne failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /**
+   * 查询所有 pending 状态的任务（App 启动时恢复用）
+   */
+  async findAllPending(): Promise<SyncMetaRow[]> {
+    const predicates = new relationalStore.RdbPredicates(TableName.SYNC_META);
+    predicates.equalTo(SyncMetaCol.SYNC_STATUS, 'pending');
+    try {
+      return await RdbManager.queryAll(predicates, SYNC_META_TABLE.columnNames(), (rs) => SyncMetaDao.mapRow(rs));
+    } catch (e) {
+      throw new Error(`SyncMetaDao.findAllPending failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /**
+   * 标记任务为 pending（写入队列）
+   * 若记录不存在则插入，已存在则更新状态为 pending
+   */
+  async markPending(accountId: string, roleUid: string, dataType: string): Promise<void> {
+    const existing = await this.findOne(accountId, roleUid, dataType);
+    if (existing === null) {
+      const row = new SyncMetaRow();
+      row.accountId = accountId;
+      row.roleUid = roleUid;
+      row.dataType = dataType;
+      row.lastSyncTime = 0;
+      row.syncStatus = 'pending';
+      row.errorMsg = '';
+      await this.upsert(row);
+    } else {
+      const whereCols = [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, CommonCol.DATA_TYPE];
+      const whereVals: Array<relationalStore.ValueType> = [accountId, roleUid, dataType];
+      await RdbManager.updateRows(TableName.SYNC_META,
+        [SyncMetaCol.SYNC_STATUS, SyncMetaCol.ERROR_MSG],
+        ['pending', ''],
+        whereCols, whereVals
+      );
     }
   }
 
@@ -65,7 +104,7 @@ export class SyncMetaDao {
    * @param errorMsg  失败时的错误信息（可选，默认为空字符串）
    */
   async updateStatus(
-    accountId: number,
+    accountId: string,
     roleUid: string,
     dataType: string,
     status: string,
@@ -100,7 +139,7 @@ export class SyncMetaDao {
       const r = new RsReader(rs);
       const row = new SyncMetaRow();
       row.id           = r.num(CommonCol.ID);
-      row.accountId    = r.num(CommonCol.ACCOUNT_ID);
+      row.accountId    = r.str(CommonCol.ACCOUNT_ID);
       row.roleUid      = r.str(CommonCol.ROLE_UID);
       row.dataType     = r.str(CommonCol.DATA_TYPE);
       row.lastSyncTime = r.num(SyncMetaCol.LAST_SYNC_TIME);

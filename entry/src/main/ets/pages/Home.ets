@@ -15,6 +15,8 @@ import { Logger } from '../utils/Logger'
 import { AppRoutes } from '../constants/AppRoutes'
 import { GameId } from '../constants/GameId'
 import { GenshinDailyDetailParam } from './GenshinDailyDetail'
+import { StarRailDailyDetailParam } from './StarRailDailyDetail'
+import { ZZZDailyDetailParam } from './ZZZDailyDetail'
 import { BusinessError } from '@kit.BasicServicesKit'
 import { AccountSignal } from '../utils/AccountSignal'
 import { ViewState } from '../constants/ViewStates'
@@ -134,7 +136,7 @@ export struct Home {
     }
   }
 
-  private navigateToDetail(accountId: number, card: GameRoleCardVM): void {
+  private navigateToDetail(accountId: string, card: GameRoleCardVM): void {
     if (card.gameId === GameId.GENSHIN) {
       const param = new GenshinDailyDetailParam()
       param.accountId = accountId
@@ -146,6 +148,27 @@ export struct Home {
       }
       return
     }
-    Logger.info('Home', `no detail page for gameId: ${card.gameId}`)
+    if (card.gameId === GameId.STARRAIL) {
+      const param = new StarRailDailyDetailParam()
+      param.accountId = accountId
+      param.roleUid = card.roleUid
+      if (this.isSplit) {
+        this.detailStack.replacePath({ name: AppRoutes.STARRAIL_DAILY_DETAIL, param: param })
+      } else {
+        this.detailStack.pushPathByName(AppRoutes.STARRAIL_DAILY_DETAIL, param)
+      }
+      return
+    }
+    if (card.gameId === GameId.ZZZ) {
+      const param = new ZZZDailyDetailParam()
+      param.accountId = accountId
+      param.roleUid = card.roleUid
+      if (this.isSplit) {
+        this.detailStack.replacePath({ name: AppRoutes.ZZZ_DAILY_DETAIL, param: param })
+      } else {
+        this.detailStack.pushPathByName(AppRoutes.ZZZ_DAILY_DETAIL, param)
+      }
+      return
+    }
   }
 }

@@ -1,6 +1,6 @@
 export class GenshinCharacterListRow {
   id: number = 0;
-  accountId: number = 0;
+  accountId: string = '';
   roleUid: string = '';
   avatarId: string = '';
   name: string = '';
@@ -28,7 +28,7 @@ export class GenshinCharacterListRow {
 
 export class GenshinDailyNoteRow {
   id: number = 0;
-  accountId: number = 0;
+  accountId: string = '';
   roleUid: string = '';
   currentResin: number = 0;
   maxResin: number = 0;
@@ -47,7 +47,7 @@ export class GenshinDailyNoteRow {
 
 export class GenshinCharacterDetailRow {
   id: number = 0;
-  accountId: number = 0;
+  accountId: string = '';
   roleUid: string = '';
   avatarId: string = '';
   weaponId: string = '';
@@ -61,7 +61,7 @@ export class GenshinCharacterDetailRow {
 
 export class GenshinCharacterComputeRow {
   id: number = 0;
-  accountId: number = 0;
+  accountId: string = '';
   roleUid: string = '';
   avatarId: string = '';
   avatarConsumeJson: string = '';

@@ -6,12 +6,15 @@
  */
 import { BusinessError } from '@kit.BasicServicesKit'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
-import { CharactersViewModel, AccountOption } from '../viewmodel/CharactersViewModel'
+import { CharactersViewModel } from '../viewmodel/CharactersViewModel'
+import { AccountOption } from '../models/AccountOption'
 import { CharactersContent } from '../components/characters/CharactersContent'
 import { Logger } from '../utils/Logger'
 import { GenshinCharacterDetailParam } from './GenshinCharacterDetail'
-import { GameDataSummary } from 'core'
+import { GameDataSummary, GameId } from 'core'
 import { AccountSignal } from '../utils/AccountSignal'
+import { AppRoutes } from '../constants/AppRoutes'
+import { CharDetailRouterParam } from '../components/chardetail/CharDetailModels'
 
 @ComponentV2
 export struct Characters {
@@ -112,20 +115,44 @@ export struct Characters {
 
   private onCardTap(character: GameDataSummary): void {
     const gameId = this.vm.gameTabs.length > 0
-      ? this.vm.gameTabs[this.vm.selectedGameIdx].gameId : 'genshin'
+      ? this.vm.gameTabs[this.vm.selectedGameIdx].gameId : GameId.GENSHIN
     const roleUid = this.vm.gameTabs.length > 0
       ? this.vm.gameTabs[this.vm.selectedGameIdx].roleUid : ''
     const accountId = this.vm.accountOptions.length > 0
-      ? this.vm.accountOptions[this.vm.selectedAccountIdx].accountId : 0
-    const param = new GenshinCharacterDetailParam()
-    param.accountId = accountId
-    param.roleUid = roleUid
-    param.entityId = character.entityId
-    if (this.isSplit) {
-      this.detailStack.replacePath({ name: 'CharDetail', param: param })
-    } else {
-      this.detailStack.pushPath({ name: 'CharDetail', param: param })
+      ? this.vm.accountOptions[this.vm.selectedAccountIdx].accountId : ''
+
+    if (gameId === GameId.GENSHIN) {
+      const param = new GenshinCharacterDetailParam()
+      param.accountId = accountId
+      param.roleUid = roleUid
+      param.entityId = character.entityId
+      if (this.isSplit) {
+        this.detailStack.replacePath({ name: AppRoutes.GENSHIN_CHARACTER_DETAIL, param: param })
+      } else {
+        this.detailStack.pushPath({ name: AppRoutes.GENSHIN_CHARACTER_DETAIL, param: param })
+      }
+    } else if (gameId === GameId.STARRAIL) {
+      const param = new CharDetailRouterParam()
+      param.accountId = accountId
+      param.roleUid = roleUid
+      param.entityId = character.entityId
+      if (this.isSplit) {
+        this.detailStack.replacePath({ name: AppRoutes.STARRAIL_CHARACTER_DETAIL, param: param })
+      } else {
+        this.detailStack.pushPath({ name: AppRoutes.STARRAIL_CHARACTER_DETAIL, param: param })
+      }
+    } else if (gameId === GameId.ZZZ) {
+      const param = new CharDetailRouterParam()
+      param.accountId = accountId
+      param.roleUid = roleUid
+      param.entityId = character.entityId
+      if (this.isSplit) {
+        this.detailStack.replacePath({ name: AppRoutes.ZZZ_CHARACTER_DETAIL, param: param })
+      } else {
+        this.detailStack.pushPath({ name: AppRoutes.ZZZ_CHARACTER_DETAIL, param: param })
+      }
     }
+    // 其他 gameId（如 honkai3）暂不跳转，静默忽略
   }
 
   build() {

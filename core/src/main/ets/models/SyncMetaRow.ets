@@ -1,6 +1,6 @@
 export class SyncMetaRow {
   id: number = 0;
-  accountId: number = 0;
+  accountId: string = '';
   roleUid: string = '';
   dataType: string = '';
   lastSyncTime: number = 0;

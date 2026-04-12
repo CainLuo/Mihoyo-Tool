@@ -30,46 +30,118 @@ export class MockService extends BaseApiService {
   }
 
   /**
-   * 从 Cookie 字符串中提取 account_id，用于定位 mock 子目录
-   * account_id=1 → account1/，account_id=2 → account2/，其他 → 根目录
+   * 从 Cookie 字符串中提取 account_id
    */
-  private getAccountDir(options?: RequestOptions): string {
+  private getAccountId(options?: RequestOptions): string {
     if (!options) { return '' }
     const cookie = options.extraHeaders.get('Cookie') ?? ''
     const match = cookie.match(/account_id=(\d+)/)
-    if (match) {
-      return `account${match[1]}/`
+    return match ? match[1] : ''
+  }
+
+  /**
+   * 从 URL 的 query string 或 body 中提取 role_id / uid
+   * 游戏数据接口用 role_id（原神/星铁/绝区零），getGameRecordCard 用 uid
+   */
+  private getRoleId(url: string, body?: string): string {
+    // 先从 query string 里找
+    const qIdx = url.indexOf('?')
+    if (qIdx !== -1) {
+      const query = url.substring(qIdx + 1)
+      const parts = query.split('&')
+      for (let i = 0; i < parts.length; i++) {
+        const kv = parts[i].split('=')
+        if (kv[0] === 'role_id' || kv[0] === 'uid') {
+          return kv[1] ?? ''
+        }
+      }
+    }
+    // 再从 body JSON 里找
+    if (body) {
+      try {
+        const parsed = JSON.parse(body) as Record<string, string>
+        if (parsed['role_id']) { return parsed['role_id'] }
+        if (parsed['uid']) { return parsed['uid'] }
+      } catch (_) {}
     }
     return ''
   }
 
   /**
-   * 读取本地 Mock JSON 文件
-   * 优先读账号子目录，找不到则回退到根目录
+   * 从 URL query string 中提取绝区零单个角色详情的 id_list[] 第一个值
+   * 例：?role_id=37716744&id_list[]=1171&id_list[]=1141 → '1171'
    */
-  private async getMockData(url: string, options?: RequestOptions): Promise<MockResponse> {
-    try {
-      const fileName = this.getMockFileName(url)
-      const rm = await this.initResourceManager()
-      const accountDir = this.getAccountDir(options)
+  private getZZZAvatarId(url: string): string {
+    const qIdx = url.indexOf('?')
+    if (qIdx === -1) { return '' }
+    const query = url.substring(qIdx + 1)
+    const parts = query.split('&')
+    for (let i = 0; i < parts.length; i++) {
+      if (parts[i].startsWith('id_list[]=')) {
+        return parts[i].substring('id_list[]='.length)
+      }
+    }
+    return ''
+  }
 
-      // 优先尝试账号子目录
-      if (accountDir) {
-        try {
-          const fileContent = await rm.getRawFileContent(`mock/${accountDir}${fileName}.json`)
-          const decoder = new util.TextDecoder('utf-8')
-          const jsonString = decoder.decodeToString(new Uint8Array(fileContent.buffer))
-          return JSON.parse(jsonString) as MockResponse
-        } catch (_) {
-          // 子目录没有，回退到根目录
+  /**
+   * 根据 URL 路径判断是否为绝区零角色详情接口
+   * 对应 ZZZApiPath.AVATAR_INFO（event/game_record_zzz/api/zzz/avatar/info）
+   */
+  private isZZZAvatarInfoUrl(url: string): boolean {
+    return url.indexOf('zzz/avatar/info') !== -1
+  }
+
+  /**
+   * 读取本地 Mock JSON 文件
+   * 路由优先级：
+   *   绝区零角色详情：{account_id}/{role_id}/{avatarId}.json
+   *   其他游戏数据：{account_id}/{role_id}/文件名.json
+   *   账号级数据：{account_id}/文件名.json
+   *   兜底：根目录/文件名.json
+   */
+  private async getMockData(url: string, options?: RequestOptions, body?: string): Promise<MockResponse> {
+    try {
+      const rm = await this.initResourceManager()
+      const accountId = this.getAccountId(options)
+      const roleId = this.getRoleId(url, body)
+
+      // 绝区零角色详情：用 avatarId 作为文件名
+      if (this.isZZZAvatarInfoUrl(url)) {
+        const avatarId = this.getZZZAvatarId(url)
+        if (accountId && roleId && avatarId) {
+          try {
+            const content = await rm.getRawFileContent(`mock/${accountId}/${roleId}/${avatarId}.json`)
+            const decoder = new util.TextDecoder('utf-8')
+            return JSON.parse(decoder.decodeToString(new Uint8Array(content.buffer))) as MockResponse
+          } catch (_) {}
         }
       }
 
-      // 根目录
-      const fileContent = await rm.getRawFileContent(`mock/${fileName}.json`)
+      const fileName = this.getMockFileName(url)
+
+      // 第一优先：{account_id}/{role_id}/文件名
+      if (accountId && roleId) {
+        try {
+          const content = await rm.getRawFileContent(`mock/${accountId}/${roleId}/${fileName}.json`)
+          const decoder = new util.TextDecoder('utf-8')
+          return JSON.parse(decoder.decodeToString(new Uint8Array(content.buffer))) as MockResponse
+        } catch (_) {}
+      }
+
+      // 第二优先：{account_id}/文件名（账号级数据，如 getUserFullInfo、binding）
+      if (accountId) {
+        try {
+          const content = await rm.getRawFileContent(`mock/${accountId}/${fileName}.json`)
+          const decoder = new util.TextDecoder('utf-8')
+          return JSON.parse(decoder.decodeToString(new Uint8Array(content.buffer))) as MockResponse
+        } catch (_) {}
+      }
+
+      // 兜底：根目录
+      const content = await rm.getRawFileContent(`mock/${fileName}.json`)
       const decoder = new util.TextDecoder('utf-8')
-      const jsonString = decoder.decodeToString(new Uint8Array(fileContent.buffer))
-      return JSON.parse(jsonString) as MockResponse
+      return JSON.parse(decoder.decodeToString(new Uint8Array(content.buffer))) as MockResponse
     } catch (error) {
       console.error(`Failed to get mock data: ${this.toErrorMessage(error)}`)
       return { retcode: 0, message: 'success', data: {} }
@@ -119,7 +191,8 @@ export class MockService extends BaseApiService {
 
   public async post(url: string, _data?: RequestParams, options?: RequestOptions): Promise<object> {
     await this.delay(300);
-    return this.getMockData(url, options);
+    const body = typeof _data === 'string' ? _data : undefined;
+    return this.getMockData(url, options, body);
   }
 
   public async put(url: string, _data?: RequestParams, options?: RequestOptions): Promise<object> {

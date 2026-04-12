@@ -48,6 +48,8 @@ export enum TableName {
   ZZZ_AVATAR_INFO           = 'zzz_avatar_info',
   /** 绝区零代理人养成计算，存储代理人/武器/技能的养成材料消耗 JSON */
   ZZZ_AVATAR_COMPUTE        = 'zzz_avatar_compute',
+  /** 绝区零邦布列表，存储邦布基础信息 */
+  ZZZ_BUDDY                 = 'zzz_buddy',
   /** 同步状态元数据，记录每个角色每种数据类型的最后同步时间和状态 */
   SYNC_META                 = 'sync_meta',
 }
@@ -59,7 +61,7 @@ export enum TableName {
 export enum CommonCol {
   /** 自增主键 */
   ID          = 'id',
-  /** 关联的米游社账号 ID（外键 → account_table.id，ON DELETE CASCADE） */
+  /** 关联的米游社账号 UID（外键 → account_table.uid，ON DELETE CASCADE） */
   ACCOUNT_ID  = 'account_id',
   /** 游戏角色 UID（与 game_role_table.role_id 对应） */
   ROLE_UID    = 'role_uid',
@@ -451,6 +453,25 @@ export enum ZZZAvatarComputeCol {
 }
 
 /**
+ * zzz_buddy 专属列名。
+ * 存储绝区零邦布的基础信息，每个邦布（buddyId）只保留一条最新记录。
+ */
+export enum ZZZBuddyCol {
+  /** 邦布 ID（米游社内部 ID） */
+  BUDDY_ID            = 'buddy_id',
+  /** 邦布名称 */
+  NAME                = 'name',
+  /** 稀有度（'S' 或 'A'） */
+  RARITY              = 'rarity',
+  /** 邦布等级（1-60） */
+  LEVEL               = 'level',
+  /** 精炼等级（1-5，对应 API 的 star 字段） */
+  STAR                = 'star',
+  /** 邦布方形图标 URL */
+  BANGBOO_SQUARE_URL  = 'bangboo_square_url',
+}
+
+/**
  * 单列定义，描述一张表中某一列的名称、SQLite 类型和约束。
  * 由 TableDef 持有，通过 buildCreateSql() 拼入 DDL。
  */
@@ -486,7 +507,7 @@ export class TableDef {
   columns: ColumnDef[];
   /**
    * 表级外键约束字符串（可选）。
-   * 示例：'FOREIGN KEY (account_id) REFERENCES account_table(id) ON DELETE CASCADE'
+   * 示例：'FOREIGN KEY (account_id) REFERENCES account_table(uid) ON DELETE CASCADE'
    * 为空字符串时不追加外键约束。
    */
   foreignKey: string;
@@ -536,7 +557,7 @@ export class TableDef {
 }
 
 // ── 公共外键约束模板 ──────────────────────────────────────────
-const FK_ACCOUNT = 'FOREIGN KEY (account_id) REFERENCES account_table(id) ON DELETE CASCADE';
+const FK_ACCOUNT = 'FOREIGN KEY (account_id) REFERENCES account_table(uid) ON DELETE CASCADE';
 
 // ── 表 1：account_table ──────────────────────────────────────
 export const ACCOUNT_TABLE = new TableDef(TableName.ACCOUNT, [
@@ -549,7 +570,7 @@ export const ACCOUNT_TABLE = new TableDef(TableName.ACCOUNT, [
   new ColumnDef('is_active',   'INTEGER', 'DEFAULT 0'),
   new ColumnDef('create_time', 'INTEGER'),
   new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
-  new ColumnDef('uid',         'TEXT',    "DEFAULT ''"),
+  new ColumnDef('uid',         'TEXT',    "UNIQUE NOT NULL DEFAULT ''"),
   new ColumnDef('nickname',    'TEXT',    "DEFAULT ''"),
   new ColumnDef('avatar_url',  'TEXT',    "DEFAULT ''"),
   new ColumnDef('introduce',   'TEXT',    "DEFAULT ''"),
@@ -559,7 +580,7 @@ export const ACCOUNT_TABLE = new TableDef(TableName.ACCOUNT, [
 // ── 表 2：game_role_table ────────────────────────────────────
 export const GAME_ROLE_TABLE = new TableDef(TableName.GAME_ROLE, [
   new ColumnDef(CommonCol.ID,           'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
-  new ColumnDef(CommonCol.ACCOUNT_ID,   'INTEGER', 'NOT NULL'),
+  new ColumnDef(CommonCol.ACCOUNT_ID,   'TEXT', 'NOT NULL'),
   new ColumnDef('game_id',      'TEXT',    'NOT NULL'),
   new ColumnDef('game_biz',     'TEXT',    "DEFAULT ''"),
   new ColumnDef('game_type',    'INTEGER', 'DEFAULT 0'),
@@ -577,7 +598,7 @@ export const GAME_ROLE_TABLE = new TableDef(TableName.GAME_ROLE, [
 // ── 表 3：genshin_character_list ─────────────────────────────
 export const GENSHIN_CHARACTER_LIST_TABLE = new TableDef(TableName.GENSHIN_CHARACTER_LIST, [
   new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
-  new ColumnDef(CommonCol.ACCOUNT_ID, 'INTEGER', 'NOT NULL'),
+  new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT', 'NOT NULL'),
   new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
   new ColumnDef(CommonCol.AVATAR_ID,  'TEXT',    'NOT NULL'),
   new ColumnDef('name',                      'TEXT'),
@@ -604,7 +625,7 @@ export const GENSHIN_CHARACTER_LIST_TABLE = new TableDef(TableName.GENSHIN_CHARA
 // ── 表 4：genshin_daily_note ─────────────────────────────────
 export const GENSHIN_DAILY_NOTE_TABLE = new TableDef(TableName.GENSHIN_DAILY_NOTE, [
   new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
-  new ColumnDef(CommonCol.ACCOUNT_ID, 'INTEGER', 'NOT NULL'),
+  new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT', 'NOT NULL'),
   new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
   new ColumnDef('current_resin',             'INTEGER'),
   new ColumnDef('max_resin',                 'INTEGER'),
@@ -624,7 +645,7 @@ export const GENSHIN_DAILY_NOTE_TABLE = new TableDef(TableName.GENSHIN_DAILY_NOT
 // ── 表 5：genshin_character_detail ───────────────────────────
 export const GENSHIN_CHARACTER_DETAIL_TABLE = new TableDef(TableName.GENSHIN_CHARACTER_DETAIL, [
   new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
-  new ColumnDef(CommonCol.ACCOUNT_ID, 'INTEGER', 'NOT NULL'),
+  new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT', 'NOT NULL'),
   new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
   new ColumnDef(CommonCol.AVATAR_ID,  'TEXT',    'NOT NULL'),
   new ColumnDef('weapon_id',          'TEXT'),
@@ -639,7 +660,7 @@ export const GENSHIN_CHARACTER_DETAIL_TABLE = new TableDef(TableName.GENSHIN_CHA
 // ── 表 6：genshin_character_compute ──────────────────────────
 export const GENSHIN_CHARACTER_COMPUTE_TABLE = new TableDef(TableName.GENSHIN_CHARACTER_COMPUTE, [
   new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
-  new ColumnDef(CommonCol.ACCOUNT_ID, 'INTEGER', 'NOT NULL'),
+  new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT', 'NOT NULL'),
   new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
   new ColumnDef(CommonCol.AVATAR_ID,  'TEXT',    'NOT NULL'),
   new ColumnDef('avatar_consume_json', 'TEXT'),
@@ -651,7 +672,7 @@ export const GENSHIN_CHARACTER_COMPUTE_TABLE = new TableDef(TableName.GENSHIN_CH
 // ── 表 7：starrail_avatar_basic ──────────────────────────────
 export const STARRAIL_AVATAR_BASIC_TABLE = new TableDef(TableName.STARRAIL_AVATAR_BASIC, [
   new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
-  new ColumnDef(CommonCol.ACCOUNT_ID, 'INTEGER', 'NOT NULL'),
+  new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT', 'NOT NULL'),
   new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
   new ColumnDef(CommonCol.AVATAR_ID,  'TEXT',    'NOT NULL'),
   new ColumnDef('name',         'TEXT'),
@@ -677,7 +698,7 @@ export const STARRAIL_AVATAR_BASIC_TABLE = new TableDef(TableName.STARRAIL_AVATA
 // ── 表 8：starrail_daily_note ────────────────────────────────
 export const STARRAIL_DAILY_NOTE_TABLE = new TableDef(TableName.STARRAIL_DAILY_NOTE, [
   new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
-  new ColumnDef(CommonCol.ACCOUNT_ID, 'INTEGER', 'NOT NULL'),
+  new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT', 'NOT NULL'),
   new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
   new ColumnDef('current_stamina',         'INTEGER'),
   new ColumnDef('max_stamina',             'INTEGER'),
@@ -703,7 +724,7 @@ export const STARRAIL_DAILY_NOTE_TABLE = new TableDef(TableName.STARRAIL_DAILY_N
 // ── 表 9：starrail_avatar_info ───────────────────────────────
 export const STARRAIL_AVATAR_INFO_TABLE = new TableDef(TableName.STARRAIL_AVATAR_INFO, [
   new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
-  new ColumnDef(CommonCol.ACCOUNT_ID, 'INTEGER', 'NOT NULL'),
+  new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT', 'NOT NULL'),
   new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
   new ColumnDef(CommonCol.AVATAR_ID,  'TEXT',    'NOT NULL'),
   new ColumnDef('equip_id',        'TEXT'),
@@ -718,7 +739,7 @@ export const STARRAIL_AVATAR_INFO_TABLE = new TableDef(TableName.STARRAIL_AVATAR
 // ── 表 10：starrail_avatar_compute ───────────────────────────
 export const STARRAIL_AVATAR_COMPUTE_TABLE = new TableDef(TableName.STARRAIL_AVATAR_COMPUTE, [
   new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
-  new ColumnDef(CommonCol.ACCOUNT_ID, 'INTEGER', 'NOT NULL'),
+  new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT', 'NOT NULL'),
   new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
   new ColumnDef(CommonCol.AVATAR_ID,  'TEXT',    'NOT NULL'),
   new ColumnDef('avatar_consume_json',    'TEXT'),
@@ -730,7 +751,7 @@ export const STARRAIL_AVATAR_COMPUTE_TABLE = new TableDef(TableName.STARRAIL_AVA
 // ── 表 11：zzz_avatar_basic ──────────────────────────────────
 export const ZZZ_AVATAR_BASIC_TABLE = new TableDef(TableName.ZZZ_AVATAR_BASIC, [
   new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
-  new ColumnDef(CommonCol.ACCOUNT_ID, 'INTEGER', 'NOT NULL'),
+  new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT', 'NOT NULL'),
   new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
   new ColumnDef(CommonCol.AVATAR_ID,  'TEXT',    'NOT NULL'),
   new ColumnDef('name_mi18n',        'TEXT'),
@@ -754,7 +775,7 @@ export const ZZZ_AVATAR_BASIC_TABLE = new TableDef(TableName.ZZZ_AVATAR_BASIC, [
 // ── 表 12：zzz_daily_note ────────────────────────────────────
 export const ZZZ_DAILY_NOTE_TABLE = new TableDef(TableName.ZZZ_DAILY_NOTE, [
   new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
-  new ColumnDef(CommonCol.ACCOUNT_ID, 'INTEGER', 'NOT NULL'),
+  new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT', 'NOT NULL'),
   new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
   new ColumnDef('energy_current',   'INTEGER'),
   new ColumnDef('energy_max',       'INTEGER'),
@@ -770,7 +791,7 @@ export const ZZZ_DAILY_NOTE_TABLE = new TableDef(TableName.ZZZ_DAILY_NOTE, [
 // ── 表 13：zzz_avatar_info ───────────────────────────────────
 export const ZZZ_AVATAR_INFO_TABLE = new TableDef(TableName.ZZZ_AVATAR_INFO, [
   new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
-  new ColumnDef(CommonCol.ACCOUNT_ID, 'INTEGER', 'NOT NULL'),
+  new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT', 'NOT NULL'),
   new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
   new ColumnDef(CommonCol.AVATAR_ID,  'TEXT',    'NOT NULL'),
   new ColumnDef('weapon_id',             'TEXT'),
@@ -786,7 +807,7 @@ export const ZZZ_AVATAR_INFO_TABLE = new TableDef(TableName.ZZZ_AVATAR_INFO, [
 // ── 表 14：zzz_avatar_compute ────────────────────────────────
 export const ZZZ_AVATAR_COMPUTE_TABLE = new TableDef(TableName.ZZZ_AVATAR_COMPUTE, [
   new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
-  new ColumnDef(CommonCol.ACCOUNT_ID, 'INTEGER', 'NOT NULL'),
+  new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT', 'NOT NULL'),
   new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
   new ColumnDef(CommonCol.AVATAR_ID,  'TEXT',    'NOT NULL'),
   new ColumnDef('avatar_consume_json', 'TEXT'),
@@ -795,10 +816,25 @@ export const ZZZ_AVATAR_COMPUTE_TABLE = new TableDef(TableName.ZZZ_AVATAR_COMPUT
   new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
 ], FK_ACCOUNT);
 
-// ── 表 15：sync_meta ─────────────────────────────────────────
+// ── 表 15：zzz_buddy ─────────────────────────────────────────
+export const ZZZ_BUDDY_TABLE = new TableDef(TableName.ZZZ_BUDDY, [
+  new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
+  new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT',    'NOT NULL'),
+  new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
+  new ColumnDef('buddy_id',           'TEXT',    'NOT NULL'),
+  new ColumnDef('name',               'TEXT'),
+  new ColumnDef('rarity',             'TEXT'),
+  new ColumnDef('level',              'INTEGER'),
+  new ColumnDef('star',               'INTEGER'),
+  new ColumnDef('bangboo_square_url', 'TEXT'),
+  new ColumnDef(CommonCol.RAW_JSON,    'TEXT',    'NOT NULL'),
+  new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
+], FK_ACCOUNT);
+
+// ── 表 16：sync_meta ─────────────────────────────────────────
 export const SYNC_META_TABLE = new TableDef(TableName.SYNC_META, [
   new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
-  new ColumnDef(CommonCol.ACCOUNT_ID, 'INTEGER', 'NOT NULL'),
+  new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT', 'NOT NULL'),
   new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
   new ColumnDef(CommonCol.DATA_TYPE,  'TEXT',    'NOT NULL'),
   new ColumnDef('last_sync_time', 'INTEGER'),
@@ -825,6 +861,7 @@ export const ALL_TABLES: TableDef[] = [
   ZZZ_DAILY_NOTE_TABLE,
   ZZZ_AVATAR_INFO_TABLE,
   ZZZ_AVATAR_COMPUTE_TABLE,
+  ZZZ_BUDDY_TABLE,
   SYNC_META_TABLE,
 ];
 
@@ -909,6 +946,8 @@ export const ALL_INDEXES: IndexDef[] = [
   new IndexDef('idx_zzz_avatar_info_unique', TableName.ZZZ_AVATAR_INFO, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, CommonCol.AVATAR_ID], true),
   // zzz_avatar_compute
   new IndexDef('idx_zzz_avatar_compute_unique', TableName.ZZZ_AVATAR_COMPUTE, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, CommonCol.AVATAR_ID], true),
+  // zzz_buddy
+  new IndexDef('idx_zzz_buddy_unique', TableName.ZZZ_BUDDY, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, 'buddy_id'], true),
   // sync_meta
   new IndexDef('idx_sync_meta_unique', TableName.SYNC_META, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, CommonCol.DATA_TYPE], true),
 ];

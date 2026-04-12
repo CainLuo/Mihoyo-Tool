@@ -15,6 +15,7 @@ import { util } from '@kit.ArkTS';
 export class DSUtil {
   private static saltV1: string = '';
   private static saltV2: string = '';
+  private static saltX4: string = '';
   private static saltX6: string = '';
 
   /**
@@ -29,16 +30,12 @@ export class DSUtil {
       const config = JSON.parse(jsonStr) as Record<string, string>;
       const v1 = config['salt_v1'];
       const v2 = config['salt_v2'];
+      const x4 = config['salt_x4'];
       const x6 = config['salt_x6'];
-      if (typeof v1 === 'string') {
-        DSUtil.saltV1 = v1;
-      }
-      if (typeof v2 === 'string') {
-        DSUtil.saltV2 = v2;
-      }
-      if (typeof x6 === 'string') {
-        DSUtil.saltX6 = x6;
-      }
+      if (typeof v1 === 'string') { DSUtil.saltV1 = v1; }
+      if (typeof v2 === 'string') { DSUtil.saltV2 = v2; }
+      if (typeof x4 === 'string') { DSUtil.saltX4 = x4; }
+      if (typeof x6 === 'string') { DSUtil.saltX6 = x6; }
     } catch (e) {
       // salt 加载失败时保持空字符串，DS 签名会失效但不崩溃
     }
@@ -60,6 +57,15 @@ export class DSUtil {
    */
   static generateV2(params?: RequestParams, body?: string): string {
     return DSUtil.generate(DSUtil.saltV2, params, body);
+  }
+
+  /**
+   * 生成 X4 DS（passport 接口：getLTokenBySToken / getCookieAccountInfoBySToken）
+   * @param params GET 请求参数
+   * @param body   POST 请求 body 字符串
+   */
+  static generateX4(params?: RequestParams, body?: string): string {
+    return DSUtil.generate(DSUtil.saltX4, params, body);
   }
 
   /**

@@ -29,6 +29,10 @@
 import { NetworkFactory } from '../network/NetworkFactory';
 import { RequestParams, RequestOptions } from '../network/APIs';
 import { GameId } from '../constants/GameId';
+import { RsaUtil } from '../utils/RsaUtil';
+import { HttpClient } from '../network/HttpClient';
+import { MihoyoAccountApiService } from '../network/MihoyoAccountApiService';
+import { ApiConfig } from '../network/ApiConfig';
 
 // ─── 旧版游戏角色数据模型（供 AuthRepository 返回值和 entry 层使用）────────────
 
@@ -378,156 +382,204 @@ function gameBizToGameId(gameBiz: string): string {
   return gameBiz;
 }
 
+/** 手机号登录成功后的 Token 信息 */
+export class LoginMobileResult {
+  stoken: string = '';
+  aid: string = '';
+  mid: string = '';
+}
+
 // ─── AuthRepository ──────────────────────────────────────────────
 
 export class AuthRepository {
 
+  /**
+   * 注入的 account service（由 BBSRepository.setService() 同步设置）。
+   * mock 环境下为 MihoyoAccountMockService，release 环境下为 MihoyoAccountApiService。
+   */
+  static accountService: MihoyoAccountApiService | null = null;
+
+  /** 由 CoreInitializer.initCore() 设置，仅用于无 service 时的兜底判断 */
+  static isMock: boolean = false;
+
   // ── 手机号登录 ────────────────────────────────────────────────
 
   /**
-   * 申请人机验证任务（手机号登录第一步）
-   * 接口：GET https://webapi.account.mihoyo.com/Api/create_mmt
-   *
-   * @returns MmtData，mmt_type=0 表示无需 Geetest，直接用 mmt_key 发短信
+   * 发送短信验证码
+   * mock 环境：通过 MihoyoAccountMockService 校验手机号是否存在
+   * release 环境：RSA 加密后调用真实接口
    */
-  static async createMmt(): Promise<MmtData> {
-    try {
-      const now = Math.floor(Date.now() / 1000);
-      const params = new RequestParams();
-      params.set('scene_type', '1');
-      params.set('now', `${now}`);
-      params.set('reason', 'user.mihoyo.com%2523%252Flogin%252Fcaptcha');
-      params.set('action_type', 'login_by_mobile_captcha');
-      const resp = await NetworkFactory.getInstance().get(
-        `${WEBAPI_ACCOUNT}/create_mmt`,
-        params,
-        new RequestOptions()
-      ) as MmtResponse;
-      if (resp.code !== 200 || resp.data.status !== 1) {
-        throw new Error(`createMmt failed: code=${resp.code}`);
+  static async createLoginCaptcha(mobile: string, areaCode: string = '+86'): Promise<void> {
+    const svc = AuthRepository.accountService;
+    if (svc !== null) {
+      // 通过注入的 service 调用（mock/release 统一入口）
+      // mock 环境下 service 直接用明文 mobile，release 环境下 service 内部加密
+      let encryptedMobile = mobile;
+      let encryptedAreaCode = areaCode;
+      if (!AuthRepository.isMock) {
+        encryptedMobile = await RsaUtil.encrypt(mobile);
+        encryptedAreaCode = await RsaUtil.encrypt(areaCode);
       }
-      return resp.data.mmt_data;
+      const resp = await svc.createLoginCaptcha(encryptedMobile, encryptedAreaCode) as Record<string, Object>;
+      const retcode = resp['retcode'] as number;
+      if (retcode !== 0) {
+        throw new Error(`[${retcode}] ${resp['message']}`);
+      }
+      return;
+    }
+    // 兜底：直接调 HttpClient（不应该走到这里）
+    try {
+      const encryptedMobile = await RsaUtil.encrypt(mobile);
+      const encryptedAreaCode = await RsaUtil.encrypt(areaCode);
+      const bodyStr = JSON.stringify({ area_code: encryptedAreaCode, mobile: encryptedMobile });
+      const opts = new RequestOptions();
+      opts.extraHeaders.set('content-type', 'application/json');
+      opts.extraHeaders.set('x-rpc-app_id', ApiConfig.BBS_APP_ID);
+      opts.extraHeaders.set('x-rpc-client_type', '2');
+      opts.extraHeaders.set('x-rpc-aigis', '');
+      opts.extraHeaders.set('Referer', 'https://user.miyoushe.com/');
+      const resp = await HttpClient.post(
+        'https://passport-api.mihoyo.com/account/ma-cn-verifier/verifier/createLoginCaptcha',
+        bodyStr,
+        opts
+      ) as Record<string, Object>;
+      const retcode = resp['retcode'] as number;
+      if (retcode !== 0) {
+        throw new Error(`[${retcode}] ${resp['message']}`);
+      }
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
-      throw new Error(`AuthRepository.createMmt failed: ${msg}`);
+      throw new Error(`AuthRepository.createLoginCaptcha failed: ${msg}`);
     }
   }
 
   /**
-   * 发送短信验证码（手机号登录第二步）
-   * 接口：POST https://webapi.account.mihoyo.com/Api/create_mobile_captcha
+   * 提交验证码登录
+   * mock 环境：校验手机号 + 验证码（固定 111111）
+   * release 环境：RSA 加密后调用真实接口
    */
-  static async sendSmsCode(
+  static async loginByMobileCaptcha(
     mobile: string,
-    mmtKey: string,
-    v4Data?: GeetestV4Data,
-    v3Challenge?: string,
-    v3Validate?: string,
-    v3Seccode?: string
-  ): Promise<void> {
+    captcha: string,
+    areaCode: string = '+86'
+  ): Promise<LoginMobileResult> {
+    const svc = AuthRepository.accountService;
+    if (svc !== null) {
+      let encryptedMobile = mobile;
+      let encryptedAreaCode = areaCode;
+      if (!AuthRepository.isMock) {
+        encryptedMobile = await RsaUtil.encrypt(mobile);
+        encryptedAreaCode = await RsaUtil.encrypt(areaCode);
+      }
+      const resp = await svc.loginByMobileCaptcha(encryptedMobile, encryptedAreaCode, captcha) as Record<string, Object>;
+      const retcode = resp['retcode'] as number;
+      if (retcode !== 0) {
+        throw new Error(`[${retcode}] ${resp['message']}`);
+      }
+      const data = resp['data'] as Record<string, Object>;
+      const token = data['token'] as Record<string, Object>;
+      const userInfo = data['user_info'] as Record<string, Object>;
+      const result = new LoginMobileResult();
+      result.stoken = `${token['token']}`;
+      result.aid = `${userInfo['aid']}`;
+      result.mid = `${userInfo['mid']}`;
+      return result;
+    }
+    // 兜底
     try {
-      const now = Math.floor(Date.now() / 1000);
-      const params = new RequestParams();
-      params.set('action_type', 'login');
-      params.set('mmt_key', mmtKey);
-      params.set('mobile', mobile);
-      params.set('t', `${now}`);
-      if (v4Data !== undefined) {
-        params.set('geetest_v4_data', JSON.stringify(v4Data));
+      const encryptedMobile = await RsaUtil.encrypt(mobile);
+      const encryptedAreaCode = await RsaUtil.encrypt(areaCode);
+      const bodyStr = JSON.stringify({
+        area_code: encryptedAreaCode,
+        mobile: encryptedMobile,
+        action_type: 'login_by_mobile_captcha',
+        captcha: captcha,
+      });
+      const opts = new RequestOptions();
+      opts.extraHeaders.set('content-type', 'text/plain;charset=UTF-8');
+      opts.extraHeaders.set('x-rpc-app_id', ApiConfig.BBS_APP_ID);
+      opts.extraHeaders.set('x-rpc-client_type', '2');
+      opts.extraHeaders.set('x-rpc-aigis', '');
+      const resp = await HttpClient.post(
+        'https://passport-api.mihoyo.com/account/ma-cn-passport/app/loginByMobileCaptcha',
+        bodyStr,
+        opts
+      ) as Record<string, Object>;
+      const retcode = resp['retcode'] as number;
+      if (retcode !== 0) {
+        throw new Error(`[${retcode}] ${resp['message']}`);
       }
-      if (v3Challenge !== undefined) {
-        params.set('geetest_challenge', v3Challenge);
-      }
-      if (v3Validate !== undefined) {
-        params.set('geetest_validate', v3Validate);
-      }
-      if (v3Seccode !== undefined) {
-        params.set('geetest_seccode', v3Seccode);
-      }
-      const resp = await NetworkFactory.getInstance().post(
-        `${WEBAPI_ACCOUNT}/create_mobile_captcha`,
-        params,
-        new RequestOptions()
-      ) as MmtResponse;
-      if (resp.code !== 200 || resp.data.status !== 1) {
-        throw new Error(`sendSmsCode failed: code=${resp.code} status=${resp.data.status}`);
-      }
+      const data = resp['data'] as Record<string, Object>;
+      const token = data['token'] as Record<string, Object>;
+      const userInfo = data['user_info'] as Record<string, Object>;
+      const result = new LoginMobileResult();
+      result.stoken = `${token['token']}`;
+      result.aid = `${userInfo['aid']}`;
+      result.mid = `${userInfo['mid']}`;
+      return result;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
-      throw new Error(`AuthRepository.sendSmsCode failed: ${msg}`);
+      throw new Error(`AuthRepository.loginByMobileCaptcha failed: ${msg}`);
     }
   }
 
   /**
-   * 用短信验证码换取 LoginTicket（手机号登录第三步）
-   * 接口：POST https://webapi.account.mihoyo.com/Api/login_by_mobilecaptcha
+   * 通过 SToken 获取 LToken
    */
-  static async loginByPhone(mobile: string, captcha: string): Promise<PhoneLoginAccountInfo> {
-    try {
-      const now = Math.floor(Date.now() / 1000);
-      const params = new RequestParams();
-      params.set('mobile', mobile);
-      params.set('mobile_captcha', captcha);
-      params.set('source', 'user.mihoyo.com');
-      params.set('t', `${now}`);
-      const resp = await NetworkFactory.getInstance().post(
-        `${WEBAPI_ACCOUNT}/login_by_mobilecaptcha`,
-        params,
-        new RequestOptions()
-      ) as PhoneLoginResponse;
-      if (resp.code !== 200 || resp.data.status !== 1) {
-        throw new Error(`loginByPhone failed: code=${resp.code} status=${resp.data.status}`);
-      }
-      return resp.data.account_info;
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      throw new Error(`AuthRepository.loginByPhone failed: ${msg}`);
-    }
-  }
-
-  /**
-   * 通过 LoginTicket 获取 LToken
-   * 接口：GET https://api-takumi.mihoyo.com/auth/api/getMultiTokenByLoginTicket
-   */
-  static async getLTokenByTicket(loginTicket: string, accountId: number): Promise<string> {
-    try {
-      const params = new RequestParams();
-      params.set('token_types', '2');
-      params.set('login_ticket', loginTicket);
-      params.set('uid', `${accountId}`);
-      const resp = await NetworkFactory.getInstance().get(
-        `${TAKUMI_API}/auth/api/getMultiTokenByLoginTicket`,
-        params,
-        new RequestOptions()
-      ) as GetMultiTokenResponse;
+  static async getLTokenBySToken(stoken: string, mid: string): Promise<string> {
+    const svc = AuthRepository.accountService;
+    if (svc !== null) {
+      const resp = await svc.getLTokenBySToken(stoken, mid) as GetLTokenBySTokenResponse;
       if (resp.retcode !== 0) {
-        throw new Error(`getLTokenByTicket failed: [${resp.retcode}] ${resp.message}`);
+        throw new Error(`getLTokenBySToken failed: [${resp.retcode}] ${resp.message}`);
       }
-      for (const item of resp.data.list) {
-        if (item.name === 'ltoken') {
-          return item.token;
-        }
+      return resp.data.ltoken;
+    }
+    try {
+      const params = new RequestParams();
+      params.set('stoken', stoken);
+      const opts = new RequestOptions();
+      opts.extraHeaders.set('Cookie', `mid=${mid};stoken=${stoken}`);
+      opts.extraHeaders.set('x-rpc-client_type', '5');
+      opts.extraHeaders.set('Referer', 'https://webstatic.mihoyo.com');
+      const resp = await NetworkFactory.getInstance().get(
+        `${PASSPORT_API}/account/auth/api/getLTokenBySToken`,
+        params,
+        opts
+      ) as GetLTokenBySTokenResponse;
+      if (resp.retcode !== 0) {
+        throw new Error(`getLTokenBySToken failed: [${resp.retcode}] ${resp.message}`);
       }
-      throw new Error('getLTokenByTicket: ltoken not found in response');
+      return resp.data.ltoken;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
-      throw new Error(`AuthRepository.getLTokenByTicket failed: ${msg}`);
+      throw new Error(`AuthRepository.getLTokenBySToken failed: ${msg}`);
     }
   }
 
   /**
    * 通过 SToken 获取 CookieToken
-   * 接口：GET https://api-takumi.mihoyo.com/auth/api/getCookieAccountInfoBySToken
    */
-  static async getCookieBySToken(stoken: string, accountId: string): Promise<string> {
+  static async getCookieBySToken(stoken: string, mid: string): Promise<string> {
+    const svc = AuthRepository.accountService;
+    if (svc !== null) {
+      const resp = await svc.getCookieTokenBySToken(stoken, mid) as GetCookieBySTokenResponse;
+      if (resp.retcode !== 0) {
+        throw new Error(`getCookieBySToken failed: [${resp.retcode}] ${resp.message}`);
+      }
+      return resp.data.cookie_token;
+    }
     try {
       const params = new RequestParams();
       params.set('stoken', stoken);
-      params.set('uid', accountId);
+      const opts = new RequestOptions();
+      opts.extraHeaders.set('Cookie', `mid=${mid};stoken=${stoken}`);
+      opts.extraHeaders.set('x-rpc-client_type', '5');
+      opts.extraHeaders.set('Referer', 'https://webstatic.mihoyo.com');
       const resp = await NetworkFactory.getInstance().get(
-        `${TAKUMI_API}/auth/api/getCookieAccountInfoBySToken`,
+        `${PASSPORT_API}/account/auth/api/getCookieAccountInfoBySToken`,
         params,
-        new RequestOptions()
+        opts
       ) as GetCookieBySTokenResponse;
       if (resp.retcode !== 0) {
         throw new Error(`getCookieBySToken failed: [${resp.retcode}] ${resp.message}`);
@@ -538,7 +590,6 @@ export class AuthRepository {
       throw new Error(`AuthRepository.getCookieBySToken failed: ${msg}`);
     }
   }
-
   // ── 二维码登录 ────────────────────────────────────────────────
 
   /**
@@ -547,14 +598,16 @@ export class AuthRepository {
    */
   static async fetchQRCode(deviceId: string): Promise<QRCodeFetchResult> {
     try {
-      const params = new RequestParams();
-      params.set('app_id', '4');
-      params.set('device', deviceId);
-      const resp = await NetworkFactory.getInstance().post(
-        `${HK4E_SDK}/hk4e_cn/combo/panda/qrcode/fetch`,
-        params,
-        new RequestOptions()
-      ) as QRCodeFetchResponse;
+      let resp: QRCodeFetchResponse;
+      const svc = AuthRepository.accountService;
+      if (svc !== null) {
+        resp = await svc.fetchQRCode(deviceId) as QRCodeFetchResponse;
+      } else {
+        const bodyStr = JSON.stringify({ app_id: 7, device: deviceId });
+        const opts = new RequestOptions();
+        opts.extraHeaders.set('content-type', 'text/plain;charset=UTF-8');
+        resp = await HttpClient.post(`${HK4E_SDK}/hk4e_cn/combo/panda/qrcode/fetch`, bodyStr, opts) as QRCodeFetchResponse;
+      }
       if (resp.retcode !== 0) {
         throw new Error(`fetchQRCode failed: [${resp.retcode}] ${resp.message}`);
       }
@@ -571,24 +624,18 @@ export class AuthRepository {
     }
   }
 
-  /**
-   * 查询二维码扫描状态（二维码登录第二步，需轮询）
-   * 接口：POST https://hk4e-sdk.mihoyo.com/hk4e_cn/combo/panda/qrcode/query
-   */
-  static async queryQRCode(
-    deviceId: string,
-    ticket: string
-  ): Promise<QRCodeQueryResult> {
+  static async queryQRCode(deviceId: string, ticket: string): Promise<QRCodeQueryResult> {
     try {
-      const params = new RequestParams();
-      params.set('app_id', '4');
-      params.set('device', deviceId);
-      params.set('ticket', ticket);
-      const resp = await NetworkFactory.getInstance().post(
-        `${HK4E_SDK}/hk4e_cn/combo/panda/qrcode/query`,
-        params,
-        new RequestOptions()
-      ) as QRCodeQueryResponse;
+      let resp: QRCodeQueryResponse;
+      const svc = AuthRepository.accountService;
+      if (svc !== null) {
+        resp = await svc.queryQRCode(deviceId, ticket) as QRCodeQueryResponse;
+      } else {
+        const bodyStr = JSON.stringify({ app_id: 7, device: deviceId, ticket: ticket });
+        const opts = new RequestOptions();
+        opts.extraHeaders.set('content-type', 'text/plain;charset=UTF-8');
+        resp = await HttpClient.post(`${HK4E_SDK}/hk4e_cn/combo/panda/qrcode/query`, bodyStr, opts) as QRCodeQueryResponse;
+      }
       const queryResult = new QRCodeQueryResult();
       if (resp.retcode === -106) {
         queryResult.stat = 'expired';
@@ -599,8 +646,7 @@ export class AuthRepository {
       }
       queryResult.stat = resp.data.stat.toLowerCase();
       if (queryResult.stat === 'confirmed' && resp.data.payload.proto === 'Account') {
-        const raw = resp.data.payload.raw;
-        queryResult.confirmed = JSON.parse(raw) as QRCodeConfirmedData;
+        queryResult.confirmed = JSON.parse(resp.data.payload.raw) as QRCodeConfirmedData;
       }
       return queryResult;
     } catch (error) {
@@ -609,25 +655,19 @@ export class AuthRepository {
     }
   }
 
-  /**
-   * 通过 GameToken 获取 SToken（二维码登录第三步）
-   * 接口：POST https://api-takumi.mihoyo.com/account/ma-cn-session/app/getTokenByGameToken
-   */
-  static async getTokenByGameToken(
-    accountId: string,
-    gameToken: string
-  ): Promise<GameTokenResult> {
+  static async getTokenByGameToken(accountId: string, gameToken: string): Promise<GameTokenResult> {
     try {
-      const params = new RequestParams();
-      params.set('account_id', accountId);
-      params.set('game_token', gameToken);
-      const options = new RequestOptions();
-      options.extraHeaders.set('x-rpc-app_id', 'bll8iq97cem8');
-      const resp = await NetworkFactory.getInstance().post(
-        `${TAKUMI_API}/account/ma-cn-session/app/getTokenByGameToken`,
-        params,
-        options
-      ) as GetTokenByGameTokenResponse;
+      let resp: GetTokenByGameTokenResponse;
+      const svc = AuthRepository.accountService;
+      if (svc !== null) {
+        resp = await svc.getTokenByGameToken(accountId, gameToken) as GetTokenByGameTokenResponse;
+      } else {
+        const bodyStr = JSON.stringify({ account_id: parseInt(accountId, 10), game_token: gameToken });
+        const opts = new RequestOptions();
+        opts.extraHeaders.set('x-rpc-app_id', ApiConfig.BBS_APP_ID);
+        opts.extraHeaders.set('content-type', 'application/json');
+        resp = await HttpClient.post(`${TAKUMI_API}/account/ma-cn-session/app/getTokenByGameToken`, bodyStr, opts) as GetTokenByGameTokenResponse;
+      }
       if (resp.retcode !== 0) {
         throw new Error(`getTokenByGameToken failed: [${resp.retcode}] ${resp.message}`);
       }
@@ -642,10 +682,11 @@ export class AuthRepository {
   }
 
   /**
-   * 通过 SToken 获取 LToken
+   * 通过 SToken 获取 LToken（旧版，保留供二维码登录使用）
    * 接口：GET https://passport-api.mihoyo.com/account/auth/api/getLTokenBySToken
+   * @deprecated 新版手机号登录请使用 getLTokenBySToken(stoken, mid)
    */
-  static async getLTokenBySToken(stoken: string, accountId: string): Promise<string> {
+  static async getLTokenBySTokenLegacy(stoken: string, accountId: string): Promise<string> {
     try {
       const options = new RequestOptions();
       options.extraHeaders.set('Cookie', `stoken=${stoken};stuid=${accountId}`);

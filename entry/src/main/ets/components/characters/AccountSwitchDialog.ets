@@ -5,7 +5,7 @@
  * 样式参考 My 页账号列表，显示头像 + 昵称 + UID。
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
-import { AccountOption } from '../../viewmodel/CharactersViewModel'
+import { AccountOption } from '../../models/AccountOption'
 
 @ObservedV2
 export class AccountSwitchDialogParams {
