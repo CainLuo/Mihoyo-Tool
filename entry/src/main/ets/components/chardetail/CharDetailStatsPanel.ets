@@ -194,22 +194,28 @@ export struct CharDetailStatsPanel {
             .borderRadius(this.tm.current.value4)
             .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.value1, bottom: this.tm.current.value1 })
           if (this.vm.weapon.subLabel !== null) {
-            Row({ space: this.tm.current.value4 }) {
-              Text(this.vm.weapon.subLabel)
-                .fontSize(this.tm.current.body10.size)
-                .fontColor(this.tm.current.textOnDarkMuted)
-              Text(this.vm.weapon.subVal)
-                .fontSize(this.tm.current.body10.size)
-                .fontColor(elementColor(this.vm.charElement))
-            }
+            Text(this.vm.weapon.subLabel)
+              .fontSize(this.tm.current.body10.size)
+              .fontColor(this.tm.current.textOnDarkMuted)
+            Text(this.vm.weapon.subVal)
+              .fontSize(this.tm.current.body10.size)
+              .fontColor(elementColor(this.vm.charElement))
           }
         }
       }
       .alignItems(HorizontalAlign.Start)
       .layoutWeight(1)
+      // 基础攻击力（右侧）
+      if (this.vm.weapon.baseAtk > 0) {
+        Text(`${this.vm.weapon.baseAtk}`)
+          .fontSize(this.tm.current.body13Bold.size)
+          .fontWeight(FontWeight.Bold)
+          .fontColor(this.tm.current.textOnDarkHigh)
+          .flexShrink(0)
+      }
     }
     .width(this.tm.current.full)
-    .padding({ left: this.tm.current.value10, right: this.tm.current.value10, top: this.tm.current.value8, bottom: this.tm.current.value8 })
+    .padding({ top: this.tm.current.value8, bottom: this.tm.current.value8 })
     .backgroundColor(this.tm.current.surfaceDarkXs)
     .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlassSm })
   }
@@ -267,6 +273,8 @@ export struct CharDetailStatsPanel {
     .columnsTemplate(this.phoneCols === 4 ? '1fr 1fr 1fr 1fr' : '1fr 1fr')
     .width(this.tm.current.full)
     .backgroundColor(this.tm.current.surfaceDarkLg)
+    .border({ width: this.tm.current.value1, color: this.tm.current.surfaceOverlayMd })
+    .borderRadius(this.tm.current.radius8)
   }
 
   build() {
@@ -277,6 +285,10 @@ export struct CharDetailStatsPanel {
         this.StatsGrid()
       }
       .width(this.tm.current.full)
+      .backgroundColor(this.tm.current.surfaceDarkXl)
+      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceOverlayMd })
+      .borderRadius(this.tm.current.radius12)
+      .clip(true)
     } else {
       // 宽屏模式：武器卡片 + 可滚动属性列表
       Column() {

@@ -71,6 +71,7 @@ export struct CharDetailHeroPanelPortrait {
       // 立绘贴右
       if (this.vm.charImageUrl !== '') {
         Image(this.vm.charImageUrl)
+          .width('60%')
           .height(this.tm.current.full)
           .objectFit(ImageFit.Cover)
           .position({ x: '100%', y: 0 })
@@ -96,18 +97,17 @@ export struct CharDetailHeroPanelPortrait {
           colors: [[this.tm.current.overlayPortraitBot, 0], [this.tm.current.colorTransparent, 0.45]]
         })
 
-      // 右侧命座纵列（垂直居中）
+      // 左侧命座纵列（垂直居中，和星铁/绝区零保持一致）
       Column() {
         CharDetailConsColumn({ constellations: this.vm.constellations })
       }
-      .width(this.tm.current.full)
       .height(this.tm.current.full)
-      .alignItems(HorizontalAlign.End)
       .justifyContent(FlexAlign.Center)
-      .padding({ right: this.tm.current.value12 })
+      .padding({ left: this.tm.current.value12 })
+      .position({ x: 0, y: 0 })
       .zIndex(3)
 
-      // 左下角：名字 + 等级 + 好感 + 技能横行
+      // 左下角：名字 + 等级 + 好感（技能移到独立 section）
       Column({ space: this.tm.current.value4 }) {
         Text(this.vm.charName)
           .fontSize(this.tm.current.value22)
@@ -131,34 +131,13 @@ export struct CharDetailHeroPanelPortrait {
               top: this.tm.current.value1, bottom: this.tm.current.value1
             })
         }
-        // 技能横行
-        Row({ space: this.tm.current.value10 }) {
-          ForEach(this.vm.skills, (skill: CharDetailSkill) => {
-            Column({ space: this.tm.current.value2 }) {
-              if (skill.iconUrl !== '') {
-                Image(skill.iconUrl)
-                  .width(this.tm.current.value34)
-                  .height(this.tm.current.value34)
-                  .objectFit(ImageFit.Contain)
-                  .borderRadius(this.tm.current.value17)
-                  .backgroundColor(this.tm.current.surfaceDark2xl)
-                  .border({ width: this.tm.current.value1p5, color: this.tm.current.surfaceSkillBorderPhone })
-              }
-              Text(`${skill.level}`)
-                .fontSize(this.tm.current.body12.size)
-                .fontWeight(FontWeight.Bold)
-                .fontColor(elementColor(this.vm.charElement))
-            }
-            .alignItems(HorizontalAlign.Center)
-          }, (_skill: CharDetailSkill, idx: number) => `pskill_${idx}`)
-        }
       }
       .width(this.tm.current.full)
       .height(this.tm.current.full)
       .alignItems(HorizontalAlign.Start)
       .justifyContent(FlexAlign.End)
       .padding({
-        left: this.tm.current.value12,
+        left: this.tm.current.value56,
         right: this.tm.current.pct40,
         bottom: this.tm.current.value24
       })

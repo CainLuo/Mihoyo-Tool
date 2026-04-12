@@ -23343,29 +23343,267 @@
       }
     ],
     "equip_wiki": {
-      "23005": "https://bbs.mihoyo.com/sr/wiki/content/388/detail?bbs_presentation_style=no_header",
-      "21000": "https://bbs.mihoyo.com/sr/wiki/content/221/detail?bbs_presentation_style=no_header",
       "21025": "https://bbs.mihoyo.com/sr/wiki/content/852/detail?bbs_presentation_style=no_header",
-      "21035": "https://bbs.mihoyo.com/sr/wiki/content/2320/detail?bbs_presentation_style=no_header",
-      "21034": "https://bbs.mihoyo.com/sr/wiki/content/546/detail?bbs_presentation_style=no_header",
-      "21010": "https://bbs.mihoyo.com/sr/wiki/content/316/detail?bbs_presentation_style=no_header",
       "21024": "https://bbs.mihoyo.com/sr/wiki/content/855/detail?bbs_presentation_style=no_header",
       "21023": "https://bbs.mihoyo.com/sr/wiki/content/849/detail?bbs_presentation_style=no_header",
-      "23012": "https://bbs.mihoyo.com/sr/wiki/content/566/detail?bbs_presentation_style=no_header",
-      "22002": "https://bbs.mihoyo.com/sr/wiki/content/2729/detail?bbs_presentation_style=no_header",
-      "21020": "https://bbs.mihoyo.com/sr/wiki/content/856/detail?bbs_presentation_style=no_header",
-      "24000": "https://bbs.mihoyo.com/sr/wiki/content/844/detail?bbs_presentation_style=no_header",
+      "23005": "https://bbs.mihoyo.com/sr/wiki/content/388/detail?bbs_presentation_style=no_header",
       "23024": "https://bbs.mihoyo.com/sr/wiki/content/2546/detail?bbs_presentation_style=no_header",
+      "21010": "https://bbs.mihoyo.com/sr/wiki/content/316/detail?bbs_presentation_style=no_header",
       "21011": "https://bbs.mihoyo.com/sr/wiki/content/244/detail?bbs_presentation_style=no_header",
-      "21015": "https://bbs.mihoyo.com/sr/wiki/content/853/detail?bbs_presentation_style=no_header",
-      "21008": "https://bbs.mihoyo.com/sr/wiki/content/225/detail?bbs_presentation_style=no_header",
-      "22000": "https://bbs.mihoyo.com/sr/wiki/content/1087/detail?bbs_presentation_style=no_header",
+      "23012": "https://bbs.mihoyo.com/sr/wiki/content/566/detail?bbs_presentation_style=no_header",
+      "21034": "https://bbs.mihoyo.com/sr/wiki/content/546/detail?bbs_presentation_style=no_header",
       "21027": "https://bbs.mihoyo.com/sr/wiki/content/545/detail?bbs_presentation_style=no_header",
+      "22002": "https://bbs.mihoyo.com/sr/wiki/content/2729/detail?bbs_presentation_style=no_header",
+      "21000": "https://bbs.mihoyo.com/sr/wiki/content/221/detail?bbs_presentation_style=no_header",
+      "21020": "https://bbs.mihoyo.com/sr/wiki/content/856/detail?bbs_presentation_style=no_header",
       "21018": "https://bbs.mihoyo.com/sr/wiki/content/851/detail?bbs_presentation_style=no_header",
-      "23014": "https://bbs.mihoyo.com/sr/wiki/content/1718/detail?bbs_presentation_style=no_header"
+      "22000": "https://bbs.mihoyo.com/sr/wiki/content/1087/detail?bbs_presentation_style=no_header",
+      "21015": "https://bbs.mihoyo.com/sr/wiki/content/853/detail?bbs_presentation_style=no_header",
+      "24000": "https://bbs.mihoyo.com/sr/wiki/content/844/detail?bbs_presentation_style=no_header",
+      "23014": "https://bbs.mihoyo.com/sr/wiki/content/1718/detail?bbs_presentation_style=no_header",
+      "21008": "https://bbs.mihoyo.com/sr/wiki/content/225/detail?bbs_presentation_style=no_header",
+      "21035": "https://bbs.mihoyo.com/sr/wiki/content/2320/detail?bbs_presentation_style=no_header"
     },
     "relic_wiki": {},
     "property_info": {
+      "4": {
+        "property_type": 4,
+        "name": "速度",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/2c45d4a957f1f5e145310a969e515889.png",
+        "property_name_relic": "速度",
+        "property_name_filter": "速度"
+      },
+      "61": {
+        "property_type": 61,
+        "name": "",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/1296deb628ce7f7eb2c5f439e601f14e.png",
+        "property_name_relic": "",
+        "property_name_filter": ""
+      },
+      "52": {
+        "property_type": 52,
+        "name": "暴击率",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/78841eed440ebd855fe8bf56f01385b9.png",
+        "property_name_relic": "暴击率",
+        "property_name_filter": "暴击率"
+      },
+      "37": {
+        "property_type": 37,
+        "name": "物理属性抗性提高",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/fe2ce9fe8d545440d06368fef5aafd1f.png",
+        "property_name_relic": "物理属性抗性提高",
+        "property_name_filter": "物理属性抗性提高"
+      },
+      "27": {
+        "property_type": 27,
+        "name": "生命值",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/07855a7050d00c64f54d64b58e715301.png",
+        "property_name_relic": "生命值",
+        "property_name_filter": "生命值"
+      },
+      "5": {
+        "property_type": 5,
+        "name": "暴击率",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/78841eed440ebd855fe8bf56f01385b9.png",
+        "property_name_relic": "暴击率",
+        "property_name_filter": "暴击率"
+      },
+      "29": {
+        "property_type": 29,
+        "name": "攻击力",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/4353c45b0651b4e23712d804f83849d6.png",
+        "property_name_relic": "攻击力",
+        "property_name_filter": "攻击力"
+      },
+      "16": {
+        "property_type": 16,
+        "name": "冰属性伤害提高",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/87c68b3d4d7de10abcc7df33567f06e3.png",
+        "property_name_relic": "冰属性伤害提高",
+        "property_name_filter": "冰属性伤害提高"
+      },
+      "28": {
+        "property_type": 28,
+        "name": "基础攻击力",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/4353c45b0651b4e23712d804f83849d6.png",
+        "property_name_relic": "基础攻击力提高#1[i]",
+        "property_name_filter": "基础攻击力提高#1[i]"
+      },
+      "22": {
+        "property_type": 22,
+        "name": "量子属性伤害提高",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/cabca1029c2cddb68965362903f78dd5.png",
+        "property_name_relic": "量子属性伤害提高",
+        "property_name_filter": "量子属性伤害提高"
+      },
+      "33": {
+        "property_type": 33,
+        "name": "攻击力",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/4353c45b0651b4e23712d804f83849d6.png",
+        "property_name_relic": "攻击力",
+        "property_name_filter": "攻击力百分比"
+      },
+      "34": {
+        "property_type": 34,
+        "name": "防御力",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/710037eb0f927b7ebcb09b79f9d71eec.png",
+        "property_name_relic": "防御力",
+        "property_name_filter": "防御力百分比"
+      },
+      "17": {
+        "property_type": 17,
+        "name": "冰属性抗性提高",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/78a70263630e6ab4bbc1b254aa1561cd.png",
+        "property_name_relic": "冰属性抗性提高",
+        "property_name_filter": "冰属性抗性提高"
+      },
+      "25": {
+        "property_type": 25,
+        "name": "虚数属性抗性提高",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/09f8f4f92235d2764d2e8963e93ea44a.png",
+        "property_name_relic": "虚数属性抗性提高",
+        "property_name_filter": "虚数属性抗性提高"
+      },
+      "13": {
+        "property_type": 13,
+        "name": "物理属性抗性提高",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/fe2ce9fe8d545440d06368fef5aafd1f.png",
+        "property_name_relic": "物理属性抗性提高",
+        "property_name_filter": "物理属性抗性提高"
+      },
+      "56": {
+        "property_type": 56,
+        "name": "效果命中",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/db692b6173e12b753ba8dbf68e90a976.png",
+        "property_name_relic": "效果命中",
+        "property_name_filter": "效果命中"
+      },
+      "54": {
+        "property_type": 54,
+        "name": "能量恢复效率",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/257551f53e052337c48a83314a55ab73.png",
+        "property_name_relic": "能量恢复效率",
+        "property_name_filter": "能量恢复效率"
+      },
+      "40": {
+        "property_type": 40,
+        "name": "雷属性抗性提高",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/304ff51849ac247f9f11126c64c507c0.png",
+        "property_name_relic": "雷属性抗性提高",
+        "property_name_filter": "雷属性抗性提高"
+      },
+      "71": {
+        "property_type": 71,
+        "name": "欢愉度",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/b639e1f11675371cff177725045a4b25.png",
+        "property_name_relic": "欢愉度",
+        "property_name_filter": "欢愉度"
+      },
+      "57": {
+        "property_type": 57,
+        "name": "效果抵抗",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/004efbd26c627adf1b0cd03d1f8e03b1.png",
+        "property_name_relic": "效果抵抗",
+        "property_name_filter": "效果抵抗"
+      },
+      "60": {
+        "property_type": 60,
+        "name": "能量上限",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/9e2b5806cda88c955667f58e77a27d5a.png",
+        "property_name_relic": "能量上限",
+        "property_name_filter": "能量上限"
+      },
+      "1": {
+        "property_type": 1,
+        "name": "生命值",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/07855a7050d00c64f54d64b58e715301.png",
+        "property_name_relic": "生命值",
+        "property_name_filter": "生命值"
+      },
+      "51": {
+        "property_type": 51,
+        "name": "速度",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/2c45d4a957f1f5e145310a969e515889.png",
+        "property_name_relic": "速度",
+        "property_name_filter": "速度"
+      },
+      "41": {
+        "property_type": 41,
+        "name": "风属性抗性提高",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/70e2f4d9f0d678008e03e259984a7d8e.png",
+        "property_name_relic": "风属性抗性提高",
+        "property_name_filter": "风属性抗性提高"
+      },
+      "11": {
+        "property_type": 11,
+        "name": "效果抵抗",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/004efbd26c627adf1b0cd03d1f8e03b1.png",
+        "property_name_relic": "效果抵抗",
+        "property_name_filter": "效果抵抗"
+      },
+      "43": {
+        "property_type": 43,
+        "name": "虚数属性抗性提高",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/09f8f4f92235d2764d2e8963e93ea44a.png",
+        "property_name_relic": "虚数属性抗性提高",
+        "property_name_filter": "虚数属性抗性提高"
+      },
+      "18": {
+        "property_type": 18,
+        "name": "雷属性伤害提高",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/141413e236f52a28087b1db93eb5015b.png",
+        "property_name_relic": "雷属性伤害提高",
+        "property_name_filter": "雷属性伤害提高"
+      },
+      "10": {
+        "property_type": 10,
+        "name": "效果命中",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/db692b6173e12b753ba8dbf68e90a976.png",
+        "property_name_relic": "效果命中",
+        "property_name_filter": "效果命中"
+      },
+      "39": {
+        "property_type": 39,
+        "name": "冰属性抗性提高",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/78a70263630e6ab4bbc1b254aa1561cd.png",
+        "property_name_relic": "冰属性抗性提高",
+        "property_name_filter": "冰属性抗性提高"
+      },
+      "20": {
+        "property_type": 20,
+        "name": "风属性伤害提高",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/2222a2170c4c71346b9273d85a15db85.png",
+        "property_name_relic": "风属性伤害提高",
+        "property_name_filter": "风属性伤害提高"
+      },
+      "72": {
+        "property_type": 72,
+        "name": "欢愉度",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/b639e1f11675371cff177725045a4b25.png",
+        "property_name_relic": "欢愉度",
+        "property_name_filter": "欢愉度"
+      },
+      "53": {
+        "property_type": 53,
+        "name": "暴击伤害",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/d5fe09deaa9de104aff2ebb28ebfd8e5.png",
+        "property_name_relic": "暴击伤害",
+        "property_name_filter": "暴击伤害"
+      },
+      "21": {
+        "property_type": 21,
+        "name": "风属性抗性提高",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/70e2f4d9f0d678008e03e259984a7d8e.png",
+        "property_name_relic": "风属性抗性提高",
+        "property_name_filter": "风属性抗性提高"
+      },
+      "24": {
+        "property_type": 24,
+        "name": "虚数属性伤害提高",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/c64905166a7d7e38d9cd32b826f42cb1.png",
+        "property_name_relic": "虚数属性伤害提高",
+        "property_name_filter": "虚数属性伤害提高"
+      },
       "32": {
         "property_type": 32,
         "name": "生命值",
@@ -23380,162 +23618,8 @@
         "property_name_relic": "治疗量加成",
         "property_name_filter": "治疗量加成"
       },
-      "61": {
-        "property_type": 61,
-        "name": "",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/1296deb628ce7f7eb2c5f439e601f14e.png",
-        "property_name_relic": "",
-        "property_name_filter": ""
-      },
-      "41": {
-        "property_type": 41,
-        "name": "风属性抗性提高",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/70e2f4d9f0d678008e03e259984a7d8e.png",
-        "property_name_relic": "风属性抗性提高",
-        "property_name_filter": "风属性抗性提高"
-      },
-      "6": {
-        "property_type": 6,
-        "name": "暴击伤害",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/d5fe09deaa9de104aff2ebb28ebfd8e5.png",
-        "property_name_relic": "暴击伤害",
-        "property_name_filter": "暴击伤害"
-      },
-      "56": {
-        "property_type": 56,
-        "name": "效果命中",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/db692b6173e12b753ba8dbf68e90a976.png",
-        "property_name_relic": "效果命中",
-        "property_name_filter": "效果命中"
-      },
-      "60": {
-        "property_type": 60,
-        "name": "能量上限",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/9e2b5806cda88c955667f58e77a27d5a.png",
-        "property_name_relic": "能量上限",
-        "property_name_filter": "能量上限"
-      },
-      "11": {
-        "property_type": 11,
-        "name": "效果抵抗",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/004efbd26c627adf1b0cd03d1f8e03b1.png",
-        "property_name_relic": "效果抵抗",
-        "property_name_filter": "效果抵抗"
-      },
-      "33": {
-        "property_type": 33,
-        "name": "攻击力",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/4353c45b0651b4e23712d804f83849d6.png",
-        "property_name_relic": "攻击力",
-        "property_name_filter": "攻击力百分比"
-      },
-      "29": {
-        "property_type": 29,
-        "name": "攻击力",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/4353c45b0651b4e23712d804f83849d6.png",
-        "property_name_relic": "攻击力",
-        "property_name_filter": "攻击力"
-      },
-      "42": {
-        "property_type": 42,
-        "name": "量子属性抗性提高",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/e29ec46fa2be80c7812c1ee82b5b9ff0.png",
-        "property_name_relic": "量子属性抗性提高",
-        "property_name_filter": "量子属性抗性提高"
-      },
-      "27": {
-        "property_type": 27,
-        "name": "生命值",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/07855a7050d00c64f54d64b58e715301.png",
-        "property_name_relic": "生命值",
-        "property_name_filter": "生命值"
-      },
-      "1": {
-        "property_type": 1,
-        "name": "生命值",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/07855a7050d00c64f54d64b58e715301.png",
-        "property_name_relic": "生命值",
-        "property_name_filter": "生命值"
-      },
-      "3": {
-        "property_type": 3,
-        "name": "防御力",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/710037eb0f927b7ebcb09b79f9d71eec.png",
-        "property_name_relic": "防御力",
-        "property_name_filter": "防御力"
-      },
-      "38": {
-        "property_type": 38,
-        "name": "火属性抗性提高",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/6a58fcc008370ea2d6a7d7d0333d0fcd.png",
-        "property_name_relic": "火属性抗性提高",
-        "property_name_filter": "火属性抗性提高"
-      },
-      "58": {
-        "property_type": 58,
-        "name": "击破特攻",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/cbe008a67f47420b9ea8e1edff134e59.png",
-        "property_name_relic": "击破特攻",
-        "property_name_filter": "击破特攻"
-      },
-      "43": {
-        "property_type": 43,
-        "name": "虚数属性抗性提高",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/09f8f4f92235d2764d2e8963e93ea44a.png",
-        "property_name_relic": "虚数属性抗性提高",
-        "property_name_filter": "虚数属性抗性提高"
-      },
-      "20": {
-        "property_type": 20,
-        "name": "风属性伤害提高",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/2222a2170c4c71346b9273d85a15db85.png",
-        "property_name_relic": "风属性伤害提高",
-        "property_name_filter": "风属性伤害提高"
-      },
-      "34": {
-        "property_type": 34,
-        "name": "防御力",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/710037eb0f927b7ebcb09b79f9d71eec.png",
-        "property_name_relic": "防御力",
-        "property_name_filter": "防御力百分比"
-      },
-      "54": {
-        "property_type": 54,
-        "name": "能量恢复效率",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/257551f53e052337c48a83314a55ab73.png",
-        "property_name_relic": "能量恢复效率",
-        "property_name_filter": "能量恢复效率"
-      },
-      "51": {
-        "property_type": 51,
-        "name": "速度",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/2c45d4a957f1f5e145310a969e515889.png",
-        "property_name_relic": "速度",
-        "property_name_filter": "速度"
-      },
-      "17": {
-        "property_type": 17,
-        "name": "冰属性抗性提高",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/78a70263630e6ab4bbc1b254aa1561cd.png",
-        "property_name_relic": "冰属性抗性提高",
-        "property_name_filter": "冰属性抗性提高"
-      },
-      "57": {
-        "property_type": 57,
-        "name": "效果抵抗",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/004efbd26c627adf1b0cd03d1f8e03b1.png",
-        "property_name_relic": "效果抵抗",
-        "property_name_filter": "效果抵抗"
-      },
-      "26": {
-        "property_type": 26,
-        "name": "基础生命值",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/07855a7050d00c64f54d64b58e715301.png",
-        "property_name_relic": "基础生命值提高#1[i]",
-        "property_name_filter": "基础生命值提高#1[i]"
-      },
-      "40": {
-        "property_type": 40,
+      "19": {
+        "property_type": 19,
         "name": "雷属性抗性提高",
         "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/304ff51849ac247f9f11126c64c507c0.png",
         "property_name_relic": "雷属性抗性提高",
@@ -23548,55 +23632,6 @@
         "property_name_relic": "火属性伤害提高",
         "property_name_filter": "火属性伤害提高"
       },
-      "52": {
-        "property_type": 52,
-        "name": "暴击率",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/78841eed440ebd855fe8bf56f01385b9.png",
-        "property_name_relic": "暴击率",
-        "property_name_filter": "暴击率"
-      },
-      "18": {
-        "property_type": 18,
-        "name": "雷属性伤害提高",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/141413e236f52a28087b1db93eb5015b.png",
-        "property_name_relic": "雷属性伤害提高",
-        "property_name_filter": "雷属性伤害提高"
-      },
-      "37": {
-        "property_type": 37,
-        "name": "物理属性抗性提高",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/fe2ce9fe8d545440d06368fef5aafd1f.png",
-        "property_name_relic": "物理属性抗性提高",
-        "property_name_filter": "物理属性抗性提高"
-      },
-      "35": {
-        "property_type": 35,
-        "name": "速度",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/2c45d4a957f1f5e145310a969e515889.png",
-        "property_name_relic": "速度",
-        "property_name_filter": "速度"
-      },
-      "5": {
-        "property_type": 5,
-        "name": "暴击率",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/78841eed440ebd855fe8bf56f01385b9.png",
-        "property_name_relic": "暴击率",
-        "property_name_filter": "暴击率"
-      },
-      "19": {
-        "property_type": 19,
-        "name": "雷属性抗性提高",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/304ff51849ac247f9f11126c64c507c0.png",
-        "property_name_relic": "雷属性抗性提高",
-        "property_name_filter": "雷属性抗性提高"
-      },
-      "72": {
-        "property_type": 72,
-        "name": "欢愉度",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/b639e1f11675371cff177725045a4b25.png",
-        "property_name_relic": "欢愉度",
-        "property_name_filter": "欢愉度"
-      },
       "31": {
         "property_type": 31,
         "name": "防御力",
@@ -23604,12 +23639,19 @@
         "property_name_relic": "防御力",
         "property_name_filter": "防御力"
       },
-      "8": {
-        "property_type": 8,
-        "name": "",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/4b00ad5bed1237cfd3bdbea38bf6f2ed.png",
-        "property_name_relic": "",
-        "property_name_filter": ""
+      "6": {
+        "property_type": 6,
+        "name": "暴击伤害",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/d5fe09deaa9de104aff2ebb28ebfd8e5.png",
+        "property_name_relic": "暴击伤害",
+        "property_name_filter": "暴击伤害"
+      },
+      "58": {
+        "property_type": 58,
+        "name": "击破特攻",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/cbe008a67f47420b9ea8e1edff134e59.png",
+        "property_name_relic": "击破特攻",
+        "property_name_filter": "击破特攻"
       },
       "12": {
         "property_type": 12,
@@ -23618,33 +23660,12 @@
         "property_name_relic": "物理属性伤害提高",
         "property_name_filter": "物理属性伤害提高"
       },
-      "25": {
-        "property_type": 25,
-        "name": "虚数属性抗性提高",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/09f8f4f92235d2764d2e8963e93ea44a.png",
-        "property_name_relic": "虚数属性抗性提高",
-        "property_name_filter": "虚数属性抗性提高"
-      },
-      "28": {
-        "property_type": 28,
-        "name": "基础攻击力",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/4353c45b0651b4e23712d804f83849d6.png",
-        "property_name_relic": "基础攻击力提高#1[i]",
-        "property_name_filter": "基础攻击力提高#1[i]"
-      },
-      "24": {
-        "property_type": 24,
-        "name": "虚数属性伤害提高",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/c64905166a7d7e38d9cd32b826f42cb1.png",
-        "property_name_relic": "虚数属性伤害提高",
-        "property_name_filter": "虚数属性伤害提高"
-      },
-      "16": {
-        "property_type": 16,
-        "name": "冰属性伤害提高",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/87c68b3d4d7de10abcc7df33567f06e3.png",
-        "property_name_relic": "冰属性伤害提高",
-        "property_name_filter": "冰属性伤害提高"
+      "9": {
+        "property_type": 9,
+        "name": "能量恢复效率",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/257551f53e052337c48a83314a55ab73.png",
+        "property_name_relic": "能量恢复效率",
+        "property_name_filter": "能量恢复效率"
       },
       "7": {
         "property_type": 7,
@@ -23653,54 +23674,12 @@
         "property_name_relic": "治疗量加成",
         "property_name_filter": "治疗量加成"
       },
-      "9": {
-        "property_type": 9,
-        "name": "能量恢复效率",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/257551f53e052337c48a83314a55ab73.png",
-        "property_name_relic": "能量恢复效率",
-        "property_name_filter": "能量恢复效率"
-      },
-      "10": {
-        "property_type": 10,
-        "name": "效果命中",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/db692b6173e12b753ba8dbf68e90a976.png",
-        "property_name_relic": "效果命中",
-        "property_name_filter": "效果命中"
-      },
-      "13": {
-        "property_type": 13,
-        "name": "物理属性抗性提高",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/fe2ce9fe8d545440d06368fef5aafd1f.png",
-        "property_name_relic": "物理属性抗性提高",
-        "property_name_filter": "物理属性抗性提高"
-      },
-      "55": {
-        "property_type": 55,
-        "name": "治疗量加成",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/16d7bc0974a60ae9b4f3366bda9c019e.png",
-        "property_name_relic": "治疗量加成",
-        "property_name_filter": "治疗量加成"
-      },
-      "15": {
-        "property_type": 15,
-        "name": "火属性抗性提高",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/6a58fcc008370ea2d6a7d7d0333d0fcd.png",
-        "property_name_relic": "火属性抗性提高",
-        "property_name_filter": "火属性抗性提高"
-      },
-      "21": {
-        "property_type": 21,
-        "name": "风属性抗性提高",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/70e2f4d9f0d678008e03e259984a7d8e.png",
-        "property_name_relic": "风属性抗性提高",
-        "property_name_filter": "风属性抗性提高"
-      },
-      "4": {
-        "property_type": 4,
-        "name": "速度",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/2c45d4a957f1f5e145310a969e515889.png",
-        "property_name_relic": "速度",
-        "property_name_filter": "速度"
+      "8": {
+        "property_type": 8,
+        "name": "",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/4b00ad5bed1237cfd3bdbea38bf6f2ed.png",
+        "property_name_relic": "",
+        "property_name_filter": ""
       },
       "30": {
         "property_type": 30,
@@ -23709,12 +23688,19 @@
         "property_name_relic": "基础防御力提高#1[i]",
         "property_name_filter": "基础防御力提高#1[i]"
       },
-      "71": {
-        "property_type": 71,
-        "name": "欢愉度",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/b639e1f11675371cff177725045a4b25.png",
-        "property_name_relic": "欢愉度",
-        "property_name_filter": "欢愉度"
+      "26": {
+        "property_type": 26,
+        "name": "基础生命值",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/07855a7050d00c64f54d64b58e715301.png",
+        "property_name_relic": "基础生命值提高#1[i]",
+        "property_name_filter": "基础生命值提高#1[i]"
+      },
+      "35": {
+        "property_type": 35,
+        "name": "速度",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/2c45d4a957f1f5e145310a969e515889.png",
+        "property_name_relic": "速度",
+        "property_name_filter": "速度"
       },
       "59": {
         "property_type": 59,
@@ -23723,19 +23709,40 @@
         "property_name_relic": "击破特攻",
         "property_name_filter": "击破特攻"
       },
-      "39": {
-        "property_type": 39,
-        "name": "冰属性抗性提高",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/78a70263630e6ab4bbc1b254aa1561cd.png",
-        "property_name_relic": "冰属性抗性提高",
-        "property_name_filter": "冰属性抗性提高"
+      "15": {
+        "property_type": 15,
+        "name": "火属性抗性提高",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/6a58fcc008370ea2d6a7d7d0333d0fcd.png",
+        "property_name_relic": "火属性抗性提高",
+        "property_name_filter": "火属性抗性提高"
       },
-      "2": {
-        "property_type": 2,
-        "name": "攻击力",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/4353c45b0651b4e23712d804f83849d6.png",
-        "property_name_relic": "攻击力",
-        "property_name_filter": "攻击力"
+      "3": {
+        "property_type": 3,
+        "name": "防御力",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/710037eb0f927b7ebcb09b79f9d71eec.png",
+        "property_name_relic": "防御力",
+        "property_name_filter": "防御力"
+      },
+      "42": {
+        "property_type": 42,
+        "name": "量子属性抗性提高",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/e29ec46fa2be80c7812c1ee82b5b9ff0.png",
+        "property_name_relic": "量子属性抗性提高",
+        "property_name_filter": "量子属性抗性提高"
+      },
+      "55": {
+        "property_type": 55,
+        "name": "治疗量加成",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/16d7bc0974a60ae9b4f3366bda9c019e.png",
+        "property_name_relic": "治疗量加成",
+        "property_name_filter": "治疗量加成"
+      },
+      "38": {
+        "property_type": 38,
+        "name": "火属性抗性提高",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/6a58fcc008370ea2d6a7d7d0333d0fcd.png",
+        "property_name_relic": "火属性抗性提高",
+        "property_name_filter": "火属性抗性提高"
       },
       "23": {
         "property_type": 23,
@@ -23744,39 +23751,107 @@
         "property_name_relic": "量子属性抗性提高",
         "property_name_filter": "量子属性抗性提高"
       },
-      "53": {
-        "property_type": 53,
-        "name": "暴击伤害",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/d5fe09deaa9de104aff2ebb28ebfd8e5.png",
-        "property_name_relic": "暴击伤害",
-        "property_name_filter": "暴击伤害"
-      },
-      "22": {
-        "property_type": 22,
-        "name": "量子属性伤害提高",
-        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/cabca1029c2cddb68965362903f78dd5.png",
-        "property_name_relic": "量子属性伤害提高",
-        "property_name_filter": "量子属性伤害提高"
+      "2": {
+        "property_type": 2,
+        "name": "攻击力",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u7f11d/4353c45b0651b4e23712d804f83849d6.png",
+        "property_name_relic": "攻击力",
+        "property_name_filter": "攻击力"
       }
     },
     "recommend_property": {
-      "1008": {
+      "1225": {
+        "recommend_relic_properties": [59, 51, 56],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1402": {
         "recommend_relic_properties": [52, 53, 33, 51],
         "custom_relic_properties": [],
         "is_custom_property_valid": false
       },
-      "1218": {
-        "recommend_relic_properties": [56, 33, 51],
+      "1414": {
+        "recommend_relic_properties": [33, 51],
         "custom_relic_properties": [],
         "is_custom_property_valid": false
       },
-      "1222": {
+      "1013": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1206": {
+        "recommend_relic_properties": [52, 53, 33, 51, 59],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1410": {
+        "recommend_relic_properties": [56, 51, 33],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1104": {
+        "recommend_relic_properties": [34, 51, 56, 57],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1404": {
+        "recommend_relic_properties": [52, 53, 32, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1001": {
+        "recommend_relic_properties": [34, 51, 56, 57],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1415": {
+        "recommend_relic_properties": [51, 53, 52, 32],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1220": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1310": {
         "recommend_relic_properties": [59, 51, 33],
         "custom_relic_properties": [],
         "is_custom_property_valid": false
       },
-      "1108": {
-        "recommend_relic_properties": [33, 51, 56],
+      "8005": {
+        "recommend_relic_properties": [59, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1110": {
+        "recommend_relic_properties": [32, 51, 57],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1214": {
+        "recommend_relic_properties": [59, 52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1217": {
+        "recommend_relic_properties": [32, 51, 57],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1312": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1307": {
+        "recommend_relic_properties": [33, 56, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1208": {
+        "recommend_relic_properties": [32, 34, 57, 51],
         "custom_relic_properties": [],
         "is_custom_property_valid": false
       },
@@ -23785,13 +23860,63 @@
         "custom_relic_properties": [],
         "is_custom_property_valid": false
       },
-      "1107": {
+      "1009": {
+        "recommend_relic_properties": [51, 33, 52, 53],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "8003": {
+        "recommend_relic_properties": [34, 51, 57],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1101": {
+        "recommend_relic_properties": [53, 51, 57],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1015": {
         "recommend_relic_properties": [52, 53, 33, 51],
         "custom_relic_properties": [],
         "is_custom_property_valid": false
       },
-      "1321": {
-        "recommend_relic_properties": [59, 51],
+      "1210": {
+        "recommend_relic_properties": [33, 51, 56],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1305": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1102": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1408": {
+        "recommend_relic_properties": [52, 53, 33],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1403": {
+        "recommend_relic_properties": [52, 53, 32],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "8004": {
+        "recommend_relic_properties": [34, 51, 57],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1221": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1406": {
+        "recommend_relic_properties": [51, 33, 53, 52],
         "custom_relic_properties": [],
         "is_custom_property_valid": false
       },
@@ -23805,8 +23930,13 @@
         "custom_relic_properties": [],
         "is_custom_property_valid": false
       },
-      "1106": {
-        "recommend_relic_properties": [51, 56, 52, 53, 33],
+      "1212": {
+        "recommend_relic_properties": [52, 53, 32, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "8008": {
+        "recommend_relic_properties": [53, 51, 33],
         "custom_relic_properties": [],
         "is_custom_property_valid": false
       },
@@ -23815,7 +23945,147 @@
         "custom_relic_properties": [],
         "is_custom_property_valid": false
       },
-      "1102": {
+      "1002": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1004": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1014": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1309": {
+        "recommend_relic_properties": [33, 29, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1304": {
+        "recommend_relic_properties": [34, 52, 53, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "8002": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1205": {
+        "recommend_relic_properties": [52, 53, 32, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1501": {
+        "recommend_relic_properties": [52, 53, 33],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1401": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1502": {
+        "recommend_relic_properties": [51, 53, 52],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1407": {
+        "recommend_relic_properties": [52, 53, 32],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1105": {
+        "recommend_relic_properties": [32, 51, 57],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1303": {
+        "recommend_relic_properties": [59, 51, 57],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1317": {
+        "recommend_relic_properties": [59, 51, 33],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1315": {
+        "recommend_relic_properties": [59, 51, 33, 52, 53],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1301": {
+        "recommend_relic_properties": [51, 59, 57],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1412": {
+        "recommend_relic_properties": [33, 51, 53],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1213": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1111": {
+        "recommend_relic_properties": [33, 51, 59, 52, 53],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1218": {
+        "recommend_relic_properties": [56, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1006": {
+        "recommend_relic_properties": [51, 56, 52, 53, 33],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1008": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1504": {
+        "recommend_relic_properties": [51, 53, 52, 33],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1302": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1409": {
+        "recommend_relic_properties": [32, 51, 57, 53],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1215": {
+        "recommend_relic_properties": [51, 57],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1003": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1202": {
+        "recommend_relic_properties": [51, 33, 57],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1209": {
         "recommend_relic_properties": [52, 53, 33, 51],
         "custom_relic_properties": [],
         "is_custom_property_valid": false
@@ -23825,13 +24095,43 @@
         "custom_relic_properties": [],
         "is_custom_property_valid": false
       },
-      "1009": {
-        "recommend_relic_properties": [51, 33, 52, 53],
+      "1203": {
+        "recommend_relic_properties": [33, 51, 57],
         "custom_relic_properties": [],
         "is_custom_property_valid": false
       },
-      "1409": {
-        "recommend_relic_properties": [32, 51, 57, 53],
+      "8006": {
+        "recommend_relic_properties": [59, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1306": {
+        "recommend_relic_properties": [53, 51, 57],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1106": {
+        "recommend_relic_properties": [51, 56, 52, 53, 33],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1405": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1107": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1201": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1211": {
+        "recommend_relic_properties": [32, 51, 57],
         "custom_relic_properties": [],
         "is_custom_property_valid": false
       },
@@ -23840,32 +24140,22 @@
         "custom_relic_properties": [],
         "is_custom_property_valid": false
       },
-      "1501": {
-        "recommend_relic_properties": [52, 53, 33],
+      "1413": {
+        "recommend_relic_properties": [52, 53, 51, 32],
         "custom_relic_properties": [],
         "is_custom_property_valid": false
       },
-      "8005": {
+      "1321": {
         "recommend_relic_properties": [59, 51],
         "custom_relic_properties": [],
         "is_custom_property_valid": false
       },
-      "8008": {
-        "recommend_relic_properties": [53, 51, 33],
+      "1109": {
+        "recommend_relic_properties": [52, 53, 33, 51],
         "custom_relic_properties": [],
         "is_custom_property_valid": false
       },
-      "1104": {
-        "recommend_relic_properties": [34, 51, 56, 57],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1407": {
-        "recommend_relic_properties": [52, 53, 32],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1310": {
+      "1222": {
         "recommend_relic_properties": [59, 51, 33],
         "custom_relic_properties": [],
         "is_custom_property_valid": false
@@ -23875,7 +24165,22 @@
         "custom_relic_properties": [],
         "is_custom_property_valid": false
       },
-      "8002": {
+      "1223": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1112": {
+        "recommend_relic_properties": [52, 53, 33, 51],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1108": {
+        "recommend_relic_properties": [33, 51, 56],
+        "custom_relic_properties": [],
+        "is_custom_property_valid": false
+      },
+      "1103": {
         "recommend_relic_properties": [52, 53, 33, 51],
         "custom_relic_properties": [],
         "is_custom_property_valid": false
@@ -23887,311 +24192,6 @@
       },
       "1204": {
         "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1303": {
-        "recommend_relic_properties": [59, 51, 57],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1306": {
-        "recommend_relic_properties": [53, 51, 57],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1317": {
-        "recommend_relic_properties": [59, 51, 33],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1203": {
-        "recommend_relic_properties": [33, 51, 57],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1404": {
-        "recommend_relic_properties": [52, 53, 32, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1213": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1015": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1101": {
-        "recommend_relic_properties": [53, 51, 57],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1105": {
-        "recommend_relic_properties": [32, 51, 57],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1202": {
-        "recommend_relic_properties": [51, 33, 57],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1214": {
-        "recommend_relic_properties": [59, 52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1502": {
-        "recommend_relic_properties": [51, 53, 52],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1201": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1220": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1013": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1211": {
-        "recommend_relic_properties": [32, 51, 57],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1206": {
-        "recommend_relic_properties": [52, 53, 33, 51, 59],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1408": {
-        "recommend_relic_properties": [52, 53, 33],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1208": {
-        "recommend_relic_properties": [32, 34, 57, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1305": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "8006": {
-        "recommend_relic_properties": [59, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1410": {
-        "recommend_relic_properties": [56, 51, 33],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1217": {
-        "recommend_relic_properties": [32, 51, 57],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1225": {
-        "recommend_relic_properties": [59, 51, 56],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1215": {
-        "recommend_relic_properties": [51, 57],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "8004": {
-        "recommend_relic_properties": [34, 51, 57],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1109": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1212": {
-        "recommend_relic_properties": [52, 53, 32, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1405": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1111": {
-        "recommend_relic_properties": [33, 51, 59, 52, 53],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1006": {
-        "recommend_relic_properties": [51, 56, 52, 53, 33],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1413": {
-        "recommend_relic_properties": [52, 53, 51, 32],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1414": {
-        "recommend_relic_properties": [33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1415": {
-        "recommend_relic_properties": [51, 53, 52, 32],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1223": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1304": {
-        "recommend_relic_properties": [34, 52, 53, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "8003": {
-        "recommend_relic_properties": [34, 51, 57],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1209": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1302": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1403": {
-        "recommend_relic_properties": [52, 53, 32],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1003": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1001": {
-        "recommend_relic_properties": [34, 51, 56, 57],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1307": {
-        "recommend_relic_properties": [33, 56, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1315": {
-        "recommend_relic_properties": [59, 51, 33, 52, 53],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1205": {
-        "recommend_relic_properties": [52, 53, 32, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1309": {
-        "recommend_relic_properties": [33, 29, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1110": {
-        "recommend_relic_properties": [32, 51, 57],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1401": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1112": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1312": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1402": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1210": {
-        "recommend_relic_properties": [33, 51, 56],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1406": {
-        "recommend_relic_properties": [51, 33, 53, 52],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1103": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1504": {
-        "recommend_relic_properties": [51, 53, 52, 33],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1412": {
-        "recommend_relic_properties": [33, 51, 53],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1221": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1002": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1014": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1004": {
-        "recommend_relic_properties": [52, 53, 33, 51],
-        "custom_relic_properties": [],
-        "is_custom_property_valid": false
-      },
-      "1301": {
-        "recommend_relic_properties": [51, 59, 57],
         "custom_relic_properties": [],
         "is_custom_property_valid": false
       }

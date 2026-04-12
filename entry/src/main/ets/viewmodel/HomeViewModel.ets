@@ -28,6 +28,7 @@ import {
 } from 'core';
 import { GenshinDailyNoteParser } from 'core';
 import { StarRailDailyNoteParser } from 'core';
+import { GeetestTrigger } from '../models/GeetestTrigger';
 import { ZZZDailyNoteParser } from 'core';
 import { serverDisplayName } from '../utils/ServerNameUtil';
 import {
@@ -48,32 +49,6 @@ import { AppConstants } from '../constants/AppConstants';
 const TAG: string = 'HomeViewModel';
 
 export type HomeViewState = ViewState;
-
-/** Geetest 触发时传给 View 的数据 */
-export class GeetestTrigger {
-  createResult: GeetestCreateResult;
-  cookie: string;
-  gameId: string;
-  roleId: string;
-  server: string;
-  accountId: number;
-
-  constructor(
-    createResult: GeetestCreateResult,
-    cookie: string,
-    gameId: string,
-    roleId: string,
-    server: string,
-    accountId: number
-  ) {
-    this.createResult = createResult;
-    this.cookie = cookie;
-    this.gameId = gameId;
-    this.roleId = roleId;
-    this.server = server;
-    this.accountId = accountId;
-  }
-}
 
 /** HomeViewModel @Monitor 路径常量类型 */
 export class HomeViewModelKeys {
@@ -135,13 +110,28 @@ export class HomeViewModel {
         Logger.error(TAG, `syncAllDailyNotes path failed: ${msg}`);
       }
     } else {
-      this.syncIfNeeded().then(async () => {
+      // 有角色数据：先渲染 DB 里的数据，再按需同步并刷新
+      // 如果 DB 里没有任何 daily note 数据（首次登录），等待同步完成后再渲染
+      const hasAnySnapshot = this.accounts.some(a =>
+        a.roles.some((r: GameRoleCardVM) => r.snapshot !== null)
+      );
+      if (!hasAnySnapshot) {
+        // 首次登录，DB 里没有 daily note，等待同步完成
         try {
+          await this.syncIfNeeded();
           const refreshed = await this.fetchFromLocal();
           this.accounts = refreshed;
           this.viewState = refreshed.length > 0 ? ViewState.DATA : ViewState.EMPTY;
         } catch (_) {}
-      }).catch((_: Error | object) => {});
+      } else {
+        this.syncIfNeeded().then(async () => {
+          try {
+            const refreshed = await this.fetchFromLocal();
+            this.accounts = refreshed;
+            this.viewState = refreshed.length > 0 ? ViewState.DATA : ViewState.EMPTY;
+          } catch (_) {}
+        }).catch((_: Error | object) => {});
+      }
     }
     this.startAutoRefresh();
   }
@@ -259,15 +249,15 @@ export class HomeViewModel {
     try {
       if (gameId === GAME_GENSHIN) {
         await CoreInitializer.genshinRepository.syncDailyNote(
-          account.id, role.roleId, role.server, account.cookie
+          account.uid, role.roleId, role.server, account.cookie
         );
       } else if (gameId === GAME_STARRAIL) {
         await CoreInitializer.starRailRepository.syncDailyNote(
-          account.id, role.roleId, role.server, account.cookie
+          account.uid, role.roleId, role.server, account.cookie
         );
       } else if (gameId === GAME_ZZZ) {
         await CoreInitializer.zzzRepository.syncDailyNote(
-          account.id, role.roleId, role.server, account.cookie
+          account.uid, role.roleId, role.server, account.cookie
         );
       }
     } catch (error) {
@@ -282,14 +272,14 @@ export class HomeViewModel {
 
   /** Geetest 验证后重新拉取便笺 */
   private async syncDailyNoteWithChallenge(
-    accountId: number,
+    accountId: string,
     cookie: string,
     gameId: string,
     roleId: string,
     server: string
   ): Promise<void> {
     const fakeAccount = new AccountRow();
-    fakeAccount.id = accountId;
+    fakeAccount.uid = accountId;
     fakeAccount.cookie = cookie;
     const fakeRole = new GameRoleRow();
     fakeRole.gameId = gameId;
@@ -305,12 +295,12 @@ export class HomeViewModel {
     const accounts = await CoreInitializer.bbsRepository.getAllAccounts();
     for (let ai = 0; ai < accounts.length; ai++) {
       const account = accounts[ai];
-      const roles = await CoreInitializer.bbsRepository.getGameRoles(account.id);
+      const roles = await CoreInitializer.bbsRepository.getGameRoles(account.uid);
       for (let ri = 0; ri < roles.length; ri++) {
         const role = roles[ri];
         let needed = false;
         try {
-          needed = await HomeViewModel.needsDailyNoteSync(account.id, role.roleId, role.gameId);
+          needed = await HomeViewModel.needsDailyNoteSync(account.uid, role.roleId, role.gameId);
         } catch (_) {
           needed = true;
         }
@@ -330,7 +320,7 @@ export class HomeViewModel {
     const accounts = await CoreInitializer.bbsRepository.getAllAccounts();
     for (let ai = 0; ai < accounts.length; ai++) {
       const account = accounts[ai];
-      const roles = await CoreInitializer.bbsRepository.getGameRoles(account.id);
+      const roles = await CoreInitializer.bbsRepository.getGameRoles(account.uid);
       for (let ri = 0; ri < roles.length; ri++) {
         const role = roles[ri];
         await this.syncDailyNote(account, role);
@@ -350,7 +340,7 @@ export class HomeViewModel {
         role.gameId,
         role.roleId,
         role.server,
-        account.id
+        account.uid
       );
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -362,7 +352,7 @@ export class HomeViewModel {
   /**
    * 检查指定游戏角色是否需要同步 daily_note
    */
-  private static async needsDailyNoteSync(accountId: number, roleUid: string, gameId: string): Promise<boolean> {
+  private static async needsDailyNoteSync(accountId: string, roleUid: string, gameId: string): Promise<boolean> {
     if (gameId === GAME_GENSHIN) {
       return CoreInitializer.genshinRepository.needsDailyNoteSync(accountId, roleUid);
     }
@@ -381,10 +371,10 @@ export class HomeViewModel {
     const result: MihoyoAccountVM[] = [];
     for (let ai = 0; ai < accounts.length; ai++) {
       const account = accounts[ai];
-      const roles = await CoreInitializer.bbsRepository.getGameRoles(account.id);
+      const roles = await CoreInitializer.bbsRepository.getGameRoles(account.uid);
       const cards = await this.buildRoleCards(account, roles);
       result[result.length] = new MihoyoAccountVM(
-        account.id, account.username, cards, account.nickname, account.avatarUrl
+        account.uid, account.username, cards, account.nickname, account.avatarUrl
       );
     }
     return result;
@@ -395,7 +385,7 @@ export class HomeViewModel {
     const cards: GameRoleCardVM[] = [];
     for (let ri = 0; ri < roles.length; ri++) {
       const role = roles[ri];
-      const snapshot = await this.loadDailyNoteSnapshot(account.id, role.gameId, role.roleId);
+      const snapshot = await this.loadDailyNoteSnapshot(account.uid, role.gameId, role.roleId);
       if (snapshot === null) {
         continue;
       }
@@ -417,7 +407,7 @@ export class HomeViewModel {
    * 从 DB 读取 daily_note，解析为 GameNoteSnapshotVM。
    */
   private async loadDailyNoteSnapshot(
-    accountId: number,
+    accountId: string,
     gameId: string,
     roleUid: string
   ): Promise<GameNoteSnapshotVM | null> {

@@ -9,6 +9,8 @@ import { GenshinRepository } from './repository/GenshinRepository';
 import { StarRailRepository } from './repository/StarRailRepository';
 import { ZZZRepository } from './repository/ZZZRepository';
 import { SignRepository } from './repository/SignRepository';
+import { SyncQueueRunner } from './repository/SyncQueueRunner';
+import { AuthRepository } from './repository/AuthRepository';
 
 interface CoreConfigV2 {
   isMock: boolean;
@@ -45,6 +47,9 @@ export class CoreInitializer {
     CoreInitializer.isMockEnv = config.isMock;
     CoreInitializer.appContext = config.context;
 
+    // 同步给 AuthRepository，让登录接口在 mock 环境下跳过真实网络请求
+    AuthRepository.isMock = config.isMock;
+
     // 1. 初始化数据库
     await RdbManager.init(config.context);
 
@@ -77,6 +82,9 @@ export class CoreInitializer {
       CoreInitializer.readyResolve();
       CoreInitializer.readyResolve = null;
     }
+
+    // 5. 恢复未完成的同步任务（持久化队列）
+    SyncQueueRunner.resumeOnStartup().catch((_: Error | object) => {});
   }
 
   public static waitForReady(): Promise<void> {

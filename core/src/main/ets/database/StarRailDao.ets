@@ -62,7 +62,7 @@ export class StarRailAvatarBasicDao {
    * @param accountId 米游社账号 ID
    * @param roleUid   游戏角色 UID
    */
-  async findAll(accountId: number, roleUid: string): Promise<StarRailAvatarBasicRow[]> {
+  async findAll(accountId: string, roleUid: string): Promise<StarRailAvatarBasicRow[]> {
     const predicates = new relationalStore.RdbPredicates(TableName.STARRAIL_AVATAR_BASIC);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -78,7 +78,7 @@ export class StarRailAvatarBasicDao {
    * 按 avatarId 查询单条星穹铁道角色基础信息。
    * @returns 找到时返回对应行，否则返回 null
    */
-  async findByAvatarId(accountId: number, roleUid: string, avatarId: string): Promise<StarRailAvatarBasicRow | null> {
+  async findByAvatarId(accountId: string, roleUid: string, avatarId: string): Promise<StarRailAvatarBasicRow | null> {
     const predicates = new relationalStore.RdbPredicates(TableName.STARRAIL_AVATAR_BASIC);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -93,7 +93,7 @@ export class StarRailAvatarBasicDao {
   }
 
   /** 删除指定账号和角色的所有星穹铁道角色基础信息记录 */
-  async deleteAll(accountId: number, roleUid: string): Promise<void> {
+  async deleteAll(accountId: string, roleUid: string): Promise<void> {
     const predicates = new relationalStore.RdbPredicates(TableName.STARRAIL_AVATAR_BASIC);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -111,7 +111,7 @@ export class StarRailAvatarBasicDao {
       const r = new RsReader(rs);
       const row = new StarRailAvatarBasicRow();
       row.id          = r.num(CommonCol.ID);
-      row.accountId   = r.num(CommonCol.ACCOUNT_ID);
+      row.accountId   = r.str(CommonCol.ACCOUNT_ID);
       row.roleUid     = r.str(CommonCol.ROLE_UID);
       row.avatarId    = r.str(CommonCol.AVATAR_ID);
       row.name        = r.str(StarRailAvatarBasicCol.NAME);
@@ -170,7 +170,7 @@ export class StarRailDailyNoteDao {
    * 查询指定角色的星穹铁道实时便笺。
    * @returns 找到时返回便笺行，否则返回 null
    */
-  async findOne(accountId: number, roleUid: string): Promise<StarRailDailyNoteRow | null> {
+  async findOne(accountId: string, roleUid: string): Promise<StarRailDailyNoteRow | null> {
     const predicates = new relationalStore.RdbPredicates(TableName.STARRAIL_DAILY_NOTE);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -183,7 +183,7 @@ export class StarRailDailyNoteDao {
   }
 
   /** 删除指定角色的星穹铁道实时便笺记录 */
-  async deleteOne(accountId: number, roleUid: string): Promise<void> {
+  async deleteOne(accountId: string, roleUid: string): Promise<void> {
     const predicates = new relationalStore.RdbPredicates(TableName.STARRAIL_DAILY_NOTE);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -201,7 +201,7 @@ export class StarRailDailyNoteDao {
       const r = new RsReader(rs);
       const row = new StarRailDailyNoteRow();
       row.id                    = r.num(CommonCol.ID);
-      row.accountId             = r.num(CommonCol.ACCOUNT_ID);
+      row.accountId             = r.str(CommonCol.ACCOUNT_ID);
       row.roleUid               = r.str(CommonCol.ROLE_UID);
       row.currentStamina        = r.num(StarRailDailyNoteCol.CURRENT_STAMINA);
       row.maxStamina            = r.num(StarRailDailyNoteCol.MAX_STAMINA);
@@ -263,7 +263,7 @@ export class StarRailAvatarInfoDao {
    * 按 avatarId 查询星穹铁道角色详情。
    * @returns 找到时返回详情行，否则返回 null
    */
-  async findByAvatarId(accountId: number, roleUid: string, avatarId: string): Promise<StarRailAvatarInfoRow | null> {
+  async findByAvatarId(accountId: string, roleUid: string, avatarId: string): Promise<StarRailAvatarInfoRow | null> {
     const predicates = new relationalStore.RdbPredicates(TableName.STARRAIL_AVATAR_INFO);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -278,7 +278,7 @@ export class StarRailAvatarInfoDao {
   }
 
   /** 删除指定账号和角色的所有星穹铁道角色详情记录 */
-  async deleteAll(accountId: number, roleUid: string): Promise<void> {
+  async deleteAll(accountId: string, roleUid: string): Promise<void> {
     const predicates = new relationalStore.RdbPredicates(TableName.STARRAIL_AVATAR_INFO);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -296,7 +296,7 @@ export class StarRailAvatarInfoDao {
       const r = new RsReader(rs);
       const row = new StarRailAvatarInfoRow();
       row.id           = r.num(CommonCol.ID);
-      row.accountId    = r.num(CommonCol.ACCOUNT_ID);
+      row.accountId    = r.str(CommonCol.ACCOUNT_ID);
       row.roleUid      = r.str(CommonCol.ROLE_UID);
       row.avatarId     = r.str(CommonCol.AVATAR_ID);
       row.equipId      = r.str(StarRailAvatarInfoCol.EQUIP_ID);
@@ -339,7 +339,7 @@ export class StarRailAvatarComputeDao {
    * 按 avatarId 查询星穹铁道角色养成计算数据。
    * @returns 找到时返回计算行，否则返回 null
    */
-  async findByAvatarId(accountId: number, roleUid: string, avatarId: string): Promise<StarRailAvatarComputeRow | null> {
+  async findByAvatarId(accountId: string, roleUid: string, avatarId: string): Promise<StarRailAvatarComputeRow | null> {
     const predicates = new relationalStore.RdbPredicates(TableName.STARRAIL_AVATAR_COMPUTE);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -354,7 +354,7 @@ export class StarRailAvatarComputeDao {
   }
 
   /** 删除指定账号和角色的所有星穹铁道养成计算记录 */
-  async deleteAll(accountId: number, roleUid: string): Promise<void> {
+  async deleteAll(accountId: string, roleUid: string): Promise<void> {
     const predicates = new relationalStore.RdbPredicates(TableName.STARRAIL_AVATAR_COMPUTE);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -372,7 +372,7 @@ export class StarRailAvatarComputeDao {
       const r = new RsReader(rs);
       const row = new StarRailAvatarComputeRow();
       row.id                   = r.num(CommonCol.ID);
-      row.accountId            = r.num(CommonCol.ACCOUNT_ID);
+      row.accountId            = r.str(CommonCol.ACCOUNT_ID);
       row.roleUid              = r.str(CommonCol.ROLE_UID);
       row.avatarId             = r.str(CommonCol.AVATAR_ID);
       row.avatarConsumeJson    = r.str(StarRailAvatarComputeCol.AVATAR_CONSUME_JSON);

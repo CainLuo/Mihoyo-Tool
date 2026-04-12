@@ -1,11 +1,12 @@
 /**
- * ZZZDao — 绝区零四张专用表的 DAO 集合
+ * ZZZDao — 绝区零五张专用表的 DAO 集合
  *
- * 包含四个 DAO 类，分别对应绝区零的四张数据表：
+ * 包含五个 DAO 类，分别对应绝区零的五张数据表：
  * - ZZZAvatarBasicDao：代理人基础信息（zzz_avatar_basic）
  * - ZZZDailyNoteDao：实时便笺（zzz_daily_note）
  * - ZZZAvatarInfoDao：代理人详情（zzz_avatar_info）
  * - ZZZAvatarComputeDao：养成计算（zzz_avatar_compute）
+ * - ZZZBuddyDao：邦布列表（zzz_buddy）
  *
  * 所有写入操作使用 INSERT OR REPLACE（依赖 UNIQUE 索引实现 upsert 语义）。
  * 所有读取操作通过 RdbManager.queryFirst/queryAll 封装，自动管理 ResultSet 生命周期。
@@ -18,15 +19,16 @@ import { RdbManager } from './RdbManager';
 import { RsReader } from './RsReader';
 import {
   TableName, CommonCol,
-  ZZZAvatarBasicCol, ZZZDailyNoteCol, ZZZAvatarInfoCol, ZZZAvatarComputeCol,
+  ZZZAvatarBasicCol, ZZZDailyNoteCol, ZZZAvatarInfoCol, ZZZAvatarComputeCol, ZZZBuddyCol,
   ZZZ_AVATAR_BASIC_TABLE, ZZZ_DAILY_NOTE_TABLE,
-  ZZZ_AVATAR_INFO_TABLE, ZZZ_AVATAR_COMPUTE_TABLE
+  ZZZ_AVATAR_INFO_TABLE, ZZZ_AVATAR_COMPUTE_TABLE, ZZZ_BUDDY_TABLE
 } from './TableSchema';
 import {
   ZZZAvatarBasicRow,
   ZZZDailyNoteRow,
   ZZZAvatarInfoRow,
-  ZZZAvatarComputeRow
+  ZZZAvatarComputeRow,
+  ZZZBuddyRow
 } from '../models/ZZZRows';
 
 // ─────────────────────────────────────────────
@@ -66,7 +68,7 @@ export class ZZZAvatarBasicDao {
    * @param accountId 米游社账号 ID
    * @param roleUid   游戏角色 UID
    */
-  async findAll(accountId: number, roleUid: string): Promise<ZZZAvatarBasicRow[]> {
+  async findAll(accountId: string, roleUid: string): Promise<ZZZAvatarBasicRow[]> {
     const predicates = new relationalStore.RdbPredicates(TableName.ZZZ_AVATAR_BASIC);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -82,7 +84,7 @@ export class ZZZAvatarBasicDao {
    * 按 avatarId 查询单条绝区零代理人基础信息。
    * @returns 找到时返回对应行，否则返回 null
    */
-  async findByAvatarId(accountId: number, roleUid: string, avatarId: string): Promise<ZZZAvatarBasicRow | null> {
+  async findByAvatarId(accountId: string, roleUid: string, avatarId: string): Promise<ZZZAvatarBasicRow | null> {
     const predicates = new relationalStore.RdbPredicates(TableName.ZZZ_AVATAR_BASIC);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -97,7 +99,7 @@ export class ZZZAvatarBasicDao {
   }
 
   /** 删除指定账号和角色的所有绝区零代理人基础信息记录 */
-  async deleteAll(accountId: number, roleUid: string): Promise<void> {
+  async deleteAll(accountId: string, roleUid: string): Promise<void> {
     const predicates = new relationalStore.RdbPredicates(TableName.ZZZ_AVATAR_BASIC);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -118,7 +120,7 @@ export class ZZZAvatarBasicDao {
       const r = new RsReader(rs);
       const row = new ZZZAvatarBasicRow();
       row.id               = r.num(CommonCol.ID);
-      row.accountId        = r.num(CommonCol.ACCOUNT_ID);
+      row.accountId        = r.str(CommonCol.ACCOUNT_ID);
       row.roleUid          = r.str(CommonCol.ROLE_UID);
       row.avatarId         = r.str(CommonCol.AVATAR_ID);
       row.nameMi18n        = r.str(ZZZAvatarBasicCol.NAME_MI18N);
@@ -171,7 +173,7 @@ export class ZZZDailyNoteDao {
    * 查询指定角色的绝区零实时便笺。
    * @returns 找到时返回便笺行，否则返回 null
    */
-  async findOne(accountId: number, roleUid: string): Promise<ZZZDailyNoteRow | null> {
+  async findOne(accountId: string, roleUid: string): Promise<ZZZDailyNoteRow | null> {
     const predicates = new relationalStore.RdbPredicates(TableName.ZZZ_DAILY_NOTE);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -184,7 +186,7 @@ export class ZZZDailyNoteDao {
   }
 
   /** 删除指定角色的绝区零实时便笺记录 */
-  async deleteOne(accountId: number, roleUid: string): Promise<void> {
+  async deleteOne(accountId: string, roleUid: string): Promise<void> {
     const predicates = new relationalStore.RdbPredicates(TableName.ZZZ_DAILY_NOTE);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -202,7 +204,7 @@ export class ZZZDailyNoteDao {
       const r = new RsReader(rs);
       const row = new ZZZDailyNoteRow();
       row.id              = r.num(CommonCol.ID);
-      row.accountId       = r.num(CommonCol.ACCOUNT_ID);
+      row.accountId       = r.str(CommonCol.ACCOUNT_ID);
       row.roleUid         = r.str(CommonCol.ROLE_UID);
       row.energyCurrent   = r.num(ZZZDailyNoteCol.ENERGY_CURRENT);
       row.energyMax       = r.num(ZZZDailyNoteCol.ENERGY_MAX);
@@ -254,7 +256,7 @@ export class ZZZAvatarInfoDao {
    * 按 avatarId 查询绝区零代理人详情。
    * @returns 找到时返回详情行，否则返回 null
    */
-  async findByAvatarId(accountId: number, roleUid: string, avatarId: string): Promise<ZZZAvatarInfoRow | null> {
+  async findByAvatarId(accountId: string, roleUid: string, avatarId: string): Promise<ZZZAvatarInfoRow | null> {
     const predicates = new relationalStore.RdbPredicates(TableName.ZZZ_AVATAR_INFO);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -269,7 +271,7 @@ export class ZZZAvatarInfoDao {
   }
 
   /** 删除指定账号和角色的所有绝区零代理人详情记录 */
-  async deleteAll(accountId: number, roleUid: string): Promise<void> {
+  async deleteAll(accountId: string, roleUid: string): Promise<void> {
     const predicates = new relationalStore.RdbPredicates(TableName.ZZZ_AVATAR_INFO);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -287,7 +289,7 @@ export class ZZZAvatarInfoDao {
       const r = new RsReader(rs);
       const row = new ZZZAvatarInfoRow();
       row.id                  = r.num(CommonCol.ID);
-      row.accountId           = r.num(CommonCol.ACCOUNT_ID);
+      row.accountId           = r.str(CommonCol.ACCOUNT_ID);
       row.roleUid             = r.str(CommonCol.ROLE_UID);
       row.avatarId            = r.str(CommonCol.AVATAR_ID);
       row.weaponId            = r.str(ZZZAvatarInfoCol.WEAPON_ID);
@@ -331,7 +333,7 @@ export class ZZZAvatarComputeDao {
    * 按 avatarId 查询绝区零代理人养成计算数据。
    * @returns 找到时返回计算行，否则返回 null
    */
-  async findByAvatarId(accountId: number, roleUid: string, avatarId: string): Promise<ZZZAvatarComputeRow | null> {
+  async findByAvatarId(accountId: string, roleUid: string, avatarId: string): Promise<ZZZAvatarComputeRow | null> {
     const predicates = new relationalStore.RdbPredicates(TableName.ZZZ_AVATAR_COMPUTE);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -346,7 +348,7 @@ export class ZZZAvatarComputeDao {
   }
 
   /** 删除指定账号和角色的所有绝区零养成计算记录 */
-  async deleteAll(accountId: number, roleUid: string): Promise<void> {
+  async deleteAll(accountId: string, roleUid: string): Promise<void> {
     const predicates = new relationalStore.RdbPredicates(TableName.ZZZ_AVATAR_COMPUTE);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -364,7 +366,7 @@ export class ZZZAvatarComputeDao {
       const r = new RsReader(rs);
       const row = new ZZZAvatarComputeRow();
       row.id                = r.num(CommonCol.ID);
-      row.accountId         = r.num(CommonCol.ACCOUNT_ID);
+      row.accountId         = r.str(CommonCol.ACCOUNT_ID);
       row.roleUid           = r.str(CommonCol.ROLE_UID);
       row.avatarId          = r.str(CommonCol.AVATAR_ID);
       row.avatarConsumeJson = r.str(ZZZAvatarComputeCol.AVATAR_CONSUME_JSON);
@@ -375,5 +377,83 @@ export class ZZZAvatarComputeDao {
     } catch (e) {
       throw new Error(`ZZZAvatarComputeDao.mapRow failed: ${e instanceof Error ? e.message : e}`);
     }
+  }
+}
+
+// ─────────────────────────────────────────────
+// ZZZBuddyDao：操作 zzz_buddy
+// ─────────────────────────────────────────────
+export class ZZZBuddyDao {
+
+  /**
+   * 批量写入邦布列表（INSERT OR REPLACE）。
+   * 唯一键为 (account_id, role_uid, buddy_id)，重复时覆盖旧数据。
+   * @param rows 邦布行数组，为空时直接返回
+   */
+  async upsertAll(rows: ZZZBuddyRow[]): Promise<void> {
+    if (rows.length === 0) { return; }
+    const columns = ZZZ_BUDDY_TABLE.columnNames();
+    try {
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const idVal: relationalStore.ValueType = row.id > 0 ? row.id : null;
+        await RdbManager.upsertRow(TableName.ZZZ_BUDDY, columns, [
+          idVal, row.accountId, row.roleUid, row.buddyId,
+          row.name, row.rarity, row.level, row.star,
+          row.bangbooSquareUrl, row.rawJson, row.updateTime
+        ]);
+      }
+    } catch (e) {
+      throw new Error(`ZZZBuddyDao.upsertAll failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /**
+   * 查询指定账号和角色的所有邦布。
+   * @param accountId 米游社 UID
+   * @param roleUid   游戏角色 UID
+   */
+  async findAll(accountId: string, roleUid: string): Promise<ZZZBuddyRow[]> {
+    const predicates = new relationalStore.RdbPredicates(TableName.ZZZ_BUDDY);
+    predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
+    predicates.and();
+    predicates.equalTo(CommonCol.ROLE_UID, roleUid);
+    try {
+      return await RdbManager.queryAll(predicates, ZZZ_BUDDY_TABLE.columnNames(), (rs) => ZZZBuddyDao.mapRow(rs));
+    } catch (e) {
+      throw new Error(`ZZZBuddyDao.findAll failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /**
+   * 删除指定账号和角色的所有邦布数据。
+   */
+  async deleteAll(accountId: string, roleUid: string): Promise<void> {
+    const predicates = new relationalStore.RdbPredicates(TableName.ZZZ_BUDDY);
+    predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
+    predicates.and();
+    predicates.equalTo(CommonCol.ROLE_UID, roleUid);
+    try {
+      await RdbManager.deleteRows(predicates);
+    } catch (e) {
+      throw new Error(`ZZZBuddyDao.deleteAll failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  private static mapRow(rs: relationalStore.ResultSet): ZZZBuddyRow {
+    const r = new RsReader(rs);
+    const row = new ZZZBuddyRow();
+    row.id              = r.num(CommonCol.ID);
+    row.accountId       = r.str(CommonCol.ACCOUNT_ID);
+    row.roleUid         = r.str(CommonCol.ROLE_UID);
+    row.buddyId         = r.str(ZZZBuddyCol.BUDDY_ID);
+    row.name            = r.str(ZZZBuddyCol.NAME);
+    row.rarity          = r.str(ZZZBuddyCol.RARITY);
+    row.level           = r.num(ZZZBuddyCol.LEVEL);
+    row.star            = r.num(ZZZBuddyCol.STAR);
+    row.bangbooSquareUrl = r.str(ZZZBuddyCol.BANGBOO_SQUARE_URL);
+    row.rawJson         = r.str(CommonCol.RAW_JSON);
+    row.updateTime      = r.num(CommonCol.UPDATE_TIME);
+    return row;
   }
 }

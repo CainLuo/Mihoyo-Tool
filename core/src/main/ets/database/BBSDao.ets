@@ -84,13 +84,27 @@ export class AccountDao {
   }
 
   /**
+   * 按 uid 查询（米游社 UID）
+   */
+  async findByUid(uid: string): Promise<AccountRow | null> {
+    const predicates = new relationalStore.RdbPredicates(TableName.ACCOUNT);
+    predicates.equalTo(AccountCol.UID, uid);
+    try {
+      return await RdbManager.queryFirst(predicates, ACCOUNT_TABLE.columnNames(), (rs) => AccountDao.mapRow(rs));
+    } catch (e) {
+      throw new Error(`AccountDao.findByUid failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /**
    * INSERT OR IGNORE：username 不存在时插入新行，已存在时跳过
    */
   async insertOrIgnore(username: string, cookie: string, now: number): Promise<void> {
     try {
       await RdbManager.executeSql(
         `INSERT OR IGNORE INTO account_table (username, cookie, stoken, stuid, mid, is_active, create_time, update_time, uid, nickname, avatar_url, introduce, raw_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [username, cookie, '', '', '', 1, now, now, '', '', '', '', '']
+        // uid 初始化为 username（Cookie 里的 account_id 就是米游社 UID），确保外键约束在 step 2 写游戏角色时能通过
+        [username, cookie, '', '', '', 1, now, now, username, '', '', '', '']
       );
     } catch (e) {
       throw new Error(`AccountDao.insertOrIgnore failed: ${e instanceof Error ? e.message : e}`);
@@ -183,7 +197,7 @@ export class GameRoleDao {
   /**
    * 按 accountId 查询所有游戏角色
    */
-  async findByAccountId(accountId: number): Promise<GameRoleRow[]> {
+  async findByAccountId(accountId: string): Promise<GameRoleRow[]> {
     const predicates = new relationalStore.RdbPredicates(TableName.GAME_ROLE);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     try {
@@ -196,7 +210,7 @@ export class GameRoleDao {
   /**
    * 按 accountId + gameId 查询
    */
-  async findByAccountAndGame(accountId: number, gameId: string): Promise<GameRoleRow[]> {
+  async findByAccountAndGame(accountId: string, gameId: string): Promise<GameRoleRow[]> {
     const predicates = new relationalStore.RdbPredicates(TableName.GAME_ROLE);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -211,7 +225,7 @@ export class GameRoleDao {
   /**
    * 按 accountId 删除所有游戏角色
    */
-  async deleteByAccountId(accountId: number): Promise<void> {
+  async deleteByAccountId(accountId: string): Promise<void> {
     const predicates = new relationalStore.RdbPredicates(TableName.GAME_ROLE);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     try {
@@ -229,7 +243,7 @@ export class GameRoleDao {
       const r = new RsReader(rs);
       const row = new GameRoleRow();
       row.id         = r.num(CommonCol.ID);
-      row.accountId  = r.num(CommonCol.ACCOUNT_ID);
+      row.accountId  = r.str(CommonCol.ACCOUNT_ID);
       row.gameId     = r.str(GameRoleCol.GAME_ID);
       row.gameBiz    = r.str(GameRoleCol.GAME_BIZ);
       row.gameType   = r.num(GameRoleCol.GAME_TYPE);

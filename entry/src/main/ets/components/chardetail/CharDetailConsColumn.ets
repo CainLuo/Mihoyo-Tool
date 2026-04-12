@@ -58,12 +58,6 @@ export struct CharDetailConsColumn {
               .width(this.tm.current.value28)
               .height(this.tm.current.value28)
               .objectFit(ImageFit.Contain)
-              .borderRadius(this.tm.current.value28 / 2)
-              .backgroundColor(c.isActived ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDark2xl)
-              .border({
-                width: this.tm.current.value1p5,
-                color: c.isActived ? this.tm.current.surfaceActiveBorder : this.tm.current.surfaceInactiveBorder
-              })
               .opacity(c.isActived ? 1.0 : this.tm.current.charDetailConsInactiveOpacity)
             if (!c.isActived) {
               SymbolGlyph($r('sys.symbol.lock'))
@@ -71,17 +65,23 @@ export struct CharDetailConsColumn {
                 .fontColor([this.tm.current.textLockIcon])
             }
           }
-          .width(this.tm.current.value28)
-          .height(this.tm.current.value28)
+          .width(this.tm.current.value36)
+          .height(this.tm.current.value36)
+          .borderRadius(this.tm.current.value8)
+          .backgroundColor(c.isActived ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDark2xl)
+          .border({
+            width: this.tm.current.value1,
+            color: c.isActived ? this.tm.current.surfaceActiveBorder : this.tm.current.surfaceInactiveBorder
+          })
         } else {
-          // 无图标兜底：显示序号
+          // 无图标兜底：显示序号，圆角方形
           Text(`${c.pos}`)
             .fontSize(this.tm.current.body13Bold.size)
             .fontWeight(FontWeight.Bold)
             .fontColor(c.isActived ? $r('app.color.element_hydro') : this.tm.current.textInactive)
-            .width(this.tm.current.value28)
-            .height(this.tm.current.value28)
-            .borderRadius(this.tm.current.value28 / 2)
+            .width(this.tm.current.value36)
+            .height(this.tm.current.value36)
+            .borderRadius(this.tm.current.value8)
             .backgroundColor(c.isActived ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDark2xl)
             .border({
               width: this.tm.current.value1p5,

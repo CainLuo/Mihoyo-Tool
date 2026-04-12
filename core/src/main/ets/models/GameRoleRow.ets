@@ -1,6 +1,6 @@
 export class GameRoleRow {
   id: number = 0;
-  accountId: number = 0;
+  accountId: string = '';
   gameId: string = '';
   gameBiz: string = '';
   gameType: number = 0;

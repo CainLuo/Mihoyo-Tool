@@ -4,7 +4,10 @@ import { MihoyoDomain } from './MihoyoDomain';
 import { MihoyoAccountApiPath } from './MihoyoAccountApiPath';
 import { PassportApiPath } from './PassportApiPath';
 import { MihoyoHeaderBuilder, HeaderProfile } from './MihoyoHeaderBuilder';
+import { HKey, HVal } from './MihoyoHeaderKey';
 import { HttpClient } from './HttpClient';
+import { ApiConfig } from './ApiConfig';
+import { DSUtil } from './DSUtil';
 
 export class MihoyoAccountApiService extends MihoyoApiService {
 
@@ -16,9 +19,133 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     return HttpClient.post(path, data, options);
   }
 
+  // ── 手机号登录 ────────────────────────────────────────────────
+
+  /**
+   * 发送短信验证码
+   * POST https://passport-api.mihoyo.com/account/ma-cn-verifier/verifier/createLoginCaptcha
+   * mobile 和 area_code 需要 RSA 加密后传入（由调用方处理）
+   */
+  async createLoginCaptcha(encryptedMobile: string, encryptedAreaCode: string): Promise<object> {
+    const bodyStr = JSON.stringify({
+      area_code: encryptedAreaCode,
+      mobile: encryptedMobile,
+    });
+    const opts = new RequestOptions();
+    const h = opts.extraHeaders;
+    h.set(HKey.CONTENT_TYPE, HVal.JSON);
+    h.set(HKey.APP_ID, ApiConfig.BBS_APP_ID);
+    h.set(HKey.APP_VERSION, ApiConfig.APP_VERSION);
+    h.set(HKey.CLIENT_TYPE, HVal.CLIENT_ANDROID);
+    h.set(HKey.DEVICE_FP, ApiConfig.getDeviceFp());
+    h.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
+    h.set(HKey.DEVICE_MODEL, ApiConfig.DEVICE_MODEL);
+    h.set(HKey.DEVICE_NAME, ApiConfig.DEVICE_NAME);
+    h.set(HKey.GAME_BIZ, HVal.GAME_BIZ_GENSHIN);
+    h.set(HKey.AIGIS, '');
+    h.set(HKey.USER_AGENT, `Mozilla/5.0 (Linux; Android 12) Mobile miHoYoBBS/${ApiConfig.APP_VERSION}`);
+    h.set(HKey.REFERER, HVal.REFERER_USER);
+    return HttpClient.post(
+      MihoyoDomain.PASSPORT + PassportApiPath.CREATE_LOGIN_CAPTCHA,
+      bodyStr,
+      opts,
+    );
+  }
+
+  /**
+   * 提交验证码登录
+   * POST https://passport-api.mihoyo.com/account/ma-cn-passport/app/loginByMobileCaptcha
+   * mobile 和 area_code 需要 RSA 加密后传入（由调用方处理）
+   */
+  async loginByMobileCaptcha(
+    encryptedMobile: string,
+    encryptedAreaCode: string,
+    captcha: string,
+  ): Promise<object> {
+    const bodyStr = JSON.stringify({
+      area_code: encryptedAreaCode,
+      mobile: encryptedMobile,
+      action_type: 'login_by_mobile_captcha',
+      captcha: captcha,
+    });
+    const opts = new RequestOptions();
+    const h = opts.extraHeaders;
+    h.set(HKey.CONTENT_TYPE, HVal.JSON);
+    h.set(HKey.APP_ID, ApiConfig.BBS_APP_ID);
+    h.set(HKey.APP_VERSION, ApiConfig.APP_VERSION);
+    h.set(HKey.CLIENT_TYPE, HVal.CLIENT_ANDROID);
+    h.set(HKey.DEVICE_FP, ApiConfig.getDeviceFp());
+    h.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
+    h.set(HKey.DEVICE_MODEL, ApiConfig.DEVICE_MODEL);
+    h.set(HKey.DEVICE_NAME, ApiConfig.DEVICE_NAME);
+    h.set(HKey.AIGIS, '');
+    h.set(HKey.USER_AGENT, `Mozilla/5.0 (Linux; Android 12) Mobile miHoYoBBS/${ApiConfig.APP_VERSION}`);
+    return HttpClient.post(
+      MihoyoDomain.PASSPORT + PassportApiPath.LOGIN_BY_MOBILE_CAPTCHA,
+      bodyStr,
+      opts,
+    );
+  }
+
+  // ── Token 换取 ────────────────────────────────────────────────
+
+  /**
+   * 用 stoken 换取 ltoken
+   * GET https://passport-api.mihoyo.com/account/auth/api/getLTokenBySToken
+   * Cookie 格式：mid=xxx;stoken=xxx（字典序）
+   * 请求头包含 X4 DS 签名（参考 TeyvatGuide passportReq.ts）
+   */
+  async getLTokenBySToken(stoken: string, mid: string): Promise<object> {
+    const params = new RequestParams();
+    params.set('stoken', stoken);
+    const opts = new RequestOptions();
+    const h = opts.extraHeaders;
+    h.set(HKey.COOKIE, `mid=${mid};stoken=${stoken}`);
+    h.set(HKey.APP_VERSION, ApiConfig.APP_VERSION);
+    h.set(HKey.CLIENT_TYPE, HVal.CLIENT_WEB);
+    h.set(HKey.DEVICE_FP, ApiConfig.getDeviceFp());
+    h.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
+    h.set(HKey.REQUESTED_WITH, HVal.REQUESTED_HYPERION);
+    h.set(HKey.USER_AGENT, ApiConfig.USER_AGENT);
+    h.set(HKey.REFERER, HVal.REFERER_WEBSTATIC2);
+    h.set(HKey.DS, DSUtil.generateX4(params));
+    return HttpClient.get(
+      MihoyoDomain.PASSPORT + PassportApiPath.GET_LTOKEN_BY_STOKEN,
+      params,
+      opts,
+    );
+  }
+
+  /**
+   * 用 stoken 换取 cookie_token
+   * GET https://passport-api.mihoyo.com/account/auth/api/getCookieAccountInfoBySToken
+   * Cookie 格式：mid=xxx;stoken=xxx（字典序）
+   * 请求头包含 X4 DS 签名（参考 TeyvatGuide passportReq.ts）
+   */
+  async getCookieTokenBySToken(stoken: string, mid: string): Promise<object> {
+    const params = new RequestParams();
+    params.set('stoken', stoken);
+    const opts = new RequestOptions();
+    const h = opts.extraHeaders;
+    h.set(HKey.COOKIE, `mid=${mid};stoken=${stoken}`);
+    h.set(HKey.APP_VERSION, ApiConfig.APP_VERSION);
+    h.set(HKey.CLIENT_TYPE, HVal.CLIENT_WEB);
+    h.set(HKey.DEVICE_FP, ApiConfig.getDeviceFp());
+    h.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
+    h.set(HKey.REQUESTED_WITH, HVal.REQUESTED_HYPERION);
+    h.set(HKey.USER_AGENT, ApiConfig.USER_AGENT);
+    h.set(HKey.REFERER, HVal.REFERER_WEBSTATIC2);
+    h.set(HKey.DS, DSUtil.generateX4(params));
+    return HttpClient.get(
+      MihoyoDomain.PASSPORT + PassportApiPath.GET_COOKIE_TOKEN_BY_STOKEN,
+      params,
+      opts,
+    );
+  }
+
   // ── 账号相关 ──────────────────────────────────────────────────
 
-  /** 游戏角色绑定列表 — GET，Domain=TAKUMI，Profile=BBS */
+  /** 游戏角色绑定列表 — GET，Domain=TAKUMI，Profile=BBS（含 DS 签名） */
   async getGameRoles(cookie: string): Promise<object> {
     const params = new RequestParams();
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.BBS, cookie, params);
@@ -45,10 +172,14 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     );
   }
 
-  /** BBS 账号详情 — GET，Domain=BBS，Profile=BBS */
+  /**
+   * BBS 账号详情 — GET，Domain=BBS，Profile=BBS
+   * 需要 gids=2 参数（新版接口要求）
+   */
   async getUserFullInfo(uid: string, cookie: string): Promise<object> {
     const params = new RequestParams();
     params.set('uid', uid);
+    params.set('gids', '2');
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.BBS, cookie, params);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
@@ -86,9 +217,36 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     );
   }
 
+  // ── 二维码登录（子类可覆盖） ──────────────────────────────────
+
+  /** 获取二维码 URL，mock 子类覆盖此方法返回假数据 */
+  async fetchQRCode(deviceId: string): Promise<object> {
+    const bodyStr = JSON.stringify({ app_id: 7, device: deviceId });
+    const opts = new RequestOptions();
+    opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.TEXT_PLAIN);
+    return HttpClient.post('https://hk4e-sdk.mihoyo.com/hk4e_cn/combo/panda/qrcode/fetch', bodyStr, opts);
+  }
+
+  /** 查询二维码状态，mock 子类覆盖此方法 */
+  async queryQRCode(deviceId: string, ticket: string): Promise<object> {
+    const bodyStr = JSON.stringify({ app_id: 7, device: deviceId, ticket: ticket });
+    const opts = new RequestOptions();
+    opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.TEXT_PLAIN);
+    return HttpClient.post('https://hk4e-sdk.mihoyo.com/hk4e_cn/combo/panda/qrcode/query', bodyStr, opts);
+  }
+
+  /** 通过 GameToken 获取 SToken，mock 子类覆盖此方法 */
+  async getTokenByGameToken(accountId: string, gameToken: string): Promise<object> {
+    const bodyStr = JSON.stringify({ account_id: parseInt(accountId, 10), game_token: gameToken });
+    const opts = new RequestOptions();
+    opts.extraHeaders.set(HKey.APP_ID, ApiConfig.BBS_APP_ID);
+    opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.JSON);
+    return HttpClient.post('https://api-takumi.mihoyo.com/account/ma-cn-session/app/getTokenByGameToken', bodyStr, opts);
+  }
+
   // ── Cookie 刷新 ───────────────────────────────────────────────
 
-  /** 用 stoken 换取 cookie_token — GET，Domain=PASSPORT */
+  /** 用 stoken 换取 cookie_token（旧版，保留兼容） — GET，Domain=PASSPORT */
   async refreshCookieToken(stoken: string, stuid: string): Promise<object> {
     const params = new RequestParams();
     params.set('stoken', stoken);
@@ -101,7 +259,7 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     );
   }
 
-  /** 用 stoken 换取 ltoken — GET，Domain=PASSPORT */
+  /** 用 stoken 换取 ltoken（旧版，保留兼容） — GET，Domain=PASSPORT */
   async refreshLToken(stoken: string, stuid: string): Promise<object> {
     const params = new RequestParams();
     params.set('stoken', stoken);

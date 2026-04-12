@@ -5,6 +5,14 @@
  * 属于 core 模块，不得引用任何 ArkUI 组件或 entry 模块类型。
  */
 
+export class StarRailExpeditionData {
+  avatarSideIcon: string = '';
+  name: string = '';
+  remainedTime: string = '0';
+  finishTime: string = '';
+  status: string = '';
+}
+
 export class StarRailDailyNoteData {
   currentStamina: number = 0;
   maxStamina: number = 240;
@@ -13,6 +21,10 @@ export class StarRailDailyNoteData {
 
   currentReserveStamina: number = 0;
   isReserveStaminaFull: boolean = false;
+
+  acceptedExpeditionNum: number = 0;
+  totalExpeditionNum: number = 4;
+  expeditions: StarRailExpeditionData[] = [];
 
   currentTrainScore: number = 0;
   maxTrainScore: number = 500;
@@ -23,6 +35,7 @@ export class StarRailDailyNoteData {
   weeklyCocoonCnt: number = 0;
   weeklyCocoonLimit: number = 3;
 
+  rogueTournWeeklyUnlocked: boolean = false;
   rogueTournWeeklyCur: number = 0;
   rogueTournWeeklyMax: number = 0;
   rogueTournExpIsFull: boolean = false;
@@ -36,6 +49,14 @@ export class StarRailDailyNoteData {
   currentTs: number = 0;
 }
 
+interface RawStarRailExpedition {
+  avatar_side_icon: string;
+  name: string;
+  remaining_time: string;
+  finish_time: string;
+  status: string;
+}
+
 interface RawStarRailNoteData {
   current_stamina: number;
   max_stamina: number;
@@ -43,12 +64,16 @@ interface RawStarRailNoteData {
   stamina_full_ts: number;
   current_reserve_stamina: number;
   is_reserve_stamina_full: boolean;
+  accepted_epedition_num: number;
+  total_expedition_num: number;
+  expeditions: RawStarRailExpedition[];
   current_train_score: number;
   max_train_score: number;
   current_rogue_score: number;
   max_rogue_score: number;
   weekly_cocoon_cnt: number;
   weekly_cocoon_limit: number;
+  rogue_tourn_weekly_unlocked: boolean;
   rogue_tourn_weekly_cur: number;
   rogue_tourn_weekly_max: number;
   rogue_tourn_exp_is_full: boolean;
@@ -76,12 +101,16 @@ export class StarRailDailyNoteParser {
     data.staminaFullTs = raw.stamina_full_ts ?? 0;
     data.currentReserveStamina = raw.current_reserve_stamina;
     data.isReserveStaminaFull = raw.is_reserve_stamina_full;
+    data.acceptedExpeditionNum = raw.accepted_epedition_num ?? 0;
+    data.totalExpeditionNum = raw.total_expedition_num ?? 4;
+    data.expeditions = StarRailDailyNoteParser.parseExpeditions(raw.expeditions);
     data.currentTrainScore = raw.current_train_score;
     data.maxTrainScore = raw.max_train_score;
     data.currentRogueScore = raw.current_rogue_score;
     data.maxRogueScore = raw.max_rogue_score;
     data.weeklyCocoonCnt = raw.weekly_cocoon_cnt;
     data.weeklyCocoonLimit = raw.weekly_cocoon_limit;
+    data.rogueTournWeeklyUnlocked = raw.rogue_tourn_weekly_unlocked ?? false;
     data.rogueTournWeeklyCur = raw.rogue_tourn_weekly_cur ?? 0;
     data.rogueTournWeeklyMax = raw.rogue_tourn_weekly_max ?? 0;
     data.rogueTournExpIsFull = raw.rogue_tourn_exp_is_full ?? false;
@@ -89,5 +118,21 @@ export class StarRailDailyNoteParser {
     data.gridFightWeeklyMax = raw.grid_fight_weekly_max ?? 0;
     data.currentTs = raw.current_ts ?? 0;
     return data;
+  }
+
+  private static parseExpeditions(raws: RawStarRailExpedition[]): StarRailExpeditionData[] {
+    const result: StarRailExpeditionData[] = [];
+    if (!raws) { return result; }
+    for (let i = 0; i < raws.length; i++) {
+      const r = raws[i];
+      const e = new StarRailExpeditionData();
+      e.avatarSideIcon = r.avatar_side_icon ?? '';
+      e.name = r.name ?? '';
+      e.remainedTime = r.remaining_time ?? '0';
+      e.finishTime = r.finish_time ?? '';
+      e.status = r.status ?? '';
+      result[result.length] = e;
+    }
+    return result;
   }
 }

@@ -34,15 +34,16 @@ export * from './src/main/ets/database/GenshinDao';
 export * from './src/main/ets/database/StarRailDao';
 export * from './src/main/ets/database/ZZZDao';
 export * from './src/main/ets/database/SyncMetaDao';
-
 // 数据模型
 export * from './src/main/ets/models/AccountRow';
 export * from './src/main/ets/models/GameRoleRow';
 export * from './src/main/ets/models/GenshinRows';
 export * from './src/main/ets/models/StarRailRows';
 export * from './src/main/ets/models/ZZZRows';
-export * from './src/main/ets/models/GameDataSummary';
-export * from './src/main/ets/models/SyncMetaRow';
+export * from './src/main/ets/models/GameDataSummary';export * from './src/main/ets/models/SyncMetaRow';
+export * from './src/main/ets/models/GenshinCharacterDetailRaw';
+export * from './src/main/ets/models/StarRailAvatarDetailRaw';
+export * from './src/main/ets/models/ZZZAvatarDetailRaw';
 
 // Repository 层
 export * from './src/main/ets/repository/GameRepository';
@@ -51,6 +52,7 @@ export * from './src/main/ets/repository/GenshinRepository';
 export * from './src/main/ets/repository/StarRailRepository';
 export * from './src/main/ets/repository/ZZZRepository';
 export * from './src/main/ets/repository/SignRepository';
+export * from './src/main/ets/repository/SyncQueueRunner';
 
 // 网络层（抽象基类和环境枚举）
 export * from './src/main/ets/network/MihoyoApiService';
@@ -66,6 +68,9 @@ export * from './src/main/ets/constants/GameId';
 export * from './src/main/ets/database/TableSchema';
 
 // ── 网络层完整导出 ──────────────────────────────────────────
+
+// 请求头常量
+export * from './src/main/ets/network/MihoyoHeaderKey';
 
 // Domain 和 Path 枚举
 export * from './src/main/ets/network/MihoyoDomain';

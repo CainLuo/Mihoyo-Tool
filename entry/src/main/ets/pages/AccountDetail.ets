@@ -14,7 +14,7 @@ const TAG: string = 'AccountDetail'
 
 @ComponentV2
 export struct AccountDetail {
-  @Param account: MyAccountVM = new MyAccountVM(0, '', [])
+  @Param account: MyAccountVM = new MyAccountVM('', '', [])
   @Local private tm: ThemeManager = themeManager
   @Local private vm: AccountDetailViewModel = new AccountDetailViewModel()
   private localStack: NavPathStack | null = null

@@ -99,10 +99,22 @@ export class GenshinDailyNoteVM {
 export class StarRailDailyNoteVM {
   /** 当前开拓力 */
   currentStamina: number = 0
-  /** 最大开拓力，固定 240 */
+  /** 最大开拓力 */
   maxStamina: number = 240
   /** 恢复剩余秒数 */
   staminaRecoverySeconds: number = 0
+
+  /** 后备开拓力 */
+  currentReserveStamina: number = 0
+  /** 后备开拓力是否已满 */
+  isReserveStaminaFull: boolean = false
+
+  /** 已派遣数 */
+  acceptedExpeditionNum: number = 0
+  /** 派遣上限 */
+  totalExpeditionNum: number = 4
+  /** 派遣列表 */
+  expeditions: ExpeditionVM[] = []
 
   /** 每日实训完成数 */
   currentTrainScore: number = 0
@@ -114,10 +126,24 @@ export class StarRailDailyNoteVM {
   /** 模拟宇宙本周积分上限 */
   maxRogueScore: number = 14000
 
-  /** 派遣列表 */
-  expeditions: ExpeditionVM[] = []
-  /** 派遣上限 */
-  maxExpeditionNum: number = 4
+  /** 历战余响已用次数 */
+  weeklyCocoonCnt: number = 0
+  /** 历战余响每周上限 */
+  weeklyCocoonLimit: number = 3
+
+  /** 差分宇宙是否已解锁 */
+  rogueTournWeeklyUnlocked: boolean = false
+  /** 差分宇宙本周积分 */
+  rogueTournWeeklyCur: number = 0
+  /** 差分宇宙本周积分上限 */
+  rogueTournWeeklyMax: number = 1000
+  /** 差分宇宙经验是否已满 */
+  rogueTournExpIsFull: boolean = false
+
+  /** 黄金与机械本周进度 */
+  gridFightWeeklyCur: number = 0
+  /** 黄金与机械本周上限（0 表示未解锁） */
+  gridFightWeeklyMax: number = 0
 }
 
 // ---- 绝区零 ----
@@ -126,18 +152,31 @@ export class StarRailDailyNoteVM {
 export class ZZZDailyNoteVM {
   /** 当前电量 */
   currentEnergy: number = 0
-  /** 最大电量，固定 240 */
+  /** 最大电量 */
   maxEnergy: number = 240
   /** 恢复剩余秒数 */
   energyRecoverySeconds: number = 0
 
   /** 每日活跃度 */
   currentVitality: number = 0
-  /** 每日活跃度上限，固定 400 */
+  /** 每日活跃度上限 */
   maxVitality: number = 400
 
-  /** 邦布派遣完成数 */
-  bountyCommissionDone: number = 0
-  /** 邦布派遣总数 */
-  bountyCommissionTotal: number = 4
+  /** 录像店状态（'SaleStateDone'/'SaleStateDoing'/'SaleStateNo'） */
+  vhsSaleState: string = ''
+  /** 刮刮卡状态（'CardSignDone'/'CardSignNo'） */
+  cardSign: string = ''
+
+  /** 式舆防卫战刷新倒计时（秒） */
+  abyssRefresh: number = 0
+  /** 会员卡是否开通 */
+  memberCardIsOpen: boolean = false
+  /** 会员卡状态字符串 */
+  memberCardState: string = ''
+  /** 咖啡厅状态 */
+  cafeState: string = ''
+  /** 式舆防卫战派遣状态 */
+  templeExpeditionState: string = ''
+  /** 式舆防卫战当前货币 */
+  templeCurrentCurrency: number = 0
 }

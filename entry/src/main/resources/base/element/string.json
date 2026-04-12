@@ -859,6 +859,302 @@
     {
       "name": "time_soon_available",
       "value": "即将可用"
+    },
+    {
+      "name": "starrail_char_detail_title",
+      "value": "角色详情"
+    },
+    {
+      "name": "starrail_char_detail_rank_label",
+      "value": "命座"
+    },
+    {
+      "name": "starrail_char_detail_skills_main",
+      "value": "主要技能"
+    },
+    {
+      "name": "starrail_char_detail_skills_extra",
+      "value": "额外能力"
+    },
+    {
+      "name": "starrail_char_detail_skills_attr",
+      "value": "属性加成"
+    },
+    {
+      "name": "starrail_char_detail_equip_title",
+      "value": "光锥"
+    },
+    {
+      "name": "starrail_char_detail_no_equip",
+      "value": "未装备光锥"
+    },
+    {
+      "name": "starrail_char_detail_relics_title",
+      "value": "遗器"
+    },
+    {
+      "name": "starrail_char_detail_ornaments_title",
+      "value": "饰品"
+    },
+    {
+      "name": "starrail_char_detail_no_relic",
+      "value": "未装备遗器"
+    },
+    {
+      "name": "starrail_char_detail_props_title",
+      "value": "属性面板"
+    },
+    {
+      "name": "starrail_char_detail_rank_prefix",
+      "value": "%d命"
+    },
+    {
+      "name": "zzz_char_detail_title",
+      "value": "代理人详情"
+    },
+    {
+      "name": "zzz_char_detail_rank_label",
+      "value": "影画"
+    },
+    {
+      "name": "zzz_char_detail_skills_title",
+      "value": "技能"
+    },
+    {
+      "name": "zzz_char_detail_weapon_title",
+      "value": "音擎"
+    },
+    {
+      "name": "zzz_char_detail_no_weapon",
+      "value": "未装备音擎"
+    },
+    {
+      "name": "zzz_char_detail_equip_title",
+      "value": "驱动盘"
+    },
+    {
+      "name": "zzz_char_detail_no_equip",
+      "value": "未装备驱动盘"
+    },
+    {
+      "name": "zzz_char_detail_props_title",
+      "value": "属性面板"
+    },
+    {
+      "name": "zzz_char_detail_suit_pieces",
+      "value": "%d件"
+    },
+    {
+      "name": "zzz_char_detail_rank_prefix",
+      "value": "%d影"
+    },
+    {
+      "name": "char_detail_section_skills",
+      "value": "技能"
+    },
+    {
+      "name": "char_detail_section_weapon",
+      "value": "武器"
+    },
+    {
+      "name": "char_detail_section_stats",
+      "value": "属性面板"
+    },
+    {
+      "name": "char_detail_section_relics",
+      "value": "圣遗物"
+    },
+    {
+      "name": "char_detail_no_weapon",
+      "value": "未装备武器"
+    },
+    {
+      "name": "char_detail_relic_pos_flower",
+      "value": "生之花"
+    },
+    {
+      "name": "char_detail_relic_pos_plume",
+      "value": "死之羽"
+    },
+    {
+      "name": "char_detail_relic_pos_sands",
+      "value": "时之沙"
+    },
+    {
+      "name": "char_detail_relic_pos_goblet",
+      "value": "空之杯"
+    },
+    {
+      "name": "char_detail_relic_pos_circlet",
+      "value": "理之冠"
+    },
+    {
+      "name": "starrail_daily_title",
+      "value": "星穹铁道便笺"
+    },
+    {
+      "name": "zzz_daily_title",
+      "value": "绝区零便笺"
+    },
+    {
+      "name": "daily_note_section_daily",
+      "value": "日常"
+    },
+    {
+      "name": "daily_note_section_universe",
+      "value": "宇宙"
+    },
+    {
+      "name": "daily_note_section_shop",
+      "value": "商店"
+    },
+    {
+      "name": "daily_note_section_other",
+      "value": "其他"
+    },
+    {
+      "name": "daily_note_stamina",
+      "value": "开拓力"
+    },
+    {
+      "name": "daily_note_reserve_stamina",
+      "value": "后备开拓力"
+    },
+    {
+      "name": "daily_note_reserve_full",
+      "value": "已满"
+    },
+    {
+      "name": "daily_note_expedition_sr",
+      "value": "委托派遣"
+    },
+    {
+      "name": "daily_note_train_score",
+      "value": "每日实训"
+    },
+    {
+      "name": "daily_note_cocoon",
+      "value": "历战余响"
+    },
+    {
+      "name": "daily_note_rogue_score",
+      "value": "模拟宇宙积分"
+    },
+    {
+      "name": "daily_note_rogue_tourn",
+      "value": "差分宇宙"
+    },
+    {
+      "name": "daily_note_rogue_tourn_locked",
+      "value": "未解锁"
+    },
+    {
+      "name": "daily_note_rogue_exp_full",
+      "value": "经验已满"
+    },
+    {
+      "name": "daily_note_grid_fight",
+      "value": "黄金与机械"
+    },
+    {
+      "name": "daily_note_grid_fight_locked",
+      "value": "未解锁"
+    },
+    {
+      "name": "daily_note_energy",
+      "value": "电量"
+    },
+    {
+      "name": "daily_note_vitality",
+      "value": "活跃度"
+    },
+    {
+      "name": "daily_note_vitality_done",
+      "value": "本日活跃度已完成"
+    },
+    {
+      "name": "daily_note_vitality_hint",
+      "value": "完成日常任务可获得活跃度"
+    },
+    {
+      "name": "daily_note_vhs_sale",
+      "value": "录像店"
+    },
+    {
+      "name": "daily_note_card_sign",
+      "value": "刮刮卡"
+    },
+    {
+      "name": "daily_note_temple",
+      "value": "式舆防卫战"
+    },
+    {
+      "name": "daily_note_member_card",
+      "value": "会员卡"
+    },
+    {
+      "name": "daily_note_cafe",
+      "value": "咖啡厅"
+    },
+    {
+      "name": "daily_note_vhs_done",
+      "value": "已结算"
+    },
+    {
+      "name": "daily_note_vhs_doing",
+      "value": "营业中"
+    },
+    {
+      "name": "daily_note_vhs_no",
+      "value": "未开启"
+    },
+    {
+      "name": "daily_note_card_done",
+      "value": "已完成"
+    },
+    {
+      "name": "daily_note_card_no",
+      "value": "未完成"
+    },
+    {
+      "name": "daily_note_temple_unknown",
+      "value": "未知"
+    },
+    {
+      "name": "daily_note_temple_running",
+      "value": "进行中"
+    },
+    {
+      "name": "daily_note_temple_done",
+      "value": "已完成"
+    },
+    {
+      "name": "daily_note_temple_idle",
+      "value": "空闲"
+    },
+    {
+      "name": "daily_note_member_no",
+      "value": "未开通"
+    },
+    {
+      "name": "daily_note_member_active",
+      "value": "生效中"
+    },
+    {
+      "name": "daily_note_member_expired",
+      "value": "已过期"
+    },
+    {
+      "name": "daily_note_cafe_no",
+      "value": "未开启"
+    },
+    {
+      "name": "daily_note_cafe_open",
+      "value": "营业中"
+    },
+    {
+      "name": "daily_note_cafe_done",
+      "value": "已结算"
     }
   ]
 }

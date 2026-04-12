@@ -24,10 +24,10 @@ export class GenshinDailyDetailViewModel {
   @Trace viewState: ViewState = ViewState.LOADING;
   @Trace note: GenshinDailyNoteVM = new GenshinDailyNoteVM();
 
-  private accountId: number = 0;
+  private accountId: string = '';
   private roleUid: string = '';
 
-  init(accountId: number, roleUid: string): void {
+  init(accountId: string, roleUid: string): void {
     this.accountId = accountId;
     this.roleUid = roleUid;
   }

@@ -1,6 +1,6 @@
 export class StarRailAvatarBasicRow {
   id: number = 0;
-  accountId: number = 0;
+  accountId: string = '';
   roleUid: string = '';
   avatarId: string = '';
   name: string = '';
@@ -26,7 +26,7 @@ export class StarRailAvatarBasicRow {
 
 export class StarRailDailyNoteRow {
   id: number = 0;
-  accountId: number = 0;
+  accountId: string = '';
   roleUid: string = '';
   currentStamina: number = 0;
   maxStamina: number = 0;
@@ -51,7 +51,7 @@ export class StarRailDailyNoteRow {
 
 export class StarRailAvatarInfoRow {
   id: number = 0;
-  accountId: number = 0;
+  accountId: string = '';
   roleUid: string = '';
   avatarId: string = '';
   equipId: string = '';
@@ -65,7 +65,7 @@ export class StarRailAvatarInfoRow {
 
 export class StarRailAvatarComputeRow {
   id: number = 0;
-  accountId: number = 0;
+  accountId: string = '';
   roleUid: string = '';
   avatarId: string = '';
   avatarConsumeJson: string = '';

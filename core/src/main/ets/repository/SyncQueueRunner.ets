@@ -1,0 +1,194 @@
+/**
+ * SyncQueueRunner — 持久化同步队列执行器
+ *
+ * 职责：
+ * 1. 把需要同步的任务写入 sync_meta 表（status='pending'）
+ * 2. 逐个消费队列，执行 API 请求并写入 DB
+ * 3. App 启动时恢复未完成的任务（pending/syncing → 重新执行）
+ *
+ * 任务类型（data_type 字段）：
+ *   - genshin_character_list     原神角色列表
+ *   - genshin_character_detail   原神角色详情（批量）
+ *   - starrail_avatar_basic      星铁角色列表
+ *   - starrail_avatar_info       星铁角色详情（批量）
+ *   - zzz_avatar_basic           绝区零角色列表
+ *   - zzz_avatar_info            绝区零角色详情（批量，mock 环境）
+ *   - zzz_avatar_info_{avatarId} 绝区零单个角色详情（真实环境，每个角色一条记录）
+ */
+
+import { SyncMetaDao } from '../database/SyncMetaDao';
+import { SyncMetaRow } from '../models/SyncMetaRow';
+import { SyncDataType } from '../constants/SyncDataType';
+import { CoreInitializer } from '../CoreInitializer';
+import { GameRoleRow } from '../models/GameRoleRow';
+import { GameId } from '../constants/GameId';
+
+/** 同步任务描述 */
+export class SyncTask {
+  accountId: string = '';
+  roleUid: string = '';
+  server: string = '';
+  cookie: string = '';
+  dataType: string = '';
+  /** 绝区零单个角色详情时使用 */
+  avatarId: string = '';
+}
+
+export class SyncQueueRunner {
+  private static syncMetaDao: SyncMetaDao = new SyncMetaDao();
+  /** 防止并发执行 */
+  private static isRunning: boolean = false;
+
+  /**
+   * 把一批任务写入队列（status='pending'）
+   * 已存在的任务会被重置为 pending（允许重试）
+   */
+  static async enqueue(tasks: SyncTask[]): Promise<void> {
+    for (let i = 0; i < tasks.length; i++) {
+      const t = tasks[i];
+      await SyncQueueRunner.syncMetaDao.markPending(t.accountId, t.roleUid, t.dataType);
+    }
+  }
+
+  /**
+   * 根据账号和游戏角色列表，生成需要同步的任务列表
+   */
+  static buildTasksForRoles(
+    accountId: string,
+    roles: GameRoleRow[],
+    cookie: string
+  ): SyncTask[] {
+    const tasks: SyncTask[] = [];
+    for (let i = 0; i < roles.length; i++) {
+      const role = roles[i];
+      const base = new SyncTask();
+      base.accountId = accountId;
+      base.roleUid = role.roleId;
+      base.server = role.server;
+      base.cookie = cookie;
+
+      if (role.gameId === GameId.GENSHIN) {
+        const t1 = new SyncTask();
+        t1.accountId = accountId; t1.roleUid = role.roleId; t1.server = role.server; t1.cookie = cookie;
+        t1.dataType = SyncDataType.GENSHIN_CHARACTER_LIST;
+        const t2 = new SyncTask();
+        t2.accountId = accountId; t2.roleUid = role.roleId; t2.server = role.server; t2.cookie = cookie;
+        t2.dataType = SyncDataType.GENSHIN_CHARACTER_DETAIL;
+        tasks[tasks.length] = t1;
+        tasks[tasks.length] = t2;
+      } else if (role.gameId === GameId.STARRAIL) {
+        const t1 = new SyncTask();
+        t1.accountId = accountId; t1.roleUid = role.roleId; t1.server = role.server; t1.cookie = cookie;
+        t1.dataType = SyncDataType.STARRAIL_AVATAR_BASIC;
+        const t2 = new SyncTask();
+        t2.accountId = accountId; t2.roleUid = role.roleId; t2.server = role.server; t2.cookie = cookie;
+        t2.dataType = SyncDataType.STARRAIL_AVATAR_INFO;
+        tasks[tasks.length] = t1;
+        tasks[tasks.length] = t2;
+      } else if (role.gameId === GameId.ZZZ) {
+        const t1 = new SyncTask();
+        t1.accountId = accountId; t1.roleUid = role.roleId; t1.server = role.server; t1.cookie = cookie;
+        t1.dataType = SyncDataType.ZZZ_AVATAR_BASIC;
+        const t2 = new SyncTask();
+        t2.accountId = accountId; t2.roleUid = role.roleId; t2.server = role.server; t2.cookie = cookie;
+        t2.dataType = SyncDataType.ZZZ_AVATAR_INFO;
+        const t3 = new SyncTask();
+        t3.accountId = accountId; t3.roleUid = role.roleId; t3.server = role.server; t3.cookie = cookie;
+        t3.dataType = SyncDataType.ZZZ_BUDDY;
+        tasks[tasks.length] = t1;
+        tasks[tasks.length] = t2;
+        tasks[tasks.length] = t3;
+      }
+    }
+    return tasks;
+  }
+
+  /**
+   * App 启动时恢复未完成的任务
+   * pending/syncing 状态的任务都需要重新执行
+   * 注意：cookie 存在 account_table 里，需要从 DB 读取
+   */
+  static async resumeOnStartup(): Promise<void> {
+    if (SyncQueueRunner.isRunning) { return; }
+    try {
+      const pendingRows = await SyncQueueRunner.syncMetaDao.findAllPending();
+      if (pendingRows.length === 0) { return; }
+      // 从 DB 读取账号 cookie，重建任务列表
+      const tasks: SyncTask[] = [];
+      for (let i = 0; i < pendingRows.length; i++) {
+        const row = pendingRows[i];
+        const account = await CoreInitializer.bbsRepository.getAccountByUid(row.accountId);
+        if (account === null) { continue; }
+        const roles = await CoreInitializer.bbsRepository.getGameRoles(row.accountId);
+        let server = '';
+        for (let j = 0; j < roles.length; j++) {
+          if (roles[j].roleId === row.roleUid) {
+            server = roles[j].server;
+            break;
+          }
+        }
+        if (server === '') { continue; }
+        const t = new SyncTask();
+        t.accountId = row.accountId;
+        t.roleUid = row.roleUid;
+        t.server = server;
+        t.cookie = account.cookie;
+        t.dataType = row.dataType;
+        tasks[tasks.length] = t;
+      }
+      SyncQueueRunner.runTasks(tasks).catch((_: Error | object) => {});
+    } catch (_) {}
+  }
+
+  /**
+   * 执行任务队列（逐个执行，成功后更新状态）
+   */
+  static async runTasks(tasks: SyncTask[]): Promise<void> {
+    if (SyncQueueRunner.isRunning) { return; }
+    SyncQueueRunner.isRunning = true;
+    try {
+      for (let i = 0; i < tasks.length; i++) {
+        const t = tasks[i];
+        try {
+          await SyncQueueRunner.executeTask(t);
+        } catch (_) {
+          // 单个任务失败不影响其他任务，状态已在 executeTask 里标记为 failed
+        }
+      }
+    } finally {
+      SyncQueueRunner.isRunning = false;
+    }
+  }
+
+  /**
+   * 执行单个同步任务
+   */
+  private static async executeTask(task: SyncTask): Promise<void> {
+    const accountId = task.accountId;
+    const roleUid = task.roleUid;
+    const server = task.server;
+    const cookie = task.cookie;
+    const dataType = task.dataType;
+    if (dataType === SyncDataType.GENSHIN_CHARACTER_LIST) {
+      await CoreInitializer.genshinRepository.syncAvatarList(accountId, roleUid, server, cookie);
+    } else if (dataType === SyncDataType.GENSHIN_CHARACTER_DETAIL) {
+      await CoreInitializer.genshinRepository.syncAvatarDetail(accountId, roleUid, server, cookie);
+    } else if (dataType === SyncDataType.STARRAIL_AVATAR_BASIC) {
+      await CoreInitializer.starRailRepository.syncAvatarList(accountId, roleUid, server, cookie);
+    } else if (dataType === SyncDataType.STARRAIL_AVATAR_INFO) {
+      await CoreInitializer.starRailRepository.syncAvatarInfo(accountId, roleUid, server, cookie);
+    } else if (dataType === SyncDataType.ZZZ_AVATAR_BASIC) {
+      await CoreInitializer.zzzRepository.syncAvatarList(accountId, roleUid, server, cookie);
+    } else if (dataType === SyncDataType.ZZZ_AVATAR_INFO) {
+      // 绝区零：先拿基础列表，再逐个 avatarId 请求详情
+      const basicList = await CoreInitializer.zzzRepository.getAvatarList(accountId, roleUid);
+      for (let i = 0; i < basicList.length; i++) {
+        try {
+          await CoreInitializer.zzzRepository.syncAvatarInfo(accountId, roleUid, server, cookie, basicList[i].avatarId);
+        } catch (_) {}
+      }
+    } else if (dataType === SyncDataType.ZZZ_BUDDY) {
+      await CoreInitializer.zzzRepository.syncBuddyList(accountId, roleUid, server, cookie);
+    }
+  }
+}

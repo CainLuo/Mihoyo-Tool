@@ -12,9 +12,7 @@
 
 import {
   AuthRepository,
-  MmtData,
-  GeetestV4Data,
-  PhoneLoginAccountInfo,
+  LoginMobileResult,
   QRCodeConfirmedData,
   LoginCookieFields,
   RoleStatItem,
@@ -49,8 +47,8 @@ export class LoginViewModel {
   @Trace errorMsg: string = '';
   /** 登录成功标志，View 层监听后跳转 */
   @Trace loginSuccess: boolean = false;
-  /** 登录成功后的账号 ID，View 层用于跳转到 AccountDetail */
-  @Trace loginedAccountId: number = -1;
+  /** 登录成功后的米游社 UID，View 层用于跳转到 AccountDetail */
+  @Trace loginedAccountId: string = '';
   /** 登录成功后组装好的账号 VM，View 层直接用于跳转 */
   @Trace loginedAccountVM: MyAccountVM | null = null;
 
@@ -60,14 +58,6 @@ export class LoginViewModel {
   @Trace smsCode: string = '';
   @Trace smsCooldown: number = 0;  // 倒计时秒数，0 表示可发送
 
-  /** 当前 mmt_key（发短信时需要） */
-  private mmtKey: string = '';
-  /** 当前 mmt_type（0=无需验证，1=需要验证） */
-  private mmtType: number = 0;
-  /** 当前 mmt_data（需要 Geetest 时传给 GeetestDialog） */
-  private mmtData: MmtData | null = null;
-  /** 手机号登录成功后的账号信息（用于后续 Token 换取） */
-  private phoneAccountInfo: PhoneLoginAccountInfo | null = null;
   /** 倒计时 timer ID */
   private cooldownTimer: number = -1;
 
@@ -107,41 +97,10 @@ export class LoginViewModel {
   // ─── 手机号登录 ───────────────────────────────────────────────
 
   /**
-   * 第一步：申请人机验证任务
-   * 返回 MmtData，View 层根据 mmt_type 决定是否弹出 GeetestDialog
+   * 发送短信验证码（新版接口）
+   * 调用 createLoginCaptcha，mobile/areaCode 由 AuthRepository 内部 RSA 加密
    */
-  async prepareSendSms(): Promise<MmtData> {
-    this.errorMsg = '';
-    this.isLoading = true;
-    try {
-      const mmt = await AuthRepository.createMmt();
-      this.mmtKey = mmt.mmt_key;
-      this.mmtType = mmt.use_v4 === true ? 1 : (mmt.gt !== undefined ? 1 : 0);
-      this.mmtData = mmt;
-      return mmt;
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error(TAG, `prepareSendSms failed: ${msg}`);
-      this.errorMsg = msg;
-      throw new Error(msg);
-    } finally {
-      this.isLoading = false;
-    }
-  }
-
-  /**
-   * 第二步：发送短信验证码
-   * @param v4Data    Geetest v4 验证结果（mmt_type=1 且 use_v4=true 时传）
-   * @param v3Challenge  Geetest v3 challenge（v3 验证时传）
-   * @param v3Validate   Geetest v3 validate
-   * @param v3Seccode    Geetest v3 seccode
-   */
-  async sendSmsCode(
-    v4Data?: GeetestV4Data,
-    v3Challenge?: string,
-    v3Validate?: string,
-    v3Seccode?: string
-  ): Promise<void> {
+  async sendSmsCode(): Promise<void> {
     if (this.phoneNumber.length === 0) {
       this.errorMsg = 'phone_empty';
       return;
@@ -149,14 +108,7 @@ export class LoginViewModel {
     this.isLoading = true;
     this.errorMsg = '';
     try {
-      await AuthRepository.sendSmsCode(
-        this.phoneNumber,
-        this.mmtKey,
-        v4Data,
-        v3Challenge,
-        v3Validate,
-        v3Seccode
-      );
+      await AuthRepository.createLoginCaptcha(this.phoneNumber);
       this.phoneStep = PhoneStep.INPUT_CODE;
       this.startCooldown(60);
     } catch (error) {
@@ -169,7 +121,8 @@ export class LoginViewModel {
   }
 
   /**
-   * 第三步：用短信验证码登录，完成后写入 DB
+   * 提交验证码登录（新版接口）
+   * loginByMobileCaptcha → getLTokenBySToken → getCookieBySToken → finalizeLogin
    */
   async loginByPhone(): Promise<void> {
     if (this.smsCode.length === 0) {
@@ -179,20 +132,27 @@ export class LoginViewModel {
     this.isLoading = true;
     this.errorMsg = '';
     try {
-      const accountInfo = await AuthRepository.loginByPhone(this.phoneNumber, this.smsCode);
-      this.phoneAccountInfo = accountInfo;
-      // 用 LoginTicket 换取 LToken
-      const ltoken = await AuthRepository.getLTokenByTicket(
-        accountInfo.weblogin_token,
-        accountInfo.account_id
-      );
+      // 1. 提交验证码，获取 stoken + aid + mid
+      const loginResult: LoginMobileResult = await AuthRepository.loginByMobileCaptcha(this.phoneNumber, this.smsCode);
+      const stoken = loginResult.stoken;
+      const aid = loginResult.aid;
+      const mid = loginResult.mid;
+
+      // 2. stoken → ltoken
+      const ltoken = await AuthRepository.getLTokenBySToken(stoken, mid);
+
+      // 3. stoken → cookie_token
+      const cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
+
+      // 4. 组装 Cookie
       const fields = new LoginCookieFields();
-      fields.accountId = `${accountInfo.account_id}`;
-      fields.cookieToken = accountInfo.weblogin_token;
+      fields.accountId = aid;
+      fields.cookieToken = cookieToken;
       fields.ltoken = ltoken;
-      fields.ltuid = `${accountInfo.account_id}`;
+      fields.ltuid = aid;
       const cookie = AuthRepository.buildCookieString(fields);
-      await this.finalizeLogin(`${accountInfo.account_id}`, cookie);
+
+      await this.finalizeLogin(aid, cookie);
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `loginByPhone failed: ${msg}`);
@@ -296,15 +256,16 @@ export class LoginViewModel {
       );
       const stoken = tokenResult.stoken;
       const userInfo = tokenResult.userInfo;
-      const ltoken = await AuthRepository.getLTokenBySToken(stoken, confirmed.uid);
-      const cookieToken = await AuthRepository.getCookieBySToken(stoken, confirmed.uid);
+      const mid = userInfo.mid.length > 0 ? userInfo.mid : confirmed.uid;
+      const ltoken = await AuthRepository.getLTokenBySToken(stoken, mid);
+      const cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
       const fields = new LoginCookieFields();
       fields.accountId = confirmed.uid;
       fields.cookieToken = cookieToken;
       fields.ltoken = ltoken;
       fields.ltuid = confirmed.uid;
       const cookie = AuthRepository.buildCookieString(fields);
-      await this.finalizeLogin(userInfo.mid.length > 0 ? userInfo.mid : confirmed.uid, cookie);
+      await this.finalizeLogin(confirmed.uid, cookie);
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `handleQRCodeConfirmed failed: ${msg}`);

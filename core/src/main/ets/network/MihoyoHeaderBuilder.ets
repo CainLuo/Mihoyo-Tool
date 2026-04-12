@@ -1,6 +1,7 @@
 import { RequestParams } from './APIs';
 import { ApiConfig } from './ApiConfig';
 import { DSUtil } from './DSUtil';
+import { HKey, HVal } from './MihoyoHeaderKey';
 
 /** 请求头 Profile 枚举 */
 export enum HeaderProfile {
@@ -27,8 +28,6 @@ export class MihoyoHeaderBuilder {
    * @param cookie   登录 Cookie
    * @param params   GET 请求参数（用于 DS 签名的 query 部分，POST 请求传 undefined）
    * @param body     POST 请求 body 字符串（用于 DS 签名的 body 部分，GET 请求传 undefined）
-   *
-   * DS 签名规则：GET 请求 query=params 序列化，body=""；POST 请求 query=""，body=JSON.stringify(data)
    */
   static build(
     profile: HeaderProfile,
@@ -39,45 +38,39 @@ export class MihoyoHeaderBuilder {
     const h = new Map<string, string>();
 
     // ── 所有接口共有 ──────────────────────────────────────────────
-    h.set('x-rpc-app_version', ApiConfig.APP_VERSION);
-    h.set('x-rpc-device_id', ApiConfig.getDeviceIdSync());
-    h.set('x-rpc-device_fp', ApiConfig.getDeviceFp());
-    h.set('x-rpc-sys_version', '15.7.1');
-    h.set('Cookie', cookie);
-    h.set('User-Agent', ApiConfig.USER_AGENT);
-    h.set('Accept', 'application/json, text/plain, */*');
+    h.set(HKey.APP_VERSION, ApiConfig.APP_VERSION);
+    h.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
+    h.set(HKey.DEVICE_FP, ApiConfig.getDeviceFp());
+    h.set(HKey.SYS_VERSION, HVal.SYS_VERSION_IOS);
+    h.set(HKey.COOKIE, cookie);
+    h.set(HKey.USER_AGENT, ApiConfig.USER_AGENT);
+    h.set(HKey.ACCEPT, HVal.ACCEPT_JSON);
 
     // ── 按 Profile 差异化注入 ─────────────────────────────────────
     if (profile === HeaderProfile.GAME_RECORD) {
-      h.set('x-rpc-client_type', '5');
-      // 注意：米游社服务端的拼写错误，必须用 "x-rpc-tool_verison" 而非 "version"
-      // 默认使用原神版本号；StarRailApiService 调用后会覆盖为星铁版本号
-      h.set('x-rpc-tool_verison', ApiConfig.TOOL_VERSION_GENSHIN);
-      h.set('Referer', 'https://webstatic.mihoyo.com/');
-      h.set('Origin', 'https://webstatic.mihoyo.com');
-      h.set('DS', DSUtil.generateV1(params, body));
+      h.set(HKey.CLIENT_TYPE, HVal.CLIENT_WEB);
+      h.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_GENSHIN);
+      h.set(HKey.REFERER, HVal.REFERER_WEBSTATIC);
+      h.set(HKey.ORIGIN, HVal.ORIGIN_WEBSTATIC);
+      h.set(HKey.DS, DSUtil.generateV1(params, body));
     } else if (profile === HeaderProfile.ZZZ_GAME_RECORD) {
-      h.set('x-rpc-language', 'zh-cn');
-      h.set('x-rpc-platform', '1');
-      h.set('Referer', 'https://act.mihoyo.com/');
-      h.set('Origin', 'https://act.mihoyo.com');
-      // 绝区零游戏记录接口不携带 DS
+      h.set(HKey.LANGUAGE, HVal.LANG_ZH_CN);
+      h.set(HKey.PLATFORM, HVal.PLATFORM_ANDROID);
+      h.set(HKey.REFERER, HVal.REFERER_ACT);
+      h.set(HKey.ORIGIN, HVal.ORIGIN_ACT);
     } else if (profile === HeaderProfile.CALCULATE) {
-      h.set('Referer', 'https://act.mihoyo.com/');
-      h.set('Origin', 'https://act.mihoyo.com');
-      // 养成计算不携带 DS
+      h.set(HKey.REFERER, HVal.REFERER_ACT);
+      h.set(HKey.ORIGIN, HVal.ORIGIN_ACT);
     } else if (profile === HeaderProfile.BBS) {
-      h.set('x-rpc-client_type', '1');
-      h.set('Referer', 'https://app.mihoyo.com');
-      h.set('Origin', 'https://app.mihoyo.com');
-      h.set('DS', DSUtil.generateV2(params, body));
+      h.set(HKey.CLIENT_TYPE, HVal.CLIENT_IOS);
+      h.set(HKey.REFERER, HVal.REFERER_APP);
+      h.set(HKey.ORIGIN, HVal.ORIGIN_APP);
+      h.set(HKey.DS, DSUtil.generateV2(params, body));
     } else if (profile === HeaderProfile.SIGN) {
-      h.set('x-rpc-client_type', '2');
-      h.set('Referer', 'https://act.mihoyo.com/');
-      h.set('Origin', 'https://act.mihoyo.com');
-      // SIGN 使用 X6 salt
-      h.set('DS', DSUtil.generateX6(params, body));
-      // 游戏签到需要额外的 x-rpc-signgame 头，由 SignApiService 在调用后手动注入
+      h.set(HKey.CLIENT_TYPE, HVal.CLIENT_ANDROID);
+      h.set(HKey.REFERER, HVal.REFERER_ACT);
+      h.set(HKey.ORIGIN, HVal.ORIGIN_ACT);
+      h.set(HKey.DS, DSUtil.generateX6(params, body));
     }
 
     return h;

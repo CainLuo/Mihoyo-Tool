@@ -8,7 +8,23 @@ var PAGES = {
     render: renderGenshinDailyDetail,
     controls: genshinDailyDetailControls,
   },
+  "starrail-daily-detail": {
+    render: renderSrDailyDetail,
+    controls: srDailyDetailControls,
+  },
+  "zzz-daily-detail": {
+    render: renderZzzDailyDetail,
+    controls: zzzDailyDetailControls,
+  },
   "char-detail": { render: renderCharDetail, controls: charDetailControls },
+  "starrail-char-detail": {
+    render: renderSrCharDetail,
+    controls: srCharDetailControls,
+  },
+  "zzz-char-detail": {
+    render: renderZzzCharDetail,
+    controls: zzzCharDetailControls,
+  },
   "account-detail": {
     render: renderAccountDetail,
     controls: accountDetailControls,

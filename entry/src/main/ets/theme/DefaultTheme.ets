@@ -93,13 +93,13 @@ export class DefaultTheme implements Theme {
   roleCardStatBg: Resource = $r('app.color.role_card_stat_bg')
 
   // ---- AppFont ----
-  body10: Font = makeFont(10, FontWeight.Normal)
-  body12: Font = makeFont(12, FontWeight.Normal)
-  body13: Font = makeFont(13, FontWeight.Normal)
-  body13Bold: Font = makeFont(13, FontWeight.Bold)
-  body15Bold: Font = makeFont(15, FontWeight.Bold)
-  body16: Font = makeFont(16, FontWeight.Normal)
-  body16Medium: Font = makeFont(16, FontWeight.Medium)
+  body10: Font = makeFont(11, FontWeight.Normal)
+  body12: Font = makeFont(13, FontWeight.Normal)
+  body13: Font = makeFont(14, FontWeight.Normal)
+  body13Bold: Font = makeFont(14, FontWeight.Bold)
+  body15Bold: Font = makeFont(16, FontWeight.Bold)
+  body16: Font = makeFont(17, FontWeight.Normal)
+  body16Medium: Font = makeFont(17, FontWeight.Medium)
   title18Bold: Font = makeFont(18, FontWeight.Bold)
   title20Bold: Font = makeFont(20, FontWeight.Bold)
   title24Bold: Font = makeFont(24, FontWeight.Bold)
@@ -113,7 +113,7 @@ export class DefaultTheme implements Theme {
   value4: number = 4
   value5: number = 5
   value8: number = 8
-  value9: number = 9
+  value9: number = 10
   value10: number = 10
   value11: number = 11
   value12: number = 12
@@ -191,13 +191,13 @@ export class DefaultTheme implements Theme {
   }
 
   protected initFonts(family: string): void {
-    this.body10 = makeFont(10, FontWeight.Normal, family)
-    this.body12 = makeFont(12, FontWeight.Normal, family)
-    this.body13 = makeFont(13, FontWeight.Normal, family)
-    this.body13Bold = makeFont(13, FontWeight.Bold, family)
-    this.body15Bold = makeFont(15, FontWeight.Bold, family)
-    this.body16 = makeFont(16, FontWeight.Normal, family)
-    this.body16Medium = makeFont(16, FontWeight.Medium, family)
+    this.body10 = makeFont(11, FontWeight.Normal, family)
+    this.body12 = makeFont(13, FontWeight.Normal, family)
+    this.body13 = makeFont(14, FontWeight.Normal, family)
+    this.body13Bold = makeFont(14, FontWeight.Bold, family)
+    this.body15Bold = makeFont(16, FontWeight.Bold, family)
+    this.body16 = makeFont(17, FontWeight.Normal, family)
+    this.body16Medium = makeFont(17, FontWeight.Medium, family)
     this.title18Bold = makeFont(18, FontWeight.Bold, family)
     this.title20Bold = makeFont(20, FontWeight.Bold, family)
     this.title24Bold = makeFont(24, FontWeight.Bold, family)

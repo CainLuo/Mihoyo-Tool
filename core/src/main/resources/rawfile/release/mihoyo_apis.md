@@ -2,6 +2,265 @@
 
 ## 米游社账号相关 API
 
+### 二维码登录-请求二维码
+
+- API：https://hk4e-sdk.mihoyo.com/hk4e_cn/combo/panda/qrcode/fetch
+- 请求方式：POST
+- 请求头示例参数：
+
+```text
+POST /hk4e_cn/combo/panda/qrcode/fetch HTTP/1.1
+content-type: text/plain;charset=UTF-8
+user-agent: tauri-plugin-http/2.5.7
+origin: tauri://localhost
+accept: */*
+cookie: aliyungf_tc=000de48ca30b10148d1d3966c7c4f7c75bc9eb6508d0165f00c6e0b7ba46f21a; ltoken=osJWL2YdeJcgRhSW3tRVdaGXrjCDXykMW2LAaXAG; cookie_token=TX18n2rt7fGlXz9nJjx64JHMXntEOfKDemITRbCt; ltuid=348366494; account_id=348366494
+host: hk4e-sdk.mihoyo.com
+content-length: 60
+
+{"app_id":7,"device":"55f55e7f-55ab-4254-a3b2-08e2673096c4"}
+```
+
+- Response 结果
+
+```text
+HTTP/1.1 200 OK
+Date: Sun, 12 Apr 2026 04:40:46 GMT
+Content-Type: application/json
+Content-Length: 246
+Connection: keep-alive
+Vary: Origin
+Vary: Accept-Encoding
+X-Powered-By: takumi
+X-Trace-Id: 29f115d699df5044:29f115d699df5044:0:1
+
+{"retcode":0,"message":"OK","data":{"url":"https://user.mihoyo.com/qr_code_in_game.html?app_id=7\u0026app_name=%E5%B4%A9%E5%9D%8F%E5%AD%A6%E5%9B%AD2\u0026bbs=false\u0026biz_key=bh2_cn\u0026expire=1776400846\u0026ticket=69db224eb28aac09f1178b76"}}
+```
+
+### 二维码登录-轮询
+
+- API：https://hk4e-sdk.mihoyo.com/hk4e_cn/combo/panda/qrcode/query
+- 请求方式：POST
+- 请求头示例参数：
+
+```text
+POST /hk4e_cn/combo/panda/qrcode/query HTTP/1.1
+content-type: text/plain;charset=UTF-8
+user-agent: tauri-plugin-http/2.5.7
+origin: tauri://localhost
+accept: */*
+cookie: aliyungf_tc=000de48ca30b10148d1d3966c7c4f7c75bc9eb6508d0165f00c6e0b7ba46f21a; ltoken=osJWL2YdeJcgRhSW3tRVdaGXrjCDXykMW2LAaXAG; cookie_token=TX18n2rt7fGlXz9nJjx64JHMXntEOfKDemITRbCt; ltuid=348366494; account_id=348366494
+host: hk4e-sdk.mihoyo.com
+content-length: 96
+
+{"app_id":7,"ticket":"69db224eb28aac09f1178b76","device":"55f55e7f-55ab-4254-a3b2-08e2673096c4"}
+```
+
+- Response 的结果
+
+```text
+HTTP/1.1 200 OK
+Date: Sun, 12 Apr 2026 04:40:48 GMT
+Content-Type: application/json
+Content-Length: 116
+Connection: keep-alive
+Vary: Origin
+Vary: Accept-Encoding
+X-Powered-By: takumi
+X-Trace-Id: 221c804d05da480e:221c804d05da480e:0:1
+
+{"retcode":0,"message":"OK","data":{"stat":"Init","payload":{"proto":"Raw","raw":"","ext":""},"realname_info":null}}
+```
+
+- 轮询到二维码登录成功的结果
+
+```text
+HTTP/1.1 200 OK
+Date: Sun, 12 Apr 2026 04:47:49 GMT
+Content-Type: application/json
+Content-Length: 195
+Connection: keep-alive
+Vary: Origin
+Vary: Accept-Encoding
+X-Powered-By: takumi
+X-Trace-Id: 9647d99a952498c:9647d99a952498c:0:1
+
+{"retcode":0,"message":"OK","data":{"stat":"Confirmed","payload":{"proto":"Account","raw":"{\"uid\":\"348366494\",\"token\":\"wNJtsPMvTFySKK05huhRYiDfnM8kyUUd\"}","ext":""},"realname_info":null}}
+```
+
+### 手机号登录-获取验证码
+
+- API：https://passport-api.mihoyo.com/account/ma-cn-verifier/verifier/createLoginCaptcha
+- 请求方式：POST
+- 请求头示例参数：
+
+```text
+POST /account/ma-cn-verifier/verifier/createLoginCaptcha HTTP/1.1
+content-type: application/json
+referer: https://user.miyoushe.com/
+user-agent: Mozilla/5.0 (Linux; Android 12) Mobile miHoYoBBS/2.100.0
+x-rpc-aigis:
+x-rpc-app_id: bll8iq97cem8
+x-rpc-app_version: 2.100.0
+x-rpc-client_type: 2
+x-rpc-device_fp: 38d8166fd9c2e
+x-rpc-device_id: 55f55e7f-55ab-4254-a3b2-08e2673096c4
+x-rpc-device_model: EYEJ4I
+x-rpc-device_name: YPPWGW7NHGYC
+x-rpc-game_biz: hk4e_cn
+origin: tauri://localhost
+accept: */*
+cookie: ltoken=Xmdg2BUcb8dVsyL9nAKHDHdeHaDuLZ5Mw91t2XVf; cookie_token=CztueufTYXw07R0r5mQp6GUyF45i8mSwfbNREsqW; ltuid=433290277; account_id=433290277
+host: passport-api.mihoyo.com
+content-length: 372
+
+{"area_code":"MLd98yMTwY0y/jgRdlHXLaIm3Xlk6sbyqCZSuppcDETBmsVkDpKd7NBHU0iXEtowE1aq2Oavhw6L/h29fpMfu5W5+blJnXXLwoCEJdr9GlbLCu/5x5OQKUuelRGEmOh5EF36l11POLiDH+cRl7oxB0ojlPylqLzOPprEytbflXY=","mobile":"T+Z/3K6fe4TT6+qXXJs3bRUgRAq7CHDDunI0u6Z2C1E9t3BxMXUxERGx66xyaHBknmYIQbLjCmn697BTDP8xxPd5J//kAziCmLfjx1t+EfGIkOf3O8LYOaHiC4MWRrzq21uBCaA+f/nlhmm7CDxdDsiJKeK5xWWjJCsRkfPYh7Y="}
+```
+
+- Response 的结果
+
+```text
+HTTP/1.1 200 OK
+Date: Sat, 11 Apr 2026 17:57:31 GMT
+Content-Type: application/json
+Content-Length: 108
+Connection: keep-alive
+Set-Cookie: aliyungf_tc=3d8330ca6492bd783b1c35353c5a1b5f27b1cf8b9d49ed652c3dc6dc7aacf938; Path=/; HttpOnly
+Vary: Origin
+Vary: Accept-Encoding
+X-Powered-By: takumi
+X-Trace-Id: 582988f2a467da35:582988f2a467da35:0:1
+
+{"retcode":0,"message":"OK","data":{"sent_new":true,"countdown":60,"action_type":"login_by_mobile_captcha"}}
+```
+
+### 手机号登录-提交验证码
+
+- API：https://passport-api.mihoyo.com/account/ma-cn-passport/app/loginByMobileCaptcha
+- 请求方式：POST
+- 请求头示例参数：
+
+```text
+POST /account/ma-cn-passport/app/loginByMobileCaptcha HTTP/1.1
+content-type: text/plain;charset=UTF-8
+user-agent: Mozilla/5.0 (Linux; Android 12) Mobile miHoYoBBS/2.100.0
+x-rpc-aigis:
+x-rpc-app_id: bll8iq97cem8
+x-rpc-app_version: 2.100.0
+x-rpc-client_type: 2
+x-rpc-device_fp: 38d8166fd9c2e
+x-rpc-device_id: 55f55e7f-55ab-4254-a3b2-08e2673096c4
+x-rpc-device_model: EYEJ4I
+x-rpc-device_name: YPPWGW7NHGYC
+origin: tauri://localhost
+accept: */*
+cookie: aliyungf_tc=3d8330ca6492bd783b1c35353c5a1b5f27b1cf8b9d49ed652c3dc6dc7aacf938; ltoken=Xmdg2BUcb8dVsyL9nAKHDHdeHaDuLZ5Mw91t2XVf; cookie_token=CztueufTYXw07R0r5mQp6GUyF45i8mSwfbNREsqW; ltuid=433290277; account_id=433290277
+host: passport-api.mihoyo.com
+content-length: 431
+
+{"area_code":"KM+FqofmNMG/SWS/6p/QplyYG/m8NqjQ5jT9Dq94MJCeO9vlmGmLFEZndlQbXxDInDteyLH/hOtWr9qIyBGftgBTFShbegFGUgw4HBkoPYWO0W667pJUExyWxafWCsrBQ81BSqHDi1IYC1ekA55Xlu4a0jDb7wU4M1gNaB58nS8=","mobile":"RLb1qRgTzv/t31kbFH0kFfHAEAOmOOUyqm2qEXUISDtjnb0u5ifLV7shrXx+O9ZCkMaBsOH610BhNIhVmVuTvto5kmZnXG9NSYTAszKHl9MchP3ZWxwHC3p9MsajGO3Q55dEukjggodrmX2XxzWUaeKGZKv1dVFdIXxMhqoIw9U=","action_type":"login_by_mobile_captcha","captcha":"209441"}
+```
+
+- Response 结果
+
+```text
+HTTP/1.1 200 OK
+Date: Sat, 11 Apr 2026 17:58:56 GMT
+Content-Type: application/json
+Content-Length: 908
+Connection: keep-alive
+Vary: Origin
+Vary: Accept-Encoding
+X-Powered-By: takumi
+X-Trace-Id: 43ce11d874823128:43ce11d874823128:0:1
+
+{"retcode":0,"message":"OK","data":{"token":{"token_type":1,"token":"v2_YqKL04AHNpWG4FqdNfm8RZYBsDlt0ZjbTf022GJF8miIg9qS1tD2F4y-nWSNgKCjeaU0KraMa45NE46dwKvNuX_X0jsccKSSlrpMt2qFIukkECHhlItdKkWyGap77Rm-TPbwb__m03EXzDaCY5Y=.CAE="},"user_info":{"aid":"348366494","mid":"0tv0t26wei_mhy","account_name":"","email":"","is_email_verify":0,"area_code":"+86","mobile":"186******85","safe_area_code":"","safe_mobile":"","realname":"**鑫","identity_code":"4****************X","rebind_area_code":"","rebind_mobile":"","rebind_mobile_time":"0","links":[],"country":"","password_time":"0","is_adult":1,"unmasked_email":"","unmasked_email_type":0},"reactivate_info":{"required":false,"ticket":"","deleting_biz_account":false,"reactivate_biz":"","delete_after_days":"0"},"login_ticket":"","new_user":false,"realname_info":{"required":false,"action_type":"","action_ticket":""},"need_realperson":false,"oauth_hw_open_id":""}}
+```
+
+### 获取ltoken
+
+- API：https://passport-api.mihoyo.com/account/auth/api/getLTokenBySToken?stoken=v2_YqKL04AHNpWG4FqdNfm8RZYBsDlt0ZjbTf022GJF8miIg9qS1tD2F4y-nWSNgKCjeaU0KraMa45NE46dwKvNuX_X0jsccKSSlrpMt2qFIukkECHhlItdKkWyGap77Rm-TPbwb__m03EXzDaCY5Y%3D.CAE%3D
+- 请求方式：GET
+- 请求头示例参数：
+
+```text
+GET /account/auth/api/getLTokenBySToken?stoken=v2_YqKL04AHNpWG4FqdNfm8RZYBsDlt0ZjbTf022GJF8miIg9qS1tD2F4y-nWSNgKCjeaU0KraMa45NE46dwKvNuX_X0jsccKSSlrpMt2qFIukkECHhlItdKkWyGap77Rm-TPbwb__m03EXzDaCY5Y%3D.CAE%3D HTTP/1.1
+cookie: mid=0tv0t26wei_mhy;stoken=v2_YqKL04AHNpWG4FqdNfm8RZYBsDlt0ZjbTf022GJF8miIg9qS1tD2F4y-nWSNgKCjeaU0KraMa45NE46dwKvNuX_X0jsccKSSlrpMt2qFIukkECHhlItdKkWyGap77Rm-TPbwb__m03EXzDaCY5Y=.CAE=;
+ds: 1775930337,130790,92715728d03878642e2a72f49891abcf
+referer: https://webstatic.mihoyo.com
+user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) miHoYoBBS/2.100.0
+x-requested-with: com.mihoyo.hyperion
+x-rpc-app_version: 2.100.0
+x-rpc-client_type: 5
+x-rpc-device_fp: 38d8166fd9c2e
+x-rpc-device_id: 55f55e7f-55ab-4254-a3b2-08e2673096c4
+origin: tauri://localhost
+accept: */*
+host: passport-api.mihoyo.com
+```
+
+- Response 结果
+
+```text
+HTTP/1.1 200 OK
+Date: Sat, 11 Apr 2026 17:58:57 GMT
+Content-Type: application/json
+Content-Length: 89
+Connection: keep-alive
+Set-Cookie: aliyungf_tc=275f0916e507420853b1c7d65529b7a06f20f2399043b44e9b4af8c76be50959; Path=/; HttpOnly
+Cache-Control: no-cache
+Set-Cookie: ltoken=osJWL2YdeJcgRhSW3tRVdaGXrjCDXykMW2LAaXAG; Path=/; Domain=mihoyo.com; Max-Age=31536000
+Set-Cookie: ltuid=348366494; Path=/; Domain=mihoyo.com; Max-Age=31536000
+Vary: Origin
+Vary: Accept-Encoding
+X-Powered-By: takumi
+X-Trace-Id: 49f51b6fa7fadea:49f51b6fa7fadea:0:1
+
+{"retcode":0,"message":"OK","data":{"ltoken":"osJWL2YdeJcgRhSW3tRVdaGXrjCDXykMW2LAaXAG"}}
+```
+
+### 获取 Cookie Token
+
+- API：https://passport-api.mihoyo.com/account/auth/api/getCookieAccountInfoBySToken?stoken=v2_YqKL04AHNpWG4FqdNfm8RZYBsDlt0ZjbTf022GJF8miIg9qS1tD2F4y-nWSNgKCjeaU0KraMa45NE46dwKvNuX_X0jsccKSSlrpMt2qFIukkECHhlItdKkWyGap77Rm-TPbwb__m03EXzDaCY5Y%3D.CAE%3D
+- 请求方式：GET
+- 请求头示例参数：
+
+```text
+GET /account/auth/api/getCookieAccountInfoBySToken?stoken=v2_YqKL04AHNpWG4FqdNfm8RZYBsDlt0ZjbTf022GJF8miIg9qS1tD2F4y-nWSNgKCjeaU0KraMa45NE46dwKvNuX_X0jsccKSSlrpMt2qFIukkECHhlItdKkWyGap77Rm-TPbwb__m03EXzDaCY5Y%3D.CAE%3D HTTP/1.1
+cookie: mid=0tv0t26wei_mhy;stoken=v2_YqKL04AHNpWG4FqdNfm8RZYBsDlt0ZjbTf022GJF8miIg9qS1tD2F4y-nWSNgKCjeaU0KraMa45NE46dwKvNuX_X0jsccKSSlrpMt2qFIukkECHhlItdKkWyGap77Rm-TPbwb__m03EXzDaCY5Y=.CAE=;
+ds: 1775930337,101934,bf5d5066f843a7ad82120ef7c86a0ae2
+referer: https://webstatic.mihoyo.com
+user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) miHoYoBBS/2.100.0
+x-requested-with: com.mihoyo.hyperion
+x-rpc-app_version: 2.100.0
+x-rpc-client_type: 5
+x-rpc-device_fp: 38d8166fd9c2e
+x-rpc-device_id: 55f55e7f-55ab-4254-a3b2-08e2673096c4
+origin: tauri://localhost
+accept: */*
+host: passport-api.mihoyo.com
+```
+
+- Response 结果
+
+```text
+HTTP/1.1 200 OK
+Date: Sat, 11 Apr 2026 17:58:58 GMT
+Content-Type: application/json
+Content-Length: 113
+Connection: keep-alive
+Set-Cookie: aliyungf_tc=8b8e306eeb486f439335206c13baf769b14cb38c520b41e30acecac9000c5e49; Path=/; HttpOnly
+Cache-Control: no-cache
+Set-Cookie: cookie_token=TX18n2rt7fGlXz9nJjx64JHMXntEOfKDemITRbCt; Path=/; Domain=mihoyo.com; Max-Age=172800
+Set-Cookie: account_id=348366494; Path=/; Domain=mihoyo.com; Max-Age=172800
+Vary: Origin
+Vary: Accept-Encoding
+X-Powered-By: takumi
+X-Trace-Id: 16e4fecdb7e1a7db:16e4fecdb7e1a7db:0:1
+
+{"retcode":0,"message":"OK","data":{"uid":"348366494","cookie_token":"TX18n2rt7fGlXz9nJjx64JHMXntEOfKDemITRbCt"}}
+```
+
 ### 关联的游戏列表
 
 - API：https://api-takumi-record.mihoyo.com/game_record/app/card/wapi/getGameRecordCard?uid=182692936
@@ -68,6 +327,48 @@ Accept-Encoding: gzip, deflate, br
 x-rpc-sys_version: 15.7.1
 x-rpc-h265_supported: 0
 x-rum-traceparent: 00-a573bbefa8bc732914397a9375cea86d-68300ec6c0907268-01
+```
+
+### 获取米游社绑定的游戏
+
+- API：https://api-takumi.mihoyo.com/binding/api/getUserGameRolesByCookie
+- 请求方式：GET
+- 请求头示例：
+
+```text
+GET /binding/api/getUserGameRolesByCookie HTTP/1.1
+cookie: account_id=348366494;cookie_token=TX18n2rt7fGlXz9nJjx64JHMXntEOfKDemITRbCt;
+ds: 1775930339,155010,f5b4a101837f1d13d66038620fbdcd85
+referer: https://webstatic.mihoyo.com
+user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) miHoYoBBS/2.100.0
+x-requested-with: com.mihoyo.hyperion
+x-rpc-app_version: 2.100.0
+x-rpc-client_type: 5
+x-rpc-device_fp: 38d8166fd9c2e
+x-rpc-device_id: 55f55e7f-55ab-4254-a3b2-08e2673096c4
+origin: tauri://localhost
+accept: */*
+host: api-takumi.mihoyo.com
+```
+
+- Response 结果
+
+```text
+HTTP/1.1 200 OK
+Date: Sat, 11 Apr 2026 17:58:59 GMT
+Content-Type: application/json
+Content-Length: 416
+Connection: keep-alive
+Set-Cookie: aliyungf_tc=2407a4ac1fda61016a28868bb96fb3bf28db9607194ec9d7569dc79f00331353; Path=/; HttpOnly
+Cache-Control: no-cache
+Set-Cookie: ltoken=osJWL2YdeJcgRhSW3tRVdaGXrjCDXykMW2LAaXAG; Path=/; Domain=mihoyo.com; Max-Age=31536000
+Set-Cookie: ltuid=348366494; Path=/; Domain=mihoyo.com; Max-Age=31536000
+Vary: Origin
+Vary: Accept-Encoding
+X-Powered-By: takumi
+X-Trace-Id: 8b16b13c15eeff0:8b16b13c15eeff0:0:1
+
+{"retcode":0,"message":"OK","data":{"list":[{"game_biz":"hk4e_cn","region":"cn_gf01","game_uid":"250375401","nickname":"狂野的沙滩裤","level":57,"is_chosen":false,"region_name":"天空岛","is_official":true,"unmask":[]},{"game_biz":"hkrpg_cn","region":"prod_gf_cn","game_uid":"111310091","nickname":"\u0026符公子","level":67,"is_chosen":false,"region_name":"星穹列车","is_official":true,"unmask":[]}]}}
 ```
 
 ## 原神相关 API
@@ -1045,7 +1346,7 @@ Mock 模式下，MockService 从 Cookie 的 `account_id` 字段提取账号标�
 路由目录：`mock/account1/`
 
 ```
-account_id=1; cookie_token=mock; ltoken=mock; ltuid=1
+account_id=182692936; cookie_token=mock; ltoken=mock; ltuid=182692936
 ```
 
 ### Account 2 — 摆烂的班主任（uid: 348366494）
@@ -1053,7 +1354,7 @@ account_id=1; cookie_token=mock; ltoken=mock; ltuid=1
 路由目录：`mock/account2/`
 
 ```
-account_id=2; cookie_token=mock; ltoken=mock; ltuid=2
+account_id=348366494; cookie_token=mock; ltoken=mock; ltuid=348366494
 ```
 
 > 注意：Mock 模式下 Cookie 的其他字段（`cookie_token`、`ltoken`、`ltuid`）不参与实际验证，只有 `account_id` 用于子目录路由。

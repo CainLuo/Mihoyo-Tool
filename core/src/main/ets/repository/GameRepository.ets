@@ -32,7 +32,7 @@ export abstract class GameRepository {
   /**
    * 检查是否需要同步（距上次同步超过 SYNC_INTERVAL_SECONDS）
    */
-  protected async needsSync(accountId: number, roleUid: string, dataType: string): Promise<boolean> {
+  protected async needsSync(accountId: string, roleUid: string, dataType: string): Promise<boolean> {
     const meta = await this.syncMetaDao.findOne(accountId, roleUid, dataType);
     if (meta === null) {
       return true;
@@ -44,14 +44,14 @@ export abstract class GameRepository {
   /**
    * 标记同步开始（设置 sync_status = 'syncing'）
    */
-  protected async markSyncing(accountId: number, roleUid: string, dataType: string): Promise<void> {
+  protected async markSyncing(accountId: string, roleUid: string, dataType: string): Promise<void> {
     await this.syncMetaDao.updateStatus(accountId, roleUid, dataType, 'syncing');
   }
 
   /**
    * 标记同步成功（设置 sync_status = 'success'，更新 last_sync_time）
    */
-  protected async markSuccess(accountId: number, roleUid: string, dataType: string): Promise<void> {
+  protected async markSuccess(accountId: string, roleUid: string, dataType: string): Promise<void> {
     // 先确保 sync_meta 记录存在
     const existing = await this.syncMetaDao.findOne(accountId, roleUid, dataType);
     if (existing === null) {
@@ -71,7 +71,7 @@ export abstract class GameRepository {
   /**
    * 标记同步失败（设置 sync_status = 'failed'，记录错误信息）
    */
-  protected async markFailed(accountId: number, roleUid: string, dataType: string, errorMsg: string): Promise<void> {
+  protected async markFailed(accountId: string, roleUid: string, dataType: string, errorMsg: string): Promise<void> {
     const existing = await this.syncMetaDao.findOne(accountId, roleUid, dataType);
     if (existing === null) {
       const row = new SyncMetaRow();

@@ -1,0 +1,353 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "stats": {
+      "active_days": 39,
+      "avatar_num": 14,
+      "world_level_name": "传奇绳匠",
+      "cur_period_zone_layer_count": 0,
+      "buddy_num": 17,
+      "commemorative_coins_list": [
+        {
+          "num": 28,
+          "name": "调查协会纪念币",
+          "sort": 304005,
+          "url": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/6e27fd14d7c27d0f7928e0b25dab4047.png",
+          "wiki_url": "https://baike.mihoyo.com/zzz/wiki/content/959/detail?bbs_presentation_style=fullscreen"
+        },
+        {
+          "num": 35,
+          "name": "协会纪念币·光映",
+          "sort": 304017,
+          "url": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/df1f1eb45ad5f0c9e6a13260c48de36f.png",
+          "wiki_url": "https://baike.mihoyo.com/zzz/wiki/content/957/detail?bbs_presentation_style=fullscreen"
+        },
+        {
+          "num": 10,
+          "name": "协会纪念币·野火镇",
+          "sort": 304018,
+          "url": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/7eced12b9efbbfcc66bc19b8bd9d0735.png",
+          "wiki_url": "https://baike.mihoyo.com/zzz/wiki/content/958/detail?bbs_presentation_style=fullscreen"
+        }
+      ],
+      "achievement_count": 204,
+      "climbing_tower_layer": 4,
+      "next_hundred_layer": "研究所旧址废墟深处",
+      "memory_battlefield": null,
+      "stable_zone_layer_count": 7,
+      "all_change_zone_layer_count": 0,
+      "climbing_tower_s2": {
+        "climbing_tower_layer": 0,
+        "floor_mvp_num": 0
+      },
+      "temple_data": {
+        "level": 0,
+        "sell_days": 0,
+        "total_sell_temple_coin": "0"
+      },
+      "climbing_tower_s3": {
+        "layer_info": null,
+        "mvp_info": null
+      },
+      "void_front_brief": {
+        "void_front_id": 201,
+        "has_ending_record": false,
+        "ending_record_name": "",
+        "total_score": 0,
+        "rank_percent": 0
+      },
+      "challenge_full_s_times": 0,
+      "memory_battlefield_full_stars_times": 0,
+      "hadal_brief": {
+        "hadal_ver": "v2",
+        "hadal_brief_v2": {
+          "cur_period_zone_layer_count": 0,
+          "score": 0,
+          "rank_percent": 0,
+          "rating": "",
+          "max_score": 0
+        }
+      },
+      "climbing_tower_s4": {
+        "layer_info": null,
+        "mvp_info": null
+      }
+    },
+    "avatar_list": [
+      {
+        "id": 1171,
+        "level": 60,
+        "name_mi18n": "柏妮思",
+        "full_name_mi18n": "柏妮思·怀特",
+        "element_type": 201,
+        "camp_name_mi18n": "卡吕冬之子",
+        "avatar_profession": 3,
+        "rarity": "S",
+        "group_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/e18c52a56b163d4fce6dfa0745a76120.png",
+        "hollow_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/8d34e1193dcfa5b93ebc5ae6357b2b9c.png",
+        "rank": 0,
+        "is_chosen": false,
+        "role_square_url": "https://act-webstatic.mihoyo.com/game_record/zzzv2/role_square_avatar/role_square_avatar_1171.png",
+        "sub_element_type": 0,
+        "awaken_state": "AwakenStateNotVisible"
+      },
+      {
+        "id": 1281,
+        "level": 60,
+        "name_mi18n": "派派",
+        "full_name_mi18n": "派派·韦尔",
+        "element_type": 200,
+        "camp_name_mi18n": "卡吕冬之子",
+        "avatar_profession": 3,
+        "rarity": "A",
+        "group_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/e18c52a56b163d4fce6dfa0745a76120.png",
+        "hollow_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/c34161b6c8fb0a7c6186344b3ce92dbf.png",
+        "rank": 5,
+        "is_chosen": false,
+        "role_square_url": "https://act-webstatic.mihoyo.com/game_record/zzzv2/role_square_avatar/role_square_avatar_1281.png",
+        "sub_element_type": 0,
+        "awaken_state": "AwakenStateNotVisible"
+      },
+      {
+        "id": 1151,
+        "level": 54,
+        "name_mi18n": "露西",
+        "full_name_mi18n": "露西亚娜·德·蒙特夫",
+        "element_type": 201,
+        "camp_name_mi18n": "卡吕冬之子",
+        "avatar_profession": 4,
+        "rarity": "A",
+        "group_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/e18c52a56b163d4fce6dfa0745a76120.png",
+        "hollow_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/1077de51e467d81fdf90a02f6711358b.png",
+        "rank": 5,
+        "is_chosen": false,
+        "role_square_url": "https://act-webstatic.mihoyo.com/game_record/zzzv2/role_square_avatar/role_square_avatar_1151.png",
+        "sub_element_type": 0,
+        "awaken_state": "AwakenStateNotVisible"
+      },
+      {
+        "id": 1141,
+        "level": 50,
+        "name_mi18n": "莱卡恩",
+        "full_name_mi18n": "冯·莱卡恩",
+        "element_type": 202,
+        "camp_name_mi18n": "维多利亚家政",
+        "avatar_profession": 2,
+        "rarity": "S",
+        "group_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/e7ea7e6ec0bfcef4c3b243616adf05f0.png",
+        "hollow_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/d5ccf03e2ad2233b31e755f357c2afb5.png",
+        "rank": 0,
+        "is_chosen": false,
+        "role_square_url": "https://act-webstatic.mihoyo.com/game_record/zzzv2/role_square_avatar/role_square_avatar_1141.png",
+        "sub_element_type": 0,
+        "awaken_state": "AwakenStateNotVisible"
+      },
+      {
+        "id": 1101,
+        "level": 50,
+        "name_mi18n": "珂蕾妲",
+        "full_name_mi18n": "珂蕾妲·贝洛伯格",
+        "element_type": 201,
+        "camp_name_mi18n": "白祇重工",
+        "avatar_profession": 2,
+        "rarity": "S",
+        "group_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/6429d6c720c5b4b9e1d360fa463cde24.png",
+        "hollow_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/153ae6bd11686e9eee0d50c6ac16dd37.png",
+        "rank": 0,
+        "is_chosen": false,
+        "role_square_url": "https://act-webstatic.mihoyo.com/game_record/zzzv2/role_square_avatar/role_square_avatar_1101.png",
+        "sub_element_type": 0,
+        "awaken_state": "AwakenStateNotVisible"
+      },
+      {
+        "id": 1011,
+        "level": 50,
+        "name_mi18n": "安比",
+        "full_name_mi18n": "安比·德玛拉",
+        "element_type": 203,
+        "camp_name_mi18n": "狡兔屋",
+        "avatar_profession": 2,
+        "rarity": "A",
+        "group_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/1d5e1b31b2257456473e422125110c3a.png",
+        "hollow_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/40922fe5110ec94bed6676bef2a0b0c8.png",
+        "rank": 6,
+        "is_chosen": false,
+        "role_square_url": "https://act-webstatic.mihoyo.com/game_record/zzzv2/role_square_avatar/role_square_avatar_1011.png",
+        "sub_element_type": 0,
+        "awaken_state": "AwakenStateNotVisible"
+      },
+      {
+        "id": 1061,
+        "level": 40,
+        "name_mi18n": "可琳",
+        "full_name_mi18n": "可琳·威克斯",
+        "element_type": 200,
+        "camp_name_mi18n": "维多利亚家政",
+        "avatar_profession": 1,
+        "rarity": "A",
+        "group_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/e7ea7e6ec0bfcef4c3b243616adf05f0.png",
+        "hollow_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/7caf09fa249544916a05916e72bf62b8.png",
+        "rank": 1,
+        "is_chosen": false,
+        "role_square_url": "https://act-webstatic.mihoyo.com/game_record/zzzv2/role_square_avatar/role_square_avatar_1061.png",
+        "sub_element_type": 0,
+        "awaken_state": "AwakenStateNotVisible"
+      },
+      {
+        "id": 1031,
+        "level": 40,
+        "name_mi18n": "妮可",
+        "full_name_mi18n": "妮可·德玛拉",
+        "element_type": 205,
+        "camp_name_mi18n": "狡兔屋",
+        "avatar_profession": 4,
+        "rarity": "A",
+        "group_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/1d5e1b31b2257456473e422125110c3a.png",
+        "hollow_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/4ce836fe96475672491eca5076b66038.png",
+        "rank": 5,
+        "is_chosen": false,
+        "role_square_url": "https://act-webstatic.mihoyo.com/game_record/zzzv2/role_square_avatar/role_square_avatar_1031.png",
+        "sub_element_type": 0,
+        "awaken_state": "AwakenStateNotVisible"
+      },
+      {
+        "id": 1021,
+        "level": 20,
+        "name_mi18n": "猫又",
+        "full_name_mi18n": "猫宫 又奈",
+        "element_type": 200,
+        "camp_name_mi18n": "狡兔屋",
+        "avatar_profession": 1,
+        "rarity": "S",
+        "group_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/1d5e1b31b2257456473e422125110c3a.png",
+        "hollow_icon_path": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/c7999158f49bc506e9badf1b1b003b6a.png",
+        "rank": 0,
+        "is_chosen": false,
+        "role_square_url": "https://act-webstatic.mihoyo.com/game_record/zzzv2/role_square_avatar/role_square_avatar_1021.png",
+        "sub_element_type": 0,
+        "awaken_state": "AwakenStateNotVisible"
+      }
+    ],
+    "cur_head_icon_url": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/619915fe3d110b5219f8ade560d00f1a.png",
+    "buddy_list": [
+      {
+        "id": 54012,
+        "name": "阿崔巡查",
+        "rarity": "S",
+        "level": 1,
+        "star": 1,
+        "bangboo_rectangle_url": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/9cf32eb396b0f9d2798ea0ec142bb4af.png"
+      },
+      {
+        "id": 54011,
+        "name": "赤红莫库斯",
+        "rarity": "S",
+        "level": 60,
+        "star": 1,
+        "bangboo_rectangle_url": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/b4f6e37e35ccd5d09cb9a2993b35f7f0.png"
+      },
+      {
+        "id": 54005,
+        "name": "艾米莉安",
+        "rarity": "S",
+        "level": 1,
+        "star": 1,
+        "bangboo_rectangle_url": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/f944e6edb6a56cd565c01cd3897515f6.png"
+      },
+      {
+        "id": 54004,
+        "name": "巴特勒",
+        "rarity": "S",
+        "level": 1,
+        "star": 1,
+        "bangboo_rectangle_url": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/7b8797eba6f8e272c59e441d2e98fd27.png"
+      },
+      {
+        "id": 54001,
+        "name": "鲨牙布",
+        "rarity": "S",
+        "level": 30,
+        "star": 1,
+        "bangboo_rectangle_url": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/64d277e9ca77a961a11f139f31346488.png"
+      },
+      {
+        "id": 54003,
+        "name": "恶魔布",
+        "rarity": "A",
+        "level": 1,
+        "star": 5,
+        "bangboo_rectangle_url": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/9193fc662f25ad13ef2ac487b858969c.png"
+      },
+      {
+        "id": 53017,
+        "name": "骑士布",
+        "rarity": "A",
+        "level": 1,
+        "star": 5,
+        "bangboo_rectangle_url": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/55bc41e300df54234f72f437d189d669.png"
+      },
+      {
+        "id": 53012,
+        "name": "气压布",
+        "rarity": "A",
+        "level": 1,
+        "star": 4,
+        "bangboo_rectangle_url": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/3a9d735620ae31a540940ac042835413.png"
+      },
+      {
+        "id": 53011,
+        "name": "磁力布",
+        "rarity": "A",
+        "level": 1,
+        "star": 3,
+        "bangboo_rectangle_url": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/600c1a3b586f36322ee76dade19ec0f0.png"
+      }
+    ],
+    "cat_notes_list": [],
+    "award_state": "AwardStateDone",
+    "game_data_show": {
+      "personal_title": "社长特助",
+      "title_main_color": "f58661",
+      "title_bottom_color": "fe357b",
+      "title_bg_url": "",
+      "medal_list": [
+        "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/a1bfd8d94eb08c7bf7d4784a480bfc9e.png",
+        "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/9fff0e1d3ae009a8ba55cb252d88c7f4.png"
+      ],
+      "card_url": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/b61deaeec27d9061313b4d3cd3660e8f.png",
+      "medal_item_list": [],
+      "all_medal_list": [
+        {
+          "medal_icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/a1bfd8d94eb08c7bf7d4784a480bfc9e.png",
+          "number": 7,
+          "medal_type": "MedalTypeStableHadal",
+          "name": "式舆防卫·锚点",
+          "is_show": false,
+          "medal_id": 1001
+        },
+        {
+          "medal_icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_u5efkd/9fff0e1d3ae009a8ba55cb252d88c7f4.png",
+          "number": 4,
+          "medal_type": "MedalTypeClimbingTower",
+          "name": "无尽攀登Ⅰ",
+          "is_show": false,
+          "medal_id": 2001
+        }
+      ]
+    },
+    "area_collections": [],
+    "challenge_schedule_list": [
+      {
+        "challenge_type": "ChallengeTypeHadal",
+        "start_ts": "1775160000",
+        "end_ts": "1776369599"
+      },
+      {
+        "challenge_type": "ChallengeTypeMemBattle",
+        "start_ts": "1775764800",
+        "end_ts": "1776974399"
+      }
+    ]
+  }
+}

@@ -23,7 +23,8 @@ import {
   GameRoleRow,
   GenshinCharacterListRow,
   StarRailAvatarBasicRow,
-  ZZZAvatarBasicRow
+  ZZZAvatarBasicRow,
+  SyncQueueRunner
 } from 'core';
 import { Logger } from '../utils/Logger';
 import { ViewState } from '../constants/ViewStates';
@@ -35,38 +36,10 @@ import {
   GAME_HONKAI3
 } from '../components/home/HomeModels';
 import { CharacterDataSource } from '../components/characters/CharacterDataSource';
+import { AccountOption } from '../models/AccountOption';
+import { GameTabItem } from '../models/GameTabItem';
 
 const TAG: string = 'CharactersViewModel';
-
-/** 账号选项（用于账号切换 Menu） */
-export class AccountOption {
-  accountId: number = 0;
-  username: string = '';
-  nickname: string = '';
-  avatarUrl: string = '';
-  uid: string = '';
-
-  constructor(accountId: number, username: string, nickname: string = '', avatarUrl: string = '', uid: string = '') {
-    this.accountId = accountId;
-    this.username = username;
-    this.nickname = nickname;
-    this.avatarUrl = avatarUrl;
-    this.uid = uid;
-  }
-}
-
-/** 游戏 Tab 项 */
-export class GameTabItem {
-  gameId: string = '';
-  roleUid: string = '';
-  gameName: Resource;
-
-  constructor(gameId: string, roleUid: string, gameName: Resource) {
-    this.gameId = gameId;
-    this.roleUid = roleUid;
-    this.gameName = gameName;
-  }
-}
 
 /** CharactersViewModel @Monitor 路径常量类型 */
 export class CharactersViewModelKeys {
@@ -109,7 +82,7 @@ export class CharactersViewModel {
       this.allAccounts = await CoreInitializer.bbsRepository.getAllAccounts();
       this.allRoles = [];
       for (let i = 0; i < this.allAccounts.length; i++) {
-        const roles = await CoreInitializer.bbsRepository.getGameRoles(this.allAccounts[i].id);
+        const roles = await CoreInitializer.bbsRepository.getGameRoles(this.allAccounts[i].uid);
         this.allRoles[this.allRoles.length] = roles;
       }
       if (this.allAccounts.length === 0) {
@@ -164,7 +137,7 @@ export class CharactersViewModel {
     let inCooldown = false;
     try {
       const needed = await CharactersViewModel.needsCharacterSync(
-        this.allAccounts[this.selectedAccountIdx].id, tab.roleUid, tab.gameId
+        this.allAccounts[this.selectedAccountIdx].uid, tab.roleUid, tab.gameId
       );
       inCooldown = !needed;
     } catch (_) {
@@ -250,7 +223,7 @@ export class CharactersViewModel {
       return;
     }
     const tab = this.gameTabs[this.selectedGameIdx];
-    const accountId = this.allAccounts[this.selectedAccountIdx].id;
+    const accountId = this.allAccounts[this.selectedAccountIdx].uid;
     try {
       const rows = await CharactersViewModel.loadCharacters(accountId, tab.gameId, tab.roleUid);
       if (rows.length > 0) {
@@ -270,7 +243,7 @@ export class CharactersViewModel {
 
   /** 从 Repository 读取角色数据并转换为 GameDataSummary */
   private static async loadCharacters(
-    accountId: number,
+    accountId: string,
     gameId: string,
     roleUid: string
   ): Promise<GameDataSummary[]> {
@@ -380,7 +353,7 @@ export class CharactersViewModel {
     if (this.allAccounts.length === 0) { return; }
     const account = this.allAccounts[this.selectedAccountIdx];
     const server = this.findServer(roleUid);
-    const accountId = account.id;
+    const accountId = account.uid;
     this.syncCharacters(account, gameId, roleUid, server)
       .then(async () => {
         if (this.gameTabs.length > 0 &&
@@ -406,7 +379,7 @@ export class CharactersViewModel {
   }
 
   /**
-   * 角色列表同步：委托给对应游戏 Repository 完成 API 调用 + 解析 + 写 DB。
+   * 角色列表同步：把任务写入持久化队列，然后执行。
    */
   private async syncCharacters(
     account: AccountRow,
@@ -414,14 +387,13 @@ export class CharactersViewModel {
     roleUid: string,
     server: string
   ): Promise<void> {
-    if (gameId === GAME_GENSHIN) {
-      await CoreInitializer.genshinRepository.syncAvatarList(account.id, roleUid, server, account.cookie);
-    } else if (gameId === GAME_STARRAIL) {
-      await CoreInitializer.starRailRepository.syncAvatarList(account.id, roleUid, server, account.cookie);
-    } else if (gameId === GAME_ZZZ) {
-      await CoreInitializer.zzzRepository.syncAvatarList(account.id, roleUid, server, account.cookie);
-    }
-    // 其他 gameId 静默跳过
+    const roleRow = new GameRoleRow();
+    roleRow.gameId = gameId;
+    roleRow.roleId = roleUid;
+    roleRow.server = server;
+    const tasks = SyncQueueRunner.buildTasksForRoles(account.uid, [roleRow], account.cookie);
+    await SyncQueueRunner.enqueue(tasks);
+    await SyncQueueRunner.runTasks(tasks);
   }
 
   private findServer(roleUid: string): string {
@@ -438,7 +410,7 @@ export class CharactersViewModel {
   }
 
   /** 检查指定游戏角色是否需要同步角色数据 */
-  private static async needsCharacterSync(accountId: number, roleUid: string, gameId: string): Promise<boolean> {
+  private static async needsCharacterSync(accountId: string, roleUid: string, gameId: string): Promise<boolean> {
     if (gameId === GAME_GENSHIN) {
       return CoreInitializer.genshinRepository.needsAvatarListSync(accountId, roleUid);
     }
@@ -455,7 +427,7 @@ export class CharactersViewModel {
     const opts: AccountOption[] = [];
     for (let i = 0; i < accounts.length; i++) {
       const a = accounts[i];
-      opts[opts.length] = new AccountOption(a.id, a.username, a.nickname, a.avatarUrl, a.uid);
+      opts[opts.length] = new AccountOption(a.uid, a.username, a.nickname, a.avatarUrl, a.uid);
     }
     return opts;
   }

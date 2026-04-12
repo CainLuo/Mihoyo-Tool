@@ -5,4 +5,8 @@ export enum PassportApiPath {
   GET_LTOKEN_BY_STOKEN = '/account/auth/api/getLTokenBySToken',
   /** 验证 ltoken 有效性 — Domain: PASSPORT_V4 */
   VERIFY_LTOKEN = '/account/ma-cn-session/app/verify',
+  /** 手机号登录 - 发送验证码 — Domain: PASSPORT */
+  CREATE_LOGIN_CAPTCHA = '/account/ma-cn-verifier/verifier/createLoginCaptcha',
+  /** 手机号登录 - 提交验证码 — Domain: PASSPORT */
+  LOGIN_BY_MOBILE_CAPTCHA = '/account/ma-cn-passport/app/loginByMobileCaptcha',
 }

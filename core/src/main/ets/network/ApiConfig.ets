@@ -1,6 +1,7 @@
 import { common } from '@kit.AbilityKit';
 import { preferences } from '@kit.ArkData';
 import { util } from '@kit.ArkTS';
+import deviceInfo from '@ohos.deviceInfo';
 
 const PREFS_NAME: string = 'mihoyo_device_config';
 const KEY_DEVICE_ID: string = 'device_id';
@@ -8,8 +9,22 @@ const KEY_DEVICE_FP: string = 'device_fp';
 
 export class ApiConfig {
   static readonly APP_VERSION: string = '2.102.0';
+  /** 米游社 BBS App ID，用于登录接口的 x-rpc-app_id 请求头 */
+  static readonly BBS_APP_ID: string = 'bll8iq97cem8';
   static readonly USER_AGENT: string =
     'Mozilla/5.0 (iPad; CPU OS 15_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.102.0 WebCacheKit2';
+
+  /** 设备型号，如 "NOH-AN00"（Mate 40 Pro）、"ALN-AL00"（Mate 60 Pro） */
+  static get DEVICE_MODEL(): string {
+    return deviceInfo.productModel || 'HarmonyOS';
+  }
+
+  /** 设备名称（品牌 + 型号），如 "HUAWEI NOH-AN00" */
+  static get DEVICE_NAME(): string {
+    const brand = deviceInfo.brand || 'HUAWEI';
+    const model = deviceInfo.productModel || 'HarmonyOS';
+    return `${brand} ${model}`;
+  }
   /**
    * x-rpc-tool_verison：原神游戏记录接口专用
    * 注意：请求头名称是 "verison"（米游社服务端拼写错误），常量名用正确拼写便于阅读

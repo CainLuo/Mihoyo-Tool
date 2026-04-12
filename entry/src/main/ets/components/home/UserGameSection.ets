@@ -9,7 +9,7 @@ import { GameToolCard } from './GameToolCard'
 
 @ComponentV2
 export struct UserGameSection {
-  @Param account: MihoyoAccountVM = new MihoyoAccountVM(0, '', [])
+  @Param account: MihoyoAccountVM = new MihoyoAccountVM('', '', [])
   @Param onCardTap: (card: GameRoleCardVM) => void = (_c: GameRoleCardVM) => {}
 
   @Local private tm: ThemeManager = themeManager
@@ -83,7 +83,7 @@ export struct UserGameSection {
 @ComponentV2
 export struct UserGameSectionPreview {
   @Local private card: GameRoleCardVM = new GameRoleCardVM('genshin', 'genshin', $r('app.color.game_color_genshin'), '123456789', '旅行者', '天空岛', null, 'sync_just_now');
-  @Local private account: MihoyoAccountVM = new MihoyoAccountVM(1, 'user001', [], '旅行者', '');
+  @Local private account: MihoyoAccountVM = new MihoyoAccountVM('user001', 'user001', [], '旅行者', '');
 
   build() {
     Column() {
