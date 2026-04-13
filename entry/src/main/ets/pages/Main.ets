@@ -47,6 +47,7 @@ const TAB_MY = 2
 export struct Main {
   @Local private tm: ThemeManager = themeManager
   @Local private selectedTab: number = TAB_HOME
+  @Local private tabVersion: number = 0
   @Local private isSplit: boolean = false
 
   readonly stack: NavPathStack = new NavPathStack()
@@ -72,28 +73,6 @@ export struct Main {
     this.placeholder = new ComponentContent(this.uiCtx, wrapBuilder(splitPlaceholderBuilder))
   }
 
-  private get tabItems(): ToolbarItem[] {
-    return [
-      {
-        value: $r('app.string.main_tab_home'),
-        symbolIcon: new SymbolGlyphModifier($r('sys.symbol.ohos_star')),
-        status: this.selectedTab === TAB_HOME ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
-        action: () => { this.selectedTab = TAB_HOME }
-      },
-      {
-        value: $r('app.string.characters_tab_title'),
-        symbolIcon: new SymbolGlyphModifier($r('sys.symbol.ohos_lungs')),
-        status: this.selectedTab === TAB_CHARACTERS ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
-        action: () => { this.selectedTab = TAB_CHARACTERS }
-      },
-      {
-        value: $r('app.string.main_tab_my'),
-        symbolIcon: new SymbolGlyphModifier($r('sys.symbol.ohos_lungs')),
-        status: this.selectedTab === TAB_MY ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
-        action: () => { this.selectedTab = TAB_MY }
-      }
-    ]
-  }
 
   private get homeMenuItems(): NavigationMenuItem[] {
     if (!this.homeShowRefresh) { return []; }
@@ -202,7 +181,38 @@ export struct Main {
       .navDestination(allDetailBuilder)
       .title(this.tabTitle())
       .menus(this.currentMenuItems)
-      .toolbarConfiguration(this.tabItems)
+      .toolbarConfiguration([
+        {
+          value: $r('app.string.main_tab_home'),
+          symbolIcon: new SymbolGlyphModifier($r('sys.symbol.house'))
+            .fontColor([this.tm.current.colorTextSecondary]),
+          activeSymbolIcon: new SymbolGlyphModifier($r('sys.symbol.house'))
+            .fontColor([this.tm.current.colorPrimary]),
+          status: (this.selectedTab === TAB_HOME && this.tabVersion >= 0)
+            ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
+          action: () => { this.selectedTab = TAB_HOME; this.tabVersion++ }
+        },
+        {
+          value: $r('app.string.characters_tab_title'),
+          symbolIcon: new SymbolGlyphModifier($r('sys.symbol.person'))
+            .fontColor([this.tm.current.colorTextSecondary]),
+          activeSymbolIcon: new SymbolGlyphModifier($r('sys.symbol.person'))
+            .fontColor([this.tm.current.colorPrimary]),
+          status: (this.selectedTab === TAB_CHARACTERS && this.tabVersion >= 0)
+            ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
+          action: () => { this.selectedTab = TAB_CHARACTERS; this.tabVersion++ }
+        },
+        {
+          value: $r('app.string.main_tab_my'),
+          symbolIcon: new SymbolGlyphModifier($r('sys.symbol.gearshape'))
+            .fontColor([this.tm.current.colorTextSecondary]),
+          activeSymbolIcon: new SymbolGlyphModifier($r('sys.symbol.gearshape'))
+            .fontColor([this.tm.current.colorPrimary]),
+          status: (this.selectedTab === TAB_MY && this.tabVersion >= 0)
+            ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
+          action: () => { this.selectedTab = TAB_MY; this.tabVersion++ }
+        }
+      ])
       .mode(NavigationMode.Auto)
       .navBarWidth(this.tm.current.pct45)
       .splitPlaceholder(this.placeholder!)
