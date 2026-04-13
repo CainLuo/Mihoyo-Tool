@@ -22,17 +22,9 @@ import { SyncDataType } from '../constants/SyncDataType';
 import { CoreInitializer } from '../CoreInitializer';
 import { GameRoleRow } from '../models/GameRoleRow';
 import { GameId } from '../constants/GameId';
+import { SyncTask } from '../models/SyncTask';
 
-/** 同步任务描述 */
-export class SyncTask {
-  accountId: string = '';
-  roleUid: string = '';
-  server: string = '';
-  cookie: string = '';
-  dataType: string = '';
-  /** 绝区零单个角色详情时使用 */
-  avatarId: string = '';
-}
+export { SyncTask } from '../models/SyncTask';
 
 export class SyncQueueRunner {
   private static syncMetaDao: SyncMetaDao = new SyncMetaDao();

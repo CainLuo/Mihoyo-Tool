@@ -12,7 +12,7 @@ import {
   StarRailRawSkillNode
 } from 'core';
 import { starRailPropertyTypeToName } from '../utils/StarRailPropertyUtil';
-import { Logger } from '../utils/Logger';
+import { Logger } from 'core';
 import { ViewState } from '../constants/ViewStates';
 import {
   CharDetailRankItem,

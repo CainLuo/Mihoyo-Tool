@@ -41,10 +41,10 @@ export * from './src/main/ets/models/GenshinRows';
 export * from './src/main/ets/models/StarRailRows';
 export * from './src/main/ets/models/ZZZRows';
 export * from './src/main/ets/models/GameDataSummary';export * from './src/main/ets/models/SyncMetaRow';
+export * from './src/main/ets/models/SyncTask';
 export * from './src/main/ets/models/GenshinCharacterDetailRaw';
 export * from './src/main/ets/models/StarRailAvatarDetailRaw';
 export * from './src/main/ets/models/ZZZAvatarDetailRaw';
-
 // Repository 层
 export * from './src/main/ets/repository/GameRepository';
 export * from './src/main/ets/repository/BBSRepository';
@@ -54,9 +54,15 @@ export * from './src/main/ets/repository/ZZZRepository';
 export * from './src/main/ets/repository/SignRepository';
 export * from './src/main/ets/repository/SyncQueueRunner';
 
-// 网络层（抽象基类和环境枚举）
+// 网络层（抽象基类）
 export * from './src/main/ets/network/MihoyoApiService';
-export * from './src/main/ets/network/MihoyoEnvironment';
+
+// 环境枚举和管理器（统一入口）
+export * from './src/main/ets/constants/AppEnv';
+export * from './src/main/ets/constants/AppEnvManager';
+
+// 日志工具（core/entry 共用）
+export * from './src/main/ets/utils/Logger';
 
 // 常量
 export * from './src/main/ets/constants/SyncDataType';
@@ -65,6 +71,7 @@ export * from './src/main/ets/constants/StarRailPropertyType';
 export * from './src/main/ets/constants/ZZZPropertyId';
 export * from './src/main/ets/constants/GameServer';
 export * from './src/main/ets/constants/GameId';
+export * from './src/main/ets/constants/ApiConstants';
 export * from './src/main/ets/database/TableSchema';
 
 // ── 网络层完整导出 ──────────────────────────────────────────
@@ -76,6 +83,7 @@ export * from './src/main/ets/network/MihoyoHeaderKey';
 export * from './src/main/ets/network/MihoyoDomain';
 export * from './src/main/ets/network/MihoyoAccountApiPath';
 export * from './src/main/ets/network/PassportApiPath';
+export * from './src/main/ets/network/QRCodeApiPath';
 export * from './src/main/ets/network/GenshinApiPath';
 export * from './src/main/ets/network/StarRailApiPath';
 export * from './src/main/ets/network/ZZZApiPath';

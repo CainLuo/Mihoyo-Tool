@@ -2,6 +2,11 @@ import { MihoyoApiService } from '../network/MihoyoApiService';
 import { SyncMetaDao } from '../database/SyncMetaDao';
 import { SyncMetaRow } from '../models/SyncMetaRow';
 import { RdbManager } from '../database/RdbManager';
+import {
+  SYNC_STATUS_SYNCING,
+  SYNC_STATUS_SUCCESS,
+  SYNC_STATUS_FAILED,
+} from '../constants/ApiConstants';
 
 export abstract class GameRepository {
   // 同步间隔阈值（秒）
@@ -45,7 +50,7 @@ export abstract class GameRepository {
    * 标记同步开始（设置 sync_status = 'syncing'）
    */
   protected async markSyncing(accountId: string, roleUid: string, dataType: string): Promise<void> {
-    await this.syncMetaDao.updateStatus(accountId, roleUid, dataType, 'syncing');
+    await this.syncMetaDao.updateStatus(accountId, roleUid, dataType, SYNC_STATUS_SYNCING);
   }
 
   /**
@@ -60,11 +65,11 @@ export abstract class GameRepository {
       row.roleUid = roleUid;
       row.dataType = dataType;
       row.lastSyncTime = Math.floor(Date.now() / 1000);
-      row.syncStatus = 'success';
+      row.syncStatus = SYNC_STATUS_SUCCESS;
       row.errorMsg = '';
       await this.syncMetaDao.upsert(row);
     } else {
-      await this.syncMetaDao.updateStatus(accountId, roleUid, dataType, 'success');
+      await this.syncMetaDao.updateStatus(accountId, roleUid, dataType, SYNC_STATUS_SUCCESS);
     }
   }
 
@@ -79,11 +84,11 @@ export abstract class GameRepository {
       row.roleUid = roleUid;
       row.dataType = dataType;
       row.lastSyncTime = 0;
-      row.syncStatus = 'failed';
+      row.syncStatus = SYNC_STATUS_FAILED;
       row.errorMsg = errorMsg;
       await this.syncMetaDao.upsert(row);
     } else {
-      await this.syncMetaDao.updateStatus(accountId, roleUid, dataType, 'failed', errorMsg);
+      await this.syncMetaDao.updateStatus(accountId, roleUid, dataType, SYNC_STATUS_FAILED, errorMsg);
     }
   }
 

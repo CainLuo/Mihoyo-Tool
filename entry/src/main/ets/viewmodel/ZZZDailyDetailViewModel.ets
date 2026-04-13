@@ -7,7 +7,7 @@
 
 import { CoreInitializer, ZZZDailyNoteParser, ZZZDailyNoteData } from 'core';
 import { ZZZDailyNoteVM } from '../components/dailynote/DailyNoteModels';
-import { Logger } from '../utils/Logger';
+import { Logger } from 'core';
 import { ViewState } from '../constants/ViewStates';
 
 const TAG: string = 'ZZZDailyDetailViewModel';

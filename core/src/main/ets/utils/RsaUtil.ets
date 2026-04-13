@@ -25,26 +25,35 @@ export class RsaUtil {
   /**
    * 用米游社公钥对字符串进行 RSA/ECB/PKCS1Padding 加密，返回 Base64 字符串。
    * 用于加密手机号和区号。
+   * 仅在支持 CryptoArchitectureKit 的设备上可用（Phone/Tablet）。
    */
   static async encrypt(plainText: string): Promise<string> {
-    // 将 Base64 公钥转为 Uint8Array
-    const pubKeyBytes = buffer.from(MIHOYO_RSA_PUBLIC_KEY, 'base64').buffer;
-    const pubKeyData: cryptoFramework.DataBlob = { data: new Uint8Array(pubKeyBytes) };
+    if (!canIUse('SystemCapability.Security.CryptoFramework')) {
+      throw new Error('RsaUtil: CryptoFramework not supported on this device');
+    }
+    try {
+      // 将 Base64 公钥转为 Uint8Array
+      const pubKeyBytes = buffer.from(MIHOYO_RSA_PUBLIC_KEY, 'base64').buffer;
+      const pubKeyData: cryptoFramework.DataBlob = { data: new Uint8Array(pubKeyBytes) };
 
-    // 创建 RSA 密钥生成器并导入公钥
-    const keyGenerator = cryptoFramework.createAsyKeyGenerator('RSA1024');
-    const keyPair = await keyGenerator.convertKey(pubKeyData, null);
+      // 创建 RSA 密钥生成器并导入公钥
+      const keyGenerator = cryptoFramework.createAsyKeyGenerator('RSA1024');
+      const keyPair = await keyGenerator.convertKey(pubKeyData, null);
 
-    // 创建加密器
-    const cipher = cryptoFramework.createCipher('RSA1024|PKCS1');
-    await cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, keyPair.pubKey, null);
+      // 创建加密器
+      const cipher = cryptoFramework.createCipher('RSA1024|PKCS1');
+      await cipher.init(cryptoFramework.CryptoMode.ENCRYPT_MODE, keyPair.pubKey, null);
 
-    // 加密
-    const plainBytes = new Uint8Array(buffer.from(plainText, 'utf-8').buffer);
-    const plainData: cryptoFramework.DataBlob = { data: plainBytes };
-    const encryptedData = await cipher.doFinal(plainData);
+      // 加密
+      const plainBytes = new Uint8Array(buffer.from(plainText, 'utf-8').buffer);
+      const plainData: cryptoFramework.DataBlob = { data: plainBytes };
+      const encryptedData = await cipher.doFinal(plainData);
 
-    // 转为 Base64
-    return buffer.from(encryptedData.data.buffer).toString('base64');
+      // 转为 Base64
+      return buffer.from(encryptedData.data.buffer).toString('base64');
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      throw new Error(`RsaUtil.encrypt failed: ${msg}`);
+    }
   }
 }

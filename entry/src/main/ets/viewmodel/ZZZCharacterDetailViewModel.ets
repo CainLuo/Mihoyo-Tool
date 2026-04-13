@@ -10,7 +10,7 @@ import {
   ZZZAvatarDetailRaw,
   ZZZRawEquip
 } from 'core';
-import { Logger } from '../utils/Logger';
+import { Logger } from 'core';
 import { ViewState } from '../constants/ViewStates';
 import {
   CharDetailRankItem,

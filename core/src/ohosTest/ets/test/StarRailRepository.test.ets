@@ -13,11 +13,13 @@ import {
 import { SyncMetaDao } from '../../../main/ets/database/SyncMetaDao';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 
-function getContext(): common.UIAbilityContext {
-  return AbilityDelegatorRegistry.getAbilityDelegator().getAppContext() as common.UIAbilityContext;
+async function getContext(): Promise<common.UIAbilityContext> {
+  const delegator = AbilityDelegatorRegistry.getAbilityDelegator();
+  const ability = await delegator.getCurrentTopAbility();
+  return ability.context as common.UIAbilityContext;
 }
 
-const TEST_ACCOUNT_ID = 20002;
+const TEST_ACCOUNT_ID = '20002';
 const TEST_ROLE_UID = 'sr_repo_uid';
 
 function makeAvatarBasicRow(avatarId: string): StarRailAvatarBasicRow {
@@ -103,9 +105,9 @@ export default function starRailRepositoryTest() {
   const syncMetaDao = new SyncMetaDao();
 
   beforeAll(async () => {
-    await RdbManager.init(getContext());
+    await RdbManager.init(await getContext());
     const acc = new AccountRow();
-    acc.id = TEST_ACCOUNT_ID;
+    acc.id = 20002;
     acc.username = 'sr_repo_test_account';
     acc.cookie = '';
     acc.stoken = '';

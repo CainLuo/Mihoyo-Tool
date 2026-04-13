@@ -2,7 +2,7 @@
  * AccountDetailViewModel.ets — 账号详情页 ViewModel
  */
 import { CoreInitializer } from 'core';
-import { Logger } from '../utils/Logger';
+import { Logger } from 'core';
 
 const TAG: string = 'AccountDetailViewModel';
 

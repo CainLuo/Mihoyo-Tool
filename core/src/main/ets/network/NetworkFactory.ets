@@ -1,30 +1,19 @@
 import { BaseApiService } from './APIs';
 import { HttpService } from './HttpService';
 import { MockService } from './MockService';
-import { CoreInitializer } from '../CoreInitializer';
+import { AppEnvManager } from '../constants/AppEnvManager';
 
 /**
- * 网络服务工厂类
+ * 网络服务工厂类（旧版，供 AuthRepository 兜底路径使用）
  * 根据环境配置创建相应的 API 服务实例
  */
 export class NetworkFactory {
   private static instance: BaseApiService | null = null;
 
-  /**
-   * 检查是否为 Mock 环境
-   * @returns 是否为 Mock 环境
-   */
   private static isMockEnvironment(): boolean {
-    return CoreInitializer.getIsMock();
+    return AppEnvManager.isMock();
   }
-  /**
-   * 获取 API 服务实例（单例模式）
-   * @returns BaseApiService 实例
-   */
-  /**
-   * 重置单例，下次 getInstance() 时重新按当前 isMock 创建。
-   * 在 CoreInitializer.initCore 完成后调用，确保单例与环境一致。
-   */
+
   public static reset(): void {
     NetworkFactory.instance = null;
   }

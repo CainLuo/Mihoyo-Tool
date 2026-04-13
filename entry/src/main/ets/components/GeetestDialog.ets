@@ -44,7 +44,7 @@ import { UIContext, ComponentContent, promptAction, window } from '@kit.ArkUI';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { GeetestCreateResult, GeetestVerifyInput } from 'core';
 import { themeManager, ThemeManager } from '../theme/ThemeManager';
-import { Logger } from '../utils/Logger';
+import { Logger } from 'core';
 
 // ---- 生成内嵌 HTML 的工厂函数 ----
 

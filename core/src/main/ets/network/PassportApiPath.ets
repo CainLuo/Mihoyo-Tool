@@ -9,4 +9,6 @@ export enum PassportApiPath {
   CREATE_LOGIN_CAPTCHA = '/account/ma-cn-verifier/verifier/createLoginCaptcha',
   /** 手机号登录 - 提交验证码 — Domain: PASSPORT */
   LOGIN_BY_MOBILE_CAPTCHA = '/account/ma-cn-passport/app/loginByMobileCaptcha',
+  /** 二维码登录 - GameToken 换取 SToken — Domain: TAKUMI */
+  GET_TOKEN_BY_GAME_TOKEN = '/account/ma-cn-session/app/getTokenByGameToken',
 }

@@ -51,7 +51,7 @@ export class MihoyoHeaderBuilder {
       h.set(HKey.CLIENT_TYPE, HVal.CLIENT_WEB);
       h.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_GENSHIN);
       h.set(HKey.REFERER, HVal.REFERER_WEBSTATIC);
-      h.set(HKey.ORIGIN, HVal.ORIGIN_WEBSTATIC);
+      h.set(HKey.ORIGIN, HVal.WEBSTATIC);
       h.set(HKey.DS, DSUtil.generateV1(params, body));
     } else if (profile === HeaderProfile.ZZZ_GAME_RECORD) {
       h.set(HKey.LANGUAGE, HVal.LANG_ZH_CN);
@@ -63,8 +63,8 @@ export class MihoyoHeaderBuilder {
       h.set(HKey.ORIGIN, HVal.ORIGIN_ACT);
     } else if (profile === HeaderProfile.BBS) {
       h.set(HKey.CLIENT_TYPE, HVal.CLIENT_IOS);
-      h.set(HKey.REFERER, HVal.REFERER_APP);
-      h.set(HKey.ORIGIN, HVal.ORIGIN_APP);
+      h.set(HKey.REFERER, HVal.APP_MIHOYO);
+      h.set(HKey.ORIGIN, HVal.APP_MIHOYO);
       h.set(HKey.DS, DSUtil.generateV2(params, body));
     } else if (profile === HeaderProfile.SIGN) {
       h.set(HKey.CLIENT_TYPE, HVal.CLIENT_ANDROID);

@@ -24,7 +24,7 @@ TARGET='127.0.0.1:5555'
 AVD="${AVD:-Mate 80 Pro Max}"
 AVD_PATH="$HOME/.Huawei/Emulator/deployed/$AVD"
 IMAGE_ROOT="$HOME/Library/Huawei/Sdk"
-HAP='entry/build/release/outputs/release/entry-release-unsigned.hap'
+HAP='entry/build/default/outputs/default/entry-default-unsigned.hap'
 
 PROXY_HOST=''
 CLEAR_PROXY=false
@@ -87,7 +87,7 @@ echo "▶ Clean..."
 
 # ── 4. Build (release product) ────────────────────────────────
 echo "▶ Build (release)..."
-"$HVIGOR" assembleHap -p product=release
+"$HVIGOR" assembleHap -p product=default -p buildMode=release
 
 # ── 5. 安装 ──────────────────────────────────────────────────
 echo "▶ 安装..."

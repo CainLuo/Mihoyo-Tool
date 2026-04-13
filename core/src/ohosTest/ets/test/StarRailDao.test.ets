@@ -17,11 +17,13 @@ import {
 import { AccountRow } from '../../../main/ets/models/AccountRow';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 
-function getContext(): common.UIAbilityContext {
-  return AbilityDelegatorRegistry.getAbilityDelegator().getAppContext() as common.UIAbilityContext;
+async function getContext(): Promise<common.UIAbilityContext> {
+  const delegator = AbilityDelegatorRegistry.getAbilityDelegator();
+  const ability = await delegator.getCurrentTopAbility();
+  return ability.context as common.UIAbilityContext;
 }
 
-const TEST_ACCOUNT_ID = 10002;
+const TEST_ACCOUNT_ID = '10002';
 const TEST_ROLE_UID = 'sr_test_uid';
 const TEST_ROLE_UID2 = 'sr_test_uid2';
 
@@ -110,9 +112,9 @@ export default function starRailDaoTest() {
   const avatarComputeDao = new StarRailAvatarComputeDao();
 
   beforeAll(async () => {
-    await RdbManager.init(getContext());
+    await RdbManager.init(await getContext());
     const acc = new AccountRow();
-    acc.id = TEST_ACCOUNT_ID;
+    acc.id = 10002;
     acc.username = 'sr_dao_test_account';
     acc.cookie = '';
     acc.stoken = '';

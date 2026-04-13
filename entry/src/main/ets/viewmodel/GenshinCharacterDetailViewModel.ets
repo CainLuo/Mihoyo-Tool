@@ -8,7 +8,7 @@
 
 import { CoreInitializer, GenshinPropertyType, GenshinCharacterDetailRow } from 'core';
 import { GenshinCharacterDetailRaw } from 'core';
-import { Logger } from '../utils/Logger';
+import { Logger } from 'core';
 import { ViewState } from '../constants/ViewStates';
 import { GenshinElement, elementFromString } from '../constants/GenshinElement';
 import {

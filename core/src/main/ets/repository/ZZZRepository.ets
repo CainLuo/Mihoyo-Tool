@@ -12,31 +12,11 @@ import {
   ZZZDailyNoteRow,
   ZZZAvatarInfoRow,
   ZZZAvatarComputeRow,
-  ZZZBuddyRow
+  ZZZBuddyRow,
+  ZZZAvatarItem,
+  ZZZAvatarListData,
 } from '../models/ZZZRows';
 import { ZZZApiService } from '../network/ZZZApiService';
-
-interface ZZZAvatarItem {
-  id: number;
-  name_mi18n: string;
-  full_name_mi18n: string;
-  rarity: string;
-  level: number;
-  rank: number;
-  element_type: number;
-  sub_element_type: number;
-  avatar_profession: number;
-  camp_name_mi18n: string;
-  group_icon_path: string;
-  hollow_icon_path: string;
-  role_square_url: string;
-  is_chosen: boolean;
-  awaken_state: string;
-}
-
-interface ZZZAvatarListData {
-  avatar_list: ZZZAvatarItem[];
-}
 
 export class ZZZRepository extends GameRepository {
   private avatarBasicDao: ZZZAvatarBasicDao = new ZZZAvatarBasicDao();

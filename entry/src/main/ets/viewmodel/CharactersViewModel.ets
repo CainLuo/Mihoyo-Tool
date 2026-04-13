@@ -26,7 +26,7 @@ import {
   ZZZAvatarBasicRow,
   SyncQueueRunner
 } from 'core';
-import { Logger } from '../utils/Logger';
+import { Logger } from 'core';
 import { ViewState } from '../constants/ViewStates';
 import { AppConstants } from '../constants/AppConstants';
 import {

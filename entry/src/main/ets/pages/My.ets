@@ -3,7 +3,7 @@
  */
 import { ConfigurationConstant, common } from '@kit.AbilityKit'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
-import { Logger } from '../utils/Logger'
+import { Logger } from 'core'
 import { AppRoutes } from '../constants/AppRoutes'
 import { MyAccountVM } from '../components/my/MyModels'
 import { AccountListSection } from '../components/my/AccountListSection'

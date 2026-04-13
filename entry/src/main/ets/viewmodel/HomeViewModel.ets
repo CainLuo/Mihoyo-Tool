@@ -41,7 +41,7 @@ import {
   GAME_HONKAI3
 } from '../components/home/HomeModels';
 import { ZZZVideoStoreState, ZZZCardSign } from '../constants/ZZZEnums';
-import { Logger } from '../utils/Logger';
+import { Logger } from 'core';
 import { ViewState } from '../constants/ViewStates';
 import { ApiErrorCodes } from 'core';
 import { AppConstants } from '../constants/AppConstants';

@@ -17,11 +17,13 @@ import {
 import { AccountRow } from '../../../main/ets/models/AccountRow';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 
-function getContext(): common.UIAbilityContext {
-  return AbilityDelegatorRegistry.getAbilityDelegator().getAppContext() as common.UIAbilityContext;
+async function getContext(): Promise<common.UIAbilityContext> {
+  const delegator = AbilityDelegatorRegistry.getAbilityDelegator();
+  const ability = await delegator.getCurrentTopAbility();
+  return ability.context as common.UIAbilityContext;
 }
 
-const TEST_ACCOUNT_ID = 10001;
+const TEST_ACCOUNT_ID = '10001';
 const TEST_ROLE_UID = 'genshin_test_uid';
 const TEST_ROLE_UID2 = 'genshin_test_uid2';
 const TEST_AVATAR_ID = 'avatar_10000001';
@@ -105,10 +107,10 @@ export default function genshinDaoTest() {
   const charComputeDao = new GenshinCharacterComputeDao();
 
   beforeAll(async () => {
-    await RdbManager.init(getContext());
+    await RdbManager.init(await getContext());
     // 确保测试账号存在（外键约束）
     const acc = new AccountRow();
-    acc.id = TEST_ACCOUNT_ID;
+    acc.id = 10001;
     acc.username = 'genshin_dao_test_account';
     acc.cookie = '';
     acc.stoken = '';

@@ -6,7 +6,7 @@
 import { ConfigurationConstant, common } from '@kit.AbilityKit'
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 import { AppearanceManager } from '../../utils/AppearanceManager'
-import { Logger } from '../../utils/Logger'
+import { Logger } from 'core'
 
 const TAG: string = 'AppearanceSection'
 

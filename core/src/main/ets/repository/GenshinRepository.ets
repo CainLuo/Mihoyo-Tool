@@ -10,40 +10,14 @@ import {
   GenshinCharacterListRow,
   GenshinDailyNoteRow,
   GenshinCharacterDetailRow,
-  GenshinCharacterComputeRow
+  GenshinCharacterComputeRow,
+  GenshinWeaponItem,
+  GenshinCharacterItem,
+  GenshinCharacterListData,
 } from '../models/GenshinRows';
 import { GenshinApiService } from '../network/GenshinApiService';
 
 // ─── 解析用本地 interface ────────────────────────────────────────
-
-interface GenshinWeaponItem {
-  id: number;
-  name: string;
-  level: number;
-  affix_level: number;
-  rarity: number;
-  icon: string;
-}
-
-interface GenshinCharacterItem {
-  id: number;
-  name: string;
-  element: string;
-  rarity: number;
-  level: number;
-  fetter: number;
-  actived_constellation_num: number;
-  image: string;
-  is_chosen: boolean;
-  icon: string;
-  side_icon: string;
-  weapon_type: number;
-  weapon: GenshinWeaponItem | null;
-}
-
-interface GenshinCharacterListData {
-  list: GenshinCharacterItem[];
-}
 
 export class GenshinRepository extends GameRepository {
   private characterListDao: GenshinCharacterListDao = new GenshinCharacterListDao();
