@@ -4,7 +4,7 @@
  * 从 Repository 读取账号和角色数据，通过 AuthRepository 补充网络数据（nickname、avatarUrl、statsJson）。
  */
 import { CoreInitializer, RoleStatItem } from 'core';
-import { Logger } from '../utils/Logger';
+import { Logger } from 'core';
 import { MyAccountVM, MyGameRoleVM, GameStatItem } from '../components/my/MyModels';
 import { serverDisplayName } from '../utils/ServerNameUtil';
 import { gameIdToName, gameIdToColor } from '../utils/GameIdUtil';

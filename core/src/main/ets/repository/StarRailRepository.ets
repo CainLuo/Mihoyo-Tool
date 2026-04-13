@@ -10,38 +10,12 @@ import {
   StarRailAvatarBasicRow,
   StarRailDailyNoteRow,
   StarRailAvatarInfoRow,
-  StarRailAvatarComputeRow
+  StarRailAvatarComputeRow,
+  StarRailEquipItem,
+  StarRailAvatarItem,
+  StarRailAvatarListData,
 } from '../models/StarRailRows';
 import { StarRailApiService } from '../network/StarRailApiService';
-
-interface StarRailEquipItem {
-  id: number;
-  name: string;
-  level: number;
-  rank: number;
-  rarity: number;
-  icon: string;
-}
-
-interface StarRailAvatarItem {
-  id: number;
-  name: string;
-  rarity: number;
-  level: number;
-  rank: number;
-  base_type: number;
-  element: string;
-  element_id: number;
-  icon: string;
-  figure_path: string;
-  is_chosen: boolean;
-  equip: StarRailEquipItem | null;
-}
-
-interface StarRailAvatarListData {
-  list: StarRailAvatarItem[];
-  avatar_list: StarRailAvatarItem[];
-}
 
 export class StarRailRepository extends GameRepository {
   private avatarBasicDao: StarRailAvatarBasicDao = new StarRailAvatarBasicDao();

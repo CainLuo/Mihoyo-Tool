@@ -5,6 +5,34 @@ import { AccountRow } from '../models/AccountRow';
 import { GameRoleRow } from '../models/GameRoleRow';
 import { AuthRepository } from './AuthRepository';
 import { SyncQueueRunner } from './SyncQueueRunner';
+import { NetworkFactory } from '../network/NetworkFactory';
+import { RequestParams, RequestOptions } from '../network/APIs';
+import { GameId } from '../constants/GameId';
+import { gameBizToGameId } from '../constants/GameServer';
+import { MihoyoDomain } from '../network/MihoyoDomain';
+import { HKey } from '../network/MihoyoHeaderKey';
+import { MihoyoAccountApiPath } from '../network/MihoyoAccountApiPath';
+import {
+  BbsAccountDetailResult,
+  BbsAccountDetailResponse,
+} from '../models/BbsAccountModels';
+import {
+  GameRoleRecord,
+  GameRolesResponse,
+  GameRecordCardResponse,
+} from '../models/GameRoleModels';
+
+export {
+  GameRoleRecord,
+  RoleStatItem,
+} from '../models/GameRoleModels';
+export {
+  BbsAccountDetailResult,
+} from '../models/BbsAccountModels';
+export {
+  GameRoleApiInfo,
+  GameRolesResponse,
+} from '../models/GameRoleModels';
 
 /** login() 方法的返回值，供 entry 层组装 AccountVM */
 export class LoginResult {
@@ -54,11 +82,11 @@ export class BBSRepository {
 
     // 2. 拉取游戏角色并写入
     try {
-      const roles = await AuthRepository.getUserGameRoles(effectiveCookie);
+      const roles = await this.getUserGameRoles(effectiveCookie);
       if (roles.length > 0) {
         try {
           const uid = BBSRepository.extractCookieField(effectiveCookie, 'account_id') || effectiveUsername;
-          const detailRoles = await AuthRepository.getGameRecordCard(effectiveCookie, uid);
+          const detailRoles = await this.getGameRecordCard(effectiveCookie, uid);
           for (let i = 0; i < roles.length; i++) {
             for (let j = 0; j < detailRoles.length; j++) {
               if (detailRoles[j].gameId === roles[i].gameId &&
@@ -94,7 +122,7 @@ export class BBSRepository {
     let avatarUrl = '';
     let uid = '';
     try {
-      const bbsDetail = await AuthRepository.getBbsAccountDetail(effectiveCookie);
+      const bbsDetail = await this.getBbsAccountDetail(effectiveCookie);
       if (bbsDetail.nickname || bbsDetail.avatarUrl || bbsDetail.uid) {
         nickname = bbsDetail.nickname;
         avatarUrl = bbsDetail.avatarUrl;
@@ -207,5 +235,105 @@ export class BBSRepository {
       }
     }
     return '';
+  }
+
+  // ── 账号信息查询 ──────────────────────────────────────────────
+
+  /**
+   * 获取米游社 BBS 账号详情（nickname、avatar_url）。
+   * 接口：GET /user/wapi/getUserFullInfo
+   */
+  async getBbsAccountDetail(cookie: string): Promise<BbsAccountDetailResult> {
+    try {
+      const options = new RequestOptions();
+      options.extraHeaders.set(HKey.COOKIE, cookie);
+      const resp = await NetworkFactory.getInstance().get(
+        MihoyoDomain.BBS + MihoyoAccountApiPath.GET_USER_FULL_INFO,
+        new RequestParams(),
+        options
+      ) as BbsAccountDetailResponse;
+      if (resp.retcode !== 0) {
+        throw new Error(`getBbsAccountDetail failed: [${resp.retcode}] ${resp.message}`);
+      }
+      const result = new BbsAccountDetailResult();
+      result.uid = resp.data.user_info.uid ?? '';
+      result.nickname = resp.data.user_info.nickname ?? '';
+      result.avatarUrl = resp.data.user_info.avatar_url ?? '';
+      result.rawJson = JSON.stringify(resp.data);
+      return result;
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      throw new Error(`BBSRepository.getBbsAccountDetail failed: ${msg}`);
+    }
+  }
+
+  /**
+   * 获取账号绑定的所有游戏角色。
+   * 接口：GET /binding/api/getUserGameRolesByCookie
+   */
+  async getUserGameRoles(cookie: string): Promise<GameRoleRecord[]> {
+    try {
+      const options = new RequestOptions();
+      options.extraHeaders.set(HKey.COOKIE, cookie);
+      const resp = await NetworkFactory.getInstance().get(
+        `${MihoyoDomain.TAKUMI}/binding/api/getUserGameRolesByCookie`,
+        new RequestParams(),
+        options
+      ) as GameRolesResponse;
+      if (resp.retcode !== 0) {
+        throw new Error(`getUserGameRoles failed: [${resp.retcode}] ${resp.message}`);
+      }
+      const rows: GameRoleRecord[] = [];
+      for (const info of resp.data.list) {
+        const row = new GameRoleRecord();
+        row.gameId = gameBizToGameId(info.game_biz);
+        row.roleId = info.game_uid;
+        row.nickname = info.nickname;
+        row.level = info.level;
+        row.server = info.region;
+        rows[rows.length] = row;
+      }
+      return rows;
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      throw new Error(`BBSRepository.getUserGameRoles failed: ${msg}`);
+    }
+  }
+
+  /**
+   * 获取账号详情（含 background_image_v2 和游戏内统计数据）。
+   * 接口：GET /game_record/app/card/wapi/getGameRecordCard
+   */
+  async getGameRecordCard(cookie: string, uid: string): Promise<GameRoleRecord[]> {
+    try {
+      const options = new RequestOptions();
+      options.extraHeaders.set(HKey.COOKIE, cookie);
+      const params = new RequestParams();
+      params.set('uid', uid);
+      const resp = await NetworkFactory.getInstance().get(
+        MihoyoDomain.TAKUMI_RECORD + MihoyoAccountApiPath.GET_GAME_RECORD_CARD,
+        params,
+        options
+      ) as GameRecordCardResponse;
+      if (resp.retcode !== 0) {
+        throw new Error(`getGameRecordCard failed: [${resp.retcode}] ${resp.message}`);
+      }
+      const rows: GameRoleRecord[] = [];
+      for (const item of resp.data.list) {
+        const row = new GameRoleRecord();
+        row.gameId = GameId.fromMihoyoGameId(item.game_id);
+        row.roleId = item.game_role_id;
+        row.nickname = item.nickname;
+        row.level = item.level;
+        row.server = item.region;
+        row.bgImageUrl = item.background_image_v2 ?? '';
+        row.statsJson = JSON.stringify(item.data ?? []);
+        rows[rows.length] = row;
+      }
+      return rows;
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      throw new Error(`BBSRepository.getGameRecordCard failed: ${msg}`);
+    }
   }
 }

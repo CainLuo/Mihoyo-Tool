@@ -8,7 +8,7 @@
 import { CoreInitializer, StarRailDailyNoteParser, StarRailDailyNoteData, StarRailExpeditionData } from 'core';
 import { StarRailDailyNoteVM } from '../components/dailynote/DailyNoteModels';
 import { ExpeditionVM } from '../components/dailynote/DailyNoteModels';
-import { Logger } from '../utils/Logger';
+import { Logger } from 'core';
 import { ViewState } from '../constants/ViewStates';
 
 const TAG: string = 'StarRailDailyDetailViewModel';

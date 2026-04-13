@@ -8,34 +8,8 @@ import { describe, it, expect } from '@ohos/hypium';
 import { GenshinDailyNoteParser } from '../main/ets/parsers/genshin/GenshinDailyNoteParser';
 
 // 标准测试 JSON（来自真实 API 响应结构）
-const VALID_JSON = JSON.stringify({
-  current_resin: 120,
-  max_resin: 200,
-  resin_recovery_time: '3600',
-  current_home_coin: 1500,
-  max_home_coin: 2400,
-  home_coin_recovery_time: '7200',
-  finished_task_num: 3,
-  total_task_num: 4,
-  is_extra_task_reward_received: false,
-  remain_resin_discount_num: 2,
-  resin_discount_num_limit: 3,
-  transformer: {
-    obtained: true,
-    recovery_time: {
-      Day: 1,
-      Hour: 2,
-      Minute: 30,
-      Second: 0,
-      reached: false
-    }
-  },
-  expeditions: [
-    { avatar_side_icon: 'https://example.com/icon1.png', status: 'Ongoing', remained_time: '3600' },
-    { avatar_side_icon: 'https://example.com/icon2.png', status: 'Finished', remained_time: '0' }
-  ],
-  max_expedition_num: 5
-});
+const VALID_JSON =
+  '{"current_resin":120,"max_resin":200,"resin_recovery_time":"3600","current_home_coin":1500,"max_home_coin":2400,"home_coin_recovery_time":"7200","finished_task_num":3,"total_task_num":4,"is_extra_task_reward_received":false,"remain_resin_discount_num":2,"resin_discount_num_limit":3,"transformer":{"obtained":true,"recovery_time":{"Day":1,"Hour":2,"Minute":30,"Second":0,"reached":false}},"expeditions":[{"avatar_side_icon":"https://example.com/icon1.png","status":"Ongoing","remained_time":"3600"},{"avatar_side_icon":"https://example.com/icon2.png","status":"Finished","remained_time":"0"}],"max_expedition_num":5}';
 
 export default function genshinDailyNoteParserTest() {
   describe('GenshinDailyNoteParser', () => {
@@ -155,14 +129,8 @@ export default function genshinDailyNoteParserTest() {
     });
 
     it('parse_resinRecoveryTime_invalidString_returns0', 0, () => {
-      const json = JSON.stringify({
-        current_resin: 0, max_resin: 200, resin_recovery_time: 'invalid',
-        current_home_coin: 0, max_home_coin: 2400, home_coin_recovery_time: '0',
-        finished_task_num: 0, total_task_num: 4, is_extra_task_reward_received: false,
-        remain_resin_discount_num: 0, resin_discount_num_limit: 3,
-        transformer: { obtained: false, recovery_time: { Day: 0, Hour: 0, Minute: 0, Second: 0, reached: false } },
-        expeditions: [], max_expedition_num: 5
-      });
+      const json =
+        '{"current_resin":0,"max_resin":200,"resin_recovery_time":"invalid","current_home_coin":0,"max_home_coin":2400,"home_coin_recovery_time":"0","finished_task_num":0,"total_task_num":4,"is_extra_task_reward_received":false,"remain_resin_discount_num":0,"resin_discount_num_limit":3,"transformer":{"obtained":false,"recovery_time":{"Day":0,"Hour":0,"Minute":0,"Second":0,"reached":false}},"expeditions":[],"max_expedition_num":5}';
       const data = GenshinDailyNoteParser.parse(json);
       expect(data.resinRecoveryTime).assertEqual(0);
     });
@@ -170,69 +138,37 @@ export default function genshinDailyNoteParserTest() {
     // ── 边界值补充 ───────────────────────────────────────────────
 
     it('parse_currentResin_zero_returns0', 0, () => {
-      const json = JSON.stringify({
-        current_resin: 0, max_resin: 200, resin_recovery_time: '0',
-        current_home_coin: 0, max_home_coin: 2400, home_coin_recovery_time: '0',
-        finished_task_num: 0, total_task_num: 4, is_extra_task_reward_received: false,
-        remain_resin_discount_num: 0, resin_discount_num_limit: 3,
-        transformer: { obtained: false, recovery_time: { Day: 0, Hour: 0, Minute: 0, Second: 0, reached: false } },
-        expeditions: [], max_expedition_num: 5
-      });
+      const json =
+        '{"current_resin":0,"max_resin":200,"resin_recovery_time":"0","current_home_coin":0,"max_home_coin":2400,"home_coin_recovery_time":"0","finished_task_num":0,"total_task_num":4,"is_extra_task_reward_received":false,"remain_resin_discount_num":0,"resin_discount_num_limit":3,"transformer":{"obtained":false,"recovery_time":{"Day":0,"Hour":0,"Minute":0,"Second":0,"reached":false}},"expeditions":[],"max_expedition_num":5}';
       const data = GenshinDailyNoteParser.parse(json);
       expect(data.currentResin).assertEqual(0);
     });
 
     it('parse_currentResin_overLimit_notValidated', 0, () => {
-      // Parser 不校验上限，直接返回原始值
-      const json = JSON.stringify({
-        current_resin: 999, max_resin: 200, resin_recovery_time: '0',
-        current_home_coin: 0, max_home_coin: 2400, home_coin_recovery_time: '0',
-        finished_task_num: 0, total_task_num: 4, is_extra_task_reward_received: false,
-        remain_resin_discount_num: 0, resin_discount_num_limit: 3,
-        transformer: { obtained: false, recovery_time: { Day: 0, Hour: 0, Minute: 0, Second: 0, reached: false } },
-        expeditions: [], max_expedition_num: 5
-      });
+      const json =
+        '{"current_resin":999,"max_resin":200,"resin_recovery_time":"0","current_home_coin":0,"max_home_coin":2400,"home_coin_recovery_time":"0","finished_task_num":0,"total_task_num":4,"is_extra_task_reward_received":false,"remain_resin_discount_num":0,"resin_discount_num_limit":3,"transformer":{"obtained":false,"recovery_time":{"Day":0,"Hour":0,"Minute":0,"Second":0,"reached":false}},"expeditions":[],"max_expedition_num":5}';
       const data = GenshinDailyNoteParser.parse(json);
       expect(data.currentResin).assertEqual(999);
     });
 
     it('parse_resinRecoveryTime_zero_returns0', 0, () => {
-      const json = JSON.stringify({
-        current_resin: 200, max_resin: 200, resin_recovery_time: '0',
-        current_home_coin: 0, max_home_coin: 2400, home_coin_recovery_time: '0',
-        finished_task_num: 0, total_task_num: 4, is_extra_task_reward_received: false,
-        remain_resin_discount_num: 0, resin_discount_num_limit: 3,
-        transformer: { obtained: false, recovery_time: { Day: 0, Hour: 0, Minute: 0, Second: 0, reached: false } },
-        expeditions: [], max_expedition_num: 5
-      });
+      const json =
+        '{"current_resin":200,"max_resin":200,"resin_recovery_time":"0","current_home_coin":0,"max_home_coin":2400,"home_coin_recovery_time":"0","finished_task_num":0,"total_task_num":4,"is_extra_task_reward_received":false,"remain_resin_discount_num":0,"resin_discount_num_limit":3,"transformer":{"obtained":false,"recovery_time":{"Day":0,"Hour":0,"Minute":0,"Second":0,"reached":false}},"expeditions":[],"max_expedition_num":5}';
       const data = GenshinDailyNoteParser.parse(json);
       expect(data.resinRecoveryTime).assertEqual(0);
     });
 
     it('parse_expeditions_emptyArray_returnsEmpty', 0, () => {
-      const json = JSON.stringify({
-        current_resin: 0, max_resin: 200, resin_recovery_time: '0',
-        current_home_coin: 0, max_home_coin: 2400, home_coin_recovery_time: '0',
-        finished_task_num: 0, total_task_num: 4, is_extra_task_reward_received: false,
-        remain_resin_discount_num: 0, resin_discount_num_limit: 3,
-        transformer: { obtained: false, recovery_time: { Day: 0, Hour: 0, Minute: 0, Second: 0, reached: false } },
-        expeditions: [], max_expedition_num: 5
-      });
+      const json =
+        '{"current_resin":0,"max_resin":200,"resin_recovery_time":"0","current_home_coin":0,"max_home_coin":2400,"home_coin_recovery_time":"0","finished_task_num":0,"total_task_num":4,"is_extra_task_reward_received":false,"remain_resin_discount_num":0,"resin_discount_num_limit":3,"transformer":{"obtained":false,"recovery_time":{"Day":0,"Hour":0,"Minute":0,"Second":0,"reached":false}},"expeditions":[],"max_expedition_num":5}';
       const data = GenshinDailyNoteParser.parse(json);
       expect(data.expeditions.length).assertEqual(0);
     });
 
     it('parse_transformer_null_doesNotCrash', 0, () => {
-      const json = JSON.stringify({
-        current_resin: 0, max_resin: 200, resin_recovery_time: '0',
-        current_home_coin: 0, max_home_coin: 2400, home_coin_recovery_time: '0',
-        finished_task_num: 0, total_task_num: 4, is_extra_task_reward_received: false,
-        remain_resin_discount_num: 0, resin_discount_num_limit: 3,
-        transformer: null,
-        expeditions: [], max_expedition_num: 5
-      });
+      const json =
+        '{"current_resin":0,"max_resin":200,"resin_recovery_time":"0","current_home_coin":0,"max_home_coin":2400,"home_coin_recovery_time":"0","finished_task_num":0,"total_task_num":4,"is_extra_task_reward_received":false,"remain_resin_discount_num":0,"resin_discount_num_limit":3,"transformer":null,"expeditions":[],"max_expedition_num":5}';
       const data = GenshinDailyNoteParser.parse(json);
-      // transformer 为 null 时返回默认值，不崩溃
       expect(data.transformer.obtained).assertFalse();
     });
 

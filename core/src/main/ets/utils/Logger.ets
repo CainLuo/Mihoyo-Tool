@@ -1,13 +1,4 @@
-import { APP_RUNTIME_ENV, APP_RUNTIME_SOURCE } from '../config/RuntimeConfig';
-
-/**
- * 应用运行环境枚举。
- */
-export enum RuntimeEnv {
-  MOCK = 'Mock',
-  RELEASE = 'Release',
-  OTHER = 'Other'
-}
+import { AppEnvManager } from '../constants/AppEnvManager';
 
 /**
  * 日志等级枚举。
@@ -31,10 +22,12 @@ export interface LogContext {
 }
 
 /**
- * 统一日志工具类。
+ * 统一日志工具类（core 层，entry 和 core 共用）。
  *
  * 日志输出格式：
- * ℹ️ℹ️ℹ️ [INFO] [2026-02-28 19:42:11.037] [Mock] [#12] [EntryAbility.ets:33:7] [EntryAbility.onWindowStageCreate] [EntryAbility] onWindowStageCreate ℹ️ℹ️ℹ️
+ * ℹ️ℹ️ℹ️ [INFO] [2026-02-28 19:42:11.037] [mock] [#12] [EntryAbility.ets:33:7] [EntryAbility.onWindowStageCreate] [EntryAbility] onWindowStageCreate ℹ️ℹ️ℹ️
+ *
+ * 环境判断职责由 AppEnvManager 负责，Logger 只通过 AppEnvManager.getEnv() 读取环境标签。
  */
 export class Logger {
   private static readonly UNKNOWN: string = 'unknown';
@@ -45,34 +38,6 @@ export class Logger {
    */
   static ctx(file: string, method: string, line: number, column: number = 1): LogContext {
     return { file, method, line, column };
-  }
-
-  /**
-   * 获取当前运行环境（Mock / Release / Other）。
-   */
-  static getRuntimeEnv(): RuntimeEnv {
-    return Logger.parseRuntimeEnv(APP_RUNTIME_ENV);
-  }
-
-  /**
-   * 输出环境细节字符串，便于排查当前到底命中了哪个环境。
-   */
-  static getRuntimeEnvDetail(): string {
-    return `runtimeEnv=${Logger.getRuntimeEnv()}, envFlag=${APP_RUNTIME_ENV}, source=${APP_RUNTIME_SOURCE}`;
-  }
-
-  /**
-   * 判断是否为 Mock 环境。
-   */
-  static isMockEnv(): boolean {
-    return Logger.getRuntimeEnv() === RuntimeEnv.MOCK;
-  }
-
-  /**
-   * 判断是否为 Release 环境。
-   */
-  static isReleaseEnv(): boolean {
-    return Logger.getRuntimeEnv() === RuntimeEnv.RELEASE;
   }
 
   static info(tag: string, message: string, context?: LogContext): void {
@@ -110,7 +75,7 @@ export class Logger {
     Logger.sequence++;
     const levelMarker: string = Logger.getLevelMarker(level);
     const currentTime: string = Logger.formatTime(new Date());
-    const runtimeEnv: string = `${Logger.getRuntimeEnv()}`;
+    const envLabel: string = AppEnvManager.getEnv();
     const location: string = Logger.formatLocation(context);
     const method: string = Logger.formatMethod(context);
 
@@ -118,7 +83,7 @@ export class Logger {
       `${levelMarker}` +
       ` [${level}]` +
       ` [${currentTime}]` +
-      ` [${runtimeEnv}]` +
+      ` [${envLabel}]` +
       ` [#${Logger.sequence}]` +
       ` [${location}]` +
       ` [${method}]` +
@@ -144,9 +109,6 @@ export class Logger {
     }
   }
 
-  /**
-   * 生成 [file:line:column]。
-   */
   private static formatLocation(context?: LogContext): string {
     if (context === undefined) {
       return `${Logger.UNKNOWN}:${Logger.UNKNOWN}:${Logger.UNKNOWN}`;
@@ -154,9 +116,6 @@ export class Logger {
     return `${context.file}:${context.line}:${context.column}`;
   }
 
-  /**
-   * 生成 [method]。
-   */
   private static formatMethod(context?: LogContext): string {
     if (context === undefined) {
       return Logger.UNKNOWN;
@@ -164,17 +123,11 @@ export class Logger {
     return context.method;
   }
 
-  /**
-   * 每个日志等级对应 marker：前后各 3 个 emoji。
-   */
   private static getLevelMarker(level: LogLevel): string {
     const emoji: string = Logger.getLevelEmoji(level);
     return `${emoji}${emoji}${emoji}`;
   }
 
-  /**
-   * 每个日志等级对应 emoji。
-   */
   private static getLevelEmoji(level: LogLevel): string {
     switch (level) {
       case LogLevel.INFO:
@@ -191,9 +144,6 @@ export class Logger {
     return '🧾';
   }
 
-  /**
-   * 时间格式：yyyy-MM-dd HH:mm:ss.SSS
-   */
   private static formatTime(time: Date): string {
     const year: string = `${time.getFullYear()}`;
     const month: string = Logger.leftPad(time.getMonth() + 1, 2);
@@ -217,20 +167,9 @@ export class Logger {
    * Release 环境：仅放行 info / warning。
    */
   private static canOutput(level: LogLevel): boolean {
-    if (!Logger.isReleaseEnv()) {
+    if (!AppEnvManager.isRelease()) {
       return true;
     }
     return level === LogLevel.INFO || level === LogLevel.WARNING;
-  }
-
-  private static parseRuntimeEnv(runtimeFlag: string): RuntimeEnv {
-    const normalized: string = runtimeFlag.toLowerCase();
-    if (normalized === 'mock') {
-      return RuntimeEnv.MOCK;
-    }
-    if (normalized === 'release') {
-      return RuntimeEnv.RELEASE;
-    }
-    return RuntimeEnv.OTHER;
   }
 }

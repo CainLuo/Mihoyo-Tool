@@ -6,8 +6,10 @@ import { AccountRow } from '../../../main/ets/models/AccountRow';
 import { GameRoleRow } from '../../../main/ets/models/GameRoleRow';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 
-function getContext(): common.UIAbilityContext {
-  return AbilityDelegatorRegistry.getAbilityDelegator().getAppContext() as common.UIAbilityContext;
+async function getContext(): Promise<common.UIAbilityContext> {
+  const delegator = AbilityDelegatorRegistry.getAbilityDelegator();
+  const ability = await delegator.getCurrentTopAbility();
+  return ability.context as common.UIAbilityContext;
 }
 
 function makeAccount(username: string): AccountRow {
@@ -27,7 +29,7 @@ function makeAccount(username: string): AccountRow {
   return row;
 }
 
-function makeGameRole(accountId: number, gameId: string, roleId: string): GameRoleRow {
+function makeGameRole(accountId: string, gameId: string, roleId: string): GameRoleRow {
   const row = new GameRoleRow();
   row.accountId = accountId;
   row.gameId = gameId;
@@ -45,6 +47,15 @@ function makeGameRole(accountId: number, gameId: string, roleId: string): GameRo
   return row;
 }
 
+// 提取到模块级别，避免嵌套函数（arkts-no-nested-funcs）
+const _accountDao = new AccountDao();
+
+async function insertTestAccount(username: string): Promise<string> {
+  await _accountDao.upsert(makeAccount(username));
+  const row = await _accountDao.findByUsername(username);
+  return row !== null ? String(row.id) : '0';
+}
+
 export default function bbsDaoTest() {
   const accountDao = new AccountDao();
   const gameRoleDao = new GameRoleDao();
@@ -52,7 +63,7 @@ export default function bbsDaoTest() {
   describe('AccountDao', () => {
 
     beforeAll(async () => {
-      await RdbManager.init(getContext());
+      await RdbManager.init(await getContext());
     });
 
     beforeEach(async () => {
@@ -153,21 +164,14 @@ export default function bbsDaoTest() {
   describe('GameRoleDao', () => {
 
     beforeAll(async () => {
-      await RdbManager.init(getContext());
+      await RdbManager.init(await getContext());
     });
 
     beforeEach(async () => {
       const store = RdbManager.getRdbStore();
       // 先清理测试账号（级联删除 game_role_table）
       await store.executeSql("DELETE FROM account_table WHERE username LIKE 'grtest_%'", []);
-      // 插入测试账号（accountId 固定用 DB 自增，需先插入再查 id）
     });
-
-    async function insertTestAccount(username: string): Promise<number> {
-      await accountDao.upsert(makeAccount(username));
-      const row = await accountDao.findByUsername(username);
-      return row !== null ? row.id : 0;
-    }
 
     it('upsertAll_twoRows_findByAccountIdReturnsTwo', 0, async () => {
       const accountId = await insertTestAccount('grtest_acc1');
@@ -210,7 +214,7 @@ export default function bbsDaoTest() {
     });
 
     it('findByAccountId_notExists_returnsEmptyArray', 0, async () => {
-      const result = await gameRoleDao.findByAccountId(999998);
+      const result = await gameRoleDao.findByAccountId('999998');
       expect(result.length).assertEqual(0);
     });
 
@@ -226,7 +230,7 @@ export default function bbsDaoTest() {
     });
 
     it('findByAccountAndGame_notExists_returnsEmptyArray', 0, async () => {
-      const result = await gameRoleDao.findByAccountAndGame(999997, 'zzz');
+      const result = await gameRoleDao.findByAccountAndGame('999997', 'zzz');
       expect(result.length).assertEqual(0);
     });
 

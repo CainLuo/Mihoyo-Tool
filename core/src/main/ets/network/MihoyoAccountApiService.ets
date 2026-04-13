@@ -3,6 +3,7 @@ import { MihoyoApiService } from './MihoyoApiService';
 import { MihoyoDomain } from './MihoyoDomain';
 import { MihoyoAccountApiPath } from './MihoyoAccountApiPath';
 import { PassportApiPath } from './PassportApiPath';
+import { QRCodeApiPath } from './QRCodeApiPath';
 import { MihoyoHeaderBuilder, HeaderProfile } from './MihoyoHeaderBuilder';
 import { HKey, HVal } from './MihoyoHeaderKey';
 import { HttpClient } from './HttpClient';
@@ -107,7 +108,7 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     h.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
     h.set(HKey.REQUESTED_WITH, HVal.REQUESTED_HYPERION);
     h.set(HKey.USER_AGENT, ApiConfig.USER_AGENT);
-    h.set(HKey.REFERER, HVal.REFERER_WEBSTATIC2);
+    h.set(HKey.REFERER, HVal.WEBSTATIC);
     h.set(HKey.DS, DSUtil.generateX4(params));
     return HttpClient.get(
       MihoyoDomain.PASSPORT + PassportApiPath.GET_LTOKEN_BY_STOKEN,
@@ -134,7 +135,7 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     h.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
     h.set(HKey.REQUESTED_WITH, HVal.REQUESTED_HYPERION);
     h.set(HKey.USER_AGENT, ApiConfig.USER_AGENT);
-    h.set(HKey.REFERER, HVal.REFERER_WEBSTATIC2);
+    h.set(HKey.REFERER, HVal.WEBSTATIC);
     h.set(HKey.DS, DSUtil.generateX4(params));
     return HttpClient.get(
       MihoyoDomain.PASSPORT + PassportApiPath.GET_COOKIE_TOKEN_BY_STOKEN,
@@ -224,7 +225,7 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     const bodyStr = JSON.stringify({ app_id: 7, device: deviceId });
     const opts = new RequestOptions();
     opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.TEXT_PLAIN);
-    return HttpClient.post('https://hk4e-sdk.mihoyo.com/hk4e_cn/combo/panda/qrcode/fetch', bodyStr, opts);
+    return HttpClient.post(MihoyoDomain.HK4E_SDK + QRCodeApiPath.FETCH, bodyStr, opts);
   }
 
   /** 查询二维码状态，mock 子类覆盖此方法 */
@@ -232,7 +233,7 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     const bodyStr = JSON.stringify({ app_id: 7, device: deviceId, ticket: ticket });
     const opts = new RequestOptions();
     opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.TEXT_PLAIN);
-    return HttpClient.post('https://hk4e-sdk.mihoyo.com/hk4e_cn/combo/panda/qrcode/query', bodyStr, opts);
+    return HttpClient.post(MihoyoDomain.HK4E_SDK + QRCodeApiPath.QUERY, bodyStr, opts);
   }
 
   /** 通过 GameToken 获取 SToken，mock 子类覆盖此方法 */
@@ -241,7 +242,7 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     const opts = new RequestOptions();
     opts.extraHeaders.set(HKey.APP_ID, ApiConfig.BBS_APP_ID);
     opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.JSON);
-    return HttpClient.post('https://api-takumi.mihoyo.com/account/ma-cn-session/app/getTokenByGameToken', bodyStr, opts);
+    return HttpClient.post(MihoyoDomain.TAKUMI + PassportApiPath.GET_TOKEN_BY_GAME_TOKEN, bodyStr, opts);
   }
 
   // ── Cookie 刷新 ───────────────────────────────────────────────

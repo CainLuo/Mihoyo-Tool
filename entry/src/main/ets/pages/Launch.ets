@@ -13,7 +13,7 @@ import { CoreInitializer } from 'core';
 import { AppRoutes } from '../constants/AppRoutes';
 import { RouterUtil } from '../utils/RouterUtil';
 import { themeManager, ThemeManager } from '../theme/ThemeManager';
-import { Logger } from '../utils/Logger';
+import { Logger } from 'core';
 
 const TAG: string = 'Launch';
 

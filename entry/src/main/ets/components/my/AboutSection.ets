@@ -1,7 +1,7 @@
 /**
  * AboutSection — 关于 Section
  *
- * 展示版本号、GitHub 链接、许可证信息。
+ * 展示版本号信息。
  */
 import BuildProfile from 'BuildProfile'
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
@@ -13,10 +13,6 @@ export struct AboutSection {
   build() {
     Column() {
       this.AboutRow($r('app.string.my_about_version'), BuildProfile.VERSION_NAME, false)
-      Divider().color(this.tm.current.colorDivider).margin({ left: this.tm.current.value16 })
-      this.AboutRow($r('app.string.my_about_github'), $r('app.string.my_about_github_url'), true)
-      Divider().color(this.tm.current.colorDivider).margin({ left: this.tm.current.value16 })
-      this.AboutRow($r('app.string.my_about_license'), $r('app.string.my_about_license_value'), false)
     }
     .width(this.tm.current.full)
     .backgroundColor(this.tm.current.colorSurfaceCard)

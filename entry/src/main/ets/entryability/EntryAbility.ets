@@ -1,7 +1,7 @@
 import { UIAbility, Want, AbilityConstant } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
-import { CoreInitializer } from 'core';
-import { Logger, RuntimeEnv } from '../utils/Logger';
+import { CoreInitializer, Logger } from 'core';
+import { APP_ENV } from '../config/RuntimeConfig';
 import { AppearanceManager } from '../utils/AppearanceManager';
 
 const TAG: string = 'EntryAbility';
@@ -15,20 +15,16 @@ export default class EntryAbility extends UIAbility {
       Logger.warning(TAG, `restoreOnLaunch failed: ${JSON.stringify(error)}`);
     });
 
-    const runtimeEnv: RuntimeEnv = Logger.getRuntimeEnv();
-    const isMock: boolean = runtimeEnv === RuntimeEnv.MOCK;
-
-    // 初始化数据库层
-    CoreInitializer.initCore({ isMock, context: this.context })
+    // 初始化核心库，直接传递 AppEnv，无需任何转换
+    CoreInitializer.initCore({ env: APP_ENV, context: this.context })
       .then(() => {
-        Logger.info(TAG, `CoreV2 initialized. isMock=${isMock}`);
-        this.runStartupTaskByEnv(runtimeEnv);
+        Logger.info(TAG, `CoreV2 initialized. env=${APP_ENV}`);
       })
       .catch((error: Error | object) => {
-        Logger.warning(TAG, `CoreInitializerV2.initCore failed: ${JSON.stringify(error)}`);
+        Logger.warning(TAG, `CoreInitializer.initCore failed: ${JSON.stringify(error)}`);
       });
 
-    Logger.info(TAG, `Detected environment: ${Logger.getRuntimeEnvDetail()}`);
+    Logger.info(TAG, `env=${APP_ENV}`);
   }
 
   onDestroy() {
@@ -81,17 +77,5 @@ export default class EntryAbility extends UIAbility {
 
   onBackground() {
     Logger.info(TAG, 'onBackground');
-  }
-
-  private runStartupTaskByEnv(runtimeEnv: RuntimeEnv): void {
-    if (runtimeEnv === RuntimeEnv.MOCK) {
-      Logger.debug(TAG, 'Run startup task for Mock environment');
-      return;
-    }
-    if (runtimeEnv === RuntimeEnv.RELEASE) {
-      Logger.info(TAG, 'Run startup task for Release environment');
-      return;
-    }
-    Logger.debug(TAG, 'Run startup task for non-Mock/Release environment');
   }
 }

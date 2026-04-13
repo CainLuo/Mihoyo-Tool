@@ -146,7 +146,7 @@ export struct Main {
       maskColor: 'rgba(0,0,0,0.5)',
       isModal: true,
       autoCancel: true
-    });
+    }).catch((_: Error | object) => {});
   }
 
   private tabTitle(): Resource {

@@ -61,24 +61,21 @@ export enum HVal {
   /** x-rpc-platform: 1（安卓） */
   PLATFORM_ANDROID    = '1',
 
-  /** Referer: https://webstatic.mihoyo.com/ */
-  REFERER_WEBSTATIC   = 'https://webstatic.mihoyo.com/',
-  /** Referer: https://webstatic.mihoyo.com（无尾斜杠，部分接口用） */
-  REFERER_WEBSTATIC2  = 'https://webstatic.mihoyo.com',
-  /** Referer: https://app.mihoyo.com */
-  REFERER_APP         = 'https://app.mihoyo.com',
-  /** Referer: https://act.mihoyo.com/ */
+  /** Referer: https://webstatic.mihoyo.com/（含尾斜杠） */
+  REFERER_WEBSTATIC         = 'https://webstatic.mihoyo.com/',
+  /**
+   * https://webstatic.mihoyo.com（无尾斜杠）
+   * 用于 Referer（passport 接口）和 Origin（game_record 接口）
+   */
+  WEBSTATIC           = 'https://webstatic.mihoyo.com',
+  /** Referer: https://app.mihoyo.com，用于 Referer 和 Origin（BBS 接口） */
+  APP_MIHOYO          = 'https://app.mihoyo.com',
+  /** Referer: https://act.mihoyo.com/，用于 Referer 和 Origin（签到/养成计算接口） */
   REFERER_ACT         = 'https://act.mihoyo.com/',
+  /** Origin: https://act.mihoyo.com（无尾斜杠） */
+  ORIGIN_ACT          = 'https://act.mihoyo.com',
   /** Referer: https://user.miyoushe.com/ */
   REFERER_USER        = 'https://user.miyoushe.com/',
-
-  /** Origin: https://webstatic.mihoyo.com */
-  ORIGIN_WEBSTATIC    = 'https://webstatic.mihoyo.com',
-  /** Origin: https://app.mihoyo.com */
-  ORIGIN_APP          = 'https://app.mihoyo.com',
-  /** Origin: https://act.mihoyo.com */
-  ORIGIN_ACT          = 'https://act.mihoyo.com',
-
   /** x-requested-with: com.mihoyo.hyperion */
   REQUESTED_HYPERION  = 'com.mihoyo.hyperion',
 

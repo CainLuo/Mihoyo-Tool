@@ -13,11 +13,13 @@ import {
 import { SyncMetaDao } from '../../../main/ets/database/SyncMetaDao';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 
-function getContext(): common.UIAbilityContext {
-  return AbilityDelegatorRegistry.getAbilityDelegator().getAppContext() as common.UIAbilityContext;
+async function getContext(): Promise<common.UIAbilityContext> {
+  const delegator = AbilityDelegatorRegistry.getAbilityDelegator();
+  const ability = await delegator.getCurrentTopAbility();
+  return ability.context as common.UIAbilityContext;
 }
 
-const TEST_ACCOUNT_ID = 20001;
+const TEST_ACCOUNT_ID = '20001';
 const TEST_ROLE_UID = 'genshin_repo_uid';
 
 function makeCharListRow(avatarId: string): GenshinCharacterListRow {
@@ -97,9 +99,9 @@ export default function genshinRepositoryTest() {
   const syncMetaDao = new SyncMetaDao();
 
   beforeAll(async () => {
-    await RdbManager.init(getContext());
+    await RdbManager.init(await getContext());
     const acc = new AccountRow();
-    acc.id = TEST_ACCOUNT_ID;
+    acc.id = 20001;
     acc.username = 'genshin_repo_test_account';
     acc.cookie = '';
     acc.stoken = '';

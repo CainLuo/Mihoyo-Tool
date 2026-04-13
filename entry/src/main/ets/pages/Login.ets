@@ -5,7 +5,7 @@ import { LoginViewModel } from '../viewmodel/LoginViewModel'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { LoginNarrowLayout } from '../components/login/LoginNarrowLayout'
 import { LoginWideLayout } from '../components/login/LoginWideLayout'
-import { Logger } from '../utils/Logger'
+import { Logger } from 'core'
 import { AppRoutes } from '../constants/AppRoutes'
 import { AccountSignal } from '../utils/AccountSignal'
 

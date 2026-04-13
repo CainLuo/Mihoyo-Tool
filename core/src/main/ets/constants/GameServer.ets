@@ -22,6 +22,8 @@
  * - 国际服（HoYoLAB）：game_biz 含 'global' 或 'os'
  */
 
+import { GameId } from './GameId';
+
 // ── 游戏业务标识（game_biz）──────────────────────────────────────────
 
 /**
@@ -37,6 +39,14 @@ export enum GameBiz {
   STARRAIL_CN  = 'hkrpg_cn',
   /** 绝区零国服（官服），game_biz: "nap_cn" */
   ZZZ_CN       = 'nap_cn',
+  /** 崩坏3国服，game_biz: "bh3_cn" */
+  HONKAI3_CN   = 'bh3_cn',
+  /** 原神国际服，game_biz: "hk4e_global" */
+  GENSHIN_OS   = 'hk4e_global',
+  /** 星穹铁道国际服，game_biz: "hkrpg_global" */
+  STARRAIL_OS  = 'hkrpg_global',
+  /** 绝区零国际服，game_biz: "nap_global" */
+  ZZZ_OS       = 'nap_global',
 }
 
 // ── 服务器大区标识（region / server）────────────────────────────────
@@ -72,3 +82,24 @@ export enum ZZZServer {
   CN_OFFICIAL = 'prod_gf_cn',
 }
 
+// ── game_biz → GameId 转换 ───────────────────────────────────────
+
+/**
+ * 将米游社 game_biz 字符串转换为本项目 GameId 字符串。
+ * 未知 biz 直接透传原始值。
+ */
+export function gameBizToGameId(biz: string): string {
+  if (biz === GameBiz.GENSHIN_CN || biz === GameBiz.GENSHIN_OS) {
+    return GameId.GENSHIN;
+  }
+  if (biz === GameBiz.STARRAIL_CN || biz === GameBiz.STARRAIL_OS) {
+    return GameId.STARRAIL;
+  }
+  if (biz === GameBiz.ZZZ_CN || biz === GameBiz.ZZZ_OS) {
+    return GameId.ZZZ;
+  }
+  if (biz === GameBiz.HONKAI3_CN) {
+    return GameId.HONKAI3;
+  }
+  return biz;
+}

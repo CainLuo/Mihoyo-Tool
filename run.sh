@@ -15,7 +15,7 @@ TARGET='127.0.0.1:5555'
 AVD="${1:-Mate 80 Pro Max}"
 AVD_PATH="$HOME/.Huawei/Emulator/deployed/$AVD"
 IMAGE_ROOT="$HOME/Library/Huawei/Sdk"
-HAP='entry/build/mock/outputs/mock/entry-mock-unsigned.hap'
+HAP='entry/build/default/outputs/default/entry-default-unsigned.hap'
 
 # ── 1. 启动模拟器（如果还没运行）──────────────────────────────
 if "$HDC" list targets 2>/dev/null | grep -q "$TARGET"; then
@@ -41,9 +41,9 @@ fi
 echo "▶ Clean..."
 "$HVIGOR" clean
 
-# ── 3. Build (mock product) ───────────────────────────────────
+# ── 3. Build (mock buildMode) ─────────────────────────────────
 echo "▶ Build (mock)..."
-"$HVIGOR" assembleHap -p product=mock
+"$HVIGOR" assembleHap -p product=default -p buildMode=mock
 
 # ── 4. 安装 ──────────────────────────────────────────────────
 echo "▶ 安装..."

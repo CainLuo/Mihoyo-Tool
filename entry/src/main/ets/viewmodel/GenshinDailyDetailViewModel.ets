@@ -14,7 +14,7 @@ import {
   GenshinDailyTaskVM,
   ExpeditionVM
 } from '../components/dailynote/DailyNoteModels';
-import { Logger } from '../utils/Logger';
+import { Logger } from 'core';
 import { ViewState } from '../constants/ViewStates';
 
 const TAG: string = 'GenshinDailyDetailViewModel';

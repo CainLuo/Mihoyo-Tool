@@ -2,7 +2,7 @@
  * AccountDetail — 账号详情二级页
  */
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
-import { Logger } from '../utils/Logger'
+import { Logger } from 'core'
 import { MyAccountVM } from '../components/my/MyModels'
 import { SectionHeader } from '../components/my/SectionHeader'
 import { AccountRolesSection } from '../components/accountdetail/AccountRolesSection'

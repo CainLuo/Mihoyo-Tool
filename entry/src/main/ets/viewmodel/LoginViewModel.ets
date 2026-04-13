@@ -19,7 +19,7 @@ import {
   CoreInitializer,
   LoginResult
 } from 'core';
-import { Logger } from '../utils/Logger';
+import { Logger } from 'core';
 import { LoginTab, PhoneStep, QRCodeStat } from '../constants/LoginTabEnum';
 import { MyAccountVM, MyGameRoleVM, GameStatItem } from '../components/my/MyModels';
 import { serverDisplayName } from '../utils/ServerNameUtil';

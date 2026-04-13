@@ -21,7 +21,7 @@ export class RdbManager {
     }
     const storeConfig: relationalStore.StoreConfig = {
       name: RdbManager.DB_NAME,
-      securityLevel: relationalStore.SecurityLevel.S2
+      securityLevel: relationalStore.SecurityLevel.S1
     };
     try {
       RdbManager.rdbStore = await relationalStore.getRdbStore(context, storeConfig);
@@ -128,7 +128,11 @@ export class RdbManager {
     bindArgs: Array<relationalStore.ValueType>
   ): Promise<void> {
     const store: relationalStore.RdbStore = RdbManager.getRdbStore();
-    await store.executeSql(sql, bindArgs);
+    try {
+      await store.executeSql(sql, bindArgs);
+    } catch (error) {
+      throw new Error(`executeSqlInternal failed: ${RdbManager.toErrorMessage(error)}`);
+    }
   }
 
   /**
@@ -197,24 +201,22 @@ export class RdbManager {
     whereCols: string[],
     whereVals: Array<relationalStore.ValueType>
   ): Promise<void> {
-    const setStr: string[] = [];
+    const store = RdbManager.getRdbStore();
+    // 构造 ValuesBucket（SET 部分）
+    const valueBucket: relationalStore.ValuesBucket = {};
     for (let i = 0; i < setClauses.length; i++) {
-      setStr.push(`${setClauses[i]} = ?`);
+      valueBucket[setClauses[i]] = setValues[i];
     }
-    const whereStr: string[] = [];
+    // 构造 RdbPredicates（WHERE 部分）
+    const predicates = new relationalStore.RdbPredicates(table);
     for (let i = 0; i < whereCols.length; i++) {
-      whereStr.push(`${whereCols[i]} = ?`);
-    }
-    const sql = `UPDATE ${table} SET ${setStr.join(', ')} WHERE ${whereStr.join(' AND ')}`;
-    const params: Array<relationalStore.ValueType> = [];
-    for (let i = 0; i < setValues.length; i++) {
-      params.push(setValues[i]);
-    }
-    for (let i = 0; i < whereVals.length; i++) {
-      params.push(whereVals[i]);
+      if (i > 0) {
+        predicates.and();
+      }
+      predicates.equalTo(whereCols[i], whereVals[i]);
     }
     try {
-      await RdbManager.executeSqlInternal(sql, params);
+      await store.update(valueBucket, predicates);
     } catch (error) {
       throw new Error(`updateRows(${table}) failed: ${RdbManager.toErrorMessage(error)}`);
     }

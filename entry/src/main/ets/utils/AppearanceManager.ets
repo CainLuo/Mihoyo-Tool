@@ -13,7 +13,7 @@
 import { ConfigurationConstant } from '@kit.AbilityKit';
 import { common } from '@kit.AbilityKit';
 import { preferences } from '@kit.ArkData';
-import { Logger } from './Logger';
+import { Logger } from 'core';
 
 const TAG: string = 'AppearanceManager';
 const PREFS_NAME: string = 'mihoyo_tool_preferences';
