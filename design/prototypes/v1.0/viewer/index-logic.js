@@ -33,6 +33,10 @@ var PAGES = {
     render: renderTabIconsDemo,
     controls: tabIconsDemoControls,
   },
+  "color-design": {
+    render: renderColorDesign,
+    controls: colorDesignControls,
+  },
 };
 
 var curPage = "launch";

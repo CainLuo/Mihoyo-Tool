@@ -71,13 +71,13 @@ export struct ZZZCharDetailContent {
             }
           }
           .width(this.tm.current.full)
-          .border({ width: { bottom: idx < this.vm.skills.length - 1 ? this.tm.current.value1 : 0 }, color: this.tm.current.surfaceOverlaySm })
+          .border({ width: { bottom: idx < this.vm.skills.length - 1 ? this.tm.current.value1 : 0 }, color: this.tm.current.surfaceGlass })
           .padding({ top: this.tm.current.value8, bottom: this.tm.current.value8 })
         }, (skill: ZZZCharDetailSkill, idx: number) => `skill_${idx}`)
       }
       .width(this.tm.current.full)
-      .backgroundColor(this.tm.current.surfaceDarkXl)
-      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceOverlayMd })
+      .backgroundColor(this.tm.current.surfaceDarkLg)
+      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
       .borderRadius(this.tm.current.radius12)
       .alignItems(HorizontalAlign.Start)
     }
@@ -98,7 +98,7 @@ export struct ZZZCharDetailContent {
                 .height(this.tm.current.value52)
                 .objectFit(ImageFit.Contain)
                 .borderRadius(this.tm.current.value8)
-                .backgroundColor(this.tm.current.surfaceGlassSm)
+                .backgroundColor(this.tm.current.surfaceGlass)
             }
             Column({ space: this.tm.current.value4 }) {
               Text(this.vm.weapon.name)
@@ -139,7 +139,7 @@ export struct ZZZCharDetailContent {
               .width(this.tm.current.value44)
               .height(this.tm.current.value44)
               .borderRadius(this.tm.current.value8)
-              .backgroundColor(this.tm.current.surfaceDark2xl)
+              .backgroundColor(this.tm.current.surfaceDarkLg)
               .border({ width: this.tm.current.value1, color: this.tm.current.surfaceInactiveBorder, style: BorderStyle.Dashed })
             Text($r('app.string.zzz_char_detail_no_weapon'))
               .fontSize(this.tm.current.body13.size)
@@ -151,8 +151,8 @@ export struct ZZZCharDetailContent {
         }
       }
       .width(this.tm.current.full)
-      .backgroundColor(this.tm.current.surfaceDarkXl)
-      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceOverlayMd })
+      .backgroundColor(this.tm.current.surfaceDarkLg)
+      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
       .borderRadius(this.tm.current.radius12)
       .alignItems(HorizontalAlign.Start)
     }
@@ -178,12 +178,12 @@ export struct ZZZCharDetailContent {
           }
           .width(this.tm.current.full)
           .padding({ left: this.tm.current.value12, right: this.tm.current.value12, top: this.tm.current.value8, bottom: this.tm.current.value8 })
-          .border({ width: { bottom: idx < this.vm.properties.length - 1 ? this.tm.current.value1 : 0 }, color: this.tm.current.surfaceOverlaySm })
+          .border({ width: { bottom: idx < this.vm.properties.length - 1 ? this.tm.current.value1 : 0 }, color: this.tm.current.surfaceGlass })
         }, (prop: ZZZCharDetailProperty, idx: number) => `prop_${idx}`)
       }
       .width(this.tm.current.full)
-      .backgroundColor(this.tm.current.surfaceDarkXl)
-      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceOverlayMd })
+      .backgroundColor(this.tm.current.surfaceDarkLg)
+      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
       .borderRadius(this.tm.current.radius12)
       .alignItems(HorizontalAlign.Start)
     }
@@ -208,7 +208,7 @@ export struct ZZZCharDetailContent {
               Text($r('app.string.zzz_char_detail_suit_pieces', 2))
                 .fontSize(this.tm.current.body10.size)
                 .fontColor(suit.count >= 2 ? this.tm.current.accentRefine : this.tm.current.textOnDarkMuted)
-                .backgroundColor(suit.count >= 2 ? this.tm.current.accentRefineBg : this.tm.current.surfaceDark2xl)
+                .backgroundColor(suit.count >= 2 ? this.tm.current.accentRefineBg : this.tm.current.surfaceDarkLg)
                 .border({ width: this.tm.current.value1, color: suit.count >= 2 ? this.tm.current.accentRefine : this.tm.current.surfaceInactiveBorder })
                 .borderRadius(this.tm.current.value4)
                 .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.value1, bottom: this.tm.current.value1 })
@@ -216,7 +216,7 @@ export struct ZZZCharDetailContent {
                 Text($r('app.string.zzz_char_detail_suit_pieces', 4))
                   .fontSize(this.tm.current.body10.size)
                   .fontColor(suit.count >= 4 ? this.tm.current.accentRefine : this.tm.current.textOnDarkMuted)
-                  .backgroundColor(suit.count >= 4 ? this.tm.current.accentRefineBg : this.tm.current.surfaceDark2xl)
+                  .backgroundColor(suit.count >= 4 ? this.tm.current.accentRefineBg : this.tm.current.surfaceDarkLg)
                   .border({ width: this.tm.current.value1, color: suit.count >= 4 ? this.tm.current.accentRefine : this.tm.current.surfaceInactiveBorder })
                   .borderRadius(this.tm.current.value4)
                   .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.value1, bottom: this.tm.current.value1 })
@@ -228,12 +228,12 @@ export struct ZZZCharDetailContent {
             }
             .width(this.tm.current.full)
             .padding({ left: this.tm.current.value12, right: this.tm.current.value12, top: this.tm.current.value8, bottom: this.tm.current.value8 })
-            .border({ width: { bottom: idx < this.vm.suitSummaries.length - 1 ? this.tm.current.value1 : 0 }, color: this.tm.current.surfaceOverlaySm })
+            .border({ width: { bottom: idx < this.vm.suitSummaries.length - 1 ? this.tm.current.value1 : 0 }, color: this.tm.current.surfaceGlass })
           }, (suit: ZZZSuitSummary, idx: number) => `suit_${suit.suitId}`)
         }
         .width(this.tm.current.full)
-        .backgroundColor(this.tm.current.surfaceDarkXl)
-        .border({ width: this.tm.current.value1, color: this.tm.current.surfaceOverlayMd })
+        .backgroundColor(this.tm.current.surfaceDarkLg)
+        .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
         .borderRadius(this.tm.current.radius12)
         .alignItems(HorizontalAlign.Start)
       }
@@ -302,7 +302,7 @@ export struct ZZZCharDetailContent {
         Text(`+${equip.level}`)
           .fontSize(this.tm.current.value9)
           .fontColor(this.tm.current.textOnDarkGhost)
-          .backgroundColor(this.tm.current.surfaceGlassMd)
+          .backgroundColor(this.tm.current.surfaceGlass)
           .borderRadius(this.tm.current.value4)
           .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.value1, bottom: this.tm.current.value1 })
       }
@@ -321,7 +321,7 @@ export struct ZZZCharDetailContent {
       }
       .width(this.tm.current.full)
       .padding({ top: this.tm.current.value2, bottom: this.tm.current.value2 })
-      .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlassSm })
+      .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlass })
       // 副词条列表
       Column() {
         ForEach(equip.subStats, (sub: ZZZSubStat) => {
@@ -342,8 +342,8 @@ export struct ZZZCharDetailContent {
     }
     .layoutWeight(1)
     .padding(this.tm.current.value8)
-    .backgroundColor(this.tm.current.surfaceGlassXs)
-    .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlassMd })
+    .backgroundColor(this.tm.current.surfaceGlass)
+    .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
     .borderRadius(this.tm.current.radius8)
   }
 }

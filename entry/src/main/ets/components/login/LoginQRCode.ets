@@ -21,7 +21,7 @@ export struct LoginQRCodePreviewLoading {
   build() {
     LoginQRCode({ vm: this.vm })
       .padding(themeManager.current.value24)
-      .backgroundColor(themeManager.current.colorCardBg)
+      .backgroundColor(themeManager.current.colorPageBg)
       .width(themeManager.current.value360)
   }
 }
@@ -39,7 +39,7 @@ export struct LoginQRCodePreviewReady {
   build() {
     LoginQRCode({ vm: this.vm })
       .padding(themeManager.current.value24)
-      .backgroundColor(themeManager.current.colorCardBg)
+      .backgroundColor(themeManager.current.colorPageBg)
       .width(themeManager.current.value360)
   }
 }
@@ -57,7 +57,7 @@ export struct LoginQRCodePreviewScanned {
   build() {
     LoginQRCode({ vm: this.vm })
       .padding(themeManager.current.value24)
-      .backgroundColor(themeManager.current.colorCardBg)
+      .backgroundColor(themeManager.current.colorPageBg)
       .width(themeManager.current.value360)
   }
 }
@@ -74,7 +74,7 @@ export struct LoginQRCodePreviewExpired {
   build() {
     LoginQRCode({ vm: this.vm })
       .padding(themeManager.current.value24)
-      .backgroundColor(themeManager.current.colorCardBg)
+      .backgroundColor(themeManager.current.colorPageBg)
       .width(themeManager.current.value360)
   }
 }
@@ -175,7 +175,7 @@ export struct LoginQRCode {
       .height(this.tm.current.value200)
       .justifyContent(FlexAlign.Center)
       .alignItems(HorizontalAlign.Center)
-      .backgroundColor(this.tm.current.surfaceDark2xl)
+      .backgroundColor(this.tm.current.surfaceDarkLg)
     }
     .width(this.tm.current.value200)
     .height(this.tm.current.value200)

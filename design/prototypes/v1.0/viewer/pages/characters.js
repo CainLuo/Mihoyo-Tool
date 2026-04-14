@@ -33,6 +33,7 @@ var CHARS_GENSHIN = [
     name: "菲林斯",
     lv: 90,
     fetter: 9,
+    rarity: 5,
     elem: "雷",
     elemColor: "#CE93D8",
     cons: 0,
@@ -43,6 +44,7 @@ var CHARS_GENSHIN = [
     name: "希诺宁",
     lv: 90,
     fetter: 10,
+    rarity: 5,
     elem: "岩",
     elemColor: "#FFCA28",
     cons: 0,
@@ -53,6 +55,7 @@ var CHARS_GENSHIN = [
     name: "娜维娅",
     lv: 90,
     fetter: 10,
+    rarity: 5,
     elem: "岩",
     elemColor: "#FFCA28",
     cons: 0,
@@ -63,6 +66,7 @@ var CHARS_GENSHIN = [
     name: "芙宁娜",
     lv: 90,
     fetter: 10,
+    rarity: 5,
     elem: "水",
     elemColor: "#4FC3F7",
     cons: 0,
@@ -73,6 +77,7 @@ var CHARS_GENSHIN = [
     name: "那维莱特",
     lv: 90,
     fetter: 10,
+    rarity: 5,
     elem: "水",
     elemColor: "#4FC3F7",
     cons: 0,
@@ -83,6 +88,7 @@ var CHARS_GENSHIN = [
     name: "迪希雅",
     lv: 90,
     fetter: 10,
+    rarity: 5,
     elem: "火",
     elemColor: "#FF7043",
     cons: 0,
@@ -93,6 +99,7 @@ var CHARS_GENSHIN = [
     name: "奇偶·女",
     lv: 1,
     fetter: 0,
+    rarity: 4,
     elem: "火",
     elemColor: "#FF7043",
     cons: 0,
@@ -103,6 +110,7 @@ var CHARS_GENSHIN = [
     name: "奇偶·男",
     lv: 50,
     fetter: 0,
+    rarity: 4,
     elem: "火",
     elemColor: "#FF7043",
     cons: 0,
@@ -113,6 +121,7 @@ var CHARS_GENSHIN = [
     name: "无武器角色",
     lv: 70,
     fetter: 5,
+    rarity: 4,
     elem: "冰",
     elemColor: "#4FC3F7",
     cons: 2,
@@ -125,6 +134,7 @@ var CHARS_STARRAIL = [
   {
     name: "黄泉",
     lv: 80,
+    rarity: 5,
     elem: "雷",
     elemColor: "#CE93D8",
     path: "虚无",
@@ -136,6 +146,7 @@ var CHARS_STARRAIL = [
   {
     name: "镜流",
     lv: 80,
+    rarity: 5,
     elem: "冰",
     elemColor: "#4FC3F7",
     path: "毁灭",
@@ -147,6 +158,7 @@ var CHARS_STARRAIL = [
   {
     name: "白露",
     lv: 80,
+    rarity: 5,
     elem: "雷",
     elemColor: "#CE93D8",
     path: "丰饶",
@@ -158,6 +170,7 @@ var CHARS_STARRAIL = [
   {
     name: "克拉拉",
     lv: 80,
+    rarity: 5,
     elem: "物理",
     elemColor: "#9E9E9E",
     path: "毁灭",
@@ -169,6 +182,7 @@ var CHARS_STARRAIL = [
   {
     name: "杰帕德",
     lv: 80,
+    rarity: 5,
     elem: "冰",
     elemColor: "#4FC3F7",
     path: "存护",
@@ -180,6 +194,7 @@ var CHARS_STARRAIL = [
   {
     name: "希儿",
     lv: 80,
+    rarity: 4,
     elem: "量子",
     elemColor: "#7C4DFF",
     path: "巡猎",
@@ -191,6 +206,7 @@ var CHARS_STARRAIL = [
   {
     name: "姬子",
     lv: 80,
+    rarity: 4,
     elem: "火",
     elemColor: "#FF7043",
     path: "智识",
@@ -202,6 +218,7 @@ var CHARS_STARRAIL = [
   {
     name: "桑博",
     lv: 80,
+    rarity: 4,
     elem: "风",
     elemColor: "#69F0AE",
     path: "虚无",
@@ -213,6 +230,7 @@ var CHARS_STARRAIL = [
   {
     name: "无光锥角色",
     lv: 60,
+    rarity: 4,
     elem: "冰",
     elemColor: "#4FC3F7",
     path: "存护",
@@ -524,6 +542,10 @@ function renderCharacters(w, h) {
 
   // ── 原神卡片 ──────────────────────────────────────────────────
   function genshinCard(ch) {
+    var cardBg =
+      ch.rarity >= 5
+        ? "linear-gradient(135deg,#6B4C1E,#3A2A0A)"
+        : "linear-gradient(135deg,#4A3060,#2A1840)";
     return (
       '<div style="background:' +
       c.surfCard +
@@ -532,7 +554,9 @@ function renderCharacters(w, h) {
       ";border-radius:12px;overflow:hidden;box-shadow:0 2px 6px " +
       c.shadow +
       '">' +
-      '<div style="position:relative;background:linear-gradient(135deg,#1a1a2e,#16213e);aspect-ratio:1/1;overflow:hidden">' +
+      '<div style="position:relative;background:' +
+      cardBg +
+      ';aspect-ratio:1/1;overflow:hidden">' +
       '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:.25">👤</div>' +
       // 元素（左上，圆形）
       '<div style="position:absolute;top:6px;left:6px;width:24px;height:24px;border-radius:50%;background:' +
@@ -568,6 +592,10 @@ function renderCharacters(w, h) {
 
   // ── 星穹铁道卡片 ──────────────────────────────────────────────
   function starrailCard(ch) {
+    var cardBg =
+      ch.rarity >= 5
+        ? "linear-gradient(135deg,#6B4C1E,#3A2A0A)"
+        : "linear-gradient(135deg,#4A3060,#2A1840)";
     // 左上角：属性 + 命途，纵向排列
     var topLeft =
       '<div style="position:absolute;top:6px;left:6px;display:flex;flex-direction:column;gap:3px">' +
@@ -598,7 +626,9 @@ function renderCharacters(w, h) {
       ";border-radius:12px;overflow:hidden;box-shadow:0 2px 6px " +
       c.shadow +
       '">' +
-      '<div style="position:relative;background:linear-gradient(135deg,#0d1b2a,#1a2744);aspect-ratio:' +
+      '<div style="position:relative;background:' +
+      cardBg +
+      ";aspect-ratio:" +
       srRatio +
       ';overflow:hidden">' +
       '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:.25">👤</div>' +
@@ -624,6 +654,10 @@ function renderCharacters(w, h) {
   // ── 绝区零卡片 ────────────────────────────────────────────────
   function zzzCard(ch) {
     var rarityColor = ch.rarity === "S" ? "#FFD700" : "#9E9E9E";
+    var cardBg =
+      ch.rarity === "S"
+        ? "linear-gradient(135deg,#6B4C1E,#3A2A0A)"
+        : "linear-gradient(135deg,#4A3060,#2A1840)";
     // 左上角：稀有度 + 属性 + 特性，纵向排列
     var topLeft =
       '<div style="position:absolute;top:6px;left:6px;display:flex;flex-direction:column;gap:3px">' +
@@ -655,7 +689,9 @@ function renderCharacters(w, h) {
       ";border-radius:12px;overflow:hidden;box-shadow:0 2px 6px " +
       c.shadow +
       '">' +
-      '<div style="position:relative;background:linear-gradient(135deg,#1a0d2e,#2a1a3e);aspect-ratio:' +
+      '<div style="position:relative;background:' +
+      cardBg +
+      ";aspect-ratio:" +
       zzzRatio +
       ';overflow:hidden">' +
       '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:32px;opacity:.25">👤</div>' +

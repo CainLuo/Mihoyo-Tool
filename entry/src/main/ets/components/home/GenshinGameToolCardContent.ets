@@ -18,12 +18,9 @@ export struct GenshinGameToolCardContent {
       // 树脂：大数字 + 环形进度
       Row({ space: this.tm.current.value10 }) {
         Text('🌙')
-          .width(this.tm.current.value32)
-          .height(this.tm.current.value32)
-          .textAlign(TextAlign.Center)
-          .fontSize(this.tm.current.value32 - 4)
-          .borderRadius(this.tm.current.value8)
-          .backgroundColor($r('app.color.surface_glass_xs'))
+          .width(0)
+          .height(0)
+          .visibility(Visibility.None)
 
         Column({ space: this.tm.current.value2 }) {
           Text($r('app.string.daily_note_resin_title'))
@@ -74,7 +71,11 @@ export struct GenshinGameToolCardContent {
           emoji: '🗺️',
           label: $r('app.string.daily_note_expedition_title'),
           value: this.snap.expeditionCurrent.toString() + '/' + this.snap.expeditionMax.toString(),
-          valueColor: this.tm.current.colorTextPrimary
+          valueColor: this.snap.expeditionCurrent >= this.snap.expeditionMax
+            ? this.tm.current.colorPrimary
+            : this.snap.expeditionCurrent === 0
+              ? this.tm.current.colorDanger
+              : this.tm.current.colorWarning
         })
       }
       if (this.snap.homeCoinCurrent >= 0) {
@@ -82,7 +83,11 @@ export struct GenshinGameToolCardContent {
           emoji: '🏡',
           label: $r('app.string.daily_note_home_coin_title'),
           value: this.snap.homeCoinCurrent.toString() + '/' + this.snap.homeCoinMax.toString(),
-          valueColor: this.tm.current.colorTextPrimary
+          valueColor: this.snap.homeCoinMax > 0 && this.snap.homeCoinCurrent >= this.snap.homeCoinMax
+            ? this.tm.current.colorDanger
+            : this.snap.homeCoinMax > 0 && this.snap.homeCoinCurrent / this.snap.homeCoinMax >= 0.5
+              ? this.tm.current.colorWarning
+              : this.tm.current.colorPrimary
         })
       }
       if (this.snap.dailyTaskFinished >= 0) {
@@ -94,7 +99,9 @@ export struct GenshinGameToolCardContent {
             : this.snap.dailyTaskFinished.toString() + '/' + this.snap.dailyTaskTotal.toString(),
           valueColor: this.snap.dailyTaskAllReceived
             ? this.tm.current.colorPrimary
-            : this.tm.current.colorTextPrimary
+            : this.snap.dailyTaskFinished === 0
+              ? this.tm.current.colorDanger
+              : this.tm.current.colorWarning
         })
       }
     }

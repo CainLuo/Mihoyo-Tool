@@ -15,12 +15,9 @@ export struct GameDataRow {
   build() {
     Row({ space: this.tm.current.value8 }) {
       Text(this.emoji)
-        .width(this.tm.current.value32)
-        .height(this.tm.current.value32)
-        .textAlign(TextAlign.Center)
-        .fontSize(this.tm.current.value32 - 4)
-        .borderRadius(this.tm.current.value8)
-        .backgroundColor($r('app.color.surface_glass_xs'))
+        .width(0)
+        .height(0)
+        .visibility(Visibility.None)
       Text(this.label)
         .font(this.tm.current.body13)
         .fontColor(this.tm.current.colorTextSecondary)

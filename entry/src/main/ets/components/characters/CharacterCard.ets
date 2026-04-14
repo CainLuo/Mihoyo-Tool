@@ -229,7 +229,7 @@ export struct CharacterCard {
     .width(this.tm.current.full)
     .backgroundColor(this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
-    .border({ width: this.tm.current.value1, color: this.tm.current.colorCardBorder })
+    .border({ width: this.tm.current.value1, color: this.tm.current.colorDivider })
     .clip(true)
     .shadow({
       radius: this.tm.current.shadowRadius,

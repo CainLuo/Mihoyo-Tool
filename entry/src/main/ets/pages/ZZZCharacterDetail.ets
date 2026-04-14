@@ -140,7 +140,7 @@ export struct ZZZCharacterDetail {
           .width(this.tm.current.value36)
           .height(this.tm.current.value36)
           .borderRadius(this.tm.current.value8)
-          .backgroundColor(rank.isActived ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDark2xl)
+          .backgroundColor(rank.isActived ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDarkLg)
           .justifyContent(FlexAlign.Center)
           .alignItems(HorizontalAlign.Center)
           .border({ width: this.tm.current.value1, color: rank.isActived ? this.tm.current.surfaceActiveBorder : this.tm.current.surfaceInactiveBorder })

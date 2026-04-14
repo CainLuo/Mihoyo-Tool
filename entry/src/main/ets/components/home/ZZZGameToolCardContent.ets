@@ -19,12 +19,9 @@ export struct ZZZGameToolCardContent {
       // 电量：大数字 + 环形进度
       Row({ space: this.tm.current.value10 }) {
         Text('⚡')
-          .width(this.tm.current.value32)
-          .height(this.tm.current.value32)
-          .textAlign(TextAlign.Center)
-          .fontSize(this.tm.current.value32 - 4)
-          .borderRadius(this.tm.current.value8)
-          .backgroundColor($r('app.color.surface_glass_xs'))
+          .width(0)
+          .height(0)
+          .visibility(Visibility.None)
 
         Column({ space: this.tm.current.value2 }) {
           Text($r('app.string.zzz_energy_title'))
@@ -46,7 +43,7 @@ export struct ZZZGameToolCardContent {
           if (this.snap.primaryRecoverySeconds > 0) {
             Text(TimeFormatUtil.recoveryDesc(this.snap.primaryRecoverySeconds, this.getUIContext()))
               .font(this.tm.current.body13)
-              .fontColor(this.snap.isFull ? this.tm.current.colorDanger : this.tm.current.colorTextSecondary)
+              .fontColor(this.tm.current.colorTextSecondary)
               .maxLines(1)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
           }
@@ -75,7 +72,11 @@ export struct ZZZGameToolCardContent {
           emoji: '🎯',
           label: $r('app.string.zzz_vitality_title'),
           value: this.snap.vitalityCurrent.toString() + '/' + this.snap.vitalityMax.toString(),
-          valueColor: this.tm.current.colorPrimary
+          valueColor: this.snap.vitalityCurrent >= this.snap.vitalityMax
+            ? this.tm.current.colorPrimary
+            : this.snap.vitalityCurrent === 0
+              ? this.tm.current.colorDanger
+              : this.tm.current.colorWarning
         })
       }
 
