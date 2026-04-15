@@ -52,8 +52,8 @@ export struct CharDetailSkillsColumn {
               .height(this.tm.current.value40)
               .objectFit(ImageFit.Contain)
               .borderRadius(this.tm.current.value40 / 2)
-              .backgroundColor(this.tm.current.surfaceDark2xl)
-              .border({ width: this.tm.current.value1p5, color: this.tm.current.surfaceGlassSm })
+              .backgroundColor(this.tm.current.surfaceDarkLg)
+              .border({ width: this.tm.current.value1p5, color: this.tm.current.surfaceGlass })
           }
           Text(`${skill.level}`)
             .fontSize(this.tm.current.body12.size)

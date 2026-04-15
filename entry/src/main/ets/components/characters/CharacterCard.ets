@@ -121,7 +121,7 @@ export struct CharacterCard {
             .height(this.tm.current.value22)
             .borderRadius(this.tm.current.value22 / 2)
             .backgroundColor($r('app.color.color_mask'))
-            .border({ width: this.tm.current.value1p5, color: $r('app.color.color_card_border') })
+            .border({ width: this.tm.current.value1p5, color: $r('app.color.color_surface_subtle') })
             .textAlign(TextAlign.Center)
             .position({ x: this.tm.current.full, y: this.tm.current.value8 })
             .markAnchor({ x: this.tm.current.full, y: 0 })
@@ -208,7 +208,7 @@ export struct CharacterCard {
           .height(this.tm.current.value64)
           .backgroundColor($r('app.color.weapon_overlay_bg'))
           .borderRadius({ topLeft: this.tm.current.radius8, topRight: 0, bottomLeft: 0, bottomRight: 0 })
-          .border({ width: { top: 1, left: 1 }, color: $r('app.color.color_card_border') })
+          .border({ width: { top: 1, left: 1 }, color: $r('app.color.color_surface_subtle') })
           .clip(true)
           .zIndex(4)
         }
@@ -229,7 +229,7 @@ export struct CharacterCard {
     .width(this.tm.current.full)
     .backgroundColor(this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
-    .border({ width: this.tm.current.value1, color: this.tm.current.colorCardBorder })
+    .border({ width: this.tm.current.value1, color: this.tm.current.colorDivider })
     .clip(true)
     .shadow({
       radius: this.tm.current.shadowRadius,

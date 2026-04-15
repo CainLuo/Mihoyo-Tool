@@ -56,7 +56,7 @@ export struct StarRailCharDetailContent {
                     .height(this.tm.current.value44)
                     .objectFit(ImageFit.Contain)
                     .borderRadius(this.tm.current.value22)
-                    .backgroundColor(skill.isActivated ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDark2xl)
+                    .backgroundColor(skill.isActivated ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDarkLg)
                     .border({ width: this.tm.current.value1p5, color: skill.isActivated ? this.tm.current.surfaceActiveBorder : this.tm.current.surfaceInactiveBorder })
                     .opacity(skill.isActivated ? 1.0 : this.tm.current.charDetailConsInactiveOpacity)
                 }
@@ -90,7 +90,7 @@ export struct StarRailCharDetailContent {
                       .height(this.tm.current.value36)
                       .objectFit(ImageFit.Contain)
                       .borderRadius(this.tm.current.value18)
-                      .backgroundColor(skill.isActivated ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDark2xl)
+                      .backgroundColor(skill.isActivated ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDarkLg)
                       .border({ width: this.tm.current.value1, color: skill.isActivated ? this.tm.current.surfaceActiveBorder : this.tm.current.surfaceInactiveBorder })
                       .opacity(skill.isActivated ? 1.0 : this.tm.current.charDetailConsInactiveOpacity)
                   }
@@ -117,7 +117,7 @@ export struct StarRailCharDetailContent {
                       .height(this.tm.current.value28)
                       .objectFit(ImageFit.Contain)
                       .borderRadius(this.tm.current.value14)
-                      .backgroundColor(skill.isActivated ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDark2xl)
+                      .backgroundColor(skill.isActivated ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDarkLg)
                       .opacity(skill.isActivated ? 1.0 : this.tm.current.charDetailConsInactiveOpacity)
                   }
                 }
@@ -132,8 +132,8 @@ export struct StarRailCharDetailContent {
       }
       .width(this.tm.current.full)
       .padding(this.tm.current.value12)
-      .backgroundColor(this.tm.current.surfaceDarkXl)
-      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceOverlayMd })
+      .backgroundColor(this.tm.current.surfaceDarkLg)
+      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
       .borderRadius(this.tm.current.radius12)
       .alignItems(HorizontalAlign.Start)
     }
@@ -154,7 +154,7 @@ export struct StarRailCharDetailContent {
                 .height(this.tm.current.value52)
                 .objectFit(ImageFit.Contain)
                 .borderRadius(this.tm.current.value8)
-                .backgroundColor(this.tm.current.surfaceGlassSm)
+                .backgroundColor(this.tm.current.surfaceGlass)
             }
             Column({ space: this.tm.current.value4 }) {
               Text(this.vm.equip.name)
@@ -188,7 +188,7 @@ export struct StarRailCharDetailContent {
               .width(this.tm.current.value44)
               .height(this.tm.current.value44)
               .borderRadius(this.tm.current.value8)
-              .backgroundColor(this.tm.current.surfaceDark2xl)
+              .backgroundColor(this.tm.current.surfaceDarkLg)
               .border({ width: this.tm.current.value1, color: this.tm.current.surfaceInactiveBorder, style: BorderStyle.Dashed })
             Text($r('app.string.starrail_char_detail_no_equip'))
               .fontSize(this.tm.current.body13.size)
@@ -200,8 +200,8 @@ export struct StarRailCharDetailContent {
         }
       }
       .width(this.tm.current.full)
-      .backgroundColor(this.tm.current.surfaceDarkXl)
-      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceOverlayMd })
+      .backgroundColor(this.tm.current.surfaceDarkLg)
+      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
       .borderRadius(this.tm.current.radius12)
       .alignItems(HorizontalAlign.Start)
     }
@@ -227,12 +227,12 @@ export struct StarRailCharDetailContent {
           }
           .width(this.tm.current.full)
           .padding({ left: this.tm.current.value12, right: this.tm.current.value12, top: this.tm.current.value8, bottom: this.tm.current.value8 })
-          .border({ width: { bottom: idx < this.vm.properties.length - 1 ? this.tm.current.value1 : 0 }, color: this.tm.current.surfaceOverlaySm })
+          .border({ width: { bottom: idx < this.vm.properties.length - 1 ? this.tm.current.value1 : 0 }, color: this.tm.current.surfaceGlass })
         }, (prop: StarRailCharDetailProperty, idx: number) => `prop_${idx}`)
       }
       .width(this.tm.current.full)
-      .backgroundColor(this.tm.current.surfaceDarkXl)
-      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceOverlayMd })
+      .backgroundColor(this.tm.current.surfaceDarkLg)
+      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
       .borderRadius(this.tm.current.radius12)
       .alignItems(HorizontalAlign.Start)
     }
@@ -332,7 +332,7 @@ export struct StarRailCharDetailContent {
         Text(`+${relic.level}`)
           .fontSize(this.tm.current.value9)
           .fontColor(this.tm.current.textOnDarkGhost)
-          .backgroundColor(this.tm.current.surfaceGlassMd)
+          .backgroundColor(this.tm.current.surfaceGlass)
           .borderRadius(this.tm.current.value4)
           .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.value1, bottom: this.tm.current.value1 })
       }
@@ -351,7 +351,7 @@ export struct StarRailCharDetailContent {
       }
       .width(this.tm.current.full)
       .padding({ top: this.tm.current.value2, bottom: this.tm.current.value2 })
-      .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlassSm })
+      .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlass })
       // 副词条列表
       Column() {
         ForEach(relic.subStats, (sub: StarRailRelicSubStat) => {
@@ -377,8 +377,8 @@ export struct StarRailCharDetailContent {
     }
     .layoutWeight(1)
     .padding(this.tm.current.value8)
-    .backgroundColor(this.tm.current.surfaceGlassXs)
-    .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlassMd })
+    .backgroundColor(this.tm.current.surfaceGlass)
+    .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
     .borderRadius(this.tm.current.radius8)
   }
 }

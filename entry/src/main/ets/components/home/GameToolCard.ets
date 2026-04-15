@@ -30,8 +30,16 @@ export struct GameToolCard {
   private primaryColor(): ResourceColor {
     const snap = this.card.snapshot
     if (snap === null) { return this.tm.current.colorTextSecondary }
-    if (snap.isFull) { return this.tm.current.colorDanger }
-    return this.card.gameColor
+    // 原神树脂满了 = danger（需要消耗），其他游戏体力满了 = primary（好事）
+    if (snap.isFull) {
+      return this.card.gameId === GameId.GENSHIN
+        ? this.tm.current.colorDanger
+        : this.tm.current.colorPrimary
+    }
+    const ratio = snap.primaryMax > 0 ? snap.primaryCurrent / snap.primaryMax : 0
+    if (ratio < 0.3) { return this.tm.current.colorDanger }
+    if (ratio < 0.7) { return this.tm.current.colorWarning }
+    return this.tm.current.colorPrimary
   }
 
   private gameLogoResource(): Resource {
@@ -49,7 +57,7 @@ export struct GameToolCard {
           .width(this.tm.current.value32)
           .height(this.tm.current.value32)
           .borderRadius(this.tm.current.value8)
-          .border({ width: 1, color: this.tm.current.colorCardBorder })
+          .border({ width: 1, color: this.tm.current.colorDivider })
           .objectFit(ImageFit.Cover)
 
         Column({ space: this.tm.current.value2 }) {
@@ -59,17 +67,18 @@ export struct GameToolCard {
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
 
-          Row({ space: this.tm.current.value4 }) {
+          Row({ space: this.tm.current.value8 }) {
+            Text(this.card.server)
+              .font(this.tm.current.body13)
+              .fontColor(this.tm.current.colorTextSecondary)
+              .maxLines(1)
+              .flexShrink(0)
             Text(this.card.nickname)
               .font(this.tm.current.body13)
               .fontColor(this.tm.current.colorTextSecondary)
               .maxLines(1)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
               .layoutWeight(1)
-            Text(this.card.server)
-              .font(this.tm.current.body13)
-              .fontColor(this.tm.current.colorTextSecondary)
-              .maxLines(1)
           }
         }
         .alignItems(HorizontalAlign.Start)
@@ -133,7 +142,7 @@ export struct GameToolCard {
     }
     .backgroundColor(this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius16)
-    .border({ width: this.tm.current.value1, color: this.tm.current.colorCardBorder })
+    .border({ width: this.tm.current.value1, color: this.tm.current.colorDivider })
     .shadow({
       radius: this.tm.current.shadowRadius,
       color: this.tm.current.shadowColor,

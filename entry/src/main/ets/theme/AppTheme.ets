@@ -20,34 +20,26 @@ export interface AppColor {
   colorTextPrimary: Resource
   colorTextSecondary: Resource
   colorDivider: Resource
-  colorCardBg: Resource
   colorSurfaceCard: Resource
-  colorCardBorder: Resource
   colorPageBg: Resource
   colorPlaceholder: Resource
   colorMask: Resource
   colorDanger: Resource
   colorDangerBg: Resource
   colorWarning: Resource
-  colorSkeletonBg: Resource
+  colorSurfaceSubtle: Resource
 
   // ---- Surface ----
   surfaceActivePrimary: Resource
-  surfaceDark2xl: Resource
+  surfaceDarkLg: Resource
   surfaceActiveBorder: Resource
   surfaceInactiveBorder: Resource
   surfaceSkillBorderPhone: Resource
   surfaceFetterBg: Resource
   surfaceFetterBorder: Resource
-  surfaceGlassXs: Resource
-  surfaceGlassSm: Resource
-  surfaceGlassMd: Resource
-  surfaceOverlaySm: Resource
-  surfaceOverlayMd: Resource
-  surfaceDarkXs: Resource
+  surfaceGlass: Resource
+  surfaceDarkSm: Resource
   surfaceDarkMd: Resource
-  surfaceDarkLg: Resource
-  surfaceDarkXl: Resource
 
   // ---- Text ----
   textOnDarkMedium: Resource

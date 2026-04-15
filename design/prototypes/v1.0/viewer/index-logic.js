@@ -29,6 +29,14 @@ var PAGES = {
     render: renderAccountDetail,
     controls: accountDetailControls,
   },
+  "tab-icons-demo": {
+    render: renderTabIconsDemo,
+    controls: tabIconsDemoControls,
+  },
+  "color-design": {
+    render: renderColorDesign,
+    controls: colorDesignControls,
+  },
 };
 
 var curPage = "launch";

@@ -103,13 +103,13 @@ export struct CharDetailStatsPanel {
             .height(this.tm.current.value52)
             .objectFit(ImageFit.Contain)
             .borderRadius(this.tm.current.value8)
-            .backgroundColor(this.tm.current.surfaceGlassSm)
+            .backgroundColor(this.tm.current.surfaceGlass)
         } else {
           Column()
             .width(this.tm.current.value52)
             .height(this.tm.current.value52)
             .borderRadius(this.tm.current.value8)
-            .backgroundColor(this.tm.current.surfaceGlassSm)
+            .backgroundColor(this.tm.current.surfaceGlass)
         }
 
         Column({ space: this.tm.current.value4 }) {
@@ -159,8 +159,8 @@ export struct CharDetailStatsPanel {
     }
     .width(this.tm.current.full)
     .padding(this.tm.current.value12)
-    .backgroundColor(this.tm.current.surfaceGlassXs)
-    .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceOverlayMd })
+    .backgroundColor(this.tm.current.surfaceGlass)
+    .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlass })
   }
 
   /** 武器行（Phone 紧凑样式） */
@@ -173,7 +173,7 @@ export struct CharDetailStatsPanel {
           .height(this.tm.current.value36)
           .objectFit(ImageFit.Contain)
           .borderRadius(this.tm.current.value8)
-          .backgroundColor(this.tm.current.surfaceGlassMd)
+          .backgroundColor(this.tm.current.surfaceGlass)
       }
       Column({ space: this.tm.current.value2 }) {
         Text(this.vm.weapon.name)
@@ -216,8 +216,8 @@ export struct CharDetailStatsPanel {
     }
     .width(this.tm.current.full)
     .padding({ top: this.tm.current.value8, bottom: this.tm.current.value8 })
-    .backgroundColor(this.tm.current.surfaceDarkXs)
-    .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlassSm })
+    .backgroundColor(this.tm.current.surfaceDarkSm)
+    .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlass })
   }
 
   /** 属性列表（宽屏，每行一条） */
@@ -242,7 +242,7 @@ export struct CharDetailStatsPanel {
           top: this.tm.current.value8,
           bottom: this.tm.current.value8
         })
-        .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceOverlaySm })
+        .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlass })
       }, (stat: CharDetailStat, idx: number) => `stat_${idx}`)
     }
     .width(this.tm.current.full)
@@ -266,14 +266,14 @@ export struct CharDetailStatsPanel {
           }
           .width(this.tm.current.full)
           .padding({ left: this.tm.current.value8, right: this.tm.current.value8, top: this.tm.current.value5, bottom: this.tm.current.value5 })
-          .border({ width: { right: this.tm.current.value1, bottom: this.tm.current.value1 }, color: this.tm.current.surfaceOverlaySm })
+          .border({ width: { right: this.tm.current.value1, bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlass })
         }
       }, (stat: CharDetailStat, idx: number) => `pstat_${idx}`)
     }
     .columnsTemplate(this.phoneCols === 4 ? '1fr 1fr 1fr 1fr' : '1fr 1fr')
     .width(this.tm.current.full)
-    .backgroundColor(this.tm.current.surfaceDarkLg)
-    .border({ width: this.tm.current.value1, color: this.tm.current.surfaceOverlayMd })
+    .backgroundColor(this.tm.current.surfaceDarkMd)
+    .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
     .borderRadius(this.tm.current.radius8)
   }
 
@@ -285,8 +285,8 @@ export struct CharDetailStatsPanel {
         this.StatsGrid()
       }
       .width(this.tm.current.full)
-      .backgroundColor(this.tm.current.surfaceDarkXl)
-      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceOverlayMd })
+      .backgroundColor(this.tm.current.surfaceDarkLg)
+      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
       .borderRadius(this.tm.current.radius12)
       .clip(true)
     } else {
@@ -304,7 +304,7 @@ export struct CharDetailStatsPanel {
       .width(this.tm.current.full)
       .height(this.tm.current.full)
       .borderRadius(this.tm.current.radius8)
-      .backgroundColor(this.tm.current.surfaceDarkXl)
+      .backgroundColor(this.tm.current.surfaceDarkLg)
       .clip(true)
     }
   }

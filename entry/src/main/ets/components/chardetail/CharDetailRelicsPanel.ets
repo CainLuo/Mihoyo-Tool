@@ -116,7 +116,7 @@ export struct CharDetailRelicsPanel {
           Column()
             .width(this.tm.current.value40)
             .height(this.tm.current.value40)
-            .backgroundColor(this.tm.current.surfaceGlassMd)
+            .backgroundColor(this.tm.current.surfaceGlass)
             .borderRadius(this.tm.current.value4)
         }
         Text(relic.mainStatLabel ?? $r('app.string.char_detail_no_data'))
@@ -140,7 +140,7 @@ export struct CharDetailRelicsPanel {
       .alignItems(HorizontalAlign.Center)
       .justifyContent(FlexAlign.Center)
       .padding({ top: this.tm.current.value4, bottom: this.tm.current.value4 })
-      .border({ width: { right: this.tm.current.value1 }, color: this.tm.current.surfaceGlassSm })
+      .border({ width: { right: this.tm.current.value1 }, color: this.tm.current.surfaceGlass })
       Grid() {
         ForEach(relic.subStats, (sub: RelicSubStat) => {
           GridItem() {
@@ -168,7 +168,7 @@ export struct CharDetailRelicsPanel {
     .layoutWeight(1)
     .alignItems(VerticalAlign.Center)
     .backgroundColor(this.tm.current.surfaceDarkMd)
-    .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlassSm })
+    .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlass })
   }
 
   @Builder
@@ -197,7 +197,7 @@ export struct CharDetailRelicsPanel {
         Text($r('app.string.char_detail_relic_lv_prefix', relic.level))
           .fontSize(this.tm.current.value9)
           .fontColor(this.tm.current.textOnDarkGhost)
-          .backgroundColor(this.tm.current.surfaceGlassMd)
+          .backgroundColor(this.tm.current.surfaceGlass)
           .borderRadius(this.tm.current.value4)
           .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.value1, bottom: this.tm.current.value1 })
       }
@@ -215,7 +215,7 @@ export struct CharDetailRelicsPanel {
       }
       .width(this.tm.current.full)
       .padding({ top: this.tm.current.value2, bottom: this.tm.current.value2 })
-      .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlassSm })
+      .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlass })
       Column() {
         ForEach(relic.subStats, (sub: RelicSubStat) => {
           Row() {
@@ -235,8 +235,8 @@ export struct CharDetailRelicsPanel {
     }
     .width(this.tm.current.full)
     .padding(this.tm.current.value8)
-    .backgroundColor(this.tm.current.surfaceGlassXs)
-    .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlassMd })
+    .backgroundColor(this.tm.current.surfaceGlass)
+    .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
     .borderRadius(this.tm.current.radius8)
   }
 
@@ -254,7 +254,7 @@ export struct CharDetailRelicsPanel {
     .height(this.tm.current.value80)
     .justifyContent(FlexAlign.Center)
     .alignItems(HorizontalAlign.Center)
-    .backgroundColor(this.tm.current.surfaceGlassXs)
+    .backgroundColor(this.tm.current.surfaceGlass)
     .border({ width: this.tm.current.value1, color: this.tm.current.surfaceInactiveBorder, style: BorderStyle.Dashed })
     .borderRadius(this.tm.current.radius8)
   }
@@ -336,7 +336,7 @@ export struct CharDetailRelicsPanel {
       .width(this.tm.current.full)
       .height(this.tm.current.full)
       .borderRadius(this.tm.current.radius8)
-      .backgroundColor(this.tm.current.surfaceDarkLg)
+      .backgroundColor(this.tm.current.surfaceDarkMd)
       .clip(true)
     }
   }

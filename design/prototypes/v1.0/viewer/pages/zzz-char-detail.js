@@ -221,6 +221,17 @@ function renderZzzCharDetail(w, h) {
   var char = ZZZ_CHAR;
   var accentColor = char.color || "#f7b84b";
 
+  // 元素力背景渐变映射
+  var ZZZ_ELEM_BG = {
+    200: "linear-gradient(150deg,#1a1a1a,#080808)", // 物理
+    201: "linear-gradient(150deg,#3a1008,#180808)", // 火
+    202: "linear-gradient(150deg,#0a2a3a,#041018)", // 冰
+    203: "linear-gradient(150deg,#2a1040,#100818)", // 电
+    205: "linear-gradient(150deg,#2a0a30,#100410)", // 以太
+  };
+  var elemBg =
+    ZZZ_ELEM_BG[char.element_type] || "linear-gradient(150deg,#1a1a2a,#0e0e18)";
+
   // 控制项状态
   var noWeapon = window._zzzCtrl && window._zzzCtrl.zzz_no_weapon;
   var noEquip = window._zzzCtrl && window._zzzCtrl.zzz_no_equip;
@@ -260,7 +271,9 @@ function renderZzzCharDetail(w, h) {
   var heroHtml =
     '<div style="height:' +
     heroH +
-    'px;flex-shrink:0;position:relative;overflow:hidden;background:linear-gradient(150deg,#1a0f00,#0e0a00);">' +
+    "px;flex-shrink:0;position:relative;overflow:hidden;background:" +
+    elemBg +
+    ';">' +
     // 立绘独立 div，background-image 不受 shorthand 解析影响
     '<div style="position:absolute;inset:0;background-image:url(' +
     char.verticalUrl +

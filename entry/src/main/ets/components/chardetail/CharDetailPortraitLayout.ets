@@ -79,7 +79,7 @@ export struct CharDetailPortraitLayout {
                 .height(this.tm.current.value28)
                 .objectFit(ImageFit.Contain)
                 .borderRadius(this.tm.current.value14)
-                .backgroundColor(this.tm.current.surfaceDark2xl)
+                .backgroundColor(this.tm.current.surfaceDarkLg)
                 .border({ width: this.tm.current.value1p5, color: elementColor(this.vm.charElement) })
                 .flexShrink(0)
             }
@@ -94,21 +94,21 @@ export struct CharDetailPortraitLayout {
               .fontWeight(FontWeight.Bold)
               .fontColor(idx === 0 ? this.tm.current.textOnDarkSecondary :
                 idx === 1 ? elementColor(this.vm.charElement) : elementColor(this.vm.charElement))
-              .backgroundColor(this.tm.current.surfaceDark2xl)
+              .backgroundColor(this.tm.current.surfaceDarkLg)
               .borderRadius(this.tm.current.value4)
               .padding({ left: this.tm.current.value8, right: this.tm.current.value8, top: this.tm.current.value2, bottom: this.tm.current.value2 })
               .flexShrink(0)
           }
           .width(this.tm.current.full)
           .padding({ top: this.tm.current.value8, bottom: this.tm.current.value8 })
-          .border({ width: { bottom: idx < this.vm.skills.length - 1 ? this.tm.current.value1 : 0 }, color: this.tm.current.surfaceOverlaySm })
+          .border({ width: { bottom: idx < this.vm.skills.length - 1 ? this.tm.current.value1 : 0 }, color: this.tm.current.surfaceGlass })
           .alignItems(VerticalAlign.Center)
         }, (_skill: CharDetailSkill, idx: number) => `skill_${idx}`)
       }
       .width(this.tm.current.full)
       .padding({ left: this.tm.current.value12, right: this.tm.current.value12 })
-      .backgroundColor(this.tm.current.surfaceDarkXl)
-      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceOverlayMd })
+      .backgroundColor(this.tm.current.surfaceDarkLg)
+      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
       .borderRadius(this.tm.current.radius12)
     }
     .width(this.tm.current.full)
@@ -127,7 +127,7 @@ export struct CharDetailPortraitLayout {
               .height(this.tm.current.value52)
               .objectFit(ImageFit.Contain)
               .borderRadius(this.tm.current.value8)
-              .backgroundColor(this.tm.current.surfaceGlassSm)
+              .backgroundColor(this.tm.current.surfaceGlass)
               .flexShrink(0)
           }
           Column({ space: this.tm.current.value4 }) {
@@ -183,8 +183,8 @@ export struct CharDetailPortraitLayout {
         }
         .width(this.tm.current.full)
         .padding(this.tm.current.value12)
-        .backgroundColor(this.tm.current.surfaceDarkXl)
-        .border({ width: this.tm.current.value1, color: this.tm.current.surfaceOverlayMd })
+        .backgroundColor(this.tm.current.surfaceDarkLg)
+        .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
         .borderRadius(this.tm.current.radius12)
         .alignItems(VerticalAlign.Center)
       } else {
@@ -201,7 +201,7 @@ export struct CharDetailPortraitLayout {
         .height(this.tm.current.value56)
         .justifyContent(FlexAlign.Center)
         .alignItems(VerticalAlign.Center)
-        .backgroundColor(this.tm.current.surfaceDarkXl)
+        .backgroundColor(this.tm.current.surfaceDarkLg)
         .border({ width: this.tm.current.value1, color: this.tm.current.surfaceInactiveBorder, style: BorderStyle.Dashed })
         .borderRadius(this.tm.current.radius12)
       }
@@ -228,12 +228,12 @@ export struct CharDetailPortraitLayout {
           }
           .width(this.tm.current.full)
           .padding({ left: this.tm.current.value12, right: this.tm.current.value12, top: this.tm.current.value8, bottom: this.tm.current.value8 })
-          .border({ width: { bottom: idx < this.vm.stats.length - 1 ? this.tm.current.value1 : 0 }, color: this.tm.current.surfaceOverlaySm })
+          .border({ width: { bottom: idx < this.vm.stats.length - 1 ? this.tm.current.value1 : 0 }, color: this.tm.current.surfaceGlass })
         }, (stat: CharDetailStat, idx: number) => `stat_${idx}`)
       }
       .width(this.tm.current.full)
-      .backgroundColor(this.tm.current.surfaceDarkXl)
-      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceOverlayMd })
+      .backgroundColor(this.tm.current.surfaceDarkLg)
+      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
       .borderRadius(this.tm.current.radius12)
     }
     .width(this.tm.current.full)

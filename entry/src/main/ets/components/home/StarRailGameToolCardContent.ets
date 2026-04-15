@@ -18,12 +18,9 @@ export struct StarRailGameToolCardContent {
       // 开拓力：大数字 + 环形进度
       Row({ space: this.tm.current.value10 }) {
         Text('⚡')
-          .width(this.tm.current.value32)
-          .height(this.tm.current.value32)
-          .textAlign(TextAlign.Center)
-          .fontSize(this.tm.current.value32 - 4)
-          .borderRadius(this.tm.current.value8)
-          .backgroundColor($r('app.color.surface_glass_xs'))
+          .width(0)
+          .height(0)
+          .visibility(Visibility.None)
 
         Column({ space: this.tm.current.value2 }) {
           Text($r('app.string.starrail_stamina_title'))
@@ -45,7 +42,7 @@ export struct StarRailGameToolCardContent {
           if (this.snap.primaryRecoverySeconds > 0) {
             Text(TimeFormatUtil.recoveryDesc(this.snap.primaryRecoverySeconds, this.getUIContext()))
               .font(this.tm.current.body13)
-              .fontColor(this.snap.isFull ? this.tm.current.colorDanger : this.tm.current.colorTextSecondary)
+              .fontColor(this.tm.current.colorTextSecondary)
               .maxLines(1)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
           }
@@ -83,7 +80,11 @@ export struct StarRailGameToolCardContent {
           emoji: '📅',
           label: $r('app.string.starrail_train_score_title'),
           value: this.snap.trainScoreCurrent.toString() + '/' + this.snap.trainScoreMax.toString(),
-          valueColor: this.tm.current.colorPrimary
+          valueColor: this.snap.trainScoreCurrent >= this.snap.trainScoreMax
+            ? this.tm.current.colorPrimary
+            : this.snap.trainScoreCurrent === 0
+              ? this.tm.current.colorDanger
+              : this.tm.current.colorWarning
         })
       }
       if (this.snap.weeklyCocoonCnt >= 0) {
@@ -91,7 +92,11 @@ export struct StarRailGameToolCardContent {
           emoji: '⚔️',
           label: $r('app.string.starrail_cocoon_title'),
           value: this.snap.weeklyCocoonCnt.toString() + '/' + this.snap.weeklyCocoonLimit.toString(),
-          valueColor: this.tm.current.colorWarning
+          valueColor: this.snap.weeklyCocoonCnt >= this.snap.weeklyCocoonLimit
+            ? this.tm.current.colorPrimary
+            : this.snap.weeklyCocoonCnt === 0
+              ? this.tm.current.colorDanger
+              : this.tm.current.colorWarning
         })
       }
       if (this.snap.rogueScoreCurrent >= 0) {
@@ -99,7 +104,11 @@ export struct StarRailGameToolCardContent {
           emoji: '🌌',
           label: $r('app.string.starrail_rogue_score_title'),
           value: this.snap.rogueScoreCurrent.toString() + '/' + this.snap.rogueScoreMax.toString(),
-          valueColor: this.tm.current.colorPrimary
+          valueColor: this.snap.rogueScoreCurrent >= this.snap.rogueScoreMax
+            ? this.tm.current.colorPrimary
+            : this.snap.rogueScoreCurrent === 0
+              ? this.tm.current.colorDanger
+              : this.tm.current.colorWarning
         })
       }
       if (this.snap.tournScoreCurrent >= 0) {
@@ -107,7 +116,11 @@ export struct StarRailGameToolCardContent {
           emoji: '💰',
           label: $r('app.string.starrail_tourn_score_title'),
           value: this.snap.tournScoreCurrent.toString() + '/' + this.snap.tournScoreMax.toString(),
-          valueColor: this.tm.current.colorDanger
+          valueColor: this.snap.tournScoreCurrent >= this.snap.tournScoreMax
+            ? this.tm.current.colorPrimary
+            : this.snap.tournScoreCurrent === 0
+              ? this.tm.current.colorDanger
+              : this.tm.current.colorWarning
         })
       }
     }

@@ -57,7 +57,7 @@ export struct CharactersSkeleton {
             Row()
               .width(this.tm.current.full)
               .aspectRatio(1)
-              .backgroundColor(this.tm.current.colorSkeletonBg)
+              .backgroundColor(this.tm.current.colorSurfaceSubtle)
               .opacity(this.imgOpacity)
 
             // 模拟等级 + 好感度信息行
@@ -65,14 +65,14 @@ export struct CharactersSkeleton {
               .width(this.tm.current.value120)
               .height(this.tm.current.value16)
               .borderRadius(this.tm.current.value4)
-              .backgroundColor(this.tm.current.colorSkeletonBg)
+              .backgroundColor(this.tm.current.colorSurfaceSubtle)
               .opacity(this.imgOpacity)
               .margin(this.tm.current.value8)
           }
           .width(this.tm.current.full)
           .backgroundColor(this.tm.current.colorSurfaceCard)
           .borderRadius(this.tm.current.radius12)
-          .border({ width: this.tm.current.value1, color: this.tm.current.colorCardBorder })
+          .border({ width: this.tm.current.value1, color: this.tm.current.colorDivider })
           .clip(true)
         }
       }, (skIdx: number) => `sk_${skIdx}`)

@@ -1,7 +1,7 @@
 #!/bin/bash
-# 启动模拟器 + Clean + Build(debug) + 安装 + 运行
-# debug 模式：使用真实 API，可配合 Proxyman 抓包调试
-# 用法：bash run-debug.sh [emulator_name]
+# 启动模拟器 + Clean + Build(mock) + 安装 + 运行
+# 用法：bash run-mock.sh [emulator_name]
+#   emulator_name 默认 "Mate 80 Pro Max"，可传 "Mate X7"
 
 set -e
 
@@ -10,12 +10,12 @@ HDC='/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/toolchains
 HVIGOR='/Applications/DevEco-Studio.app/Contents/tools/hvigor/bin/hvigorw'
 export DEVECO_SDK_HOME='/Applications/DevEco-Studio.app/Contents/sdk'
 
-BUNDLE='com.cainluo.mihoyo.tools.debug'
+BUNDLE='com.cainluo.mihoyo.tools.mock'
 TARGET='127.0.0.1:5555'
 AVD="${1:-Mate 80 Pro Max}"
 AVD_PATH="$HOME/.Huawei/Emulator/deployed/$AVD"
 IMAGE_ROOT="$HOME/Library/Huawei/Sdk"
-HAP='entry/build/debug/outputs/debug/entry-debug-unsigned.hap'
+HAP='entry/build/mock/outputs/mock/entry-mock-unsigned.hap'
 
 # ── 1. 启动模拟器（如果还没运行）──────────────────────────────
 if "$HDC" list targets 2>/dev/null | grep -q "$TARGET"; then
@@ -41,9 +41,9 @@ fi
 echo "▶ Clean..."
 "$HVIGOR" clean
 
-# ── 3. Build (debug buildMode) ────────────────────────────────
-echo "▶ Build (debug)..."
-"$HVIGOR" assembleHap -p product=debug
+# ── 3. Build (mock product) ───────────────────────────────────
+echo "▶ Build (mock)..."
+"$HVIGOR" assembleHap -p product=mock
 
 # ── 4. 安装 ──────────────────────────────────────────────────
 echo "▶ 安装..."

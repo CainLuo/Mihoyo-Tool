@@ -43,7 +43,7 @@ export struct AccountRolesSection {
                 .width(this.tm.current.value32)
                 .height(this.tm.current.value32)
                 .borderRadius(this.tm.current.value8)
-                .border({ width: 1, color: this.tm.current.colorCardBorder })
+                .border({ width: 1, color: this.tm.current.colorDivider })
                 .objectFit(ImageFit.Cover)
                 .flexShrink(0)
 
@@ -165,7 +165,7 @@ export struct AccountRolesSection {
           .backgroundColor(this.tm.current.colorSurfaceCard)
           .borderRadius(this.tm.current.radius12)
           .clip(true)
-          .border({ width: this.tm.current.value1, color: this.tm.current.colorCardBorder })
+          .border({ width: this.tm.current.value1, color: this.tm.current.colorDivider })
           .shadow({
             radius: this.tm.current.shadowRadius,
             color: this.tm.current.shadowColor,

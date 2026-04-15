@@ -31,7 +31,7 @@ export struct LoginCookie {
           .height(this.tm.current.value108)
           .borderRadius(this.tm.current.radius8)
           .borderWidth(this.tm.current.value1)
-          .borderColor(this.tm.current.colorCardBorder)
+          .borderColor(this.tm.current.colorDivider)
           .backgroundColor(this.tm.current.loginInputBg)
           .placeholderColor(this.tm.current.colorPlaceholder)
           .onChange((val: string) => {

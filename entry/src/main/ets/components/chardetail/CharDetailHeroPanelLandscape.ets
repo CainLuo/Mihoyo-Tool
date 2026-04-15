@@ -57,16 +57,40 @@ export struct CharDetailHeroPanelLandscape {
   @Param vm: GenshinCharacterDetailViewModel = new GenshinCharacterDetailViewModel();
   @Local private tm: ThemeManager = themeManager;
 
+  private elementBgColors(): LinearGradient {
+    const elem = this.vm.charElement;
+    const t = this.tm.current;
+    if (elem === GenshinElement.HYDRO) {
+      return { angle: t.a150, colors: [[t.bgElementHydro1, 0], [t.bgElementHydro2, 0.5], [t.bgElementHydro3, 1.0]] };
+    }
+    if (elem === GenshinElement.PYRO) {
+      return { angle: t.a150, colors: [[t.bgElementPyro1, 0], [t.bgElementPyro2, 0.5], [t.bgElementPyro3, 1.0]] };
+    }
+    if (elem === GenshinElement.ELECTRO) {
+      return { angle: t.a150, colors: [[t.bgElementElectro1, 0], [t.bgElementElectro2, 0.5], [t.bgElementElectro3, 1.0]] };
+    }
+    if (elem === GenshinElement.ANEMO) {
+      return { angle: t.a150, colors: [[t.bgElementAnemo1, 0], [t.bgElementAnemo2, 0.5], [t.bgElementAnemo3, 1.0]] };
+    }
+    if (elem === GenshinElement.GEO) {
+      return { angle: t.a150, colors: [[t.bgElementGeo1, 0], [t.bgElementGeo2, 0.5], [t.bgElementGeo3, 1.0]] };
+    }
+    if (elem === GenshinElement.CRYO) {
+      return { angle: t.a150, colors: [[t.bgElementCryo1, 0], [t.bgElementCryo2, 0.5], [t.bgElementCryo3, 1.0]] };
+    }
+    if (elem === GenshinElement.DENDRO) {
+      return { angle: t.a150, colors: [[t.bgElementDendro1, 0], [t.bgElementDendro2, 0.5], [t.bgElementDendro3, 1.0]] };
+    }
+    return { angle: t.a150, colors: [[t.bgPortrait1, 0], [t.bgPortrait2, 1.0]] };
+  }
+
   build() {
     Stack() {
-      // 背景
+      // 背景（元素力渐变）
       Column()
         .width(this.tm.current.full)
         .height(this.tm.current.full)
-        .linearGradient({
-          angle: this.tm.current.a150,
-          colors: [[this.tm.current.bgPortrait1, 0], [this.tm.current.bgPortrait2, 1.0]]
-        })
+        .linearGradient(this.elementBgColors())
 
       // 立绘铺满
       if (this.vm.charImageUrl !== '') {
@@ -132,7 +156,7 @@ export struct CharDetailHeroPanelLandscape {
                   .height(this.tm.current.value34)
                   .objectFit(ImageFit.Contain)
                   .borderRadius(this.tm.current.value17)
-                  .backgroundColor(this.tm.current.surfaceDark2xl)
+                  .backgroundColor(this.tm.current.surfaceDarkLg)
                   .border({ width: this.tm.current.value1p5, color: this.tm.current.surfaceSkillBorderPhone })
               }
               Text(`${skill.level}`)
