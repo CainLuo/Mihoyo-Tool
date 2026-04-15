@@ -67,17 +67,18 @@ export struct GameToolCard {
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
 
-          Row({ space: this.tm.current.value4 }) {
+          Row({ space: this.tm.current.value8 }) {
+            Text(this.card.server)
+              .font(this.tm.current.body13)
+              .fontColor(this.tm.current.colorTextSecondary)
+              .maxLines(1)
+              .flexShrink(0)
             Text(this.card.nickname)
               .font(this.tm.current.body13)
               .fontColor(this.tm.current.colorTextSecondary)
               .maxLines(1)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
               .layoutWeight(1)
-            Text(this.card.server)
-              .font(this.tm.current.body13)
-              .fontColor(this.tm.current.colorTextSecondary)
-              .maxLines(1)
           }
         }
         .alignItems(HorizontalAlign.Start)
