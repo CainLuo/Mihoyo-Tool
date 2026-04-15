@@ -19,7 +19,7 @@ export class DefaultTheme implements Theme {
   colorDanger: Resource = $r('app.color.color_danger')
   colorDangerBg: Resource = $r('app.color.color_danger_bg')
   colorWarning: Resource = $r('app.color.color_warning')
-  colorSkeletonBg: Resource = $r('app.color.color_skeleton_bg')
+  colorSurfaceSubtle: Resource = $r('app.color.color_surface_subtle')
   surfaceActivePrimary: Resource = $r('app.color.surface_active_primary')
   surfaceDarkLg: Resource = $r('app.color.surface_dark_lg')
   surfaceActiveBorder: Resource = $r('app.color.surface_active_border')

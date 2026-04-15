@@ -27,7 +27,7 @@ export interface AppColor {
   colorDanger: Resource
   colorDangerBg: Resource
   colorWarning: Resource
-  colorSkeletonBg: Resource
+  colorSurfaceSubtle: Resource
 
   // ---- Surface ----
   surfaceActivePrimary: Resource

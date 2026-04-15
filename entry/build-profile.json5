@@ -25,6 +25,28 @@
       name: "default",
     },
     {
+      name: "mock",
+      source: {
+        abilities: [
+          {
+            name: "EntryAbility",
+            label: "$string:EntryAbility_label_mock",
+          },
+        ],
+      },
+    },
+    {
+      name: "debug",
+      source: {
+        abilities: [
+          {
+            name: "EntryAbility",
+            label: "$string:EntryAbility_label_debug",
+          },
+        ],
+      },
+    },
+    {
       name: "ohosTest",
     },
   ],

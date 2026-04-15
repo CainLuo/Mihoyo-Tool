@@ -46,7 +46,7 @@ struct SkeletonBlock {
       .width(this.blockW)
       .height(this.blockH)
       .borderRadius(this.blockR)
-      .backgroundColor(this.tm.current.colorSkeletonBg)
+      .backgroundColor(this.tm.current.colorSurfaceSubtle)
       .opacity(this.shimmerOpacity)
   }
 }

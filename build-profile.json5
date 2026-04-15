@@ -5,6 +5,7 @@
       {
         name: "default",
         signingConfig: "default",
+        bundleName: "com.cainluo.mihoyo.tools",
         targetSdkVersion: "6.0.2(22)",
         compatibleSdkVersion: "6.0.2(22)",
         runtimeOS: "HarmonyOS",
@@ -13,23 +14,26 @@
             caseSensitiveCheck: true,
             useNormalizedOHMUrl: true,
           },
-        },
-      },
-    ],
-    buildModeSet: [
-      {
-        name: "debug",
-        buildOption: {
           arkOptions: {
             buildProfileFields: {
-              APP_ENV: "debug",
+              APP_ENV: "release",
             },
           },
         },
       },
       {
         name: "mock",
+        signingConfig: "default",
+        bundleName: "com.cainluo.mihoyo.tools.mock",
+        label: "$string:app_name_mock",
+        targetSdkVersion: "6.0.2(22)",
+        compatibleSdkVersion: "6.0.2(22)",
+        runtimeOS: "HarmonyOS",
         buildOption: {
+          strictMode: {
+            caseSensitiveCheck: true,
+            useNormalizedOHMUrl: true,
+          },
           arkOptions: {
             buildProfileFields: {
               APP_ENV: "mock",
@@ -38,14 +42,35 @@
         },
       },
       {
-        name: "release",
+        name: "debug",
+        signingConfig: "default",
+        bundleName: "com.cainluo.mihoyo.tools.debug",
+        label: "$string:app_name_debug",
+        targetSdkVersion: "6.0.2(22)",
+        compatibleSdkVersion: "6.0.2(22)",
+        runtimeOS: "HarmonyOS",
         buildOption: {
+          strictMode: {
+            caseSensitiveCheck: true,
+            useNormalizedOHMUrl: true,
+          },
           arkOptions: {
             buildProfileFields: {
-              APP_ENV: "release",
+              APP_ENV: "debug",
             },
           },
         },
+      },
+    ],
+    buildModeSet: [
+      {
+        name: "debug",
+      },
+      {
+        name: "mock",
+      },
+      {
+        name: "release",
       },
     ],
   },
@@ -58,6 +83,14 @@
           name: "default",
           applyToProducts: ["default"],
         },
+        {
+          name: "mock",
+          applyToProducts: ["mock"],
+        },
+        {
+          name: "debug",
+          applyToProducts: ["debug"],
+        },
       ],
     },
     {
@@ -67,6 +100,14 @@
         {
           name: "default",
           applyToProducts: ["default"],
+        },
+        {
+          name: "mock",
+          applyToProducts: ["mock"],
+        },
+        {
+          name: "debug",
+          applyToProducts: ["debug"],
         },
       ],
     },
