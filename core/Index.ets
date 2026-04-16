@@ -64,6 +64,12 @@ export * from './src/main/ets/constants/AppEnvManager';
 // 日志工具（core/entry 共用）
 export * from './src/main/ets/utils/Logger';
 
+// 日志系统
+export * from './src/main/ets/log/ApiLogEntry';
+export * from './src/main/ets/log/ApiLogSystem';
+export * from './src/main/ets/log/LogFileManager';
+export * from './src/main/ets/log/LogExporter';
+
 // 常量
 export * from './src/main/ets/constants/SyncDataType';
 export * from './src/main/ets/constants/GenshinPropertyType';

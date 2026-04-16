@@ -1,5 +1,7 @@
 import axios, { AxiosInstance, AxiosResponse } from '@ohos/axios';
 import { RequestParams, RequestOptions, RequestValue } from './APIs';
+import { ApiLogSystem } from '../log/ApiLogSystem';
+import { LogEventType } from '../log/ApiLogEntry';
 
 /**
  * HttpClient — HTTP 客户端
@@ -52,10 +54,66 @@ export class HttpClient {
     const headers = options?.extraHeaders !== undefined
       ? HttpClient.headersToRecord(options.extraHeaders)
       : new Object() as Record<string, string>;
-    const response: AxiosResponse = await HttpClient.getInstance().get(url, {
-      params: HttpClient.paramsToRecord(params),
-      headers,
-    });
+
+    const startTime = Date.now();
+    // 记录请求日志
+    try {
+      ApiLogSystem.getInstance().debug(
+        'HttpClient',
+        'GET ' + url,
+        LogEventType.API_REQUEST,
+        JSON.stringify({ method: 'GET', headers }),
+      );
+    } catch (_) {}
+
+    let response: AxiosResponse;
+    try {
+      response = await HttpClient.getInstance().get(url, {
+        params: HttpClient.paramsToRecord(params),
+        headers,
+      });
+    } catch (e) {
+      // 记录网络异常日志
+      try {
+        const err = e as Error;
+        ApiLogSystem.getInstance().error(
+          'HttpClient',
+          'GET ' + url + ' → ' + (err?.name ?? 'Error') + ': ' + (err?.message ?? String(e)),
+          LogEventType.API_ERROR,
+          JSON.stringify({ errorType: err?.name ?? 'Error', errorMessage: err?.message ?? String(e) }),
+        );
+      } catch (_) {}
+      throw new Error(e instanceof Error ? e.message : String(e));
+    }
+
+    const durationMs = Date.now() - startTime;
+    const data = response.data as Record<string, Object>;
+    const retcode = data['retcode'] as number | undefined;
+
+    if (retcode !== undefined && retcode !== 0) {
+      // 记录业务错误日志
+      try {
+        const message = data['message'] as string ?? '';
+        ApiLogSystem.getInstance().warning(
+          'HttpClient',
+          'GET ' + url + ' → retcode=' + retcode + ': ' + message,
+          LogEventType.API_ERROR,
+          JSON.stringify({ retcode, message }),
+        );
+      } catch (_) {}
+    } else {
+      // 记录成功响应日志
+      try {
+        const bodyPreview = JSON.stringify(data).substring(0, 500);
+        ApiLogSystem.getInstance().debug(
+          'HttpClient',
+          'GET ' + url + ' → 200 (' + durationMs + 'ms)',
+          LogEventType.API_RESPONSE,
+          JSON.stringify({ statusCode: 200, durationMs, bodyPreview }),
+        );
+      } catch (_) {}
+    }
+
     return response.data as object;
   }
 
@@ -81,7 +139,64 @@ export class HttpClient {
     } else {
       body = undefined;
     }
-    const response: AxiosResponse = await HttpClient.getInstance().post(url, body, { headers });
+
+    const startTime = Date.now();
+    const bodySize = typeof body === 'string' ? body.length : 0;
+    // 记录请求日志
+    try {
+      ApiLogSystem.getInstance().debug(
+        'HttpClient',
+        'POST ' + url,
+        LogEventType.API_REQUEST,
+        JSON.stringify({ method: 'POST', headers, bodySize }),
+      );
+    } catch (_) {}
+
+    let response: AxiosResponse;
+    try {
+      response = await HttpClient.getInstance().post(url, body, { headers });
+    } catch (e) {
+      // 记录网络异常日志
+      try {
+        const err = e as Error;
+        ApiLogSystem.getInstance().error(
+          'HttpClient',
+          'POST ' + url + ' → ' + (err?.name ?? 'Error') + ': ' + (err?.message ?? String(e)),
+          LogEventType.API_ERROR,
+          JSON.stringify({ errorType: err?.name ?? 'Error', errorMessage: err?.message ?? String(e) }),
+        );
+      } catch (_) {}
+      throw new Error(e instanceof Error ? e.message : String(e));
+    }
+
+    const durationMs = Date.now() - startTime;
+    const respData = response.data as Record<string, Object>;
+    const retcode = respData['retcode'] as number | undefined;
+
+    if (retcode !== undefined && retcode !== 0) {
+      // 记录业务错误日志
+      try {
+        const message = respData['message'] as string ?? '';
+        ApiLogSystem.getInstance().warning(
+          'HttpClient',
+          'POST ' + url + ' → retcode=' + retcode + ': ' + message,
+          LogEventType.API_ERROR,
+          JSON.stringify({ retcode, message }),
+        );
+      } catch (_) {}
+    } else {
+      // 记录成功响应日志
+      try {
+        const bodyPreview = JSON.stringify(respData).substring(0, 500);
+        ApiLogSystem.getInstance().debug(
+          'HttpClient',
+          'POST ' + url + ' → 200 (' + durationMs + 'ms)',
+          LogEventType.API_RESPONSE,
+          JSON.stringify({ statusCode: 200, durationMs, bodyPreview }),
+        );
+      } catch (_) {}
+    }
+
     return response.data as object;
   }
 }

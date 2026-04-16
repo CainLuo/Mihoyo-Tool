@@ -21,6 +21,9 @@ import {
   GameRolesResponse,
   GameRecordCardResponse,
 } from '../models/GameRoleModels';
+import { ApiLogSystem } from '../log/ApiLogSystem';
+import { LogEventType } from '../log/ApiLogEntry';
+import { AuthExpiredError, GeetestRequiredError, GeetestSignRequiredError } from '../errors/ApiErrors';
 
 export {
   GameRoleRecord,
@@ -263,6 +266,15 @@ export class BBSRepository {
       return result;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
+      try {
+        if (error instanceof AuthExpiredError) {
+          ApiLogSystem.getInstance().warning('BBSRepository', 'AuthExpiredError in getBbsAccountDetail: ' + msg, LogEventType.GENERAL);
+        } else if (error instanceof GeetestRequiredError || error instanceof GeetestSignRequiredError) {
+          ApiLogSystem.getInstance().warning('BBSRepository', 'GeetestError in getBbsAccountDetail: ' + msg, LogEventType.GENERAL);
+        } else {
+          ApiLogSystem.getInstance().error('BBSRepository', 'getBbsAccountDetail failed: ' + msg, LogEventType.GENERAL);
+        }
+      } catch (_) {}
       throw new Error(`BBSRepository.getBbsAccountDetail failed: ${msg}`);
     }
   }
@@ -296,6 +308,15 @@ export class BBSRepository {
       return rows;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
+      try {
+        if (error instanceof AuthExpiredError) {
+          ApiLogSystem.getInstance().warning('BBSRepository', 'AuthExpiredError in getUserGameRoles: ' + msg, LogEventType.GENERAL);
+        } else if (error instanceof GeetestRequiredError || error instanceof GeetestSignRequiredError) {
+          ApiLogSystem.getInstance().warning('BBSRepository', 'GeetestError in getUserGameRoles: ' + msg, LogEventType.GENERAL);
+        } else {
+          ApiLogSystem.getInstance().error('BBSRepository', 'getUserGameRoles failed: ' + msg, LogEventType.GENERAL);
+        }
+      } catch (_) {}
       throw new Error(`BBSRepository.getUserGameRoles failed: ${msg}`);
     }
   }
@@ -333,6 +354,15 @@ export class BBSRepository {
       return rows;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
+      try {
+        if (error instanceof AuthExpiredError) {
+          ApiLogSystem.getInstance().warning('BBSRepository', 'AuthExpiredError in getGameRecordCard: ' + msg, LogEventType.GENERAL);
+        } else if (error instanceof GeetestRequiredError || error instanceof GeetestSignRequiredError) {
+          ApiLogSystem.getInstance().warning('BBSRepository', 'GeetestError in getGameRecordCard: ' + msg, LogEventType.GENERAL);
+        } else {
+          ApiLogSystem.getInstance().error('BBSRepository', 'getGameRecordCard failed: ' + msg, LogEventType.GENERAL);
+        }
+      } catch (_) {}
       throw new Error(`BBSRepository.getGameRecordCard failed: ${msg}`);
     }
   }

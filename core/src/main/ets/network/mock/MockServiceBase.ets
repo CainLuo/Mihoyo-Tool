@@ -2,6 +2,8 @@ import { common } from '@kit.AbilityKit';
 import { util } from '@kit.ArkTS';
 import { MihoyoApiService } from '../MihoyoApiService';
 import { RequestParams, RequestOptions } from '../APIs';
+import { ApiLogSystem } from '../../log/ApiLogSystem';
+import { LogEventType } from '../../log/ApiLogEntry';
 
 export abstract class MockServiceBase extends MihoyoApiService {
   protected static readonly MOCK_DELAY_MS: number = 300;
@@ -31,17 +33,58 @@ export abstract class MockServiceBase extends MihoyoApiService {
     const fileName = avatarId ? `${avatarId}.json` : MockServiceBase.pathToFileName(path);
     const rm = context.resourceManager;
     let fileContent: Uint8Array;
+    const startTime = Date.now();
+
+    // 记录请求日志
+    try {
+      ApiLogSystem.getInstance().debug(
+        'MockService',
+        '[MOCK] ' + path + ' → ' + fileName,
+        LogEventType.API_REQUEST,
+        JSON.stringify({ path, fileName, accountId, roleId: roleId ?? '' }),
+      );
+    } catch (_) {}
 
     if (roleId) {
       try {
         fileContent = await rm.getRawFileContent(`mock/${accountId}/${roleId}/${fileName}`);
-        return MockServiceBase.parseAndCheck(fileContent);
+        const result = MockServiceBase.parseAndCheck(fileContent);
+        const durationMs = Date.now() - startTime;
+        try {
+          ApiLogSystem.getInstance().debug(
+            'MockService',
+            '[MOCK] ' + path + ' → 200 (' + durationMs + 'ms)',
+            LogEventType.API_RESPONSE,
+            JSON.stringify({ statusCode: 200, durationMs, mockFile: `mock/${accountId}/${roleId}/${fileName}` }),
+          );
+        } catch (_) {}
+        return result;
       } catch (_) {}
     }
 
     try {
       fileContent = await rm.getRawFileContent(`mock/${accountId}/${fileName}`);
-      return MockServiceBase.parseAndCheck(fileContent);
+      const result = MockServiceBase.parseAndCheck(fileContent);
+      const durationMs = Date.now() - startTime;
+      try {
+        ApiLogSystem.getInstance().debug(
+          'MockService',
+          '[MOCK] ' + path + ' → 200 (' + durationMs + 'ms)',
+          LogEventType.API_RESPONSE,
+          JSON.stringify({ statusCode: 200, durationMs, mockFile: `mock/${accountId}/${fileName}` }),
+        );
+      } catch (_) {}
+      return result;
+    } catch (_) {}
+
+    // 文件不存在，记录警告
+    try {
+      ApiLogSystem.getInstance().warning(
+        'MockService',
+        '[MOCK] File not found: mock/' + accountId + '/' + fileName + ' → returning empty response',
+        LogEventType.API_ERROR,
+        JSON.stringify({ mockFile: `mock/${accountId}/${fileName}` }),
+      );
     } catch (_) {}
 
     const empty = new Object() as Record<string, Object>;
@@ -69,22 +112,62 @@ export abstract class MockServiceBase extends MihoyoApiService {
     const fileName = avatarId ? `${avatarId}.json` : MockServiceBase.pathToFileName(path);
     const rm = this.context.resourceManager;
     let fileContent: Uint8Array;
+    const startTime = Date.now();
+
+    // 记录请求日志
+    try {
+      ApiLogSystem.getInstance().debug(
+        'MockService',
+        '[MOCK] ' + path + ' → ' + fileName,
+        LogEventType.API_REQUEST,
+        JSON.stringify({ path, fileName, accountId, roleId: roleId ?? '' }),
+      );
+    } catch (_) {}
 
     // 优先：{accountId}/{roleId}/文件名
     if (roleId) {
       try {
         fileContent = await rm.getRawFileContent(`mock/${accountId}/${roleId}/${fileName}`);
-        return MockServiceBase.parseAndCheck(fileContent);
+        const result = MockServiceBase.parseAndCheck(fileContent);
+        const durationMs = Date.now() - startTime;
+        try {
+          ApiLogSystem.getInstance().debug(
+            'MockService',
+            '[MOCK] ' + path + ' → 200 (' + durationMs + 'ms)',
+            LogEventType.API_RESPONSE,
+            JSON.stringify({ statusCode: 200, durationMs, mockFile: `mock/${accountId}/${roleId}/${fileName}` }),
+          );
+        } catch (_) {}
+        return result;
       } catch (_) {}
     }
 
     // 次优：{accountId}/文件名（账号级接口）
     try {
       fileContent = await rm.getRawFileContent(`mock/${accountId}/${fileName}`);
-      return MockServiceBase.parseAndCheck(fileContent);
+      const result = MockServiceBase.parseAndCheck(fileContent);
+      const durationMs = Date.now() - startTime;
+      try {
+        ApiLogSystem.getInstance().debug(
+          'MockService',
+          '[MOCK] ' + path + ' → 200 (' + durationMs + 'ms)',
+          LogEventType.API_RESPONSE,
+          JSON.stringify({ statusCode: 200, durationMs, mockFile: `mock/${accountId}/${fileName}` }),
+        );
+      } catch (_) {}
+      return result;
     } catch (_) {}
 
-    // 兜底：空响应
+    // 兜底：空响应，记录文件不存在警告
+    try {
+      ApiLogSystem.getInstance().warning(
+        'MockService',
+        '[MOCK] File not found: mock/' + accountId + '/' + fileName + ' → returning empty response',
+        LogEventType.API_ERROR,
+        JSON.stringify({ mockFile: `mock/${accountId}/${fileName}` }),
+      );
+    } catch (_) {}
+
     const empty = new Object() as Record<string, Object>;
     empty['retcode'] = 0;
     empty['message'] = 'success';

@@ -11,6 +11,9 @@ import { StarRailRepository } from './repository/StarRailRepository';
 import { ZZZRepository } from './repository/ZZZRepository';
 import { SignRepository } from './repository/SignRepository';
 import { SyncQueueRunner } from './repository/SyncQueueRunner';
+import { ApiLogSystem } from './log/ApiLogSystem';
+import { LogEventType } from './log/ApiLogEntry';
+import { Logger } from './utils/Logger';
 
 export interface CoreConfig {
   env: AppEnv;
@@ -79,12 +82,27 @@ export class CoreInitializer {
       return;
     }
 
-    // 第一步：注入全局环境，后续所有 AppEnvManager.isMock() 调用均依赖此
+    console.log('[CoreInitializer] initCore called, env=' + config.env);
     AppEnvManager.setup(config.env);
     CoreInitializer.appContext = config.context;
 
+    // 写入启动日志（此时 ApiLogSystem 尚未初始化，进入 pendingQueue）
+    ApiLogSystem.getInstance().info(
+      'CoreInitializer',
+      'initCore started, env=' + config.env,
+      LogEventType.LIFECYCLE,
+    );
+
     // 1. 初始化数据库
     await RdbManager.init(config.context);
+
+    // 2. 初始化日志系统（DB 之后，pendingQueue 中的日志批量写入）
+    // 即使 DB 初始化失败，日志系统也应该独立初始化
+    try {
+      await ApiLogSystem.getInstance().init(config.context);
+    } catch (logErr) {
+      Logger.error('CoreInitializer', 'ApiLogSystem init failed: ' + String(logErr));
+    }
 
     // 2. 预加载设备配置和 salt
     await ApiConfig.preloadDeviceId(config.context);
