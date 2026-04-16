@@ -269,6 +269,34 @@
       "value": "版本"
     },
     {
+      "name": "my_export_logs",
+      "value": "导出日志"
+    },
+    {
+      "name": "my_clear_cache",
+      "value": "清理缓存"
+    },
+    {
+      "name": "my_clear_cache_confirm_title",
+      "value": "确认清理"
+    },
+    {
+      "name": "my_clear_cache_confirm_msg",
+      "value": "将删除所有本地日志文件，此操作不可撤销"
+    },
+    {
+      "name": "my_clear_cache_success",
+      "value": "已释放 %s"
+    },
+    {
+      "name": "my_clear_cache_failed",
+      "value": "清理完成，%d 个文件删除失败"
+    },
+    {
+      "name": "my_export_logs_failed",
+      "value": "导出失败，请重试"
+    },
+    {
       "name": "account_detail_title",
       "value": "账号详情"
     },

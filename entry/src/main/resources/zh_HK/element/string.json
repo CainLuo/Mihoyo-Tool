@@ -169,6 +169,34 @@
       "value": "版本"
     },
     {
+      "name": "my_export_logs",
+      "value": "導出日誌"
+    },
+    {
+      "name": "my_clear_cache",
+      "value": "清理緩存"
+    },
+    {
+      "name": "my_clear_cache_confirm_title",
+      "value": "確認清理"
+    },
+    {
+      "name": "my_clear_cache_confirm_msg",
+      "value": "將刪除所有本地日誌文件，此操作不可撤銷"
+    },
+    {
+      "name": "my_clear_cache_success",
+      "value": "已釋放 %s"
+    },
+    {
+      "name": "my_clear_cache_failed",
+      "value": "清理完成，%d 個文件刪除失敗"
+    },
+    {
+      "name": "my_export_logs_failed",
+      "value": "導出失敗，請重試"
+    },
+    {
       "name": "account_detail_title",
       "value": "帳號詳情"
     },

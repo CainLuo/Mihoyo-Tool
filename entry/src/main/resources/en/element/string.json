@@ -169,6 +169,34 @@
       "value": "Version"
     },
     {
+      "name": "my_export_logs",
+      "value": "Export Logs"
+    },
+    {
+      "name": "my_clear_cache",
+      "value": "Clear Cache"
+    },
+    {
+      "name": "my_clear_cache_confirm_title",
+      "value": "Confirm Clear"
+    },
+    {
+      "name": "my_clear_cache_confirm_msg",
+      "value": "All local log files will be deleted. This cannot be undone."
+    },
+    {
+      "name": "my_clear_cache_success",
+      "value": "Freed %s"
+    },
+    {
+      "name": "my_clear_cache_failed",
+      "value": "Done, %d file(s) failed to delete"
+    },
+    {
+      "name": "my_export_logs_failed",
+      "value": "Export failed, please try again"
+    },
+    {
       "name": "account_detail_title",
       "value": "Account Detail"
     },
