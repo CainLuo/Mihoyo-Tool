@@ -15,13 +15,13 @@
 
 ## Glossary
 
-- **DSUtilV2**: 负责生成米哈游 DS 动态签名的工具类，位于 `core/src/main/ets/network/v2/DSUtilV2.ets`
-- **MockServiceBase**: Mock 服务基类，提供路径映射和 Cookie 解析静态方法，位于 `core/src/main/ets/network/v2/mock/MockServiceBase.ets`
+- **DSUtilV2**: 负责生成米哈游 DS 动态签名的工具类，位于 `core/src/main/ets/network/DSUtilV2.ets`
+- **MockServiceBase**: Mock 服务基类，提供路径映射和 Cookie 解析静态方法，位于 `core/src/main/ets/network/mock/MockServiceBase.ets`
 - **GenshinDailyNoteParser**: 原神便笺 JSON 解析器，位于 `core/src/main/ets/parsers/genshin/GenshinDailyNoteParser.ets`
 - **StarRailDailyNoteParser**: 星铁便笺 JSON 解析器，位于 `core/src/main/ets/parsers/starrail/StarRailDailyNoteParser.ets`
 - **ZZZDailyNoteParser**: 绝区零便笺 JSON 解析器，位于 `core/src/main/ets/parsers/zzz/ZZZDailyNoteParser.ets`
 - **SyncDataType**: 枚举类，定义 sync_meta 表的 data_type 字段值，位于 `core/src/main/ets/constants/SyncDataType.ets`
-- **Row_Model**: v2 数据库行模型类，位于 `core/src/main/ets/models/v2/` 目录下
+- **Row_Model**: v2 数据库行模型类，位于 `core/src/main/ets/models/` 目录下
 - **RequestParams**: 请求参数容器类，位于 `core/src/main/ets/network/APIs.ets`
 - **DS**: Dynamic Signature，米哈游 API 请求头中的动态签名字段，格式为 `{timestamp},{random},{md5}`
 
@@ -209,8 +209,8 @@
 
 #### Acceptance Criteria
 
-1. WHEN `new AccountRowV2()` is instantiated, THE AccountRowV2 SHALL have `id=0`, `username=''`, `cookie=''`, `stoken=''`, `isActive=0`, `uid=''`, `nickname=''`, `avatarUrl=''`
-2. WHEN `new GameRoleRowV2()` is instantiated, THE GameRoleRowV2 SHALL have `id=0`, `accountId=0`, `gameId=''`, `roleId=''`, `level=0`, `isChosen=0`, `isPublic=0`
+1. WHEN `new AccountRow()` is instantiated, THE AccountRow SHALL have `id=0`, `username=''`, `cookie=''`, `stoken=''`, `isActive=0`, `uid=''`, `nickname=''`, `avatarUrl=''`
+2. WHEN `new GameRoleRow()` is instantiated, THE GameRoleRow SHALL have `id=0`, `accountId=0`, `gameId=''`, `roleId=''`, `level=0`, `isChosen=0`, `isPublic=0`
 3. WHEN any Genshin Row model is instantiated, THE Row_Model SHALL have all numeric fields defaulting to `0` and all string fields defaulting to `''`
 4. WHEN any StarRail Row model is instantiated, THE Row_Model SHALL have all numeric fields defaulting to `0` and all string fields defaulting to `''`
 5. WHEN any ZZZ Row model is instantiated, THE Row_Model SHALL have all numeric fields defaulting to `0` and all string fields defaulting to `''`, except `ZZZAvatarBasicRow.rarity` which defaults to `''` (TEXT type)

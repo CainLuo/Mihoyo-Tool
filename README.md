@@ -2,7 +2,7 @@
 
 HarmonyOS NEXT 米游社工具箱，支持原神、崩坏：星穹铁道、绝区零的游戏数据查看。
 
-基于 ArkTS + ArkUI V2 开发，采用 MVVM 架构，支持 Phone / Tablet / 2in1 多设备自适应布局。
+基于 ArkTS + ArkUI 开发，采用 MVVM 架构，支持 Phone / Tablet / 2in1 多设备自适应布局。
 
 ---
 

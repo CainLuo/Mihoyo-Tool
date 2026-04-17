@@ -657,15 +657,15 @@ Text($r("app.string.home_title"));
 
 ### 机制说明
 
-| source set | `APP_RUNTIME_ENV` | `CoreInitializerV2.isMock` | 网络实现                                          |
-| ---------- | ----------------- | -------------------------- | ------------------------------------------------- |
-| `mock`     | `"Mock"`          | `true`                     | 各游戏 MockService（读本地 rawfile/mock/\*.json） |
-| `release`  | `"Release"`       | `false`                    | 各游戏 ApiService（真实 Axios 请求）              |
-| `main`     | `"Other"`         | `false`                    | 各游戏 ApiService                                 |
+| source set | `APP_RUNTIME_ENV` | `CoreInitializer.isMock` | 网络实现                                          |
+| ---------- | ----------------- | ------------------------ | ------------------------------------------------- |
+| `mock`     | `"Mock"`          | `true`                   | 各游戏 MockService（读本地 rawfile/mock/\*.json） |
+| `release`  | `"Release"`       | `false`                  | 各游戏 ApiService（真实 Axios 请求）              |
+| `main`     | `"Other"`         | `false`                  | 各游戏 ApiService                                 |
 
 - `entry/src/mock/ets/config/RuntimeConfig.ets` → `APP_RUNTIME_ENV = 'Mock'`
 - `entry/src/release/ets/config/RuntimeConfig.ets` → `APP_RUNTIME_ENV = 'Release'`
-- `EntryAbility.onCreate` 调用 `CoreInitializerV2.initCore({ isMock, context })`
+- `EntryAbility.onCreate` 调用 `CoreInitializer.initCore({ isMock, context })`
 - `MihoyoApiServiceFactory` 根据 `MihoyoEnvironment` 创建对应的 Service 实例并注入到 Repository
 
 ### 规则
@@ -678,7 +678,7 @@ Text($r("app.string.home_title"));
 
 ## 八、应用架构规范（MVVM）
 
-本项目采用 **ArkUI V2 MVVM** 分层架构，严格按以下分层组织代码：
+本项目采用 **ArkUI MVVM** 分层架构，严格按以下分层组织代码：
 
 ```
 entry/src/main/ets/
@@ -688,9 +688,9 @@ entry/src/main/ets/
 └── ...
 
 core/src/main/ets/
-├── repository/v2/  # Model 层 — 数据访问（网络 + 本地 DB）
-├── network/v2/     # 网络基础设施（Service + HeaderBuilder + DSUtil）
-└── database/v2/    # 数据库基础设施（RdbManagerV2 + DAO）
+├── repository/  # Model 层 — 数据访问（网络 + 本地 DB）
+├── network/     # 网络基础设施（Service + HeaderBuilder + DSUtil）
+└── database/    # 数据库基础设施（RdbManager + DAO）
 ```
 
 ### 各层职责
@@ -723,7 +723,7 @@ export class HomeViewModel {
 }
 ```
 
-**Model 层（core/src/main/ets/repository/v2/）**
+**Model 层（core/src/main/ets/repository/）**
 
 - `BBSRepository`：账号和游戏角色（独立，不继承 `GameRepository`）
 - `GenshinRepository`、`StarRailRepository`、`ZZZRepository`：各游戏数据，继承 `GameRepository`
@@ -997,7 +997,7 @@ ForEach(AppConstants.SKELETON_CHARACTER_INDICES, (idx: number) => { ... })
 
 ### 作用说明
 
-`@Monitor('vm.fieldName')` 是 ArkUI V2 的响应式副作用装饰器，监听指定 `@Trace` 字段的变化，字段变更时自动调用被装饰的方法。等价于 Vue 的 `watch`，常用于 View 层响应 ViewModel 的副作用信号（弹窗、跳转等）。
+`@Monitor('vm.fieldName')` 是 ArkUI 的响应式副作用装饰器，监听指定 `@Trace` 字段的变化，字段变更时自动调用被装饰的方法。等价于 Vue 的 `watch`，常用于 View 层响应 ViewModel 的副作用信号（弹窗、跳转等）。
 
 ### 必须使用 ViewModel.KEYS 常量
 

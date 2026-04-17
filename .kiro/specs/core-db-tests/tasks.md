@@ -4,7 +4,7 @@
 
 ### 1. DB 层设备端测试（core/src/ohosTest/）
 
-- [x] 1.1 新建 `core/src/ohosTest/ets/test/RdbManagerV2.test.ets`
+- [x] 1.1 新建 `core/src/ohosTest/ets/test/RdbManager.test.ets`
   - 测试 `init(context)` 成功，`getRdbStore()` 返回非 null
   - 测试 `init` 幂等（重复调用不抛异常）
   - 测试 `createTables` 幂等（IF NOT EXISTS 保证，再次调用不抛异常）
@@ -109,7 +109,7 @@
     - `findByAvatarId_notExists_returnsNull`：空表 findByAvatarId 返回 null
     - `deleteAll_clearsData_findByAvatarIdReturnsNull`：deleteAll 后 findByAvatarId 返回 null
 
-- [x] 1.6 新建 `core/src/ohosTest/ets/test/SyncMetaDaoV2.test.ets`
+- [x] 1.6 新建 `core/src/ohosTest/ets/test/SyncMetaDao.test.ets`
   - `upsert_newRow_findOneReturnsRow`：upsert 写入，findOne 返回对应行
   - `upsert_duplicateUniqueKey_updatesExisting`：相同唯一键再次写入，仍只有 1 条
   - `findOne_exists_returnsMatchingRow`：findOne 存在，返回字段与写入一致
@@ -120,7 +120,7 @@
   - `updateStatus_notExists_noException`：记录不存在时 updateStatus 不抛异常
 
 - [x] 1.7 更新 `core/src/ohosTest/ets/test/List.test.ets`
-  - import 并注册以上 6 个新 DB 测试套件（RdbManagerV2、BBSDao、GenshinDao、StarRailDao、ZZZDao、SyncMetaDaoV2）
+  - import 并注册以上 6 个新 DB 测试套件（RdbManager、BBSDao、GenshinDao、StarRailDao、ZZZDao、SyncMetaDao）
 
 ---
 

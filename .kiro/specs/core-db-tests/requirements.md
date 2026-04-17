@@ -2,11 +2,11 @@
 
 ## Introduction
 
-本 Spec 专门覆盖 `core/src/ohosTest/` 下的设备端测试，分两层：DB 层（DAO + RdbManagerV2）和 Repository 层。所有测试需要真实 RDB，在模拟器上运行，使用 `@ohos/hypium` 框架。
+本 Spec 专门覆盖 `core/src/ohosTest/` 下的设备端测试，分两层：DB 层（DAO + RdbManager）和 Repository 层。所有测试需要真实 RDB，在模拟器上运行，使用 `@ohos/hypium` 框架。
 
 ## Glossary
 
-- **RdbManagerV2**: 数据库管理器，负责初始化、建表、事务管理
+- **RdbManager**: 数据库管理器，负责初始化、建表、事务管理
 - **AccountDao**: 操作 `account_table` 的 DAO 类
 - **GameRoleDao**: 操作 `game_role_table` 的 DAO 类
 - **GenshinCharacterListDao**: 操作 `genshin_character_list` 的 DAO 类
@@ -21,7 +21,7 @@
 - **ZZZDailyNoteDao**: 操作 `zzz_daily_note` 的 DAO 类
 - **ZZZAvatarInfoDao**: 操作 `zzz_avatar_info` 的 DAO 类
 - **ZZZAvatarComputeDao**: 操作 `zzz_avatar_compute` 的 DAO 类
-- **SyncMetaDaoV2**: 操作 `sync_meta` 的 DAO 类
+- **SyncMetaDao**: 操作 `sync_meta` 的 DAO 类
 - **BBSRepository**: 账号和游戏角色的 Repository 层
 - **GenshinRepository**: 原神数据的 Repository 层
 - **StarRailRepository**: 星穹铁道数据的 Repository 层
@@ -32,20 +32,20 @@
 
 ## Requirements
 
-### Requirement 1: RdbManagerV2 初始化与基础功能
+### Requirement 1: RdbManager 初始化与基础功能
 
-**User Story:** As a developer, I want RdbManagerV2 to correctly initialize the database and manage transactions, so that all DAO operations have a reliable database foundation.
+**User Story:** As a developer, I want RdbManager to correctly initialize the database and manage transactions, so that all DAO operations have a reliable database foundation.
 
 #### Acceptance Criteria
 
-1. WHEN `RdbManagerV2.init(context)` is called on an uninitialized database, THE RdbManagerV2 SHALL complete without throwing an exception and `getRdbStore()` SHALL return a non-null store instance.
-2. WHEN `RdbManagerV2.init(context)` is called a second time on an already-initialized database, THE RdbManagerV2 SHALL complete without throwing an exception (idempotent behavior).
-3. WHEN `createTables()` is called on a database that already has all tables, THE RdbManagerV2 SHALL complete without throwing an exception (IF NOT EXISTS guarantees idempotence).
-4. WHEN `runInTransaction` is called with a function that executes SQL without throwing, THE RdbManagerV2 SHALL commit the transaction and the data SHALL be readable after the transaction.
-5. WHEN `runInTransaction` is called with a function that throws an exception, THE RdbManagerV2 SHALL rollback the transaction and the data SHALL NOT be written to the database.
-6. WHEN `runMigrations()` is called on a brand-new database, THE RdbManagerV2 SHALL set `PRAGMA user_version` to 1.
-7. WHEN the database is initialized, THE RdbManagerV2 SHALL create exactly 15 tables, all of which SHALL be queryable from `sqlite_master`.
-8. WHEN the database is initialized, THE RdbManagerV2 SHALL execute `PRAGMA foreign_keys = ON`, and querying `PRAGMA foreign_keys` SHALL return 1.
+1. WHEN `RdbManager.init(context)` is called on an uninitialized database, THE RdbManager SHALL complete without throwing an exception and `getRdbStore()` SHALL return a non-null store instance.
+2. WHEN `RdbManager.init(context)` is called a second time on an already-initialized database, THE RdbManager SHALL complete without throwing an exception (idempotent behavior).
+3. WHEN `createTables()` is called on a database that already has all tables, THE RdbManager SHALL complete without throwing an exception (IF NOT EXISTS guarantees idempotence).
+4. WHEN `runInTransaction` is called with a function that executes SQL without throwing, THE RdbManager SHALL commit the transaction and the data SHALL be readable after the transaction.
+5. WHEN `runInTransaction` is called with a function that throws an exception, THE RdbManager SHALL rollback the transaction and the data SHALL NOT be written to the database.
+6. WHEN `runMigrations()` is called on a brand-new database, THE RdbManager SHALL set `PRAGMA user_version` to 1.
+7. WHEN the database is initialized, THE RdbManager SHALL create exactly 15 tables, all of which SHALL be queryable from `sqlite_master`.
+8. WHEN the database is initialized, THE RdbManager SHALL execute `PRAGMA foreign_keys = ON`, and querying `PRAGMA foreign_keys` SHALL return 1.
 
 ### Requirement 2: AccountDao CRUD 操作
 
@@ -155,20 +155,20 @@
 19. WHEN `ZZZAvatarComputeDao.findByAvatarId` is called on an empty table, THE ZZZAvatarComputeDao SHALL return null.
 20. WHEN `ZZZAvatarComputeDao.deleteAll(accountId, roleUid)` is called, THE ZZZAvatarComputeDao SHALL delete all records and `findByAvatarId` SHALL return null.
 
-### Requirement 7: SyncMetaDaoV2 CRUD 操作
+### Requirement 7: SyncMetaDao CRUD 操作
 
-**User Story:** As a developer, I want SyncMetaDaoV2 to correctly persist and update sync status records, so that the application can track the synchronization state of each data type.
+**User Story:** As a developer, I want SyncMetaDao to correctly persist and update sync status records, so that the application can track the synchronization state of each data type.
 
 #### Acceptance Criteria
 
-1. WHEN `SyncMetaDaoV2.upsert(row)` is called with a new record, THE SyncMetaDaoV2 SHALL insert the record and `findOne` SHALL return the corresponding row with matching fields.
-2. WHEN `SyncMetaDaoV2.upsert` is called with the same `(accountId, roleUid, dataType)` unique key, THE SyncMetaDaoV2 SHALL update the existing record and only 1 row SHALL exist.
-3. WHEN `SyncMetaDaoV2.findOne(accountId, roleUid, dataType)` is called with an existing record, THE SyncMetaDaoV2 SHALL return the row with all fields matching the inserted values.
-4. WHEN `SyncMetaDaoV2.findOne` is called on an empty table, THE SyncMetaDaoV2 SHALL return null.
-5. WHEN `SyncMetaDaoV2.updateStatus` is called with status `'syncing'` on an existing record, THE SyncMetaDaoV2 SHALL update `syncStatus` to `'syncing'` and SHALL NOT update `lastSyncTime`.
-6. WHEN `SyncMetaDaoV2.updateStatus` is called with status `'success'` on an existing record, THE SyncMetaDaoV2 SHALL update `syncStatus` to `'success'` and SHALL update `lastSyncTime` to the current Unix timestamp.
-7. WHEN `SyncMetaDaoV2.updateStatus` is called with status `'failed'` and an error message on an existing record, THE SyncMetaDaoV2 SHALL update `syncStatus` to `'failed'` and `errorMsg` to the provided message.
-8. WHEN `SyncMetaDaoV2.updateStatus` is called on a non-existent record, THE SyncMetaDaoV2 SHALL complete without throwing an exception (UPDATE affects 0 rows).
+1. WHEN `SyncMetaDao.upsert(row)` is called with a new record, THE SyncMetaDao SHALL insert the record and `findOne` SHALL return the corresponding row with matching fields.
+2. WHEN `SyncMetaDao.upsert` is called with the same `(accountId, roleUid, dataType)` unique key, THE SyncMetaDao SHALL update the existing record and only 1 row SHALL exist.
+3. WHEN `SyncMetaDao.findOne(accountId, roleUid, dataType)` is called with an existing record, THE SyncMetaDao SHALL return the row with all fields matching the inserted values.
+4. WHEN `SyncMetaDao.findOne` is called on an empty table, THE SyncMetaDao SHALL return null.
+5. WHEN `SyncMetaDao.updateStatus` is called with status `'syncing'` on an existing record, THE SyncMetaDao SHALL update `syncStatus` to `'syncing'` and SHALL NOT update `lastSyncTime`.
+6. WHEN `SyncMetaDao.updateStatus` is called with status `'success'` on an existing record, THE SyncMetaDao SHALL update `syncStatus` to `'success'` and SHALL update `lastSyncTime` to the current Unix timestamp.
+7. WHEN `SyncMetaDao.updateStatus` is called with status `'failed'` and an error message on an existing record, THE SyncMetaDao SHALL update `syncStatus` to `'failed'` and `errorMsg` to the provided message.
+8. WHEN `SyncMetaDao.updateStatus` is called on a non-existent record, THE SyncMetaDao SHALL complete without throwing an exception (UPDATE affects 0 rows).
 
 ### Requirement 8: BBSRepository 操作
 
@@ -254,7 +254,7 @@
 
 #### Acceptance Criteria
 
-1. THE Test_Suite SHALL initialize the database via `RdbManagerV2.init(context)` in `beforeAll` before any test cases run.
+1. THE Test_Suite SHALL initialize the database via `RdbManager.init(context)` in `beforeAll` before any test cases run.
 2. WHEN each test case starts, THE Test_Suite SHALL clear all relevant table data via `beforeEach` to ensure test independence.
 3. THE DB_Layer_Tests SHALL be placed in `core/src/ohosTest/ets/test/` and SHALL NOT import or depend on Repository layer classes.
 4. THE Repository_Layer_Tests SHALL be placed in `core/src/ohosTest/ets/test/` and SHALL NOT be mixed with DB layer test files.

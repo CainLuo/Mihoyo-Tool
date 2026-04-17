@@ -59,6 +59,7 @@ export class HomeViewModelKeys {
   networkErrorMsg: string = 'vm.networkErrorMsg';
   geetestTrigger: string = 'vm.geetestTrigger';
   refreshCoolingDown: string = 'vm.refreshCoolingDown';
+  refreshResult: string = 'vm.refreshResult';
 }
 
 @ObservedV2
@@ -78,6 +79,9 @@ export class HomeViewModel {
 
   /** 手动刷新冷却信号（切换时触发 View 弹 Dialog） */
   @Trace refreshCoolingDown: boolean = false;
+
+  /** 手动刷新结果信号：'success' | 'error' | ''，View 层监听后调用 showFeedback */
+  @Trace refreshResult: string = '';
 
   private autoRefreshTimer: number = -1;
 
@@ -167,6 +171,11 @@ export class HomeViewModel {
       const loaded = await this.fetchFromLocal();
       this.accounts = loaded;
       this.viewState = loaded.length > 0 ? ViewState.DATA : ViewState.EMPTY;
+      this.refreshResult = 'success';
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      this.networkErrorMsg = msg;
+      this.refreshResult = 'error';
     } finally {
       this.isRefreshing = false;
     }
@@ -186,6 +195,11 @@ export class HomeViewModel {
       const loaded = await this.fetchFromLocal();
       this.accounts = loaded;
       this.viewState = loaded.length > 0 ? ViewState.DATA : ViewState.EMPTY;
+      this.refreshResult = 'success';
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      this.networkErrorMsg = msg;
+      this.refreshResult = 'error';
     } finally {
       this.isRefreshing = false;
     }

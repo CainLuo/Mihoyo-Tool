@@ -33,6 +33,10 @@ var PAGES = {
     render: renderTabIconsDemo,
     controls: tabIconsDemoControls,
   },
+  snackbar: {
+    render: renderSnackbar,
+    controls: snackbarControls,
+  },
   "color-design": {
     render: renderColorDesign,
     controls: colorDesignControls,

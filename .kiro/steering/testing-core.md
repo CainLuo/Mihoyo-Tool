@@ -200,13 +200,13 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 > DB 层测试需要真实 RDB，必须在设备端运行（`core/src/ohosTest/`）。
 > 不得与 API 层测试混用同一测试文件。
 
-### 2.1 RdbManagerV2（RdbManagerV2.test.ets）
+### 2.1 RdbManager（RdbManager.test.ets）
 
-被测类：`core/src/main/ets/database/v2/RdbManagerV2.ets`
+被测类：`core/src/main/ets/database/RdbManager.ets`
 
 | 测试用例                   | 前置条件   | 操作                         | 预期结果                              |
 | -------------------------- | ---------- | ---------------------------- | ------------------------------------- |
-| init 成功                  | 未初始化   | `RdbManagerV2.init(context)` | 不抛异常，`getRdbStore()` 返回非 null |
+| init 成功                  | 未初始化   | `RdbManager.init(context)` | 不抛异常，`getRdbStore()` 返回非 null |
 | init 幂等                  | 已初始化   | 再次调用 `init(context)`     | 不抛异常，不重复建表                  |
 | createTables 幂等          | 已建表     | 再次调用 `createTables()`    | 不抛异常（IF NOT EXISTS 保证）        |
 | runInTransaction 成功提交  | 已初始化   | 在事务中执行 SQL，不抛异常   | 数据写入成功                          |
@@ -217,7 +217,7 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 
 ### 2.2 BBSDao — AccountDao（BBSDao.test.ets）
 
-被测类：`core/src/main/ets/database/v2/BBSDao.ets` → `AccountDao`
+被测类：`core/src/main/ets/database/BBSDao.ets` → `AccountDao`
 
 | 测试用例              | 前置条件           | 操作                        | 预期结果                              |
 | --------------------- | ------------------ | --------------------------- | ------------------------------------- |
@@ -234,7 +234,7 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 
 ### 2.3 BBSDao — GameRoleDao（BBSDao.test.ets）
 
-被测类：`core/src/main/ets/database/v2/BBSDao.ets` → `GameRoleDao`
+被测类：`core/src/main/ets/database/BBSDao.ets` → `GameRoleDao`
 
 | 测试用例                    | 前置条件                                           | 操作                                 | 预期结果                        |
 | --------------------------- | -------------------------------------------------- | ------------------------------------ | ------------------------------- |
@@ -249,7 +249,7 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 
 ### 2.4 GenshinDao（GenshinDao.test.ets）
 
-被测类：`core/src/main/ets/database/v2/GenshinDao.ets`
+被测类：`core/src/main/ets/database/GenshinDao.ets`
 
 **GenshinCharacterListDao**
 
@@ -290,7 +290,7 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 
 ### 2.5 StarRailDao（StarRailDao.test.ets）
 
-被测类：`core/src/main/ets/database/v2/StarRailDao.ets`
+被测类：`core/src/main/ets/database/StarRailDao.ets`
 
 **StarRailAvatarBasicDao**
 
@@ -323,7 +323,7 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 
 ### 2.6 ZZZDao（ZZZDao.test.ets）
 
-被测类：`core/src/main/ets/database/v2/ZZZDao.ets`
+被测类：`core/src/main/ets/database/ZZZDao.ets`
 
 与 StarRailDao 结构对称，测试用例相同，仅表名和字段不同：
 
@@ -341,9 +341,9 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 | awakenState 写入转换 | 写入 `awakenState=1`  | 数据库存储为字符串 `'1'` |
 | awakenState 读取转换 | 读取 awakenState 字段 | 返回 number 类型 `1`     |
 
-### 2.7 SyncMetaDaoV2（SyncMetaDaoV2.test.ets）
+### 2.7 SyncMetaDao（SyncMetaDao.test.ets）
 
-被测类：`core/src/main/ets/database/v2/SyncMetaDaoV2.ets`
+被测类：`core/src/main/ets/database/SyncMetaDao.ets`
 
 | 测试用例                    | 操作                                         | 预期结果                                                 |
 | --------------------------- | -------------------------------------------- | -------------------------------------------------------- |
@@ -363,20 +363,20 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 > API 层测试只测试纯函数和静态方法，不依赖设备。
 > 不得与 DB 层测试混用同一测试文件。
 
-### 3.1 DSUtilV2（DSUtilV2.test.ets）
+### 3.1 DSUtil（DSUtil.test.ets）
 
-被测类：`core/src/main/ets/network/v2/DSUtilV2.ets`
+被测类：`core/src/main/ets/network/DSUtil.ets`
 
 **DS 格式验证**
 
 | 测试用例                               | 操作                    | 预期结果                      |
 | -------------------------------------- | ----------------------- | ----------------------------- |
-| generateV1 格式为 timestamp,random,md5 | `DSUtilV2.generateV1()` | 以逗号分隔，共 3 段           |
+| generateV1 格式为 timestamp,random,md5 | `DSUtil.generateV1()` | 以逗号分隔，共 3 段           |
 | generateV1 timestamp 为近期 Unix 秒    | 取第 1 段               | 与 `Date.now()/1000` 差值 < 5 |
 | generateV1 random 为 6 位字符          | 取第 2 段               | 长度为 6                      |
 | generateV1 md5 为 32 位十六进制        | 取第 3 段               | 长度 32，只含 0-9a-f          |
-| generateV2 格式正确                    | `DSUtilV2.generateV2()` | 以逗号分隔，共 3 段           |
-| generateX6 格式正确                    | `DSUtilV2.generateX6()` | 以逗号分隔，共 3 段           |
+| generateV2 格式正确                    | `DSUtil.generateV2()` | 以逗号分隔，共 3 段           |
+| generateX6 格式正确                    | `DSUtil.generateX6()` | 以逗号分隔，共 3 段           |
 
 **query 参数序列化**
 
@@ -397,7 +397,7 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 
 ### 3.2 MockServiceBase 静态方法（MockServiceBase.test.ets）
 
-被测类：`core/src/main/ets/network/v2/mock/MockServiceBase.ets`
+被测类：`core/src/main/ets/network/mock/MockServiceBase.ets`
 
 **pathToFileName — 通用规则**
 
@@ -671,7 +671,7 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 所有本地单元测试必须在 `core/src/test/List.test.ets` 中注册：
 
 ```typescript
-import dsUtilTest from "./DSUtilV2.test";
+import dsUtilTest from "./DSUtil.test";
 import mockServiceBaseTest from "./MockServiceBase.test";
 import genshinDailyNoteParserTest from "./GenshinDailyNoteParser.test";
 import starRailDailyNoteParserTest from "./StarRailDailyNoteParser.test";
@@ -725,7 +725,7 @@ export default function testsuite() {
 | rawJson 为空字符串           | `upsertAll([row])` where `rawJson=''`  | 写入成功（NOT NULL 约束，空字符串不是 NULL）  |
 | rawJson 为超长字符串（>1MB） | 写入 1MB 的 rawJson                    | 写入成功（SQLite TEXT 无长度限制）            |
 
-**SyncMetaDaoV2**
+**SyncMetaDao**
 
 | 用例                         | 操作                                                 | 预期结果            |
 | ---------------------------- | ---------------------------------------------------- | ------------------- |
@@ -744,7 +744,7 @@ export default function testsuite() {
 
 ---
 
-### 6.3 API 层 — DSUtilV2 边界场景
+### 6.3 API 层 — DSUtil 边界场景
 
 | 用例                   | 操作                                   | 预期结果                                           |
 | ---------------------- | -------------------------------------- | -------------------------------------------------- |
@@ -844,10 +844,10 @@ export default function testsuite() {
 
 ---
 
-### 7.3 级联删除验证（需要 RdbManagerV2 + 多个 DAO 配合）
+### 7.3 级联删除验证（需要 RdbManager + 多个 DAO 配合）
 
 > 级联删除由数据库层 `ON DELETE CASCADE` 保证，无需应用层手动删除关联数据。
-> 测试前确认 `PRAGMA foreign_keys = ON` 已执行（`RdbManagerV2.init` 会自动执行）。
+> 测试前确认 `PRAGMA foreign_keys = ON` 已执行（`RdbManager.init` 会自动执行）。
 
 | 用例                           | 前置条件                                   | 操作                                   | 预期结果                                             |
 | ------------------------------ | ------------------------------------------ | -------------------------------------- | ---------------------------------------------------- |
@@ -879,7 +879,7 @@ export default function testsuite() {
 
 ---
 
-### 7.5 SyncMetaDaoV2 极端场景
+### 7.5 SyncMetaDao 极端场景
 
 | 用例                                                      | 操作                            | 预期结果                                           |
 | --------------------------------------------------------- | ------------------------------- | -------------------------------------------------- |
@@ -893,7 +893,7 @@ export default function testsuite() {
 
 ## 八、API 层极端测试场景（core/src/test/）
 
-### 8.1 DSUtilV2 极端场景
+### 8.1 DSUtil 极端场景
 
 | 用例                      | 操作                                       | 预期结果                                     |
 | ------------------------- | ------------------------------------------ | -------------------------------------------- |

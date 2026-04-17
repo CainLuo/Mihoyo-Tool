@@ -1,8 +1,8 @@
 # 设计文档：mihoyo-api-redesign
 
-## 命名说明（V2 后缀的由来）
+## 命名说明
 
-同 `game-data-database-redesign/design.md` 中的说明，`network/v2/` 目录和 `DSUtilV2`、`ApiConfigV2` 等命名均为过渡期临时命名，旧代码删除后统一去掉 `V2` 后缀。
+同 `game-data-database-redesign/design.md` 中的说明，`network/` 目录和 `DSUtilV2`、`ApiConfig` 等命名均为过渡期临时命名，旧代码删除后统一去掉 `V2` 后缀。
 
 ---
 
@@ -12,7 +12,7 @@
 
 **设计原则：**
 
-- 新代码统一放在 `core/src/main/ets/network/v2/` 目录下
+- 新代码统一放在 `core/src/main/ets/network/` 目录下
 - 通过抽象基类 `MihoyoApiService` 约束所有 Service，实现多态
 - Domain 和 API Path 各自独立枚举，按游戏分离
 
@@ -37,7 +37,7 @@ MihoyoApiService（抽象基类）
 ## 文件结构
 
 ```
-core/src/main/ets/network/v2/
+core/src/main/ets/network/
 ├── MihoyoDomain.ets              ← Domain 枚举（7 个 Host，含 BBS_APIHUB/PASSPORT/PASSPORT_V4）
 ├── MihoyoAccountApiPath.ets      ← 米游社账号 API Path 枚举
 ├── PassportApiPath.ets           ← Passport API Path 枚举（Cookie 刷新）
@@ -47,7 +47,7 @@ core/src/main/ets/network/v2/
 ├── SignApiPath.ets               ← 签到 API Path 枚举（大别野 + 各游戏）
 ├── MihoyoApiService.ets          ← 抽象基类（多态协议）
 ├── MihoyoHeaderBuilder.ets       ← 请求头构建器（HeaderProfile 枚举 + build()）
-├── ApiConfigV2.ets               ← 应用配置常量（APP_VERSION、USER_AGENT、device_id/fp 管理）
+├── ApiConfig.ets               ← 应用配置常量（APP_VERSION、USER_AGENT、device_id/fp 管理）
 ├── DSUtilV2.ets                  ← DS 动态签名生成（salt 注入 + V1/V2/X6 三种签名）
 ├── MihoyoEnvironment.ets         ← 运行环境枚举（MOCK / RELEASE）
 ├── MihoyoApiServiceFactory.ets   ← Service 工厂（根据环境创建对应 Service 实例）
@@ -91,7 +91,7 @@ core/src/main/ets/errors/
 从 `mihoyo_apis.md` 提取出 7 个不同的 Host：
 
 ```typescript
-// core/src/main/ets/network/v2/MihoyoDomain.ets
+// core/src/main/ets/network/MihoyoDomain.ets
 export enum MihoyoDomain {
   /** 米游社游戏记录 API（原神/星铁/绝区零 游戏数据） */
   TAKUMI_RECORD = "https://api-takumi-record.mihoyo.com",
@@ -118,7 +118,7 @@ export enum MihoyoDomain {
 ### API Path 枚举
 
 ```typescript
-// core/src/main/ets/network/v2/MihoyoAccountApiPath.ets
+// core/src/main/ets/network/MihoyoAccountApiPath.ets
 export enum MihoyoAccountApiPath {
   /** 游戏战绩卡片（含背景图、统计数据）— Domain: TAKUMI_RECORD */
   GET_GAME_RECORD_CARD = "/game_record/app/card/wapi/getGameRecordCard",
@@ -132,7 +132,7 @@ export enum MihoyoAccountApiPath {
   VERIFY_VERIFICATION = "/misc/api/verifyVerification",
 }
 
-// core/src/main/ets/network/v2/GenshinApiPath.ets
+// core/src/main/ets/network/GenshinApiPath.ets
 export enum GenshinApiPath {
   /** 实时便笺 */
   DAILY_NOTE = "/game_record/app/genshin/api/dailyNote",
@@ -144,7 +144,7 @@ export enum GenshinApiPath {
   BATCH_COMPUTE = "/event/e20200928calculate/v3/batch_compute",
 }
 
-// core/src/main/ets/network/v2/StarRailApiPath.ets
+// core/src/main/ets/network/StarRailApiPath.ets
 export enum StarRailApiPath {
   /** 实时便笺 */
   DAILY_NOTE = "/game_record/app/hkrpg/api/note",
@@ -156,7 +156,7 @@ export enum StarRailApiPath {
   COMPUTE = "/event/rpgcalc/compute",
 }
 
-// core/src/main/ets/network/v2/ZZZApiPath.ets
+// core/src/main/ets/network/ZZZApiPath.ets
 export enum ZZZApiPath {
   /** 实时便笺 */
   DAILY_NOTE = "/event/game_record_zzz/api/zzz/note",
@@ -172,7 +172,7 @@ export enum ZZZApiPath {
 ### 抽象基类
 
 ```typescript
-// core/src/main/ets/network/v2/MihoyoApiService.ets
+// core/src/main/ets/network/MihoyoApiService.ets
 import { RequestParams, RequestOptions } from "../APIs";
 
 export abstract class MihoyoApiService {
@@ -374,7 +374,7 @@ const headers = MihoyoHeaderBuilder.build(HeaderProfile.BBS, cookie, params);
 `MihoyoApiService` 基类不再包含 `buildHeaders()` 方法，只保留 `get()` 和 `post()` 抽象方法：
 
 ```typescript
-// core/src/main/ets/network/v2/MihoyoApiService.ets
+// core/src/main/ets/network/MihoyoApiService.ets
 export abstract class MihoyoApiService {
   abstract get(
     path: string,
@@ -445,16 +445,16 @@ export abstract class MihoyoApiService {
 ### 文件结构
 
 ```
-core/src/main/ets/network/v2/
+core/src/main/ets/network/
 └── MihoyoHeaderBuilder.ets   ← 请求头构建器（新增）
 ```
 
 ### 设计
 
 ```typescript
-// core/src/main/ets/network/v2/MihoyoHeaderBuilder.ets
+// core/src/main/ets/network/MihoyoHeaderBuilder.ets
 import { RequestParams } from "../APIs";
-import { ApiConfigV2 } from "./ApiConfigV2";
+import { ApiConfig } from "./ApiConfig";
 import { DSUtilV2 } from "./DSUtilV2";
 
 /** 请求头 Profile 枚举 */
@@ -495,12 +495,12 @@ export class MihoyoHeaderBuilder {
     const h = new Map<string, string>();
 
     // ── 所有接口共有 ──────────────────────────────────────────────
-    h.set("x-rpc-app_version", ApiConfigV2.APP_VERSION);
-    h.set("x-rpc-device_id", ApiConfigV2.getDeviceIdSync());
-    h.set("x-rpc-device_fp", ApiConfigV2.getDeviceFp());
+    h.set("x-rpc-app_version", ApiConfig.APP_VERSION);
+    h.set("x-rpc-device_id", ApiConfig.getDeviceIdSync());
+    h.set("x-rpc-device_fp", ApiConfig.getDeviceFp());
     h.set("x-rpc-sys_version", "15.7.1");
     h.set("Cookie", cookie);
-    h.set("User-Agent", ApiConfigV2.USER_AGENT);
+    h.set("User-Agent", ApiConfig.USER_AGENT);
     h.set("Accept", "application/json, text/plain, */*");
 
     // ── 按 Profile 差异化注入 ─────────────────────────────────────
@@ -508,7 +508,7 @@ export class MihoyoHeaderBuilder {
       h.set("x-rpc-client_type", "5");
       // 注意：米游社服务端的拼写错误，必须用 "x-rpc-tool_verison" 而非 "version"
       // 默认使用原神版本号；StarRailApiService 调用后会覆盖为星铁版本号
-      h.set("x-rpc-tool_verison", ApiConfigV2.TOOL_VERSION_GENSHIN);
+      h.set("x-rpc-tool_verison", ApiConfig.TOOL_VERSION_GENSHIN);
       h.set("Referer", "https://webstatic.mihoyo.com/");
       h.set("Origin", "https://webstatic.mihoyo.com");
       h.set("DS", DSUtilV2.generateV1(params, body));
@@ -554,7 +554,7 @@ async getDailyNote(roleId: string, server: string, cookie: string): Promise<obje
   params.set('server', server);
   const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, params);
   // 注意：拼写是 "verison" 不是 "version"（米游社服务端的拼写错误）
-  headers.set('x-rpc-tool_verison', ApiConfigV2.TOOL_VERSION_GENSHIN);
+  headers.set('x-rpc-tool_verison', ApiConfig.TOOL_VERSION_GENSHIN);
   // 原神不需要 x-rpc-platform
   return this.http.get(MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE, params, { extraHeaders: headers });
 }
@@ -565,7 +565,7 @@ async getDailyNote(roleId: string, server: string, cookie: string): Promise<obje
   params.set('role_id', roleId);
   params.set('server', server);
   const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, params);
-  headers.set('x-rpc-tool_verison', ApiConfigV2.TOOL_VERSION_STARRAIL); // 星铁专属版本号
+  headers.set('x-rpc-tool_verison', ApiConfig.TOOL_VERSION_STARRAIL); // 星铁专属版本号
   headers.set('x-rpc-platform', '5'); // 星铁游戏记录接口需要此字段，原神不需要
   return this.http.get(MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.DAILY_NOTE, params, { extraHeaders: headers });
 }
@@ -631,12 +631,12 @@ async compute(avatarId: string, avatarLevel: number, avatarCurrentLevel: number,
 
 旧版 `MihoyoApiService.buildHeaders()` 将所有接口的请求头统一处理，无法区分 Profile 差异。新版用 `MihoyoHeaderBuilder` 替代，`MihoyoApiService` 基类不再包含 `buildHeaders()` 方法，改由各 Service 子类在每个方法内按需调用 `MihoyoHeaderBuilder.build()`。
 
-### ApiConfigV2 新增常量
+### ApiConfig 新增常量
 
 ```typescript
 import { common } from '@kit.AbilityKit';
 
-export class ApiConfigV2 {
+export class ApiConfig {
   static readonly APP_VERSION: string           = '2.102.0';
   static readonly USER_AGENT: string            = 'Mozilla/5.0 (iPad; CPU OS 15_7_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.102.0 WebCacheKit2';
   /**
@@ -651,11 +651,11 @@ export class ApiConfigV2 {
   private static cachedDeviceFp: string = '';
 
   static async preloadDeviceId(context: common.UIAbilityContext): Promise<void> { ... }
-  static getDeviceIdSync(): string { return ApiConfigV2.cachedDeviceId; }
+  static getDeviceIdSync(): string { return ApiConfig.cachedDeviceId; }
 
   /** device_fp 从 Preferences 读取或随机生成（格式：38d8xxxxxxxx） */
   static async preloadDeviceFp(context: common.UIAbilityContext): Promise<void> { ... }
-  static getDeviceFp(): string { return ApiConfigV2.cachedDeviceFp; }
+  static getDeviceFp(): string { return ApiConfig.cachedDeviceFp; }
 }
 ```
 
@@ -664,7 +664,7 @@ export class ApiConfigV2 {
 现有 `DSUtil.generateDS(config: AxiosRequestConfig)` 依赖 Axios 配置对象，与新版 `MihoyoHeaderBuilder` 的参数类型不兼容。新版需要重新设计接口，接收 `RequestParams` 和 body 字符串：
 
 ```typescript
-// core/src/main/ets/network/v2/DSUtilV2.ets
+// core/src/main/ets/network/DSUtilV2.ets
 import { RequestParams, RequestValue } from "../APIs";
 import crypto from "@ohos/crypto-js";
 
@@ -674,7 +674,7 @@ export class DSUtilV2 {
    * salt 属于敏感配置，禁止硬编码在源码中。
    * 管理方案：
    *   1. 存放在 core/src/main/resources/rawfile/release/salt_config.json（不提交 git，加入 .gitignore）
-   *   2. CoreInitializerV2.initCore() 时通过 resourceManager.getRawFileContent() 读取并缓存到内存
+   *   2. CoreInitializer.initCore() 时通过 resourceManager.getRawFileContent() 读取并缓存到内存
    *   3. DSUtilV2 通过 setSalts() 接收注入，不自行读取文件
    * 这样 salt 值不出现在任何 .ets 源码文件中，也不会被编译进 HAP 包的代码段。
    */
@@ -682,7 +682,7 @@ export class DSUtilV2 {
   private static saltV2: string = "";
   private static saltX6: string = "";
 
-  /** 由 CoreInitializerV2 在初始化时调用，注入 salt 值 */
+  /** 由 CoreInitializer 在初始化时调用，注入 salt 值 */
   static setSalts(v1: string, v2: string, x6: string): void {
     DSUtilV2.saltV1 = v1;
     DSUtilV2.saltV2 = v2;
@@ -788,32 +788,32 @@ export class DSUtilV2 {
 
 | 请求头名称           | 值                                  | 备注                                     |
 | -------------------- | ----------------------------------- | ---------------------------------------- |
-| `x-rpc-app_version`  | `ApiConfigV2.APP_VERSION`           |                                          |
+| `x-rpc-app_version`  | `ApiConfig.APP_VERSION`             |                                          |
 | `x-rpc-client_type`  | `"5"`                               |                                          |
-| `x-rpc-device_id`    | `ApiConfigV2.getDeviceIdSync()`     |                                          |
-| `x-rpc-device_fp`    | `ApiConfigV2.getDeviceFp()`         |                                          |
-| `x-rpc-tool_verison` | `ApiConfigV2.TOOL_VERSION_GENSHIN`  | 注意：拼写是 verison（米游社服务端错误） |
+| `x-rpc-device_id`    | `ApiConfig.getDeviceIdSync()`       |                                          |
+| `x-rpc-device_fp`    | `ApiConfig.getDeviceFp()`           |                                          |
+| `x-rpc-tool_verison` | `ApiConfig.TOOL_VERSION_GENSHIN`    | 注意：拼写是 verison（米游社服务端错误） |
 | `x-rpc-sys_version`  | `"15.7.1"`                          |                                          |
 | `Cookie`             | 调用方传入                          |                                          |
 | `DS`                 | `DSUtilV2.generateV1(params, body)` |                                          |
 | `Referer`            | `https://webstatic.mihoyo.com/`     |                                          |
 | `Origin`             | `https://webstatic.mihoyo.com`      |                                          |
-| `User-Agent`         | `ApiConfigV2.USER_AGENT`            |                                          |
+| `User-Agent`         | `ApiConfig.USER_AGENT`              |                                          |
 | `x-rpc-platform`     | `"5"`（仅星铁，原神不需要）         | 由 StarRailApiService 在 build() 后注入  |
 
 ### CALCULATE Profile（原神养成计算；星铁养成计算需覆盖 Referer/Origin）
 
-| 请求头名称          | 值                              |
-| ------------------- | ------------------------------- |
-| `x-rpc-app_version` | `ApiConfigV2.APP_VERSION`       |
-| `x-rpc-device_id`   | `ApiConfigV2.getDeviceIdSync()` |
-| `x-rpc-device_fp`   | `ApiConfigV2.getDeviceFp()`     |
-| `x-rpc-sys_version` | `"15.7.1"`                      |
-| `x-rpc-cal_type`    | `"1"`（原神养成计算专用）       |
-| `Cookie`            | 调用方传入                      |
-| `Referer`           | `https://act.mihoyo.com/`       |
-| `Origin`            | `https://act.mihoyo.com`        |
-| `User-Agent`        | `ApiConfigV2.USER_AGENT`        |
+| 请求头名称          | 值                            |
+| ------------------- | ----------------------------- |
+| `x-rpc-app_version` | `ApiConfig.APP_VERSION`       |
+| `x-rpc-device_id`   | `ApiConfig.getDeviceIdSync()` |
+| `x-rpc-device_fp`   | `ApiConfig.getDeviceFp()`     |
+| `x-rpc-sys_version` | `"15.7.1"`                    |
+| `x-rpc-cal_type`    | `"1"`（原神养成计算专用）     |
+| `Cookie`            | 调用方传入                    |
+| `Referer`           | `https://act.mihoyo.com/`     |
+| `Origin`            | `https://act.mihoyo.com`      |
+| `User-Agent`        | `ApiConfig.USER_AGENT`        |
 
 > 注意：`x-rpc-cal_type: 1` 是原神养成计算接口专用字段，由 `GenshinApiService` 在调用 `build(CALCULATE)` 后手动注入：
 >
@@ -826,48 +826,48 @@ export class DSUtilV2 {
 
 ### ZZZ_GAME_RECORD Profile（绝区零 游戏记录）
 
-| 请求头名称          | 值                              |
-| ------------------- | ------------------------------- |
-| `x-rpc-app_version` | `ApiConfigV2.APP_VERSION`       |
-| `x-rpc-device_id`   | `ApiConfigV2.getDeviceIdSync()` |
-| `x-rpc-device_fp`   | `ApiConfigV2.getDeviceFp()`     |
-| `x-rpc-sys_version` | `"15.7.1"`                      |
-| `x-rpc-language`    | `"zh-cn"`                       |
-| `x-rpc-platform`    | `"1"`                           |
-| `Cookie`            | 调用方传入                      |
-| `Referer`           | `https://act.mihoyo.com/`       |
-| `Origin`            | `https://act.mihoyo.com`        |
-| `User-Agent`        | `ApiConfigV2.USER_AGENT`        |
+| 请求头名称          | 值                            |
+| ------------------- | ----------------------------- |
+| `x-rpc-app_version` | `ApiConfig.APP_VERSION`       |
+| `x-rpc-device_id`   | `ApiConfig.getDeviceIdSync()` |
+| `x-rpc-device_fp`   | `ApiConfig.getDeviceFp()`     |
+| `x-rpc-sys_version` | `"15.7.1"`                    |
+| `x-rpc-language`    | `"zh-cn"`                     |
+| `x-rpc-platform`    | `"1"`                         |
+| `Cookie`            | 调用方传入                    |
+| `Referer`           | `https://act.mihoyo.com/`     |
+| `Origin`            | `https://act.mihoyo.com`      |
+| `User-Agent`        | `ApiConfig.USER_AGENT`        |
 
 ### BBS Profile（账号详情 + 游戏角色绑定 + 战绩卡片 + Geetest）
 
 | 请求头名称          | 值                                                                       |
 | ------------------- | ------------------------------------------------------------------------ |
-| `x-rpc-app_version` | `ApiConfigV2.APP_VERSION`                                                |
+| `x-rpc-app_version` | `ApiConfig.APP_VERSION`                                                  |
 | `x-rpc-client_type` | `"1"`                                                                    |
-| `x-rpc-device_id`   | `ApiConfigV2.getDeviceIdSync()`                                          |
-| `x-rpc-device_fp`   | `ApiConfigV2.getDeviceFp()`                                              |
+| `x-rpc-device_id`   | `ApiConfig.getDeviceIdSync()`                                            |
+| `x-rpc-device_fp`   | `ApiConfig.getDeviceFp()`                                                |
 | `x-rpc-sys_version` | `"15.7.1"`                                                               |
 | `Cookie`            | 调用方传入                                                               |
 | `DS`                | `DSUtilV2.generateV2(params, body)`（BBS 用 salt_v2，random 为字母数字） |
 | `Referer`           | `https://app.mihoyo.com`                                                 |
 | `Origin`            | `https://app.mihoyo.com`                                                 |
-| `User-Agent`        | `ApiConfigV2.USER_AGENT`                                                 |
+| `User-Agent`        | `ApiConfig.USER_AGENT`                                                   |
 
 ### SIGN Profile（大别野签到 + 各游戏每日签到）
 
 | 请求头名称          | 值                                                 |
 | ------------------- | -------------------------------------------------- |
-| `x-rpc-app_version` | `ApiConfigV2.APP_VERSION`                          |
+| `x-rpc-app_version` | `ApiConfig.APP_VERSION`                            |
 | `x-rpc-client_type` | `"2"`                                              |
-| `x-rpc-device_id`   | `ApiConfigV2.getDeviceIdSync()`                    |
-| `x-rpc-device_fp`   | `ApiConfigV2.getDeviceFp()`                        |
+| `x-rpc-device_id`   | `ApiConfig.getDeviceIdSync()`                      |
+| `x-rpc-device_fp`   | `ApiConfig.getDeviceFp()`                          |
 | `x-rpc-sys_version` | `"15.7.1"`                                         |
 | `Cookie`            | 调用方传入                                         |
 | `DS`                | `DSUtilV2.generateX6(params, body)`                |
 | `Referer`           | `https://act.mihoyo.com/`                          |
 | `Origin`            | `https://act.mihoyo.com`                           |
-| `User-Agent`        | `ApiConfigV2.USER_AGENT`                           |
+| `User-Agent`        | `ApiConfig.USER_AGENT`                             |
 | `x-rpc-signgame`    | `{host}`（游戏签到专用，由 `SignApiService` 注入） |
 
 ---
@@ -949,7 +949,7 @@ BBSRepository.refreshCookie(accountId)
 **新增 PassportApiPath 枚举：**
 
 ```typescript
-// core/src/main/ets/network/v2/PassportApiPath.ets
+// core/src/main/ets/network/PassportApiPath.ets
 export enum PassportApiPath {
   /** 用 stoken 换取新 cookie_token — Domain: PASSPORT */
   GET_COOKIE_TOKEN_BY_STOKEN = "/account/auth/api/getCookieAccountInfoBySToken",
@@ -1090,7 +1090,7 @@ Repository.fetchXxx()
 // Repository 多账号 Cookie 读取示意
 async fetchDailyNote(accountId: number, roleId: string, server: string): Promise<object> {
   const account = await BBSRepository.getInstance().findAccount(accountId);
-  // ArkTS 严格模式：findAccount 返回 AccountRowV2 | null，必须 null 检查
+  // ArkTS 严格模式：findAccount 返回 AccountRow | null，必须 null 检查
   if (account === null) {
     throw new Error(`account not found: ${accountId}`);
   }
@@ -1110,7 +1110,7 @@ async fetchDailyNote(accountId: number, roleId: string, server: string): Promise
 **步骤 1：新增 API Path 枚举**
 
 ```typescript
-// core/src/main/ets/network/v2/Honkai3ApiPath.ets
+// core/src/main/ets/network/Honkai3ApiPath.ets
 export enum Honkai3ApiPath {
   DAILY_NOTE = "/game_record/app/honkai3rd/api/note",
   AVATAR_BASIC = "/game_record/app/honkai3rd/api/avatar/basic",
@@ -1120,7 +1120,7 @@ export enum Honkai3ApiPath {
 **步骤 2：新增 API Service**
 
 ```typescript
-// core/src/main/ets/network/v2/Honkai3ApiService.ets
+// core/src/main/ets/network/Honkai3ApiService.ets
 export class Honkai3ApiService extends MihoyoApiService {
   async getDailyNote(roleId: string, server: string, cookie: string): Promise<object> { ... }
   async getAvatarBasic(roleId: string, server: string, cookie: string): Promise<object> { ... }
@@ -1321,17 +1321,17 @@ try {
 
 ---
 
-## CoreInitializerV2 完整设计
+## CoreInitializer 完整设计
 
-详见 `game-data-database-redesign/design.md` 中的"CoreInitializerV2 初始化流程"章节。
+详见 `game-data-database-redesign/design.md` 中的"CoreInitializer 初始化流程"章节。
 
 API 层视角的关键点：
 
-- `CoreInitializerV2.initCore()` 负责创建所有 Service 实例并注入到 Repository
+- `CoreInitializer.initCore()` 负责创建所有 Service 实例并注入到 Repository
 - Service 实例由 `MihoyoApiServiceFactory` 根据 `MihoyoEnvironment` 创建
 - ViewModel 通过 `Repository.getInstance()` 获取单例，无需感知 Service 的具体实现
 - **salt 注入**：`initCore()` 在步骤 1.7 从 `rawfile/release/salt_config.json` 读取 salt 值并调用 `DSUtilV2.setSalts()`，确保 DS 签名在任何 API 调用前已就绪。Mock 环境注入占位字符串（如 `"mock_salt"`），因为 MockService 不调用 `MihoyoHeaderBuilder`，不会实际使用 salt
-- **初始化顺序保证**：ViewModel 必须在 `await CoreInitializerV2.waitForReady()` 之后才能调用 Repository，否则 `service` 为 null 会抛出明确错误
+- **初始化顺序保证**：ViewModel 必须在 `await CoreInitializer.waitForReady()` 之后才能调用 Repository，否则 `service` 为 null 会抛出明确错误
 
 ---
 
@@ -1661,8 +1661,8 @@ if (
 ### Geetest JS SDK URL 常量
 
 ```typescript
-// core/src/main/ets/network/v2/ApiConfigV2.ets
-export class ApiConfigV2 {
+// core/src/main/ets/network/ApiConfig.ets
+export class ApiConfig {
   // ...
   /** Geetest v3 JS SDK URL */
   static readonly GEETEST_SDK_V3: string =
@@ -1689,7 +1689,7 @@ export class ApiConfigV2 {
 ### SignApiPath 枚举
 
 ```typescript
-// core/src/main/ets/network/v2/SignApiPath.ets
+// core/src/main/ets/network/SignApiPath.ets
 export enum SignApiPath {
   /** 大别野每日签到 — Domain: BBS_APIHUB */
   SIGN_BBS = "/app/api/signIn",
@@ -1748,7 +1748,7 @@ export class SignActId {
 ### SignApiService 方法签名
 
 ```typescript
-// core/src/main/ets/network/v2/SignApiService.ets
+// core/src/main/ets/network/SignApiService.ets
 // 注意：以下为方法签名说明，实际实现时每个方法需要有完整的函数体
 export class SignApiService extends MihoyoApiService {
   /** 大别野每日签到（gid=2） */

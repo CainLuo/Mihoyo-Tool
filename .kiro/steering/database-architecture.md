@@ -26,14 +26,14 @@
 
 ```
 core/src/main/ets/
-├── database/v2/
-│   ├── RdbManagerV2.ets       ← 数据库管理器（建表 + 事务 + 写入队列）
+├── database/
+│   ├── RdbManager.ets       ← 数据库管理器（建表 + 事务 + 写入队列）
 │   ├── BBSDao.ets             ← 账号/角色表 DAO
 │   ├── GenshinDao.ets         ← 原神四张表 DAO
 │   ├── StarRailDao.ets        ← 星穹铁道四张表 DAO
 │   ├── ZZZDao.ets             ← 绝区零四张表 DAO
-│   └── SyncMetaDaoV2.ets      ← 同步状态 DAO（过渡期加 V2 后缀）
-├── repository/v2/
+│   └── SyncMetaDao.ets      ← 同步状态 DAO
+├── repository/
 │   ├── GameRepository.ets     ← 抽象基类（仅游戏数据）
 │   ├── BBSRepository.ets      ← 账号 + 游戏角色（独立，不继承 GameRepository）
 │   ├── GenshinRepository.ets
@@ -41,11 +41,11 @@ core/src/main/ets/
 │   ├── ZZZRepository.ets
 │   ├── SignRepository.ets     ← 签到
 │   └── SyncQueueRunner.ets    ← 持久化同步队列执行器
-├── network/v2/
+├── network/
 │   ├── MihoyoDomain.ets       ← Domain 枚举（7 个 Host）
 │   ├── MihoyoHeaderBuilder.ets← 请求头构建器（HeaderProfile 枚举）
-│   ├── ApiConfigV2.ets        ← 应用配置常量（APP_VERSION、device_id/fp）
-│   ├── DSUtilV2.ets           ← DS 动态签名生成
+│   ├── ApiConfig.ets        ← 应用配置常量（APP_VERSION、device_id/fp）
+│   ├── DSUtil.ets           ← DS 动态签名生成
 │   ├── MihoyoEnvironment.ets  ← 运行环境枚举（MOCK / RELEASE）
 │   ├── MihoyoApiServiceFactory.ets ← Service 工厂
 │   ├── MihoyoAccountApiService.ets

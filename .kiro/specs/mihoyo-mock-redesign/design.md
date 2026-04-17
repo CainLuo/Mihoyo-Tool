@@ -2,7 +2,7 @@
 
 ## 命名说明（V2 后缀的由来）
 
-同 `game-data-database-redesign/design.md` 中的说明，`network/v2/mock/` 目录为过渡期临时路径，旧代码删除后统一去掉 `v2` 层级。
+同 `game-data-database-redesign/design.md` 中的说明，`network/mock/` 目录为
 
 ---
 
@@ -49,7 +49,7 @@ MihoyoApiService（抽象基类，与 release 共用）
 ## 文件结构
 
 ```
-core/src/main/ets/network/v2/mock/
+core/src/main/ets/network/mock/
 ├── MockServiceBase.ets            ← Mock 基类（delay()、文件读取、retcode 检查）
 ├── MihoyoAccountMockService.ets   ← 账号 Mock Service（含 Geetest 两个接口）
 ├── GenshinMockService.ets         ← 原神 Mock Service
@@ -221,10 +221,10 @@ Cookie: account_id=2 → rawfile/mock/account2/
 
 ## 环境工厂
 
-`CoreInitializerV2` 根据 build product 决定使用哪套 Service：
+`CoreInitializer` 根据 build product 决定使用哪套 Service：
 
 ```typescript
-// core/src/main/ets/network/v2/MihoyoEnvironment.ets
+// core/src/main/ets/network/MihoyoEnvironment.ets
 export enum MihoyoEnvironment {
   /** Mock 环境：读取本地 rawfile/mock/ 目录下的 JSON 文件 */
   MOCK = "MOCK",
@@ -232,7 +232,7 @@ export enum MihoyoEnvironment {
   RELEASE = "RELEASE",
 }
 
-// core/src/main/ets/network/v2/MihoyoApiServiceFactory.ets
+// core/src/main/ets/network/MihoyoApiServiceFactory.ets
 import { common } from "@kit.AbilityKit";
 
 export class MihoyoApiServiceFactory {
@@ -341,7 +341,7 @@ public async get(url: string, ...): Promise<object> {
 - 延迟值通过常量配置，便于测试时调整
 
 ```typescript
-// core/src/main/ets/network/v2/mock/MockServiceBase.ets
+// core/src/main/ets/network/mock/MockServiceBase.ets
 import { common } from "@kit.AbilityKit";
 import { util } from "@kit.ArkTS";
 import { MihoyoApiService } from "../MihoyoApiService";
@@ -557,13 +557,13 @@ Mock 环境特有说明：
 
 ---
 
-## CoreInitializerV2 完整设计（Mock 视角）
+## CoreInitializer 完整设计（Mock 视角）
 
-详见 `game-data-database-redesign/design.md` 中的"CoreInitializerV2 初始化流程"章节。
+详见 `game-data-database-redesign/design.md` 中的"CoreInitializer 初始化流程"章节。
 
 Mock 环境特有说明：
 
-- `CoreInitializerV2.initCore({ isMock: true, context })` 时，`MihoyoApiServiceFactory` 创建各 MockService 实例
+- `CoreInitializer.initCore({ isMock: true, context })` 时，`MihoyoApiServiceFactory` 创建各 MockService 实例
 - MockService 实例注入到 Repository 后，Repository 层代码无需感知当前是 Mock 还是 Release 环境
 - `MihoyoEnvironment.MOCK` 枚举值由 `BuildProfile.ets` 中的 `APP_RUNTIME_ENV` 决定
 
