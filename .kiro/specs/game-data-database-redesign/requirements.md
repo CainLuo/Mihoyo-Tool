@@ -161,7 +161,7 @@
 
 #### 验收标准
 
-1. THE **Repository** SHALL 为每款游戏提供独立的 DAO 文件，命名规则为 `<Game>Dao`（如 `GenshinDao`、`StarRailDao`、`ZZZDao`），每个文件内包含该游戏所有专用表的 DAO 类（如 `GenshinCharacterListDao`、`GenshinDailyNoteDao` 等）；账号/角色表使用 `BBSDao`，同步状态表使用 `SyncMetaDaoV2`
+1. THE **Repository** SHALL 为每款游戏提供独立的 DAO 文件，命名规则为 `<Game>Dao`（如 `GenshinDao`、`StarRailDao`、`ZZZDao`），每个文件内包含该游戏所有专用表的 DAO 类（如 `GenshinCharacterListDao`、`GenshinDailyNoteDao` 等）；账号/角色表使用 `BBSDao`，同步状态表使用 `SyncMetaDao`
 2. THE **GenshinRepository** / **StarRailRepository** / **ZZZRepository** SHALL 各自提供 `findAll`、`findById`、`upsertAll`、`deleteAll` 方法，继承自 `GameRepository` 抽象基类
 3. THE **BBSRepository** SHALL 独立实现，不继承 `GameRepository`，提供账号和游戏角色的专属查询方法
 4. FOR ALL 专用表的写入操作，THE **Repository** SHALL 在同一事务中同步更新 `sync_meta` 表的 `last_sync_time` 和 `sync_status`

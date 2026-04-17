@@ -15,6 +15,8 @@ import { GameDataSummary, GameId } from 'core'
 import { AccountSignal } from '../utils/AccountSignal'
 import { AppRoutes } from '../constants/AppRoutes'
 import { CharDetailRouterParam } from '../components/chardetail/CharDetailModels'
+import { showFeedback } from '../utils/FeedbackUtil'
+import { FeedbackType } from '../constants/FeedbackType'
 
 @ComponentV2
 export struct Characters {
@@ -111,6 +113,20 @@ export struct Characters {
     }).catch((e: BusinessError) => {
       Logger.warn('Characters', 'showDialog cooldown failed: ' + e.message)
     })
+  }
+
+  @Monitor(CharactersViewModel.KEYS.refreshResult)
+  onRefreshResultChanged(_monitor: IMonitor): void {
+    const result = this.vm.refreshResult
+    if (result === '') { return }
+    this.vm.refreshResult = ''
+    const ctx = this.uiCtx
+    if (ctx === null) { return }
+    if (result === 'success') {
+      showFeedback(ctx, FeedbackType.SUCCESS, $r('app.string.feedback_characters_refresh_success'))
+    } else {
+      showFeedback(ctx, FeedbackType.ERROR, $r('app.string.feedback_refresh_error'))
+    }
   }
 
   private onCardTap(character: GameDataSummary): void {

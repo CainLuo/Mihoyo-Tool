@@ -54,7 +54,7 @@
   - [ ] 6.1 确认 15 个枚举值全部有对应测试用例
 
 - [ ] 7. 验证 RowModels.test.ets 覆盖完整（已有，无需修改）
-  - [ ] 7.1 确认 AccountRowV2、GameRoleRowV2 默认值测试存在
+  - [ ] 7.1 确认 AccountRow、GameRoleRow 默认值测试存在
   - [ ] 7.2 确认所有 Genshin/StarRail/ZZZ Row 默认值测试存在
   - [ ] 7.3 确认 SyncMetaRow 默认值测试存在
 

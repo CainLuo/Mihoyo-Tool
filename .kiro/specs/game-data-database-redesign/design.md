@@ -6,18 +6,18 @@
 
 | 过渡期命名（临时）  | 最终命名（旧代码删除后） |
 | ------------------- | ------------------------ |
-| `CoreInitializerV2` | `CoreInitializer`        |
-| `RdbManagerV2`      | `RdbManager`             |
+| `CoreInitializer` | `CoreInitializer`        |
+| `RdbManager`      | `RdbManager`             |
 | `DSUtilV2`          | `DSUtil`                 |
-| `ApiConfigV2`       | `ApiConfig`              |
-| `SyncMetaDaoV2`     | `SyncMetaDao`            |
-| `AccountRowV2`      | `AccountRow`             |
-| `GameRoleRowV2`     | `GameRoleRow`            |
-| `database/v2/`      | `database/`              |
-| `repository/v2/`    | `repository/`            |
-| `network/v2/`       | `network/`               |
+| `ApiConfig`       | `ApiConfig`              |
+| `SyncMetaDao`     | `SyncMetaDao`            |
+| `AccountRow`      | `AccountRow`             |
+| `GameRoleRow`     | `GameRoleRow`            |
+| `database/`      | `database/`              |
+| `repository/`    | `repository/`            |
+| `network/`       | `network/`               |
 
-> `AccountRowV2` 字段对应 `account_table` 所有列（含 `uid`/`nickname`/`avatar_url`/`introduce`/`raw_json`；`stoken`/`stuid`/`mid` 已移除，stoken 直接拼入 `cookie` 字段存储）。`GameRoleRowV2` 字段对应 `game_role_table` 所有列（含新增的 `game_biz`/`game_type`/`region_name`/`is_chosen`/`is_public`/`bg_image_url`/`stats_json`）。实现时直接按表定义映射即可。
+> `AccountRow` 字段对应 `account_table` 所有列（含 `uid`/`nickname`/`avatar_url`/`introduce`/`raw_json`；`stoken`/`stuid`/`mid` 已移除，stoken 直接拼入 `cookie` 字段存储）。`GameRoleRow` 字段对应 `game_role_table` 所有列（含新增的 `game_biz`/`game_type`/`region_name`/`is_chosen`/`is_public`/`bg_image_url`/`stats_json`）。实现时直接按表定义映射即可。
 
 **实施顺序：**
 
@@ -73,7 +73,7 @@
 ## 架构
 
 ```
-RdbManagerV2.createTables()
+RdbManager.createTables()
     │
     ├── 基础表
     │   ├── account_table
@@ -138,7 +138,7 @@ Repository.upsert()  ←── 事务写入专用表 + 更新 sync_meta
 | `ZZZDailyNoteDao`            | `zzz_daily_note`            |
 | `ZZZAvatarInfoDao`           | `zzz_avatar_info`           |
 | `ZZZAvatarComputeDao`        | `zzz_avatar_compute`        |
-| `SyncMetaDaoV2`              | `sync_meta`                 |
+| `SyncMetaDao`              | `sync_meta`                 |
 
 ### Repository 层
 
@@ -911,7 +911,7 @@ export enum SyncDataType {
 
 ### Property 6：建表幂等性
 
-调用 `RdbManagerV2.createTables()` 任意次数，结果与调用 1 次相同：所有表和索引存在，无重复，无报错。
+调用 `RdbManager.createTables()` 任意次数，结果与调用 1 次相同：所有表和索引存在，无重复，无报错。
 
 ### Property 7：同步时间阈值触发
 
@@ -932,8 +932,8 @@ export enum SyncDataType {
 | `role_uid` 为空             | DAO 写入前校验                          | 抛出 `Error('role_uid is empty')`，不执行 SQL                                             |
 | `account_id` 不存在         | SQLite 外键约束                         | 捕获 SQLite 错误，转换为 `Error('account_id not found: ${id}')`                           |
 | 唯一索引冲突（INSERT 路径） | 重复写入同一主键                        | 捕获 SQLITE_CONSTRAINT_UNIQUE，自动切换为 UPDATE（upsert 语义）                           |
-| 事务中途失败                | 任意 SQL 执行异常                       | `RdbManagerV2.runInTransaction` 自动 rollback，抛出原始错误                               |
-| 数据库未初始化              | `RdbManagerV2.getRdbStore()` 被提前调用 | 抛出 `Error('RdbStore not initialized')`，调用方需等待 `CoreInitializerV2.waitForReady()` |
+| 事务中途失败                | 任意 SQL 执行异常                       | `RdbManager.runInTransaction` 自动 rollback，抛出原始错误                               |
+| 数据库未初始化              | `RdbManager.getRdbStore()` 被提前调用 | 抛出 `Error('RdbStore not initialized')`，调用方需等待 `CoreInitializer.waitForReady()` |
 | 建表失败                    | `createTables()` 中 SQL 语法错误        | 抛出 `Error('Create tables failed: ${msg}')`，应用无法启动                                |
 | 列不存在（查询时）          | 读取不存在的列名                        | 捕获 `getColumnIndex` 返回 -1，对应字段使用默认值（空字符串/0）                           |
 | 磁盘空间不足                | SQLite SQLITE_FULL                      | 捕获后抛出 `Error('Database full: ${msg}')`，UI 提示用户清理空间                          |
@@ -1058,7 +1058,7 @@ export enum SyncDataType {
 类似 API 层的 `MihoyoApiService`，数据库层也有一个抽象基类约束游戏数据 Repository。注意：`BBSRepository`（账号/角色）**不继承此基类**，因为账号表的查询语义与游戏数据表不同（无 `roleUid` 维度）。
 
 ```typescript
-// core/src/main/ets/repository/v2/GameRepository.ets
+// core/src/main/ets/repository/GameRepository.ets
 // 注意：ArkTS 支持 abstract class 和 abstract method，可正常使用
 // object 类型在此作为泛型占位，实际实现时各 Repository 子类应使用具体的行模型类型
 export abstract class GameRepository {
@@ -1147,8 +1147,8 @@ export abstract class GameRepository {
 `BBSRepository` 独立实现，不继承 `GameRepository`，提供账号和角色专属的查询方法：
 
 ```typescript
-// core/src/main/ets/repository/v2/BBSRepository.ets
-// 注意：过渡期使用 AccountRowV2 和 GameRoleRowV2（包含 stoken/stuid/mid 等新增字段），
+// core/src/main/ets/repository/BBSRepository.ets
+// 注意：过渡期使用 AccountRow 和 GameRoleRow（包含 stoken/stuid/mid 等新增字段），
 // 避免与现有 AccountRow / GameRoleRow（AccountRepository.ets）冲突。
 // 旧代码删除后统一重命名为 AccountRow / GameRoleRow。
 // 还需要 import：GeetestCreateResult, GeetestVerifyInput from '../errors/ApiErrors'
@@ -1176,15 +1176,15 @@ export class BBSRepository {
   }
 
   /** 查询账号 */
-  findAccount(accountId: number): Promise<AccountRowV2 | null>;
+  findAccount(accountId: number): Promise<AccountRow | null>;
   /** 查询所有账号 */
-  findAllAccounts(): Promise<AccountRowV2[]>;
+  findAllAccounts(): Promise<AccountRow[]>;
   /** upsert 账号 */
-  upsertAccount(row: AccountRowV2): Promise<void>;
+  upsertAccount(row: AccountRow): Promise<void>;
   /** 查询某账号下所有游戏角色 */
-  findRoles(accountId: number): Promise<GameRoleRowV2[]>;
+  findRoles(accountId: number): Promise<GameRoleRow[]>;
   /** upsert 游戏角色列表（事务） */
-  upsertRoles(accountId: number, rows: GameRoleRowV2[]): Promise<void>;
+  upsertRoles(accountId: number, rows: GameRoleRow[]): Promise<void>;
   /** 删除账号及其所有关联数据（级联） */
   deleteAccount(accountId: number): Promise<void>;
   /** 用 stoken 刷新 cookie_token 和 ltoken，返回新 Cookie 字符串 */
@@ -1206,7 +1206,7 @@ export class BBSRepository {
 `SignRepository` 不继承 `GameRepository`，不写 DB，只封装签到 API 调用：
 
 ```typescript
-// core/src/main/ets/repository/v2/SignRepository.ets
+// core/src/main/ets/repository/SignRepository.ets
 // 以下为方法签名说明，实际实现时每个方法需要有完整的函数体
 export class SignRepository {
   private static instance: SignRepository = new SignRepository();
@@ -1281,7 +1281,7 @@ SignRepository（独立，不继承 GameRepository，不写 DB）
 ### 文件结构
 
 ```
-core/src/main/ets/repository/v2/
+core/src/main/ets/repository/
 ├── GameRepository.ets          ← 抽象基类（多态协议，仅游戏数据）
 ├── BBSRepository.ets           ← 米游社账号 + 游戏角色（独立，不继承 GameRepository）
 ├── GenshinRepository.ets       ← 原神四张表
@@ -1290,13 +1290,13 @@ core/src/main/ets/repository/v2/
 ├── SignRepository.ets          ← 签到（不写 DB，封装签到 API 调用和 Geetest 重试）
 └── index.ets                   ← 统一导出
 
-core/src/main/ets/database/v2/
-├── RdbManagerV2.ets            ← 新版数据库管理器（建表 + 事务 + 写入队列）
+core/src/main/ets/database/
+├── RdbManager.ets            ← 新版数据库管理器（建表 + 事务 + 写入队列）
 ├── BBSDao.ets                  ← 账号/角色表 DAO
 ├── GenshinDao.ets              ← 原神四张表 DAO
 ├── StarRailDao.ets             ← 星穹铁道四张表 DAO
 ├── ZZZDao.ets                  ← 绝区零四张表 DAO
-└── SyncMetaDaoV2.ets           ← 同步状态 DAO（过渡期加 V2 后缀，避免与旧 SyncMetaDao 冲突）
+└── SyncMetaDao.ets           ← 同步状态 DAO（过渡期加 V2 后缀，避免与旧 SyncMetaDao 冲突）
 
 core/src/main/ets/constants/
 └── SyncDataType.ets            ← sync_meta.data_type 枚举（禁止直接写字符串字面量）
@@ -1356,7 +1356,7 @@ UI 显示旧数据（如有）
 
 ### DB 写入队列
 
-`RdbManagerV2` 维护一个全局写入队列，保证写操作串行不冲突。
+`RdbManager` 维护一个全局写入队列，保证写操作串行不冲突。
 
 **设计要点：避免 Promise 链无限增长**
 
@@ -1364,9 +1364,9 @@ UI 显示旧数据（如有）
 
 ```typescript
 // 写入队列（任务数组方案，无 Promise 链增长问题）
-// RdbManagerV2 全部使用静态方法，保持与 RdbManagerV2.init() 调用方式一致
+// RdbManager 全部使用静态方法，保持与 RdbManager.init() 调用方式一致
 // 完整文件需要：import { relationalStore } from '@kit.ArkData'; import { common } from '@kit.AbilityKit';
-class RdbManagerV2 {
+class RdbManager {
   // ArkTS 严格模式：函数类型数组，元素类型明确
   private static pendingWrites: Array<() => Promise<void>> = [];
   private static isWriting: boolean = false;
@@ -1375,7 +1375,7 @@ class RdbManagerV2 {
 
   /**
    * 初始化数据库：打开/创建 DB 文件，激活外键约束，建表，执行迁移
-   * 由 CoreInitializerV2.initCore() 调用，必须在任何 DAO 操作前完成
+   * 由 CoreInitializer.initCore() 调用，必须在任何 DAO 操作前完成
    */
   static async init(context: common.UIAbilityContext): Promise<void> {
     const config: relationalStore.StoreConfig = {
@@ -1385,11 +1385,11 @@ class RdbManagerV2 {
     const store = await relationalStore.getRdbStore(context, config);
     // 激活外键约束（连接级别，每次打开必须设置）
     await store.executeSql("PRAGMA foreign_keys = ON", []);
-    RdbManagerV2.rdbStore = store;
+    RdbManager.rdbStore = store;
     // 建表（幂等，IF NOT EXISTS）
-    await RdbManagerV2.createTables(store);
+    await RdbManager.createTables(store);
     // 版本迁移
-    await RdbManagerV2.runMigrations(store);
+    await RdbManager.runMigrations(store);
   }
 
   /** 建立所有 15 张表 + 索引（幂等，使用 CREATE TABLE IF NOT EXISTS） */
@@ -1401,31 +1401,31 @@ class RdbManagerV2 {
   }
 
   static enqueueWrite(action: () => Promise<void>): void {
-    RdbManagerV2.pendingWrites.push(action);
-    if (!RdbManagerV2.isWriting) {
+    RdbManager.pendingWrites.push(action);
+    if (!RdbManager.isWriting) {
       // 启动 runner（不 await，让它在后台跑）
-      RdbManagerV2.runWriteQueue();
+      RdbManager.runWriteQueue();
     }
   }
 
   private static async runWriteQueue(): Promise<void> {
-    RdbManagerV2.isWriting = true;
+    RdbManager.isWriting = true;
     // ArkTS 严格模式：禁止 Array.shift()，改用索引遍历后清空
-    while (RdbManagerV2.pendingWrites.length > 0) {
+    while (RdbManager.pendingWrites.length > 0) {
       // 取出第一个任务（ArkTS 允许 splice）
-      const tasks = RdbManagerV2.pendingWrites.splice(0, 1);
+      const tasks = RdbManager.pendingWrites.splice(0, 1);
       const action = tasks[0];
       if (action === undefined) {
         break;
       }
       try {
-        await RdbManagerV2.runInTransaction(action);
+        await RdbManager.runInTransaction(action);
       } catch (_) {
         // 写入失败静默处理，不影响 UI
         // 下次冷启动会重新从 API 拉取最新数据
       }
     }
-    RdbManagerV2.isWriting = false;
+    RdbManager.isWriting = false;
   }
 
   /**
@@ -1434,7 +1434,7 @@ class RdbManagerV2 {
    * 参考现有 RdbManager 的事务用法
    */
   static async runInTransaction(action: () => Promise<void>): Promise<void> {
-    const store = RdbManagerV2.getRdbStore();
+    const store = RdbManager.getRdbStore();
     store.beginTransaction();
     try {
       await action();
@@ -1446,10 +1446,10 @@ class RdbManagerV2 {
   }
 
   static getRdbStore(): relationalStore.RdbStore {
-    if (RdbManagerV2.rdbStore === null) {
+    if (RdbManager.rdbStore === null) {
       throw new Error("RdbStore not initialized");
     }
-    return RdbManagerV2.rdbStore;
+    return RdbManager.rdbStore;
   }
 }
 ```
@@ -1480,11 +1480,11 @@ class RdbManagerV2 {
 HarmonyOS SQLite 默认**不开启**外键约束（`PRAGMA foreign_keys = OFF`），必须在每次打开数据库连接后显式开启，否则 `FOREIGN KEY` 声明形同虚设：
 
 ```typescript
-// RdbManagerV2.init() 中，getRdbStore 成功后立即执行
+// RdbManager.init() 中，getRdbStore 成功后立即执行
 await store.executeSql("PRAGMA foreign_keys = ON", []);
 ```
 
-> 注意：`PRAGMA foreign_keys` 是连接级别设置，每次打开连接都需要重新设置，不会持久化到数据库文件。`RdbManagerV2.init()` 必须在建表之前执行此语句。
+> 注意：`PRAGMA foreign_keys` 是连接级别设置，每次打开连接都需要重新设置，不会持久化到数据库文件。`RdbManager.init()` 必须在建表之前执行此语句。
 
 ### Cookie 安全存储
 
@@ -1503,7 +1503,7 @@ await store.executeSql("PRAGMA foreign_keys = ON", []);
 **V1.0 采用方案：使用 RDB SecurityLevel.S2**
 
 ```typescript
-// RdbManagerV2.init() 中配置数据库安全级别
+// RdbManager.init() 中配置数据库安全级别
 const config: relationalStore.StoreConfig = {
   name: "mihoyo_tools.db",
   securityLevel: relationalStore.SecurityLevel.S2, // 设备解锁后才可访问
@@ -1525,7 +1525,7 @@ const config: relationalStore.StoreConfig = {
 **步骤 1：新增 API Path 枚举**
 
 ```typescript
-// core/src/main/ets/network/v2/Honkai3ApiPath.ets
+// core/src/main/ets/network/Honkai3ApiPath.ets
 export enum Honkai3ApiPath {
   DAILY_NOTE = "/game_record/app/honkai3rd/api/note",
   AVATAR_BASIC = "/game_record/app/honkai3rd/api/avatar/basic",
@@ -1536,13 +1536,13 @@ export enum Honkai3ApiPath {
 **步骤 2：新增 API Service**
 
 ```typescript
-// core/src/main/ets/network/v2/Honkai3ApiService.ets
+// core/src/main/ets/network/Honkai3ApiService.ets
 export class Honkai3ApiService extends MihoyoApiService {
   // 实现各接口方法
 }
 ```
 
-**步骤 3：新增数据库表（追加到 RdbManagerV2.createTables）**
+**步骤 3：新增数据库表（追加到 RdbManager.createTables）**
 
 ```sql
 CREATE TABLE IF NOT EXISTS honkai3_avatar_basic (...);
@@ -1553,7 +1553,7 @@ CREATE TABLE IF NOT EXISTS honkai3_daily_note (...);
 **步骤 4：新增 Repository**
 
 ```typescript
-// core/src/main/ets/repository/v2/Honkai3Repository.ets
+// core/src/main/ets/repository/Honkai3Repository.ets
 export class Honkai3Repository extends GameRepository {
   // 实现 findAll / findById / upsertAll / deleteAll
 }
@@ -1578,13 +1578,13 @@ export class Honkai3Repository extends GameRepository {
 
 ---
 
-## CoreInitializerV2 初始化流程
+## CoreInitializer 初始化流程
 
 ### 职责
 
-`CoreInitializerV2` 是新版核心库的统一初始化入口，负责：
+`CoreInitializer` 是新版核心库的统一初始化入口，负责：
 
-1. 初始化 `RdbManagerV2`（建表、版本迁移）
+1. 初始化 `RdbManager`（建表、版本迁移）
 2. 根据运行环境（Mock / Release）创建对应的 Service 实例
 3. 将 Service 注入到各 Repository
 4. 暴露 `waitForReady()` 供调用方等待初始化完成
@@ -1595,18 +1595,18 @@ export class Honkai3Repository extends GameRepository {
 EntryAbility.onCreate()
     │
     ▼
-CoreInitializerV2.initCore({ isMock, context })
+CoreInitializer.initCore({ isMock, context })
     │
-    ├── 1. RdbManagerV2.init(context)
+    ├── 1. RdbManager.init(context)
     │       ├── getRdbStore（打开/创建数据库文件，SecurityLevel.S2）
     │       ├── PRAGMA foreign_keys = ON（激活外键约束，每次连接必须设置）
     │       ├── createTables()（建 15 张表 + 索引）
     │       └── runMigrations()（版本迁移，见下节）
     │
-    ├── 1.5 ApiConfigV2.preloadDeviceId(context)
+    ├── 1.5 ApiConfig.preloadDeviceId(context)
     │       └── 从 Preferences 读取或生成 device_id，缓存到内存
     │
-    ├── 1.6 ApiConfigV2.preloadDeviceFp(context)
+    ├── 1.6 ApiConfig.preloadDeviceFp(context)
     │       └── 从 Preferences 读取或生成 device_fp，缓存到内存
     │
     ├── 1.7 DSUtilV2.setSalts(v1, v2, x6)
@@ -1632,10 +1632,10 @@ CoreInitializerV2.initCore({ isMock, context })
 ### 代码结构
 
 ```typescript
-// core/src/main/ets/CoreInitializerV2.ets
+// core/src/main/ets/CoreInitializer.ets
 import { common } from "@kit.AbilityKit";
 import { util } from "@kit.ArkTS";
-// 还需要 import：RdbManagerV2, ApiConfigV2, DSUtilV2, MihoyoEnvironment,
+// 还需要 import：RdbManager, ApiConfig, DSUtilV2, MihoyoEnvironment,
 // MihoyoApiServiceFactory, BBSRepository, GenshinRepository,
 // StarRailRepository, ZZZRepository, SignRepository
 
@@ -1645,7 +1645,7 @@ interface CoreConfig {
   context: common.UIAbilityContext;
 }
 
-export class CoreInitializerV2 {
+export class CoreInitializer {
   private static initialized: boolean = false;
   // initializing 标志防止并发重复初始化（如 App 快速重启时 initCore 被调用两次）
   private static initializing: boolean = false;
@@ -1654,24 +1654,24 @@ export class CoreInitializerV2 {
   private static readyReject: ((e: Error) => void) | null = null;
   private static readyPromise: Promise<void> = new Promise<void>(
     (resolve, reject) => {
-      CoreInitializerV2.readyResolve = resolve;
-      CoreInitializerV2.readyReject = reject;
+      CoreInitializer.readyResolve = resolve;
+      CoreInitializer.readyReject = reject;
     },
   );
 
   public static async initCore(config: CoreConfig): Promise<void> {
-    if (CoreInitializerV2.initialized || CoreInitializerV2.initializing) {
+    if (CoreInitializer.initialized || CoreInitializer.initializing) {
       return;
     }
-    CoreInitializerV2.initializing = true;
+    CoreInitializer.initializing = true;
 
     try {
       // 1. 初始化数据库
-      await RdbManagerV2.init(config.context);
+      await RdbManager.init(config.context);
 
       // 1.5 预加载设备 ID 和 device_fp（buildHeaders 是同步方法，需提前加载）
-      await ApiConfigV2.preloadDeviceId(config.context);
-      await ApiConfigV2.preloadDeviceFp(config.context);
+      await ApiConfig.preloadDeviceId(config.context);
+      await ApiConfig.preloadDeviceFp(config.context);
 
       // 1.7 注入 DS salt（从 rawfile 读取，不硬编码在源码中）
       // Mock 环境注入占位字符串，因为 MockService 不调用 MihoyoHeaderBuilder
@@ -1726,25 +1726,25 @@ export class CoreInitializerV2 {
       ZZZRepository.getInstance().setService(zzzService);
       SignRepository.getInstance().setService(signService);
 
-      CoreInitializerV2.initialized = true;
-      if (CoreInitializerV2.readyResolve !== null) {
-        CoreInitializerV2.readyResolve();
-        CoreInitializerV2.readyResolve = null;
+      CoreInitializer.initialized = true;
+      if (CoreInitializer.readyResolve !== null) {
+        CoreInitializer.readyResolve();
+        CoreInitializer.readyResolve = null;
       }
     } catch (e) {
       // 初始化失败：reject readyPromise，防止所有 waitForReady() 调用方永久挂起
-      CoreInitializerV2.initializing = false;
-      if (CoreInitializerV2.readyReject !== null) {
+      CoreInitializer.initializing = false;
+      if (CoreInitializer.readyReject !== null) {
         const err = e instanceof Error ? (e as Error) : new Error(String(e));
-        CoreInitializerV2.readyReject(err);
-        CoreInitializerV2.readyReject = null;
+        CoreInitializer.readyReject(err);
+        CoreInitializer.readyReject = null;
       }
       throw e; // 继续向上抛，让 EntryAbility 感知到初始化失败
     }
   }
 
   public static waitForReady(): Promise<void> {
-    return CoreInitializerV2.readyPromise;
+    return CoreInitializer.readyPromise;
   }
 }
 ```
@@ -1771,7 +1771,7 @@ export class GenshinRepository extends GameRepository {
   private getService(): MihoyoApiService {
     if (this.service === null) {
       throw new Error(
-        "GenshinRepository: service not initialized, call CoreInitializerV2.initCore() first",
+        "GenshinRepository: service not initialized, call CoreInitializer.initCore() first",
       );
     }
     return this.service;
@@ -1779,14 +1779,14 @@ export class GenshinRepository extends GameRepository {
 }
 ```
 
-**防护原则：** ViewModel 在 `aboutToAppear()` 中调用 Repository 时，`CoreInitializerV2.initCore()` 可能尚未完成（异步初始化）。Repository 的每个公开方法必须通过 `getService()` 获取 service，而非直接访问 `this.service`，确保 null 检查统一在一处处理。
+**防护原则：** ViewModel 在 `aboutToAppear()` 中调用 Repository 时，`CoreInitializer.initCore()` 可能尚未完成（异步初始化）。Repository 的每个公开方法必须通过 `getService()` 获取 service，而非直接访问 `this.service`，确保 null 检查统一在一处处理。
 
-**推荐模式：** ViewModel 在调用 Repository 前先 `await CoreInitializerV2.waitForReady()`，确保初始化完成：
+**推荐模式：** ViewModel 在调用 Repository 前先 `await CoreInitializer.waitForReady()`，确保初始化完成：
 
 ```typescript
 // ViewModel.aboutToAppear() 推荐写法
 async aboutToAppear(): Promise<void> {
-  await CoreInitializerV2.waitForReady();
+  await CoreInitializer.waitForReady();
   await this.vm.loadData();
 }
 ```
@@ -1797,7 +1797,7 @@ async aboutToAppear(): Promise<void> {
 
 ### 版本号机制
 
-`RdbManagerV2` 使用 `user_version` pragma 追踪数据库 schema 版本，App 升级时自动执行对应迁移脚本。
+`RdbManager` 使用 `user_version` pragma 追踪数据库 schema 版本，App 升级时自动执行对应迁移脚本。
 
 **HarmonyOS 兼容性确认：** HarmonyOS ArkData RDB 底层是 SQLite，`PRAGMA user_version` 是 SQLite 内置的用户自定义版本号机制（整数，默认 0），通过 `store.querySql()` 和 `store.executeSql()` 均可正常读写，无需额外 API。
 
@@ -1818,9 +1818,9 @@ private static async runMigrations(store: relationalStore.RdbStore): Promise<voi
 
   // V1.0 全新安装：currentVersion = 0，直接建表，无需迁移
   // 未来版本示例：
-  // if (currentVersion < 2) { await RdbManagerV2.migrateV1ToV2(store); }
+  // if (currentVersion < 2) { await RdbManager.migrateV1ToV2(store); }
 
-  await store.executeSql(`PRAGMA user_version = ${RdbManagerV2.DB_VERSION}`, []);
+  await store.executeSql(`PRAGMA user_version = ${RdbManager.DB_VERSION}`, []);
 }
 ```
 

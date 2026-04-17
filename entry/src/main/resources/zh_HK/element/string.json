@@ -1071,6 +1071,18 @@
     {
       "name": "test_page_title",
       "value": "測試工具"
+    },
+    {
+      "name": "feedback_home_refresh_success",
+      "value": "戰績數據已更新"
+    },
+    {
+      "name": "feedback_characters_refresh_success",
+      "value": "角色數據已更新"
+    },
+    {
+      "name": "feedback_refresh_error",
+      "value": "刷新失敗，請檢查網路連線"
     }
   ]
 }

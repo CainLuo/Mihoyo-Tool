@@ -20,6 +20,8 @@ import { ZZZDailyDetailParam } from './ZZZDailyDetail'
 import { BusinessError } from '@kit.BasicServicesKit'
 import { AccountSignal } from '../utils/AccountSignal'
 import { ViewState } from '../constants/ViewStates'
+import { showFeedback } from '../utils/FeedbackUtil'
+import { FeedbackType } from '../constants/FeedbackType'
 
 @ComponentV2
 export struct Home {
@@ -105,6 +107,20 @@ export struct Home {
       Logger.error('Home', 'showGeetestDialog failed: ' + e.message)
       this.vm.onGeetestResult(null)
     })
+  }
+
+  @Monitor('vm.refreshResult')
+  onRefreshResultChanged(_monitor: IMonitor): void {
+    const result = this.vm.refreshResult
+    if (result === '') { return }
+    this.vm.refreshResult = ''
+    const ctx = this.uiCtx
+    if (ctx === null) { return }
+    if (result === 'success') {
+      showFeedback(ctx, FeedbackType.SUCCESS, $r('app.string.feedback_home_refresh_success'))
+    } else {
+      showFeedback(ctx, FeedbackType.ERROR, $r('app.string.feedback_refresh_error'))
+    }
   }
 
   build() {

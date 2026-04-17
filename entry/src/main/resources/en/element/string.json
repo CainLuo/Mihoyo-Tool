@@ -1075,6 +1075,18 @@
     {
       "name": "test_page_title",
       "value": "Test Tools"
+    },
+    {
+      "name": "feedback_home_refresh_success",
+      "value": "Stats updated"
+    },
+    {
+      "name": "feedback_characters_refresh_success",
+      "value": "Characters updated"
+    },
+    {
+      "name": "feedback_refresh_error",
+      "value": "Refresh failed, check your connection"
     }
   ]
 }

@@ -10,6 +10,8 @@ import { common } from '@kit.AbilityKit'
 import { promptAction } from '@kit.ArkUI'
 import { ApiLogSystem, LogFileManager, LogExporter } from 'core'
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
+import { showFeedback } from '../../utils/FeedbackUtil'
+import { FeedbackType } from '../../constants/FeedbackType'
 
 @ComponentV2
 export struct AboutSection {
@@ -30,10 +32,6 @@ export struct AboutSection {
       });
   }
 
-  private showSnackBar(message: ResourceStr): void {
-    this.getUIContext().getPromptAction().showToast({ message: message });
-  }
-
   private onExportLogs(): void {
     const ctx = this.getUIContext().getHostContext() as common.UIAbilityContext;
     const version = BuildProfile.VERSION_NAME ?? '1.0.0';
@@ -42,7 +40,7 @@ export struct AboutSection {
         // 成功或用户取消，无需额外提示
       })
       .catch((_e: Error | object) => {
-        this.showSnackBar($r('app.string.my_export_logs_failed'));
+        showFeedback(this.getUIContext(), FeedbackType.ERROR, $r('app.string.my_export_logs_failed'));
       });
   }
 
@@ -63,10 +61,12 @@ export struct AboutSection {
         .then((deleteResult) => {
           this.logSize = '0 B';
           if (deleteResult.failedCount > 0) {
-            this.showSnackBar($r('app.string.my_clear_cache_failed', deleteResult.failedCount));
+            showFeedback(this.getUIContext(), FeedbackType.ERROR,
+              $r('app.string.my_clear_cache_failed', deleteResult.failedCount));
           } else {
             const freed = LogFileManager.formatSize(deleteResult.freedBytes);
-            this.showSnackBar($r('app.string.my_clear_cache_success', freed));
+            showFeedback(this.getUIContext(), FeedbackType.SUCCESS,
+              $r('app.string.my_clear_cache_success', freed));
           }
         })
         .catch((_e: Error | object) => {});

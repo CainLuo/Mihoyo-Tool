@@ -45,6 +45,7 @@ const TAG: string = 'CharactersViewModel';
 export class CharactersViewModelKeys {
   networkErrorMsg: string = 'vm.networkErrorMsg';
   refreshCoolingDown: string = 'vm.refreshCoolingDown';
+  refreshResult: string = 'vm.refreshResult';
 }
 
 @ObservedV2
@@ -65,6 +66,8 @@ export class CharactersViewModel {
   @Trace isRefreshing: boolean = false;
   @Trace networkErrorMsg: string = '';
   @Trace refreshCoolingDown: boolean = false;
+  /** 手动刷新结果信号：'success' | 'error' | ''，View 层监听后调用 showFeedback */
+  @Trace refreshResult: string = '';
 
   /** LazyForEach 数据源，随 characters 同步更新 */
   readonly dataSource: CharacterDataSource = new CharacterDataSource();
@@ -153,10 +156,12 @@ export class CharactersViewModel {
       const server = this.findServer(tab.roleUid);
       await this.syncCharacters(account, tab.gameId, tab.roleUid, server);
       await this.reloadCharacters();
+      this.refreshResult = 'success';
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `refresh failed: ${msg}`);
       this.networkErrorMsg = msg;
+      this.refreshResult = 'error';
     } finally {
       this.isRefreshing = false;
     }
@@ -173,10 +178,12 @@ export class CharactersViewModel {
       const account = this.allAccounts[this.selectedAccountIdx];
       await this.syncCharacters(account, tab.gameId, tab.roleUid, this.findServer(tab.roleUid));
       await this.reloadCharacters();
+      this.refreshResult = 'success';
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `forceRefresh failed: ${msg}`);
       this.networkErrorMsg = msg;
+      this.refreshResult = 'error';
     } finally {
       this.isRefreshing = false;
     }
