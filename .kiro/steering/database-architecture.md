@@ -14,7 +14,7 @@
 
 新版采用**按游戏类型分离的专用表**设计，共 15 张表：
 
-- 基础表 2 张：`account_table`（含 `stoken`/`stuid`/`mid` 字段）、`game_role_table`
+- 基础表 2 张：`account_table`、`game_role_table`
 - 原神专用表 4 张：`genshin_character_list`、`genshin_daily_note`、`genshin_character_detail`、`genshin_character_compute`
 - 星穹铁道专用表 4 张：`starrail_avatar_basic`、`starrail_daily_note`、`starrail_avatar_info`、`starrail_avatar_compute`
 - 绝区零专用表 4 张：`zzz_avatar_basic`、`zzz_daily_note`、`zzz_avatar_info`、`zzz_avatar_compute`
@@ -135,6 +135,6 @@ DB → ViewModel.parseRawJson() → UI 展示模型
 3. 通过 `account_id + role_uid` 实现多账号数据隔离
 4. UI 直接显示 API 返回数据，DB 写入走后台异步队列（任务数组 + runner 协程，无 Promise 链增长）
 5. `sync_meta.data_type` 必须使用 `SyncDataType` 枚举，禁止字符串字面量
-6. Cookie 刷新：`stoken` 长期有效，`cookie_token`/`ltoken`/`ltoken_v2` 过期时用 `stoken` 自动刷新
+6. Cookie 存储：`cookie` 字段存完整字符串（手机号/二维码登录含 stoken；Cookie 登录存原始字符串），`stoken`/`stuid`/`mid` 不再作为独立字段
 7. 数据库使用 `SecurityLevel.S2` 加密，每次连接后必须执行 `PRAGMA foreign_keys = ON`
 8. compute 接口和大别野签到接口的 mock 文件名不遵循自动映射规则，需要特殊映射表处理

@@ -20,6 +20,10 @@ import { Login } from './Login'
 import { MyAccountVM } from '../components/my/MyModels'
 import { AppRoutes } from '../constants/AppRoutes'
 import { splitPlaceholderBuilder } from '../components/SplitPlaceholder'
+import { CookieExpiredSignal } from '../utils/CookieExpiredSignal'
+import { FailedAccountInfo } from 'core'
+import BuildProfile from 'BuildProfile'
+import { TestPage } from './TestPage'
 
 @Builder
 function accountSwitchDialogBuilder(params: AccountSwitchDialogParams) {
@@ -36,6 +40,8 @@ function allDetailBuilder(name: string, param: Object) {
     AccountDetail({ account: param as MyAccountVM })
   } else if (name === AppRoutes.LOGIN) {
     Login()
+  } else if (name === AppRoutes.TEST_PAGE) {
+    TestPage()
   }
 }
 
@@ -53,6 +59,7 @@ export struct Main {
   readonly stack: NavPathStack = new NavPathStack()
   private placeholder: ComponentContent<object> | null = null
   private uiCtx: UIContext | null = null
+  @Local private cookieExpiredSignal: CookieExpiredSignal = CookieExpiredSignal.instance()
 
   // ── Home 标题栏状态（由 Home 页通过 @Param 回调上报）──────────
   @Local private homeShowRefresh: boolean = false
@@ -71,6 +78,37 @@ export struct Main {
   aboutToAppear(): void {
     this.uiCtx = this.getUIContext()
     this.placeholder = new ComponentContent(this.uiCtx, wrapBuilder(splitPlaceholderBuilder))
+  }
+
+  @Monitor('cookieExpiredSignal.queue')
+  onCookieExpiredQueueChanged(_monitor: IMonitor): void {
+    if (this.cookieExpiredSignal.queue.length === 0) { return }
+    const info = this.cookieExpiredSignal.queue[0]
+    // 从队列移除
+    const newQueue: FailedAccountInfo[] = []
+    for (let i = 1; i < this.cookieExpiredSignal.queue.length; i++) {
+      newQueue[newQueue.length] = this.cookieExpiredSignal.queue[i]
+    }
+    this.cookieExpiredSignal.queue = newQueue
+
+    const ctx = this.uiCtx
+    if (ctx === null) { return }
+    ctx.getPromptAction().showDialog({
+      title: $r('app.string.cookie_expired_dialog_title'),
+      message: $r('app.string.cookie_expired_dialog_msg', info.nickname),
+      buttons: [
+        { text: $r('app.string.dialog_cancel'), color: '#999999' },
+        { text: $r('app.string.cookie_expired_go_login'), color: '#E8534A' },
+      ],
+    }).then((result: promptAction.ShowDialogSuccessResponse) => {
+      if (result.index === 1) {
+        this.stack.pushPathByName(AppRoutes.LOGIN, null)
+      }
+      // 若队列还有，继续弹下一个
+      if (this.cookieExpiredSignal.queue.length > 0) {
+        this.cookieExpiredSignal.queue = this.cookieExpiredSignal.queue
+      }
+    }).catch((_: Error | object) => {})
   }
 
 
@@ -107,6 +145,13 @@ export struct Main {
   private get currentMenuItems(): NavigationMenuItem[] {
     if (this.selectedTab === TAB_HOME) { return this.homeMenuItems; }
     if (this.selectedTab === TAB_CHARACTERS) { return this.charMenuItems; }
+    if (this.selectedTab === TAB_MY && BuildProfile.DEBUG) {
+      return [{
+        value: 'test',
+        symbolIcon: new SymbolGlyphModifier($r('sys.symbol.wrench_and_screwdriver')),
+        action: () => { this.stack.pushPathByName(AppRoutes.TEST_PAGE, null) }
+      }];
+    }
     return [];
   }
 

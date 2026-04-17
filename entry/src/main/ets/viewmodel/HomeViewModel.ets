@@ -24,13 +24,17 @@ import {
   GeetestVerifyInput,
   CoreInitializer,
   AccountRow,
-  GameRoleRow
+  GameRoleRow,
+  ColdStartCookieChecker,
+  ColdStartRefreshResult,
+  FailedAccountInfo,
 } from 'core';
 import { GenshinDailyNoteParser } from 'core';
 import { StarRailDailyNoteParser } from 'core';
 import { GeetestTrigger } from '../models/GeetestTrigger';
 import { ZZZDailyNoteParser } from 'core';
 import { serverDisplayName } from '../utils/ServerNameUtil';
+import { CookieExpiredSignal } from '../utils/CookieExpiredSignal';
 import {
   MihoyoAccountVM,
   GameRoleCardVM,
@@ -134,6 +138,13 @@ export class HomeViewModel {
       }
     }
     this.startAutoRefresh();
+
+    // 冷启动 Cookie 检查：首屏渲染完成后异步触发，不阻塞 UI
+    ColdStartCookieChecker.checkAndRefreshAll(CoreInitializer.bbsRepository)
+      .then((result: ColdStartRefreshResult) => {
+        this.handleColdStartRefreshResult(result);
+      })
+      .catch((_: Error | object) => {});
   }
 
   /**
@@ -214,6 +225,35 @@ export class HomeViewModel {
   dispose(): void {
     this.stopAutoRefresh();
   }
+
+  /**
+   * 处理冷启动刷新结果：将 stoken 过期的失败账号写入全局 CookieExpiredSignal，
+   * 若有成功刷新则重新触发数据同步。
+   */
+  handleColdStartRefreshResult(result: ColdStartRefreshResult): void {
+    const signal = CookieExpiredSignal.instance();
+    for (let i = 0; i < result.failedAccounts.length; i++) {
+      const info = result.failedAccounts[i];
+      if (!info.isNetworkError) {
+        signal.push(info);
+      }
+    }
+    if (result.successCount > 0) {
+      this.syncIfNeeded().then(async () => {
+        try {
+          const refreshed = await this.fetchFromLocal();
+          this.accounts = refreshed;
+          this.viewState = refreshed.length > 0 ? ViewState.DATA : ViewState.EMPTY;
+        } catch (_) {}
+      }).catch((_: Error | object) => {});
+    }
+  }
+
+  /**
+   * 从队列取出第一个过期账号，弹出登录过期 Dialog。
+   * @deprecated 已迁移到 Main.ets 通过 CookieExpiredSignal 统一处理
+   */
+  showNextCookieExpiredDialog(_context: UIContext): void {}
 
   // ─── 私有方法 ────────────────────────────────────────────────
 

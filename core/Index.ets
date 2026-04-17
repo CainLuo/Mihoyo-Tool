@@ -116,6 +116,10 @@ export * from './src/main/ets/network/SignApiService';
 export { AuthExpiredError, GeetestRequiredError, GeetestSignRequiredError, RoleNotPublicError } from './src/main/ets/errors/ApiErrors';
 export { GeetestCreateResult, GeetestVerifyInput } from './src/main/ets/errors/ApiErrors';
 
+// Cookie 刷新
+export * from './src/main/ets/cookie/ColdStartCookieChecker';
+export * from './src/main/ets/cookie/CookieRefreshCoordinator';
+
 // Mock Service 实现
 export * from './src/main/ets/network/mock/MockServiceBase';
 export * from './src/main/ets/network/mock/MihoyoAccountMockService';

@@ -109,4 +109,8 @@ export class LoginCookieFields {
   ltoken: string = '';
   /** LToken 对应的 UID（ltuid） */
   ltuid: string = '';
+  /** SToken（长期凭证，手机号/二维码登录时有值，Cookie 登录时为空） */
+  stoken: string = '';
+  /** SToken 对应的 mid */
+  mid: string = '';
 }

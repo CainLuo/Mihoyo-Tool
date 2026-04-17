@@ -16,6 +16,9 @@ import {
   StarRailAvatarListData,
 } from '../models/StarRailRows';
 import { StarRailApiService } from '../network/StarRailApiService';
+import { AuthExpiredError } from '../errors/ApiErrors';
+import { CookieRefreshCoordinator } from '../cookie/CookieRefreshCoordinator';
+import { CoreInitializer } from '../CoreInitializer';
 
 export class StarRailRepository extends GameRepository {
   private avatarBasicDao: StarRailAvatarBasicDao = new StarRailAvatarBasicDao();
@@ -95,39 +98,64 @@ export class StarRailRepository extends GameRepository {
   async syncDailyNote(accountId: string, roleUid: string, server: string, cookie: string): Promise<void> {
     await this.markSyncing(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE);
     try {
-      const resp = await (this.getService() as StarRailApiService).getDailyNote(roleUid, server, cookie);
-      const respData = resp as Record<string, object>;
-      const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
-      const d = dataObj as Record<string, object>;
-      const row = new StarRailDailyNoteRow();
-      row.accountId = accountId;
-      row.roleUid = roleUid;
-      row.rawJson = JSON.stringify(dataObj);
-      row.updateTime = Math.floor(Date.now() / 1000);
-      // 独立字段：从 API 响应直接读取，不硬编码上限值
-      row.currentStamina = Number(d['current_stamina'] ?? 0);
-      row.maxStamina = Number(d['max_stamina'] ?? 0);
-      row.staminaRecoverTime = Number(d['stamina_recover_time'] ?? 0);
-      row.staminaFullTs = Number(d['stamina_full_ts'] ?? 0);
-      row.currentReserveStamina = Number(d['current_reserve_stamina'] ?? 0);
-      row.acceptedExpeditionNum = Number(d['accepted_epedition_num'] ?? 0);
-      row.totalExpeditionNum = Number(d['total_expedition_num'] ?? 0);
-      row.currentTrainScore = Number(d['current_train_score'] ?? 0);
-      row.maxTrainScore = Number(d['max_train_score'] ?? 0);
-      row.currentRogueScore = Number(d['current_rogue_score'] ?? 0);
-      row.maxRogueScore = Number(d['max_rogue_score'] ?? 0);
-      row.weeklyCocoonCnt = Number(d['weekly_cocoon_cnt'] ?? 0);
-      row.weeklyCocoonLimit = Number(d['weekly_cocoon_limit'] ?? 0);
-      row.rogueTournWeeklyCur = Number(d['rogue_tourn_weekly_cur'] ?? 0);
-      row.rogueTournWeeklyMax = Number(d['rogue_tourn_weekly_max'] ?? 0);
-      row.gridFightWeeklyCur = Number(d['grid_fight_weekly_cur'] ?? 0);
-      row.gridFightWeeklyMax = Number(d['grid_fight_weekly_max'] ?? 0);
-      await this.upsertDailyNote(accountId, roleUid, row);
+      await this.doSyncDailyNote(accountId, roleUid, server, cookie);
     } catch (error) {
+      if (error instanceof AuthExpiredError) {
+        try {
+          const newCookie = await CookieRefreshCoordinator.instance.refreshWithLock(
+            accountId,
+            cookie,
+            CoreInitializer.bbsRepository,
+          );
+          await this.doSyncDailyNote(accountId, roleUid, server, newCookie);
+          return;
+        } catch (refreshError) {
+          const msg = this.toErrorMessage(refreshError);
+          await this.markFailed(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE, msg);
+          if (refreshError instanceof AuthExpiredError) {
+            throw refreshError;
+          }
+          throw new AuthExpiredError(msg);
+        }
+      }
       const msg = this.toErrorMessage(error);
       await this.markFailed(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE, msg);
       throw new Error(msg);
     }
+  }
+
+  private async doSyncDailyNote(accountId: string, roleUid: string, server: string, cookie: string): Promise<void> {
+    const resp = await (this.getService() as StarRailApiService).getDailyNote(roleUid, server, cookie);
+    const respData = resp as Record<string, object>;
+    const retcodeStr = `${respData['retcode'] ?? ''}`;
+    if (retcodeStr === '-100') {
+      throw new AuthExpiredError('retcode=-100');
+    }
+    const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
+    const d = dataObj as Record<string, object>;
+    const row = new StarRailDailyNoteRow();
+    row.accountId = accountId;
+    row.roleUid = roleUid;
+    row.rawJson = JSON.stringify(dataObj);
+    row.updateTime = Math.floor(Date.now() / 1000);
+    row.currentStamina = Number(d['current_stamina'] ?? 0);
+    row.maxStamina = Number(d['max_stamina'] ?? 0);
+    row.staminaRecoverTime = Number(d['stamina_recover_time'] ?? 0);
+    row.staminaFullTs = Number(d['stamina_full_ts'] ?? 0);
+    row.currentReserveStamina = Number(d['current_reserve_stamina'] ?? 0);
+    row.acceptedExpeditionNum = Number(d['accepted_epedition_num'] ?? 0);
+    row.totalExpeditionNum = Number(d['total_expedition_num'] ?? 0);
+    row.currentTrainScore = Number(d['current_train_score'] ?? 0);
+    row.maxTrainScore = Number(d['max_train_score'] ?? 0);
+    row.currentRogueScore = Number(d['current_rogue_score'] ?? 0);
+    row.maxRogueScore = Number(d['max_rogue_score'] ?? 0);
+    row.weeklyCocoonCnt = Number(d['weekly_cocoon_cnt'] ?? 0);
+    row.weeklyCocoonLimit = Number(d['weekly_cocoon_limit'] ?? 0);
+    row.rogueTournWeeklyCur = Number(d['rogue_tourn_weekly_cur'] ?? 0);
+    row.rogueTournWeeklyMax = Number(d['rogue_tourn_weekly_max'] ?? 0);
+    row.gridFightWeeklyCur = Number(d['grid_fight_weekly_cur'] ?? 0);
+    row.gridFightWeeklyMax = Number(d['grid_fight_weekly_max'] ?? 0);
+    await this.upsertDailyNote(accountId, roleUid, row);
   }
 
   // ── 角色详情 ──────────────────────────────────────────────────

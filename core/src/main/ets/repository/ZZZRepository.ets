@@ -17,6 +17,9 @@ import {
   ZZZAvatarListData,
 } from '../models/ZZZRows';
 import { ZZZApiService } from '../network/ZZZApiService';
+import { AuthExpiredError } from '../errors/ApiErrors';
+import { CookieRefreshCoordinator } from '../cookie/CookieRefreshCoordinator';
+import { CoreInitializer } from '../CoreInitializer';
 
 export class ZZZRepository extends GameRepository {
   private avatarBasicDao: ZZZAvatarBasicDao = new ZZZAvatarBasicDao();
@@ -97,39 +100,64 @@ export class ZZZRepository extends GameRepository {
   async syncDailyNote(accountId: string, roleUid: string, server: string, cookie: string): Promise<void> {
     await this.markSyncing(accountId, roleUid, SyncDataType.ZZZ_DAILY_NOTE);
     try {
-      const resp = await (this.getService() as ZZZApiService).getDailyNote(roleUid, server, cookie);
-      const respData = resp as Record<string, object>;
-      const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
-      const d = dataObj as Record<string, object>;
-      const row = new ZZZDailyNoteRow();
-      row.accountId = accountId;
-      row.roleUid = roleUid;
-      row.rawJson = JSON.stringify(dataObj);
-      row.updateTime = Math.floor(Date.now() / 1000);
-      // 独立字段：从 API 响应直接读取，不硬编码上限值
-      const energy = d['energy'] as Record<string, object> | null;
-      if (energy) {
-        const progress = energy['progress'] as Record<string, object> | null;
-        if (progress) {
-          row.energyCurrent = Number(progress['current'] ?? 0);
-          row.energyMax = Number(progress['max'] ?? 0);
-        }
-        row.energyRestore = Number(energy['restore'] ?? 0);
-      }
-      const vitality = d['vitality'] as Record<string, object> | null;
-      if (vitality) {
-        row.vitalityCurrent = Number(vitality['current'] ?? 0);
-        row.vitalityMax = Number(vitality['max'] ?? 0);
-      }
-      const vhsSale = d['vhs_sale'] as Record<string, object> | null;
-      row.vhsSaleState = vhsSale ? `${vhsSale['sale_state'] ?? ''}` : '';
-      row.cardSign = `${d['card_sign'] ?? ''}`;
-      await this.upsertDailyNote(accountId, roleUid, row);
+      await this.doSyncDailyNote(accountId, roleUid, server, cookie);
     } catch (error) {
+      if (error instanceof AuthExpiredError) {
+        try {
+          const newCookie = await CookieRefreshCoordinator.instance.refreshWithLock(
+            accountId,
+            cookie,
+            CoreInitializer.bbsRepository,
+          );
+          await this.doSyncDailyNote(accountId, roleUid, server, newCookie);
+          return;
+        } catch (refreshError) {
+          const msg = this.toErrorMessage(refreshError);
+          await this.markFailed(accountId, roleUid, SyncDataType.ZZZ_DAILY_NOTE, msg);
+          if (refreshError instanceof AuthExpiredError) {
+            throw refreshError;
+          }
+          throw new AuthExpiredError(msg);
+        }
+      }
       const msg = this.toErrorMessage(error);
       await this.markFailed(accountId, roleUid, SyncDataType.ZZZ_DAILY_NOTE, msg);
       throw new Error(msg);
     }
+  }
+
+  private async doSyncDailyNote(accountId: string, roleUid: string, server: string, cookie: string): Promise<void> {
+    const resp = await (this.getService() as ZZZApiService).getDailyNote(roleUid, server, cookie);
+    const respData = resp as Record<string, object>;
+    const retcodeStr = `${respData['retcode'] ?? ''}`;
+    if (retcodeStr === '-100') {
+      throw new AuthExpiredError('retcode=-100');
+    }
+    const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
+    const d = dataObj as Record<string, object>;
+    const row = new ZZZDailyNoteRow();
+    row.accountId = accountId;
+    row.roleUid = roleUid;
+    row.rawJson = JSON.stringify(dataObj);
+    row.updateTime = Math.floor(Date.now() / 1000);
+    const energy = d['energy'] as Record<string, object> | null;
+    if (energy) {
+      const progress = energy['progress'] as Record<string, object> | null;
+      if (progress) {
+        row.energyCurrent = Number(progress['current'] ?? 0);
+        row.energyMax = Number(progress['max'] ?? 0);
+      }
+      row.energyRestore = Number(energy['restore'] ?? 0);
+    }
+    const vitality = d['vitality'] as Record<string, object> | null;
+    if (vitality) {
+      row.vitalityCurrent = Number(vitality['current'] ?? 0);
+      row.vitalityMax = Number(vitality['max'] ?? 0);
+    }
+    const vhsSale = d['vhs_sale'] as Record<string, object> | null;
+    row.vhsSaleState = vhsSale ? `${vhsSale['sale_state'] ?? ''}` : '';
+    row.cardSign = `${d['card_sign'] ?? ''}`;
+    await this.upsertDailyNote(accountId, roleUid, row);
   }
 
   // ── 角色详情 ──────────────────────────────────────────────────

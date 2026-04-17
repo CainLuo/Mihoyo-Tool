@@ -22,7 +22,8 @@ case "$ENV" in
 esac
 
 REMOTE_DIR="/data/app/el2/100/base/$BUNDLE/haps/entry/files/logs"
-LOCAL_DIR="$HOME/Desktop/mihoyo-logs-$(date '+%Y%m%d-%H%M%S')"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+LOCAL_DIR="$SCRIPT_DIR/logs"
 
 # ── 检查模拟器连接 ────────────────────────────────────────────
 if ! "$HDC" list targets 2>/dev/null | grep -q "$TARGET"; then
@@ -37,6 +38,17 @@ echo "  本地：$LOCAL_DIR"
 
 mkdir -p "$LOCAL_DIR"
 "$HDC" -t "$TARGET" file recv "$REMOTE_DIR" "$LOCAL_DIR"
+
+# hdc file recv 会把远端目录名带过来，把内层 logs/ 的文件移到外层
+if [ -d "$LOCAL_DIR/logs" ]; then
+  PULL_TIME=$(date '+%H%M%S')
+  for f in "$LOCAL_DIR/logs/"*.txt; do
+    [ -f "$f" ] || continue
+    BASENAME=$(basename "$f" .txt)
+    mv "$f" "$LOCAL_DIR/${BASENAME}_pulled-${PULL_TIME}.txt"
+  done
+  rmdir "$LOCAL_DIR/logs" 2>/dev/null
+fi
 
 # ── 统计结果 ──────────────────────────────────────────────────
 FILE_COUNT=$(find "$LOCAL_DIR" -name "*.txt" | wc -l | tr -d ' ')

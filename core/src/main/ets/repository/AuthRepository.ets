@@ -404,10 +404,18 @@ export class AuthRepository {
 
   /**
    * 组装完整 Cookie 字符串。
-   * 格式：account_id=xxx; cookie_token=xxx; ltoken=xxx; ltuid=xxx
+   * 格式：account_id=xxx; cookie_token=xxx; ltoken=xxx; ltuid=xxx[; stoken=xxx; stuid=xxx; mid=xxx]
+   * stoken/mid 仅手机号和二维码登录时有值，Cookie 登录时为空，有值才追加。
    */
   static buildCookieString(fields: LoginCookieFields): string {
-    return `${COOKIE_FIELD_ACCOUNT_ID}=${fields.accountId}; ${COOKIE_FIELD_COOKIE_TOKEN}=${fields.cookieToken}; ${COOKIE_FIELD_LTOKEN}=${fields.ltoken}; ${COOKIE_FIELD_LTUID}=${fields.ltuid}`;
+    let cookie = `${COOKIE_FIELD_ACCOUNT_ID}=${fields.accountId}; ${COOKIE_FIELD_COOKIE_TOKEN}=${fields.cookieToken}; ${COOKIE_FIELD_LTOKEN}=${fields.ltoken}; ${COOKIE_FIELD_LTUID}=${fields.ltuid}`;
+    if (fields.stoken.length > 0) {
+      cookie += `; stoken=${fields.stoken}; stuid=${fields.accountId}`;
+    }
+    if (fields.mid.length > 0) {
+      cookie += `; mid=${fields.mid}`;
+    }
+    return cookie;
   }
 
   private static parseLoginMobileResult(data: Record<string, Object>): LoginMobileResult {

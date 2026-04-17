@@ -1,6 +1,8 @@
 import { MihoyoApiService } from '../network/MihoyoApiService';
 import { MihoyoAccountApiService } from '../network/MihoyoAccountApiService';
 import { AccountDao, GameRoleDao } from '../database/BBSDao';
+import { RdbManager } from '../database/RdbManager';
+import { AppEnvManager } from '../constants/AppEnvManager';
 import { AccountRow } from '../models/AccountRow';
 import { GameRoleRow } from '../models/GameRoleRow';
 import { AuthRepository } from './AuthRepository';
@@ -228,7 +230,7 @@ export class BBSRepository {
 
   // ── 工具方法 ─────────────────────────────────────────────────
 
-  private static extractCookieField(cookie: string, field: string): string {
+  static extractCookieField(cookie: string, field: string): string {
     const parts = cookie.split(';');
     for (let i = 0; i < parts.length; i++) {
       const trimmed = parts[i].trim();
@@ -238,6 +240,129 @@ export class BBSRepository {
       }
     }
     return '';
+  }
+
+  /**
+   * 替换 cookie 字符串里某个字段的值，字段不存在时追加到末尾。
+   */
+  static replaceCookieField(cookie: string, field: string, newValue: string): string {
+    const parts = cookie.split(';');
+    let found = false;
+    const result: string[] = [];
+    for (let i = 0; i < parts.length; i++) {
+      const trimmed = parts[i].trim();
+      const prefix = field + '=';
+      if (trimmed.startsWith(prefix)) {
+        result[result.length] = ' ' + field + '=' + newValue;
+        found = true;
+      } else {
+        result[result.length] = parts[i];
+      }
+    }
+    if (!found) {
+      result[result.length] = ' ' + field + '=' + newValue;
+    }
+    return result.join(';');
+  }
+
+  // ── 测试工具（仅 Mock 环境使用）─────────────────────────────────
+
+  /**
+   * 将所有账号的 update_time 设置为 8 天前，并确保 cookie 里有 stoken，
+   * 用于手动触发冷启动刷新测试（T1 场景）。
+   * 仅供 Mock 环境的测试入口调用，禁止在业务逻辑中使用。
+   */
+  async setAllUpdateTimeTo8DaysAgo(): Promise<void> {
+    const eightDaysAgo = Math.floor(Date.now() / 1000) - 8 * 24 * 3600;
+    const accounts = await this.accountDao.findAll();
+    for (let i = 0; i < accounts.length; i++) {
+      // 确保 cookie 里有 stoken，否则 ColdStartCookieChecker 会静默跳过
+      let cookie = accounts[i].cookie;
+      const existingStoken = BBSRepository.extractCookieField(cookie, 'stoken');
+      if (existingStoken.length === 0) {
+        cookie = cookie + '; stoken=mock_stoken_for_testing';
+      }
+      await RdbManager.executeSql(
+        `UPDATE account_table SET update_time = ?, cookie = ? WHERE username = ?`,
+        [eightDaysAgo, cookie, accounts[i].username]
+      );
+    }
+  }
+
+  /**
+   * 将所有账号的 cookie 替换为不含 stoken 的版本，用于测试 T3 场景（静默跳过）。
+   * 仅供 Mock 环境的测试入口调用，禁止在业务逻辑中使用。
+   */
+  async setAllCookieWithoutStoken(): Promise<void> {
+    const eightDaysAgo = Math.floor(Date.now() / 1000) - 8 * 24 * 3600;
+    const accounts = await this.accountDao.findAll();
+    for (let i = 0; i < accounts.length; i++) {
+      // 移除 stoken 字段
+      const parts = accounts[i].cookie.split(';');
+      const filtered: string[] = [];
+      for (let j = 0; j < parts.length; j++) {
+        const trimmed = parts[j].trim();
+        if (!trimmed.startsWith('stoken=')) {
+          filtered[filtered.length] = parts[j];
+        }
+      }
+      const newCookie = filtered.join(';');
+      await RdbManager.executeSql(
+        `UPDATE account_table SET update_time = ?, cookie = ? WHERE username = ?`,
+        [eightDaysAgo, newCookie, accounts[i].username]
+      );
+    }
+  }
+
+  // ── Cookie 刷新 ───────────────────────────────────────────────
+
+  /**
+   * 当 API 返回 retcode=-100（Cookie 过期）时，尝试用 stoken 刷新 ltoken 和 cookie_token。
+   *
+   * 刷新成功：更新 DB 中的 cookie 字段，返回新 cookie 字符串。
+   * 无 stoken：抛出 AuthExpiredError，调用方提示用户重新登录。
+   * 刷新失败：抛出 AuthExpiredError。
+   *
+   * @param username 账号 username（用于查找和更新 DB）
+   * @param cookie   当前 cookie 字符串
+   * @returns 刷新后的新 cookie 字符串
+   */
+  async refreshCookieIfNeeded(username: string, cookie: string): Promise<string> {
+    // Mock 环境：直接模拟刷新成功，更新 update_time，不发真实网络请求
+    if (AppEnvManager.isMock()) {
+      const now = Math.floor(Date.now() / 1000);
+      await this.accountDao.updateCookie(username, cookie, now);
+      return cookie;
+    }
+
+    const stoken = BBSRepository.extractCookieField(cookie, 'stoken');
+    const mid = BBSRepository.extractCookieField(cookie, 'mid');
+
+    if (stoken.length === 0) {
+      throw new AuthExpiredError('Cookie expired and no stoken available, please re-login');
+    }
+
+    try {
+      const ltoken = await AuthRepository.getLTokenBySToken(stoken, mid);
+      const cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
+
+      // 替换 cookie 字符串里的 ltoken 和 cookie_token
+      let newCookie = BBSRepository.replaceCookieField(cookie, 'ltoken', ltoken);
+      newCookie = BBSRepository.replaceCookieField(newCookie, 'ltoken_v2', ltoken);
+      newCookie = BBSRepository.replaceCookieField(newCookie, 'cookie_token', cookieToken);
+      newCookie = BBSRepository.replaceCookieField(newCookie, 'cookie_token_v2', cookieToken);
+
+      // 写入 DB
+      const now = Math.floor(Date.now() / 1000);
+      await this.accountDao.updateCookie(username, newCookie, now);
+
+      return newCookie;
+    } catch (e) {
+      if (e instanceof AuthExpiredError) {
+        throw e;
+      }
+      throw new AuthExpiredError('Cookie refresh failed: ' + (e instanceof Error ? e.message : String(e)));
+    }
   }
 
   // ── 账号信息查询 ──────────────────────────────────────────────

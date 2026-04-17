@@ -8,13 +8,6 @@
 import BuildProfile from 'BuildProfile'
 import { common } from '@kit.AbilityKit'
 import { promptAction } from '@kit.ArkUI'
-import {
-  HdsSnackBar,
-  SnackBarIconOptions,
-  SnackBarMessageOptions,
-  SnackBarOperationOptions,
-  SnackBarOperationType,
-} from '@kit.UIDesignKit'
 import { ApiLogSystem, LogFileManager, LogExporter } from 'core'
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 
@@ -38,11 +31,7 @@ export struct AboutSection {
   }
 
   private showSnackBar(message: ResourceStr): void {
-    const icon: SnackBarIconOptions = {};
-    const msg: SnackBarMessageOptions = { title: message };
-    const op: SnackBarOperationOptions = { operationType: SnackBarOperationType.CLOSE_BUTTON_ONLY };
-    const snackBar = new HdsSnackBar(this.getUIContext());
-    snackBar.show(icon, msg, op);
+    this.getUIContext().getPromptAction().showToast({ message: message });
   }
 
   private onExportLogs(): void {

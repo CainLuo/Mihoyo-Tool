@@ -17,7 +17,7 @@
 | `repository/v2/`    | `repository/`            |
 | `network/v2/`       | `network/`               |
 
-> `AccountRowV2` 字段对应 `account_table` 所有列（含新增的 `stoken`/`stuid`/`mid`/`uid`/`nickname`/`avatar_url`/`introduce`）。`GameRoleRowV2` 字段对应 `game_role_table` 所有列（含新增的 `game_biz`/`game_type`/`region_name`/`is_chosen`/`is_public`/`bg_image_url`/`stats_json`）。实现时直接按表定义映射即可。
+> `AccountRowV2` 字段对应 `account_table` 所有列（含 `uid`/`nickname`/`avatar_url`/`introduce`/`raw_json`；`stoken`/`stuid`/`mid` 已移除，stoken 直接拼入 `cookie` 字段存储）。`GameRoleRowV2` 字段对应 `game_role_table` 所有列（含新增的 `game_biz`/`game_type`/`region_name`/`is_chosen`/`is_public`/`bg_image_url`/`stats_json`）。实现时直接按表定义映射即可。
 
 **实施顺序：**
 
@@ -157,21 +157,21 @@ Repository.upsert()  ←── 事务写入专用表 + 更新 sync_meta
 
 **数据流：** `user_wapi_getUserFullInfo` 写入，登录/刷新账号信息时更新。
 
+> **设计说明：** `stoken`/`stuid`/`mid` 已从独立字段移除。手机号/二维码登录获取的 stoken 直接拼入 `cookie` 字符串存储（格式：`account_id=xxx; cookie_token=xxx; ltoken=xxx; ltuid=xxx; stoken=xxx; stuid=xxx; mid=xxx`），Cookie 登录则存用户粘贴的原始字符串。所有 API 请求直接使用 `cookie` 字段，无需单独提取 stoken。
+
 ```sql
 CREATE TABLE IF NOT EXISTS account_table (
   id          INTEGER PRIMARY KEY AUTOINCREMENT, -- 主键，自增
   username    TEXT UNIQUE NOT NULL,              -- 米游社 account_id，唯一
-  cookie      TEXT        NOT NULL,              -- 登录 Cookie（完整字符串）
-  stoken      TEXT        DEFAULT '',            -- 主 Token，长期有效，用于刷新其他 Token
-  stuid       TEXT        DEFAULT '',            -- 与 stoken 配套的 uid
-  mid         TEXT        DEFAULT '',            -- 账号 mid，与 stoken 配套
+  cookie      TEXT        NOT NULL,              -- 完整 Cookie 字符串（含 stoken/ltoken/cookie_token 等）
   is_active   INTEGER     DEFAULT 0,             -- 是否为当前激活账号（0/1）
   create_time INTEGER,                           -- 创建时间戳（Unix 秒）
   update_time INTEGER,                           -- 最后更新时间戳（Unix 秒）
   uid         TEXT        DEFAULT '',            -- 米游社 UID（user_info.uid）
   nickname    TEXT        DEFAULT '',            -- 米游社昵称（user_info.nickname）
   avatar_url  TEXT        DEFAULT '',            -- 头像完整 URL（user_info.avatar_url，非 user_info.avatar）
-  introduce   TEXT        DEFAULT ''             -- 个人简介（user_info.introduce）
+  introduce   TEXT        DEFAULT '',            -- 个人简介（user_info.introduce）
+  raw_json    TEXT        DEFAULT ''             -- getUserFullInfo 完整响应 JSON
 );
 ```
 
@@ -179,10 +179,7 @@ CREATE TABLE IF NOT EXISTS account_table (
 | ----------- | ------- | ---------------------- | ---------------------------------------------------------------------------------------- |
 | id          | INTEGER | —                      | 主键，自增                                                                               |
 | username    | TEXT    | —                      | 米游社 account_id，唯一                                                                  |
-| cookie      | TEXT    | —                      | 登录 Cookie（完整字符串）                                                                |
-| stoken      | TEXT    | —                      | 主 Token，用于刷新其他 Token                                                             |
-| stuid       | TEXT    | —                      | 与 stoken 配套的 uid                                                                     |
-| mid         | TEXT    | —                      | 账号 mid，与 stoken 配套                                                                 |
+| cookie      | TEXT    | —                      | 完整 Cookie 字符串（手机号/二维码登录含 stoken；Cookie 登录存原始字符串）                |
 | is_active   | INTEGER | —                      | 是否为当前激活账号（0/1）                                                                |
 | create_time | INTEGER | —                      | 创建时间戳（Unix 秒）                                                                    |
 | update_time | INTEGER | —                      | 最后更新时间戳                                                                           |
@@ -190,6 +187,7 @@ CREATE TABLE IF NOT EXISTS account_table (
 | nickname    | TEXT    | `user_info.nickname`   | 米游社昵称                                                                               |
 | avatar_url  | TEXT    | `user_info.avatar_url` | 头像完整 URL（注意：`user_info.avatar` 是头像 ID 数字字符串，`avatar_url` 才是完整 URL） |
 | introduce   | TEXT    | `user_info.introduce`  | 个人简介                                                                                 |
+| raw_json    | TEXT    | —                      | getUserFullInfo 完整响应 JSON                                                            |
 
 ---
 

@@ -7,7 +7,7 @@
 ### 0. AI 行为规范
 
 - **收到明确的执行指令后，直接动手修改代码，不要回复"Understood"或类似的确认语**
-- 改完代码后必须立即运行 `bash run.sh` 构建并安装，如有编译错误立即修复，直到 BUILD SUCCESSFUL 为止
+- 改完代码后必须立即用 `executeBash` 工具依次执行构建、安装、启动三步（见第二十节），如有编译错误立即修复，直到 BUILD SUCCESSFUL 为止
 - 不要等用户再次催促才开始执行
 
 ### 1. 官方文档优先
@@ -28,7 +28,7 @@
 
 - 凡是系统/官方有推荐方案的场景，必须使用推荐方案
 - **禁止**自行实现系统组件已提供的功能（如手动处理 Safe Area、手动实现 NavBar 等）
-- 系统组件（`HdsNavigation`、`HdsNavDestination`、`HdsTabs` 等）默认已处理安全区域避让，**禁止**在普通页面手动添加 `statusBarHeight` padding 或 `expandSafeArea`
+- 系统原生组件（`Navigation`、`NavDestination` 等）已处理安全区域避让，**禁止**在普通页面手动添加 `statusBarHeight` padding 或 `expandSafeArea`
 - 只有有明确特殊需求的页面（如全屏启动页）才允许手动处理布局
 
 ### 4. UI 改动必须先出原型
@@ -307,7 +307,7 @@ design/
 1. **使用前必查文档**：任何 ArkUI 组件、ArkTS API、系统能力调用，必须先访问 `https://developer.huawei.com/consumer/cn/doc` 确认 API 签名、参数类型、可用版本。
 2. **禁止使用废弃 API**：文档中标注 `deprecated` 或 `(deprecated)` 的 API 一律不得使用，必须使用文档推荐的替代方案。
 3. **优先使用系统推荐方案**：凡是系统/官方有推荐方案的场景，必须使用推荐方案，禁止自行实现等效功能。
-4. **特殊页面才手动处理**：Safe Area、状态栏高度、沉浸式等布局问题，系统组件（HdsNavigation、HdsNavDestination 等）默认已处理，**禁止**在普通页面手动添加 `statusBarHeight` padding 或 `expandSafeArea`，只有有明确需求的特殊页面（如全屏启动页）才允许手动处理。
+4. **特殊页面才手动处理**：Safe Area、状态栏高度、沉浸式等布局问题，系统原生组件（`Navigation`、`NavDestination` 等）默认已处理，**禁止**在普通页面手动添加 `statusBarHeight` padding 或 `expandSafeArea`，只有有明确需求的特殊页面（如全屏启动页）才允许手动处理。
 5. **UI 改动必须先出原型**：任何涉及 UI 布局、视觉风格的改动，必须先输出 HTML 原型并得到用户确认，才能动代码。
 
 官方文档入口：
@@ -320,20 +320,20 @@ https://developer.huawei.com/consumer/cn/doc/
 
 按知识域对应的 Kit 检索：
 
-| 需要查阅的能力                              | 对应 Kit / 模块     | 搜索关键词示例                                                                |
-| ------------------------------------------- | ------------------- | ----------------------------------------------------------------------------- |
-| ArkUI 组件、布局、动画、状态管理            | ArkUI               | `site:developer.huawei.com ArkUI Column List`                                 |
-| ArkTS 语言规范、并发、@Concurrent、Sendable | ArkTS               | `site:developer.huawei.com ArkTS @Concurrent taskpool`                        |
-| 网络请求、HTTP、WebSocket                   | Network Kit         | `site:developer.huawei.com Network Kit http request`                          |
-| 关系型数据库 RDB                            | ArkData             | `site:developer.huawei.com ArkData relationalStore RdbStore`                  |
-| KV 存储、首选项 Preferences                 | ArkData             | `site:developer.huawei.com ArkData preferences`                               |
-| 加密、证书、密钥管理                        | Security Kit        | `site:developer.huawei.com Security Kit crypto`                               |
-| 页面路由、HdsNavigation、HdsNavDestination  | ArkUI / UIDesignKit | `site:developer.huawei.com ArkUI HdsNavigation HdsNavDestination UIDesignKit` |
-| UIAbility、Want、生命周期                   | Ability Kit         | `site:developer.huawei.com Ability Kit UIAbility lifecycle`                   |
-| 任务池 TaskPool、Worker                     | ArkTS               | `site:developer.huawei.com ArkTS taskpool Worker`                             |
-| 资源管理 ResourceManager                    | 应用框架            | `site:developer.huawei.com resourceManager getRawFileContent`                 |
-| 自动化测试 Hypium                           | 测试框架            | `site:developer.huawei.com hypium ohosTest`                                   |
-| 日志 hilog                                  | 系统                | `site:developer.huawei.com hilog`                                             |
+| 需要查阅的能力                              | 对应 Kit / 模块 | 搜索关键词示例                                                |
+| ------------------------------------------- | --------------- | ------------------------------------------------------------- |
+| ArkUI 组件、布局、动画、状态管理            | ArkUI           | `site:developer.huawei.com ArkUI Column List`                 |
+| ArkTS 语言规范、并发、@Concurrent、Sendable | ArkTS           | `site:developer.huawei.com ArkTS @Concurrent taskpool`        |
+| 网络请求、HTTP、WebSocket                   | Network Kit     | `site:developer.huawei.com Network Kit http request`          |
+| 关系型数据库 RDB                            | ArkData         | `site:developer.huawei.com ArkData relationalStore RdbStore`  |
+| KV 存储、首选项 Preferences                 | ArkData         | `site:developer.huawei.com ArkData preferences`               |
+| 加密、证书、密钥管理                        | Security Kit    | `site:developer.huawei.com Security Kit crypto`               |
+| 页面路由、Navigation、NavDestination        | ArkUI           | `site:developer.huawei.com ArkUI Navigation NavDestination`   |
+| UIAbility、Want、生命周期                   | Ability Kit     | `site:developer.huawei.com Ability Kit UIAbility lifecycle`   |
+| 任务池 TaskPool、Worker                     | ArkTS           | `site:developer.huawei.com ArkTS taskpool Worker`             |
+| 资源管理 ResourceManager                    | 应用框架        | `site:developer.huawei.com resourceManager getRawFileContent` |
+| 自动化测试 Hypium                           | 测试框架        | `site:developer.huawei.com hypium ohosTest`                   |
+| 日志 hilog                                  | 系统            | `site:developer.huawei.com hilog`                             |
 
 **执行要求：** 先搜索找到准确 URL，再用 `webFetch` 抓取页面内容确认 API 签名，不得跳过此步骤，不得凭记忆猜测 API 参数。
 
@@ -423,149 +423,61 @@ Logger.info("Home", "card tapped", Logger.ctx("Home.ets", "onCardTap", 42));
 
 ## 六、UI 组件选用规范
 
-**优先级：UI Design Kit（`@kit.UIDesignKit`）> 系统原生组件 > 自定义组件。**
-
-### UI Design Kit 组件优先原则
-
-HarmonyOS 官方提供了 UI Design Kit（`@kit.UIDesignKit`），其中的 Hds 系列组件在系统原生组件基础上增强了动态模糊、标题栏跟随滚动、分割线渐变等 HarmonyOS 设计规范效果。**凡是有对应 Hds 组件的场景，必须优先使用 Hds 组件。**
-
-文档入口：`https://developer.huawei.com/consumer/cn/doc/harmonyos-references/ui-design-api`
-
-#### 可用 Hds 组件清单（起始版本 5.1.0 / API 18+）
-
-| Hds 组件             | 替代的系统组件                          | 主要增强能力                                     | 导入方式                                                        |
-| -------------------- | --------------------------------------- | ------------------------------------------------ | --------------------------------------------------------------- |
-| `HdsNavigation`      | `Navigation`                            | 标题栏动态模糊、跟随滚动显隐、菜单消息提醒       | `import { HdsNavigation } from '@kit.UIDesignKit'`              |
-| `HdsNavDestination`  | `NavDestination`                        | 标题栏动态模糊、跟随滚动显隐、半模态标题栏       | `import { HdsNavDestination } from '@kit.UIDesignKit'`          |
-| `HdsTabs`            | `Tabs`                                  | 分割线渐变显隐、渐变模糊、出血效果、半屏居中布局 | `import { HdsTabs, HdsTabsController } from '@kit.UIDesignKit'` |
-| `HdsSnackBar`        | `promptAction.showToast` / 自定义 Toast | 带图标+文字+操作按钮的非模态通知弹窗             | `import { HdsSnackBar } from '@kit.UIDesignKit'`                |
-| `HdsSideBar`         | 自定义侧边栏                            | 符合 HarmonyOS 规范的侧边栏                      | `import { HdsSideBar } from '@kit.UIDesignKit'`                 |
-| `HdsSideMenu`        | 自定义侧边菜单                          | 符合 HarmonyOS 规范的侧边菜单                    | `import { HdsSideMenu } from '@kit.UIDesignKit'`                |
-| `HdsActionBar`       | 自定义操作栏                            | 符合 HarmonyOS 规范的操作栏                      | `import { HdsActionBar } from '@kit.UIDesignKit'`               |
-| `HdsListItem`        | `ListItem`                              | 符合 HarmonyOS 规范的列表项                      | `import { HdsListItem } from '@kit.UIDesignKit'`                |
-| `HdsListItemCard`    | 自定义卡片列表项                        | 符合 HarmonyOS 规范的卡片列表项                  | `import { HdsListItemCard } from '@kit.UIDesignKit'`            |
-| `HdsVisualComponent` | 自定义视觉组件                          | 符合 HarmonyOS 规范的视觉组件                    | `import { HdsVisualComponent } from '@kit.UIDesignKit'`         |
-
-> 注意：`HdsTabs` 暂不支持 TV 设备。使用前必须查阅官方文档确认当前 API 版本是否支持。
-
-#### 关键使用规则
-
-**HdsNavigation / HdsNavDestination：**
-
-```typescript
-// 导入（API 22+ 无需手动导入 Attribute）
-import { HdsNavigation } from '@kit.UIDesignKit';
-import { HdsNavDestination } from '@kit.UIDesignKit';
-
-// HdsNavDestination 标题栏配置（替代 .title() 字符串写法）
-HdsNavDestination() {
-  // 页面内容
-}
-.titleBar({
-  content: {
-    title: { mainTitle: $r('app.string.xxx_title') }
-  }
-})
-.hideBackButton(false)
-```
-
-**HdsTabs（替代 Tabs + TabContent）：**
-
-```typescript
-import { HdsTabs, HdsTabsController } from '@kit.UIDesignKit';
-
-// 底部 TabBar + 分割线跟随滚动
-HdsTabs({ controller: this.controller }) {
-  TabContent() { ... }.tabBar({ icon: $r('...'), text: '首页' })
-  TabContent() { ... }.tabBar({ icon: $r('...'), text: '角色' })
-}
-.barPosition(BarPosition.End)
-.barOverlap(true)
-.divider({ mode: DividerMode.FOLLOW_SCROLL })
-```
-
-**HdsSnackBar（替代 Toast / 自定义通知弹窗）：**
-
-```typescript
-import { HdsSnackBar, SnackBarOperationType } from "@kit.UIDesignKit";
-
-// 在 ViewModel 或 View 里
-const snackBar = new HdsSnackBar(this.getUIContext());
-snackBar.show(
-  { icon: $r("sys.symbol.checkmark_circle") },
-  { title: "操作成功", content: "数据已同步" },
-  { operationType: SnackBarOperationType.CLOSE_BUTTON_ONLY },
-);
-```
+**优先级：系统原生组件 > 自定义组件。禁止使用 `@kit.UIDesignKit` 中的 Hds 系列组件。**
 
 ### 原则
 
 - 凡是 ArkUI 有对应系统组件的场景，**必须**使用系统组件，禁止用 `Text` / `Row` / `Column` 加 `.onClick` 模拟交互控件
-- 只有系统组件确实无法满足需求（视觉差异过大、缺少必要能力）时，才允许自定义
+- 只有系统组件确实无法满足需求时，才允许自定义
 
 ### 常见映射
 
-| 场景                          | 正确做法                                         | 禁止做法                       |
-| ----------------------------- | ------------------------------------------------ | ------------------------------ |
-| 导航根容器                    | `HdsNavigation`（UI Design Kit）                 | 手写 `Navigation` 或自定义     |
-| 子页面根容器                  | `HdsNavDestination`（UI Design Kit）             | 手写 `NavDestination` 或自定义 |
-| 底部 Tab 导航                 | `HdsTabs`（UI Design Kit）                       | 手写 `Tabs` 或自定义           |
-| 非模态通知弹窗                | `HdsSnackBar`（UI Design Kit）                   | 自定义 Toast 或遮罩层          |
-| 可点击按钮                    | `Button(label)`                                  | `Text(label).onClick(...)`     |
-| 导航返回 / 关闭               | `HdsNavDestination` 系统自动渲染返回按钮         | 手写 `Row` + `Button('‹')`     |
-| 页面标题栏（push/present 页） | `HdsNavDestination().titleBar(...)`              | 手写 `Row` 模拟 NavBar         |
-| Tab 页标题栏（TabBar 内嵌页） | `HdsNavDestination().titleBar(...)` 系统自动渲染 | 手写 `Row` 标题区              |
-| 文本输入                      | `TextInput` / `TextArea`                         | 自定义输入框                   |
-| 加载指示器                    | `LoadingProgress()`                              | 自定义动画                     |
-| 环形进度                      | `Progress({ type: ProgressType.Ring })`          | 自定义 Canvas                  |
-| 二维码                        | `QRCode(url)`                                    | 第三方库或 Canvas              |
-| 下拉选择                      | `Select(options)`                                | 自定义弹层                     |
-| 对话框                        | `promptAction.openCustomDialog` / `AlertDialog`  | 手写遮罩层                     |
+| 场景         | 正确做法                                               | 禁止做法                   |
+| ------------ | ------------------------------------------------------ | -------------------------- |
+| 导航根容器   | `Navigation`                                           | 手写自定义导航框架         |
+| 子页面根容器 | `NavDestination` + `.title()` + `.hideTitleBar(false)` | 手写 `Row` 模拟 NavBar     |
+| 非模态通知   | `promptAction.showToast`                               | 自定义 Toast 或遮罩层      |
+| 可点击按钮   | `Button(label)`                                        | `Text(label).onClick(...)` |
+| 文本输入     | `TextInput` / `TextArea`                               | 自定义输入框               |
+| 加载指示器   | `LoadingProgress()`                                    | 自定义动画                 |
+| 环形进度     | `Progress({ type: ProgressType.Ring })`                | 自定义 Canvas              |
+| 二维码       | `QRCode(url)`                                          | 第三方库或 Canvas          |
+| 下拉选择     | `Select(options)`                                      | 自定义弹层                 |
+| 对话框       | `promptAction.openCustomDialog` / `AlertDialog`        | 手写遮罩层                 |
 
-### 标题栏样式规范（HarmonyOS NEXT 官方推荐）
+### 标题栏规范
 
-#### Tab 内嵌页（Home、Characters、My 等主导航页）
+#### 二级页（通过 push 跳转）
 
-- `Main.ets` 内部使用嵌套 `HdsNavigation` + `HdsTabs`，每个 Tab 页包在 `HdsNavDestination` 里
-- 标题由系统 `HdsNavDestination().titleBar(...)` 自动渲染，**无需手写 NavBar Row**
-- 返回按钮、标题栏背景均由系统处理
+页面组件自身包含 `NavDestination`，通过 `.title()` 设置标题，`.hideTitleBar(false)` 显示系统标题栏：
 
 ```typescript
-// Main.ets — Tab 页标准写法（使用 UI Design Kit）
-@Builder
-tabHome() {
-  HdsNavDestination() {
-    Home()   // 页面组件，不含 NavBar，不含 NavDestination
+// AccountDetail.ets — 标准写法
+build() {
+  NavDestination() {
+    // 页面内容
   }
-  .titleBar({
-    content: { title: { mainTitle: $r('app.string.main_tab_home') } }
-  })
+  .title($r('app.string.account_detail_title'))
   .hideTitleBar(false)
+  .onReady((ctx: NavDestinationContext) => {
+    this.localStack = ctx.pathStack
+  })
 }
 ```
 
-#### push/present 二级页（Login、GenshinDailyDetail 等）
-
-- 标题使用**小标题**：由系统 `HdsNavDestination().titleBar(...)` 渲染
-- **禁止**在页面组件内手写 NavBar Row
-- **禁止**在页面组件内包含 `HdsNavDestination`
-- 返回按钮由系统自动渲染，无需手写
+Builder 文件只做透传，不包 NavDestination：
 
 ```typescript
-// XxxBuilder.ets — push 页标准写法（使用 UI Design Kit）
-@Component
-struct XxxDestination {
-  build() {
-    HdsNavDestination() {
-      Xxx()   // 页面组件，不含 NavBar，不含 NavDestination
-    }
-    .titleBar({
-      content: { title: { mainTitle: $r('app.string.xxx_title') } }
-    })
-    .hideBackButton(false)
-  }
+// XxxBuilder.ets
+@Builder
+export function XxxBuilder(_name: string, _param: Object) {
+  Xxx()
 }
 ```
+
+#### Tab 子页（Home、Characters、My）
+
+由 `Main.ets` 的 `Navigation` 统一管理标题栏，Tab 页组件本身不包含 `NavDestination`。
 
 ### Button 字体设置
 
@@ -582,63 +494,11 @@ Button(label)
   .fontColor(this.tm.current.colorTextPrimary);
 ```
 
-如果需要完整的 `Font` 控制（含 family、style），改用子组件写法：
-
-```typescript
-Button({ type: ButtonType.Normal }) {
-  Text(label)
-    .font(this.tm.current.body13)
-    .fontColor(Color.White)
-}
-```
-
----
-
-所有通过 `RouterUtil.push` 跳转的页面（Login、Setting、GenshinDailyDetail 等），**必须**在 Builder 的 `HdsNavDestination` 上设置 `.titleBar()`，由系统渲染标题和返回按钮：
-
-```typescript
-// XxxBuilder.ets — 正确（使用 UI Design Kit）
-@Component
-struct XxxDestination {
-  build() {
-    HdsNavDestination() {
-      Xxx()
-    }
-    .titleBar({
-      content: { title: { mainTitle: $r('app.string.xxx_title') } }
-    })
-    // 系统自动显示返回按钮，无需手写
-  }
-}
-```
-
-页面组件本身（`Xxx.ets`）**不得**包含 `HdsNavDestination` 包装，也**不得**手写 NavBar Row。
-
-### 新增页面 Builder 注册
-
-每个新页面除了创建 Builder 文件外，还必须完成以下两步，否则 `RouterUtil.push` 会静默失败：
-
-1. 在 `entry/src/main/resources/base/profile/custom_router_map.json` 中注册路由条目：
-
-```json
-{
-  "name": "PageName",
-  "pageSourceFile": "src/main/ets/pages/router/PageNameBuilder.ets",
-  "buildFunction": "PageNameBuilder"
-}
-```
-
-2. 在 `Index.ets` 的 `builderMap` 中添加 `wrapBuilder` 注册：
-
-```typescript
-[AppRoutes.PAGE_NAME, wrapBuilder(PageNameBuilder)],
-```
-
 ---
 
 ## 七、路由规范
 
-本项目使用系统原生 `HdsNavigation`（UI Design Kit）+ `NavPathStack` 作为路由框架，通过 `RouterUtil` 工具类统一封装跳转操作。**禁止**使用 `@hadss/hmrouter`、系统 `router` 模块或直接操作 `NavPathStack`。
+本项目使用系统原生 `Navigation` + `NavPathStack` 作为路由框架。**禁止**使用 `@hadss/hmrouter`、系统 `router` 模块或直接操作 `NavPathStack`。
 
 ### 页面分层：哪些页面需要 Builder，哪些不需要
 
@@ -653,59 +513,52 @@ struct XxxDestination {
 | GenshinCharacterDetail | 二级页（有系统 TitleBar）   | `GenshinCharacterDetailBuilder.ets` |
 | AccountDetail          | 二级页（有系统 TitleBar）   | `AccountDetailBuilder.ets`          |
 
-**不需要 Builder（Tab 子页，由 Main 的 HdsTabs 直接渲染）：**
+**不需要 Builder（Tab 子页，由 Main 的 Navigation 直接渲染）：**
 
-| 页面       | 原因                                                         |
-| ---------- | ------------------------------------------------------------ |
-| Home       | `Main` 内 `HdsTabs` + `HdsNavDestination` 直接渲染，不走路由 |
-| Characters | `Main` 内 `HdsTabs` + `HdsNavDestination` 直接渲染，不走路由 |
-| My         | `Main` 内 `HdsTabs` + `HdsNavDestination` 直接渲染，不走路由 |
+| 页面       | 原因                                      |
+| ---------- | ----------------------------------------- |
+| Home       | `Main` 内 `Navigation` 直接渲染，不走路由 |
+| Characters | `Main` 内 `Navigation` 直接渲染，不走路由 |
+| My         | `Main` 内 `Navigation` 直接渲染，不走路由 |
 
-**判断规则**：凡是通过 `RouterUtil.push` / `RouterUtil.replace` 跳转的页面，必须有 Builder；凡是作为 Tab 子页被父组件直接渲染的页面，不需要 Builder，也不需要在 `custom_router_map.json` 中注册。
+**判断规则**：凡是通过 `NavPathStack.pushPathByName` 跳转的页面，必须有 Builder；凡是作为 Tab 子页被父组件直接渲染的页面，不需要 Builder，也不需要在 `custom_router_map.json` 中注册。
 
 ### 页面 UI 标准
 
 #### 全屏页（Launch、Main）
 
-- `HdsNavDestination` 设置 `.hideTitleBar(true)`
+- `NavDestination` 设置 `.hideTitleBar(true)`
 - 加 `.ignoreLayoutSafeArea([LayoutSafeAreaType.SYSTEM], [LayoutSafeAreaEdge.TOP, LayoutSafeAreaEdge.BOTTOM])`
 - 自行管理沉浸式，不加 `statusBarHeight` padding
 
 #### 二级页（通过 push 跳转，有系统 TitleBar）
 
-- `HdsNavDestination` 设置 `.titleBar({ content: { title: { mainTitle: $r('...') } } })` + `.hideTitleBar(false)`
-- 必须加 `statusBarHeight` padding，让系统 TitleBar 避开 Status Bar
-- 页面组件本身不包含 NavBar Row，不包含 HdsNavDestination
+页面组件自身包含 `NavDestination`，Builder 只做透传：
 
 ```typescript
-// 二级页 Builder 标准写法（使用 UI Design Kit）
-@Component
-struct XxxDestination {
-  @State statusBarHeight: number = 0;
-
-  aboutToAppear(): void {
-    const ctx = this.getUIContext();
-    const px = AppStorage.get<number>('topRectHeight') ?? 0;
-    this.statusBarHeight = ctx.px2vp(px);
+// Xxx.ets — 页面组件包含 NavDestination
+build() {
+  NavDestination() {
+    // 页面内容
   }
+  .title($r('app.string.xxx_title'))
+  .hideTitleBar(false)
+  .onReady((ctx: NavDestinationContext) => {
+    this.localStack = ctx.pathStack
+  })
+}
 
-  build() {
-    HdsNavDestination() {
-      Xxx()   // 页面组件，不含 NavBar，不含 HdsNavDestination
-    }
-    .titleBar({
-      content: { title: { mainTitle: $r('app.string.xxx_title') } }
-    })
-    .hideTitleBar(false)
-    .padding({ top: this.statusBarHeight })
-  }
+// XxxBuilder.ets — Builder 只做透传
+@Builder
+export function XxxBuilder(_name: string, _param: Object) {
+  Xxx()
 }
 ```
 
 #### Tab 子页（Home、Characters、My）
 
-- `Main.ets` 内部使用嵌套 `HdsTabs`，每个 Tab 页包在 `@Builder` 方法的 `HdsNavDestination` 里
-- 系统自动渲染标题栏，**无需手写 NavBar**，不需要 Builder，不需要注册 `custom_router_map.json`
+- `Main.ets` 内部 `Navigation` 统一管理标题栏
+- Tab 页组件本身不包含 `NavDestination`，不需要 Builder，不需要注册 `custom_router_map.json`
 
 ### 路由 Path 管理
 
@@ -723,20 +576,20 @@ export class AppRoutes {
 ### 跳转用法
 
 ```typescript
-import { RouterUtil } from "../utils/RouterUtil";
 import { AppRoutes } from "../constants/AppRoutes";
 
-RouterUtil.push(AppRoutes.LOGIN); // push，保留返回栈
-RouterUtil.replace(AppRoutes.MAIN); // replace，不保留返回栈
-RouterUtil.pop(); // 返回上一页
-RouterUtil.push(AppRoutes.ACCOUNT_DETAIL, vm); // 携带参数
+this.stack.pushPathByName(AppRoutes.LOGIN, null); // push，保留返回栈
+this.stack.replacePathByName(AppRoutes.MAIN, null); // replace，不保留返回栈
+this.stack.pop(); // 返回上一页
+this.stack.pushPathByName(AppRoutes.ACCOUNT_DETAIL, param); // 携带参数
 ```
 
 ### 新增路由页面完整流程
 
 1. 在 `AppRoutes.ets` 中添加路由常量
-2. 在 `entry/src/main/ets/pages/router/` 下新建 `XxxBuilder.ets`
-3. 在 `entry/src/main/resources/base/profile/custom_router_map.json` 中注册：
+2. 在 `entry/src/main/ets/pages/` 下新建 `Xxx.ets`，页面组件自身包含 `NavDestination`
+3. 在 `entry/src/main/ets/pages/router/` 下新建 `XxxBuilder.ets`（只做透传）
+4. 在 `entry/src/main/resources/base/profile/custom_router_map.json` 中注册：
    ```json
    {
      "name": "Xxx",
@@ -744,7 +597,7 @@ RouterUtil.push(AppRoutes.ACCOUNT_DETAIL, vm); // 携带参数
      "buildFunction": "XxxBuilder"
    }
    ```
-4. 在 `Index.ets` 的 `pageBuilder` 函数中添加 `else if` 分支并补充 import
+5. 在 `Main.ets` 的 `allDetailBuilder` 中添加 `else if` 分支并补充 import
 
 > **注意**：`@Builder` 函数内只能写 UI 组件语法，不能有变量声明或 Map 查找，用 `if/else if` 链分发。
 
@@ -1322,41 +1175,34 @@ this.charElement = elementFromString(parsed.element ?? "");
 
 ### 标准流程
 
-直接在项目根目录执行：
+使用 `executeBash` 工具依次执行以下命令（不得使用 `controlBashProcess` 的后台进程，必须等待每步完成）：
 
 ```bash
-bash run.sh
-```
-
-脚本会自动完成：启动模拟器（如未运行）→ Clean → Build (mock) → 安装 → 启动。
-
-### 手动分步执行（调试用）
-
-```bash
+# 1. 构建 mock 包
 export DEVECO_SDK_HOME='/Applications/DevEco-Studio.app/Contents/sdk'
-HVIGOR='/Applications/DevEco-Studio.app/Contents/tools/hvigor/bin/hvigorw'
-HDC='/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/toolchains/hdc'
-
-# 1. Clean
-"$HVIGOR" clean
-
-# 2. Build（mock 模式，注意参数是 -p product=mock，不是 -p buildMode=mock）
-"$HVIGOR" assembleHap -p product=mock
-
-# 3. 安装
-"$HDC" -t 127.0.0.1:5555 install entry/build/mock/outputs/mock/entry-mock-unsigned.hap
-
-# 4. 启动
-"$HDC" -t 127.0.0.1:5555 shell aa start -b com.cainluo.mihoyo.tools -a EntryAbility
+/Applications/DevEco-Studio.app/Contents/tools/hvigor/bin/hvigorw assembleHap -p product=mock
 ```
+
+```bash
+# 2. 安装到模拟器
+/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/toolchains/hdc -t 127.0.0.1:5555 install entry/build/mock/outputs/mock/entry-mock-unsigned.hap
+```
+
+```bash
+# 3. 启动 App
+/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/toolchains/hdc -t 127.0.0.1:5555 shell aa start -b com.cainluo.mihoyo.tools.mock -a EntryAbility
+```
+
+**必须等待每步命令返回结果后再执行下一步。** 如果构建失败，立即根据错误信息修复，不得跳过。
 
 ### 目标设备
 
 - 模拟器：**Mate 80 Pro Max**
 - 连接地址：`127.0.0.1:5555`
+- Bundle ID（mock）：`com.cainluo.mihoyo.tools.mock`
 
 ### 禁止行为
 
-- **禁止**跳过 Clean 直接 Build（增量编译可能遗留旧产物导致运行异常）
+- **禁止**使用 `controlBashProcess` 后台运行构建（无法获取真实输出，会误报成功）
 - **禁止**使用 `-p buildMode=mock`（正确参数是 `-p product=mock`）
-- **禁止**在 DevEco Studio 中点击 Run 替代命令行流程（两者 product 配置可能不一致）
+- **禁止**跳过安装步骤直接启动（旧版本仍在运行）

@@ -19,6 +19,11 @@
       "name": "ZZZDailyDetail",
       "pageSourceFile": "src/main/ets/pages/router/ZZZDailyDetailBuilder.ets",
       "buildFunction": "ZZZDailyDetailBuilder"
+    },
+    {
+      "name": "TestPage",
+      "pageSourceFile": "src/main/ets/pages/router/TestPageBuilder.ets",
+      "buildFunction": "TestPageBuilder"
     }
   ]
 }
