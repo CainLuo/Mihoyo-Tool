@@ -43,7 +43,6 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 | id 默认为 0              | `new AccountRow().id`        | `0`        |
 | username 默认为空字符串  | `new AccountRow().username`  | `''`       |
 | cookie 默认为空字符串    | `new AccountRow().cookie`    | `''`       |
-| stoken 默认为空字符串    | `new AccountRow().stoken`    | `''`       |
 | isActive 默认为 0        | `new AccountRow().isActive`  | `0`        |
 | uid 默认为空字符串       | `new AccountRow().uid`       | `''`       |
 | nickname 默认为空字符串  | `new AccountRow().nickname`  | `''`       |

@@ -6,6 +6,7 @@ import starRailAvatarBasicParserTest from './StarRailAvatarBasicParser.test';
 import genshinDailyNoteParserTest from './GenshinDailyNoteParser.test';
 import starRailDailyNoteParserTest from './StarRailDailyNoteParser.test';
 import zzzDailyNoteParserTest from './ZZZDailyNoteParser.test';
+import coldStartCookieCheckerTest from './ColdStartCookieChecker.test';
 
 export default function testsuite() {
   dsUtilTest();
@@ -16,4 +17,5 @@ export default function testsuite() {
   genshinDailyNoteParserTest();
   starRailDailyNoteParserTest();
   zzzDailyNoteParserTest();
+  coldStartCookieCheckerTest();
 }

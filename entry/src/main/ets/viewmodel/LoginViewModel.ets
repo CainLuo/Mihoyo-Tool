@@ -150,6 +150,8 @@ export class LoginViewModel {
       fields.cookieToken = cookieToken;
       fields.ltoken = ltoken;
       fields.ltuid = aid;
+      fields.stoken = stoken;
+      fields.mid = mid;
       const cookie = AuthRepository.buildCookieString(fields);
 
       await this.finalizeLogin(aid, cookie);
@@ -264,6 +266,8 @@ export class LoginViewModel {
       fields.cookieToken = cookieToken;
       fields.ltoken = ltoken;
       fields.ltuid = confirmed.uid;
+      fields.stoken = stoken;
+      fields.mid = mid;
       const cookie = AuthRepository.buildCookieString(fields);
       await this.finalizeLogin(confirmed.uid, cookie);
     } catch (error) {
@@ -280,7 +284,8 @@ export class LoginViewModel {
 
   /**
    * 用手动输入的 Cookie 登录
-   * 直接调用 getUserGameRoles 验证有效性
+   * 先调用 getUserFullInfo 验证 Cookie 有效性并获取 uid，
+   * 不做任何本地字段解析，由 API 返回结果决定是否有效。
    */
   async loginByCookie(): Promise<void> {
     if (this.cookieInput.trim().length === 0) {
@@ -291,9 +296,10 @@ export class LoginViewModel {
     this.errorMsg = '';
     try {
       const cookie = this.cookieInput.trim();
-      // 从 Cookie 中提取 account_id 作为用户名
-      const accountId = LoginViewModel.extractCookieField(cookie, 'account_id');
-      const username = accountId.length > 0 ? accountId : 'unknown';
+      // 用 getUserFullInfo 验证 Cookie 有效性，同时获取 uid
+      // retcode≠0 会抛异常，直接告知用户 Cookie 无效
+      const bbsDetail = await CoreInitializer.bbsRepository.getBbsAccountDetail(cookie);
+      const username = bbsDetail.uid.length > 0 ? bbsDetail.uid : 'unknown';
       await this.finalizeLogin(username, cookie);
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -348,19 +354,6 @@ export class LoginViewModel {
   }
 
   // ─── 工具方法 ─────────────────────────────────────────────────
-
-  /** 从 Cookie 字符串中提取指定字段值 */
-  private static extractCookieField(cookie: string, field: string): string {
-    const parts = cookie.split(';');
-    for (const part of parts) {
-      const trimmed = part.trim();
-      const prefix = field + '=';
-      if (trimmed.startsWith(prefix)) {
-        return trimmed.substring(prefix.length).trim();
-      }
-    }
-    return '';
-  }
 
   /** 生成随机设备 ID */
   private static generateDeviceId(): string {

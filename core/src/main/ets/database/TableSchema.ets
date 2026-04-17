@@ -82,14 +82,8 @@ export enum CommonCol {
 export enum AccountCol {
   /** 米游社用户名（唯一键，用于 upsert 冲突检测） */
   USERNAME    = 'username',
-  /** 登录 Cookie（含 cookie_token/ltoken 等短期凭证） */
+  /** 登录 Cookie（手机号/二维码登录包含 stoken；Cookie 登录存原始字符串） */
   COOKIE      = 'cookie',
-  /** stoken（长期凭证，用于刷新 cookie_token） */
-  STOKEN      = 'stoken',
-  /** stoken 对应的 stuid（米游社 UID） */
-  STUID       = 'stuid',
-  /** stoken 对应的 mid（设备标识） */
-  MID         = 'mid',
   /** 是否为当前激活账号（1=激活，0=未激活） */
   IS_ACTIVE   = 'is_active',
   /** 账号创建时间戳（Unix 秒） */
@@ -564,9 +558,6 @@ export const ACCOUNT_TABLE = new TableDef(TableName.ACCOUNT, [
   new ColumnDef(CommonCol.ID,          'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
   new ColumnDef('username',    'TEXT',    'UNIQUE NOT NULL'),
   new ColumnDef('cookie',      'TEXT',    'NOT NULL'),
-  new ColumnDef('stoken',      'TEXT',    "DEFAULT ''"),
-  new ColumnDef('stuid',       'TEXT',    "DEFAULT ''"),
-  new ColumnDef('mid',         'TEXT',    "DEFAULT ''"),
   new ColumnDef('is_active',   'INTEGER', 'DEFAULT 0'),
   new ColumnDef('create_time', 'INTEGER'),
   new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),

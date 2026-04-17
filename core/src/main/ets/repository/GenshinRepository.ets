@@ -16,6 +16,9 @@ import {
   GenshinCharacterListData,
 } from '../models/GenshinRows';
 import { GenshinApiService } from '../network/GenshinApiService';
+import { AuthExpiredError } from '../errors/ApiErrors';
+import { CookieRefreshCoordinator } from '../cookie/CookieRefreshCoordinator';
+import { CoreInitializer } from '../CoreInitializer';
 
 // ─── 解析用本地 interface ────────────────────────────────────────
 
@@ -101,37 +104,64 @@ export class GenshinRepository extends GameRepository {
   async syncDailyNote(accountId: string, roleUid: string, server: string, cookie: string): Promise<void> {
     await this.markSyncing(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE);
     try {
-      const resp = await (this.getService() as GenshinApiService).getDailyNote(roleUid, server, cookie);
-      const respData = resp as Record<string, object>;
-      const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
-      const d = dataObj as Record<string, object>;
-      const row = new GenshinDailyNoteRow();
-      row.accountId = accountId;
-      row.roleUid = roleUid;
-      row.rawJson = JSON.stringify(dataObj);
-      row.updateTime = Math.floor(Date.now() / 1000);
-      // 独立字段：从 API 响应直接读取，不硬编码上限值
-      row.currentResin = Number(d['current_resin'] ?? 0);
-      row.maxResin = Number(d['max_resin'] ?? 0);
-      row.resinRecoveryTime = parseInt(`${d['resin_recovery_time'] ?? '0'}`) || 0;
-      row.finishedTaskNum = Number(d['finished_task_num'] ?? 0);
-      row.totalTaskNum = Number(d['total_task_num'] ?? 0);
-      row.remainResinDiscountNum = Number(d['remain_resin_discount_num'] ?? 0);
-      row.currentExpeditionNum = Number(d['current_expedition_num'] ?? 0);
-      row.maxExpeditionNum = Number(d['max_expedition_num'] ?? 0);
-      row.currentHomeCoin = Number(d['current_home_coin'] ?? 0);
-      row.maxHomeCoin = Number(d['max_home_coin'] ?? 0);
-      const transformer = d['transformer'] as Record<string, object> | null;
-      if (transformer) {
-        const rt = transformer['recovery_time'] as Record<string, object> | null;
-        row.transformerRecoveryDay = rt ? Number(rt['Day'] ?? 0) : 0;
-      }
-      await this.upsertDailyNote(accountId, roleUid, row);
+      await this.doSyncDailyNote(accountId, roleUid, server, cookie);
     } catch (error) {
+      if (error instanceof AuthExpiredError) {
+        // 尝试用 stoken 刷新 cookie 后重试一次
+        try {
+          const newCookie = await CookieRefreshCoordinator.instance.refreshWithLock(
+            accountId,
+            cookie,
+            CoreInitializer.bbsRepository,
+          );
+          await this.doSyncDailyNote(accountId, roleUid, server, newCookie);
+          return;
+        } catch (refreshError) {
+          // 刷新失败或重试仍失败，向上抛出 AuthExpiredError
+          const msg = this.toErrorMessage(refreshError);
+          await this.markFailed(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE, msg);
+          if (refreshError instanceof AuthExpiredError) {
+            throw refreshError;
+          }
+          throw new AuthExpiredError(msg);
+        }
+      }
       const msg = this.toErrorMessage(error);
       await this.markFailed(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE, msg);
       throw new Error(msg);
     }
+  }
+
+  private async doSyncDailyNote(accountId: string, roleUid: string, server: string, cookie: string): Promise<void> {
+    const resp = await (this.getService() as GenshinApiService).getDailyNote(roleUid, server, cookie);
+    const respData = resp as Record<string, object>;
+    const retcodeStr = `${respData['retcode'] ?? ''}`;
+    if (retcodeStr === '-100') {
+      throw new AuthExpiredError('retcode=-100');
+    }
+    const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
+    const d = dataObj as Record<string, object>;
+    const row = new GenshinDailyNoteRow();
+    row.accountId = accountId;
+    row.roleUid = roleUid;
+    row.rawJson = JSON.stringify(dataObj);
+    row.updateTime = Math.floor(Date.now() / 1000);
+    row.currentResin = Number(d['current_resin'] ?? 0);
+    row.maxResin = Number(d['max_resin'] ?? 0);
+    row.resinRecoveryTime = parseInt(`${d['resin_recovery_time'] ?? '0'}`) || 0;
+    row.finishedTaskNum = Number(d['finished_task_num'] ?? 0);
+    row.totalTaskNum = Number(d['total_task_num'] ?? 0);
+    row.remainResinDiscountNum = Number(d['remain_resin_discount_num'] ?? 0);
+    row.currentExpeditionNum = Number(d['current_expedition_num'] ?? 0);
+    row.maxExpeditionNum = Number(d['max_expedition_num'] ?? 0);
+    row.currentHomeCoin = Number(d['current_home_coin'] ?? 0);
+    row.maxHomeCoin = Number(d['max_home_coin'] ?? 0);
+    const transformer = d['transformer'] as Record<string, object> | null;
+    if (transformer) {
+      const rt = transformer['recovery_time'] as Record<string, object> | null;
+      row.transformerRecoveryDay = rt ? Number(rt['Day'] ?? 0) : 0;
+    }
+    await this.upsertDailyNote(accountId, roleUid, row);
   }
 
   // ── 角色详情 ──────────────────────────────────────────────────

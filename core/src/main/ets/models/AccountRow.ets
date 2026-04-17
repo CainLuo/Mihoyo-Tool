@@ -8,14 +8,8 @@ export class AccountRow {
   id: number = 0;
   /** 米游社用户名（唯一键，用于 upsert 判断） */
   username: string = '';
-  /** 完整 Cookie 字符串（account_id + cookie_token + ltoken + ltuid） */
+  /** 完整 Cookie 字符串（手机号/二维码登录包含 stoken；Cookie 登录存原始字符串） */
   cookie: string = '';
-  /** SToken（长期有效，用于刷新 cookie_token / ltoken） */
-  stoken: string = '';
-  /** SToken 对应的 stuid（账号 ID） */
-  stuid: string = '';
-  /** 设备 mid（与 stoken 配套使用） */
-  mid: string = '';
   /** 是否为当前激活账号（0=否，1=是） */
   isActive: number = 0;
   /** 账号创建时间（Unix 秒） */

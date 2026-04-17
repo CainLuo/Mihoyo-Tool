@@ -1059,6 +1059,22 @@
     {
       "name": "daily_note_cafe_done",
       "value": "Settled"
+    },
+    {
+      "name": "cookie_expired_dialog_title",
+      "value": "Session Expired"
+    },
+    {
+      "name": "cookie_expired_dialog_msg",
+      "value": "The session for %s has expired. Please log in again to continue."
+    },
+    {
+      "name": "cookie_expired_go_login",
+      "value": "Log In"
+    },
+    {
+      "name": "test_page_title",
+      "value": "Test Tools"
     }
   ]
 }

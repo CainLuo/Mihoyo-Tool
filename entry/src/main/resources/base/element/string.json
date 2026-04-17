@@ -1159,6 +1159,22 @@
     {
       "name": "daily_note_cafe_done",
       "value": "已结算"
+    },
+    {
+      "name": "cookie_expired_dialog_title",
+      "value": "登录已过期"
+    },
+    {
+      "name": "cookie_expired_dialog_msg",
+      "value": "%s 的登录凭证已过期，请重新登录以继续使用"
+    },
+    {
+      "name": "cookie_expired_go_login",
+      "value": "去登录"
+    },
+    {
+      "name": "test_page_title",
+      "value": "测试工具"
     }
   ]
 }

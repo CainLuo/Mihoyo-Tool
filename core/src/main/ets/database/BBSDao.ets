@@ -16,14 +16,12 @@ export class AccountDao {
    */
   async upsert(row: AccountRow): Promise<void> {
     if (row.id > 0) {
-      // 已有账号：用 UPDATE，不触发级联删除
       try {
         await RdbManager.updateRows(
           TableName.ACCOUNT,
           ACCOUNT_TABLE.columnNames().filter(c => c !== CommonCol.ID),
-          [row.username, row.cookie, row.stoken, row.stuid, row.mid,
-           row.isActive, row.createTime, row.updateTime, row.uid, row.nickname,
-           row.avatarUrl, row.introduce, row.rawJson],
+          [row.username, row.cookie, row.isActive, row.createTime, row.updateTime,
+           row.uid, row.nickname, row.avatarUrl, row.introduce, row.rawJson],
           [CommonCol.ID],
           [row.id]
         );
@@ -32,13 +30,11 @@ export class AccountDao {
       }
       return;
     }
-    // 新账号：INSERT OR IGNORE（不覆盖已有 username）
     const idVal: relationalStore.ValueType = null;
     try {
       await RdbManager.upsertRow(TableName.ACCOUNT, ACCOUNT_TABLE.columnNames(), [
-        idVal, row.username, row.cookie, row.stoken, row.stuid, row.mid,
-        row.isActive, row.createTime, row.updateTime, row.uid, row.nickname,
-        row.avatarUrl, row.introduce, row.rawJson
+        idVal, row.username, row.cookie, row.isActive, row.createTime, row.updateTime,
+        row.uid, row.nickname, row.avatarUrl, row.introduce, row.rawJson
       ]);
     } catch (e) {
       throw new Error(`AccountDao.upsert failed: ${e instanceof Error ? e.message : e}`);
@@ -102,9 +98,8 @@ export class AccountDao {
   async insertOrIgnore(username: string, cookie: string, now: number): Promise<void> {
     try {
       await RdbManager.executeSql(
-        `INSERT OR IGNORE INTO account_table (username, cookie, stoken, stuid, mid, is_active, create_time, update_time, uid, nickname, avatar_url, introduce, raw_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        // uid 初始化为 username（Cookie 里的 account_id 就是米游社 UID），确保外键约束在 step 2 写游戏角色时能通过
-        [username, cookie, '', '', '', 1, now, now, username, '', '', '', '']
+        `INSERT OR IGNORE INTO account_table (username, cookie, is_active, create_time, update_time, uid, nickname, avatar_url, introduce, raw_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [username, cookie, 1, now, now, username, '', '', '', '']
       );
     } catch (e) {
       throw new Error(`AccountDao.insertOrIgnore failed: ${e instanceof Error ? e.message : e}`);
@@ -148,9 +143,6 @@ export class AccountDao {
       row.id         = r.num(CommonCol.ID);
       row.username   = r.str(AccountCol.USERNAME);
       row.cookie     = r.str(AccountCol.COOKIE);
-      row.stoken     = r.str(AccountCol.STOKEN);
-      row.stuid      = r.str(AccountCol.STUID);
-      row.mid        = r.str(AccountCol.MID);
       row.isActive   = r.num(AccountCol.IS_ACTIVE);
       row.createTime = r.num(AccountCol.CREATE_TIME);
       row.updateTime = r.num(CommonCol.UPDATE_TIME);
