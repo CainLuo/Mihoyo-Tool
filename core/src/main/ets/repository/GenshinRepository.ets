@@ -19,6 +19,7 @@ import { GenshinApiService } from '../network/GenshinApiService';
 import { AuthExpiredError } from '../errors/ApiErrors';
 import { CookieRefreshCoordinator } from '../cookie/CookieRefreshCoordinator';
 import { CoreInitializer } from '../CoreInitializer';
+import { BBSRepository } from './BBSRepository';
 
 // ─── 解析用本地 interface ────────────────────────────────────────
 
@@ -100,11 +101,14 @@ export class GenshinRepository extends GameRepository {
 
   /**
    * 拉取便笺 → 写 DB（entry 层只需调用此方法）
+   * @param geetestChallenge Geetest 验证通过后的新 challenge（可选）
+   * @param geetestValidate  Geetest 验证结果 validate（可选）
+   * @param geetestSeccode   Geetest 验证结果 seccode（可选）
    */
-  async syncDailyNote(accountId: string, roleUid: string, server: string, cookie: string): Promise<void> {
+  async syncDailyNote(accountId: string, roleUid: string, server: string, cookie: string, geetestChallenge?: string): Promise<void> {
     await this.markSyncing(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE);
     try {
-      await this.doSyncDailyNote(accountId, roleUid, server, cookie);
+      await this.doSyncDailyNote(accountId, roleUid, server, cookie, geetestChallenge);
     } catch (error) {
       if (error instanceof AuthExpiredError) {
         // 尝试用 stoken 刷新 cookie 后重试一次
@@ -132,14 +136,50 @@ export class GenshinRepository extends GameRepository {
     }
   }
 
-  private async doSyncDailyNote(accountId: string, roleUid: string, server: string, cookie: string): Promise<void> {
-    const resp = await (this.getService() as GenshinApiService).getDailyNote(roleUid, server, cookie);
+  private async doSyncDailyNote(accountId: string, roleUid: string, server: string, cookie: string, geetestChallenge?: string): Promise<void> {
+    const resp = await (this.getService() as GenshinApiService).getDailyNote(roleUid, server, cookie, geetestChallenge);
     const respData = resp as Record<string, object>;
     const retcodeStr = `${respData['retcode'] ?? ''}`;
-    if (retcodeStr === '-100') {
-      throw new AuthExpiredError('retcode=-100');
+    if (retcodeStr === '-100' || retcodeStr === '10001') {
+      throw new AuthExpiredError(`retcode=${retcodeStr}`);
+    }
+    if (retcodeStr === '1034' || retcodeStr === '10035') {
+      // 1034/10035：尝试降级到 Widget API（无 Geetest 验证）
+      const widgetCookie = BBSRepository.buildWidgetCookie(cookie);
+      if (widgetCookie.length > 0) {
+        await this.doSyncDailyNoteWidget(accountId, roleUid, widgetCookie);
+        return;
+      }
+      throw new Error(`retcode=${retcodeStr}: Geetest verification required and no widget cookie available`);
+    }
+    if (respData['data'] === null || respData['data'] === undefined) {
+      throw new Error(`retcode=${retcodeStr}: ${respData['message'] ?? 'no data'}`);
     }
     const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
+    const row = this.parseDailyNoteData(accountId, roleUid, dataObj);
+    await this.upsertDailyNote(accountId, roleUid, row);
+  }
+
+  /**
+   * Widget API 降级同步便笺（原神 /aapi/widget/v2）
+   * Widget 返回字段是普通便笺的子集，只更新有对应字段的数据
+   */
+  private async doSyncDailyNoteWidget(accountId: string, roleUid: string, widgetCookie: string): Promise<void> {
+    const resp = await (this.getService() as GenshinApiService).getDailyNoteWidget(widgetCookie);
+    const respData = resp as Record<string, object>;
+    const retcodeStr = `${respData['retcode'] ?? ''}`;
+    if (retcodeStr !== '0' && retcodeStr !== '') {
+      throw new Error(`Widget API failed: retcode=${retcodeStr}: ${respData['message'] ?? 'no data'}`);
+    }
+    if (respData['data'] === null || respData['data'] === undefined) {
+      throw new Error(`Widget API: no data`);
+    }
+    const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
+    const row = this.parseDailyNoteData(accountId, roleUid, dataObj);
+    await this.upsertDailyNote(accountId, roleUid, row);
+  }
+
+  private parseDailyNoteData(accountId: string, roleUid: string, dataObj: object): GenshinDailyNoteRow {
     const d = dataObj as Record<string, object>;
     const row = new GenshinDailyNoteRow();
     row.accountId = accountId;
@@ -161,7 +201,7 @@ export class GenshinRepository extends GameRepository {
       const rt = transformer['recovery_time'] as Record<string, object> | null;
       row.transformerRecoveryDay = rt ? Number(rt['Day'] ?? 0) : 0;
     }
-    await this.upsertDailyNote(accountId, roleUid, row);
+    return row;
   }
 
   // ── 角色详情 ──────────────────────────────────────────────────
@@ -189,11 +229,24 @@ export class GenshinRepository extends GameRepository {
     await this.markFailed(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_DETAIL, errorMsg);
   }
 
-  /** 拉取角色详情（批量，传空数组拉取全部）→ 解析 → 写 DB */
+  /** 拉取角色详情（先从 DB 读取角色列表，再批量请求详情）→ 解析 → 写 DB */
   async syncAvatarDetail(accountId: string, roleUid: string, server: string, cookie: string): Promise<void> {
     await this.markSyncing(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_DETAIL);
     try {
-      const resp = await (this.getService() as GenshinApiService).getCharacterDetail(roleUid, server, [], cookie);
+      // 先从 DB 读取已有的角色列表，获取 avatarId 列表
+      const existingRows = await this.characterListDao.findAll(accountId, roleUid);
+      const characterIds: string[] = [];
+      for (let i = 0; i < existingRows.length; i++) {
+        if (existingRows[i].avatarId.length > 0) {
+          characterIds[characterIds.length] = existingRows[i].avatarId;
+        }
+      }
+      if (characterIds.length === 0) {
+        // 没有角色数据，跳过详情同步
+        await this.markSuccess(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_DETAIL);
+        return;
+      }
+      const resp = await (this.getService() as GenshinApiService).getCharacterDetail(roleUid, server, characterIds, cookie);
       const rows = GenshinRepository.parseCharacterDetail(accountId, roleUid, resp);
       await this.upsertAvatarDetails(accountId, roleUid, rows);
     } catch (error) {

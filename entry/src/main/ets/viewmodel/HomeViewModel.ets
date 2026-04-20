@@ -28,6 +28,7 @@ import {
   ColdStartCookieChecker,
   ColdStartRefreshResult,
   FailedAccountInfo,
+  AuthExpiredError,
 } from 'core';
 import { GenshinDailyNoteParser } from 'core';
 import { StarRailDailyNoteParser } from 'core';
@@ -217,13 +218,14 @@ export class HomeViewModel {
     }
 
     try {
-      await GeetestService.verifyVerification(result, trigger.cookie);
+      const newChallenge = await GeetestService.verifyVerification(result, trigger.cookie);
       await this.syncDailyNoteWithChallenge(
         trigger.accountId,
         trigger.cookie,
         trigger.gameId,
         trigger.roleId,
-        trigger.server
+        trigger.server,
+        newChallenge,
       );
       const loaded = await this.fetchFromLocal();
       this.accounts = loaded;
@@ -316,7 +318,16 @@ export class HomeViewModel {
       }
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
-      if (msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED}`) !== -1) {
+      if (error instanceof AuthExpiredError) {
+        // Cookie 失效（-100 / 10001）：推入过期队列，Main.ets 统一弹重新登录 Dialog
+        const info = new FailedAccountInfo();
+        info.username = account.username;
+        info.nickname = account.nickname.length > 0 ? account.nickname : account.username;
+        info.isNetworkError = false;
+        CookieExpiredSignal.instance().push(info);
+        Logger.warn(TAG, `Cookie expired for ${account.username}: ${msg}`);
+      } else if (msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED}`) !== -1 ||
+          msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED_GENERAL}`) !== -1) {
         await this.handleGeetest(account, role);
       } else {
         this.networkErrorMsg = msg;
@@ -330,16 +341,23 @@ export class HomeViewModel {
     cookie: string,
     gameId: string,
     roleId: string,
-    server: string
+    server: string,
+    geetestChallenge: string,
   ): Promise<void> {
-    const fakeAccount = new AccountRow();
-    fakeAccount.uid = accountId;
-    fakeAccount.cookie = cookie;
-    const fakeRole = new GameRoleRow();
-    fakeRole.gameId = gameId;
-    fakeRole.roleId = roleId;
-    fakeRole.server = server;
-    await this.syncDailyNote(fakeAccount, fakeRole);
+    // 直接调用 Repository，只带 challenge（与 TeyvatGuide lunaReq.ts 一致）
+    if (gameId === GAME_GENSHIN) {
+      await CoreInitializer.genshinRepository.syncDailyNote(
+        accountId, roleId, server, cookie, geetestChallenge
+      );
+    } else if (gameId === GAME_STARRAIL) {
+      await CoreInitializer.starRailRepository.syncDailyNote(
+        accountId, roleId, server, cookie, geetestChallenge
+      );
+    } else if (gameId === GAME_ZZZ) {
+      await CoreInitializer.zzzRepository.syncDailyNote(
+        accountId, roleId, server, cookie, geetestChallenge
+      );
+    }
   }
 
   /**

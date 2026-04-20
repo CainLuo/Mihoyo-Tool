@@ -24,6 +24,11 @@
       "name": "TestPage",
       "pageSourceFile": "src/main/ets/pages/router/TestPageBuilder.ets",
       "buildFunction": "TestPageBuilder"
+    },
+    {
+      "name": "WebView",
+      "pageSourceFile": "src/main/ets/pages/router/WebViewPageBuilder.ets",
+      "buildFunction": "WebViewPageBuilder"
     }
   ]
 }

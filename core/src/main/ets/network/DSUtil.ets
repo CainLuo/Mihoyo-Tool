@@ -43,11 +43,12 @@ export class DSUtil {
 
   /**
    * 生成 V1 DS（游戏记录接口，GAME_RECORD Profile）
+   * random 为 6 位纯数字（与米游社 App 一致）
    * @param params GET 请求参数（用于 query 部分）
    * @param body   POST 请求 body 字符串（GET 请求传 undefined）
    */
   static generateV1(params?: RequestParams, body?: string): string {
-    return DSUtil.generate(DSUtil.saltV1, params, body);
+    return DSUtil.generate(DSUtil.saltV1, params, body, true);
   }
 
   /**
@@ -61,11 +62,36 @@ export class DSUtil {
 
   /**
    * 生成 X4 DS（passport 接口：getLTokenBySToken / getCookieAccountInfoBySToken）
+   * random 为 6 位纯数字（与米游社 App 一致）
    * @param params GET 请求参数
    * @param body   POST 请求 body 字符串
    */
   static generateX4(params?: RequestParams, body?: string): string {
-    return DSUtil.generate(DSUtil.saltX4, params, body);
+    return DSUtil.generate(DSUtil.saltX4, params, body, true);
+  }
+
+  /**
+   * 生成 K2 Sign DS（Geetest createVerification 接口）
+   * 对应 TeyvatGuide 的 K2 salt + isSign=true
+   * 格式：salt={salt}&t={t}&r={r}（不含 b/q）
+   * random 为 6 位字母数字混合
+   */
+  static generateK2Sign(): string {
+    const salt = DSUtil.saltV1; // K2 = salt_v1
+    const timestamp = Math.floor(Date.now() / 1000);
+    const random = DSUtil.generateRandom(6);
+    const signContent = `salt=${salt}&t=${timestamp}&r=${random}`;
+    const md5Hash = crypto.MD5(signContent).toString();
+    return `${timestamp},${random},${md5Hash}`;
+  }
+
+  /**
+   * 生成 K2 DS（Geetest verifyVerification 接口）
+   * 对应 TeyvatGuide 的 K2 salt + isSign=false（含 b/q）
+   * random 为 6 位字母数字混合
+   */
+  static generateK2(params?: RequestParams, body?: string): string {
+    return DSUtil.generate(DSUtil.saltV1, params, body, false);
   }
 
   /**
@@ -80,10 +106,11 @@ export class DSUtil {
   /**
    * 核心签名逻辑
    * query 参数按字典序排列（ArkTS 严格模式：用 for 循环替代 Array.sort()）
+   * @param numericRandom 是否使用纯数字 random（V1/X4 用纯数字，V2/X6 用字母数字混合）
    */
-  private static generate(salt: string, params?: RequestParams, body?: string): string {
+  private static generate(salt: string, params?: RequestParams, body?: string, numericRandom: boolean = false): string {
     const timestamp = Math.floor(Date.now() / 1000);
-    const random = DSUtil.generateRandom(6);
+    const random = numericRandom ? DSUtil.generateNumericRandom(6) : DSUtil.generateRandom(6);
     const b = body !== undefined ? body : '';
     const q = DSUtil.serializeParams(params);
     const signContent = `salt=${salt}&t=${timestamp}&r=${random}&b=${b}&q=${q}`;
@@ -124,7 +151,7 @@ export class DSUtil {
     return parts.join('&');
   }
 
-  /** 生成 n 位随机字母数字字符串 */
+  /** 生成 n 位随机字母数字字符串（V2/X6 DS 使用） */
   private static generateRandom(n: number): string {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
@@ -132,5 +159,12 @@ export class DSUtil {
       result += chars.charAt(Math.floor(Math.random() * chars.length));
     }
     return result;
+  }
+
+  /** 生成 n 位随机纯数字字符串（V1/X4 DS 使用），范围 100000-199999 */
+  private static generateNumericRandom(_n: number): string {
+    // 范围 100000-199999，与 GenshinPizzaHelper/HSRPizzaHelper 一致
+    // Int.random(in: 100_000 ..< 200_000)
+    return (100000 + Math.floor(Math.random() * 100000)).toString();
   }
 }

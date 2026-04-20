@@ -206,7 +206,15 @@
     },
     {
       "name": "login_cookie_hint",
-      "value": "请从浏览器开发者工具中复制米游社 Cookie"
+      "value": "Cookie 必须包含 stoken 字段，建议通过手机号或二维码登录"
+    },
+    {
+      "name": "login_cookie_no_stoken",
+      "value": "Cookie 缺少 stoken 字段，便笺同步将无法正常工作。请使用手机号或二维码登录，或提供包含 stoken 的完整 Cookie"
+    },
+    {
+      "name": "login_cookie_no_stoken_title",
+      "value": "Cookie 不完整"
     },
     {
       "name": "main_tab_home",

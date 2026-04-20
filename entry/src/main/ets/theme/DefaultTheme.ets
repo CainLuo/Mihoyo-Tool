@@ -174,7 +174,7 @@ export class DefaultTheme implements Theme {
   shimmerOpacityHigh: number = 1.0
   shimmerOpacityLow: number = 0.3
   charDetailConsInactiveOpacity: number = 0.3
-  charDetailLockIconRatio: number = 0.45
+  charDetailLockIconRatio: number = 0.6
 
   constructor(fontFamily: string = '') {
     if (fontFamily !== '') {

@@ -67,8 +67,10 @@ export struct DailyNoteGenshin {
   @Local private tm: ThemeManager = themeManager
 
   private resinColor(): ResourceColor {
-    if (this.data.currentResin >= this.data.maxResin) return this.tm.current.colorDanger
-    if (this.data.currentResin >= GenshinConstants.RESIN_WARNING_THRESHOLD) return this.tm.current.colorWarning
+    if (this.data.maxResin <= 0) { return this.tm.current.colorPrimary }
+    const ratio = this.data.currentResin / this.data.maxResin
+    if (ratio < 0.3) { return this.tm.current.colorDanger }
+    if (ratio < 0.7) { return this.tm.current.colorWarning }
     return this.tm.current.colorPrimary
   }
 

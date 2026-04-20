@@ -4,6 +4,7 @@ import { MihoyoDomain } from './MihoyoDomain';
 import { GenshinApiPath } from './GenshinApiPath';
 import { MihoyoHeaderBuilder, HeaderProfile } from './MihoyoHeaderBuilder';
 import { ApiConfig } from './ApiConfig';
+import { HKey } from './MihoyoHeaderKey';
 import { HttpClient } from './HttpClient';
 
 export class GenshinApiService extends MihoyoApiService {
@@ -17,14 +18,17 @@ export class GenshinApiService extends MihoyoApiService {
   }
 
   /** 实时便笺 — GET，Domain=TAKUMI_RECORD，Profile=GAME_RECORD */
-  async getDailyNote(roleId: string, server: string, cookie: string): Promise<object> {
+  async getDailyNote(roleId: string, server: string, cookie: string, geetestChallenge?: string): Promise<object> {
     const params = new RequestParams();
     params.set('role_id', roleId);
     params.set('server', server);
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, params);
-    // 注意：拼写是 "verison"（米游社服务端拼写错误）
     headers.set('x-rpc-tool_verison', ApiConfig.TOOL_VERSION_GENSHIN);
-    // 原神不需要 x-rpc-platform
+    headers.set(HKey.PAGE, ApiConfig.PAGE_GENSHIN_NOTE);
+    // Geetest 验证通过后，只注入 challenge（与 TeyvatGuide lunaReq.ts 一致）
+    if (geetestChallenge) {
+      headers.set('x-rpc-challenge', geetestChallenge);
+    }
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     return HttpClient.get(
@@ -34,11 +38,28 @@ export class GenshinApiService extends MihoyoApiService {
     );
   }
 
+  /**
+   * Widget 实时便笺 — GET，Domain=TAKUMI_RECORD，Profile=WIDGET
+   * 无 1034 Geetest 验证，需要 stoken Cookie 格式：stuid=xxx;stoken=v2_xxx;mid=xxx
+   * 参考 GenshinPizzaHelper widgetDailyNote 和 HSRPizzaHelper widgetNote 实现
+   */
+  async getDailyNoteWidget(widgetCookie: string): Promise<object> {
+    const headers = MihoyoHeaderBuilder.build(HeaderProfile.WIDGET, widgetCookie);
+    const opts = new RequestOptions();
+    opts.extraHeaders = headers;
+    return HttpClient.get(
+      MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE_WIDGET,
+      undefined,
+      opts,
+    );
+  }
+
   /** 角色列表 — POST，Domain=TAKUMI_RECORD，Profile=GAME_RECORD */
   async getCharacterList(roleId: string, server: string, cookie: string): Promise<object> {
     const bodyStr = JSON.stringify({ role_id: roleId, server: server });
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, undefined, bodyStr);
     headers.set('x-rpc-tool_verison', ApiConfig.TOOL_VERSION_GENSHIN);
+    headers.set(HKey.PAGE, ApiConfig.PAGE_GENSHIN_ROLES);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     return HttpClient.post(
@@ -48,11 +69,14 @@ export class GenshinApiService extends MihoyoApiService {
     );
   }
 
-  /** 角色详情 — POST，Domain=TAKUMI_RECORD，Profile=GAME_RECORD */
+  /**
+   * 角色详情 — POST，Domain=TAKUMI_RECORD，Profile=GAME_RECORD
+   * characterIds 为字符串数组（如 ["10000125"]），传空数组时服务器返回 5003
+   */
   async getCharacterDetail(
     roleId: string,
     server: string,
-    characterIds: number[],
+    characterIds: string[],
     cookie: string,
   ): Promise<object> {
     const bodyStr = JSON.stringify({
@@ -62,6 +86,11 @@ export class GenshinApiService extends MihoyoApiService {
     });
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, undefined, bodyStr);
     headers.set('x-rpc-tool_verison', ApiConfig.TOOL_VERSION_GENSHIN);
+    // x-rpc-page 需要拼接第一个 avatarId，无 avatarId 时用通用页面
+    const pageId = characterIds.length > 0 ? characterIds[0] : '';
+    headers.set(HKey.PAGE, pageId.length > 0
+      ? ApiConfig.PAGE_GENSHIN_ROLE_DETAIL_PREFIX + pageId
+      : ApiConfig.PAGE_GENSHIN_ROLES);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     return HttpClient.post(

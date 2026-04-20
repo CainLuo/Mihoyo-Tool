@@ -12,18 +12,17 @@ export struct LoginCookie {
 
   build() {
     Column({ space: this.tm.current.value16 }) {
-      // 操作说明
-      Text($r('app.string.login_cookie_hint'))
-        .font(this.tm.current.body12)
-        .fontColor(this.tm.current.colorTextSecondary)
-        .width(this.tm.current.full)
-        .textAlign(TextAlign.Center)
-
       // Cookie 输入框
       Column({ space: this.tm.current.value8 }) {
         Text($r('app.string.login_cookie_label'))
           .font(this.tm.current.body12)
           .fontColor(this.tm.current.colorTextSecondary)
+          .width(this.tm.current.full)
+
+        // 操作说明
+        Text($r('app.string.login_cookie_hint'))
+          .font(this.tm.current.body10)
+          .fontColor(this.tm.current.colorPlaceholder)
           .width(this.tm.current.full)
 
         TextArea({ placeholder: $r('app.string.login_cookie_placeholder'), text: this.vm.cookieInput })

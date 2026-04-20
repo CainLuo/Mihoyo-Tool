@@ -16,4 +16,5 @@ export class AppRoutes {
   static readonly STARRAIL_DAILY_DETAIL = 'StarRailDailyDetail'
   static readonly ZZZ_DAILY_DETAIL = 'ZZZDailyDetail'
   static readonly TEST_PAGE = 'TestPage'
+  static readonly WEB_VIEW = 'WebView'
 }

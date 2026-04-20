@@ -10,6 +10,7 @@ import { CharDetailEmptyView } from '../components/chardetail/CharDetailEmptyVie
 import { ZZZCharDetailContent } from '../components/chardetail/ZZZCharDetailContent'
 import { ViewState } from '../constants/ViewStates'
 import { CharDetailRouterParam, CharDetailRankItem } from '../components/chardetail/CharDetailModels'
+import { CharDetailConsColumn } from '../components/chardetail/CharDetailConsColumn'
 
 @ComponentV2
 export struct ZZZCharacterDetail {
@@ -129,23 +130,8 @@ export struct ZZZCharacterDetail {
           angle: this.tm.current.a0,
           colors: [[this.tm.current.overlayPortraitBot, 0], [this.tm.current.colorTransparent, 0.45]]
         })
-      Column({ space: this.tm.current.value4 }) {
-        ForEach(this.vm.ranks, (rank: CharDetailRankItem) => {
-          Column() {
-            Text(`${rank.pos}`)
-              .fontSize(this.tm.current.body12.size)
-              .fontWeight(FontWeight.Bold)
-              .fontColor(rank.isActived ? this.tm.current.accentRefine : this.tm.current.textOnDarkMuted)
-          }
-          .width(this.tm.current.value36)
-          .height(this.tm.current.value36)
-          .borderRadius(this.tm.current.value8)
-          .backgroundColor(rank.isActived ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDarkLg)
-          .justifyContent(FlexAlign.Center)
-          .alignItems(HorizontalAlign.Center)
-          .border({ width: this.tm.current.value1, color: rank.isActived ? this.tm.current.surfaceActiveBorder : this.tm.current.surfaceInactiveBorder })
-          .opacity(rank.isActived ? 1.0 : this.tm.current.charDetailConsInactiveOpacity)
-        }, (rank: CharDetailRankItem) => `rank_${rank.pos}`)
+      Column() {
+        CharDetailConsColumn({ constellations: this.vm.ranks })
       }
       .position({ x: this.tm.current.value12, y: 0 })
       .height(this.tm.current.full)

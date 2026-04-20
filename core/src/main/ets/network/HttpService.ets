@@ -1,6 +1,14 @@
 import axios, { AxiosInstance, AxiosResponse, InternalAxiosRequestConfig } from '@ohos/axios';
 import { BaseApiService, RequestOptions, RequestParams, RequestValue } from './APIs';
 import { getCookie } from './CookieManager';
+import { AppEnvManager } from '../constants/AppEnvManager';
+import { ApiConfig } from './ApiConfig';
+import certFramework from '@ohos.security.cert';
+
+interface X509TrustManager {
+  checkClientTrusted(data: certFramework.X509Cert): void;
+  checkServerTrusted(data: certFramework.X509Cert): void;
+}
 
 /**
  * HTTP 服务类
@@ -22,11 +30,27 @@ export class HttpService extends BaseApiService {
   }
 
   private static createAxiosInstance(): AxiosInstance {
+    // debug 环境下信任所有证书，方便 Proxyman 抓包
+    if (AppEnvManager.isDebug()) {
+      class TrustAllManager implements X509TrustManager {
+        checkClientTrusted(_data: certFramework.X509Cert): void {}
+        checkServerTrusted(_data: certFramework.X509Cert): void {}
+      }
+      const instance = axios.create({
+        timeout: 30000,
+        sslCertificateManager: new TrustAllManager(),
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': ApiConfig.USER_AGENT,
+        }
+      });
+      return instance;
+    }
     const instance = axios.create({
       timeout: 30000,
       headers: {
         'Content-Type': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        'User-Agent': ApiConfig.USER_AGENT,
       }
     });
 

@@ -8,7 +8,7 @@
  */
 
 import { GenshinCharacterDetailViewModel } from '../../viewmodel/GenshinCharacterDetailViewModel';
-import { CharDetailConstellation, CharDetailSkill } from './CharDetailModels';
+import { CharDetailRankItem, CharDetailSkill } from './CharDetailModels';
 import { HeroPanelMode } from '../../constants/HeroPanelMode';
 import { CharDetailHeroPanelWide } from './CharDetailHeroPanelWide';
 import { CharDetailHeroPanelPortrait } from './CharDetailHeroPanelPortrait';
@@ -25,9 +25,9 @@ function makeMockHeroPanelVM(element: GenshinElement, name: string, cons: number
   vm.charFetter = 10;
   vm.charElement = element;
   vm.charImageUrl = '';
-  const consList: CharDetailConstellation[] = [];
+  const consList: CharDetailRankItem[] = [];
   for (let i = 0; i < 6; i++) {
-    const c = new CharDetailConstellation();
+    const c = new CharDetailRankItem();
     c.pos = i + 1;
     c.iconUrl = '';
     c.isActived = i < cons;

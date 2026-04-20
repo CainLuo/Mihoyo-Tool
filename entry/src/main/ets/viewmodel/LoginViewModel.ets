@@ -17,7 +17,8 @@ import {
   LoginCookieFields,
   RoleStatItem,
   CoreInitializer,
-  LoginResult
+  LoginResult,
+  BBSRepository
 } from 'core';
 import { Logger } from 'core';
 import { LoginTab, PhoneStep, QRCodeStat } from '../constants/LoginTabEnum';
@@ -34,6 +35,7 @@ export class LoginViewModelKeys {
   loginSuccess: string = 'vm.loginSuccess';
   loginedAccountId: string = 'vm.loginedAccountId';
   loginedAccountVM: string = 'vm.loginedAccountVM';
+  showNoStokenDialog: string = 'vm.showNoStokenDialog';
 }
 
 @ObservedV2
@@ -45,6 +47,8 @@ export class LoginViewModel {
   @Trace activeTab: LoginTab = LoginTab.PHONE;
   @Trace isLoading: boolean = false;
   @Trace errorMsg: string = '';
+  /** Cookie 缺少 stoken 时触发，View 层监听后弹 Dialog */
+  @Trace showNoStokenDialog: boolean = false;
   /** 登录成功标志，View 层监听后跳转 */
   @Trace loginSuccess: boolean = false;
   /** 登录成功后的米游社 UID，View 层用于跳转到 AccountDetail */
@@ -285,7 +289,7 @@ export class LoginViewModel {
   /**
    * 用手动输入的 Cookie 登录
    * 先调用 getUserFullInfo 验证 Cookie 有效性并获取 uid，
-   * 不做任何本地字段解析，由 API 返回结果决定是否有效。
+   * 再检查 Cookie 是否包含 stoken（缺少 stoken 会导致便笺同步失败）。
    */
   async loginByCookie(): Promise<void> {
     if (this.cookieInput.trim().length === 0) {
@@ -296,8 +300,15 @@ export class LoginViewModel {
     this.errorMsg = '';
     try {
       const cookie = this.cookieInput.trim();
+
+      // 检查 stoken 是否存在，缺少则触发 Dialog 提示
+      const stoken = BBSRepository.extractCookieField(cookie, 'stoken');
+      if (stoken.length === 0) {
+        this.showNoStokenDialog = true;
+        return;
+      }
+
       // 用 getUserFullInfo 验证 Cookie 有效性，同时获取 uid
-      // retcode≠0 会抛异常，直接告知用户 Cookie 无效
       const bbsDetail = await CoreInitializer.bbsRepository.getBbsAccountDetail(cookie);
       const username = bbsDetail.uid.length > 0 ? bbsDetail.uid : 'unknown';
       await this.finalizeLogin(username, cookie);

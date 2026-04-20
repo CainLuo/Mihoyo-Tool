@@ -58,10 +58,10 @@ export struct DailyNoteStarRail {
   @Local private tm: ThemeManager = themeManager
 
   private staminaColor(): ResourceColor {
-    if (this.data.currentStamina >= this.data.maxStamina) { return this.tm.current.colorDanger }
-    if (this.data.maxStamina > 0 && this.data.currentStamina >= this.data.maxStamina * 0.8) {
-      return this.tm.current.colorWarning
-    }
+    if (this.data.maxStamina <= 0) { return this.tm.current.colorPrimary }
+    const ratio = this.data.currentStamina / this.data.maxStamina
+    if (ratio < 0.3) { return this.tm.current.colorDanger }
+    if (ratio < 0.7) { return this.tm.current.colorWarning }
     return this.tm.current.colorPrimary
   }
 
@@ -81,7 +81,7 @@ export struct DailyNoteStarRail {
           } else {
             Text($r('app.string.daily_note_expedition_finished'))
               .font(this.tm.current.body12)
-              .fontColor(this.tm.current.colorDanger)
+              .fontColor(this.tm.current.colorPrimary)
           }
         }
         .alignItems(HorizontalAlign.Start)
@@ -111,7 +111,7 @@ export struct DailyNoteStarRail {
         this.data.isReserveStaminaFull
           ? this.data.currentReserveStamina.toString() + ' (已满)'
           : this.data.currentReserveStamina.toString(),
-        this.data.isReserveStaminaFull ? this.tm.current.colorDanger : this.tm.current.colorTextPrimary
+        this.data.isReserveStaminaFull ? this.tm.current.colorPrimary : this.tm.current.colorTextPrimary
       )
       // 委托派遣
       this.dataRow(

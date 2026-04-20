@@ -16,7 +16,7 @@ import {
   CharDetailRelic,
   RelicSubStat,
   CharDetailSkill,
-  CharDetailConstellation,
+  CharDetailRankItem,
   CharDetailStat
 } from '../components/chardetail/CharDetailModels';
 import {
@@ -52,8 +52,8 @@ export class GenshinCharacterDetailViewModel {
   @Trace charIconUrl: string = '';
   @Trace activatedConstellations: number = 0;
 
-  // 命座（完整信息，含 icon / 名称 / 效果 / 是否已激活）
-  @Trace constellations: CharDetailConstellation[] = [];
+  // 命座（含 icon / 名称 / 效果 / 是否已激活）
+  @Trace constellations: CharDetailRankItem[] = [];
 
   // 武器
   @Trace weapon: CharDetailWeapon = new CharDetailWeapon();
@@ -107,11 +107,11 @@ export class GenshinCharacterDetailViewModel {
       this.activatedConstellations = base.actived_constellation_num ?? 0;
 
       // 命座
-      const cons: CharDetailConstellation[] = [];
+      const cons: CharDetailRankItem[] = [];
       if (parsed.constellations && parsed.constellations.length > 0) {
         for (let i = 0; i < parsed.constellations.length; i++) {
           const c = parsed.constellations[i];
-          const cd = new CharDetailConstellation();
+          const cd = new CharDetailRankItem();
           cd.pos = c.pos;
           cd.name = c.name;
           cd.iconUrl = c.icon;
@@ -121,7 +121,7 @@ export class GenshinCharacterDetailViewModel {
         }
       } else {
         for (let i = 0; i < 6; i++) {
-          const cd = new CharDetailConstellation();
+          const cd = new CharDetailRankItem();
           cd.pos = i + 1;
           cd.isActived = i < this.activatedConstellations;
           cons[cons.length] = cd;

@@ -2,6 +2,13 @@ import axios, { AxiosInstance, AxiosResponse } from '@ohos/axios';
 import { RequestParams, RequestOptions, RequestValue } from './APIs';
 import { ApiLogSystem } from '../log/ApiLogSystem';
 import { LogEventType } from '../log/ApiLogEntry';
+import { AppEnvManager } from '../constants/AppEnvManager';
+import certFramework from '@ohos.security.cert';
+
+interface X509TrustManager {
+  checkClientTrusted(data: certFramework.X509Cert): void;
+  checkServerTrusted(data: certFramework.X509Cert): void;
+}
 
 /**
  * HttpClient — HTTP 客户端
@@ -13,12 +20,22 @@ export class HttpClient {
 
   private static getInstance(): AxiosInstance {
     if (HttpClient.instance === null) {
-      HttpClient.instance = axios.create({
-        timeout: 30000,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
+      if (AppEnvManager.isDebug()) {
+        class TrustAllManager implements X509TrustManager {
+          checkClientTrusted(_data: certFramework.X509Cert): void {}
+          checkServerTrusted(_data: certFramework.X509Cert): void {}
+        }
+        HttpClient.instance = axios.create({
+          timeout: 30000,
+          sslCertificateManager: new TrustAllManager(),
+          headers: { 'Content-Type': 'application/json' },
+        });
+      } else {
+        HttpClient.instance = axios.create({
+          timeout: 30000,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
     }
     return HttpClient.instance;
   }

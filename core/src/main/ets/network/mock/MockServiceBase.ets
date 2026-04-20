@@ -212,6 +212,10 @@ export abstract class MockServiceBase extends MihoyoApiService {
     specialMap.set('/game_record/app/hkrpg/api/avatar/basic', 'game_record_app_hkrpg_api_avatar_list.json');
     specialMap.set('/game_record/app/hkrpg/api/avatar/info', 'game_record_app_hkrpg_api_avatar_detail_all.json');
     specialMap.set('/event/game_record_zzz/api/zzz/buddy/info', 'event_game_record_zzz_api_zzz_buddy_list.json');
+    // Widget API 映射到与普通便笺相同的 Mock 文件（Widget 返回字段是便笺的子集）
+    specialMap.set('/game_record/app/genshin/aapi/widget/v2', 'game_record_app_genshin_api_dailyNote.json');
+    specialMap.set('/game_record/app/hkrpg/aapi/widget', 'game_record_app_hkrpg_api_note.json');
+    specialMap.set('/event/game_record_zzz/api/zzz/widget', 'event_game_record_zzz_api_zzz_note.json');
 
     const special = specialMap.get(cleanPath);
     if (special !== undefined) {
@@ -222,18 +226,22 @@ export abstract class MockServiceBase extends MihoyoApiService {
 
   /**
    * 从 Cookie 字符串提取 account_id，失败时返回 1
+   * 支持普通 Cookie（account_id=xxx）和 Widget Cookie（stuid=xxx）两种格式
    */
   static extractAccountId(cookie: string): number {
+    // 优先从 account_id 提取
     const match = cookie.match(/account_id=(\d+)/);
-    if (match === null || match.length < 2) {
-      return 1;
+    if (match !== null && match.length >= 2 && match[1] !== undefined) {
+      const parsed = parseInt(match[1]);
+      if (!isNaN(parsed)) { return parsed; }
     }
-    const group = match[1];
-    if (group === undefined) {
-      return 1;
+    // Widget Cookie 格式：从 stuid 提取
+    const stuidMatch = cookie.match(/stuid=(\d+)/);
+    if (stuidMatch !== null && stuidMatch.length >= 2 && stuidMatch[1] !== undefined) {
+      const parsed = parseInt(stuidMatch[1]);
+      if (!isNaN(parsed)) { return parsed; }
     }
-    const parsed = parseInt(group);
-    return isNaN(parsed) ? 1 : parsed;
+    return 1;
   }
 
   abstract get(path: string, params?: RequestParams, options?: RequestOptions): Promise<object>;

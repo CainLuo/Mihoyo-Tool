@@ -20,6 +20,7 @@ import { ZZZApiService } from '../network/ZZZApiService';
 import { AuthExpiredError } from '../errors/ApiErrors';
 import { CookieRefreshCoordinator } from '../cookie/CookieRefreshCoordinator';
 import { CoreInitializer } from '../CoreInitializer';
+import { BBSRepository } from './BBSRepository';
 
 export class ZZZRepository extends GameRepository {
   private avatarBasicDao: ZZZAvatarBasicDao = new ZZZAvatarBasicDao();
@@ -97,10 +98,10 @@ export class ZZZRepository extends GameRepository {
   }
 
   /** 拉取便笺 → 写 DB */
-  async syncDailyNote(accountId: string, roleUid: string, server: string, cookie: string): Promise<void> {
+  async syncDailyNote(accountId: string, roleUid: string, server: string, cookie: string, geetestChallenge?: string): Promise<void> {
     await this.markSyncing(accountId, roleUid, SyncDataType.ZZZ_DAILY_NOTE);
     try {
-      await this.doSyncDailyNote(accountId, roleUid, server, cookie);
+      await this.doSyncDailyNote(accountId, roleUid, server, cookie, geetestChallenge);
     } catch (error) {
       if (error instanceof AuthExpiredError) {
         try {
@@ -126,14 +127,50 @@ export class ZZZRepository extends GameRepository {
     }
   }
 
-  private async doSyncDailyNote(accountId: string, roleUid: string, server: string, cookie: string): Promise<void> {
-    const resp = await (this.getService() as ZZZApiService).getDailyNote(roleUid, server, cookie);
+  private async doSyncDailyNote(accountId: string, roleUid: string, server: string, cookie: string, geetestChallenge?: string): Promise<void> {
+    const resp = await (this.getService() as ZZZApiService).getDailyNote(roleUid, server, cookie, geetestChallenge);
     const respData = resp as Record<string, object>;
     const retcodeStr = `${respData['retcode'] ?? ''}`;
-    if (retcodeStr === '-100') {
-      throw new AuthExpiredError('retcode=-100');
+    if (retcodeStr === '-100' || retcodeStr === '10001') {
+      throw new AuthExpiredError(`retcode=${retcodeStr}`);
+    }
+    if (retcodeStr === '1034' || retcodeStr === '10035') {
+      // 1034/10035：尝试降级到 Widget API（无 Geetest 验证）
+      const widgetCookie = BBSRepository.buildWidgetCookie(cookie);
+      if (widgetCookie.length > 0) {
+        await this.doSyncDailyNoteWidget(accountId, roleUid, widgetCookie);
+        return;
+      }
+      throw new Error(`retcode=${retcodeStr}: Geetest verification required and no widget cookie available`);
+    }
+    if (respData['data'] === null || respData['data'] === undefined) {
+      throw new Error(`retcode=${retcodeStr}: ${respData['message'] ?? 'no data'}`);
     }
     const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
+    const row = this.parseZZZDailyNoteData(accountId, roleUid, dataObj);
+    await this.upsertDailyNote(accountId, roleUid, row);
+  }
+
+  /**
+   * Widget API 降级同步便笺（绝区零 /api/zzz/widget）
+   * Widget 返回字段是普通便笺的子集，只更新有对应字段的数据
+   */
+  private async doSyncDailyNoteWidget(accountId: string, roleUid: string, widgetCookie: string): Promise<void> {
+    const resp = await (this.getService() as ZZZApiService).getDailyNoteWidget(widgetCookie);
+    const respData = resp as Record<string, object>;
+    const retcodeStr = `${respData['retcode'] ?? ''}`;
+    if (retcodeStr !== '0' && retcodeStr !== '') {
+      throw new Error(`Widget API failed: retcode=${retcodeStr}: ${respData['message'] ?? 'no data'}`);
+    }
+    if (respData['data'] === null || respData['data'] === undefined) {
+      throw new Error(`Widget API: no data`);
+    }
+    const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
+    const row = this.parseZZZDailyNoteData(accountId, roleUid, dataObj);
+    await this.upsertDailyNote(accountId, roleUid, row);
+  }
+
+  private parseZZZDailyNoteData(accountId: string, roleUid: string, dataObj: object): ZZZDailyNoteRow {
     const d = dataObj as Record<string, object>;
     const row = new ZZZDailyNoteRow();
     row.accountId = accountId;
@@ -157,7 +194,7 @@ export class ZZZRepository extends GameRepository {
     const vhsSale = d['vhs_sale'] as Record<string, object> | null;
     row.vhsSaleState = vhsSale ? `${vhsSale['sale_state'] ?? ''}` : '';
     row.cardSign = `${d['card_sign'] ?? ''}`;
-    await this.upsertDailyNote(accountId, roleUid, row);
+    return row;
   }
 
   // ── 角色详情 ──────────────────────────────────────────────────

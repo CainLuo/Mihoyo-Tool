@@ -18,4 +18,6 @@ export enum MihoyoDomain {
   PASSPORT_V4 = 'https://passport-api-v4.mihoyo.com',
   /** 原神 SDK（二维码登录） */
   HK4E_SDK = 'https://hk4e-sdk.mihoyo.com',
+  /** 设备指纹 API（获取真实 device_fp） */
+  PUBLIC_DATA_API = 'https://public-data-api.mihoyo.com',
 }

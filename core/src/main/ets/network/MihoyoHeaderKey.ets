@@ -31,6 +31,8 @@ export enum HKey {
   PLATFORM            = 'x-rpc-platform',
   AIGIS               = 'x-rpc-aigis',
   SIGN_GAME           = 'x-rpc-signgame',
+  /** x-rpc-page：页面标识，部分接口必须携带 */
+  PAGE                = 'x-rpc-page',
 
   // 其他
   REQUESTED_WITH      = 'x-requested-with',
@@ -79,6 +81,6 @@ export enum HVal {
   /** x-requested-with: com.mihoyo.hyperion */
   REQUESTED_HYPERION  = 'com.mihoyo.hyperion',
 
-  /** x-rpc-sys_version: 15.7.1（iOS 模拟版本） */
-  SYS_VERSION_IOS     = '15.7.1',
+  /** x-rpc-sys_version: 16.3.1（与 User-Agent 里的 iOS 版本一致） */
+  SYS_VERSION_IOS     = '16.3.1',
 }

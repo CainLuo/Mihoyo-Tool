@@ -212,7 +212,7 @@ export interface Opacity {
   shimmerOpacityHigh: number   // 1.0
   shimmerOpacityLow: number    // 0.3
   charDetailConsInactiveOpacity: number  // 0.3
-  charDetailLockIconRatio: number        // 0.45
+  charDetailLockIconRatio: number        // 0.6
 }
 
 export interface Theme extends AppColor, AppFont, Spacing, Percent, Radius, Shadow, Angle, Opacity {}

@@ -4,22 +4,25 @@
  * 米游社手机号登录 RSA 加密工具。
  * 使用 HarmonyOS cryptoFramework 对手机号和区号进行 RSA-PKCS1 加密。
  *
- * 米游社公钥（固定值，来自 mihoyo-api-collect）：
- * MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDDvekdPMHN3AYhm/vktJT+Z0HmR48r
- * 2mCe8wkdtq7AiBh2ridKsauabNqKDJK2vierBn1drV7QjNNqIXZqvo4MHT0HoNjtrSoS
- * aq9n5+Aur9Ndw5Vnr4tDkf8hvenflyc9D5q2sNiiq9tu2NNgAh49uNQqFZh6ghTcs3wD
- * AQAB
+ * 米游社公钥（固定值，来自 TeyvatGuide passportReq.ts）：
+ * MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDDvekdPMHN3AYhm/vktJT+YJr7cI5D
+ * csNKqdsx5DZX0gDuWFuIjzdwButrIYPNmRJ1G8ybDIF7oDW2eEpm5sMbL9zs9ExXCdvq
+ * rn51qELbqj0XxtMTIpaCHFSI50PfPpTFV9Xt/hmyVwokoOXFlAEgCn+QCgGs52bFoYMt
+ * yi+xEQIDAQAB
  */
 
 import { cryptoFramework } from '@kit.CryptoArchitectureKit';
 import { buffer } from '@kit.ArkTS';
 
-/** 米游社手机号登录 RSA 公钥（PKCS#8 DER 格式，Base64 编码） */
+/**
+ * 米游社手机号登录 RSA 公钥（SubjectPublicKeyInfo DER 格式，Base64 编码）
+ * 来源：TeyvatGuide passportReq.ts（标准 RSA1024，162 字节）
+ */
 const MIHOYO_RSA_PUBLIC_KEY =
-  'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDDvekdPMHN3AYhm/vktJT+Z0HmR48r' +
-  '2mCe8wkdtq7AiBh2ridKsauabNqKDJK2vierBn1drV7QjNNqIXZqvo4MHT0HoNjtrSoS' +
-  'aq9n5+Aur9Ndw5Vnr4tDkf8hvenflyc9D5q2sNiiq9tu2NNgAh49uNQqFZh6ghTcs3wD' +
-  'AQAB';
+  'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDDvekdPMHN3AYhm/vktJT+YJr7cI5D' +
+  'csNKqdsx5DZX0gDuWFuIjzdwButrIYPNmRJ1G8ybDIF7oDW2eEpm5sMbL9zs9ExXCdvq' +
+  'rn51qELbqj0XxtMTIpaCHFSI50PfPpTFV9Xt/hmyVwokoOXFlAEgCn+QCgGs52bFoYMt' +
+  'yi+xEQIDAQAB';
 
 export class RsaUtil {
   /**
