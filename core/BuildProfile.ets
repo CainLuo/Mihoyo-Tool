@@ -4,8 +4,8 @@
 export const HAR_VERSION = '1.0.0';
 export const BUILD_MODE_NAME = 'debug';
 export const DEBUG = true;
-export const TARGET_NAME = 'mock';
-export const APP_ENV = 'mock';
+export const TARGET_NAME = 'debug';
+export const APP_ENV = 'debug';
 
 /**
  * BuildProfile Class is used only for compatibility purposes.

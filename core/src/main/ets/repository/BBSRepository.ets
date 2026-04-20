@@ -86,26 +86,50 @@ export class BBSRepository {
     const accountId = effectiveUsername;
 
     // 2. 拉取游戏角色并写入
+    // 策略：以 getGameRecordCard 为主数据源（roleId 更准确，含 bgImageUrl/statsJson）
+    // getUserGameRolesByCookie 作为补充（包含 getGameRecordCard 没有的角色）
     try {
-      const roles = await this.getUserGameRoles(effectiveCookie);
-      if (roles.length > 0) {
+      const uid = BBSRepository.extractCookieField(effectiveCookie, 'account_id') || effectiveUsername;
+      let finalRoles: GameRoleRecord[] = [];
+
+      // 优先尝试 getGameRecordCard
+      try {
+        const detailRoles = await this.getGameRecordCard(effectiveCookie, uid);
+        if (detailRoles.length > 0) {
+          finalRoles = detailRoles;
+        }
+      } catch (_) {}
+
+      // 如果 getGameRecordCard 失败或返回空，回退到 getUserGameRolesByCookie
+      if (finalRoles.length === 0) {
         try {
-          const uid = BBSRepository.extractCookieField(effectiveCookie, 'account_id') || effectiveUsername;
-          const detailRoles = await this.getGameRecordCard(effectiveCookie, uid);
-          for (let i = 0; i < roles.length; i++) {
-            for (let j = 0; j < detailRoles.length; j++) {
-              if (detailRoles[j].gameId === roles[i].gameId &&
-                  detailRoles[j].roleId === roles[i].roleId) {
-                roles[i].bgImageUrl = detailRoles[j].bgImageUrl;
-                roles[i].statsJson = detailRoles[j].statsJson;
+          const bindingRoles = await this.getUserGameRoles(effectiveCookie);
+          finalRoles = bindingRoles;
+        } catch (_) {}
+      } else {
+        // getGameRecordCard 成功，用 getUserGameRolesByCookie 补充 getGameRecordCard 没有的角色
+        try {
+          const bindingRoles = await this.getUserGameRoles(effectiveCookie);
+          for (let i = 0; i < bindingRoles.length; i++) {
+            let found = false;
+            for (let j = 0; j < finalRoles.length; j++) {
+              if (finalRoles[j].gameId === bindingRoles[i].gameId &&
+                  finalRoles[j].roleId === bindingRoles[i].roleId) {
+                found = true;
                 break;
               }
             }
+            if (!found) {
+              finalRoles[finalRoles.length] = bindingRoles[i];
+            }
           }
         } catch (_) {}
+      }
+
+      if (finalRoles.length > 0) {
         const roleRows: GameRoleRow[] = [];
-        for (let i = 0; i < roles.length; i++) {
-          const r = roles[i];
+        for (let i = 0; i < finalRoles.length; i++) {
+          const r = finalRoles[i];
           const row = new GameRoleRow();
           row.id = 0;
           row.accountId = accountId;
@@ -153,7 +177,7 @@ export class BBSRepository {
     result.uid = finalUid;
     result.nickname = latestAccount?.nickname ?? nickname;
     result.avatarUrl = latestAccount?.avatarUrl ?? avatarUrl;
-    result.roles = await this.gameRoleDao.findByAccountId(finalUid);
+    result.roles = await this.getGameRoles(finalUid);
 
     // 5. 后台异步同步各游戏角色列表和详情（持久化队列，防止 App 被杀后丢失）
     const tasks = SyncQueueRunner.buildTasksForRoles(finalUid, result.roles, effectiveCookie);
@@ -213,9 +237,16 @@ export class BBSRepository {
 
   // ── 游戏角色操作 ──────────────────────────────────────────────
 
-  /** 查询账号下所有游戏角色 */
+  /** 查询账号下所有游戏角色（只返回当前支持的游戏） */
   async getGameRoles(accountId: string): Promise<GameRoleRow[]> {
-    return this.gameRoleDao.findByAccountId(accountId);
+    const all = await this.gameRoleDao.findByAccountId(accountId);
+    const supported: GameRoleRow[] = [];
+    for (let i = 0; i < all.length; i++) {
+      if (GameId.isSupported(all[i].gameId)) {
+        supported[supported.length] = all[i];
+      }
+    }
+    return supported;
   }
 
   /** 查询账号下指定游戏的角色 */
@@ -240,6 +271,56 @@ export class BBSRepository {
       }
     }
     return '';
+  }
+
+  /**
+   * 从完整 Cookie 中构造 Widget API 所需的 Cookie 格式：stuid=xxx;stoken=v2_xxx;mid=xxx
+   *
+   * Widget API 需要 stoken（v2_ 格式），优先从以下字段提取：
+   * 1. stoken（手机号/二维码登录后有此字段）
+   * 2. ltoken_v2（Cookie 登录用户，ltoken_v2 与 stoken 格式相同，均为 v2_ 开头）
+   *
+   * stuid 优先从 stuid 字段提取，其次用 account_id / ltuid_v2 / ltuid
+   * mid 优先从 mid 字段提取，其次用 account_mid_v2 / ltmid_v2
+   *
+   * 返回空字符串表示无法构造（Cookie 中既无 stoken 也无 ltoken_v2）
+   */
+  static buildWidgetCookie(cookie: string): string {
+    // 提取 stoken（优先）或 ltoken_v2（降级）
+    let stoken = BBSRepository.extractCookieField(cookie, 'stoken');
+    if (stoken.length === 0) {
+      stoken = BBSRepository.extractCookieField(cookie, 'ltoken_v2');
+    }
+    if (stoken.length === 0) {
+      return '';
+    }
+
+    // 提取 stuid（优先）或 account_id / ltuid_v2 / ltuid
+    let stuid = BBSRepository.extractCookieField(cookie, 'stuid');
+    if (stuid.length === 0) {
+      stuid = BBSRepository.extractCookieField(cookie, 'account_id');
+    }
+    if (stuid.length === 0) {
+      stuid = BBSRepository.extractCookieField(cookie, 'ltuid_v2');
+    }
+    if (stuid.length === 0) {
+      stuid = BBSRepository.extractCookieField(cookie, 'ltuid');
+    }
+
+    // 提取 mid（优先）或 account_mid_v2 / ltmid_v2
+    let mid = BBSRepository.extractCookieField(cookie, 'mid');
+    if (mid.length === 0) {
+      mid = BBSRepository.extractCookieField(cookie, 'account_mid_v2');
+    }
+    if (mid.length === 0) {
+      mid = BBSRepository.extractCookieField(cookie, 'ltmid_v2');
+    }
+
+    if (stuid.length === 0 || mid.length === 0) {
+      return '';
+    }
+
+    return `stuid=${stuid};stoken=${stoken};mid=${mid}`;
   }
 
   /**
@@ -373,13 +454,25 @@ export class BBSRepository {
    */
   async getBbsAccountDetail(cookie: string): Promise<BbsAccountDetailResult> {
     try {
-      const options = new RequestOptions();
-      options.extraHeaders.set(HKey.COOKIE, cookie);
-      const resp = await NetworkFactory.getInstance().get(
-        MihoyoDomain.BBS + MihoyoAccountApiPath.GET_USER_FULL_INFO,
-        new RequestParams(),
-        options
-      ) as BbsAccountDetailResponse;
+      const uid = BBSRepository.extractCookieField(cookie, 'account_id');
+      // 优先走 service（mock/release 自动适配），兜底走 NetworkFactory
+      let resp: BbsAccountDetailResponse;
+      if (this.service !== null) {
+        resp = await (this.service as MihoyoAccountApiService).getUserFullInfo(uid, cookie) as BbsAccountDetailResponse;
+      } else {
+        const options = new RequestOptions();
+        options.extraHeaders.set(HKey.COOKIE, cookie);
+        const params = new RequestParams();
+        if (uid.length > 0) {
+          params.set('uid', uid);
+          params.set('gids', '2');
+        }
+        resp = await NetworkFactory.getInstance().get(
+          MihoyoDomain.BBS + MihoyoAccountApiPath.GET_USER_FULL_INFO,
+          params,
+          options
+        ) as BbsAccountDetailResponse;
+      }
       if (resp.retcode !== 0) {
         throw new Error(`getBbsAccountDetail failed: [${resp.retcode}] ${resp.message}`);
       }

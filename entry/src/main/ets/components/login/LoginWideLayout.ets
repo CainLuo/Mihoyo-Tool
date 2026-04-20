@@ -12,6 +12,8 @@ import { LoginAgreement } from './LoginAgreement'
 export struct LoginWideLayout {
   @Param tm: ThemeManager = new ThemeManager()
   @Param vm: LoginViewModel = new LoginViewModel()
+  @Event onTapTerms: () => void = () => {}
+  @Event onTapPrivacy: () => void = () => {}
 
   build() {
     Row({ space: this.tm.current.value48 }) {
@@ -36,7 +38,7 @@ export struct LoginWideLayout {
           .fontColor(this.tm.current.colorTextPrimary)
           .width(this.tm.current.full)
         LoginCard({ tm: this.tm, vm: this.vm })
-        LoginAgreement({ tm: this.tm })
+        LoginAgreement({ tm: this.tm, onTapTerms: this.onTapTerms, onTapPrivacy: this.onTapPrivacy })
       }
       .layoutWeight(1)
       .alignItems(HorizontalAlign.Start)

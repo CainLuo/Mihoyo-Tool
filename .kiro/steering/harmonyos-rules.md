@@ -1206,3 +1206,50 @@ export DEVECO_SDK_HOME='/Applications/DevEco-Studio.app/Contents/sdk'
 - **禁止**使用 `controlBashProcess` 后台运行构建（无法获取真实输出，会误报成功）
 - **禁止**使用 `-p buildMode=mock`（正确参数是 `-p product=mock`）
 - **禁止**跳过安装步骤直接启动（旧版本仍在运行）
+
+---
+
+## 二十一、游戏支持范围规范
+
+### 当前支持的游戏
+
+本项目 UI 层只展示以下三款游戏的数据：
+
+| 游戏           | `GameId`          | 状态        |
+| -------------- | ----------------- | ----------- |
+| 原神           | `GameId.GENSHIN`  | ✅ 支持     |
+| 崩坏：星穹铁道 | `GameId.STARRAIL` | ✅ 支持     |
+| 绝区零         | `GameId.ZZZ`      | ✅ 支持     |
+| 崩坏3          | `GameId.HONKAI3`  | ⏳ 暂不支持 |
+
+### 过滤机制
+
+**数据库层**：所有游戏角色数据（包括崩坏3）全部写入 DB，不做过滤。
+
+**读取层**：`BBSRepository.getGameRoles()` 只返回 `GameId.SUPPORTED` 列表中的游戏角色，其他游戏的数据不会传递给 entry 层。
+
+### 控制入口
+
+`core/src/main/ets/constants/GameId.ets` 中的 `SUPPORTED` 数组：
+
+```typescript
+static readonly SUPPORTED: string[] = [
+  GameId.GENSHIN,
+  GameId.STARRAIL,
+  GameId.ZZZ,
+];
+```
+
+### 启用新游戏的步骤
+
+1. 在 `GameId.SUPPORTED` 数组中添加对应的 `GameId`
+2. 实现对应的 `XxxApiService`、`XxxMockService`、`XxxRepository`、`XxxParser`
+3. 在 `MihoyoApiServiceFactory` 中注册新 Service
+4. 在 `SyncQueueRunner.buildTasksForRoles` 中添加同步任务
+5. 在 entry 层添加对应的 UI 组件（角色卡片、便笺组件等）
+6. 更新 README.md 的功能说明
+
+### 禁止行为
+
+- **禁止**在 entry 层（ViewModel / 页面 / 组件）直接过滤 `gameId`，过滤逻辑统一在 `BBSRepository.getGameRoles()` 中
+- **禁止**在 DB 写入时过滤游戏数据，保持数据完整性

@@ -26,6 +26,8 @@ export class CharDetailRankItem {
   iconUrl: string = '';
   /** 是否已激活/解锁 */
   isActived: boolean = false;
+  /** 效果描述（原神命座专用，其他游戏为空字符串） */
+  effect: string = '';
 }
 
 /** 英雄区基础信息（三个游戏通用） */
@@ -76,20 +78,6 @@ export class CharDetailSkill {
   iconUrl: string = '';
   level: number = 0;
   name: string = '';
-}
-
-/** 命座详情（原神） */
-export class CharDetailConstellation {
-  /** 命座位置（1-6） */
-  pos: number = 0;
-  /** 命座名称 */
-  name: string = '';
-  /** 命座图标 URL */
-  iconUrl: string = '';
-  /** 命座效果描述 */
-  effect: string = '';
-  /** 是否已激活 */
-  isActived: boolean = false;
 }
 
 /** 属性行（原神） */

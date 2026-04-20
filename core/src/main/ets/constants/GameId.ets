@@ -10,8 +10,28 @@ export class GameId {
   static readonly STARRAIL: string = 'starrail';
   /** 绝区零 */
   static readonly ZZZ: string = 'zzz';
-  /** 崩坏3 */
+  /** 崩坏3（暂不支持，数据不展示） */
   static readonly HONKAI3: string = 'honkai3';
+
+  /**
+   * 当前支持展示的游戏 ID 列表。
+   * 不在此列表中的游戏角色会在登录时被过滤，不写入 DB。
+   */
+  static readonly SUPPORTED: string[] = [
+    GameId.GENSHIN,
+    GameId.STARRAIL,
+    GameId.ZZZ,
+  ];
+
+  /** 判断某个 gameId 是否受支持 */
+  static isSupported(gameId: string): boolean {
+    for (let i = 0; i < GameId.SUPPORTED.length; i++) {
+      if (GameId.SUPPORTED[i] === gameId) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   /**
    * 将米游社 game_id 数字转换为本项目 gameId 字符串。

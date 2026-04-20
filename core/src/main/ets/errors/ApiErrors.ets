@@ -22,14 +22,18 @@ export class GeetestVerifyInput {
   geetest_seccode: string = '';
 }
 
-/** Cookie 失效（retcode=-100） */
+/** Cookie 失效（retcode=-100 / 10001） */
 export class AuthExpiredError extends Error {
   constructor(message: string) {
     super(message);
   }
 }
 
-/** 需要 Geetest 验证（retcode=10035） */
+/**
+ * 需要 Geetest 人机验证（retcode=1034 或 10035）
+ * 参考 PizzaHelperUnited：1034 和 10035 均映射为同一个 verificationNeeded 错误，
+ * 两者含义相同，无需区分。
+ */
 export class GeetestRequiredError extends Error {
   geetestParams: GeetestCreateResult;
 
@@ -39,15 +43,11 @@ export class GeetestRequiredError extends Error {
   }
 }
 
-/** 签到需要 Geetest 验证（retcode=1034） */
-export class GeetestSignRequiredError extends Error {
-  geetestParams: GeetestCreateResult;
-
-  constructor(message: string, geetestParams: GeetestCreateResult) {
-    super(message);
-    this.geetestParams = geetestParams;
-  }
-}
+/**
+ * @deprecated 请使用 GeetestRequiredError 代替。
+ * 保留此类仅为向后兼容，后续版本将移除。
+ */
+export class GeetestSignRequiredError extends GeetestRequiredError {}
 
 /** 角色战绩未公开（retcode=10102） */
 export class RoleNotPublicError extends Error {

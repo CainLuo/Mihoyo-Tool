@@ -3,6 +3,8 @@ import { MihoyoApiService } from './MihoyoApiService';
 import { MihoyoDomain } from './MihoyoDomain';
 import { ZZZApiPath } from './ZZZApiPath';
 import { MihoyoHeaderBuilder, HeaderProfile } from './MihoyoHeaderBuilder';
+import { ApiConfig } from './ApiConfig';
+import { HKey } from './MihoyoHeaderKey';
 import { HttpClient } from './HttpClient';
 
 export class ZZZApiService extends MihoyoApiService {
@@ -16,16 +18,35 @@ export class ZZZApiService extends MihoyoApiService {
   }
 
   /** 实时便笺 — GET，Domain=TAKUMI_RECORD，Profile=ZZZ_GAME_RECORD */
-  async getDailyNote(roleId: string, server: string, cookie: string): Promise<object> {
+  async getDailyNote(roleId: string, server: string, cookie: string, geetestChallenge?: string): Promise<object> {
     const params = new RequestParams();
     params.set('role_id', roleId);
     params.set('server', server);
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.ZZZ_GAME_RECORD, cookie, params);
+    headers.set(HKey.PAGE, ApiConfig.PAGE_ZZZ_NOTE);
+    if (geetestChallenge) {
+      headers.set('x-rpc-challenge', geetestChallenge);
+    }
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     return HttpClient.get(
       MihoyoDomain.TAKUMI_RECORD + ZZZApiPath.DAILY_NOTE,
       params,
+      opts,
+    );
+  }
+
+  /**
+   * Widget 实时便笺 — GET，Domain=TAKUMI_RECORD，Profile=WIDGET
+   * 无 1034 Geetest 验证，需要 stoken Cookie 格式：stuid=xxx;stoken=v2_xxx;mid=xxx
+   */
+  async getDailyNoteWidget(widgetCookie: string): Promise<object> {
+    const headers = MihoyoHeaderBuilder.build(HeaderProfile.WIDGET, widgetCookie);
+    const opts = new RequestOptions();
+    opts.extraHeaders = headers;
+    return HttpClient.get(
+      MihoyoDomain.TAKUMI_RECORD + ZZZApiPath.DAILY_NOTE_WIDGET,
+      undefined,
       opts,
     );
   }
@@ -36,6 +57,7 @@ export class ZZZApiService extends MihoyoApiService {
     params.set('role_id', roleId);
     params.set('server', server);
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.ZZZ_GAME_RECORD, cookie, params);
+    headers.set(HKey.PAGE, ApiConfig.PAGE_ZZZ_ROLES);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     return HttpClient.get(
@@ -57,6 +79,10 @@ export class ZZZApiService extends MihoyoApiService {
       url += `&id_list[]=${idList[i]}`;
     }
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.ZZZ_GAME_RECORD, cookie);
+    const pageId = idList.length > 0 ? idList[0] : '';
+    headers.set(HKey.PAGE, pageId.length > 0
+      ? ApiConfig.PAGE_ZZZ_ROLE_DETAIL_PREFIX + pageId + '/detail'
+      : ApiConfig.PAGE_ZZZ_ROLES);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     return HttpClient.get(url, undefined, opts);
@@ -68,6 +94,7 @@ export class ZZZApiService extends MihoyoApiService {
     params.set('role_id', roleId);
     params.set('server', server);
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.ZZZ_GAME_RECORD, cookie, params);
+    headers.set(HKey.PAGE, ApiConfig.PAGE_ZZZ_BANGBOO);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     return HttpClient.get(

@@ -1,6 +1,8 @@
 export enum GenshinApiPath {
   /** 实时便笺 */
   DAILY_NOTE = '/game_record/app/genshin/api/dailyNote',
+  /** Widget 实时便笺（无 1034，需要 stoken Cookie） */
+  DAILY_NOTE_WIDGET = '/game_record/app/genshin/aapi/widget/v2',
   /** 角色列表 */
   CHARACTER_LIST = '/game_record/app/genshin/api/character/list',
   /** 角色详情 */

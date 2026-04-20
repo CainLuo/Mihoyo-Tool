@@ -1,11 +1,14 @@
 /**
  * LoginAgreement — 登录协议文字
+ * 点击"用户协议"或"隐私政策"触发对应回调，由父组件负责跳转
  */
 import { ThemeManager } from '../../theme/ThemeManager'
 
 @ComponentV2
 export struct LoginAgreement {
   @Param tm: ThemeManager = new ThemeManager()
+  @Event onTapTerms: () => void = () => {}
+  @Event onTapPrivacy: () => void = () => {}
 
   build() {
     Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.Center }) {
@@ -17,6 +20,7 @@ export struct LoginAgreement {
         .font(this.tm.current.body12)
         .fontColor(this.tm.current.colorPrimary)
         .margin({ right: this.tm.current.value4 })
+        .onClick(() => { this.onTapTerms() })
       Text($r('app.string.login_agreement_and'))
         .font(this.tm.current.body12)
         .fontColor(this.tm.current.colorTextSecondary)
@@ -24,6 +28,7 @@ export struct LoginAgreement {
       Text($r('app.string.login_agreement_privacy'))
         .font(this.tm.current.body12)
         .fontColor(this.tm.current.colorPrimary)
+        .onClick(() => { this.onTapPrivacy() })
     }
     .width(this.tm.current.full)
   }

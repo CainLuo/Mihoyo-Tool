@@ -6,7 +6,7 @@
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { GenshinCharacterDetailViewModel } from '../../viewmodel/GenshinCharacterDetailViewModel';
-import { CharDetailSkill, CharDetailConstellation } from './CharDetailModels';
+import { CharDetailSkill, CharDetailRankItem } from './CharDetailModels';
 import { elementColor } from '../characters/CharacterCard';
 import { CharDetailConsColumn } from './CharDetailConsColumn';
 import { GenshinElement } from '../../constants/GenshinElement';
@@ -20,9 +20,9 @@ function makeMockLandscapeVM(): GenshinCharacterDetailViewModel {
   vm.charFetter = 10;
   vm.charElement = GenshinElement.ELECTRO;
   vm.charImageUrl = '';
-  const cons: CharDetailConstellation[] = [];
+  const cons: CharDetailRankItem[] = [];
   for (let i = 0; i < 6; i++) {
-    const c = new CharDetailConstellation();
+    const c = new CharDetailRankItem();
     c.pos = i + 1;
     c.iconUrl = '';
     c.isActived = i < 6;

@@ -22,10 +22,17 @@ export class ApiErrorCodes {
   // ── 人机验证（Geetest）────────────────────────────────────
 
   /**
-   * 需要 Geetest 人机验证
+   * 需要 Geetest 人机验证（game_record 接口触发）
    * 触发场景：实时便笺、角色详情等接口在短时间内频繁请求时
    */
   static readonly GEETEST_REQUIRED: number = 10035;
+
+  /**
+   * 需要 Geetest 人机验证（通用接口触发）
+   * 触发场景：登录、发送验证码等接口频繁请求时
+   * 来源：mihoyo-api-collect error_code.md
+   */
+  static readonly GEETEST_REQUIRED_GENERAL: number = 1034;
 
   // ── 账号 / 登录 ──────────────────────────────────────────
 

@@ -24,6 +24,7 @@ import { CookieExpiredSignal } from '../utils/CookieExpiredSignal'
 import { FailedAccountInfo } from 'core'
 import BuildProfile from 'BuildProfile'
 import { TestPage } from './TestPage'
+import { WebViewPage, WebViewParam } from './WebViewPage'
 
 @Builder
 function accountSwitchDialogBuilder(params: AccountSwitchDialogParams) {
@@ -42,6 +43,8 @@ function allDetailBuilder(name: string, param: Object) {
     Login()
   } else if (name === AppRoutes.TEST_PAGE) {
     TestPage()
+  } else if (name === AppRoutes.WEB_VIEW) {
+    WebViewPage({ routerParam: param as WebViewParam })
   }
 }
 

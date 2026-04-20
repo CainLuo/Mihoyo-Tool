@@ -4,6 +4,7 @@ import { MihoyoDomain } from './MihoyoDomain';
 import { StarRailApiPath } from './StarRailApiPath';
 import { MihoyoHeaderBuilder, HeaderProfile } from './MihoyoHeaderBuilder';
 import { ApiConfig } from './ApiConfig';
+import { HKey } from './MihoyoHeaderKey';
 import { HttpClient } from './HttpClient';
 
 export class StarRailApiService extends MihoyoApiService {
@@ -16,19 +17,42 @@ export class StarRailApiService extends MihoyoApiService {
     return HttpClient.post(path, data, options);
   }
 
-  /** 实时便笺 — GET，Domain=TAKUMI_RECORD，Profile=GAME_RECORD，注入星铁版本号和 x-rpc-platform:5 */
-  async getDailyNote(roleId: string, server: string, cookie: string): Promise<object> {
+  /**
+   * 实时便笺 — GET，Domain=TAKUMI_RECORD，Profile=GAME_RECORD
+   * 需要有效的 x-rpc-device_fp（通过 DeviceFpService 获取真实指纹）
+   */
+  async getDailyNote(roleId: string, server: string, cookie: string, geetestChallenge?: string): Promise<object> {
     const params = new RequestParams();
     params.set('role_id', roleId);
     params.set('server', server);
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, params);
     headers.set('x-rpc-tool_verison', ApiConfig.TOOL_VERSION_STARRAIL);
     headers.set('x-rpc-platform', '5');
+    headers.set(HKey.PAGE, ApiConfig.PAGE_STARRAIL_NOTE);
+    if (geetestChallenge) {
+      headers.set('x-rpc-challenge', geetestChallenge);
+    }
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     return HttpClient.get(
       MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.DAILY_NOTE,
       params,
+      opts,
+    );
+  }
+
+  /**
+   * Widget 实时便笺 — GET，Domain=TAKUMI_RECORD，Profile=WIDGET
+   * 无 1034 Geetest 验证，需要 stoken Cookie 格式：stuid=xxx;stoken=v2_xxx;mid=xxx
+   * 参考 HSRPizzaHelper widgetNote 实现（WidgetExtension User-Agent）
+   */
+  async getDailyNoteWidget(widgetCookie: string): Promise<object> {
+    const headers = MihoyoHeaderBuilder.build(HeaderProfile.WIDGET, widgetCookie);
+    const opts = new RequestOptions();
+    opts.extraHeaders = headers;
+    return HttpClient.get(
+      MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.DAILY_NOTE_WIDGET,
+      undefined,
       opts,
     );
   }
@@ -41,6 +65,7 @@ export class StarRailApiService extends MihoyoApiService {
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, params);
     headers.set('x-rpc-tool_verison', ApiConfig.TOOL_VERSION_STARRAIL);
     headers.set('x-rpc-platform', '5');
+    headers.set(HKey.PAGE, ApiConfig.PAGE_STARRAIL_ROLES);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     return HttpClient.get(
@@ -56,10 +81,11 @@ export class StarRailApiService extends MihoyoApiService {
     params.set('role_id', roleId);
     params.set('server', server);
     params.set('id', id);
-    params.set('need_wiki', 'false');
+    params.set('need_wiki', 'true');
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, params);
     headers.set('x-rpc-tool_verison', ApiConfig.TOOL_VERSION_STARRAIL);
     headers.set('x-rpc-platform', '5');
+    headers.set(HKey.PAGE, ApiConfig.PAGE_STARRAIL_ROLE);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     return HttpClient.get(

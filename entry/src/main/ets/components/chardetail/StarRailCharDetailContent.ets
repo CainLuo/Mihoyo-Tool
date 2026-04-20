@@ -51,14 +51,24 @@ export struct StarRailCharDetailContent {
             ForEach(this.vm.skillsMain, (skill: StarRailCharDetailSkillNode) => {
               Column({ space: this.tm.current.value4 }) {
                 if (skill.iconUrl !== '') {
-                  Image(skill.iconUrl)
-                    .width(this.tm.current.value44)
-                    .height(this.tm.current.value44)
-                    .objectFit(ImageFit.Contain)
-                    .borderRadius(this.tm.current.value22)
-                    .backgroundColor(skill.isActivated ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDarkLg)
-                    .border({ width: this.tm.current.value1p5, color: skill.isActivated ? this.tm.current.surfaceActiveBorder : this.tm.current.surfaceInactiveBorder })
-                    .opacity(skill.isActivated ? 1.0 : this.tm.current.charDetailConsInactiveOpacity)
+                  Stack() {
+                    Image(skill.iconUrl)
+                      .width(this.tm.current.value44)
+                      .height(this.tm.current.value44)
+                      .objectFit(ImageFit.Contain)
+                      .borderRadius(this.tm.current.value22)
+                      .backgroundColor(skill.isActivated ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDarkLg)
+                      .border({ width: this.tm.current.value1p5, color: skill.isActivated ? this.tm.current.surfaceActiveBorder : this.tm.current.surfaceInactiveBorder })
+                      .opacity(skill.isActivated ? 1.0 : this.tm.current.charDetailConsInactiveOpacity)
+                    if (!skill.isActivated) {
+                      SymbolGlyph($r('sys.symbol.lock'))
+                        .fontSize(this.tm.current.value44 * this.tm.current.charDetailLockIconRatio)
+                        .fontColor([this.tm.current.textLockIcon])
+                        
+                    }
+                  }
+                  .width(this.tm.current.value44)
+                  .height(this.tm.current.value44)
                 }
                 Text(`${skill.level}`)
                   .fontSize(this.tm.current.body12.size)
@@ -85,14 +95,24 @@ export struct StarRailCharDetailContent {
               ForEach(this.vm.skillsExtra, (skill: StarRailCharDetailSkillNode) => {
                 Column({ space: this.tm.current.value4 }) {
                   if (skill.iconUrl !== '') {
-                    Image(skill.iconUrl)
-                      .width(this.tm.current.value36)
-                      .height(this.tm.current.value36)
-                      .objectFit(ImageFit.Contain)
-                      .borderRadius(this.tm.current.value18)
-                      .backgroundColor(skill.isActivated ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDarkLg)
-                      .border({ width: this.tm.current.value1, color: skill.isActivated ? this.tm.current.surfaceActiveBorder : this.tm.current.surfaceInactiveBorder })
-                      .opacity(skill.isActivated ? 1.0 : this.tm.current.charDetailConsInactiveOpacity)
+                    Stack() {
+                      Image(skill.iconUrl)
+                        .width(this.tm.current.value36)
+                        .height(this.tm.current.value36)
+                        .objectFit(ImageFit.Contain)
+                        .borderRadius(this.tm.current.value18)
+                        .backgroundColor(skill.isActivated ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDarkLg)
+                        .border({ width: this.tm.current.value1, color: skill.isActivated ? this.tm.current.surfaceActiveBorder : this.tm.current.surfaceInactiveBorder })
+                        .opacity(skill.isActivated ? 1.0 : this.tm.current.charDetailConsInactiveOpacity)
+                      if (!skill.isActivated) {
+                        SymbolGlyph($r('sys.symbol.lock'))
+                          .fontSize(this.tm.current.value36 * this.tm.current.charDetailLockIconRatio)
+                          .fontColor([this.tm.current.textLockIcon])
+                          
+                      }
+                    }
+                    .width(this.tm.current.value36)
+                    .height(this.tm.current.value36)
                   }
                 }
                 .width(this.tm.current.value44)
@@ -112,13 +132,23 @@ export struct StarRailCharDetailContent {
               ForEach(this.vm.skillsAttr, (skill: StarRailCharDetailSkillNode) => {
                 Column({ space: this.tm.current.value2 }) {
                   if (skill.iconUrl !== '') {
-                    Image(skill.iconUrl)
-                      .width(this.tm.current.value28)
-                      .height(this.tm.current.value28)
-                      .objectFit(ImageFit.Contain)
-                      .borderRadius(this.tm.current.value14)
-                      .backgroundColor(skill.isActivated ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDarkLg)
-                      .opacity(skill.isActivated ? 1.0 : this.tm.current.charDetailConsInactiveOpacity)
+                    Stack() {
+                      Image(skill.iconUrl)
+                        .width(this.tm.current.value28)
+                        .height(this.tm.current.value28)
+                        .objectFit(ImageFit.Contain)
+                        .borderRadius(this.tm.current.value14)
+                        .backgroundColor(skill.isActivated ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDarkLg)
+                        .opacity(skill.isActivated ? 1.0 : this.tm.current.charDetailConsInactiveOpacity)
+                      if (!skill.isActivated) {
+                        SymbolGlyph($r('sys.symbol.lock'))
+                          .fontSize(this.tm.current.value28 * this.tm.current.charDetailLockIconRatio)
+                          .fontColor([this.tm.current.textLockIcon])
+                          
+                      }
+                    }
+                    .width(this.tm.current.value28)
+                    .height(this.tm.current.value28)
                   }
                 }
                 .width(this.tm.current.value36)

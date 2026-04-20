@@ -53,10 +53,10 @@ export struct DailyNoteZZZ {
   @Local private tm: ThemeManager = themeManager
 
   private energyColor(): ResourceColor {
-    if (this.data.currentEnergy >= this.data.maxEnergy) { return this.tm.current.colorDanger }
-    if (this.data.maxEnergy > 0 && this.data.currentEnergy >= this.data.maxEnergy * 0.8) {
-      return this.tm.current.colorWarning
-    }
+    if (this.data.maxEnergy <= 0) { return this.tm.current.colorPrimary }
+    const ratio = this.data.currentEnergy / this.data.maxEnergy
+    if (ratio < 0.3) { return this.tm.current.colorDanger }
+    if (ratio < 0.7) { return this.tm.current.colorWarning }
     return this.tm.current.colorPrimary
   }
 
@@ -135,7 +135,7 @@ export struct DailyNoteZZZ {
           } else {
             Text($r('app.string.daily_note_expedition_finished'))
               .font(this.tm.current.body12)
-              .fontColor(this.tm.current.colorDanger)
+              .fontColor(this.tm.current.colorPrimary)
           }
         }
         .alignItems(HorizontalAlign.Start)

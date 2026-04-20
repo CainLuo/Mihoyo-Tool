@@ -7,7 +7,7 @@
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { GenshinCharacterDetailViewModel } from '../../viewmodel/GenshinCharacterDetailViewModel';
-import { CharDetailConstellation, CharDetailSkill } from './CharDetailModels';
+import { CharDetailRankItem, CharDetailSkill } from './CharDetailModels';
 import { elementColor } from '../characters/CharacterCard';
 import { GenshinElement } from '../../constants/GenshinElement';
 import { CharDetailConsColumn } from './CharDetailConsColumn';
@@ -22,9 +22,9 @@ function makeMockWideVM(): GenshinCharacterDetailViewModel {
   vm.charFetter = 10;
   vm.charElement = GenshinElement.CRYO;
   vm.charImageUrl = '';
-  const cons: CharDetailConstellation[] = [];
+  const cons: CharDetailRankItem[] = [];
   for (let i = 0; i < 6; i++) {
-    const c = new CharDetailConstellation();
+    const c = new CharDetailRankItem();
     c.pos = i + 1;
     c.iconUrl = '';
     c.isActived = i < 3;

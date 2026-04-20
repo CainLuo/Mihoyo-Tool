@@ -1,6 +1,12 @@
 import { NetworkFactory } from './NetworkFactory';
 import { RequestOptions, RequestParams } from './APIs';
 import { GeetestCreateResult, GeetestVerifyInput } from '../errors/ApiErrors';
+import { DSUtil } from './DSUtil';
+import { HttpClient } from './HttpClient';
+import { MihoyoDomain } from './MihoyoDomain';
+import { MihoyoAccountApiPath } from './MihoyoAccountApiPath';
+import { HKey, HVal } from './MihoyoHeaderKey';
+import { ApiConfig } from './ApiConfig';
 
 /**
  * ============================================================
@@ -99,22 +105,21 @@ export class GeetestService {
     cookie: string,
     useK2: boolean = true
   ): Promise<GeetestCreateResult> {
-    // TODO: 当 DSUtil 支持多 salt 时，根据 useK2 选择 K2 或 X4 salt 生成 DS
-    // 目前 DS 由请求拦截器统一注入，此处仅传 Cookie 作为额外请求头
-    //
-    // ArkTS arkts-no-untyped-obj-literals：RequestParams/RequestOptions 均为 class，
-    // 必须用 new 实例化后逐字段赋值，不能用对象字面量。
-    // extraHeaders 使用 Map，避免 Record<string,string> 字面量问题。
     const createParams = new RequestParams();
     createParams.set('is_high', 'true');
-    const createOptions = new RequestOptions();
-    // extraHeaders 里的 Cookie 会覆盖拦截器注入的 Cookie，
-    // 确保使用调用方指定的账号 Cookie 而非全局缓存的 Cookie
-    createOptions.extraHeaders.set('Cookie', cookie);
-    const resp = await NetworkFactory.getInstance().get(
-      `${GeetestService.BASE_URL}/createVerification`,
+    // K2 + isSign=true：salt_v1，不含 b/q，字母数字 random（与 TeyvatGuide miscReq.ts 一致）
+    const opts = new RequestOptions();
+    opts.extraHeaders.set(HKey.COOKIE, cookie);
+    opts.extraHeaders.set(HKey.APP_VERSION, ApiConfig.APP_VERSION);
+    opts.extraHeaders.set(HKey.CLIENT_TYPE, '2');
+    opts.extraHeaders.set(HKey.DEVICE_FP, ApiConfig.getDeviceFp());
+    opts.extraHeaders.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
+    opts.extraHeaders.set(HKey.USER_AGENT, ApiConfig.USER_AGENT);
+    opts.extraHeaders.set(HKey.DS, DSUtil.generateK2Sign());
+    const resp = await HttpClient.get(
+      MihoyoDomain.BBS + MihoyoAccountApiPath.CREATE_VERIFICATION,
       createParams,
-      createOptions
+      opts
     ) as CreateVerificationResponse;
 
     if (resp.retcode !== 0) {
@@ -137,18 +142,24 @@ export class GeetestService {
     cookie: string,
     useK2: boolean = true
   ): Promise<string> {
-    // TODO: 同上，useK2 参数待 DSUtil 多 salt 支持后接入
-    // ArkTS arkts-no-untyped-obj-literals：用 new 实例化，逐字段赋值
-    const verifyParams = new RequestParams();
-    verifyParams.set('geetest_challenge', verifyInput.geetest_challenge);
-    verifyParams.set('geetest_validate', verifyInput.geetest_validate);
-    verifyParams.set('geetest_seccode', verifyInput.geetest_seccode);
-    const verifyOptions = new RequestOptions();
-    verifyOptions.extraHeaders.set('Cookie', cookie);
-    const resp = await NetworkFactory.getInstance().post(
-      `${GeetestService.BASE_URL}/verifyVerification`,
-      verifyParams,
-      verifyOptions
+    const bodyStr = JSON.stringify({
+      geetest_challenge: verifyInput.geetest_challenge,
+      geetest_validate: verifyInput.geetest_validate,
+      geetest_seccode: verifyInput.geetest_seccode,
+    });
+    // K2 + isSign=false：salt_v1，含 body，字母数字 random（与 TeyvatGuide miscReq.ts 一致）
+    const opts = new RequestOptions();
+    opts.extraHeaders.set(HKey.COOKIE, cookie);
+    opts.extraHeaders.set(HKey.APP_VERSION, ApiConfig.APP_VERSION);
+    opts.extraHeaders.set(HKey.CLIENT_TYPE, '2');
+    opts.extraHeaders.set(HKey.DEVICE_FP, ApiConfig.getDeviceFp());
+    opts.extraHeaders.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
+    opts.extraHeaders.set(HKey.USER_AGENT, ApiConfig.USER_AGENT);
+    opts.extraHeaders.set(HKey.DS, DSUtil.generateK2(undefined, bodyStr));
+    const resp = await HttpClient.post(
+      MihoyoDomain.BBS + MihoyoAccountApiPath.VERIFY_VERIFICATION,
+      bodyStr,
+      opts
     ) as VerifyVerificationResponse;
 
     if (resp.retcode !== 0) {

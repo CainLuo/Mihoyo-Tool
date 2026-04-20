@@ -106,7 +106,15 @@
     },
     {
       "name": "login_cookie_hint",
-      "value": "Copy your MiHoYo Cookie from browser DevTools"
+      "value": "Cookie must contain stoken field. Use phone or QR code login instead"
+    },
+    {
+      "name": "login_cookie_no_stoken",
+      "value": "Cookie is missing the stoken field. Daily note sync will not work. Please use phone or QR code login, or provide a Cookie that includes stoken"
+    },
+    {
+      "name": "login_cookie_no_stoken_title",
+      "value": "Incomplete Cookie"
     },
     {
       "name": "main_tab_home",

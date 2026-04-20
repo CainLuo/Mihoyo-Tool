@@ -10,6 +10,7 @@ import { CharDetailEmptyView } from '../components/chardetail/CharDetailEmptyVie
 import { StarRailCharDetailContent } from '../components/chardetail/StarRailCharDetailContent'
 import { ViewState } from '../constants/ViewStates'
 import { CharDetailRouterParam, CharDetailRankItem } from '../components/chardetail/CharDetailModels'
+import { CharDetailConsColumn } from '../components/chardetail/CharDetailConsColumn'
 
 @ComponentV2
 export struct StarRailCharacterDetail {
@@ -130,32 +131,8 @@ export struct StarRailCharacterDetail {
           angle: this.tm.current.a0,
           colors: [[this.tm.current.overlayPortraitBot, 0], [this.tm.current.colorTransparent, 0.45]]
         })
-      Column({ space: this.tm.current.value4 }) {
-        ForEach(this.vm.ranks, (rank: CharDetailRankItem) => {
-          Column({ space: this.tm.current.value2 }) {
-            if (rank.iconUrl !== '') {
-              Image(rank.iconUrl)
-                .width(this.tm.current.value28)
-                .height(this.tm.current.value28)
-                .objectFit(ImageFit.Contain)
-                .opacity(rank.isActived ? 1.0 : this.tm.current.charDetailConsInactiveOpacity)
-            } else {
-              Column()
-                .width(this.tm.current.value28)
-                .height(this.tm.current.value28)
-                .borderRadius(this.tm.current.value14)
-                .backgroundColor(rank.isActived ? this.tm.current.accentPrimaryStrong : this.tm.current.surfaceDarkLg)
-                .opacity(rank.isActived ? 1.0 : this.tm.current.charDetailConsInactiveOpacity)
-            }
-          }
-          .width(this.tm.current.value36)
-          .height(this.tm.current.value36)
-          .borderRadius(this.tm.current.value8)
-          .backgroundColor(rank.isActived ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDarkLg)
-          .justifyContent(FlexAlign.Center)
-          .alignItems(HorizontalAlign.Center)
-          .border({ width: this.tm.current.value1, color: rank.isActived ? this.tm.current.surfaceActiveBorder : this.tm.current.surfaceInactiveBorder })
-        }, (rank: CharDetailRankItem) => `rank_${rank.pos}`)
+      Column() {
+        CharDetailConsColumn({ constellations: this.vm.ranks })
       }
       .position({ x: this.tm.current.value12, y: 0 })
       .height(this.tm.current.full)

@@ -11,13 +11,15 @@ import { LoginAgreement } from './LoginAgreement'
 export struct LoginNarrowLayout {
   @Param tm: ThemeManager = new ThemeManager()
   @Param vm: LoginViewModel = new LoginViewModel()
+  @Event onTapTerms: () => void = () => {}
+  @Event onTapPrivacy: () => void = () => {}
 
   build() {
     Scroll() {
       Column({ space: this.tm.current.value20 }) {
         LoginLogoSection({ tm: this.tm, logoSize: this.tm.current.value52 })
         LoginCard({ tm: this.tm, vm: this.vm })
-        LoginAgreement({ tm: this.tm })
+        LoginAgreement({ tm: this.tm, onTapTerms: this.onTapTerms, onTapPrivacy: this.onTapPrivacy })
       }
       .width(this.tm.current.full)
       .padding({
