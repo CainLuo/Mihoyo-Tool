@@ -17,4 +17,5 @@ export class AppRoutes {
   static readonly ZZZ_DAILY_DETAIL = 'ZZZDailyDetail'
   static readonly TEST_PAGE = 'TestPage'
   static readonly WEB_VIEW = 'WebView'
+  static readonly NOTIFICATION_SETTINGS = 'NotificationSettings'
 }

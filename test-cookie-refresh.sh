@@ -48,9 +48,9 @@ esac
 
 # ── 根据 env 确定 bundle id ───────────────────────────────────
 case "$ENV" in
-  mock)    BUNDLE='com.cainluo.mihoyo.tools.mock' ;;
-  debug)   BUNDLE='com.cainluo.mihoyo.tools.debug' ;;
-  release) BUNDLE='com.cainluo.mihoyo.tools' ;;
+  mock)    BUNDLE='com.cainluo.miyoyo.tools.mock' ;;
+  debug)   BUNDLE='com.cainluo.miyoyo.tools.debug' ;;
+  release) BUNDLE='com.cainluo.miyoyo.tools' ;;
 esac
 
 DB_PATH="/data/app/el2/100/base/$BUNDLE/haps/entry/databases/mihoyo_tool_v2.db"

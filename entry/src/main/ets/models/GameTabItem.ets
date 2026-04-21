@@ -6,15 +6,17 @@
  *
  * gameName 使用 Resource 引用，支持多语言。
  */
+import { GameId } from 'core';
+
 export class GameTabItem {
-  /** 游戏 ID（genshin / starrail / zzz） */
-  gameId: string = '';
+  /** 游戏 ID */
+  gameId: GameId = GameId.GENSHIN;
   /** 游戏角色 UID */
   roleUid: string = '';
   /** 游戏名称（多语言 Resource） */
   gameName: Resource;
 
-  constructor(gameId: string, roleUid: string, gameName: Resource) {
+  constructor(gameId: GameId, roleUid: string, gameName: Resource) {
     this.gameId = gameId;
     this.roleUid = roleUid;
     this.gameName = gameName;

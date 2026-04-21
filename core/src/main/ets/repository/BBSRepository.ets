@@ -9,7 +9,7 @@ import { AuthRepository } from './AuthRepository';
 import { SyncQueueRunner } from './SyncQueueRunner';
 import { NetworkFactory } from '../network/NetworkFactory';
 import { RequestParams, RequestOptions } from '../network/APIs';
-import { GameId } from '../constants/GameId';
+import { GameId, isGameSupported, gameIdFromMihoyo } from '../constants/GameId';
 import { gameBizToGameId } from '../constants/GameServer';
 import { MihoyoDomain } from '../network/MihoyoDomain';
 import { HKey } from '../network/MihoyoHeaderKey';
@@ -242,7 +242,7 @@ export class BBSRepository {
     const all = await this.gameRoleDao.findByAccountId(accountId);
     const supported: GameRoleRow[] = [];
     for (let i = 0; i < all.length; i++) {
-      if (GameId.isSupported(all[i].gameId)) {
+      if (isGameSupported(all[i].gameId)) {
         supported[supported.length] = all[i];
       }
     }
@@ -250,7 +250,7 @@ export class BBSRepository {
   }
 
   /** 查询账号下指定游戏的角色 */
-  async getGameRolesByGame(accountId: string, gameId: string): Promise<GameRoleRow[]> {
+  async getGameRolesByGame(accountId: string, gameId: GameId): Promise<GameRoleRow[]> {
     return this.gameRoleDao.findByAccountAndGame(accountId, gameId);
   }
 
@@ -560,7 +560,7 @@ export class BBSRepository {
       const rows: GameRoleRecord[] = [];
       for (const item of resp.data.list) {
         const row = new GameRoleRecord();
-        row.gameId = GameId.fromMihoyoGameId(item.game_id);
+        row.gameId = gameIdFromMihoyo(item.game_id);
         row.roleId = item.game_role_id;
         row.nickname = item.nickname;
         row.level = item.level;

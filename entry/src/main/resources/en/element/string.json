@@ -1095,6 +1095,138 @@
     {
       "name": "feedback_refresh_error",
       "value": "Refresh failed, check your connection"
+    },
+    {
+      "name": "permission_reason_agent_reminder",
+      "value": "Used to push local reminders when game stamina reaches the set value"
+    },
+    {
+      "name": "my_section_notification",
+      "value": "Notifications"
+    },
+    {
+      "name": "notification_master_switch",
+      "value": "Stamina Reminders"
+    },
+    {
+      "name": "notification_master_switch_desc",
+      "value": "Push system reminders when stamina reaches the set value, works even when App is closed"
+    },
+    {
+      "name": "notification_permission_denied_title",
+      "value": "Notification Permission Disabled"
+    },
+    {
+      "name": "notification_permission_denied_desc",
+      "value": "Go to System Settings → Apps → MiYouYou → Notifications to enable"
+    },
+    {
+      "name": "notification_slot_usage",
+      "value": "Reminder Quota"
+    },
+    {
+      "name": "notification_slot_usage_desc",
+      "value": "Each game can have 1 reminder, max 30 total"
+    },
+    {
+      "name": "notification_style_section",
+      "value": "Notification Style"
+    },
+    {
+      "name": "notification_style_a_title",
+      "value": "Style A · Individual"
+    },
+    {
+      "name": "notification_style_a_desc",
+      "value": "One notification per game role"
+    },
+    {
+      "name": "notification_style_b_title",
+      "value": "Style B · Combined"
+    },
+    {
+      "name": "notification_style_b_desc",
+      "value": "Combine all games into one notification, up to 3 lines when expanded"
+    },
+    {
+      "name": "notification_threshold_section",
+      "value": "Reminder Settings by Account"
+    },
+    {
+      "name": "notification_game_count",
+      "value": "%d games"
+    },
+    {
+      "name": "notification_max_from_api",
+      "value": "Max %d, %d min/unit recovery"
+    },
+    {
+      "name": "notification_max_pending",
+      "value": "Max pending sync, %d min/unit recovery"
+    },
+    {
+      "name": "notification_full_value_shortcut",
+      "value": "Notify at Full"
+    },
+    {
+      "name": "notification_full_value_shortcut_desc",
+      "value": "Set all reminder values to max for this account"
+    },
+    {
+      "name": "notification_full_value_set",
+      "value": "Set"
+    },
+    {
+      "name": "notification_limit_dialog_title",
+      "value": "Reminder Limit Reached"
+    },
+    {
+      "name": "notification_limit_dialog_msg",
+      "value": "Reminder limit reached (30). Please disable some game notifications first."
+    },
+    {
+      "name": "notification_limit_dialog_confirm",
+      "value": "Got it"
+    },
+    {
+      "name": "notification_content_title_style_a",
+      "value": "%s · %s"
+    },
+    {
+      "name": "notification_content_body_style_a",
+      "value": "%s reached %d/%d, use it now"
+    },
+    {
+      "name": "notification_content_sub_style_a",
+      "value": "%s · UID %s"
+    },
+    {
+      "name": "notification_content_title_style_b_collapsed",
+      "value": "MiYouYou · %d stamina alerts"
+    },
+    {
+      "name": "notification_content_title_style_b_expanded",
+      "value": "Game Stamina Alerts"
+    },
+    {
+      "name": "notification_content_line_style_b",
+      "value": "%s: %s %d/%d full"
+    },
+    {
+      "name": "notification_action_close",
+      "value": "Close"
+    },
+    {
+      "name": "notification_stamina_genshin",
+      "value": "Resin"
+    },
+    {
+      "name": "notification_stamina_starrail",
+      "value": "Trailblaze Power"
+    },
+    {
+      "name": "notification_stamina_zzz",
+      "value": "Battery"
     }
   ]
 }

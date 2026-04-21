@@ -24,17 +24,12 @@ import {
   GenshinCharacterListRow,
   StarRailAvatarBasicRow,
   ZZZAvatarBasicRow,
-  SyncQueueRunner
+  SyncQueueRunner,
+  Logger,
+  GameId,
 } from 'core';
-import { Logger } from 'core';
 import { ViewState } from '../constants/ViewStates';
 import { AppConstants } from '../constants/AppConstants';
-import {
-  GAME_GENSHIN,
-  GAME_STARRAIL,
-  GAME_ZZZ,
-  GAME_HONKAI3
-} from '../components/home/HomeModels';
 import { CharacterDataSource } from '../components/characters/CharacterDataSource';
 import { AccountOption } from '../models/AccountOption';
 import { GameTabItem } from '../models/GameTabItem';
@@ -251,18 +246,18 @@ export class CharactersViewModel {
   /** 从 Repository 读取角色数据并转换为 GameDataSummary */
   private static async loadCharacters(
     accountId: string,
-    gameId: string,
+    gameId: GameId,
     roleUid: string
   ): Promise<GameDataSummary[]> {
-    if (gameId === GAME_GENSHIN) {
+    if (gameId === GameId.GENSHIN) {
       const rows = await CoreInitializer.genshinRepository.getAvatarList(accountId, roleUid);
       return CharactersViewModel.genshinRowsToSummaries(rows, roleUid);
     }
-    if (gameId === GAME_STARRAIL) {
+    if (gameId === GameId.STARRAIL) {
       const rows = await CoreInitializer.starRailRepository.getAvatarList(accountId, roleUid);
       return CharactersViewModel.starRailRowsToSummaries(rows, roleUid);
     }
-    if (gameId === GAME_ZZZ) {
+    if (gameId === GameId.ZZZ) {
       const rows = await CoreInitializer.zzzRepository.getAvatarList(accountId, roleUid);
       return CharactersViewModel.zzzRowsToSummaries(rows, roleUid);
     }
@@ -275,7 +270,7 @@ export class CharactersViewModel {
     for (let i = 0; i < rows.length; i++) {
       const r = rows[i];
       const s = new GameDataSummary();
-      s.gameId = GAME_GENSHIN;
+      s.gameId = GameId.GENSHIN;
       s.roleUid = roleUid;
       s.entityId = r.avatarId;
       s.name = r.name;
@@ -305,7 +300,7 @@ export class CharactersViewModel {
     for (let i = 0; i < rows.length; i++) {
       const r = rows[i];
       const s = new GameDataSummary();
-      s.gameId = GAME_STARRAIL;
+      s.gameId = GameId.STARRAIL;
       s.roleUid = roleUid;
       s.entityId = r.avatarId;
       s.name = r.name;
@@ -335,7 +330,7 @@ export class CharactersViewModel {
     for (let i = 0; i < rows.length; i++) {
       const r = rows[i];
       const s = new GameDataSummary();
-      s.gameId = GAME_ZZZ;
+      s.gameId = GameId.ZZZ;
       s.roleUid = roleUid;
       s.entityId = r.avatarId;
       s.name = r.nameMi18n;
@@ -356,7 +351,7 @@ export class CharactersViewModel {
   }
 
   /** 后台静默同步角色数据，完成后若仍是当前选中 tab 则刷新 UI */
-  private autoSyncCharacters(gameId: string, roleUid: string): void {
+  private autoSyncCharacters(gameId: GameId, roleUid: string): void {
     if (this.allAccounts.length === 0) { return; }
     const account = this.allAccounts[this.selectedAccountIdx];
     const server = this.findServer(roleUid);
@@ -390,7 +385,7 @@ export class CharactersViewModel {
    */
   private async syncCharacters(
     account: AccountRow,
-    gameId: string,
+    gameId: GameId,
     roleUid: string,
     server: string
   ): Promise<void> {
@@ -417,14 +412,14 @@ export class CharactersViewModel {
   }
 
   /** 检查指定游戏角色是否需要同步角色数据 */
-  private static async needsCharacterSync(accountId: string, roleUid: string, gameId: string): Promise<boolean> {
-    if (gameId === GAME_GENSHIN) {
+  private static async needsCharacterSync(accountId: string, roleUid: string, gameId: GameId): Promise<boolean> {
+    if (gameId === GameId.GENSHIN) {
       return CoreInitializer.genshinRepository.needsAvatarListSync(accountId, roleUid);
     }
-    if (gameId === GAME_STARRAIL) {
+    if (gameId === GameId.STARRAIL) {
       return CoreInitializer.starRailRepository.needsAvatarListSync(accountId, roleUid);
     }
-    if (gameId === GAME_ZZZ) {
+    if (gameId === GameId.ZZZ) {
       return CoreInitializer.zzzRepository.needsAvatarListSync(accountId, roleUid);
     }
     return true;
@@ -448,17 +443,17 @@ export class CharactersViewModel {
     return result;
   }
 
-  private static gameNameResource(gameId: string): Resource {
-    if (gameId === GAME_GENSHIN) {
+  private static gameNameResource(gameId: GameId): Resource {
+    if (gameId === GameId.GENSHIN) {
       return $r('app.string.game_name_genshin');
     }
-    if (gameId === GAME_STARRAIL) {
+    if (gameId === GameId.STARRAIL) {
       return $r('app.string.game_name_starrail');
     }
-    if (gameId === GAME_ZZZ) {
+    if (gameId === GameId.ZZZ) {
       return $r('app.string.game_name_zzz');
     }
-    if (gameId === GAME_HONKAI3) {
+    if (gameId === GameId.HONKAI3) {
       return $r('app.string.game_name_honkai3');
     }
     return $r('app.string.game_name_genshin');

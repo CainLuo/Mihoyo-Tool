@@ -1,3 +1,4 @@
+import { GameId } from 'core';
 /**
  * StarRailGameToolCardContent — 崩坏：星穹铁道战绩卡片内容区
  */
@@ -144,7 +145,7 @@ export struct StarRailGameToolCardContentPreview {
     Column() {
       StarRailGameToolCardContent({
         snap: (() => {
-          const snap = new GameNoteSnapshotVM('starrail', 180, 300, 7200, '', '', false);
+          const snap = new GameNoteSnapshotVM(GameId.STARRAIL, 180, 300, 7200, '', '', false);
           snap.reserveStamina = 2400;
           snap.trainScoreCurrent = 400;
           snap.trainScoreMax = 500;

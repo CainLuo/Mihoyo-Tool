@@ -3,7 +3,7 @@
  */
 import { ThemeManager, themeManager } from '../../theme/ThemeManager'
 import { CharactersViewModel } from '../../viewmodel/CharactersViewModel'
-import { GameDataSummary } from 'core'
+import { GameDataSummary , GameId } from 'core'
 import { HomePlaceholderView } from '../home/HomePlaceholderView'
 import { CharacterCard } from './CharacterCard'
 import { CharactersSkeleton } from './CharactersSkeleton'
@@ -79,7 +79,7 @@ export struct CharactersContent {
               CharacterCard({
                 character: character,
                 gameId: this.vm.gameTabs.length > 0
-                  ? this.vm.gameTabs[this.vm.selectedGameIdx].gameId : 'genshin',
+                  ? this.vm.gameTabs[this.vm.selectedGameIdx].gameId : GameId.GENSHIN,
                 roleUid: this.vm.gameTabs.length > 0
                   ? this.vm.gameTabs[this.vm.selectedGameIdx].roleUid : '',
                 onTap: (c: GameDataSummary) => { this.onCardTap(c) }

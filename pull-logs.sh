@@ -12,9 +12,9 @@ TARGET='127.0.0.1:5555'
 ENV="${1:-mock}"
 
 case "$ENV" in
-  mock)    BUNDLE='com.cainluo.mihoyo.tools.mock' ;;
-  debug)   BUNDLE='com.cainluo.mihoyo.tools.debug' ;;
-  release) BUNDLE='com.cainluo.mihoyo.tools' ;;
+  mock)    BUNDLE='com.cainluo.miyoyo.tools.mock' ;;
+  debug)   BUNDLE='com.cainluo.miyoyo.tools.debug' ;;
+  release) BUNDLE='com.cainluo.miyoyo.tools' ;;
   *)
     echo "✗ 未知环境：$ENV（可选：mock / debug / release）"
     exit 1

@@ -1,3 +1,4 @@
+import { GameId } from 'core';
 /**
  * GenericGameToolCardContent — 通用游戏战绩卡片内容区（崩坏3等）
  */
@@ -89,7 +90,7 @@ export struct GenericGameToolCardContentPreview {
   build() {
     Column() {
       GenericGameToolCardContent({
-        snap: new GameNoteSnapshotVM('honkai3', 120, 240, 10800, '体力', '120/240', false),
+        snap: new GameNoteSnapshotVM(GameId.HONKAI3, 120, 240, 10800, '体力', '120/240', false),
         primaryLabel: $r('app.string.app_name'),
         primaryColor: $r('app.color.game_color_genshin'),
         progressRatio: 0.5

@@ -29,27 +29,25 @@ import {
   ColdStartRefreshResult,
   FailedAccountInfo,
   AuthExpiredError,
+  GameId,
+  GenshinDailyNoteParser,
+  StarRailDailyNoteParser,
+  ZZZDailyNoteParser,
+  Logger,
+  ApiErrorCodes,
 } from 'core';
-import { GenshinDailyNoteParser } from 'core';
-import { StarRailDailyNoteParser } from 'core';
 import { GeetestTrigger } from '../models/GeetestTrigger';
-import { ZZZDailyNoteParser } from 'core';
 import { serverDisplayName } from '../utils/ServerNameUtil';
 import { CookieExpiredSignal } from '../utils/CookieExpiredSignal';
 import {
   MihoyoAccountVM,
   GameRoleCardVM,
   GameNoteSnapshotVM,
-  GAME_GENSHIN,
-  GAME_STARRAIL,
-  GAME_ZZZ,
-  GAME_HONKAI3
 } from '../components/home/HomeModels';
 import { ZZZVideoStoreState, ZZZCardSign } from '../constants/ZZZEnums';
-import { Logger } from 'core';
 import { ViewState } from '../constants/ViewStates';
-import { ApiErrorCodes } from 'core';
 import { AppConstants } from '../constants/AppConstants';
+import { StaminaNotificationService } from '../notification/StaminaNotificationService';
 
 const TAG: string = 'HomeViewModel';
 
@@ -303,15 +301,15 @@ export class HomeViewModel {
   private async syncDailyNote(account: AccountRow, role: GameRoleRow): Promise<void> {
     const gameId = role.gameId;
     try {
-      if (gameId === GAME_GENSHIN) {
+      if (gameId === GameId.GENSHIN) {
         await CoreInitializer.genshinRepository.syncDailyNote(
           account.uid, role.roleId, role.server, account.cookie
         );
-      } else if (gameId === GAME_STARRAIL) {
+      } else if (gameId === GameId.STARRAIL) {
         await CoreInitializer.starRailRepository.syncDailyNote(
           account.uid, role.roleId, role.server, account.cookie
         );
-      } else if (gameId === GAME_ZZZ) {
+      } else if (gameId === GameId.ZZZ) {
         await CoreInitializer.zzzRepository.syncDailyNote(
           account.uid, role.roleId, role.server, account.cookie
         );
@@ -339,21 +337,21 @@ export class HomeViewModel {
   private async syncDailyNoteWithChallenge(
     accountId: string,
     cookie: string,
-    gameId: string,
+    gameId: GameId,
     roleId: string,
     server: string,
     geetestChallenge: string,
   ): Promise<void> {
     // 直接调用 Repository，只带 challenge（与 TeyvatGuide lunaReq.ts 一致）
-    if (gameId === GAME_GENSHIN) {
+    if (gameId === GameId.GENSHIN) {
       await CoreInitializer.genshinRepository.syncDailyNote(
         accountId, roleId, server, cookie, geetestChallenge
       );
-    } else if (gameId === GAME_STARRAIL) {
+    } else if (gameId === GameId.STARRAIL) {
       await CoreInitializer.starRailRepository.syncDailyNote(
         accountId, roleId, server, cookie, geetestChallenge
       );
-    } else if (gameId === GAME_ZZZ) {
+    } else if (gameId === GameId.ZZZ) {
       await CoreInitializer.zzzRepository.syncDailyNote(
         accountId, roleId, server, cookie, geetestChallenge
       );
@@ -398,6 +396,8 @@ export class HomeViewModel {
         await this.syncDailyNote(account, role);
       }
     }
+    // 同步完成后触发通知阈值检查
+    StaminaNotificationService.instance().onDailyNotesSynced().catch((_: Error | object) => {});
   }
 
   /**
@@ -424,14 +424,14 @@ export class HomeViewModel {
   /**
    * 检查指定游戏角色是否需要同步 daily_note
    */
-  private static async needsDailyNoteSync(accountId: string, roleUid: string, gameId: string): Promise<boolean> {
-    if (gameId === GAME_GENSHIN) {
+  private static async needsDailyNoteSync(accountId: string, roleUid: string, gameId: GameId): Promise<boolean> {
+    if (gameId === GameId.GENSHIN) {
       return CoreInitializer.genshinRepository.needsDailyNoteSync(accountId, roleUid);
     }
-    if (gameId === GAME_STARRAIL) {
+    if (gameId === GameId.STARRAIL) {
       return CoreInitializer.starRailRepository.needsDailyNoteSync(accountId, roleUid);
     }
-    if (gameId === GAME_ZZZ) {
+    if (gameId === GameId.ZZZ) {
       return CoreInitializer.zzzRepository.needsDailyNoteSync(accountId, roleUid);
     }
     return true;
@@ -480,11 +480,11 @@ export class HomeViewModel {
    */
   private async loadDailyNoteSnapshot(
     accountId: string,
-    gameId: string,
+    gameId: GameId,
     roleUid: string
   ): Promise<GameNoteSnapshotVM | null> {
     try {
-      if (gameId === GAME_GENSHIN) {
+      if (gameId === GameId.GENSHIN) {
         const row = await CoreInitializer.genshinRepository.getDailyNote(accountId, roleUid);
         if (row === null) {
           return null;
@@ -505,7 +505,7 @@ export class HomeViewModel {
         return snap;
       }
 
-      if (gameId === GAME_STARRAIL) {
+      if (gameId === GameId.STARRAIL) {
         const row = await CoreInitializer.starRailRepository.getDailyNote(accountId, roleUid);
         if (row === null) {
           return null;
@@ -530,7 +530,7 @@ export class HomeViewModel {
         return snap;
       }
 
-      if (gameId === GAME_ZZZ) {
+      if (gameId === GameId.ZZZ) {
         const row = await CoreInitializer.zzzRepository.getDailyNote(accountId, roleUid);
         if (row === null) {
           return null;
@@ -565,17 +565,17 @@ export class HomeViewModel {
   }
 
   /** 根据 gameId 返回对应的游戏主题色资源引用 */
-  static gameColor(gameId: string): ResourceColor {
-    if (gameId === GAME_GENSHIN) {
+  static gameColor(gameId: GameId): ResourceColor {
+    if (gameId === GameId.GENSHIN) {
       return $r('app.color.game_color_genshin');
     }
-    if (gameId === GAME_STARRAIL) {
+    if (gameId === GameId.STARRAIL) {
       return $r('app.color.game_color_starrail');
     }
-    if (gameId === GAME_ZZZ) {
+    if (gameId === GameId.ZZZ) {
       return $r('app.color.game_color_zzz');
     }
-    if (gameId === GAME_HONKAI3) {
+    if (gameId === GameId.HONKAI3) {
       return $r('app.color.game_color_honkai3');
     }
     return $r('app.color.color_accent');

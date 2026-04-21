@@ -1,3 +1,4 @@
+import { GameId } from 'core';
 /**
  * GenshinGameToolCardContent — 原神战绩卡片内容区
  */
@@ -125,7 +126,7 @@ export struct GenshinGameToolCardContentPreview {
     Column() {
       GenshinGameToolCardContent({
         snap: (() => {
-          const snap = new GameNoteSnapshotVM('genshin', 140, 200, 14400, '', '', false);
+          const snap = new GameNoteSnapshotVM(GameId.GENSHIN, 140, 200, 14400, '', '', false);
           snap.expeditionCurrent = 3;
           snap.expeditionMax = 5;
           snap.homeCoinCurrent = 1800;

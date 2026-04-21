@@ -1,3 +1,4 @@
+import { GameId } from 'core';
 /**
  * UserGameSection — 单个米游社账号的游戏卡片组
  *
@@ -82,7 +83,7 @@ export struct UserGameSection {
 @Preview
 @ComponentV2
 export struct UserGameSectionPreview {
-  @Local private card: GameRoleCardVM = new GameRoleCardVM('genshin', 'genshin', $r('app.color.game_color_genshin'), '123456789', '旅行者', '天空岛', null, 'sync_just_now');
+  @Local private card: GameRoleCardVM = new GameRoleCardVM(GameId.GENSHIN, GameId.GENSHIN, $r('app.color.game_color_genshin'), '123456789', '旅行者', '天空岛', null, 'sync_just_now');
   @Local private account: MihoyoAccountVM = new MihoyoAccountVM('user001', 'user001', [], '旅行者', '');
 
   build() {

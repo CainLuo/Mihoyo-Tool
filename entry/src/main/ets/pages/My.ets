@@ -90,6 +90,30 @@ export struct My {
           }
         })
 
+        SectionHeader({ title: $r('app.string.my_section_notification') })
+        // 通知设置入口行（点击跳转二级页）
+        Row() {
+          Text($r('app.string.my_section_notification'))
+            .font(this.tm.current.body16)
+            .fontColor(this.tm.current.colorTextPrimary)
+            .layoutWeight(1)
+          Text($r('app.string.common_arrow_right'))
+            .font(this.tm.current.body16)
+            .fontColor(this.tm.current.colorTextSecondary)
+        }
+        .width(this.tm.current.full)
+        .height(this.tm.current.value50)
+        .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
+        .backgroundColor(this.tm.current.colorSurfaceCard)
+        .borderRadius(this.tm.current.radius12)
+        .onClick(() => {
+          if (this.isSplit) {
+            this.detailStack.replacePath({ name: AppRoutes.NOTIFICATION_SETTINGS, param: null })
+          } else {
+            this.detailStack.pushPathByName(AppRoutes.NOTIFICATION_SETTINGS, null)
+          }
+        })
+
         SectionHeader({ title: $r('app.string.my_section_about') })
         AboutSection()
 

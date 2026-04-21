@@ -7,8 +7,7 @@
  *   - zzz：稀有度+属性+特性胶囊标签纵向（左上）+ 影画（右上）+ 等级+阵营（底部）
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
-import { GameDataSummary } from 'core';
-import { GameId } from '../../constants/GameId';
+import { GameDataSummary, GameId } from 'core';
 import { elementFromString } from '../../constants/GenshinElement';
 import { GenshinElement, elementIcon } from '../../constants/GenshinElement';
 import {
@@ -43,7 +42,7 @@ export function elementLabel(element: string): Resource {
 @ComponentV2
 export struct CharacterCard {
   @Param character: GameDataSummary = new GameDataSummary();
-  @Param gameId: string = GameId.GENSHIN;
+  @Param gameId: GameId = GameId.GENSHIN;
   @Param roleUid: string = '';
   @Param onTap: (character: GameDataSummary) => void = (_c: GameDataSummary) => {};
   @Local private tm: ThemeManager = themeManager;

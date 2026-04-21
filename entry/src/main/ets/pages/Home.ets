@@ -11,9 +11,8 @@ import { UserGameSection } from '../components/home/UserGameSection'
 import { HomeSkeletonView } from '../components/home/HomeSkeletonView'
 import { HomePlaceholderView } from '../components/home/HomePlaceholderView'
 import { showGeetestDialog } from '../components/GeetestDialog'
-import { Logger } from 'core'
+import { Logger, GameId } from 'core'
 import { AppRoutes } from '../constants/AppRoutes'
-import { GameId } from '../constants/GameId'
 import { GenshinDailyDetailParam } from './GenshinDailyDetail'
 import { StarRailDailyDetailParam } from './StarRailDailyDetail'
 import { ZZZDailyDetailParam } from './ZZZDailyDetail'
@@ -138,7 +137,14 @@ export struct Home {
                 this.navigateToDetail(account.accountId, card)
               }
             })
-          }, (account: MihoyoAccountVM) => `${account.accountId}_${account.roles.length}`)
+          }, (account: MihoyoAccountVM) => {
+            let key = account.accountId;
+            for (let i = 0; i < account.roles.length; i++) {
+              const r = account.roles[i];
+              key += `_${r.roleUid}:${r.snapshot !== null ? r.snapshot.primaryCurrent : 'x'}`;
+            }
+            return key;
+          })
           Row().height(this.tm.current.value40)
         }
         .width(this.tm.current.full)

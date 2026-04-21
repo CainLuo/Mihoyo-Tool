@@ -88,7 +88,7 @@ export enum ZZZServer {
  * 将米游社 game_biz 字符串转换为本项目 GameId 字符串。
  * 未知 biz 直接透传原始值。
  */
-export function gameBizToGameId(biz: string): string {
+export function gameBizToGameId(biz: string): GameId {
   if (biz === GameBiz.GENSHIN_CN || biz === GameBiz.GENSHIN_OS) {
     return GameId.GENSHIN;
   }
@@ -101,5 +101,5 @@ export function gameBizToGameId(biz: string): string {
   if (biz === GameBiz.HONKAI3_CN) {
     return GameId.HONKAI3;
   }
-  return biz;
+  return GameId.GENSHIN; // 未知 biz fallback
 }
