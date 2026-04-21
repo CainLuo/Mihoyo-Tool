@@ -3,6 +3,7 @@ import { window } from '@kit.ArkUI';
 import { CoreInitializer, Logger } from 'core';
 import { APP_ENV } from '../config/RuntimeConfig';
 import { AppearanceManager } from '../utils/AppearanceManager';
+import { StaminaNotificationService } from '../notification/StaminaNotificationService';
 
 const TAG: string = 'EntryAbility';
 
@@ -19,6 +20,10 @@ export default class EntryAbility extends UIAbility {
     CoreInitializer.initCore({ env: APP_ENV, context: this.context })
       .then(() => {
         Logger.info(TAG, `CoreV2 initialized. env=${APP_ENV}`);
+        // 核心库初始化完成后，初始化通知服务
+        StaminaNotificationService.instance().init(this.context).catch((e: Error | object) => {
+          Logger.warning(TAG, `StaminaNotificationService.init failed: ${JSON.stringify(e)}`);
+        });
       })
       .catch((error: Error | object) => {
         Logger.warning(TAG, `CoreInitializer.initCore failed: ${JSON.stringify(error)}`);

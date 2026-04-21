@@ -1,3 +1,5 @@
+import { GameId } from '../constants/GameId';
+
 /**
  * GameRoleRow.ets
  *
@@ -9,8 +11,8 @@ export class GameRoleRow {
   id: number = 0;
   /** 所属账号 ID（外键，关联 account_table.id） */
   accountId: string = '';
-  /** 游戏 ID（genshin / starrail / zzz） */
-  gameId: string = '';
+  /** 游戏 ID */
+  gameId: GameId = GameId.GENSHIN;
   /** 游戏业务标识（如 'hk4e_cn'、'hkrpg_cn'、'nap_cn'） */
   gameBiz: string = '';
   /** 游戏类型数字（米游社内部字段） */

@@ -3,9 +3,9 @@
  *
  * 将 gameId 转换为多语言名称、主题色等，供各页面复用。
  */
-import { GameId } from '../constants/GameId'
+import { GameId } from 'core'
 
-export function gameIdToName(gameId: string): Resource {
+export function gameIdToName(gameId: GameId): Resource {
   if (gameId === GameId.GENSHIN) { return $r('app.string.game_name_genshin') }
   if (gameId === GameId.STARRAIL) { return $r('app.string.game_name_starrail') }
   if (gameId === GameId.ZZZ) { return $r('app.string.game_name_zzz') }
@@ -13,7 +13,7 @@ export function gameIdToName(gameId: string): Resource {
   return $r('app.string.game_name_genshin')
 }
 
-export function gameIdToColor(gameId: string): ResourceColor {
+export function gameIdToColor(gameId: GameId): ResourceColor {
   if (gameId === GameId.GENSHIN) { return $r('app.color.game_color_genshin') }
   if (gameId === GameId.STARRAIL) { return $r('app.color.game_color_starrail') }
   if (gameId === GameId.ZZZ) { return $r('app.color.game_color_zzz') }
@@ -22,7 +22,7 @@ export function gameIdToColor(gameId: string): ResourceColor {
 }
 
 /** 将 gameId 映射为主要资源标签（树脂/开拓力等） */
-export function gameIdToPrimaryLabel(gameId: string): Resource {
+export function gameIdToPrimaryLabel(gameId: GameId): Resource {
   if (gameId === GameId.GENSHIN) { return $r('app.string.daily_note_resin_title') }
   return $r('app.string.daily_note_adventure_label')
 }

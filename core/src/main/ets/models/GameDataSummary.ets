@@ -1,3 +1,5 @@
+import { GameId } from '../constants/GameId';
+
 /**
  * GameDataSummary.ets
  *
@@ -22,8 +24,8 @@
  *   weaponRarity = 武器稀有度
  */
 export class GameDataSummary {
-  /** 游戏 ID（genshin / starrail / zzz） */
-  gameId: string = '';
+  /** 游戏 ID */
+  gameId: GameId = GameId.GENSHIN;
   /** 角色所属账号的游戏 UID */
   roleUid: string = '';
   /** 角色 ID（字符串） */

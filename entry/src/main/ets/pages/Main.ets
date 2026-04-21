@@ -25,6 +25,7 @@ import { FailedAccountInfo } from 'core'
 import BuildProfile from 'BuildProfile'
 import { TestPage } from './TestPage'
 import { WebViewPage, WebViewParam } from './WebViewPage'
+import { NotificationSettings } from './NotificationSettings'
 
 @Builder
 function accountSwitchDialogBuilder(params: AccountSwitchDialogParams) {
@@ -45,6 +46,8 @@ function allDetailBuilder(name: string, param: Object) {
     TestPage()
   } else if (name === AppRoutes.WEB_VIEW) {
     WebViewPage({ routerParam: param as WebViewParam })
+  } else if (name === AppRoutes.NOTIFICATION_SETTINGS) {
+    NotificationSettings()
   }
 }
 

@@ -1,3 +1,4 @@
+import { GameId } from 'core';
 /**
  * GameTabBar — 游戏横向 Tab 选择器
  *
@@ -15,9 +16,9 @@ export struct GameTabBarPreview {
   build() {
     GameTabBar({
       tabs: [
-        new GameTabItem('genshin', '100000001', $r('app.string.game_name_genshin')),
-        new GameTabItem('starrail', '200000001', $r('app.string.game_name_starrail')),
-        new GameTabItem('zzz', '300000001', $r('app.string.game_name_zzz')),
+        new GameTabItem(GameId.GENSHIN, '100000001', $r('app.string.game_name_genshin')),
+        new GameTabItem(GameId.STARRAIL, '200000001', $r('app.string.game_name_starrail')),
+        new GameTabItem(GameId.ZZZ, '300000001', $r('app.string.game_name_zzz')),
       ],
       selectedIdx: 0,
       onSelect: (_i: number) => {}

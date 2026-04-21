@@ -4,6 +4,7 @@ import { RsReader } from './RsReader';
 import { TableName, CommonCol, AccountCol, GameRoleCol, ACCOUNT_TABLE, GAME_ROLE_TABLE } from './TableSchema';
 import { AccountRow } from '../models/AccountRow';
 import { GameRoleRow } from '../models/GameRoleRow';
+import { GameId } from '../constants/GameId';
 
 // ─────────────────────────────────────────────
 // AccountDao：操作 account_table
@@ -202,7 +203,7 @@ export class GameRoleDao {
   /**
    * 按 accountId + gameId 查询
    */
-  async findByAccountAndGame(accountId: string, gameId: string): Promise<GameRoleRow[]> {
+  async findByAccountAndGame(accountId: string, gameId: GameId): Promise<GameRoleRow[]> {
     const predicates = new relationalStore.RdbPredicates(TableName.GAME_ROLE);
     predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
     predicates.and();
@@ -236,7 +237,7 @@ export class GameRoleDao {
       const row = new GameRoleRow();
       row.id         = r.num(CommonCol.ID);
       row.accountId  = r.str(CommonCol.ACCOUNT_ID);
-      row.gameId     = r.str(GameRoleCol.GAME_ID);
+      row.gameId     = r.str(GameRoleCol.GAME_ID) as GameId;
       row.gameBiz    = r.str(GameRoleCol.GAME_BIZ);
       row.gameType   = r.num(GameRoleCol.GAME_TYPE);
       row.roleId     = r.str(GameRoleCol.ROLE_ID);

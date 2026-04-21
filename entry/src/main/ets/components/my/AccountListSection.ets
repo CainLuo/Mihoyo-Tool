@@ -1,3 +1,4 @@
+import { GameId } from 'core';
 /**
  * AccountListSection — 账号列表 Section
  *
@@ -106,7 +107,7 @@ export struct AccountListSectionPreview {
       AccountListSection({
         accounts: [
           new MyAccountVM('user001', 'user001', [
-            new MyGameRoleVM('genshin', $r('app.string.game_name_genshin'), $r('app.color.game_color_genshin'), '123456789', '旅行者', '天空岛', 60, '', [])
+            new MyGameRoleVM(GameId.GENSHIN, $r('app.string.game_name_genshin'), $r('app.color.game_color_genshin'), '123456789', '旅行者', '天空岛', 60, '', [])
           ], '旅行者', ''),
           new MyAccountVM('user002', 'user002', [], '开拓者', '')
         ]

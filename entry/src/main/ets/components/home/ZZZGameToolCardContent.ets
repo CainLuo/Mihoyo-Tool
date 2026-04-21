@@ -1,3 +1,4 @@
+import { GameId } from 'core';
 /**
  * ZZZGameToolCardContent — 绝区零战绩卡片内容区
  */
@@ -128,7 +129,7 @@ export struct ZZZGameToolCardContentPreview {
     Column() {
       ZZZGameToolCardContent({
         snap: (() => {
-          const snap = new GameNoteSnapshotVM('zzz', 180, 240, 3600, '', '', false);
+          const snap = new GameNoteSnapshotVM(GameId.ZZZ, 180, 240, 3600, '', '', false);
           snap.vitalityCurrent = 300;
           snap.vitalityMax = 400;
           snap.scratchCardSign = ZZZCardSign.DONE;

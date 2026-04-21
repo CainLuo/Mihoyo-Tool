@@ -1,3 +1,5 @@
+import { GameId } from '../constants/GameId';
+
 /**
  * GameRoleModels.ets
  *
@@ -91,8 +93,8 @@ export class GameRoleRecord {
   id: number = 0;
   /** 所属账号 ID */
   accountId: number = 0;
-  /** 游戏 ID（genshin / starrail / zzz） */
-  gameId: string = '';
+  /** 游戏 ID */
+  gameId: GameId = GameId.GENSHIN;
   /** 游戏内 UID */
   roleId: string = '';
   /** 游戏内昵称 */

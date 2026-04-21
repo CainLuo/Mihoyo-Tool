@@ -4,7 +4,7 @@
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 import { GameRoleCardVM, GameNoteSnapshotVM } from './HomeModels'
 import { gameIdToName, gameIdToPrimaryLabel } from '../../utils/GameIdUtil'
-import { GameId } from '../../constants/GameId'
+import { GameId } from 'core'
 import { GenshinGameToolCardContent } from './GenshinGameToolCardContent'
 import { StarRailGameToolCardContent } from './StarRailGameToolCardContent'
 import { ZZZGameToolCardContent } from './ZZZGameToolCardContent'
@@ -12,7 +12,7 @@ import { GenericGameToolCardContent } from './GenericGameToolCardContent'
 
 @ComponentV2
 export struct GameToolCard {
-  @Param card: GameRoleCardVM = new GameRoleCardVM('', '', '', '', '', '', null, '')
+  @Param card: GameRoleCardVM = new GameRoleCardVM(GameId.GENSHIN, '', '', '', '', '', null, '')
   @Param onTap: (card: GameRoleCardVM) => void = (_c: GameRoleCardVM) => {}
   @Local private tm: ThemeManager = themeManager
 
@@ -61,7 +61,7 @@ export struct GameToolCard {
           .objectFit(ImageFit.Cover)
 
         Column({ space: this.tm.current.value2 }) {
-          Text(gameIdToName(this.card.gameName))
+          Text(gameIdToName(this.card.gameId))
             .font(this.tm.current.body16Medium)
             .fontColor(this.tm.current.colorTextPrimary)
             .maxLines(1)
@@ -124,7 +124,7 @@ export struct GameToolCard {
         } else {
           GenericGameToolCardContent({
             snap: this.card.snapshot,
-            primaryLabel: gameIdToPrimaryLabel(this.card.gameName),
+            primaryLabel: gameIdToPrimaryLabel(this.card.gameId),
             primaryColor: this.primaryColor(),
             progressRatio: this.progressRatio()
           })
@@ -159,9 +159,9 @@ export struct GameToolCard {
 @Preview
 @ComponentV2
 export struct GameToolCardPreview {
-  @Local private snap: GameNoteSnapshotVM = new GameNoteSnapshotVM('genshin', 120, 200, 10800, '', '', false);
-  @Local private card1: GameRoleCardVM = new GameRoleCardVM('genshin', 'genshin', $r('app.color.game_color_genshin'), '123456789', '旅行者', '天空岛', null, 'sync_just_now');
-  @Local private card2: GameRoleCardVM = new GameRoleCardVM('starrail', 'starrail', $r('app.color.game_color_starrail'), '987654321', '开拓者', '星穹列车', null, 'sync_not_synced');
+  @Local private snap: GameNoteSnapshotVM = new GameNoteSnapshotVM(GameId.GENSHIN, 120, 200, 10800, '', '', false);
+  @Local private card1: GameRoleCardVM = new GameRoleCardVM(GameId.GENSHIN, GameId.GENSHIN, $r('app.color.game_color_genshin'), '123456789', '旅行者', '天空岛', null, 'sync_just_now');
+  @Local private card2: GameRoleCardVM = new GameRoleCardVM(GameId.STARRAIL, GameId.STARRAIL, $r('app.color.game_color_starrail'), '987654321', '开拓者', '星穹列车', null, 'sync_not_synced');
 
   build() {
     Column({ space: 12 }) {

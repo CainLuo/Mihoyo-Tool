@@ -1490,7 +1490,7 @@ Mock 模式下，MockService 从 Cookie 的 `account_id` 字段提取账号标�
 路由目录：`mock/account1/`
 
 ```
-account_id=182692936; cookie_token=mock; ltoken=mock; ltuid=182692936
+account_id=182692936; cookie_token=mock; ltoken=mock; ltuid=182692936; stoken=mock;
 ```
 
 ### Account 2 — 摆烂的班主任（uid: 348366494）
@@ -1498,7 +1498,7 @@ account_id=182692936; cookie_token=mock; ltoken=mock; ltuid=182692936
 路由目录：`mock/account2/`
 
 ```
-account_id=348366494; cookie_token=mock; ltoken=mock; ltuid=348366494
+account_id=348366494; cookie_token=mock; ltoken=mock; ltuid=348366494 stoken=mock;
 ```
 
 > 注意：Mock 模式下 Cookie 的其他字段（`cookie_token`、`ltoken`、`ltuid`）不参与实际验证，只有 `account_id` 用于子目录路由。

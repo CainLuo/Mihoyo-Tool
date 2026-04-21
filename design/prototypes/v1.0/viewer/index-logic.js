@@ -41,6 +41,10 @@ var PAGES = {
     render: renderColorDesign,
     controls: colorDesignControls,
   },
+  "notification-settings": {
+    render: renderNotificationSettings,
+    controls: notificationSettingsControls,
+  },
 };
 
 var curPage = "launch";

@@ -19,7 +19,7 @@ HDC='/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/toolchains
 HVIGOR='/Applications/DevEco-Studio.app/Contents/tools/hvigor/bin/hvigorw'
 export DEVECO_SDK_HOME='/Applications/DevEco-Studio.app/Contents/sdk'
 
-BUNDLE='com.cainluo.mihoyo.tools'
+BUNDLE='com.cainluo.miyoyo.tools'
 TARGET='127.0.0.1:5555'
 AVD="${AVD:-Mate 80 Pro Max}"
 AVD_PATH="$HOME/.Huawei/Emulator/deployed/$AVD"

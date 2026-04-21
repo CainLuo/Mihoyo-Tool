@@ -2,9 +2,11 @@
  * MyModels — My 页面 ViewModel 数据类
  */
 
+import { GameId } from 'core';
+
 /** My 页面游戏角色 */
 export class MyGameRoleVM {
-  gameId: string = ''
+  gameId: GameId = GameId.GENSHIN
   gameName: Resource = $r('app.string.game_name_genshin')
   gameColor: ResourceColor = $r('app.color.color_primary')
   roleUid: string = ''
@@ -18,7 +20,7 @@ export class MyGameRoleVM {
   stats: GameStatItem[] = []
 
   constructor(
-    gameId: string,
+    gameId: GameId,
     gameName: Resource,
     gameColor: ResourceColor,
     roleUid: string,

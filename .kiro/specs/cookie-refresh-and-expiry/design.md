@@ -436,7 +436,7 @@ for (let i = 0; i < 100; i++) {
 
 ```bash
 HDC='/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/toolchains/hdc'
-DB_PATH='/data/app/el2/100/base/com.cainluo.mihoyo.tools.mock/haps/entry/databases/mihoyo_tool_v2.db'
+DB_PATH='/data/app/el2/100/base/com.cainluo.miyoyo.tools.mock/haps/entry/databases/mihoyo_tool_v2.db'
 ```
 
 或者直接进入模拟器 shell 操作（更简单）：

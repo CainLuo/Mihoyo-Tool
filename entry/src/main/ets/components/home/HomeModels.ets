@@ -5,12 +5,7 @@
  * 每个游戏角色携带该游戏的实时便签摘要。
  */
 import { ZZZVideoStoreState, ZZZCardSign } from '../../constants/ZZZEnums';
-
-// ---- 游戏 ID 枚举 ----
-export const GAME_GENSHIN = 'genshin'
-export const GAME_STARRAIL = 'starrail'
-export const GAME_ZZZ = 'zzz'
-export const GAME_HONKAI3 = 'honkai3'
+import { GameId } from 'core';
 
 /** 游戏便签摘要 — 展示核心指标 */
 export class GameNoteSnapshotVM {
@@ -100,8 +95,8 @@ export class GameNoteSnapshotVM {
 
 /** 单个游戏角色卡片 ViewModel */
 export class GameRoleCardVM {
-  /** 游戏 ID，对应 GAME_* 常量 */
-  gameId: string = ''
+  /** 游戏 ID */
+  gameId: GameId = GameId.GENSHIN
   /** 游戏显示名称 */
   gameName: string = ''
   /** 游戏主题色（用于卡片顶部色条） */
@@ -118,7 +113,7 @@ export class GameRoleCardVM {
   lastSyncDesc: string = ''
 
   constructor(
-    gameId: string,
+    gameId: GameId,
     gameName: string,
     gameColor: ResourceColor,
     roleUid: string,

@@ -7,14 +7,14 @@
  */
 import { ThemeManager, themeManager } from '../../theme/ThemeManager'
 import { MyGameRoleVM, GameStatItem } from '../my/MyModels'
-import { GameId } from '../../constants/GameId'
+import { GameId } from 'core'
 
 @ComponentV2
 export struct AccountRolesSection {
   @Param tm: ThemeManager = new ThemeManager()
   @Param roles: MyGameRoleVM[] = []
 
-  private gameLogoResource(gameId: string): Resource {
+  private gameLogoResource(gameId: GameId): Resource {
     if (gameId === GameId.GENSHIN) { return $r('app.media.logo_genshin') }
     if (gameId === GameId.STARRAIL) { return $r('app.media.logo_starrail') }
     if (gameId === GameId.ZZZ) { return $r('app.media.logo_zzz') }
@@ -189,7 +189,7 @@ export struct AccountRolesSectionPreview {
       AccountRolesSection({
         tm: themeManager,
         roles: [
-          new MyGameRoleVM('genshin', $r('app.string.game_name_genshin'), $r('app.color.game_color_genshin'), '123456789', '旅行者', '天空岛', 60, '', [
+          new MyGameRoleVM(GameId.GENSHIN, $r('app.string.game_name_genshin'), $r('app.color.game_color_genshin'), '123456789', '旅行者', '天空岛', 60, '', [
             new GameStatItem('活跃天数', '365'),
             new GameStatItem('成就数', '800'),
             new GameStatItem('角色数', '50'),

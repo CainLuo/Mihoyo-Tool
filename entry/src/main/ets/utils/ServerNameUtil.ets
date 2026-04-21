@@ -15,8 +15,7 @@
  * - 国服渠道服（region 含 'qd'）
  * - 国际服（region 含 'os' 或 'prod_official'）
  */
-import { GenshinServer, StarRailServer, ZZZServer } from 'core';
-import { GameId } from '../constants/GameId';
+import { GenshinServer, StarRailServer, ZZZServer, GameId } from 'core';
 
 /**
  * 将服务器原始标识符转换为多语言显示名称。
@@ -25,7 +24,7 @@ import { GameId } from '../constants/GameId';
  * @param server  服务器标识符（来自 API region 字段）
  * @param gameId  游戏标识（GameId enum 值）
  */
-export function serverDisplayName(server: string, gameId: string): Resource | null {
+export function serverDisplayName(server: string, gameId: GameId): Resource | null {
   if (gameId === GameId.GENSHIN) {
     if (server === GenshinServer.CN_OFFICIAL) {
       return $r('app.string.server_genshin_cn_official');

@@ -1190,7 +1190,7 @@ export DEVECO_SDK_HOME='/Applications/DevEco-Studio.app/Contents/sdk'
 
 ```bash
 # 3. 启动 App
-/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/toolchains/hdc -t 127.0.0.1:5555 shell aa start -b com.cainluo.mihoyo.tools.mock -a EntryAbility
+/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/toolchains/hdc -t 127.0.0.1:5555 shell aa start -b com.cainluo.miyoyo.tools.mock -a EntryAbility
 ```
 
 **必须等待每步命令返回结果后再执行下一步。** 如果构建失败，立即根据错误信息修复，不得跳过。
@@ -1199,7 +1199,7 @@ export DEVECO_SDK_HOME='/Applications/DevEco-Studio.app/Contents/sdk'
 
 - 模拟器：**Mate 80 Pro Max**
 - 连接地址：`127.0.0.1:5555`
-- Bundle ID（mock）：`com.cainluo.mihoyo.tools.mock`
+- Bundle ID（mock）：`com.cainluo.miyoyo.tools.mock`
 
 ### 禁止行为
 

@@ -8,15 +8,15 @@
  * 验证完成后，View 层调用 HomeViewModel.onGeetestResult() 传回验证结果，
  * ViewModel 用 cookie + gameId + roleId + server 重新发起同步请求。
  */
-import { GeetestCreateResult } from 'core';
+import { GeetestCreateResult, GameId } from 'core';
 
 export class GeetestTrigger {
   /** Geetest 创建结果（含 gt、challenge 等验证参数） */
   createResult: GeetestCreateResult;
   /** 触发验证的账号 Cookie */
   cookie: string;
-  /** 触发验证的游戏 ID（genshin / starrail / zzz） */
-  gameId: string;
+  /** 触发验证的游戏 ID */
+  gameId: GameId;
   /** 触发验证的游戏角色 UID */
   roleId: string;
   /** 触发验证的游戏服务器 */
@@ -27,7 +27,7 @@ export class GeetestTrigger {
   constructor(
     createResult: GeetestCreateResult,
     cookie: string,
-    gameId: string,
+    gameId: GameId,
     roleId: string,
     server: string,
     accountId: string

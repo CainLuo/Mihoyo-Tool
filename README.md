@@ -77,9 +77,9 @@ ohpm.cmd install
 
 | Product   | Bundle ID                        | App 名称     | 说明                         |
 | --------- | -------------------------------- | ------------ | ---------------------------- |
-| `default` | `com.cainluo.mihoyo.tools`       | 米悠悠       | 正式发布，连接真实 API       |
-| `mock`    | `com.cainluo.mihoyo.tools.mock`  | 米悠悠-mock  | 本地 Mock 数据，日常开发首选 |
-| `debug`   | `com.cainluo.mihoyo.tools.debug` | 米悠悠-debug | 真实 API，可配合抓包工具调试 |
+| `default` | `com.cainluo.miyoyo.tools`       | 米悠悠       | 正式发布，连接真实 API       |
+| `mock`    | `com.cainluo.miyoyo.tools.mock`  | 米悠悠-mock  | 本地 Mock 数据，日常开发首选 |
+| `debug`   | `com.cainluo.miyoyo.tools.debug` | 米悠悠-debug | 真实 API，可配合抓包工具调试 |
 
 三个环境可以同时安装在设备上，互不干扰。
 
@@ -202,7 +202,7 @@ ohpm install
 **解决方案**：在 `Run → Edit Configurations → entry → Launch Flags` 中填入：
 
 ```
--b com.cainluo.mihoyo.tools.mock -a EntryAbility
+-b com.cainluo.miyoyo.tools.mock -a EntryAbility
 ```
 
 （根据当前选择的 product 替换对应的 bundle id）

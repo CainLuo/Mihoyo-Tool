@@ -1195,6 +1195,138 @@
     {
       "name": "feedback_refresh_error",
       "value": "刷新失败，请检查网络连接"
+    },
+    {
+      "name": "permission_reason_agent_reminder",
+      "value": "用于在游戏体力值达到设定值时推送本地提醒通知"
+    },
+    {
+      "name": "my_section_notification",
+      "value": "通知设置"
+    },
+    {
+      "name": "notification_master_switch",
+      "value": "通知提醒"
+    },
+    {
+      "name": "notification_master_switch_desc",
+      "value": "体力值达到设定值时推送系统提醒，App 关闭后仍有效"
+    },
+    {
+      "name": "notification_permission_denied_title",
+      "value": "通知权限未开启"
+    },
+    {
+      "name": "notification_permission_denied_desc",
+      "value": "请前往系统设置 → 应用 → 米悠悠 → 通知，手动开启通知权限"
+    },
+    {
+      "name": "notification_slot_usage",
+      "value": "提醒配额"
+    },
+    {
+      "name": "notification_slot_usage_desc",
+      "value": "每个游戏最多可设置 1 个提醒，全部游戏合计上限 30 个"
+    },
+    {
+      "name": "notification_style_section",
+      "value": "通知样式"
+    },
+    {
+      "name": "notification_style_a_title",
+      "value": "样式 A · 独立通知"
+    },
+    {
+      "name": "notification_style_a_desc",
+      "value": "每个游戏角色独立发送一条通知"
+    },
+    {
+      "name": "notification_style_b_title",
+      "value": "样式 B · 合并通知"
+    },
+    {
+      "name": "notification_style_b_desc",
+      "value": "多个游戏合并为一条通知，展开后最多显示 3 行"
+    },
+    {
+      "name": "notification_threshold_section",
+      "value": "各账号提醒设置"
+    },
+    {
+      "name": "notification_game_count",
+      "value": "%d 个游戏"
+    },
+    {
+      "name": "notification_max_from_api",
+      "value": "上限 %d，每点 %d 分钟恢复"
+    },
+    {
+      "name": "notification_max_pending",
+      "value": "上限待同步，每点 %d 分钟恢复"
+    },
+    {
+      "name": "notification_full_value_shortcut",
+      "value": "满值时通知"
+    },
+    {
+      "name": "notification_full_value_shortcut_desc",
+      "value": "一键将此账号所有游戏的提醒值设为满值"
+    },
+    {
+      "name": "notification_full_value_set",
+      "value": "设置"
+    },
+    {
+      "name": "notification_limit_dialog_title",
+      "value": "提醒数量已达上限"
+    },
+    {
+      "name": "notification_limit_dialog_msg",
+      "value": "当前提醒数量已达上限（30 个），请先关闭部分游戏的通知开关，再开启新的通知。"
+    },
+    {
+      "name": "notification_limit_dialog_confirm",
+      "value": "我知道了"
+    },
+    {
+      "name": "notification_content_title_style_a",
+      "value": "%s · %s"
+    },
+    {
+      "name": "notification_content_body_style_a",
+      "value": "%s已达 %d/%d，请及时消耗"
+    },
+    {
+      "name": "notification_content_sub_style_a",
+      "value": "%s · UID %s"
+    },
+    {
+      "name": "notification_content_title_style_b_collapsed",
+      "value": "米悠悠 · %d 项体力提醒"
+    },
+    {
+      "name": "notification_content_title_style_b_expanded",
+      "value": "游戏体力提醒"
+    },
+    {
+      "name": "notification_content_line_style_b",
+      "value": "%s：%s %d/%d 已满"
+    },
+    {
+      "name": "notification_action_close",
+      "value": "关闭"
+    },
+    {
+      "name": "notification_stamina_genshin",
+      "value": "原粹树脂"
+    },
+    {
+      "name": "notification_stamina_starrail",
+      "value": "开拓力"
+    },
+    {
+      "name": "notification_stamina_zzz",
+      "value": "电量"
     }
   ]
 }
