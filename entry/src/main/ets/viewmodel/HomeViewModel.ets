@@ -45,7 +45,7 @@ import {
   GameNoteSnapshotVM,
   GameDataRowVM,
 } from '../models/HomeModels';
-import { ZZZVideoStoreState, ZZZCardSign } from '../constants/ZZZEnums';
+import { ZZZVideoStoreState, ZZZCardSign } from 'core';
 import { ViewState } from '../constants/ViewStates';
 import { AppConstants } from '../constants/AppConstants';
 import { StaminaNotificationService } from '../notification/StaminaNotificationService';

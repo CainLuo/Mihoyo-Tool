@@ -4,7 +4,7 @@
  * 以用户为单位，每个用户下有多个游戏角色，
  * 每个游戏角色携带该游戏的实时便签摘要。
  */
-import { ZZZVideoStoreState, ZZZCardSign } from '../constants/ZZZEnums';
+import { ZZZVideoStoreState, ZZZCardSign } from 'core';
 import { GameId } from 'core';
 
 /**
