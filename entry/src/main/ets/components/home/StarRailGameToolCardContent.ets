@@ -3,7 +3,7 @@ import { GameId } from 'core';
  * StarRailGameToolCardContent — 崩坏：星穹铁道战绩卡片内容区
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
-import { GameNoteSnapshotVM } from './HomeModels'
+import { GameNoteSnapshotVM } from '../../models/HomeModels'
 import { GameDataRow } from './GameDataRow'
 import { TimeFormatUtil } from '../../utils/TimeFormatUtil'
 

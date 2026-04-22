@@ -12,6 +12,7 @@ import { ApiLogSystem, LogFileManager, LogExporter } from 'core'
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 import { showFeedback } from '../../utils/FeedbackUtil'
 import { FeedbackType } from '../../constants/FeedbackType'
+import { SettingRow } from '../SettingRow'
 
 @ComponentV2
 export struct AboutSection {
@@ -76,34 +77,27 @@ export struct AboutSection {
   build() {
     Column() {
       // 导出日志
-      this.ActionRow($r('app.string.my_export_logs'), '', () => { this.onExportLogs(); })
+      SettingRow({
+        label: $r('app.string.my_export_logs'),
+        onTap: () => { this.onExportLogs() }
+      })
       Divider()
         .color(this.tm.current.colorDivider)
         .margin({ left: this.tm.current.value16 })
-      // 清理缓存（右侧直接读 this.logSize，确保响应式更新）
-      Row() {
-        Text($r('app.string.my_clear_cache'))
-          .font(this.tm.current.body16)
-          .fontColor(this.tm.current.colorTextPrimary)
-          .layoutWeight(1)
-        Text(this.logSize)
-          .font(this.tm.current.body16)
-          .fontColor(this.tm.current.colorTextSecondary)
-          .margin({ right: this.tm.current.value8 })
-        Text($r('app.string.common_arrow_right'))
-          .font(this.tm.current.body16)
-          .fontColor(this.tm.current.colorTextSecondary)
-      }
-      .width(this.tm.current.full)
-      .height(this.tm.current.value50)
-      .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
-      .alignItems(VerticalAlign.Center)
-      .onClick(() => { this.onClearCache(); })
+      // 清理缓存（右侧实时显示日志大小）
+      SettingRow({
+        label: $r('app.string.my_clear_cache'),
+        value: this.logSize,
+        onTap: () => { this.onClearCache() }
+      })
       Divider()
         .color(this.tm.current.colorDivider)
         .margin({ left: this.tm.current.value16 })
-      // 版本号
-      this.AboutRow($r('app.string.my_about_version'), BuildProfile.VERSION_NAME, false)
+      // 版本号（纯展示，不可点击）
+      SettingRow({
+        label: $r('app.string.my_about_version'),
+        value: BuildProfile.VERSION_NAME
+      })
     }
     .width(this.tm.current.full)
     .backgroundColor(this.tm.current.colorSurfaceCard)
@@ -111,52 +105,9 @@ export struct AboutSection {
     .clip(true)
     .onVisibleAreaChange([0.0, 1.0], (isVisible: boolean, _ratio: number) => {
       if (isVisible) {
-        this.refreshLogSize();
+        this.refreshLogSize()
       }
     })
-  }
-
-  @Builder
-  private ActionRow(label: ResourceStr, value: string, onTap: () => void) {
-    Row() {
-      Text(label)
-        .font(this.tm.current.body16)
-        .fontColor(this.tm.current.colorTextPrimary)
-        .layoutWeight(1)
-      if (value !== '') {
-        Text(value)
-          .font(this.tm.current.body16)
-          .fontColor(this.tm.current.colorTextSecondary)
-          .margin({ right: this.tm.current.value8 })
-      }
-      Text($r('app.string.common_arrow_right'))
-        .font(this.tm.current.body16)
-        .fontColor(this.tm.current.colorTextSecondary)
-    }
-    .width(this.tm.current.full)
-    .height(this.tm.current.value50)
-    .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
-    .alignItems(VerticalAlign.Center)
-    .onClick(onTap)
-  }
-
-  @Builder
-  private AboutRow(label: ResourceStr, value: ResourceStr | string, isLink: boolean) {
-    Row() {
-      Text(label)
-        .font(this.tm.current.body16)
-        .fontColor(this.tm.current.colorTextPrimary)
-        .layoutWeight(1)
-      Text(value)
-        .font(this.tm.current.body16)
-        .fontColor(isLink ? this.tm.current.colorPrimary : this.tm.current.colorTextSecondary)
-        .maxLines(1)
-        .textOverflow({ overflow: TextOverflow.Ellipsis })
-    }
-    .width(this.tm.current.full)
-    .height(this.tm.current.value50)
-    .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
-    .alignItems(VerticalAlign.Center)
   }
 }
 

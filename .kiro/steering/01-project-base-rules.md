@@ -41,6 +41,7 @@ When editing existing code:
 When your changes create orphans:
 
 - Remove imports/variables/functions that YOUR changes made unused.
+- **Every edit to a file must end with an import cleanup pass**: scan all `import` statements and remove any that are no longer referenced in the file after your changes.
 - Don't remove pre-existing dead code unless asked.
 
 The test: Every changed line should trace directly to the user's request.
@@ -65,6 +66,23 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
+**For large tasks (more than ~5 files to read or write):**
+
+- Break into batches of 3–5 files maximum per round
+- After each batch, report what was done and what remains
+- This allows the user to resume from the last completed batch if execution stalls
+
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+
+## 5. Response Style
+
+**Never reply with only "Understood" or acknowledgment phrases without action or content.**
+
+- If the message is a task → start doing it immediately, no preamble.
+- If the message is information/context → acknowledge briefly AND state what you'll do next, or ask a specific question if genuinely unclear.
+- If the message is a question → answer it directly.
+- All responses must be in **Simplified Chinese (简体中文)** unless the user writes in another language.
+
+Banned openers: "Understood", "Got it", "Sure", "Of course", "Certainly", "I'll help you with that".

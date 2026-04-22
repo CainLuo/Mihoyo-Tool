@@ -2,7 +2,7 @@
  * GameToolCard — 游戏战绩工具卡片（首页）
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
-import { GameRoleCardVM, GameNoteSnapshotVM } from './HomeModels'
+import { GameRoleCardVM, GameNoteSnapshotVM } from '../../models/HomeModels'
 import { gameIdToName, gameIdToPrimaryLabel } from '../../utils/GameIdUtil'
 import { GameId } from 'core'
 import { GenshinGameToolCardContent } from './GenshinGameToolCardContent'

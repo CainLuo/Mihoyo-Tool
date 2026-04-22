@@ -5,7 +5,7 @@ import { GameId } from 'core';
  * 支持点击 header 折叠/展开卡片列表，带 animateTo 动画。
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
-import { MihoyoAccountVM, GameRoleCardVM } from './HomeModels'
+import { MihoyoAccountVM, GameRoleCardVM } from '../../models/HomeModels'
 import { GameToolCard } from './GameToolCard'
 
 @ComponentV2

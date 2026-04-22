@@ -1,4 +1,3 @@
-import { GameId } from 'core';
 /**
  * AccountListSection — 账号列表 Section
  *
@@ -6,7 +5,8 @@ import { GameId } from 'core';
  * My 页和 Setting 页均可复用。
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
-import { MyAccountVM, MyGameRoleVM } from './MyModels'
+import { MyAccountVM, MyGameRoleVM } from '../../models/MyModels'
+import { GameId } from 'core'
 
 @ComponentV2
 export struct AccountListSection {
@@ -36,7 +36,7 @@ export struct AccountListSection {
                   .height(this.tm.current.value36)
                   .borderRadius(this.tm.current.radius12)
                   .objectFit(ImageFit.Cover)
-                  .border({ width: 2, color: this.tm.current.colorPrimary })
+                  .border({ width: this.tm.current.value2, color: this.tm.current.colorPrimary })
               } else {
                 Row()
                   .width(this.tm.current.value36)
@@ -50,7 +50,7 @@ export struct AccountListSection {
                   .fontColor(this.tm.current.colorTextPrimary)
                   .maxLines(1)
                   .textOverflow({ overflow: TextOverflow.Ellipsis })
-                Text('UID ' + (account.uid !== '' ? account.uid : account.username) + ' · ' + account.roles.length.toString() + ' 个游戏角色')
+                Text($r('app.string.my_account_role_count', account.roles.length))
                   .font(this.tm.current.body13)
                   .fontColor(this.tm.current.colorTextSecondary)
               }
@@ -76,7 +76,7 @@ export struct AccountListSection {
           if (idx < this.accounts.length - 1) {
             Divider().color(this.tm.current.colorDivider).margin({ left: this.tm.current.value16 })
           }
-        }, (account: MyAccountVM) => `${account.accountId}_${account.roles.length}`)
+        }, (account: MyAccountVM) => account.accountId)
       }
 
       Divider().color(this.tm.current.colorDivider)

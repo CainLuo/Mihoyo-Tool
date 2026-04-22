@@ -8,7 +8,7 @@
 import display from '@ohos.display'
 import { window } from '@kit.ArkUI'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
-import { DailyNoteGenshin } from '../components/dailynote/DailyNoteGenshin'
+import { DailyNoteGenshin } from '../components/dailynote/genshin/DailyNoteGenshin'
 import { GenshinDailyDetailViewModel } from '../viewmodel/GenshinDailyDetailViewModel'
 import { ViewState } from '../constants/ViewStates'
 

@@ -3,7 +3,7 @@ import { GameId } from 'core';
  * ZZZGameToolCardContent — 绝区零战绩卡片内容区
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
-import { GameNoteSnapshotVM } from './HomeModels'
+import { GameNoteSnapshotVM } from '../../models/HomeModels'
 import { GameDataRow } from './GameDataRow'
 import { ZZZVideoStoreState, ZZZCardSign } from '../../constants/ZZZEnums'
 import { TimeFormatUtil } from '../../utils/TimeFormatUtil'

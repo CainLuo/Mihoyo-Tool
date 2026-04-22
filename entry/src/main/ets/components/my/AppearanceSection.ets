@@ -3,12 +3,8 @@
  *
  * 主题模式切换（浅色 / 深色 / 跟随系统）。
  */
-import { ConfigurationConstant, common } from '@kit.AbilityKit'
+import { ConfigurationConstant } from '@kit.AbilityKit'
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
-import { AppearanceManager } from '../../utils/AppearanceManager'
-import { Logger } from 'core'
-
-const TAG: string = 'AppearanceSection'
 
 @ComponentV2
 export struct AppearanceSection {

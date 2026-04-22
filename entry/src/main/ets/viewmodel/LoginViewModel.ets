@@ -22,7 +22,7 @@ import {
 } from 'core';
 import { Logger } from 'core';
 import { LoginTab, PhoneStep, QRCodeStat } from '../constants/LoginTabEnum';
-import { MyAccountVM, MyGameRoleVM, GameStatItem } from '../components/my/MyModels';
+import { MyAccountVM, MyGameRoleVM, GameStatItem } from '../models/MyModels';
 import { serverDisplayName } from '../utils/ServerNameUtil';
 import { gameIdToName, gameIdToColor } from '../utils/GameIdUtil';
 

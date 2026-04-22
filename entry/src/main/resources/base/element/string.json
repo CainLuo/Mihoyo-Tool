@@ -965,6 +965,10 @@
       "value": "技能"
     },
     {
+      "name": "char_detail_skill_default_name",
+      "value": "技能 %d"
+    },
+    {
       "name": "char_detail_section_weapon",
       "value": "武器"
     },
@@ -1001,6 +1005,30 @@
       "value": "理之冠"
     },
     {
+      "name": "starrail_relic_pos_head",
+      "value": "头部"
+    },
+    {
+      "name": "starrail_relic_pos_hand",
+      "value": "手部"
+    },
+    {
+      "name": "starrail_relic_pos_body",
+      "value": "躯干"
+    },
+    {
+      "name": "starrail_relic_pos_feet",
+      "value": "脚部"
+    },
+    {
+      "name": "starrail_relic_pos_sphere",
+      "value": "位面球"
+    },
+    {
+      "name": "starrail_relic_pos_rope",
+      "value": "连结绳"
+    },
+    {
       "name": "starrail_daily_title",
       "value": "星穹铁道便笺"
     },
@@ -1035,6 +1063,10 @@
     {
       "name": "daily_note_reserve_full",
       "value": "已满"
+    },
+    {
+      "name": "daily_note_reserve_stamina_full_value",
+      "value": "%d (已满)"
     },
     {
       "name": "daily_note_expedition_sr",
@@ -1143,6 +1175,10 @@
     {
       "name": "daily_note_temple_idle",
       "value": "空闲"
+    },
+    {
+      "name": "daily_note_temple_currency",
+      "value": "货币: %d"
     },
     {
       "name": "daily_note_member_no",
@@ -1327,6 +1363,30 @@
     {
       "name": "notification_stamina_zzz",
       "value": "电量"
+    },
+    {
+      "name": "notification_warning_icon",
+      "value": "⚠️"
+    },
+    {
+      "name": "notification_game_stamina_label",
+      "value": "%s · %s"
+    },
+    {
+      "name": "notification_stamina_max_suffix",
+      "value": "/ %d"
+    },
+    {
+      "name": "notification_stamina_max_unknown",
+      "value": "/ —"
+    },
+    {
+      "name": "common_dot_separator",
+      "value": "·"
+    },
+    {
+      "name": "common_uid_format",
+      "value": "UID %s"
     }
   ]
 }

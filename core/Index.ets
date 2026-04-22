@@ -40,7 +40,8 @@ export * from './src/main/ets/models/GameRoleRow';
 export * from './src/main/ets/models/GenshinRows';
 export * from './src/main/ets/models/StarRailRows';
 export * from './src/main/ets/models/ZZZRows';
-export * from './src/main/ets/models/GameDataSummary';export * from './src/main/ets/models/SyncMetaRow';
+export * from './src/main/ets/models/GameDataSummary';
+export * from './src/main/ets/models/SyncMetaRow';
 export * from './src/main/ets/models/SyncTask';
 export * from './src/main/ets/models/GenshinCharacterDetailRaw';
 export * from './src/main/ets/models/StarRailAvatarDetailRaw';
@@ -78,6 +79,10 @@ export * from './src/main/ets/constants/ZZZPropertyId';
 export * from './src/main/ets/constants/GameServer';
 export * from './src/main/ets/constants/GameId';
 export * from './src/main/ets/constants/ApiConstants';
+export * from './src/main/ets/constants/GenshinElement';
+export * from './src/main/ets/constants/StarRailElement';
+export * from './src/main/ets/constants/ZZZElement';
+export * from './src/main/ets/constants/ZZZEnums';
 export * from './src/main/ets/database/TableSchema';
 
 // ── 网络层完整导出 ──────────────────────────────────────────

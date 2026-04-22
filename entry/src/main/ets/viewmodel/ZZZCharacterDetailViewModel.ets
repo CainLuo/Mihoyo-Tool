@@ -22,7 +22,7 @@ import {
   ZZZCharDetailEquip,
   ZZZSuitSummary,
   ZZZCharDetailProperty
-} from '../components/chardetail/CharDetailModels';
+} from '../models/CharDetailModels';
 
 const TAG: string = 'ZZZCharacterDetailViewModel';
 

@@ -22,7 +22,7 @@ import {
   StarRailCharDetailEquip,
   StarRailCharDetailProperty,
   StarRailRelicSubStat
-} from '../components/chardetail/CharDetailModels';
+} from '../models/CharDetailModels';
 
 const TAG: string = 'StarRailCharacterDetailViewModel';
 

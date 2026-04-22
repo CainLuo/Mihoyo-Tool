@@ -3,7 +3,7 @@ import { GameId } from 'core';
  * GenericGameToolCardContent — 通用游戏战绩卡片内容区（崩坏3等）
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
-import { GameNoteSnapshotVM } from './HomeModels'
+import { GameNoteSnapshotVM } from '../../models/HomeModels'
 import { TimeFormatUtil } from '../../utils/TimeFormatUtil'
 
 @ComponentV2

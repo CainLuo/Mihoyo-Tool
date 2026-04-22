@@ -13,7 +13,7 @@ import {
   GenshinDailyNoteVM,
   GenshinDailyTaskVM,
   ExpeditionVM
-} from '../components/dailynote/DailyNoteModels';
+} from '../models/DailyNoteModels';
 import { Logger } from 'core';
 import { ViewState } from '../constants/ViewStates';
 

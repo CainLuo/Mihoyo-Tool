@@ -5,7 +5,7 @@
 import display from '@ohos.display'
 import { window } from '@kit.ArkUI'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
-import { DailyNoteStarRail } from '../components/dailynote/DailyNoteStarRail'
+import { DailyNoteStarRail } from '../components/dailynote/starrail/DailyNoteStarRail'
 import { StarRailDailyDetailViewModel } from '../viewmodel/StarRailDailyDetailViewModel'
 import { ViewState } from '../constants/ViewStates'
 

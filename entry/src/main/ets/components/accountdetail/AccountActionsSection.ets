@@ -1,12 +1,14 @@
 /**
  * AccountActionsSection — 账号详情页操作区块
+ *
+ * 展示删除账号按钮，点击后触发 onDelete 回调。
  */
-import { ThemeManager, themeManager } from '../../theme/ThemeManager'
+import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 
 @ComponentV2
 export struct AccountActionsSection {
-  @Param tm: ThemeManager = new ThemeManager()
   @Param onDelete: () => void = () => {}
+  @Local private tm: ThemeManager = themeManager
 
   build() {
     Column() {
@@ -33,7 +35,7 @@ export struct AccountActionsSection {
 export struct AccountActionsSectionPreview {
   build() {
     Column() {
-      AccountActionsSection({ tm: themeManager })
+      AccountActionsSection()
     }
     .padding(16)
     .backgroundColor('#1a1a2e')

@@ -21,6 +21,14 @@ export function gameIdToColor(gameId: GameId): ResourceColor {
   return $r('app.color.color_primary')
 }
 
+/** 将 gameId 映射为游戏 logo 资源 */
+export function gameIdToLogo(gameId: GameId): Resource {
+  if (gameId === GameId.GENSHIN)  { return $r('app.media.logo_genshin') }
+  if (gameId === GameId.STARRAIL) { return $r('app.media.logo_starrail') }
+  if (gameId === GameId.ZZZ)      { return $r('app.media.logo_zzz') }
+  return $r('app.media.logo_honkai3')
+}
+
 /** 将 gameId 映射为主要资源标签（树脂/开拓力等） */
 export function gameIdToPrimaryLabel(gameId: GameId): Resource {
   if (gameId === GameId.GENSHIN) { return $r('app.string.daily_note_resin_title') }

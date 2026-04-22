@@ -5,9 +5,9 @@
  */
 import { CoreInitializer, RoleStatItem } from 'core';
 import { Logger } from 'core';
-import { MyAccountVM, MyGameRoleVM, GameStatItem } from '../components/my/MyModels';
+import { MyAccountVM, MyGameRoleVM, GameStatItem } from '../models/MyModels';
 import { serverDisplayName } from '../utils/ServerNameUtil';
-import { gameIdToName, gameIdToColor } from '../utils/GameIdUtil';
+import { gameIdToName, gameIdToColor, gameIdToLogo } from '../utils/GameIdUtil';
 import { ViewState } from '../constants/ViewStates';
 
 const TAG: string = 'MyViewModel';
@@ -44,7 +44,7 @@ export class MyViewModel {
           roleVMs[roleVMs.length] = new MyGameRoleVM(
             r.gameId, gameIdToName(r.gameId), gameIdToColor(r.gameId),
             r.roleId, r.nickname, serverDisplayName(r.server, r.gameId) ?? r.server,
-            r.level, r.bgImageUrl, stats
+            r.level, r.bgImageUrl, stats, gameIdToLogo(r.gameId)
           );
         }
         vms[vms.length] = new MyAccountVM(row.uid, row.username, roleVMs, row.nickname, row.avatarUrl, row.uid);

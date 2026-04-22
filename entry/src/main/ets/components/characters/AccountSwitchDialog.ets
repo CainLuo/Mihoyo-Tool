@@ -90,7 +90,7 @@ export struct AccountSwitchDialog {
                   .fontColor(this.tm.current.colorTextPrimary)
                   .maxLines(1)
                   .textOverflow({ overflow: TextOverflow.Ellipsis })
-                Text(opt.uid !== '' ? 'UID: ' + opt.uid : opt.username)
+                Text(opt.uid !== '' ? $r('app.string.common_uid_format', opt.uid) : opt.username)
                   .font(this.tm.current.body13)
                   .fontColor(this.tm.current.colorTextSecondary)
                   .maxLines(1)

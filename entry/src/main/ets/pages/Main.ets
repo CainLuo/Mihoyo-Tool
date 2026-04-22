@@ -17,7 +17,7 @@ import { GenshinDailyDetail, GenshinDailyDetailParam } from './GenshinDailyDetai
 import { GenshinCharacterDetailParam, GenshinCharacterDetail } from './GenshinCharacterDetail'
 import { AccountDetail } from './AccountDetail'
 import { Login } from './Login'
-import { MyAccountVM } from '../components/my/MyModels'
+import { MyAccountVM } from '../models/MyModels'
 import { AppRoutes } from '../constants/AppRoutes'
 import { splitPlaceholderBuilder } from '../components/SplitPlaceholder'
 import { CookieExpiredSignal } from '../utils/CookieExpiredSignal'

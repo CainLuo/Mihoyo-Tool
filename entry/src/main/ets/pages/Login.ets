@@ -64,7 +64,7 @@ export struct Login {
   onShowNoStokenDialog(_monitor: IMonitor): void {
     if (!this.vm.showNoStokenDialog) { return }
     this.vm.showNoStokenDialog = false
-    AlertDialog.show({
+    this.getUIContext().showAlertDialog({
       title: $r('app.string.login_cookie_no_stoken_title'),
       message: $r('app.string.login_cookie_no_stoken'),
       confirm: {

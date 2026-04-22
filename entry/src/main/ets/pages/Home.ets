@@ -6,7 +6,7 @@
  */
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { HomeViewModel } from '../viewmodel/HomeViewModel'
-import { MihoyoAccountVM, GameRoleCardVM } from '../components/home/HomeModels'
+import { MihoyoAccountVM, GameRoleCardVM } from '../models/HomeModels'
 import { UserGameSection } from '../components/home/UserGameSection'
 import { HomeSkeletonView } from '../components/home/HomeSkeletonView'
 import { HomePlaceholderView } from '../components/home/HomePlaceholderView'

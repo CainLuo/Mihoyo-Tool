@@ -3,7 +3,7 @@
  */
 import { ThemeManager } from '../../theme/ThemeManager'
 import { HomeViewModel } from '../../viewmodel/HomeViewModel'
-import { MihoyoAccountVM, GameRoleCardVM } from './HomeModels'
+import { MihoyoAccountVM, GameRoleCardVM } from '../../models/HomeModels'
 import { UserGameSection } from './UserGameSection'
 import { HomeSkeletonView } from './HomeSkeletonView'
 import { HomePlaceholderView } from './HomePlaceholderView'

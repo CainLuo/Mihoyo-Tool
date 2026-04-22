@@ -43,7 +43,7 @@ import {
   MihoyoAccountVM,
   GameRoleCardVM,
   GameNoteSnapshotVM,
-} from '../components/home/HomeModels';
+} from '../models/HomeModels';
 import { ZZZVideoStoreState, ZZZCardSign } from '../constants/ZZZEnums';
 import { ViewState } from '../constants/ViewStates';
 import { AppConstants } from '../constants/AppConstants';

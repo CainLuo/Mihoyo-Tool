@@ -5,7 +5,7 @@
 import display from '@ohos.display'
 import { window } from '@kit.ArkUI'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
-import { DailyNoteZZZ } from '../components/dailynote/DailyNoteZZZ'
+import { DailyNoteZZZ } from '../components/dailynote/zzz/DailyNoteZZZ'
 import { ZZZDailyDetailViewModel } from '../viewmodel/ZZZDailyDetailViewModel'
 import { ViewState } from '../constants/ViewStates'
 
