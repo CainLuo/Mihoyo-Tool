@@ -9,13 +9,6 @@ export struct NotificationSlotUsage {
   @Param vm: NotificationSettingsViewModel = new NotificationSettingsViewModel()
   @Local private tm: ThemeManager = themeManager
 
-  private slotColor(): Resource {
-    const ratio = this.vm.reminderUsed / this.vm.reminderLimit
-    if (ratio >= 1) { return $r('app.color.color_danger') }
-    if (ratio >= 0.8) { return $r('app.color.color_warning') }
-    return $r('app.color.color_primary')
-  }
-
   build() {
     Column({ space: this.tm.current.value8 }) {
       Row() {
@@ -23,9 +16,10 @@ export struct NotificationSlotUsage {
           .font(this.tm.current.body13)
           .fontColor(this.tm.current.colorTextPrimary)
           .layoutWeight(1)
+
         Text(`${this.vm.reminderUsed} / ${this.vm.reminderLimit}`)
           .font(this.tm.current.body13Bold)
-          .fontColor(this.slotColor())
+          .fontColor(this.vm.slotColor())
       }
       .width(this.tm.current.full)
 
@@ -34,7 +28,7 @@ export struct NotificationSlotUsage {
         total: this.vm.reminderLimit,
         type: ProgressType.Linear,
       })
-        .color(this.slotColor())
+        .color(this.vm.slotColor())
         .backgroundColor(this.tm.current.colorDivider)
         .width(this.tm.current.full)
         .height(this.tm.current.value4)

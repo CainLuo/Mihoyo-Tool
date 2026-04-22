@@ -5,6 +5,7 @@
  */
 import { ConfigurationConstant } from '@kit.AbilityKit'
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
+import { ThemeChip } from './ThemeChip'
 
 @ComponentV2
 export struct AppearanceSection {
@@ -19,10 +20,28 @@ export struct AppearanceSection {
           .font(this.tm.current.body16)
           .fontColor(this.tm.current.colorTextPrimary)
           .layoutWeight(1)
+
         Row({ space: this.tm.current.value8 }) {
-          this.ThemeChip($r('app.string.my_theme_light'), ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT)
-          this.ThemeChip($r('app.string.my_theme_dark'), ConfigurationConstant.ColorMode.COLOR_MODE_DARK)
-          this.ThemeChip($r('app.string.my_theme_system'), ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET)
+          ThemeChip({
+            label: $r('app.string.my_theme_light'),
+            mode: ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT,
+            selectedMode: this.themeMode,
+            onSelect: (m: number) => { this.onThemeChange(m) }
+          })
+
+          ThemeChip({
+            label: $r('app.string.my_theme_dark'),
+            mode: ConfigurationConstant.ColorMode.COLOR_MODE_DARK,
+            selectedMode: this.themeMode,
+            onSelect: (m: number) => { this.onThemeChange(m) }
+          })
+
+          ThemeChip({
+            label: $r('app.string.my_theme_system'),
+            mode: ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET,
+            selectedMode: this.themeMode,
+            onSelect: (m: number) => { this.onThemeChange(m) }
+          })
         }
       }
       .width(this.tm.current.full)
@@ -34,23 +53,6 @@ export struct AppearanceSection {
     .backgroundColor(this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
   }
-
-  @Builder
-  private ThemeChip(label: ResourceStr, mode: number) {
-    Button(label, { type: ButtonType.Normal })
-      .fontSize(this.tm.current.body13.size)
-      .fontWeight(this.tm.current.body13.weight)
-      .fontColor(this.themeMode === mode ? this.tm.current.textOnDarkHigh : this.tm.current.colorTextSecondary)
-      .padding({
-        left: this.tm.current.value8,
-        right: this.tm.current.value8,
-        top: this.tm.current.value4,
-        bottom: this.tm.current.value4
-      })
-      .borderRadius(this.tm.current.radius8)
-      .backgroundColor(this.themeMode === mode ? this.tm.current.colorPrimary : this.tm.current.colorDivider)
-      .onClick(() => { this.onThemeChange(mode) })
-  }
 }
 
 // ─── Preview ─────────────────────────────────────────────────────
@@ -58,11 +60,13 @@ export struct AppearanceSection {
 @Preview
 @ComponentV2
 export struct AppearanceSectionPreview {
+  @Local private tm: ThemeManager = themeManager
+
   build() {
     Column() {
       AppearanceSection({ themeMode: ConfigurationConstant.ColorMode.COLOR_MODE_DARK })
     }
-    .padding(16)
+    .padding(this.tm.current.value16)
     .backgroundColor('#1a1a2e')
   }
 }

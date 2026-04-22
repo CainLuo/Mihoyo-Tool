@@ -81,6 +81,10 @@
       "value": "Resend"
     },
     {
+      "name": "login_sms_cooldown_seconds",
+      "value": "%ds"
+    },
+    {
       "name": "login_qrcode_loading",
       "value": "Loading QR code..."
     },

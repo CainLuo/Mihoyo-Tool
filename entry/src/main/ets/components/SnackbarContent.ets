@@ -1,23 +1,12 @@
 /**
  * SnackbarContent — 操作反馈 Snackbar 组件
  *
- * 通过 promptAction.openCustomDialog 渲染，显示在屏幕底部。
- * 根据 FeedbackType 显示对应图标和颜色，自动消失。
+ * 纯渲染组件，通过 FeedbackUtil.showFeedback 调用。
+ * 图标和颜色由 SnackbarParams 携带，组件只负责展示。
  */
-import { FeedbackType } from '../constants/FeedbackType'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
-
-/** Snackbar 参数，由 showFeedback 工具函数填充 */
-export class SnackbarParams {
-  type: FeedbackType = FeedbackType.INFO
-  text: ResourceStr = ''
-  onDismiss: () => void = () => {}
-}
-
-@Builder
-export function snackbarBuilder(params: SnackbarParams) {
-  SnackbarContent({ params: params })
-}
+import { SnackbarParams } from '../models/SnackbarParams'
+import { FeedbackType } from '../constants/FeedbackType'
 
 @ComponentV2
 export struct SnackbarContent {
@@ -39,28 +28,12 @@ export struct SnackbarContent {
     }
   }
 
-  private iconForType(): Resource {
-    if (this.params.type === FeedbackType.SUCCESS) {
-      return $r('sys.symbol.checkmark_circle')
-    }
-    if (this.params.type === FeedbackType.ERROR) {
-      return $r('sys.symbol.xmark_circle')
-    }
-    return $r('sys.symbol.info_circle')
-  }
-
-  private colorForType(): ResourceColor {
-    if (this.params.type === FeedbackType.ERROR) {
-      return this.tm.current.colorDanger
-    }
-    return this.tm.current.colorPrimary
-  }
-
   build() {
     Row({ space: this.tm.current.value8 }) {
-      SymbolGlyph(this.iconForType())
+      SymbolGlyph(this.params.icon())
         .fontSize(this.tm.current.value20)
-        .fontColor([this.colorForType()])
+        .fontColor([this.params.color()])
+
       Text(this.params.text)
         .font(this.tm.current.body13)
         .fontColor(this.tm.current.colorTextPrimary)
@@ -80,7 +53,7 @@ export struct SnackbarContent {
       bottom: this.tm.current.value16,
     })
     .backgroundColor(this.tm.current.colorSurfaceCard)
-    .border({ width: 1, color: this.tm.current.colorDivider })
+    .border({ width: this.tm.current.value1, color: this.tm.current.colorDivider })
     .borderRadius(this.tm.current.radius12)
     .shadow({ radius: this.tm.current.radius12, color: this.tm.current.colorMask, offsetX: 0, offsetY: 4 })
   }
@@ -90,29 +63,30 @@ export struct SnackbarContent {
 
 @Preview
 @ComponentV2
-struct SnackbarSuccessPreview {
+struct SnackbarContentPreview {
+  @Local private tm: ThemeManager = themeManager
+  @Local private pSuccess: SnackbarParams = new SnackbarParams()
+  @Local private pError: SnackbarParams = new SnackbarParams()
+  @Local private pInfo: SnackbarParams = new SnackbarParams()
+
+  aboutToAppear(): void {
+    this.pSuccess.type = FeedbackType.SUCCESS
+    this.pSuccess.text = '战绩数据已更新'
+    this.pError.type = FeedbackType.ERROR
+    this.pError.text = '刷新失败，请检查网络连接'
+    this.pInfo.type = FeedbackType.INFO
+    this.pInfo.text = '已释放 2.3 MB 缓存'
+  }
+
   build() {
-    Column({ space: 12 }) {
-      SnackbarContent({ params: (() => {
-        const p = new SnackbarParams()
-        p.type = FeedbackType.SUCCESS
-        p.text = '战绩数据已更新'
-        return p
-      })() })
-      SnackbarContent({ params: (() => {
-        const p = new SnackbarParams()
-        p.type = FeedbackType.ERROR
-        p.text = '刷新失败，请检查网络连接'
-        return p
-      })() })
-      SnackbarContent({ params: (() => {
-        const p = new SnackbarParams()
-        p.type = FeedbackType.INFO
-        p.text = '已释放 2.3 MB 缓存'
-        return p
-      })() })
+    Column({ space: this.tm.current.value12 }) {
+      SnackbarContent({ params: this.pSuccess })
+
+      SnackbarContent({ params: this.pError })
+
+      SnackbarContent({ params: this.pInfo })
     }
-    .padding(16)
+    .padding(this.tm.current.value16)
     .backgroundColor('#1a1a2e')
   }
 }

@@ -1,101 +1,29 @@
 /**
  * GameToolCard — 游戏战绩工具卡片（首页）
+ *
+ * 卡片头部 + 分割线 + 游戏专属内容区（原神/星铁/绝区零/通用）。
  */
-import { themeManager, ThemeManager } from '../../theme/ThemeManager'
-import { GameRoleCardVM, GameNoteSnapshotVM } from '../../models/HomeModels'
-import { gameIdToName, gameIdToPrimaryLabel } from '../../utils/GameIdUtil'
-import { GameId } from 'core'
-import { GenshinGameToolCardContent } from './GenshinGameToolCardContent'
-import { StarRailGameToolCardContent } from './StarRailGameToolCardContent'
-import { ZZZGameToolCardContent } from './ZZZGameToolCardContent'
-import { GenericGameToolCardContent } from './GenericGameToolCardContent'
+import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { GameRoleCardVM } from '../../models/HomeModels';
+import { GameId } from 'core';
+import { GameToolCardContent } from './GameToolCardContent';
+import { GameToolCardHeader } from './GameToolCardHeader';
 
 @ComponentV2
 export struct GameToolCard {
-  @Param card: GameRoleCardVM = new GameRoleCardVM(GameId.GENSHIN, '', '', '', '', '', null, '')
-  @Param onTap: (card: GameRoleCardVM) => void = (_c: GameRoleCardVM) => {}
-  @Local private tm: ThemeManager = themeManager
-
-  private syncDescResource(key: string): Resource {
-    if (key === 'sync_just_now') { return $r('app.string.sync_just_now') }
-    return $r('app.string.sync_not_synced')
-  }
+  @Param card: GameRoleCardVM = new GameRoleCardVM(GameId.GENSHIN, '', '', '', '', '', null, '');
+  @Param onTap: (card: GameRoleCardVM) => void = (_c: GameRoleCardVM) => {};
+  @Local private tm: ThemeManager = themeManager;
 
   private progressRatio(): number {
-    const snap = this.card.snapshot
-    if (snap === null || snap.primaryMax === 0) { return 0 }
-    return Math.min(snap.primaryCurrent / snap.primaryMax, 1)
-  }
-
-  private primaryColor(): ResourceColor {
-    const snap = this.card.snapshot
-    if (snap === null) { return this.tm.current.colorTextSecondary }
-    // 原神树脂满了 = danger（需要消耗），其他游戏体力满了 = primary（好事）
-    if (snap.isFull) {
-      return this.card.gameId === GameId.GENSHIN
-        ? this.tm.current.colorDanger
-        : this.tm.current.colorPrimary
-    }
-    const ratio = snap.primaryMax > 0 ? snap.primaryCurrent / snap.primaryMax : 0
-    if (ratio < 0.3) { return this.tm.current.colorDanger }
-    if (ratio < 0.7) { return this.tm.current.colorWarning }
-    return this.tm.current.colorPrimary
-  }
-
-  private gameLogoResource(): Resource {
-    if (this.card.gameId === GameId.GENSHIN) { return $r('app.media.logo_genshin') }
-    if (this.card.gameId === GameId.STARRAIL) { return $r('app.media.logo_starrail') }
-    if (this.card.gameId === GameId.ZZZ) { return $r('app.media.logo_zzz') }
-    return $r('app.media.logo_honkai3')
+    const snap = this.card.snapshot;
+    if (snap === null || snap.primaryMax === 0) { return 0; }
+    return Math.min(snap.primaryCurrent / snap.primaryMax, 1);
   }
 
   build() {
     Column() {
-      // 卡片头部
-      Row({ space: this.tm.current.value8 }) {
-        Image(this.gameLogoResource())
-          .width(this.tm.current.value32)
-          .height(this.tm.current.value32)
-          .borderRadius(this.tm.current.value8)
-          .border({ width: 1, color: this.tm.current.colorDivider })
-          .objectFit(ImageFit.Cover)
-
-        Column({ space: this.tm.current.value2 }) {
-          Text(gameIdToName(this.card.gameId))
-            .font(this.tm.current.body16Medium)
-            .fontColor(this.tm.current.colorTextPrimary)
-            .maxLines(1)
-            .textOverflow({ overflow: TextOverflow.Ellipsis })
-
-          Row({ space: this.tm.current.value8 }) {
-            Text(this.card.server)
-              .font(this.tm.current.body13)
-              .fontColor(this.tm.current.colorTextSecondary)
-              .maxLines(1)
-              .flexShrink(0)
-            Text(this.card.nickname)
-              .font(this.tm.current.body13)
-              .fontColor(this.tm.current.colorTextSecondary)
-              .maxLines(1)
-              .textOverflow({ overflow: TextOverflow.Ellipsis })
-              .layoutWeight(1)
-          }
-        }
-        .alignItems(HorizontalAlign.Start)
-        .layoutWeight(1)
-
-        Text(this.syncDescResource(this.card.lastSyncDesc))
-          .font(this.tm.current.body13)
-          .fontColor(this.tm.current.colorTextSecondary)
-      }
-      .width(this.tm.current.full)
-      .padding({
-        left: this.tm.current.value12,
-        right: this.tm.current.value12,
-        top: this.tm.current.value12,
-        bottom: this.tm.current.value8
-      })
-      .alignItems(VerticalAlign.Center)
+      GameToolCardHeader({ card: this.card })
 
       Divider()
         .color(this.tm.current.colorDivider)
@@ -103,32 +31,11 @@ export struct GameToolCard {
 
       // 内容区
       if (this.card.snapshot !== null) {
-        if (this.card.gameId === GameId.GENSHIN) {
-          GenshinGameToolCardContent({
-            snap: this.card.snapshot,
-            primaryColor: this.primaryColor(),
-            progressRatio: this.progressRatio()
-          })
-        } else if (this.card.gameId === GameId.STARRAIL) {
-          StarRailGameToolCardContent({
-            snap: this.card.snapshot,
-            primaryColor: this.primaryColor(),
-            progressRatio: this.progressRatio()
-          })
-        } else if (this.card.gameId === GameId.ZZZ) {
-          ZZZGameToolCardContent({
-            snap: this.card.snapshot,
-            primaryColor: this.primaryColor(),
-            progressRatio: this.progressRatio()
-          })
-        } else {
-          GenericGameToolCardContent({
-            snap: this.card.snapshot,
-            primaryLabel: gameIdToPrimaryLabel(this.card.gameId),
-            primaryColor: this.primaryColor(),
-            progressRatio: this.progressRatio()
-          })
-        }
+        GameToolCardContent({
+          snap: this.card.snapshot,
+          primaryColor: this.card.snapshot.primaryColor,
+          progressRatio: this.progressRatio()
+        })
       } else {
         Row() {
           Text($r('app.string.home_no_data_hint'))
@@ -159,13 +66,21 @@ export struct GameToolCard {
 @Preview
 @ComponentV2
 export struct GameToolCardPreview {
-  @Local private snap: GameNoteSnapshotVM = new GameNoteSnapshotVM(GameId.GENSHIN, 120, 200, 10800, '', '', false);
-  @Local private card1: GameRoleCardVM = new GameRoleCardVM(GameId.GENSHIN, GameId.GENSHIN, $r('app.color.game_color_genshin'), '123456789', '旅行者', '天空岛', null, 'sync_just_now');
-  @Local private card2: GameRoleCardVM = new GameRoleCardVM(GameId.STARRAIL, GameId.STARRAIL, $r('app.color.game_color_starrail'), '987654321', '开拓者', '星穹列车', null, 'sync_not_synced');
+  @Local private card1: GameRoleCardVM = new GameRoleCardVM(
+    GameId.GENSHIN, GameId.GENSHIN, $r('app.color.game_color_genshin'),
+    '123456789', '旅行者', '天空岛', null, 'sync_just_now',
+    $r('app.media.logo_genshin')
+  );
+  @Local private card2: GameRoleCardVM = new GameRoleCardVM(
+    GameId.STARRAIL, GameId.STARRAIL, $r('app.color.game_color_starrail'),
+    '987654321', '开拓者', '星穹列车', null, 'sync_not_synced',
+    $r('app.media.logo_starrail')
+  );
 
   build() {
     Column({ space: 12 }) {
       GameToolCard({ card: this.card1 })
+
       GameToolCard({ card: this.card2 })
     }
     .padding(16)

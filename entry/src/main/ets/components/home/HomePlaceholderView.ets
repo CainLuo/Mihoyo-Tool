@@ -1,6 +1,11 @@
-import { themeManager, ThemeManager } from '../../theme/ThemeManager'
-import { AppRoutes } from '../../constants/AppRoutes'
-import { RouterUtil } from '../../utils/RouterUtil'
+/**
+ * HomePlaceholderView — 首页空态占位视图
+ *
+ * 在 HomeContent EMPTY 状态时展示，引导用户去登录账号。
+ */
+import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { AppRoutes } from '../../constants/AppRoutes';
+import { RouterUtil } from '../../utils/RouterUtil';
 
 @Preview
 @ComponentV2

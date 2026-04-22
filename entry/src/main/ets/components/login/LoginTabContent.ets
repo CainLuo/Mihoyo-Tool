@@ -1,17 +1,17 @@
 /**
  * LoginTabContent — 登录 Tab 内容区（根据 activeTab 切换）
  */
-import { ThemeManager } from '../../theme/ThemeManager'
-import { LoginViewModel } from '../../viewmodel/LoginViewModel'
-import { LoginTab } from '../../constants/LoginTabEnum'
-import { LoginPhone } from './LoginPhone'
-import { LoginQRCode } from './LoginQRCode'
-import { LoginCookie } from './LoginCookie'
+import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { LoginViewModel } from '../../viewmodel/LoginViewModel';
+import { LoginTab } from '../../constants/LoginTabEnum';
+import { LoginPhone } from './LoginPhone';
+import { LoginQRCode } from './LoginQRCode';
+import { LoginCookie } from './LoginCookie';
 
 @ComponentV2
 export struct LoginTabContent {
-  @Param tm: ThemeManager = new ThemeManager()
-  @Param vm: LoginViewModel = new LoginViewModel()
+  @Param vm: LoginViewModel = new LoginViewModel();
+  @Local private tm: ThemeManager = themeManager;
 
   build() {
     Column() {

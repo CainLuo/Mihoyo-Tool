@@ -33,6 +33,14 @@ export class NotificationSettingsViewModel {
   @Trace reminderUsed: number = 0;
   @Trace reminderLimit: number = GameStaminaConstants.REMINDER_LIMIT;
   @Trace showLimitDialog: boolean = false;
+
+  /** 槽位进度条颜色（根据使用比例决定） */
+  slotColor(): Resource {
+    const ratio = this.reminderUsed / this.reminderLimit;
+    if (ratio >= 1) { return $r('app.color.color_danger'); }
+    if (ratio >= 0.8) { return $r('app.color.color_warning'); }
+    return $r('app.color.color_primary');
+  }
   /** 防止 Toggle.onChange 因外部修改 isOn 而重复触发 */
   private isTogglingEnabled: boolean = false;
   /** 防止游戏开关 Toggle 循环触发，key = accountId_gameId */

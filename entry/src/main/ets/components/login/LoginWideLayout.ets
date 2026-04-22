@@ -1,30 +1,32 @@
 /**
  * LoginWideLayout — 登录页宽屏两栏布局
  */
-import { ThemeManager } from '../../theme/ThemeManager'
-import { LoginViewModel } from '../../viewmodel/LoginViewModel'
-import { LoginLogoSection } from './LoginLogoSection'
-import { LoginFeatureItem } from './LoginFeatureItem'
-import { LoginCard } from './LoginCard'
-import { LoginAgreement } from './LoginAgreement'
+import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { LoginViewModel } from '../../viewmodel/LoginViewModel';
+import { LoginLogoSection } from './LoginLogoSection';
+import { LoginFeatureItem } from './LoginFeatureItem';
+import { LoginCard } from './LoginCard';
+import { LoginAgreement } from './LoginAgreement';
 
 @ComponentV2
 export struct LoginWideLayout {
-  @Param tm: ThemeManager = new ThemeManager()
-  @Param vm: LoginViewModel = new LoginViewModel()
-  @Event onTapTerms: () => void = () => {}
-  @Event onTapPrivacy: () => void = () => {}
+  @Param vm: LoginViewModel = new LoginViewModel();
+  @Event onTapTerms: () => void = () => {};
+  @Event onTapPrivacy: () => void = () => {};
+  @Local private tm: ThemeManager = themeManager;
 
   build() {
     Row({ space: this.tm.current.value48 }) {
       Column({ space: this.tm.current.value16 }) {
-        LoginLogoSection({ tm: this.tm, logoSize: this.tm.current.value56 })
+        LoginLogoSection({ logoSize: this.tm.current.value56 })
+
         Text($r('app.string.login_brand_desc'))
           .font(this.tm.current.body13)
           .fontColor(this.tm.current.colorTextSecondary)
+
         Column({ space: this.tm.current.value8 }) {
-          LoginFeatureItem({ tm: this.tm, label: $r('app.string.login_brand_feature1') })
-          LoginFeatureItem({ tm: this.tm, label: $r('app.string.login_brand_feature2') })
+          LoginFeatureItem({ label: $r('app.string.login_brand_feature1') })
+          LoginFeatureItem({ label: $r('app.string.login_brand_feature2') })
         }
         .alignItems(HorizontalAlign.Start)
       }
@@ -37,8 +39,8 @@ export struct LoginWideLayout {
           .font(this.tm.current.title18Bold)
           .fontColor(this.tm.current.colorTextPrimary)
           .width(this.tm.current.full)
-        LoginCard({ tm: this.tm, vm: this.vm })
-        LoginAgreement({ tm: this.tm, onTapTerms: this.onTapTerms, onTapPrivacy: this.onTapPrivacy })
+        LoginCard({ vm: this.vm })
+        LoginAgreement({ onTapTerms: this.onTapTerms, onTapPrivacy: this.onTapPrivacy })
       }
       .layoutWeight(1)
       .alignItems(HorizontalAlign.Start)

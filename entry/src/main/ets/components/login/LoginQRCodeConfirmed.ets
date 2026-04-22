@@ -1,0 +1,24 @@
+/**
+ * LoginQRCodeConfirmed — 二维码已确认登录状态
+ */
+import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+
+@ComponentV2
+export struct LoginQRCodeConfirmed {
+  @Local private tm: ThemeManager = themeManager;
+
+  build() {
+    Column({ space: this.tm.current.value16 }) {
+      Text($r('app.string.login_qrcode_confirmed'))
+        .font(this.tm.current.body16Medium)
+        .fontColor(this.tm.current.colorPrimary)
+
+      LoadingProgress()
+        .width(this.tm.current.value52)
+        .height(this.tm.current.value52)
+        .color(this.tm.current.colorPrimary)
+    }
+    .width(this.tm.current.full)
+    .alignItems(HorizontalAlign.Center)
+  }
+}

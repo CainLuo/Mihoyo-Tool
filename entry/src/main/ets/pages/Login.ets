@@ -79,14 +79,12 @@ export struct Login {
       Column() {
         if (this.windowWidth <= this.tm.current.value480) {
           LoginNarrowLayout({
-            tm: this.tm,
             vm: this.vm,
             onTapTerms: () => { this.pushWebView('terms', '用户协议') },
             onTapPrivacy: () => { this.pushWebView('privacy', '隐私政策') }
           })
         } else {
           LoginWideLayout({
-            tm: this.tm,
             vm: this.vm,
             onTapTerms: () => { this.pushWebView('terms', '用户协议') },
             onTapPrivacy: () => { this.pushWebView('privacy', '隐私政策') }

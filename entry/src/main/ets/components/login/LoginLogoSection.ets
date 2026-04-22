@@ -1,12 +1,12 @@
 /**
  * LoginLogoSection — 登录页 Logo 区
  */
-import { ThemeManager, themeManager } from '../../theme/ThemeManager'
+import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 
 @ComponentV2
 export struct LoginLogoSection {
-  @Param tm: ThemeManager = new ThemeManager()
-  @Param logoSize: number = 64
+  @Param logoSize: number = 64;
+  @Local private tm: ThemeManager = themeManager;
 
   build() {
     Column({ space: this.tm.current.value8 }) {
@@ -14,9 +14,11 @@ export struct LoginLogoSection {
         .width(this.logoSize)
         .height(this.logoSize)
         .borderRadius(this.tm.current.value28)
+
       Text($r('app.string.app_name'))
         .font(this.tm.current.title20Bold)
         .fontColor(this.tm.current.colorTextPrimary)
+
       Text($r('app.string.launch_subtitle'))
         .font(this.tm.current.body12)
         .fontColor(this.tm.current.colorTextSecondary)
@@ -30,11 +32,13 @@ export struct LoginLogoSection {
 @Preview
 @ComponentV2
 export struct LoginLogoSectionPreview {
+  @Local private tm: ThemeManager = themeManager;
+
   build() {
     Column() {
-      LoginLogoSection({ tm: themeManager, logoSize: 64 })
+      LoginLogoSection({ logoSize: 64 })
     }
-    .padding(32)
+    .padding(this.tm.current.value32)
     .backgroundColor('#1a1a2e')
   }
 }

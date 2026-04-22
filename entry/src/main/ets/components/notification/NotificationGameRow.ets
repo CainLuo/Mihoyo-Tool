@@ -1,23 +1,18 @@
 /**
  * NotificationGameRow — 单个游戏的体力阈值设置行
  */
-import { themeManager, ThemeManager } from '../../theme/ThemeManager'
-import { GameNotificationConfig } from '../../notification/NotificationModels'
-import { NotificationSettingsViewModel } from '../../viewmodel/NotificationSettingsViewModel'
-import { GameId } from 'core'
+import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { GameNotificationConfig } from '../../notification/NotificationModels';
+import { NotificationSettingsViewModel } from '../../viewmodel/NotificationSettingsViewModel';
+import { GameId } from 'core';
+import { gameIdToColor } from '../../utils/GameIdUtil';
 
 @ComponentV2
 export struct NotificationGameRow {
   @Param accountId: string = ''
   @Param game: GameNotificationConfig = new GameNotificationConfig()
   @Param vm: NotificationSettingsViewModel = new NotificationSettingsViewModel()
-  @Local private tm: ThemeManager = themeManager
-
-  private gameColor(gameId: GameId): Resource {
-    if (gameId === GameId.GENSHIN) { return $r('app.color.game_color_genshin') }
-    if (gameId === GameId.STARRAIL) { return $r('app.color.game_color_starrail') }
-    return $r('app.color.game_color_zzz')
-  }
+  @Local private tm: ThemeManager = themeManager;
 
   build() {
     Row({ space: this.tm.current.value12 }) {
@@ -25,7 +20,7 @@ export struct NotificationGameRow {
         .width(this.tm.current.value2)
         .height(this.tm.current.value32)
         .borderRadius(this.tm.current.value2)
-        .backgroundColor(this.gameColor(this.game.gameId))
+        .backgroundColor(gameIdToColor(this.game.gameId))
 
       Column({ space: this.tm.current.value4 }) {
         Text($r('app.string.notification_game_stamina_label', this.game.gameName, this.game.staminaName))

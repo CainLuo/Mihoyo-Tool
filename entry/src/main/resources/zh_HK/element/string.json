@@ -81,6 +81,10 @@
       "value": "重新發送"
     },
     {
+      "name": "login_sms_cooldown_seconds",
+      "value": "%ds"
+    },
+    {
       "name": "login_qrcode_loading",
       "value": "二維碼載入中..."
     },

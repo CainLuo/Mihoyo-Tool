@@ -41,3 +41,27 @@ export struct SettingRow {
     .onClick(this.onTap !== null ? this.onTap : () => {})
   }
 }
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct SettingRowPreview {
+  @Local private tm: ThemeManager = themeManager
+
+  build() {
+    Column() {
+      SettingRow({ label: $r('app.string.my_export_logs'), onTap: () => {} })
+
+      Divider().color(this.tm.current.colorDivider).margin({ left: this.tm.current.value16 })
+
+      SettingRow({ label: $r('app.string.my_about_version'), value: '1.0.0' })
+    }
+    .width(this.tm.current.value360)
+    .backgroundColor(this.tm.current.colorSurfaceCard)
+    .borderRadius(this.tm.current.radius12)
+    .clip(true)
+    .padding({ top: this.tm.current.value16, bottom: this.tm.current.value16 })
+    .backgroundColor('#1a1a2e')
+  }
+}

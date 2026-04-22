@@ -7,10 +7,30 @@
 import { ZZZVideoStoreState, ZZZCardSign } from '../constants/ZZZEnums';
 import { GameId } from 'core';
 
+/**
+ * 游戏便签数据行 ViewModel
+ *
+ * 由 HomeViewModel 在解析 daily_note 时填充，View 层直接渲染，不做任何业务判断。
+ */
+export class GameDataRowVM {
+  /** 标签（多语言 Resource） */
+  label: Resource;
+  /** 值文字（ResourceStr 支持 Resource 或 string） */
+  value: ResourceStr = '';
+  /** 值颜色（由 VM 根据业务规则算好） */
+  valueColor: ResourceColor = $r('app.color.color_text_primary');
+
+  constructor(label: Resource, value: ResourceStr, valueColor: ResourceColor) {
+    this.label = label;
+    this.value = value;
+    this.valueColor = valueColor;
+  }
+}
+
 /** 游戏便签摘要 — 展示核心指标 */
 export class GameNoteSnapshotVM {
-  /** 主要资源名称，如 "原粹树脂" / "开拓力" */
-  primaryLabel: string = ''
+  /** 主要资源标签（如 $r('app.string.daily_note_resin_title')），由 VM 填充 */
+  primaryLabel: ResourceStr = ''
   /** 主要资源当前值 */
   primaryCurrent: number = 0
   /** 主要资源上限 */
@@ -25,6 +45,18 @@ export class GameNoteSnapshotVM {
 
   /** 是否已全部恢复/满 */
   isFull: boolean = false
+
+  /**
+   * 数据行列表（由 HomeViewModel 填充，View 层直接 ForEach 渲染）
+   * 包含分割线以下的所有数据行，顺序由 VM 决定。
+   */
+  dataRows: GameDataRowVM[] = [];
+
+  /**
+   * 主体力颜色（由 VM 根据 isFull + gameId 算好，View 层直接用）
+   * 原神满了 = danger，其他游戏满了 = primary，未满按比例。
+   */
+  primaryColor: ResourceColor = $r('app.color.color_primary');
 
   // ── 原神专属字段 ──────────────────────────────────────────────
   /** 探索派遣当前人数（-1 表示无此数据） */
@@ -75,7 +107,7 @@ export class GameNoteSnapshotVM {
   videoStoreState: ZZZVideoStoreState = ZZZVideoStoreState.UNKNOWN
 
   constructor(
-    primaryLabel: string,
+    primaryLabel: ResourceStr,
     primaryCurrent: number,
     primaryMax: number,
     primaryRecoverySeconds: number,
@@ -101,6 +133,8 @@ export class GameRoleCardVM {
   gameName: string = ''
   /** 游戏主题色（用于卡片顶部色条） */
   gameColor: ResourceColor = $r('app.color.color_primary')
+  /** 游戏 Logo 图标资源（由 ViewModel 填充，Component 直接用） */
+  logoResource: Resource = $r('app.media.logo_genshin')
   /** 角色 UID */
   roleUid: string = ''
   /** 角色昵称 */
@@ -120,11 +154,13 @@ export class GameRoleCardVM {
     nickname: string,
     server: ResourceStr,
     snapshot: GameNoteSnapshotVM | null,
-    lastSyncDesc: string
+    lastSyncDesc: string,
+    logoResource: Resource = $r('app.media.logo_genshin')
   ) {
     this.gameId = gameId
     this.gameName = gameName
     this.gameColor = gameColor
+    this.logoResource = logoResource
     this.roleUid = roleUid
     this.nickname = nickname
     this.server = server

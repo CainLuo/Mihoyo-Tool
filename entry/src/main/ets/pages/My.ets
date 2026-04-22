@@ -110,7 +110,7 @@ export struct My {
         .clip(true)
 
         SectionHeader({ title: $r('app.string.my_section_about') })
-        AboutSection()
+        AboutSection({ vm: this.vm })
 
         Row().height(this.tm.current.value40)
       }

@@ -78,11 +78,13 @@ export struct LoginCookie {
 @Preview
 @ComponentV2
 export struct LoginCookiePreview {
+  @Local private tm: ThemeManager = themeManager;
+
   build() {
     Column() {
       LoginCookie({ vm: new LoginViewModel() })
     }
-    .padding(16)
+    .padding(this.tm.current.value16)
     .backgroundColor('#1a1a2e')
   }
 }
