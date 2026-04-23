@@ -30,7 +30,7 @@ export struct CharactersSkeleton {
     if (ctx === null) { return; }
     ctx.animateTo(
       {
-        duration: this.tm.current.value800,
+        duration: this.tm.current.duration800,
         curve: Curve.EaseInOut,
         iterations: -1,
         playMode: PlayMode.Alternate

@@ -95,3 +95,20 @@ export struct ZZZCharacterDetail {
     .hideTitleBar(false)
   }
 }
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct ZZZCharacterDetailPreview {
+  build() {
+    ZZZCharacterDetail({ routerParam: new CharDetailRouterParam() })
+  }
+}
+
+// ─── Router Builder ───────────────────────────────────────────────
+
+@Builder
+export function ZZZCharacterDetailBuilder(_name: string, param: Object) {
+  ZZZCharacterDetail({ routerParam: param as CharDetailRouterParam })
+}

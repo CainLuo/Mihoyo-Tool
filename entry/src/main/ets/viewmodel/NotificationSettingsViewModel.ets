@@ -363,24 +363,16 @@ export class NotificationSettingsViewModel {
     return game !== null ? game.enabled : false;
   }
 
-  private static gameName(gameId: GameId): string {
-    if (gameId === GameId.GENSHIN) {
-      return '原神';
-    }
-    if (gameId === GameId.STARRAIL) {
-      return '崩坏：星穹铁道';
-    }
-    return '绝区零';
+  private static gameName(gameId: GameId): Resource {
+    if (gameId === GameId.GENSHIN) { return $r('app.string.game_name_genshin'); }
+    if (gameId === GameId.STARRAIL) { return $r('app.string.game_name_starrail'); }
+    return $r('app.string.game_name_zzz');
   }
 
-  private static staminaName(gameId: GameId): string {
-    if (gameId === GameId.GENSHIN) {
-      return '原粹树脂';
-    }
-    if (gameId === GameId.STARRAIL) {
-      return '开拓力';
-    }
-    return '电量';
+  private static staminaName(gameId: GameId): Resource {
+    if (gameId === GameId.GENSHIN) { return $r('app.string.notification_stamina_genshin'); }
+    if (gameId === GameId.STARRAIL) { return $r('app.string.notification_stamina_starrail'); }
+    return $r('app.string.notification_stamina_zzz');
   }
 
   private static secondsPerUnit(gameId: GameId): number {

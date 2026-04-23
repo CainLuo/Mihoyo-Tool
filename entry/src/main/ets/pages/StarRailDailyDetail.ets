@@ -8,6 +8,8 @@ import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { DailyNoteStarRail } from '../components/dailynote/starrail/DailyNoteStarRail'
 import { StarRailDailyDetailViewModel } from '../viewmodel/StarRailDailyDetailViewModel'
 import { ViewState } from '../constants/ViewStates'
+import { DailyNoteLoadingView } from '../components/dailynote/common/DailyNoteLoadingView'
+import { DailyNoteEmptyView } from '../components/dailynote/common/DailyNoteEmptyView'
 
 export class StarRailDailyDetailParam {
   accountId: string = '';
@@ -63,24 +65,9 @@ export struct StarRailDailyDetail {
     NavDestination() {
       Column() {
         if (this.vm.viewState === ViewState.LOADING) {
-          Row() {
-            LoadingProgress()
-              .width(this.tm.current.value52)
-              .height(this.tm.current.value52)
-              .color(this.tm.current.colorPrimary)
-          }
-          .width(this.tm.current.full)
-          .layoutWeight(1)
-          .justifyContent(FlexAlign.Center)
+          DailyNoteLoadingView()
         } else if (this.vm.viewState === ViewState.EMPTY || this.vm.viewState === ViewState.ERROR) {
-          Row() {
-            Text($r('app.string.home_no_data_hint'))
-              .font(this.tm.current.body13)
-              .fontColor(this.tm.current.colorTextSecondary)
-          }
-          .width(this.tm.current.full)
-          .layoutWeight(1)
-          .justifyContent(FlexAlign.Center)
+          DailyNoteEmptyView()
         } else {
           Scroll() {
             Column({ space: this.tm.current.value8 }) {
@@ -116,4 +103,21 @@ export struct StarRailDailyDetail {
     .title($r('app.string.starrail_daily_title'))
     .hideTitleBar(false)
   }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct StarRailDailyDetailPreview {
+  build() {
+    StarRailDailyDetail({ routerParam: new StarRailDailyDetailParam() })
+  }
+}
+
+// ─── Router Builder ───────────────────────────────────────────────
+
+@Builder
+export function StarRailDailyDetailBuilder(_name: string, param: Object) {
+  StarRailDailyDetail({ routerParam: param as StarRailDailyDetailParam })
 }

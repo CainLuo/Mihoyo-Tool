@@ -170,18 +170,17 @@ export class GameRoleCardVM {
 }
 
 /** 单个米游社账号 ViewModel */
-@ObservedV2
 export class MihoyoAccountVM {
   /** 米游社 UID */
-  @Trace accountId: string = ''
+  accountId: string = ''
   /** 米游社用户名（UID） */
-  @Trace username: string = ''
+  username: string = ''
   /** 米游社昵称 */
-  @Trace nickname: string = ''
+  nickname: string = ''
   /** 米游社头像 URL */
-  @Trace avatarUrl: string = ''
-  /** 该账号下的游戏角色列表（二维数组的"行"） */
-  @Trace roles: GameRoleCardVM[] = []
+  avatarUrl: string = ''
+  /** 该账号下的游戏角色列表 */
+  roles: GameRoleCardVM[] = []
 
   constructor(accountId: string, username: string, roles: GameRoleCardVM[], nickname: string = '', avatarUrl: string = '') {
     this.accountId = accountId

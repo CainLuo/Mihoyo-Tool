@@ -50,10 +50,22 @@ import { ViewState } from '../constants/ViewStates';
 import { AppConstants } from '../constants/AppConstants';
 import { StaminaNotificationService } from '../notification/StaminaNotificationService';
 import { gameIdToColor, gameIdToLogo } from '../utils/GameIdUtil';
+import { AppRoutes } from '../constants/AppRoutes';
+import { GenshinDailyDetailParam } from '../pages/GenshinDailyDetail';
+import { StarRailDailyDetailParam } from '../pages/StarRailDailyDetail';
+import { ZZZDailyDetailParam } from '../pages/ZZZDailyDetail';
 
 const TAG: string = 'HomeViewModel';
 
 export type HomeViewState = ViewState;
+
+/** 首页卡片点击路由结果 */
+export class HomeCardTapRoute {
+  /** 路由名称 */
+  routeName: string = '';
+  /** 路由参数 */
+  param: GenshinDailyDetailParam | StarRailDailyDetailParam | ZZZDailyDetailParam = new GenshinDailyDetailParam();
+}
 
 /** HomeViewModel @Monitor 路径常量类型 */
 export class HomeViewModelKeys {
@@ -87,6 +99,40 @@ export class HomeViewModel {
   private autoRefreshTimer: number = -1;
 
   // ─── 公开方法 ────────────────────────────────────────────────
+
+  /**
+   * 根据点击的游戏卡片，返回对应便笺详情页的路由名称和参数。
+   * View 层只负责调用 pushPath / replacePath，不做任何 gameId 判断。
+   * 返回 null 表示该游戏暂不支持跳转。
+   */
+  buildCardTapRoute(accountId: string, card: GameRoleCardVM): HomeCardTapRoute | null {
+    const route = new HomeCardTapRoute();
+    if (card.gameId === GameId.GENSHIN) {
+      const param = new GenshinDailyDetailParam();
+      param.accountId = accountId;
+      param.roleUid = card.roleUid;
+      route.routeName = AppRoutes.GENSHIN_DAILY_DETAIL;
+      route.param = param;
+      return route;
+    }
+    if (card.gameId === GameId.STARRAIL) {
+      const param = new StarRailDailyDetailParam();
+      param.accountId = accountId;
+      param.roleUid = card.roleUid;
+      route.routeName = AppRoutes.STARRAIL_DAILY_DETAIL;
+      route.param = param;
+      return route;
+    }
+    if (card.gameId === GameId.ZZZ) {
+      const param = new ZZZDailyDetailParam();
+      param.accountId = accountId;
+      param.roleUid = card.roleUid;
+      route.routeName = AppRoutes.ZZZ_DAILY_DETAIL;
+      route.param = param;
+      return route;
+    }
+    return null;
+  }
 
   /**
    * 冷启动加载：读本地 DB → 切换状态，然后后台触发一次网络同步。

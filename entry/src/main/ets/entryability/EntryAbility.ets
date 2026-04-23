@@ -63,12 +63,12 @@ export default class EntryAbility extends UIAbility {
     }).catch((err: Error | object) => {
       Logger.warning(TAG, `getMainWindow failed: ${JSON.stringify(err)}`);
     });
-    windowStage.loadContent('pages/Index', (err, data) => {
-      if (err.code) {
+    windowStage.loadContent('pages/Index', (err: Error | object) => {
+      if ((err as Record<string, number>).code) {
         Logger.warning(TAG, `Failed to load content: ${JSON.stringify(err)}`);
         return;
       }
-      Logger.info(TAG, `Succeeded in loading content: ${JSON.stringify(data)}`);
+      Logger.info(TAG, 'Succeeded in loading content');
     });
   }
 

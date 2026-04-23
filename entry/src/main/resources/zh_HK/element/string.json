@@ -821,6 +821,98 @@
       "value": "%d命"
     },
     {
+      "name": "sr_prop_hp",
+      "value": "生命值"
+    },
+    {
+      "name": "sr_prop_atk",
+      "value": "攻擊力"
+    },
+    {
+      "name": "sr_prop_def",
+      "value": "防禦力"
+    },
+    {
+      "name": "sr_prop_spd",
+      "value": "速度"
+    },
+    {
+      "name": "sr_prop_crit_rate",
+      "value": "暴擊率"
+    },
+    {
+      "name": "sr_prop_crit_dmg",
+      "value": "暴擊傷害"
+    },
+    {
+      "name": "sr_prop_effect_hit",
+      "value": "效果命中"
+    },
+    {
+      "name": "sr_prop_energy_regen",
+      "value": "能量恢復效率"
+    },
+    {
+      "name": "sr_prop_effect_res",
+      "value": "效果抵抗"
+    },
+    {
+      "name": "sr_prop_break_dmg",
+      "value": "擊破特攻"
+    },
+    {
+      "name": "sr_prop_healing_bonus",
+      "value": "治療量加成"
+    },
+    {
+      "name": "sr_prop_hp_pct",
+      "value": "生命值%"
+    },
+    {
+      "name": "sr_prop_atk_pct",
+      "value": "攻擊力%"
+    },
+    {
+      "name": "sr_prop_def_pct",
+      "value": "防禦力%"
+    },
+    {
+      "name": "sr_prop_spd_pct",
+      "value": "速度%"
+    },
+    {
+      "name": "sr_prop_physical_dmg",
+      "value": "物理屬性傷害提高"
+    },
+    {
+      "name": "sr_prop_fire_dmg",
+      "value": "火屬性傷害提高"
+    },
+    {
+      "name": "sr_prop_ice_dmg",
+      "value": "冰屬性傷害提高"
+    },
+    {
+      "name": "sr_prop_lightning_dmg",
+      "value": "雷屬性傷害提高"
+    },
+    {
+      "name": "sr_prop_wind_dmg",
+      "value": "風屬性傷害提高"
+    },
+    {
+      "name": "sr_prop_quantum_dmg",
+      "value": "量子屬性傷害提高"
+    },
+    {
+      "name": "sr_prop_imaginary_dmg",
+      "value": "虛數屬性傷害提高"
+    },
+    {
+      "name": "sr_prop_unknown_71",
+      "value": "歡愉度"
+    },
+    {
       "name": "zzz_char_detail_title",
       "value": "代理人詳情"
     },
@@ -1119,6 +1211,18 @@
     {
       "name": "test_page_title",
       "value": "測試工具"
+    },
+    {
+      "name": "test_t1_done",
+      "value": "T1 已設置，請重啟 App"
+    },
+    {
+      "name": "test_t3_done",
+      "value": "T3 已設置，請重啟 App"
+    },
+    {
+      "name": "test_failed",
+      "value": "設置失敗，請查看日誌"
     },
     {
       "name": "feedback_home_refresh_success",

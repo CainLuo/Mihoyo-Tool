@@ -5,18 +5,20 @@ import { GameId } from 'core';
 
 /** 通知样式枚举 */
 export enum NotificationStyle {
-  STYLE_A = 'styleA', // 每个角色独立一条普通文本通知
-  STYLE_B = 'styleB', // 所有角色合并为一条多行文本通知
+  /** 每个角色独立一条普通文本通知 */
+  STYLE_A = 'styleA',
+  /** 所有角色合并为一条多行文本通知 */
+  STYLE_B = 'styleB',
 }
 
 /** 单个账号下某游戏的通知配置（UI 展示用） */
 export class GameNotificationConfig {
   /** 游戏 ID：GameId.GENSHIN | GameId.STARRAIL | GameId.ZZZ */
   gameId: GameId = GameId.GENSHIN;
-  /** 游戏显示名称 */
-  gameName: string = '';
-  /** 体力名称（原粹树脂 / 开拓力 / 电量） */
-  staminaName: string = '';
+  /** 游戏显示名称（多语言 Resource） */
+  gameName: ResourceStr = '';
+  /** 体力名称（多语言 Resource，如原粹树脂 / 开拓力 / 电量） */
+  staminaName: ResourceStr = '';
   /** 该账号该游戏的通知开关 */
   enabled: boolean = true;
   /** 阈值（1 ≤ threshold ≤ maxStamina） */

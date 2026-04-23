@@ -46,6 +46,27 @@ When your changes create orphans:
 
 The test: Every changed line should trace directly to the user's request.
 
+## 3.1 整理代码后的影响验证
+
+**凡是删除或修改现有代码的行为（不限于整理），必须在改完后主动验证不影响原有逻辑。**
+
+触发条件（满足任意一条就必须验证）：
+
+- 删除装饰器（如 `@ObservedV2`、`@Trace`、`@State`）
+- 删除方法或字段
+- 修改方法签名（参数增减、类型变更）
+- 将逻辑从一个文件迁移到另一个文件
+- 删除中间层文件（如只有 re-export 的文件）
+- 修改 import 路径
+
+验证步骤：
+
+1. **搜索所有调用方**：用 `grepSearch` 找出被修改的类/方法/字段的所有引用
+2. **判断影响**：逐一确认每个调用方是否依赖被删除/修改的行为
+3. **说明结论**：在回复中明确写出"不影响，原因是……"或"有影响，已同步修改……"
+
+**禁止**在没有完成上述验证的情况下直接提交改动。
+
 ## 4. Goal-Driven Execution
 
 **Define success criteria. Loop until verified.**

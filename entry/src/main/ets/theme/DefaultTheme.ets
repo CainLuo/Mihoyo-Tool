@@ -105,7 +105,7 @@ export class DefaultTheme implements Theme {
   value4: number = 4
   value5: number = 5
   value8: number = 8
-  value9: number = 10
+  value9: number = 9
   value10: number = 10
   value11: number = 11
   value12: number = 12
@@ -143,7 +143,9 @@ export class DefaultTheme implements Theme {
   value400: number = 400
   value480: number = 480
   value600: number = 600
-  value800: number = 800
+
+  // ---- Duration ----
+  duration800: number = 800
 
   // ---- Percent ----
   full: string = '100%'

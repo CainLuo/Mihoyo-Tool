@@ -6,15 +6,21 @@ import { GameId } from 'core';
 
 /** My 页面游戏角色 */
 export class MyGameRoleVM {
+  /** 游戏 ID */
   gameId: GameId = GameId.GENSHIN
+  /** 游戏名称（多语言 Resource） */
   gameName: Resource = $r('app.string.game_name_genshin')
+  /** 游戏主题色 */
   gameColor: ResourceColor = $r('app.color.color_primary')
   /** 游戏 logo 资源，由 ViewModel 根据 gameId 填充，Component 直接使用 */
   logoResource: Resource = $r('app.media.logo_genshin')
+  /** 游戏角色 UID */
   roleUid: string = ''
+  /** 游戏角色昵称 */
   nickname: string = ''
   /** 服务器显示名称，优先使用国际化 Resource，未知服务器时降级为原始 region 字符串 */
   server: ResourceStr = ''
+  /** 角色等级 */
   level: number = 0
   /** 游戏背景图 URL */
   bgImageUrl: string = ''
@@ -59,11 +65,17 @@ export class GameStatItem {
 
 /** My 页面账号 ViewModel */
 export class MyAccountVM {
+  /** 米游社 UID（同时作为列表 key） */
   accountId: string = ''
+  /** 米游社用户名 */
   username: string = ''
+  /** 米游社 UID */
   uid: string = ''
+  /** 米游社昵称 */
   nickname: string = ''
+  /** 米游社头像 URL */
   avatarUrl: string = ''
+  /** 该账号下的游戏角色列表 */
   roles: MyGameRoleVM[] = []
 
   constructor(accountId: string, username: string, roles: MyGameRoleVM[], nickname: string = '', avatarUrl: string = '', uid: string = '') {

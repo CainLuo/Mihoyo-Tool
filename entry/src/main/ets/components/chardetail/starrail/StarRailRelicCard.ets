@@ -6,7 +6,7 @@
  */
 import { themeManager, ThemeManager } from '../../../theme/ThemeManager';
 import { StarRailCharDetailRelic, StarRailRelicSubStat } from '../../../models/CharDetailModels';
-import { starRailPropertyTypeToName } from '../../../utils/StarRailPropertyUtil';
+import { starRailPropertyTypeToResource } from '../../../utils/StarRailPropertyUtil';
 
 @ComponentV2
 export struct StarRailRelicCard {
@@ -40,7 +40,7 @@ export struct StarRailRelicCard {
       .alignItems(VerticalAlign.Center)
 
       Row() {
-        Text(starRailPropertyTypeToName(this.relic.mainPropertyType))
+        Text(starRailPropertyTypeToResource(this.relic.mainPropertyType) ?? '')
           .fontSize(this.tm.current.body10.size)
           .fontColor(this.tm.current.accentPrimaryStrong)
           .layoutWeight(1)

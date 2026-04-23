@@ -117,8 +117,8 @@ export class StarRailCharDetailSkillNode {
 
 /** 星铁遗器副词条 */
 export class StarRailRelicSubStat {
-  /** 词条名称 */
-  name: string = '';
+  /** 词条名称（多语言 Resource） */
+  name: ResourceStr = '';
   /** 词条值 */
   value: string = '';
   /** 强化次数 */
@@ -167,8 +167,8 @@ export class StarRailCharDetailEquip {
 export class StarRailCharDetailProperty {
   /** 属性类型 ID */
   propertyType: number = 0;
-  /** 属性名称 */
-  name: string = '';
+  /** 属性名称（多语言 Resource） */
+  name: ResourceStr = '';
   /** 最终值 */
   final: string = '';
 }

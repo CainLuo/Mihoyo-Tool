@@ -39,7 +39,7 @@ function pageBuilder(name: string, param: Object) {
 }
 
 @Entry
-@Component
+@ComponentV2
 struct Index {
   private pathStack: NavPathStack = new NavPathStack();
 

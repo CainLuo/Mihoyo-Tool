@@ -95,3 +95,20 @@ export struct StarRailCharacterDetail {
     .hideTitleBar(false)
   }
 }
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct StarRailCharacterDetailPreview {
+  build() {
+    StarRailCharacterDetail({ routerParam: new CharDetailRouterParam() })
+  }
+}
+
+// ─── Router Builder ───────────────────────────────────────────────
+
+@Builder
+export function StarRailCharacterDetailBuilder(_name: string, param: Object) {
+  StarRailCharacterDetail({ routerParam: param as CharDetailRouterParam })
+}

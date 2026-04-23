@@ -104,3 +104,13 @@ export struct GenshinCharacterDetail {
     .hideTitleBar(false)
   }
 }
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct GenshinCharacterDetailPreview {
+  build() {
+    GenshinCharacterDetail({ routerParam: new CharDetailRouterParam() })
+  }
+}

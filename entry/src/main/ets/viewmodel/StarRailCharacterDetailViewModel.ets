@@ -11,7 +11,7 @@ import {
   StarRailRawRelic,
   StarRailRawSkillNode
 } from 'core';
-import { starRailPropertyTypeToName } from '../utils/StarRailPropertyUtil';
+import { starRailPropertyTypeToResource } from '../utils/StarRailPropertyUtil';
 import { Logger } from 'core';
 import { ViewState } from '../constants/ViewStates';
 import {
@@ -202,7 +202,7 @@ export class StarRailCharacterDetailViewModel {
           const p = parsed.properties[i];
           const prop = new StarRailCharDetailProperty();
           prop.propertyType = p.property_type ?? 0;
-          prop.name = starRailPropertyTypeToName(p.property_type ?? 0);
+          prop.name = starRailPropertyTypeToResource(p.property_type ?? 0) ?? '';
           prop.final = p.final ?? '';
           propList[propList.length] = prop;
         }
@@ -229,7 +229,7 @@ export class StarRailCharacterDetailViewModel {
     if (r.properties) {
       for (let j = 0; j < r.properties.length; j++) {
         const sub = new StarRailRelicSubStat();
-        sub.name = starRailPropertyTypeToName(r.properties[j].property_type ?? 0);
+        sub.name = starRailPropertyTypeToResource(r.properties[j].property_type ?? 0) ?? '';
         sub.value = r.properties[j].value ?? '';
         sub.times = r.properties[j].times ?? 0;
         subs[subs.length] = sub;

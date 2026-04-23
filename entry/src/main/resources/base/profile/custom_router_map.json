@@ -2,32 +2,32 @@
   "routerMap": [
     {
       "name": "StarRailCharacterDetail",
-      "pageSourceFile": "src/main/ets/pages/router/StarRailCharacterDetailBuilder.ets",
+      "pageSourceFile": "src/main/ets/pages/StarRailCharacterDetail.ets",
       "buildFunction": "StarRailCharacterDetailBuilder"
     },
     {
       "name": "ZZZCharacterDetail",
-      "pageSourceFile": "src/main/ets/pages/router/ZZZCharacterDetailBuilder.ets",
+      "pageSourceFile": "src/main/ets/pages/ZZZCharacterDetail.ets",
       "buildFunction": "ZZZCharacterDetailBuilder"
     },
     {
       "name": "StarRailDailyDetail",
-      "pageSourceFile": "src/main/ets/pages/router/StarRailDailyDetailBuilder.ets",
+      "pageSourceFile": "src/main/ets/pages/StarRailDailyDetail.ets",
       "buildFunction": "StarRailDailyDetailBuilder"
     },
     {
       "name": "ZZZDailyDetail",
-      "pageSourceFile": "src/main/ets/pages/router/ZZZDailyDetailBuilder.ets",
+      "pageSourceFile": "src/main/ets/pages/ZZZDailyDetail.ets",
       "buildFunction": "ZZZDailyDetailBuilder"
     },
     {
       "name": "TestPage",
-      "pageSourceFile": "src/main/ets/pages/router/TestPageBuilder.ets",
+      "pageSourceFile": "src/main/ets/pages/TestPage.ets",
       "buildFunction": "TestPageBuilder"
     },
     {
       "name": "WebView",
-      "pageSourceFile": "src/main/ets/pages/router/WebViewPageBuilder.ets",
+      "pageSourceFile": "src/main/ets/pages/WebViewPage.ets",
       "buildFunction": "WebViewPageBuilder"
     }
   ]
