@@ -1,14 +1,14 @@
 /**
  * LoginPhoneInput — 手机号输入步骤 UI
  */
-import { ThemeManager } from '../../theme/ThemeManager'
-import { LoginViewModel } from '../../viewmodel/LoginViewModel'
+import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { LoginViewModel } from '../../viewmodel/LoginViewModel';
 
 @ComponentV2
 export struct LoginPhoneInput {
-  @Param tm: ThemeManager = new ThemeManager()
-  @Param vm: LoginViewModel = new LoginViewModel()
-  @Param onSendSms: () => void = () => {}
+  @Param vm: LoginViewModel = new LoginViewModel();
+  @Param onSendSms: () => void = () => {};
+  @Local private tm: ThemeManager = themeManager;
 
   build() {
     Column({ space: this.tm.current.value16 }) {
@@ -17,6 +17,7 @@ export struct LoginPhoneInput {
           .font(this.tm.current.body12)
           .fontColor(this.tm.current.colorTextSecondary)
           .width(this.tm.current.full)
+
         TextInput({ placeholder: $r('app.string.login_phone_placeholder'), text: this.vm.phoneNumber })
           .width(this.tm.current.full)
           .height(this.tm.current.value46)

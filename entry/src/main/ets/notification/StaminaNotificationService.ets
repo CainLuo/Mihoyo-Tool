@@ -165,11 +165,6 @@ export class StaminaNotificationService {
     //     !StaminaThresholdCalculator.shouldReschedule(existingEntry.recoveryTimeSnapshot, recoveryTime)) {
     //   return;
     // }
-    if (existingEntry !== null &&
-        !StaminaThresholdCalculator.shouldReschedule(existingEntry.recoveryTimeSnapshot, recoveryTime)) {
-      return;
-    }
-
     if (existingEntry !== null && existingEntry.reminderId >= 0) {
       try {
         await reminderAgentManager.cancelReminder(existingEntry.reminderId);
@@ -183,7 +178,8 @@ export class StaminaNotificationService {
 
     Logger.info(TAG, `checkAndSchedule: ${gameId}/${roleUid} recoveryTime=${recoveryTime} threshold=${threshold} maxStamina=${maxStamina} delaySeconds=${delaySeconds}`);
 
-    const staminaName = StaminaNotificationService.staminaName(gameId);    const gameName = StaminaNotificationService.gameName(gameId);
+    const staminaName = this.staminaName(gameId);
+    const gameName = this.gameName(gameId);
     const displayName = roleNickname.length > 0 ? roleNickname : accountNickname;
     const notifTitle = `${gameName} · ${displayName}`;
     const notifBody = `${staminaName}已达 ${currentStamina}/${maxStamina}，请及时消耗`;
@@ -361,24 +357,46 @@ export class StaminaNotificationService {
     return GameStaminaConstants.ZZZ_SECONDS_PER_UNIT;
   }
 
-  private static staminaName(gameId: GameId): string {
-    if (gameId === GameId.GENSHIN) {
-      return '原粹树脂';
+  private staminaName(gameId: GameId): string {
+    if (this.context === null) {
+      if (gameId === GameId.GENSHIN) { return '原粹树脂'; }
+      if (gameId === GameId.STARRAIL) { return '开拓力'; }
+      return '电量';
     }
-    if (gameId === GameId.STARRAIL) {
-      return '开拓力';
+    try {
+      if (gameId === GameId.GENSHIN) {
+        return this.context.resourceManager.getStringByNameSync('notification_stamina_genshin');
+      }
+      if (gameId === GameId.STARRAIL) {
+        return this.context.resourceManager.getStringByNameSync('notification_stamina_starrail');
+      }
+      return this.context.resourceManager.getStringByNameSync('notification_stamina_zzz');
+    } catch (_) {
+      if (gameId === GameId.GENSHIN) { return '原粹树脂'; }
+      if (gameId === GameId.STARRAIL) { return '开拓力'; }
+      return '电量';
     }
-    return '电量';
   }
 
-  private static gameName(gameId: GameId): string {
-    if (gameId === GameId.GENSHIN) {
-      return '原神';
+  private gameName(gameId: GameId): string {
+    if (this.context === null) {
+      if (gameId === GameId.GENSHIN) { return '原神'; }
+      if (gameId === GameId.STARRAIL) { return '崩坏：星穹铁道'; }
+      return '绝区零';
     }
-    if (gameId === GameId.STARRAIL) {
-      return '崩坏：星穹铁道';
+    try {
+      if (gameId === GameId.GENSHIN) {
+        return this.context.resourceManager.getStringByNameSync('game_name_genshin');
+      }
+      if (gameId === GameId.STARRAIL) {
+        return this.context.resourceManager.getStringByNameSync('game_name_starrail');
+      }
+      return this.context.resourceManager.getStringByNameSync('game_name_zzz');
+    } catch (_) {
+      if (gameId === GameId.GENSHIN) { return '原神'; }
+      if (gameId === GameId.STARRAIL) { return '崩坏：星穹铁道'; }
+      return '绝区零';
     }
-    return '绝区零';
   }
 
   private static hashNotifId(key: string): number {

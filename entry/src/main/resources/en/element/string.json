@@ -81,6 +81,10 @@
       "value": "Resend"
     },
     {
+      "name": "login_sms_cooldown_seconds",
+      "value": "%ds"
+    },
+    {
       "name": "login_qrcode_loading",
       "value": "Loading QR code..."
     },
@@ -821,6 +825,98 @@
       "value": "E%d"
     },
     {
+      "name": "sr_prop_hp",
+      "value": "HP"
+    },
+    {
+      "name": "sr_prop_atk",
+      "value": "ATK"
+    },
+    {
+      "name": "sr_prop_def",
+      "value": "DEF"
+    },
+    {
+      "name": "sr_prop_spd",
+      "value": "SPD"
+    },
+    {
+      "name": "sr_prop_crit_rate",
+      "value": "CRIT Rate"
+    },
+    {
+      "name": "sr_prop_crit_dmg",
+      "value": "CRIT DMG"
+    },
+    {
+      "name": "sr_prop_effect_hit",
+      "value": "Effect Hit Rate"
+    },
+    {
+      "name": "sr_prop_energy_regen",
+      "value": "Energy Regeneration Rate"
+    },
+    {
+      "name": "sr_prop_effect_res",
+      "value": "Effect RES"
+    },
+    {
+      "name": "sr_prop_break_dmg",
+      "value": "Break Effect"
+    },
+    {
+      "name": "sr_prop_healing_bonus",
+      "value": "Outgoing Healing Boost"
+    },
+    {
+      "name": "sr_prop_hp_pct",
+      "value": "HP%"
+    },
+    {
+      "name": "sr_prop_atk_pct",
+      "value": "ATK%"
+    },
+    {
+      "name": "sr_prop_def_pct",
+      "value": "DEF%"
+    },
+    {
+      "name": "sr_prop_spd_pct",
+      "value": "SPD%"
+    },
+    {
+      "name": "sr_prop_physical_dmg",
+      "value": "Physical DMG Boost"
+    },
+    {
+      "name": "sr_prop_fire_dmg",
+      "value": "Fire DMG Boost"
+    },
+    {
+      "name": "sr_prop_ice_dmg",
+      "value": "Ice DMG Boost"
+    },
+    {
+      "name": "sr_prop_lightning_dmg",
+      "value": "Lightning DMG Boost"
+    },
+    {
+      "name": "sr_prop_wind_dmg",
+      "value": "Wind DMG Boost"
+    },
+    {
+      "name": "sr_prop_quantum_dmg",
+      "value": "Quantum DMG Boost"
+    },
+    {
+      "name": "sr_prop_imaginary_dmg",
+      "value": "Imaginary DMG Boost"
+    },
+    {
+      "name": "sr_prop_unknown_71",
+      "value": "Euphoria"
+    },
+    {
       "name": "zzz_char_detail_title",
       "value": "Agent Detail"
     },
@@ -865,6 +961,10 @@
       "value": "Skills"
     },
     {
+      "name": "char_detail_skill_default_name",
+      "value": "Skill %d"
+    },
+    {
       "name": "char_detail_section_weapon",
       "value": "Weapon"
     },
@@ -901,6 +1001,30 @@
       "value": "Circlet of Logos"
     },
     {
+      "name": "starrail_relic_pos_head",
+      "value": "Head"
+    },
+    {
+      "name": "starrail_relic_pos_hand",
+      "value": "Hands"
+    },
+    {
+      "name": "starrail_relic_pos_body",
+      "value": "Body"
+    },
+    {
+      "name": "starrail_relic_pos_feet",
+      "value": "Feet"
+    },
+    {
+      "name": "starrail_relic_pos_sphere",
+      "value": "Planar Sphere"
+    },
+    {
+      "name": "starrail_relic_pos_rope",
+      "value": "Link Rope"
+    },
+    {
       "name": "starrail_daily_title",
       "value": "Star Rail Notes"
     },
@@ -935,6 +1059,10 @@
     {
       "name": "daily_note_reserve_full",
       "value": "Full"
+    },
+    {
+      "name": "daily_note_reserve_stamina_full_value",
+      "value": "%d (Full)"
     },
     {
       "name": "daily_note_expedition_sr",
@@ -1045,6 +1173,10 @@
       "value": "Idle"
     },
     {
+      "name": "daily_note_temple_currency",
+      "value": "Currency: %d"
+    },
+    {
       "name": "daily_note_member_no",
       "value": "Not Active"
     },
@@ -1083,6 +1215,18 @@
     {
       "name": "test_page_title",
       "value": "Test Tools"
+    },
+    {
+      "name": "test_t1_done",
+      "value": "T1 set, please restart App"
+    },
+    {
+      "name": "test_t3_done",
+      "value": "T3 set, please restart App"
+    },
+    {
+      "name": "test_failed",
+      "value": "Setup failed, check logs"
     },
     {
       "name": "feedback_home_refresh_success",
@@ -1227,6 +1371,30 @@
     {
       "name": "notification_stamina_zzz",
       "value": "Battery"
+    },
+    {
+      "name": "notification_warning_icon",
+      "value": "⚠️"
+    },
+    {
+      "name": "notification_game_stamina_label",
+      "value": "%s · %s"
+    },
+    {
+      "name": "notification_stamina_max_suffix",
+      "value": "/ %d"
+    },
+    {
+      "name": "notification_stamina_max_unknown",
+      "value": "/ —"
+    },
+    {
+      "name": "common_dot_separator",
+      "value": "·"
+    },
+    {
+      "name": "common_uid_format",
+      "value": "UID %s"
     }
   ]
 }

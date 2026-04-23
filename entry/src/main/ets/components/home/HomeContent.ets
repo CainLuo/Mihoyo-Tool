@@ -1,20 +1,22 @@
 /**
  * HomeContent — 首页内容区组件
+ *
+ * 根据 viewState 展示骨架屏、空态占位或账号游戏卡片列表。
  */
-import { ThemeManager } from '../../theme/ThemeManager'
-import { HomeViewModel } from '../../viewmodel/HomeViewModel'
-import { MihoyoAccountVM, GameRoleCardVM } from './HomeModels'
-import { UserGameSection } from './UserGameSection'
-import { HomeSkeletonView } from './HomeSkeletonView'
-import { HomePlaceholderView } from './HomePlaceholderView'
-import { ViewState } from '../../constants/ViewStates'
+import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { HomeViewModel } from '../../viewmodel/HomeViewModel';
+import { MihoyoAccountVM, GameRoleCardVM } from '../../models/HomeModels';
+import { UserGameSection } from './UserGameSection';
+import { HomeSkeletonView } from './HomeSkeletonView';
+import { HomePlaceholderView } from './HomePlaceholderView';
+import { ViewState } from '../../constants/ViewStates';
 
 @ComponentV2
 export struct HomeContent {
-  @Param tm: ThemeManager = new ThemeManager()
-  @Param vm: HomeViewModel = new HomeViewModel()
-  @Param scroller: Scroller = new Scroller()
-  @Param onCardTap: (card: GameRoleCardVM) => void = (_card: GameRoleCardVM) => {}
+  @Param vm: HomeViewModel = new HomeViewModel();
+  @Param scroller: Scroller = new Scroller();
+  @Param onCardTap: (card: GameRoleCardVM) => void = (_card: GameRoleCardVM) => {};
+  @Local private tm: ThemeManager = themeManager;
 
   build() {
     if (this.vm.viewState === ViewState.LOADING) {
@@ -30,6 +32,7 @@ export struct HomeContent {
               onCardTap: (card: GameRoleCardVM) => { this.onCardTap(card) }
             })
           }, (account: MihoyoAccountVM) => account.accountId.toString())
+
           Row().height(this.tm.current.value40)
         }
         .width(this.tm.current.full)

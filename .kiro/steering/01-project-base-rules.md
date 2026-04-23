@@ -41,9 +41,31 @@ When editing existing code:
 When your changes create orphans:
 
 - Remove imports/variables/functions that YOUR changes made unused.
+- **Every edit to a file must end with an import cleanup pass**: scan all `import` statements and remove any that are no longer referenced in the file after your changes.
 - Don't remove pre-existing dead code unless asked.
 
 The test: Every changed line should trace directly to the user's request.
+
+## 3.1 整理代码后的影响验证
+
+**凡是删除或修改现有代码的行为（不限于整理），必须在改完后主动验证不影响原有逻辑。**
+
+触发条件（满足任意一条就必须验证）：
+
+- 删除装饰器（如 `@ObservedV2`、`@Trace`、`@State`）
+- 删除方法或字段
+- 修改方法签名（参数增减、类型变更）
+- 将逻辑从一个文件迁移到另一个文件
+- 删除中间层文件（如只有 re-export 的文件）
+- 修改 import 路径
+
+验证步骤：
+
+1. **搜索所有调用方**：用 `grepSearch` 找出被修改的类/方法/字段的所有引用
+2. **判断影响**：逐一确认每个调用方是否依赖被删除/修改的行为
+3. **说明结论**：在回复中明确写出"不影响，原因是……"或"有影响，已同步修改……"
+
+**禁止**在没有完成上述验证的情况下直接提交改动。
 
 ## 4. Goal-Driven Execution
 
@@ -65,6 +87,23 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
 
+**For large tasks (more than ~5 files to read or write):**
+
+- Break into batches of 3–5 files maximum per round
+- After each batch, report what was done and what remains
+- This allows the user to resume from the last completed batch if execution stalls
+
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+
+## 5. Response Style
+
+**Never reply with only "Understood" or acknowledgment phrases without action or content.**
+
+- If the message is a task → start doing it immediately, no preamble.
+- If the message is information/context → acknowledge briefly AND state what you'll do next, or ask a specific question if genuinely unclear.
+- If the message is a question → answer it directly.
+- All responses must be in **Simplified Chinese (简体中文)** unless the user writes in another language.
+
+Banned openers: "Understood", "Got it", "Sure", "Of course", "Certainly", "I'll help you with that".

@@ -1,15 +1,15 @@
 /**
  * SidebarNavItem — 侧边导航项
  */
-import { ThemeManager } from '../../theme/ThemeManager'
+import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 
 @ComponentV2
 export struct SidebarNavItem {
-  @Param tm: ThemeManager = new ThemeManager()
   @Param tab: number = 0
   @Param selectedTab: number = 0
   @Param label: Resource = $r('app.string.main_tab_home')
   @Param onSelect: (tab: number) => void = (_tab: number) => {}
+  @Local private tm: ThemeManager = themeManager
 
   build() {
     Row({ space: this.tm.current.value10 }) {
@@ -20,6 +20,7 @@ export struct SidebarNavItem {
         .backgroundColor(this.tab === this.selectedTab
           ? this.tm.current.colorPrimary
           : this.tm.current.colorTextSecondary)
+
       Text(this.label)
         .font(this.tab === this.selectedTab ? this.tm.current.body16Medium : this.tm.current.body16)
         .fontColor(this.tab === this.selectedTab
@@ -43,19 +44,21 @@ export struct SidebarNavItem {
 
 // ─── Preview ─────────────────────────────────────────────────────
 
-import { themeManager } from '../../theme/ThemeManager';
-
 @Preview
 @ComponentV2
 export struct SidebarNavItemPreview {
+  @Local private tm: ThemeManager = themeManager
+
   build() {
-    Column({ space: 4 }) {
-      SidebarNavItem({ tm: themeManager, tab: 0, selectedTab: 0, label: $r('app.string.main_tab_home') })
-      SidebarNavItem({ tm: themeManager, tab: 1, selectedTab: 0, label: $r('app.string.main_tab_characters') })
-      SidebarNavItem({ tm: themeManager, tab: 2, selectedTab: 0, label: $r('app.string.main_tab_my') })
+    Column({ space: this.tm.current.value4 }) {
+      SidebarNavItem({ tab: 0, selectedTab: 0, label: $r('app.string.main_tab_home') })
+
+      SidebarNavItem({ tab: 1, selectedTab: 0, label: $r('app.string.main_tab_characters') })
+
+      SidebarNavItem({ tab: 2, selectedTab: 0, label: $r('app.string.main_tab_my') })
     }
-    .padding(16)
-    .width(200)
+    .padding(this.tm.current.value16)
+    .width(this.tm.current.value200)
     .backgroundColor('#1a1a2e')
   }
 }

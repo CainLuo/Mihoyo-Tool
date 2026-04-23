@@ -59,6 +59,8 @@ export enum ZZZPropertyId {
   CRIT_RATE_HIGH = 21103,
 
   // ── 暴击伤害（system_id: 211，注意与暴击率共用 system_id 前缀）──
+  // 注意：绝区零 API 中暴击率和暴击伤害共用同一组 property_id（21101/21102/21103），
+  // 通过 property_name 字段区分（"暴击率" vs "暴击伤害"），此处枚举值重复是 API 设计所致。
 
   /** 暴击伤害（基础，百分比） */
   CRIT_DMG_BASE = 21101,

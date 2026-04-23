@@ -17,7 +17,7 @@ import { GenshinDailyDetail, GenshinDailyDetailParam } from './GenshinDailyDetai
 import { GenshinCharacterDetailParam, GenshinCharacterDetail } from './GenshinCharacterDetail'
 import { AccountDetail } from './AccountDetail'
 import { Login } from './Login'
-import { MyAccountVM } from '../components/my/MyModels'
+import { MyAccountVM } from '../models/MyModels'
 import { AppRoutes } from '../constants/AppRoutes'
 import { splitPlaceholderBuilder } from '../components/SplitPlaceholder'
 import { CookieExpiredSignal } from '../utils/CookieExpiredSignal'
@@ -36,7 +36,7 @@ function accountSwitchDialogBuilder(params: AccountSwitchDialogParams) {
 function allDetailBuilder(name: string, param: Object) {
   if (name === AppRoutes.GENSHIN_DAILY_DETAIL) {
     GenshinDailyDetail({ routerParam: param as GenshinDailyDetailParam })
-  } else if (name === 'CharDetail' || name === AppRoutes.GENSHIN_CHARACTER_DETAIL) {
+  } else if (name === AppRoutes.GENSHIN_CHARACTER_DETAIL) {
     GenshinCharacterDetail({ routerParam: param as GenshinCharacterDetailParam })
   } else if (name === AppRoutes.ACCOUNT_DETAIL) {
     AccountDetail({ account: param as MyAccountVM })
@@ -173,7 +173,7 @@ export struct Main {
     ctx.getPromptAction().openCustomDialog(content, {
       alignment: DialogAlignment.Bottom,
       offset: { dx: 0, dy: 0 },
-      maskColor: 'rgba(0,0,0,0.5)',
+      maskColor: this.tm.current.colorMask,
       isModal: true,
       autoCancel: true
     }).catch((_: Error | object) => {});
@@ -272,5 +272,15 @@ export struct Main {
       })
     }
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
+  }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct MainPreview {
+  build() {
+    Main()
   }
 }

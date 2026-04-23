@@ -1,14 +1,14 @@
 /**
  * LoginCodeInput — 验证码输入步骤 UI
  */
-import { ThemeManager } from '../../theme/ThemeManager'
-import { LoginViewModel } from '../../viewmodel/LoginViewModel'
+import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { LoginViewModel } from '../../viewmodel/LoginViewModel';
 
 @ComponentV2
 export struct LoginCodeInput {
-  @Param tm: ThemeManager = new ThemeManager()
-  @Param vm: LoginViewModel = new LoginViewModel()
-  @Param onResendSms: () => void = () => {}
+  @Param vm: LoginViewModel = new LoginViewModel();
+  @Param onResendSms: () => void = () => {};
+  @Local private tm: ThemeManager = themeManager;
 
   build() {
     Column({ space: this.tm.current.value16 }) {
@@ -18,6 +18,7 @@ export struct LoginCodeInput {
           .fontColor(this.tm.current.colorTextSecondary)
           .textAlign(TextAlign.Center)
           .width(this.tm.current.full)
+
         Text(this.vm.maskedPhone)
           .font(this.tm.current.body16Medium)
           .fontColor(this.tm.current.colorTextPrimary)
@@ -30,6 +31,7 @@ export struct LoginCodeInput {
           .font(this.tm.current.body12)
           .fontColor(this.tm.current.colorTextSecondary)
           .width(this.tm.current.full)
+
         TextInput({ placeholder: $r('app.string.login_code_placeholder'), text: this.vm.smsCode })
           .width(this.tm.current.full)
           .height(this.tm.current.value46)
@@ -60,8 +62,9 @@ export struct LoginCodeInput {
           .font(this.tm.current.body13)
           .fontColor(this.tm.current.colorPrimary)
           .onClick(() => { this.vm.backToPhoneInput() })
+
         if (this.vm.smsCooldown > 0) {
-          Text(this.vm.smsCooldown + 's')
+          Text($r('app.string.login_sms_cooldown_seconds', this.vm.smsCooldown))
             .font(this.tm.current.body13)
             .fontColor(this.tm.current.colorPlaceholder)
         } else {

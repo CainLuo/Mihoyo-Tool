@@ -10,7 +10,7 @@ import { CoreInitializer, GenshinPropertyType, GenshinCharacterDetailRow } from 
 import { GenshinCharacterDetailRaw } from 'core';
 import { Logger } from 'core';
 import { ViewState } from '../constants/ViewStates';
-import { GenshinElement, elementFromString } from '../constants/GenshinElement';
+import { GenshinElement, genshinElementFromString } from '../constants/GenshinElement';
 import {
   CharDetailWeapon,
   CharDetailRelic,
@@ -18,7 +18,7 @@ import {
   CharDetailSkill,
   CharDetailRankItem,
   CharDetailStat
-} from '../components/chardetail/CharDetailModels';
+} from '../models/CharDetailModels';
 import {
   genshinPropertyTypeToResource,
   GENSHIN_STAT_ORDER,
@@ -101,7 +101,7 @@ export class GenshinCharacterDetailViewModel {
       this.charName = base.name ?? '';
       this.charLevel = base.level ?? 0;
       this.charFetter = base.fetter ?? 0;
-      this.charElement = elementFromString(base.element ?? '');
+      this.charElement = genshinElementFromString(base.element ?? '');
       this.charImageUrl = base.image ?? '';
       this.charIconUrl = base.icon ?? '';
       this.activatedConstellations = base.actived_constellation_num ?? 0;

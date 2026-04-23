@@ -25,7 +25,7 @@ export class ZZZApiService extends MihoyoApiService {
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.ZZZ_GAME_RECORD, cookie, params);
     headers.set(HKey.PAGE, ApiConfig.PAGE_ZZZ_NOTE);
     if (geetestChallenge) {
-      headers.set('x-rpc-challenge', geetestChallenge);
+      headers.set(HKey.CHALLENGE, geetestChallenge);
     }
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
@@ -126,7 +126,7 @@ export class ZZZApiService extends MihoyoApiService {
       skills: skills,
     });
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.ZZZ_GAME_RECORD, cookie, undefined, bodyStr);
-    headers.set('x-rpc-cultivate_source', 'bbs');
+    headers.set(HKey.CULTIVATE_SOURCE, 'bbs');
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     const url = `${MihoyoDomain.ACT_TAKUMI}${ZZZApiPath.COMPUTE}?uid=${uid}&region=${region}`;

@@ -43,15 +43,29 @@ import {
   MihoyoAccountVM,
   GameRoleCardVM,
   GameNoteSnapshotVM,
-} from '../components/home/HomeModels';
-import { ZZZVideoStoreState, ZZZCardSign } from '../constants/ZZZEnums';
+  GameDataRowVM,
+} from '../models/HomeModels';
+import { ZZZVideoStoreState, ZZZCardSign } from 'core';
 import { ViewState } from '../constants/ViewStates';
 import { AppConstants } from '../constants/AppConstants';
 import { StaminaNotificationService } from '../notification/StaminaNotificationService';
+import { gameIdToColor, gameIdToLogo } from '../utils/GameIdUtil';
+import { AppRoutes } from '../constants/AppRoutes';
+import { GenshinDailyDetailParam } from '../pages/GenshinDailyDetail';
+import { StarRailDailyDetailParam } from '../pages/StarRailDailyDetail';
+import { ZZZDailyDetailParam } from '../pages/ZZZDailyDetail';
 
 const TAG: string = 'HomeViewModel';
 
 export type HomeViewState = ViewState;
+
+/** 首页卡片点击路由结果 */
+export class HomeCardTapRoute {
+  /** 路由名称 */
+  routeName: string = '';
+  /** 路由参数 */
+  param: GenshinDailyDetailParam | StarRailDailyDetailParam | ZZZDailyDetailParam = new GenshinDailyDetailParam();
+}
 
 /** HomeViewModel @Monitor 路径常量类型 */
 export class HomeViewModelKeys {
@@ -85,6 +99,40 @@ export class HomeViewModel {
   private autoRefreshTimer: number = -1;
 
   // ─── 公开方法 ────────────────────────────────────────────────
+
+  /**
+   * 根据点击的游戏卡片，返回对应便笺详情页的路由名称和参数。
+   * View 层只负责调用 pushPath / replacePath，不做任何 gameId 判断。
+   * 返回 null 表示该游戏暂不支持跳转。
+   */
+  buildCardTapRoute(accountId: string, card: GameRoleCardVM): HomeCardTapRoute | null {
+    const route = new HomeCardTapRoute();
+    if (card.gameId === GameId.GENSHIN) {
+      const param = new GenshinDailyDetailParam();
+      param.accountId = accountId;
+      param.roleUid = card.roleUid;
+      route.routeName = AppRoutes.GENSHIN_DAILY_DETAIL;
+      route.param = param;
+      return route;
+    }
+    if (card.gameId === GameId.STARRAIL) {
+      const param = new StarRailDailyDetailParam();
+      param.accountId = accountId;
+      param.roleUid = card.roleUid;
+      route.routeName = AppRoutes.STARRAIL_DAILY_DETAIL;
+      route.param = param;
+      return route;
+    }
+    if (card.gameId === GameId.ZZZ) {
+      const param = new ZZZDailyDetailParam();
+      param.accountId = accountId;
+      param.roleUid = card.roleUid;
+      route.routeName = AppRoutes.ZZZ_DAILY_DETAIL;
+      route.param = param;
+      return route;
+    }
+    return null;
+  }
 
   /**
    * 冷启动加载：读本地 DB → 切换状态，然后后台触发一次网络同步。
@@ -469,7 +517,8 @@ export class HomeViewModel {
         role.nickname,
         serverDisplayName(role.server, role.gameId) ?? role.server,
         snapshot,
-        'sync_just_now'
+        'sync_just_now',
+        HomeViewModel.gameLogo(role.gameId)
       );
     }
     return cards;
@@ -493,7 +542,7 @@ export class HomeViewModel {
         const isFull = data.currentResin >= data.maxResin && data.maxResin > 0;
         const recoverySec = isFull ? 0 : data.resinRecoveryTime;
         const snap = new GameNoteSnapshotVM(
-          gameId, data.currentResin, data.maxResin, recoverySec, '', '', isFull
+          $r('app.string.daily_note_resin_title'), data.currentResin, data.maxResin, recoverySec, '', '', isFull
         );
         snap.expeditionCurrent = data.expeditions.length;
         snap.expeditionMax = data.maxExpeditionNum;
@@ -502,6 +551,44 @@ export class HomeViewModel {
         snap.dailyTaskFinished = data.finishedTaskNum;
         snap.dailyTaskTotal = data.totalTaskNum;
         snap.dailyTaskAllReceived = data.isExtraTaskRewardReceived;
+
+        // 数据行：由 VM 决定显示哪些行及颜色，View 层直接 ForEach
+        const rows: GameDataRowVM[] = [];
+        if (data.expeditions.length >= 0) {
+          const expCur = data.expeditions.length;
+          const expMax = data.maxExpeditionNum;
+          rows[rows.length] = new GameDataRowVM(
+            $r('app.string.daily_note_expedition_title'),
+            `${expCur}/${expMax}`,
+            expCur >= expMax ? $r('app.color.color_primary')
+              : expCur === 0 ? $r('app.color.color_danger')
+              : $r('app.color.color_warning')
+          );
+        }
+        if (data.currentHomeCoin >= 0) {
+          const coinCur = data.currentHomeCoin;
+          const coinMax = data.maxHomeCoin;
+          rows[rows.length] = new GameDataRowVM(
+            $r('app.string.daily_note_home_coin_title'),
+            `${coinCur}/${coinMax}`,
+            coinMax > 0 && coinCur >= coinMax ? $r('app.color.color_danger')
+              : coinMax > 0 && coinCur / coinMax >= 0.5 ? $r('app.color.color_warning')
+              : $r('app.color.color_primary')
+          );
+        }
+        if (data.finishedTaskNum >= 0) {
+          rows[rows.length] = new GameDataRowVM(
+            $r('app.string.daily_note_daily_task_title'),
+            data.isExtraTaskRewardReceived
+              ? $r('app.string.daily_note_task_all_received')
+              : `${data.finishedTaskNum}/${data.totalTaskNum}`,
+            data.isExtraTaskRewardReceived ? $r('app.color.color_primary')
+              : data.finishedTaskNum === 0 ? $r('app.color.color_danger')
+              : $r('app.color.color_warning')
+          );
+        }
+        snap.dataRows = rows;
+        snap.primaryColor = HomeViewModel.primaryColor(gameId, data.currentResin, data.maxResin, isFull);
         return snap;
       }
 
@@ -516,7 +603,7 @@ export class HomeViewModel {
         const isFull = stamina >= maxStamina && maxStamina > 0;
         const recoverySec = isFull ? 0 : data.staminaRecoverTime;
         const snap = new GameNoteSnapshotVM(
-          gameId, stamina, maxStamina, recoverySec, '', '', isFull
+          $r('app.string.starrail_stamina_title'), stamina, maxStamina, recoverySec, '', '', isFull
         );
         snap.reserveStamina = data.currentReserveStamina;
         snap.trainScoreCurrent = data.currentTrainScore;
@@ -527,6 +614,54 @@ export class HomeViewModel {
         snap.rogueScoreMax = data.maxRogueScore;
         snap.tournScoreCurrent = data.rogueTournWeeklyCur;
         snap.tournScoreMax = data.rogueTournWeeklyMax;
+
+        // 数据行
+        const srRows: GameDataRowVM[] = [];
+        if (data.currentReserveStamina >= 0) {
+          srRows[srRows.length] = new GameDataRowVM(
+            $r('app.string.starrail_reserve_stamina_title'),
+            `${data.currentReserveStamina}`,
+            $r('app.color.color_text_secondary')
+          );
+        }
+        if (data.currentTrainScore >= 0) {
+          srRows[srRows.length] = new GameDataRowVM(
+            $r('app.string.starrail_train_score_title'),
+            `${data.currentTrainScore}/${data.maxTrainScore}`,
+            data.currentTrainScore >= data.maxTrainScore ? $r('app.color.color_primary')
+              : data.currentTrainScore === 0 ? $r('app.color.color_danger')
+              : $r('app.color.color_warning')
+          );
+        }
+        if (data.weeklyCocoonCnt >= 0) {
+          srRows[srRows.length] = new GameDataRowVM(
+            $r('app.string.starrail_cocoon_title'),
+            `${data.weeklyCocoonCnt}/${data.weeklyCocoonLimit}`,
+            data.weeklyCocoonCnt >= data.weeklyCocoonLimit ? $r('app.color.color_primary')
+              : data.weeklyCocoonCnt === 0 ? $r('app.color.color_danger')
+              : $r('app.color.color_warning')
+          );
+        }
+        if (data.currentRogueScore >= 0) {
+          srRows[srRows.length] = new GameDataRowVM(
+            $r('app.string.starrail_rogue_score_title'),
+            `${data.currentRogueScore}/${data.maxRogueScore}`,
+            data.currentRogueScore >= data.maxRogueScore ? $r('app.color.color_primary')
+              : data.currentRogueScore === 0 ? $r('app.color.color_danger')
+              : $r('app.color.color_warning')
+          );
+        }
+        if (data.rogueTournWeeklyCur >= 0) {
+          srRows[srRows.length] = new GameDataRowVM(
+            $r('app.string.starrail_tourn_score_title'),
+            `${data.rogueTournWeeklyCur}/${data.rogueTournWeeklyMax}`,
+            data.rogueTournWeeklyCur >= data.rogueTournWeeklyMax ? $r('app.color.color_primary')
+              : data.rogueTournWeeklyCur === 0 ? $r('app.color.color_danger')
+              : $r('app.color.color_warning')
+          );
+        }
+        snap.dataRows = srRows;
+        snap.primaryColor = HomeViewModel.primaryColor(gameId, stamina, maxStamina, isFull);
         return snap;
       }
 
@@ -540,7 +675,7 @@ export class HomeViewModel {
         const maxEnergy = data.maxEnergy > 0 ? data.maxEnergy : row.energyMax;
         const zzzisFull = energy >= maxEnergy && maxEnergy > 0;
         const zzzRecoverySec = zzzisFull ? 0 : data.energyRecoverTime;
-        const snap = new GameNoteSnapshotVM(gameId, energy, maxEnergy, zzzRecoverySec, '', '', zzzisFull);
+        const snap = new GameNoteSnapshotVM($r('app.string.zzz_energy_title'), energy, maxEnergy, zzzRecoverySec, '', '', zzzisFull);
         snap.vitalityCurrent = data.currentVitality;
         snap.vitalityMax = data.maxVitality;
         snap.scratchCardSign = data.cardSign === 'CardSignDone' ? ZZZCardSign.DONE : ZZZCardSign.TODO;
@@ -553,6 +688,42 @@ export class HomeViewModel {
         } else {
           snap.videoStoreState = ZZZVideoStoreState.UNKNOWN;
         }
+
+        // 数据行
+        const zzzRows: GameDataRowVM[] = [];
+        if (data.currentVitality >= 0) {
+          zzzRows[zzzRows.length] = new GameDataRowVM(
+            $r('app.string.zzz_vitality_title'),
+            `${data.currentVitality}/${data.maxVitality}`,
+            data.currentVitality >= data.maxVitality ? $r('app.color.color_primary')
+              : data.currentVitality === 0 ? $r('app.color.color_danger')
+              : $r('app.color.color_warning')
+          );
+        }
+        const cardSignDone = data.cardSign === 'CardSignDone';
+        zzzRows[zzzRows.length] = new GameDataRowVM(
+          $r('app.string.zzz_card_sign_title'),
+          cardSignDone ? $r('app.string.zzz_card_sign_done') : $r('app.string.zzz_card_sign_todo'),
+          cardSignDone ? $r('app.color.color_primary') : $r('app.color.color_danger')
+        );
+        if (data.videoStoreState !== '' && data.videoStoreState !== 'SaleStateUnknown') {
+          let vhsValue: ResourceStr = $r('app.string.zzz_video_store_closed');
+          let vhsColor: ResourceColor = $r('app.color.color_text_secondary');
+          if (data.videoStoreState === 'SaleStateDone') {
+            vhsValue = $r('app.string.zzz_video_store_done');
+            vhsColor = $r('app.color.color_primary');
+          } else if (data.videoStoreState === 'SaleStateDoing') {
+            vhsValue = $r('app.string.zzz_video_store_open');
+            vhsColor = $r('app.color.color_warning');
+          }
+          zzzRows[zzzRows.length] = new GameDataRowVM(
+            $r('app.string.zzz_video_store_title'),
+            vhsValue,
+            vhsColor
+          );
+        }
+        snap.dataRows = zzzRows;
+        snap.primaryColor = HomeViewModel.primaryColor(gameId, energy, maxEnergy, zzzisFull);
         return snap;
       }
 
@@ -566,18 +737,27 @@ export class HomeViewModel {
 
   /** 根据 gameId 返回对应的游戏主题色资源引用 */
   static gameColor(gameId: GameId): ResourceColor {
-    if (gameId === GameId.GENSHIN) {
-      return $r('app.color.game_color_genshin');
+    return gameIdToColor(gameId);
+  }
+
+  /** 根据 gameId 返回对应的游戏 Logo 图标资源 */
+  static gameLogo(gameId: GameId): Resource {
+    return gameIdToLogo(gameId);
+  }
+
+  /**
+   * 根据体力比例和游戏类型计算主体力颜色。
+   * 原神树脂满了 = danger（需要消耗），其他游戏体力满了 = primary（好事）。
+   */
+  static primaryColor(gameId: GameId, current: number, max: number, isFull: boolean): ResourceColor {
+    if (isFull) {
+      return gameId === GameId.GENSHIN
+        ? $r('app.color.color_danger')
+        : $r('app.color.color_primary');
     }
-    if (gameId === GameId.STARRAIL) {
-      return $r('app.color.game_color_starrail');
-    }
-    if (gameId === GameId.ZZZ) {
-      return $r('app.color.game_color_zzz');
-    }
-    if (gameId === GameId.HONKAI3) {
-      return $r('app.color.game_color_honkai3');
-    }
-    return $r('app.color.color_accent');
+    const ratio = max > 0 ? current / max : 0;
+    if (ratio < 0.3) { return $r('app.color.color_danger'); }
+    if (ratio < 0.7) { return $r('app.color.color_warning'); }
+    return $r('app.color.color_primary');
   }
 }

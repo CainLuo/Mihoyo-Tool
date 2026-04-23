@@ -24,16 +24,13 @@ export struct Login {
     this.vm.dispose()
   }
 
-  private pushWebView(type: 'terms' | 'privacy', title: string): void {
+  private pushWebView(type: 'terms' | 'privacy'): void {
     const stack = this.localStack
     if (stack === null) { return }
-    // 根据系统语言选择对应 HTML 文件
-    // zh-Hans → 简体中文，zh-Hant → 繁体中文，其他 → 英文
     const lang = i18n.System.getSystemLanguage()
     let suffix = '-en'
     if (lang.startsWith('zh')) {
       const script = i18n.System.getSystemRegion()
-      // zh-Hant 或 zh-HK / zh-TW 使用繁体
       if (lang.includes('Hant') || script === 'HK' || script === 'TW' || script === 'MO') {
         suffix = '-zh-hant'
       } else {
@@ -42,7 +39,9 @@ export struct Login {
     }
     const param = new WebViewParam()
     param.htmlFile = `legal/${type}${suffix}.html`
-    param.title = title
+    param.titleResource = type === 'terms'
+      ? $r('app.string.login_agreement_terms')
+      : $r('app.string.login_agreement_privacy')
     stack.pushPathByName(AppRoutes.WEB_VIEW, param)
   }
 
@@ -64,7 +63,7 @@ export struct Login {
   onShowNoStokenDialog(_monitor: IMonitor): void {
     if (!this.vm.showNoStokenDialog) { return }
     this.vm.showNoStokenDialog = false
-    AlertDialog.show({
+    this.getUIContext().showAlertDialog({
       title: $r('app.string.login_cookie_no_stoken_title'),
       message: $r('app.string.login_cookie_no_stoken'),
       confirm: {
@@ -79,17 +78,15 @@ export struct Login {
       Column() {
         if (this.windowWidth <= this.tm.current.value480) {
           LoginNarrowLayout({
-            tm: this.tm,
             vm: this.vm,
-            onTapTerms: () => { this.pushWebView('terms', '用户协议') },
-            onTapPrivacy: () => { this.pushWebView('privacy', '隐私政策') }
+            onTapTerms: () => { this.pushWebView('terms') },
+            onTapPrivacy: () => { this.pushWebView('privacy') }
           })
         } else {
           LoginWideLayout({
-            tm: this.tm,
             vm: this.vm,
-            onTapTerms: () => { this.pushWebView('terms', '用户协议') },
-            onTapPrivacy: () => { this.pushWebView('privacy', '隐私政策') }
+            onTapTerms: () => { this.pushWebView('terms') },
+            onTapPrivacy: () => { this.pushWebView('privacy') }
           })
         }
       }
@@ -105,5 +102,15 @@ export struct Login {
     .onReady((ctx: NavDestinationContext) => {
       this.localStack = ctx.pathStack
     })
+  }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct LoginPreview {
+  build() {
+    Login()
   }
 }

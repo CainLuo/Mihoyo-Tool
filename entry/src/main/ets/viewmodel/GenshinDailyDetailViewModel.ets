@@ -13,7 +13,7 @@ import {
   GenshinDailyNoteVM,
   GenshinDailyTaskVM,
   ExpeditionVM
-} from '../components/dailynote/DailyNoteModels';
+} from '../models/DailyNoteModels';
 import { Logger } from 'core';
 import { ViewState } from '../constants/ViewStates';
 
@@ -86,7 +86,8 @@ export class GenshinDailyDetailViewModel {
 
   private static toExpeditionVMs(raws: GenshinExpeditionData[]): ExpeditionVM[] {
     const result: ExpeditionVM[] = [];
-    for (const r of raws) {
+    for (let i = 0; i < raws.length; i++) {
+      const r = raws[i];
       const finished = r.status === 'Finished' || r.remainedTime === '0';
       const remainSec = parseInt(r.remainedTime, 10) || 0;
       result[result.length] = new ExpeditionVM(r.avatarSideIcon, remainSec, finished);

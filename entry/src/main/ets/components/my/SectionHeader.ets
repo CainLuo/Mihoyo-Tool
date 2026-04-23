@@ -22,12 +22,15 @@ export struct SectionHeader {
 @Preview
 @ComponentV2
 export struct SectionHeaderPreview {
+  @Local private tm: ThemeManager = themeManager
+
   build() {
-    Column({ space: 8 }) {
+    Column({ space: this.tm.current.value8 }) {
       SectionHeader({ title: $r('app.string.my_section_account') })
+
       SectionHeader({ title: $r('app.string.my_section_about') })
     }
-    .padding(16)
+    .padding(this.tm.current.value16)
     .backgroundColor('#1a1a2e')
   }
 }

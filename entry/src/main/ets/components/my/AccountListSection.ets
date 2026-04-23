@@ -1,4 +1,3 @@
-import { GameId } from 'core';
 /**
  * AccountListSection — 账号列表 Section
  *
@@ -6,7 +5,9 @@ import { GameId } from 'core';
  * My 页和 Setting 页均可复用。
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
-import { MyAccountVM, MyGameRoleVM } from './MyModels'
+import { MyAccountVM, MyGameRoleVM } from '../../models/MyModels'
+import { GameId } from 'core'
+import { AccountListItem } from './AccountListItem'
 
 @ComponentV2
 export struct AccountListSection {
@@ -28,58 +29,22 @@ export struct AccountListSection {
         .justifyContent(FlexAlign.Center)
       } else {
         ForEach(this.accounts, (account: MyAccountVM, idx: number) => {
-          Column() {
-            Row({ space: this.tm.current.value12 }) {
-              if (account.avatarUrl !== '') {
-                Image(account.avatarUrl)
-                  .width(this.tm.current.value36)
-                  .height(this.tm.current.value36)
-                  .borderRadius(this.tm.current.radius12)
-                  .objectFit(ImageFit.Cover)
-                  .border({ width: 2, color: this.tm.current.colorPrimary })
-              } else {
-                Row()
-                  .width(this.tm.current.value36)
-                  .height(this.tm.current.value36)
-                  .borderRadius(this.tm.current.radius12)
-                  .backgroundColor(this.tm.current.colorPrimary)
-              }
-              Column({ space: this.tm.current.value2 }) {
-                Text(account.nickname !== '' ? account.nickname : account.username)
-                  .font(this.tm.current.body16Medium)
-                  .fontColor(this.tm.current.colorTextPrimary)
-                  .maxLines(1)
-                  .textOverflow({ overflow: TextOverflow.Ellipsis })
-                Text('UID ' + (account.uid !== '' ? account.uid : account.username) + ' · ' + account.roles.length.toString() + ' 个游戏角色')
-                  .font(this.tm.current.body13)
-                  .fontColor(this.tm.current.colorTextSecondary)
-              }
-              .alignItems(HorizontalAlign.Start)
-              .layoutWeight(1)
-              Text($r('app.string.common_arrow_right'))
-                .font(this.tm.current.body16)
-                .fontColor(this.tm.current.colorTextSecondary)
-            }
-            .width(this.tm.current.full)
-            .padding({
-              left: this.tm.current.value16,
-              right: this.tm.current.value16,
-              top: this.tm.current.value12,
-              bottom: this.tm.current.value12
-            })
-            .alignItems(VerticalAlign.Center)
-            .onClick(() => { this.onAccountTap(account) })
-          }
-          .width(this.tm.current.full)
-          .backgroundColor(this.tm.current.colorSurfaceCard)
+          AccountListItem({
+            account: account,
+            onTap: (a: MyAccountVM) => { this.onAccountTap(a) }
+          })
 
           if (idx < this.accounts.length - 1) {
-            Divider().color(this.tm.current.colorDivider).margin({ left: this.tm.current.value16 })
+            Divider()
+              .color(this.tm.current.colorDivider)
+              .margin({ left: this.tm.current.value16 })
           }
-        }, (account: MyAccountVM) => `${account.accountId}_${account.roles.length}`)
+        }, (account: MyAccountVM) => account.accountId)
       }
 
-      Divider().color(this.tm.current.colorDivider)
+      Divider()
+        .color(this.tm.current.colorDivider)
+
       Button($r('app.string.my_account_add'), { type: ButtonType.Normal })
         .fontSize(this.tm.current.body16.size)
         .fontWeight(this.tm.current.body16.weight)
@@ -101,9 +66,10 @@ export struct AccountListSection {
 @Preview
 @ComponentV2
 export struct AccountListSectionPreview {
+  @Local private tm: ThemeManager = themeManager
+
   build() {
-    Column({ space: 16 }) {
-      // 有账号
+    Column({ space: this.tm.current.value16 }) {
       AccountListSection({
         accounts: [
           new MyAccountVM('user001', 'user001', [
@@ -112,10 +78,10 @@ export struct AccountListSectionPreview {
           new MyAccountVM('user002', 'user002', [], '开拓者', '')
         ]
       })
-      // 空账号
+
       AccountListSection({ accounts: [] })
     }
-    .padding(16)
+    .padding(this.tm.current.value16)
     .backgroundColor('#1a1a2e')
   }
 }

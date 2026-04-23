@@ -105,4 +105,18 @@ export enum StarRailPropertyType {
 
   /** 未知属性 71（base: "0.0%"，具体含义待确认） */
   UNKNOWN_71 = 71,
+
+  // ── 待确认属性（来自实际 API 数据，名称为推断值）────────────────
+
+  /** 冰属性伤害提高（待确认，pt=12） */
+  UNKNOWN_ICE_DMG = 12,
+
+  /** 火属性伤害提高（待确认，pt=14） */
+  UNKNOWN_FIRE_DMG = 14,
+
+  /** 量子属性伤害提高（待确认，pt=16） */
+  UNKNOWN_QUANTUM_DMG = 16,
+
+  /** 虚数属性伤害提高（待确认，pt=18） */
+  UNKNOWN_IMAGINARY_DMG = 18,
 }

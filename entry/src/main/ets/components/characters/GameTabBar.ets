@@ -1,11 +1,10 @@
-import { GameId } from 'core';
 /**
  * GameTabBar — 游戏横向 Tab 选择器
  *
  * 展示当前账号下有角色数据的游戏列表，支持横向滚动切换。
  * 仅在 Characters 页面使用。
  */
-
+import { GameId } from 'core';
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { GameTabItem } from '../../models/GameTabItem';
 

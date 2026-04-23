@@ -1,10 +1,9 @@
-import { RequestParams, RequestOptions } from './APIs';
-
 /**
  * MihoyoApiService 抽象基类
  * 所有游戏 API Service 和 Mock Service 的公共接口。
  * 通过 MihoyoApiServiceFactory 创建具体实现。
  */
+import { RequestParams, RequestOptions } from './APIs';
 export abstract class MihoyoApiService {
   /** GET 请求 */
   abstract get(

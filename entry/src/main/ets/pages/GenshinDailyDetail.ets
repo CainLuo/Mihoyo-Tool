@@ -8,9 +8,11 @@
 import display from '@ohos.display'
 import { window } from '@kit.ArkUI'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
-import { DailyNoteGenshin } from '../components/dailynote/DailyNoteGenshin'
+import { DailyNoteGenshin } from '../components/dailynote/genshin/DailyNoteGenshin'
 import { GenshinDailyDetailViewModel } from '../viewmodel/GenshinDailyDetailViewModel'
 import { ViewState } from '../constants/ViewStates'
+import { DailyNoteLoadingView } from '../components/dailynote/common/DailyNoteLoadingView'
+import { DailyNoteEmptyView } from '../components/dailynote/common/DailyNoteEmptyView'
 
 /** 系统 Navigation 传入的路由参数 */
 export class GenshinDailyDetailParam {
@@ -71,24 +73,9 @@ export struct GenshinDailyDetail {
     NavDestination() {
       Column() {
         if (this.vm.viewState === ViewState.LOADING) {
-          Row() {
-            LoadingProgress()
-              .width(this.tm.current.value52)
-              .height(this.tm.current.value52)
-              .color(this.tm.current.colorPrimary)
-          }
-          .width(this.tm.current.full)
-          .layoutWeight(1)
-          .justifyContent(FlexAlign.Center)
+          DailyNoteLoadingView()
         } else if (this.vm.viewState === ViewState.EMPTY || this.vm.viewState === ViewState.ERROR) {
-          Row() {
-            Text($r('app.string.home_no_data_hint'))
-              .font(this.tm.current.body13)
-              .fontColor(this.tm.current.colorTextSecondary)
-          }
-          .width(this.tm.current.full)
-          .layoutWeight(1)
-          .justifyContent(FlexAlign.Center)
+          DailyNoteEmptyView()
         } else {
           Scroll() {
             Column({ space: this.tm.current.value8 }) {
@@ -123,5 +110,15 @@ export struct GenshinDailyDetail {
     }
     .title($r('app.string.genshin_daily_title'))
     .hideTitleBar(false)
+  }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct GenshinDailyDetailPreview {
+  build() {
+    GenshinDailyDetail({ routerParam: new GenshinDailyDetailParam() })
   }
 }

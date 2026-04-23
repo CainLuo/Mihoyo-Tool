@@ -1,5 +1,6 @@
 import { preferences } from '@kit.ArkData';
 import { CoreInitializer } from '../CoreInitializer';
+import { Logger } from '../utils/Logger';
 
 /**
  * Cookie 管理器
@@ -38,7 +39,7 @@ export class CookieManager {
       await prefs.flush();
     } catch (error) {
       const message: string = CookieManager.toErrorMessage(error);
-      console.error(`Failed to persist cookie: ${message}`);
+      Logger.error('CookieManager', `Failed to persist cookie: ${message}`);
       throw new Error(`Persist cookie failed: ${message}`);
     }
   }
@@ -58,7 +59,7 @@ export class CookieManager {
         return cookie;
       }
     } catch (error) {
-      console.error(`Failed to get cookie: ${CookieManager.toErrorMessage(error)}`);
+      Logger.error('CookieManager', `Failed to get cookie: ${CookieManager.toErrorMessage(error)}`);
     }
     return null;
   }
@@ -73,7 +74,7 @@ export class CookieManager {
       await prefs.delete(CookieManager.COOKIE_KEY);
       await prefs.flush();
     } catch (error) {
-      console.error(`Failed to clear cookie: ${CookieManager.toErrorMessage(error)}`);
+      Logger.error('CookieManager', `Failed to clear cookie: ${CookieManager.toErrorMessage(error)}`);
     }
   }
 

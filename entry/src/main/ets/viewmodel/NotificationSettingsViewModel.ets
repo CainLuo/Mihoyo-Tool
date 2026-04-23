@@ -33,6 +33,14 @@ export class NotificationSettingsViewModel {
   @Trace reminderUsed: number = 0;
   @Trace reminderLimit: number = GameStaminaConstants.REMINDER_LIMIT;
   @Trace showLimitDialog: boolean = false;
+
+  /** 槽位进度条颜色（根据使用比例决定） */
+  slotColor(): Resource {
+    const ratio = this.reminderUsed / this.reminderLimit;
+    if (ratio >= 1) { return $r('app.color.color_danger'); }
+    if (ratio >= 0.8) { return $r('app.color.color_warning'); }
+    return $r('app.color.color_primary');
+  }
   /** 防止 Toggle.onChange 因外部修改 isOn 而重复触发 */
   private isTogglingEnabled: boolean = false;
   /** 防止游戏开关 Toggle 循环触发，key = accountId_gameId */
@@ -355,24 +363,16 @@ export class NotificationSettingsViewModel {
     return game !== null ? game.enabled : false;
   }
 
-  private static gameName(gameId: GameId): string {
-    if (gameId === GameId.GENSHIN) {
-      return '原神';
-    }
-    if (gameId === GameId.STARRAIL) {
-      return '崩坏：星穹铁道';
-    }
-    return '绝区零';
+  private static gameName(gameId: GameId): Resource {
+    if (gameId === GameId.GENSHIN) { return $r('app.string.game_name_genshin'); }
+    if (gameId === GameId.STARRAIL) { return $r('app.string.game_name_starrail'); }
+    return $r('app.string.game_name_zzz');
   }
 
-  private static staminaName(gameId: GameId): string {
-    if (gameId === GameId.GENSHIN) {
-      return '原粹树脂';
-    }
-    if (gameId === GameId.STARRAIL) {
-      return '开拓力';
-    }
-    return '电量';
+  private static staminaName(gameId: GameId): Resource {
+    if (gameId === GameId.GENSHIN) { return $r('app.string.notification_stamina_genshin'); }
+    if (gameId === GameId.STARRAIL) { return $r('app.string.notification_stamina_starrail'); }
+    return $r('app.string.notification_stamina_zzz');
   }
 
   private static secondsPerUnit(gameId: GameId): number {

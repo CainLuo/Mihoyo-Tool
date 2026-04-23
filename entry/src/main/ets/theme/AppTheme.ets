@@ -171,7 +171,12 @@ export interface Spacing {
   value400: number  // 400vp
   value480: number  // 480vp
   value600: number  // 600vp
-  value800: number  // 800ms（动画时长）
+}
+
+// ---- 动画时长 Token（单位 ms）----
+export interface Duration {
+  /** 骨架屏闪烁动画时长 */
+  duration800: number  // 800ms
 }
 
 // ---- 百分比字符串 Token ----
@@ -215,7 +220,7 @@ export interface Opacity {
   charDetailLockIconRatio: number        // 0.6
 }
 
-export interface Theme extends AppColor, AppFont, Spacing, Percent, Radius, Shadow, Angle, Opacity {}
+export interface Theme extends AppColor, AppFont, Spacing, Percent, Radius, Shadow, Angle, Opacity, Duration {}
 
 // ---- 辅助函数 ----
 export function makeFont(size: number, weight: FontWeight, family: string = ''): Font {

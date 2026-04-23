@@ -4,6 +4,7 @@ import crypto from '@ohos/crypto-js';
 import { HttpClient } from './HttpClient';
 import { MihoyoDomain } from './MihoyoDomain';
 import { RequestOptions } from './APIs';
+import { HKey, HVal } from './MihoyoHeaderKey';
 
 const PREFS_NAME: string = 'mihoyo_device_config';
 const KEY_DEVICE_FP: string = 'device_fp';
@@ -122,7 +123,7 @@ export class DeviceFpService {
 
     const opts = new RequestOptions();
     opts.extraHeaders = new Map<string, string>();
-    opts.extraHeaders.set('Content-Type', 'application/json');
+    opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.JSON);
 
     const resp = await HttpClient.post(
       MihoyoDomain.PUBLIC_DATA_API + '/device-fp/api/getFp',

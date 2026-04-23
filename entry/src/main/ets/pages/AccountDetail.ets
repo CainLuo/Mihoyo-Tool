@@ -3,8 +3,9 @@
  */
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { Logger } from 'core'
-import { MyAccountVM } from '../components/my/MyModels'
+import { MyAccountVM } from '../models/MyModels'
 import { SectionHeader } from '../components/my/SectionHeader'
+import { AccountHeaderCard } from '../components/accountdetail/AccountHeaderCard'
 import { AccountRolesSection } from '../components/accountdetail/AccountRolesSection'
 import { AccountActionsSection } from '../components/accountdetail/AccountActionsSection'
 import { AccountDetailViewModel } from '../viewmodel/AccountDetailViewModel'
@@ -40,50 +41,13 @@ export struct AccountDetail {
     NavDestination() {
       Scroll() {
         Column({ space: this.tm.current.value20 }) {
-          Row({ space: this.tm.current.value16 }) {
-            if (this.account.avatarUrl !== '') {
-              Image(this.account.avatarUrl)
-                .width(this.tm.current.value36 + this.tm.current.value20)
-                .height(this.tm.current.value36 + this.tm.current.value20)
-                .borderRadius(this.tm.current.radius16)
-                .objectFit(ImageFit.Cover)
-                .border({ width: 2, color: this.tm.current.colorPrimary })
-            } else {
-              Row()
-                .width(this.tm.current.value36 + this.tm.current.value20)
-                .height(this.tm.current.value36 + this.tm.current.value20)
-                .borderRadius(this.tm.current.radius16)
-                .backgroundColor(this.tm.current.colorPrimary)
-            }
-            Column({ space: this.tm.current.value4 }) {
-              Text(this.account.nickname !== '' ? this.account.nickname : this.account.username)
-                .font(this.tm.current.title18Bold)
-                .fontColor(this.tm.current.colorTextPrimary)
-                .maxLines(1)
-                .textOverflow({ overflow: TextOverflow.Ellipsis })
-              Text('UID ' + (this.account.uid !== '' ? this.account.uid : this.account.username) + ' · ' + this.account.roles.length.toString() + ' 个游戏角色')
-                .font(this.tm.current.body13)
-                .fontColor(this.tm.current.colorTextSecondary)
-            }
-            .alignItems(HorizontalAlign.Start)
-            .layoutWeight(1)
-          }
-          .width(this.tm.current.full)
-          .padding({
-            left: this.tm.current.value16,
-            right: this.tm.current.value16,
-            top: this.tm.current.value16,
-            bottom: this.tm.current.value16
-          })
-          .backgroundColor(this.tm.current.colorSurfaceCard)
-          .borderRadius(this.tm.current.radius12)
+          AccountHeaderCard({ account: this.account })
 
           SectionHeader({ title: $r('app.string.account_detail_section_roles') })
-          AccountRolesSection({ tm: this.tm, roles: this.account.roles })
+          AccountRolesSection({ roles: this.account.roles })
 
           SectionHeader({ title: $r('app.string.account_detail_section_actions') })
           AccountActionsSection({
-            tm: this.tm,
             onDelete: () => { this.vm.deleteAccount(this.account.accountId) }
           })
 
@@ -107,6 +71,18 @@ export struct AccountDetail {
     .hideTitleBar(false)
     .onReady((ctx: NavDestinationContext) => {
       this.localStack = ctx.pathStack
+    })
+  }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct AccountDetailPreview {
+  build() {
+    AccountDetail({
+      account: new MyAccountVM('uid001', 'user001', [], '旅行者', '')
     })
   }
 }

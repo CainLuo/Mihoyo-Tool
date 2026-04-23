@@ -10,7 +10,8 @@ import { themeManager, ThemeManager } from '../theme/ThemeManager'
 
 /** 路由参数 */
 export class WebViewParam {
-  title: string = ''
+  /** 页面标题（多语言 Resource） */
+  titleResource: ResourceStr = ''
   /** rawfile 路径，如 'legal/terms.html' */
   htmlFile: string = ''
 }
@@ -34,11 +35,18 @@ export struct WebViewPage {
       .darkMode(WebDarkMode.Auto)
       .overScrollMode(OverScrollMode.ALWAYS)
     }
-    .title(this.routerParam.title)
+    .title(this.routerParam.titleResource)
     .hideTitleBar(false)
     .backgroundColor(this.tm.current.colorPageBg)
     .onReady((ctx: NavDestinationContext) => {
       this.localStack = ctx.pathStack
     })
   }
+}
+
+// ─── Router Builder ───────────────────────────────────────────────
+
+@Builder
+export function WebViewPageBuilder(_name: string, param: Object) {
+  WebViewPage({ routerParam: param as WebViewParam })
 }

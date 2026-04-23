@@ -16,13 +16,11 @@ export struct LoginPhone {
     Column({ space: this.tm.current.value16 }) {
       if (this.vm.phoneStep === PhoneStep.INPUT_PHONE) {
         LoginPhoneInput({
-          tm: this.tm,
           vm: this.vm,
           onSendSms: () => { this.vm.sendSmsCode() }
         })
       } else {
         LoginCodeInput({
-          tm: this.tm,
           vm: this.vm,
           onResendSms: () => { this.vm.sendSmsCode() }
         })

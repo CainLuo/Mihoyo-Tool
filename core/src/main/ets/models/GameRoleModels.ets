@@ -1,5 +1,3 @@
-import { GameId } from '../constants/GameId';
-
 /**
  * GameRoleModels.ets
  *
@@ -8,6 +6,7 @@ import { GameId } from '../constants/GameId';
  *   GET /binding/api/getUserGameRolesByCookie       — 获取绑定的游戏角色列表
  *   GET /game_record/app/card/wapi/getGameRecordCard — 获取角色详情（含背景图和统计数据）
  */
+import { GameId } from '../constants/GameId';
 
 // ─── getUserGameRolesByCookie ─────────────────────────────────────
 

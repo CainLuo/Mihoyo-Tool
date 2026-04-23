@@ -1,25 +1,25 @@
 /**
  * LoginNarrowLayout — 登录页 Phone 单栏布局
  */
-import { ThemeManager } from '../../theme/ThemeManager'
-import { LoginViewModel } from '../../viewmodel/LoginViewModel'
-import { LoginLogoSection } from './LoginLogoSection'
-import { LoginCard } from './LoginCard'
-import { LoginAgreement } from './LoginAgreement'
+import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { LoginViewModel } from '../../viewmodel/LoginViewModel';
+import { LoginLogoSection } from './LoginLogoSection';
+import { LoginCard } from './LoginCard';
+import { LoginAgreement } from './LoginAgreement';
 
 @ComponentV2
 export struct LoginNarrowLayout {
-  @Param tm: ThemeManager = new ThemeManager()
-  @Param vm: LoginViewModel = new LoginViewModel()
-  @Event onTapTerms: () => void = () => {}
-  @Event onTapPrivacy: () => void = () => {}
+  @Param vm: LoginViewModel = new LoginViewModel();
+  @Event onTapTerms: () => void = () => {};
+  @Event onTapPrivacy: () => void = () => {};
+  @Local private tm: ThemeManager = themeManager;
 
   build() {
     Scroll() {
       Column({ space: this.tm.current.value20 }) {
-        LoginLogoSection({ tm: this.tm, logoSize: this.tm.current.value52 })
-        LoginCard({ tm: this.tm, vm: this.vm })
-        LoginAgreement({ tm: this.tm, onTapTerms: this.onTapTerms, onTapPrivacy: this.onTapPrivacy })
+        LoginLogoSection({ logoSize: this.tm.current.value52 })
+        LoginCard({ vm: this.vm })
+        LoginAgreement({ onTapTerms: this.onTapTerms, onTapPrivacy: this.onTapPrivacy })
       }
       .width(this.tm.current.full)
       .padding({

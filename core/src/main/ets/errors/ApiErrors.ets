@@ -43,12 +43,6 @@ export class GeetestRequiredError extends Error {
   }
 }
 
-/**
- * @deprecated 请使用 GeetestRequiredError 代替。
- * 保留此类仅为向后兼容，后续版本将移除。
- */
-export class GeetestSignRequiredError extends GeetestRequiredError {}
-
 /** 角色战绩未公开（retcode=10102） */
 export class RoleNotPublicError extends Error {
   constructor(message: string) {

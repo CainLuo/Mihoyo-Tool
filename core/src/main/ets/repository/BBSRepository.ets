@@ -25,7 +25,7 @@ import {
 } from '../models/GameRoleModels';
 import { ApiLogSystem } from '../log/ApiLogSystem';
 import { LogEventType } from '../log/ApiLogEntry';
-import { AuthExpiredError, GeetestRequiredError, GeetestSignRequiredError } from '../errors/ApiErrors';
+import { AuthExpiredError, GeetestRequiredError } from '../errors/ApiErrors';
 
 export {
   GameRoleRecord,
@@ -487,7 +487,7 @@ export class BBSRepository {
       try {
         if (error instanceof AuthExpiredError) {
           ApiLogSystem.getInstance().warning('BBSRepository', 'AuthExpiredError in getBbsAccountDetail: ' + msg, LogEventType.GENERAL);
-        } else if (error instanceof GeetestRequiredError || error instanceof GeetestSignRequiredError) {
+        } else if (error instanceof GeetestRequiredError) {
           ApiLogSystem.getInstance().warning('BBSRepository', 'GeetestError in getBbsAccountDetail: ' + msg, LogEventType.GENERAL);
         } else {
           ApiLogSystem.getInstance().error('BBSRepository', 'getBbsAccountDetail failed: ' + msg, LogEventType.GENERAL);
@@ -514,7 +514,8 @@ export class BBSRepository {
         throw new Error(`getUserGameRoles failed: [${resp.retcode}] ${resp.message}`);
       }
       const rows: GameRoleRecord[] = [];
-      for (const info of resp.data.list) {
+      for (let i = 0; i < resp.data.list.length; i++) {
+        const info = resp.data.list[i];
         const row = new GameRoleRecord();
         row.gameId = gameBizToGameId(info.game_biz);
         row.roleId = info.game_uid;
@@ -529,7 +530,7 @@ export class BBSRepository {
       try {
         if (error instanceof AuthExpiredError) {
           ApiLogSystem.getInstance().warning('BBSRepository', 'AuthExpiredError in getUserGameRoles: ' + msg, LogEventType.GENERAL);
-        } else if (error instanceof GeetestRequiredError || error instanceof GeetestSignRequiredError) {
+        } else if (error instanceof GeetestRequiredError) {
           ApiLogSystem.getInstance().warning('BBSRepository', 'GeetestError in getUserGameRoles: ' + msg, LogEventType.GENERAL);
         } else {
           ApiLogSystem.getInstance().error('BBSRepository', 'getUserGameRoles failed: ' + msg, LogEventType.GENERAL);
@@ -558,7 +559,8 @@ export class BBSRepository {
         throw new Error(`getGameRecordCard failed: [${resp.retcode}] ${resp.message}`);
       }
       const rows: GameRoleRecord[] = [];
-      for (const item of resp.data.list) {
+      for (let i = 0; i < resp.data.list.length; i++) {
+        const item = resp.data.list[i];
         const row = new GameRoleRecord();
         row.gameId = gameIdFromMihoyo(item.game_id);
         row.roleId = item.game_role_id;
@@ -575,7 +577,7 @@ export class BBSRepository {
       try {
         if (error instanceof AuthExpiredError) {
           ApiLogSystem.getInstance().warning('BBSRepository', 'AuthExpiredError in getGameRecordCard: ' + msg, LogEventType.GENERAL);
-        } else if (error instanceof GeetestRequiredError || error instanceof GeetestSignRequiredError) {
+        } else if (error instanceof GeetestRequiredError) {
           ApiLogSystem.getInstance().warning('BBSRepository', 'GeetestError in getGameRecordCard: ' + msg, LogEventType.GENERAL);
         } else {
           ApiLogSystem.getInstance().error('BBSRepository', 'getGameRecordCard failed: ' + msg, LogEventType.GENERAL);

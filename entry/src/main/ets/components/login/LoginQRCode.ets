@@ -8,76 +8,10 @@
 import { LoginViewModel } from '../../viewmodel/LoginViewModel';
 import { QRCodeStat } from '../../constants/LoginTabEnum';
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
-
-// ── Preview：加载中 ──
-@Preview
-@ComponentV2
-export struct LoginQRCodePreviewLoading {
-  @Local private vm: LoginViewModel = (() => {
-    const v = new LoginViewModel();
-    v.qrCodeStat = QRCodeStat.LOADING;
-    return v;
-  })()
-  build() {
-    LoginQRCode({ vm: this.vm })
-      .padding(themeManager.current.value24)
-      .backgroundColor(themeManager.current.colorPageBg)
-      .width(themeManager.current.value360)
-  }
-}
-
-// ── Preview：二维码就绪 ──
-@Preview
-@ComponentV2
-export struct LoginQRCodePreviewReady {
-  @Local private vm: LoginViewModel = (() => {
-    const v = new LoginViewModel();
-    v.qrCodeStat = QRCodeStat.READY;
-    v.qrCodeUrl = 'https://user.mihoyo.com/qr_code_in_game.html?app_id=4&ticket=mock_ticket_12345';
-    return v;
-  })()
-  build() {
-    LoginQRCode({ vm: this.vm })
-      .padding(themeManager.current.value24)
-      .backgroundColor(themeManager.current.colorPageBg)
-      .width(themeManager.current.value360)
-  }
-}
-
-// ── Preview：已扫码待确认 ──
-@Preview
-@ComponentV2
-export struct LoginQRCodePreviewScanned {
-  @Local private vm: LoginViewModel = (() => {
-    const v = new LoginViewModel();
-    v.qrCodeStat = QRCodeStat.SCANNED;
-    v.qrCodeUrl = 'https://user.mihoyo.com/qr_code_in_game.html?app_id=4&ticket=mock_ticket_12345';
-    return v;
-  })()
-  build() {
-    LoginQRCode({ vm: this.vm })
-      .padding(themeManager.current.value24)
-      .backgroundColor(themeManager.current.colorPageBg)
-      .width(themeManager.current.value360)
-  }
-}
-
-// ── Preview：已过期 ──
-@Preview
-@ComponentV2
-export struct LoginQRCodePreviewExpired {
-  @Local private vm: LoginViewModel = (() => {
-    const v = new LoginViewModel();
-    v.qrCodeStat = QRCodeStat.EXPIRED;
-    return v;
-  })()
-  build() {
-    LoginQRCode({ vm: this.vm })
-      .padding(themeManager.current.value24)
-      .backgroundColor(themeManager.current.colorPageBg)
-      .width(themeManager.current.value360)
-  }
-}
+import { LoginQRCodeLoading } from './LoginQRCodeLoading';
+import { LoginQRCodeReady } from './LoginQRCodeReady';
+import { LoginQRCodeConfirmed } from './LoginQRCodeConfirmed';
+import { LoginQRCodeExpired } from './LoginQRCodeExpired';
 
 @ComponentV2
 export struct LoginQRCode {
@@ -87,97 +21,76 @@ export struct LoginQRCode {
   build() {
     Column({ space: this.tm.current.value16 }) {
       if (this.vm.qrCodeStat === QRCodeStat.LOADING) {
-        this.buildLoading()
+        LoginQRCodeLoading()
       } else if (this.vm.qrCodeStat === QRCodeStat.READY || this.vm.qrCodeStat === QRCodeStat.SCANNED) {
-        this.buildQRCode()
+        LoginQRCodeReady({ qrCodeUrl: this.vm.qrCodeUrl, qrCodeStat: this.vm.qrCodeStat })
       } else if (this.vm.qrCodeStat === QRCodeStat.CONFIRMED) {
-        this.buildConfirmed()
+        LoginQRCodeConfirmed()
       } else if (this.vm.qrCodeStat === QRCodeStat.EXPIRED || this.vm.qrCodeStat === QRCodeStat.ERROR) {
-        this.buildExpired()
+        LoginQRCodeExpired({
+          isLoading: this.vm.isLoading,
+          onRefresh: () => { this.vm.refreshQRCode(); }
+        })
       }
     }
     .width(this.tm.current.full)
     .alignItems(HorizontalAlign.Center)
   }
+}
 
-  @Builder
-  private buildLoading() {
-    LoadingProgress()
-      .width(this.tm.current.value52)
-      .height(this.tm.current.value52)
-      .color(this.tm.current.colorPrimary)
+// ─── Preview ─────────────────────────────────────────────────────
 
-    Text($r('app.string.login_qrcode_loading'))
-      .font(this.tm.current.body13)
-      .fontColor(this.tm.current.colorTextSecondary)
+@Preview
+@ComponentV2
+export struct LoginQRCodePreviewLoading {
+  @Local private vm: LoginViewModel = new LoginViewModel();
+  @Local private tm: ThemeManager = themeManager;
+
+  aboutToAppear(): void {
+    this.vm.qrCodeStat = QRCodeStat.LOADING;
   }
 
-  @Builder
-  private buildQRCode() {
-    // ArkUI 内置 QRCode 组件，传入 URL 字符串本地生成二维码
-    QRCode(this.vm.qrCodeUrl)
-      .width(this.tm.current.value200)
-      .height(this.tm.current.value200)
-      .color(this.tm.current.qrCodeFg)
-      .backgroundColor(this.tm.current.qrCodeBg)
+  build() {
+    LoginQRCode({ vm: this.vm })
+      .padding(this.tm.current.value24)
+      .backgroundColor(this.tm.current.colorPageBg)
+      .width(this.tm.current.value360)
+  }
+}
 
-    if (this.vm.qrCodeStat === QRCodeStat.SCANNED) {
-      Text($r('app.string.login_qrcode_scanned'))
-        .font(this.tm.current.body13)
-        .fontColor(this.tm.current.colorPrimary)
-    } else {
-      Text($r('app.string.login_qrcode_hint'))
-        .font(this.tm.current.body13)
-        .fontColor(this.tm.current.colorTextSecondary)
-        .textAlign(TextAlign.Center)
-    }
+@Preview
+@ComponentV2
+export struct LoginQRCodePreviewReady {
+  @Local private vm: LoginViewModel = new LoginViewModel();
+  @Local private tm: ThemeManager = themeManager;
+
+  aboutToAppear(): void {
+    this.vm.qrCodeStat = QRCodeStat.READY;
+    this.vm.qrCodeUrl = 'https://user.mihoyo.com/qr_code_in_game.html?app_id=4&ticket=mock_ticket_12345';
   }
 
-  @Builder
-  private buildConfirmed() {
-    Text($r('app.string.login_qrcode_confirmed'))
-      .font(this.tm.current.body16Medium)
-      .fontColor(this.tm.current.colorPrimary)
+  build() {
+    LoginQRCode({ vm: this.vm })
+      .padding(this.tm.current.value24)
+      .backgroundColor(this.tm.current.colorPageBg)
+      .width(this.tm.current.value360)
+  }
+}
 
-    LoadingProgress()
-      .width(this.tm.current.value52)
-      .height(this.tm.current.value52)
-      .color(this.tm.current.colorPrimary)
+@Preview
+@ComponentV2
+export struct LoginQRCodePreviewExpired {
+  @Local private vm: LoginViewModel = new LoginViewModel();
+  @Local private tm: ThemeManager = themeManager;
+
+  aboutToAppear(): void {
+    this.vm.qrCodeStat = QRCodeStat.EXPIRED;
   }
 
-  @Builder
-  private buildExpired() {
-    // 底层：低透明度的占位二维码（视觉上表示"有二维码但已失效"）
-    // 上层：半透明遮罩 + 过期提示 + 刷新按钮
-    Stack() {
-      QRCode('https://user.mihoyo.com/qr_code_in_game.html?app_id=4&ticket=expired')
-        .width(this.tm.current.value200)
-        .height(this.tm.current.value200)
-        .color(this.tm.current.qrCodeFg)
-        .backgroundColor(this.tm.current.qrCodeBg)
-        .opacity(this.tm.current.charDetailConsInactiveOpacity)
-
-      Column({ space: this.tm.current.value12 }) {
-        Text($r('app.string.login_qrcode_expired'))
-          .font(this.tm.current.body13)
-          .fontColor(this.tm.current.colorTextPrimary)
-          .textAlign(TextAlign.Center)
-
-        Button($r('app.string.login_qrcode_refresh'), { type: ButtonType.Capsule })
-          .height(this.tm.current.value50)
-          .backgroundColor(this.tm.current.colorPrimary)
-          .enabled(!this.vm.isLoading)
-          .onClick(() => {
-            this.vm.refreshQRCode();
-          })
-      }
-      .width(this.tm.current.value200)
-      .height(this.tm.current.value200)
-      .justifyContent(FlexAlign.Center)
-      .alignItems(HorizontalAlign.Center)
-      .backgroundColor(this.tm.current.surfaceDarkLg)
-    }
-    .width(this.tm.current.value200)
-    .height(this.tm.current.value200)
+  build() {
+    LoginQRCode({ vm: this.vm })
+      .padding(this.tm.current.value24)
+      .backgroundColor(this.tm.current.colorPageBg)
+      .width(this.tm.current.value360)
   }
 }

@@ -131,7 +131,8 @@ export class GenshinDailyNoteParser {
 
   private static parseExpeditions(raws: RawExpedition[]): GenshinExpeditionData[] {
     const result: GenshinExpeditionData[] = [];
-    for (const r of raws) {
+    for (let i = 0; i < raws.length; i++) {
+      const r = raws[i];
       const e = new GenshinExpeditionData();
       e.avatarSideIcon = r.avatar_side_icon;
       e.status = r.status;

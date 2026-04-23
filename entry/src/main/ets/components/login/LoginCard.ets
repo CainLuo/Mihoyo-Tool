@@ -1,20 +1,20 @@
 /**
  * LoginCard — 登录卡片（Tab 栏 + Tab 内容）
  */
-import { ThemeManager } from '../../theme/ThemeManager'
-import { LoginViewModel } from '../../viewmodel/LoginViewModel'
-import { LoginTabBar } from './LoginTabBar'
-import { LoginTabContent } from './LoginTabContent'
+import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { LoginViewModel } from '../../viewmodel/LoginViewModel';
+import { LoginTabBar } from './LoginTabBar';
+import { LoginTabContent } from './LoginTabContent';
 
 @ComponentV2
 export struct LoginCard {
-  @Param tm: ThemeManager = new ThemeManager()
-  @Param vm: LoginViewModel = new LoginViewModel()
+  @Param vm: LoginViewModel = new LoginViewModel();
+  @Local private tm: ThemeManager = themeManager;
 
   build() {
     Column({ space: this.tm.current.value0 }) {
-      LoginTabBar({ tm: this.tm, vm: this.vm })
-      LoginTabContent({ tm: this.tm, vm: this.vm })
+      LoginTabBar({ vm: this.vm })
+      LoginTabContent({ vm: this.vm })
     }
     .width(this.tm.current.full)
     .backgroundColor(this.tm.current.colorSurfaceCard)

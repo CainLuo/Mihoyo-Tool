@@ -4,7 +4,7 @@ import { MihoyoDomain } from './MihoyoDomain';
 import { StarRailApiPath } from './StarRailApiPath';
 import { MihoyoHeaderBuilder, HeaderProfile } from './MihoyoHeaderBuilder';
 import { ApiConfig } from './ApiConfig';
-import { HKey } from './MihoyoHeaderKey';
+import { HKey, HVal } from './MihoyoHeaderKey';
 import { HttpClient } from './HttpClient';
 
 export class StarRailApiService extends MihoyoApiService {
@@ -26,11 +26,11 @@ export class StarRailApiService extends MihoyoApiService {
     params.set('role_id', roleId);
     params.set('server', server);
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, params);
-    headers.set('x-rpc-tool_verison', ApiConfig.TOOL_VERSION_STARRAIL);
-    headers.set('x-rpc-platform', '5');
+    headers.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_STARRAIL);
+    headers.set(HKey.PLATFORM, HVal.PLATFORM_WEB);
     headers.set(HKey.PAGE, ApiConfig.PAGE_STARRAIL_NOTE);
     if (geetestChallenge) {
-      headers.set('x-rpc-challenge', geetestChallenge);
+      headers.set(HKey.CHALLENGE, geetestChallenge);
     }
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
@@ -63,8 +63,8 @@ export class StarRailApiService extends MihoyoApiService {
     params.set('role_id', roleId);
     params.set('server', server);
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, params);
-    headers.set('x-rpc-tool_verison', ApiConfig.TOOL_VERSION_STARRAIL);
-    headers.set('x-rpc-platform', '5');
+    headers.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_STARRAIL);
+    headers.set(HKey.PLATFORM, HVal.PLATFORM_WEB);
     headers.set(HKey.PAGE, ApiConfig.PAGE_STARRAIL_ROLES);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
@@ -83,8 +83,8 @@ export class StarRailApiService extends MihoyoApiService {
     params.set('id', id);
     params.set('need_wiki', 'true');
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, params);
-    headers.set('x-rpc-tool_verison', ApiConfig.TOOL_VERSION_STARRAIL);
-    headers.set('x-rpc-platform', '5');
+    headers.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_STARRAIL);
+    headers.set(HKey.PLATFORM, HVal.PLATFORM_WEB);
     headers.set(HKey.PAGE, ApiConfig.PAGE_STARRAIL_ROLE);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;

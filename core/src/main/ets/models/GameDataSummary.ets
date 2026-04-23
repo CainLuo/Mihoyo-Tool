@@ -1,5 +1,3 @@
-import { GameId } from '../constants/GameId';
-
 /**
  * GameDataSummary.ets
  *
@@ -23,6 +21,7 @@ import { GameId } from '../constants/GameId';
  *   weaponAffix = 武器精炼/星级
  *   weaponRarity = 武器稀有度
  */
+import { GameId } from '../constants/GameId';
 export class GameDataSummary {
   /** 游戏 ID */
   gameId: GameId = GameId.GENSHIN;

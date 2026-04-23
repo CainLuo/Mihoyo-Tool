@@ -1,16 +1,16 @@
 /**
  * LoginTabItem — 登录 Tab 切换项
  */
-import { ThemeManager } from '../../theme/ThemeManager'
-import { LoginTab } from '../../constants/LoginTabEnum'
-import { LoginViewModel } from '../../viewmodel/LoginViewModel'
+import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { LoginTab } from '../../constants/LoginTabEnum';
+import { LoginViewModel } from '../../viewmodel/LoginViewModel';
 
 @ComponentV2
 export struct LoginTabItem {
-  @Param tm: ThemeManager = new ThemeManager()
-  @Param vm: LoginViewModel = new LoginViewModel()
-  @Param tab: LoginTab = LoginTab.PHONE
-  @Param label: Resource = $r('app.string.login_tab_phone')
+  @Param vm: LoginViewModel = new LoginViewModel();
+  @Param tab: LoginTab = LoginTab.PHONE;
+  @Param label: Resource = $r('app.string.login_tab_phone');
+  @Local private tm: ThemeManager = themeManager;
 
   build() {
     Text(this.label)

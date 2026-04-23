@@ -8,8 +8,8 @@ import { GenshinCharacterDetail, GenshinCharacterDetailParam } from './GenshinCh
 import { StarRailCharacterDetail } from './StarRailCharacterDetail';
 import { ZZZCharacterDetail } from './ZZZCharacterDetail';
 import { AccountDetail } from './AccountDetail';
-import { MyAccountVM } from '../components/my/MyModels';
-import { CharDetailRouterParam } from '../components/chardetail/CharDetailModels';
+import { MyAccountVM } from '../models/MyModels';
+import { CharDetailRouterParam } from '../models/CharDetailModels';
 import { StarRailDailyDetail, StarRailDailyDetailParam } from './StarRailDailyDetail';
 import { ZZZDailyDetail, ZZZDailyDetailParam } from './ZZZDailyDetail';
 
@@ -39,7 +39,7 @@ function pageBuilder(name: string, param: Object) {
 }
 
 @Entry
-@Component
+@ComponentV2
 struct Index {
   private pathStack: NavPathStack = new NavPathStack();
 

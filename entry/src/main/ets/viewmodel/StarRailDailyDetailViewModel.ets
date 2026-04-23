@@ -6,8 +6,8 @@
  */
 
 import { CoreInitializer, StarRailDailyNoteParser, StarRailDailyNoteData, StarRailExpeditionData } from 'core';
-import { StarRailDailyNoteVM } from '../components/dailynote/DailyNoteModels';
-import { ExpeditionVM } from '../components/dailynote/DailyNoteModels';
+import { StarRailDailyNoteVM } from '../models/DailyNoteModels';
+import { ExpeditionVM } from '../models/DailyNoteModels';
 import { Logger } from 'core';
 import { ViewState } from '../constants/ViewStates';
 

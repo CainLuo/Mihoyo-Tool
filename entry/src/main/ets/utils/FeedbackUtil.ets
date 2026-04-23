@@ -6,7 +6,14 @@
  */
 import { ComponentContent } from '@kit.ArkUI'
 import { FeedbackType } from '../constants/FeedbackType'
-import { snackbarBuilder, SnackbarParams } from '../components/SnackbarContent'
+import { SnackbarParams } from '../models/SnackbarParams'
+import { SnackbarContent } from '../components/SnackbarContent'
+
+/** 供 ComponentContent + wrapBuilder 使用的模块级 @Builder 函数 */
+@Builder
+function snackbarBuilder(params: SnackbarParams) {
+  SnackbarContent({ params: params })
+}
 
 /**
  * 在屏幕底部显示一个轻量 Snackbar 反馈。

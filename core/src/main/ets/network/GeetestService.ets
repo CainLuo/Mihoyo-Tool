@@ -103,7 +103,6 @@ export class GeetestService {
    */
   public static async createVerification(
     cookie: string,
-    useK2: boolean = true
   ): Promise<GeetestCreateResult> {
     const createParams = new RequestParams();
     createParams.set('is_high', 'true');
@@ -111,7 +110,7 @@ export class GeetestService {
     const opts = new RequestOptions();
     opts.extraHeaders.set(HKey.COOKIE, cookie);
     opts.extraHeaders.set(HKey.APP_VERSION, ApiConfig.APP_VERSION);
-    opts.extraHeaders.set(HKey.CLIENT_TYPE, '2');
+    opts.extraHeaders.set(HKey.CLIENT_TYPE, HVal.CLIENT_ANDROID);
     opts.extraHeaders.set(HKey.DEVICE_FP, ApiConfig.getDeviceFp());
     opts.extraHeaders.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
     opts.extraHeaders.set(HKey.USER_AGENT, ApiConfig.USER_AGENT);
@@ -140,7 +139,6 @@ export class GeetestService {
   public static async verifyVerification(
     verifyInput: GeetestVerifyInput,
     cookie: string,
-    useK2: boolean = true
   ): Promise<string> {
     const bodyStr = JSON.stringify({
       geetest_challenge: verifyInput.geetest_challenge,
@@ -151,7 +149,7 @@ export class GeetestService {
     const opts = new RequestOptions();
     opts.extraHeaders.set(HKey.COOKIE, cookie);
     opts.extraHeaders.set(HKey.APP_VERSION, ApiConfig.APP_VERSION);
-    opts.extraHeaders.set(HKey.CLIENT_TYPE, '2');
+    opts.extraHeaders.set(HKey.CLIENT_TYPE, HVal.CLIENT_ANDROID);
     opts.extraHeaders.set(HKey.DEVICE_FP, ApiConfig.getDeviceFp());
     opts.extraHeaders.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
     opts.extraHeaders.set(HKey.USER_AGENT, ApiConfig.USER_AGENT);

@@ -33,8 +33,18 @@ import { AppConstants } from '../constants/AppConstants';
 import { CharacterDataSource } from '../components/characters/CharacterDataSource';
 import { AccountOption } from '../models/AccountOption';
 import { GameTabItem } from '../models/GameTabItem';
+import { CharDetailRouterParam } from '../models/CharDetailModels';
+import { AppRoutes } from '../constants/AppRoutes';
 
 const TAG: string = 'CharactersViewModel';
+
+/** 角色卡片点击后的路由信息，由 ViewModel 构建，View 层执行跳转 */
+export class CardTapRoute {
+  /** 路由名称（对应 AppRoutes 常量） */
+  routeName: string = '';
+  /** 路由参数 */
+  param: CharDetailRouterParam = new CharDetailRouterParam();
+}
 
 /** CharactersViewModel @Monitor 路径常量类型 */
 export class CharactersViewModelKeys {
@@ -59,6 +69,13 @@ export class CharactersViewModel {
   @Trace selectedGameIdx: number = 0;
   @Trace characters: GameDataSummary[] = [];
   @Trace isRefreshing: boolean = false;
+  /** 当前选中游戏 ID（无 Tab 时为 GENSHIN） */
+  get currentGameId(): GameId {
+    if (this.gameTabs.length > 0) {
+      return this.gameTabs[this.selectedGameIdx].gameId;
+    }
+    return GameId.GENSHIN;
+  }
   @Trace networkErrorMsg: string = '';
   @Trace refreshCoolingDown: boolean = false;
   /** 手动刷新结果信号：'success' | 'error' | ''，View 层监听后调用 showFeedback */
@@ -182,6 +199,41 @@ export class CharactersViewModel {
     } finally {
       this.isRefreshing = false;
     }
+  }
+
+  /**
+   * 根据点击的角色和当前选中游戏，返回路由名称和参数。
+   * View 层只负责调用 pushPath / replacePath，不做任何 gameId 判断。
+   * 返回 null 表示该游戏暂不支持跳转（如 honkai3）。
+   */
+  buildCardTapRoute(character: GameDataSummary): CardTapRoute | null {
+    const gameId = this.currentGameId;
+    const roleUid = this.gameTabs.length > 0 ? this.gameTabs[this.selectedGameIdx].roleUid : '';
+    const accountId = this.accountOptions.length > 0
+      ? this.accountOptions[this.selectedAccountIdx].accountId : '';
+
+    const param = new CharDetailRouterParam();
+    param.accountId = accountId;
+    param.roleUid = roleUid;
+    param.entityId = character.entityId;
+
+    const route = new CardTapRoute();
+    route.param = param;
+
+    if (gameId === GameId.GENSHIN) {
+      route.routeName = AppRoutes.GENSHIN_CHARACTER_DETAIL;
+      return route;
+    }
+    if (gameId === GameId.STARRAIL) {
+      route.routeName = AppRoutes.STARRAIL_CHARACTER_DETAIL;
+      return route;
+    }
+    if (gameId === GameId.ZZZ) {
+      route.routeName = AppRoutes.ZZZ_CHARACTER_DETAIL;
+      return route;
+    }
+    // honkai3 等暂不支持，静默忽略
+    return null;
   }
 
   // ─── 私有方法 ────────────────────────────────────────────────

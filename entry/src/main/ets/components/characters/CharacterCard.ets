@@ -8,36 +8,9 @@
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { GameDataSummary, GameId } from 'core';
-import { elementFromString } from '../../constants/GenshinElement';
-import { GenshinElement, elementIcon } from '../../constants/GenshinElement';
-import {
-  starRailElementIcon, starRailPathIcon
-} from '../../constants/StarRailElement';
-import { zzzElementColor, zzzElementIcon, zzzProfessionIcon } from '../../constants/ZZZElement';
-
-/** 原神：根据元素字符串返回颜色资源 */
-export function elementColor(element: string): Resource {
-  if (element === GenshinElement.PYRO)    { return $r('app.color.element_pyro'); }
-  if (element === GenshinElement.HYDRO)   { return $r('app.color.element_hydro'); }
-  if (element === GenshinElement.ANEMO)   { return $r('app.color.element_anemo'); }
-  if (element === GenshinElement.ELECTRO) { return $r('app.color.element_electro'); }
-  if (element === GenshinElement.DENDRO)  { return $r('app.color.element_dendro'); }
-  if (element === GenshinElement.CRYO)    { return $r('app.color.element_cryo'); }
-  if (element === GenshinElement.GEO)     { return $r('app.color.element_geo'); }
-  return $r('app.color.color_text_secondary');
-}
-
-/** 原神：根据元素字符串返回多语言标签资源 */
-export function elementLabel(element: string): Resource {
-  if (element === GenshinElement.PYRO)    { return $r('app.string.character_element_Pyro'); }
-  if (element === GenshinElement.HYDRO)   { return $r('app.string.character_element_Hydro'); }
-  if (element === GenshinElement.ANEMO)   { return $r('app.string.character_element_Anemo'); }
-  if (element === GenshinElement.ELECTRO) { return $r('app.string.character_element_Electro'); }
-  if (element === GenshinElement.DENDRO)  { return $r('app.string.character_element_Dendro'); }
-  if (element === GenshinElement.CRYO)    { return $r('app.string.character_element_Cryo'); }
-  if (element === GenshinElement.GEO)     { return $r('app.string.character_element_Geo'); }
-  return $r('app.string.character_element_Anemo');
-}
+import { genshinElementFromString, elementIcon } from '../../constants/GenshinElement';
+import { starRailElementIcon, starRailPathIcon } from '../../constants/StarRailElement';
+import { zzzElementIcon, zzzProfessionIcon } from '../../constants/ZZZElement';
 
 @ComponentV2
 export struct CharacterCard {
@@ -241,8 +214,8 @@ export struct CharacterCard {
   // ── 原神：左上元素图标 ──────────────────────────────────────
   @Builder
   private genshinTopLeft() {
-    if (elementIcon(elementFromString(this.character.extraText1)) !== null) {
-      Image(elementIcon(elementFromString(this.character.extraText1)) as Resource)
+    if (elementIcon(genshinElementFromString(this.character.extraText1)) !== null) {
+      Image(elementIcon(genshinElementFromString(this.character.extraText1)) as Resource)
         .width(this.tm.current.value24)
         .height(this.tm.current.value24)
         .objectFit(ImageFit.Contain)

@@ -1,0 +1,161 @@
+# UI 原型规范
+
+## 一、原型先行原则
+
+**凡是涉及 UI 的需求——无论是新增页面、新增组件，还是改动已有页面/组件的视觉或交互——第一个动作必须是输出 HTML 原型，等用户明确确认后才能写任何 `.ets` 代码。**
+
+触发条件（满足任意一条即需要先出原型）：
+
+- 新增页面或组件
+- 修改页面/组件的布局、样式、颜色、间距
+- 修改交互逻辑（点击行为、动画、状态切换的视觉表现）
+- 用户描述中出现"界面"、"UI"、"样式"、"布局"、"显示"、"展示"等词
+
+不需要原型的情况（纯逻辑，无视觉变化）：
+
+- 只改 ViewModel / Repository / 数据层代码
+- 只修复 crash 或数据错误，不涉及任何视觉改动
+
+### 执行流程
+
+1. **出原型**：用纯 HTML + CSS + 内联 `<script>` 实现交互原型，覆盖所有设备断点
+2. **等确认**：明确等待用户回复"可以"或提出修改意见，**禁止**在用户确认前写任何 `.ets` 代码
+3. **动工**：用户确认后，严格按照原型实现，不得擅自改动已确认的视觉设计
+
+---
+
+## 二、原型文件结构
+
+所有原型统一在 `design/prototypes/v1.0/viewer/` 目录管理：
+
+```
+design/prototypes/v1.0/viewer/
+├── index.html          ← 入口：左侧页面导航 + 顶部设备/主题控制
+├── index-logic.js      ← 路由、刷新、控制栏逻辑
+├── shared.js           ← 共享：主题色 THEMES、工具函数
+└── pages/
+    ├── home.js
+    ├── characters.js
+    ├── my.js
+    ├── login.js
+    └── ...
+```
+
+**禁止**为每个页面单独创建独立 HTML 文件。
+
+### 新增原型页面流程
+
+1. 在 `pages/` 下新建 `<page-name>.js`，实现：
+   - `render<PageName>(w, h)` — 返回 HTML 字符串
+   - `<pageName>Controls()` — 返回页面专属控制项数组（无控制项返回 `[]`）
+2. 在 `index.html` 的 `<script src="pages/...">` 处引入新文件
+3. 在 `PAGES` 注册表中添加条目
+4. 在左侧导航 `.sidebar` 中添加 `nav-item`
+
+---
+
+## 三、视觉规范
+
+**出原型前必须先读 `entry/src/main/ets/theme/AppTheme.ets` 和 `DefaultTheme.ets`**，所有颜色、间距、圆角、阴影、字体均从 Theme token 映射，**禁止**在原型中自造颜色值或数值。
+
+### 设备尺寸
+
+| 设备          | 宽 × 高    |
+| ------------- | ---------- |
+| Phone 竖屏    | 360 × 780  |
+| Phone 横屏    | 780 × 360  |
+| Foldable 展开 | 932 × 600  |
+| TripleFold    | 1200 × 600 |
+| Tablet        | 1024 × 768 |
+| 2in1/PC       | 1440 × 900 |
+
+### 颜色规范
+
+原型中所有颜色必须对应 `AppTheme` 的 token，**禁止**自造十六进制颜色值。常用对照：
+
+| 用途           | Theme token             | 原型参考色               |
+| -------------- | ----------------------- | ------------------------ |
+| 页面背景       | `colorPageBg`           | `#080810`                |
+| 卡片/面板背景  | `colorSurfaceCard`      | `#111118`                |
+| 次级面板背景   | `colorSurfaceSubtle`    | `#16161f`                |
+| 主文字         | `colorTextPrimary`      | `#e8e8f0`                |
+| 次要文字       | `colorTextSecondary`    | `#888`                   |
+| 强调色（主色） | `colorPrimary`          | `#3a6fd8`                |
+| 危险色         | `colorDanger`           | `#ef5350`                |
+| 危险背景       | `colorDangerBg`         | `#2a1515`                |
+| 警告色         | `colorWarning`          | `#ffca28`                |
+| 分割线         | `colorDivider`          | `#2a2a3a`                |
+| 遮罩           | `colorMask`             | `rgba(0,0,0,0.5)`        |
+| 深色大面积叠加 | `surfaceDarkLg`         | `rgba(0,0,0,0.6)`        |
+| 深色中等叠加   | `surfaceDarkMd`         | `rgba(0,0,0,0.4)`        |
+| 深色小面积叠加 | `surfaceDarkSm`         | `rgba(0,0,0,0.25)`       |
+| 激活态主色背景 | `surfaceActivePrimary`  | `rgba(58,111,216,0.15)`  |
+| 激活态边框     | `surfaceActiveBorder`   | `rgba(58,111,216,0.6)`   |
+| 未激活边框     | `surfaceInactiveBorder` | `rgba(255,255,255,0.1)`  |
+| 深色背景文字高 | `textOnDarkHigh`        | `rgba(255,255,255,0.95)` |
+| 深色背景文字中 | `textOnDarkMedium`      | `rgba(255,255,255,0.7)`  |
+| 深色背景文字次 | `textOnDarkSecondary`   | `rgba(255,255,255,0.5)`  |
+| 深色背景文字弱 | `textOnDarkTertiary`    | `rgba(255,255,255,0.35)` |
+| 深色背景文字淡 | `textOnDarkMuted`       | `rgba(255,255,255,0.2)`  |
+| 强调精炼色     | `accentRefine`          | `#4fc3f7`                |
+
+### 间距 / 尺寸规范
+
+只能使用以下 `Spacing` token 对应的数值，**禁止**使用其他数字：
+
+`0, 1, 1.5, 2, 4, 5, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 20, 22, 24, 28, 30, 32, 34, 36, 40, 44, 46, 48, 50, 52, 56, 64, 80, 90, 100, 108, 120, 150, 200, 260, 280, 360, 400, 480, 600`（单位 vp）
+
+### 圆角规范
+
+只能使用三个圆角 token：`8`、`12`、`16`（vp）
+
+### 阴影规范
+
+阴影参数固定：`radius=8, offsetY=2, color=overlayShadow`
+
+### 字体规范
+
+| token          | size | weight |
+| -------------- | ---- | ------ |
+| `body10`       | 11   | Normal |
+| `body12`       | 13   | Normal |
+| `body13`       | 14   | Normal |
+| `body13Bold`   | 14   | Bold   |
+| `body15Bold`   | 16   | Bold   |
+| `body16`       | 17   | Normal |
+| `body16Medium` | 17   | Medium |
+| `title18Bold`  | 18   | Bold   |
+| `title20Bold`  | 20   | Bold   |
+| `title24Bold`  | 24   | Bold   |
+| `title26Bold`  | 26   | Bold   |
+
+### 渐变角度规范
+
+只能使用：`0°, 90°, 135°, 150°, 180°`
+
+### 可滚动区域
+
+```css
+.sy {
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+```
+
+---
+
+## 四、禁止行为
+
+- **禁止**跳过原型直接写 `.ets` 组件
+- **禁止**在用户确认前修改任何业务代码
+- **禁止**在 `render` 函数里硬编码颜色值，必须通过 `T()` 获取主题色
+- **禁止**原型与最终实现出现未经确认的视觉差异
+
+---
+
+## 五、版本管理
+
+- 原型文件存放目录由 App 版本号决定：App v1.0 → `design/prototypes/v1.0/`
+- 用户确认后，在 `CHANGELOG.md` 中追加记录
+- 已确认的原型文件**禁止修改**，如需改版，在新版本目录中进行

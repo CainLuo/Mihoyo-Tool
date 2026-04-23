@@ -5,22 +5,20 @@ import display from '@ohos.display'
 import { window, UIContext } from '@kit.ArkUI'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { GenshinCharacterDetailViewModel } from '../viewmodel/GenshinCharacterDetailViewModel'
-import { CharDetailLoadingView } from '../components/chardetail/CharDetailLoadingView'
-import { CharDetailEmptyView } from '../components/chardetail/CharDetailEmptyView'
-import { CharDetailPortraitLayout } from '../components/chardetail/CharDetailPortraitLayout'
-import { CharDetailLandscapeLayout } from '../components/chardetail/CharDetailLandscapeLayout'
-import { CharDetailWideLayout } from '../components/chardetail/CharDetailWideLayout'
+import { CharDetailLoadingView } from '../components/chardetail/common/CharDetailLoadingView'
+import { CharDetailEmptyView } from '../components/chardetail/common/CharDetailEmptyView'
+import { CharDetailPortraitLayout } from '../components/chardetail/genshin/CharDetailPortraitLayout'
+import { CharDetailLandscapeLayout } from '../components/chardetail/genshin/CharDetailLandscapeLayout'
+import { CharDetailWideLayout } from '../components/chardetail/genshin/CharDetailWideLayout'
 import { ViewState } from '../constants/ViewStates'
+import { CharDetailRouterParam } from '../models/CharDetailModels'
 
-export class GenshinCharacterDetailParam {
-  accountId: string = ''
-  roleUid: string = ''
-  entityId: string = ''
-}
+/** 原神角色详情路由参数（与 CharDetailRouterParam 字段一致，保留别名供 Builder 使用） */
+export type GenshinCharacterDetailParam = CharDetailRouterParam;
 
 @ComponentV2
 export struct GenshinCharacterDetail {
-  @Param routerParam: GenshinCharacterDetailParam = new GenshinCharacterDetailParam()
+  @Param routerParam: GenshinCharacterDetailParam = new CharDetailRouterParam()
   @Local private tm: ThemeManager = themeManager
   @Local private vm: GenshinCharacterDetailViewModel = new GenshinCharacterDetailViewModel()
   @Local private windowWidthVp: number = themeManager.current.value360
@@ -78,16 +76,16 @@ export struct GenshinCharacterDetail {
     NavDestination() {
       Column() {
         if (this.vm.viewState === ViewState.LOADING) {
-          CharDetailLoadingView({ tm: this.tm })
+          CharDetailLoadingView()
         } else if (this.vm.viewState === ViewState.EMPTY || this.vm.viewState === ViewState.ERROR) {
-          CharDetailEmptyView({ tm: this.tm })
+          CharDetailEmptyView()
         } else {
           if (this.isPhonePortrait()) {
-            CharDetailPortraitLayout({ tm: this.tm, vm: this.vm })
+            CharDetailPortraitLayout({ vm: this.vm })
           } else if (this.isPhoneLandscape()) {
-            CharDetailLandscapeLayout({ tm: this.tm, vm: this.vm })
+            CharDetailLandscapeLayout({ vm: this.vm })
           } else {
-            CharDetailWideLayout({ tm: this.tm, vm: this.vm })
+            CharDetailWideLayout({ vm: this.vm })
           }
         }
       }
@@ -104,5 +102,15 @@ export struct GenshinCharacterDetail {
     }
     .title($r('app.string.char_detail_title'))
     .hideTitleBar(false)
+  }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct GenshinCharacterDetailPreview {
+  build() {
+    GenshinCharacterDetail({ routerParam: new CharDetailRouterParam() })
   }
 }

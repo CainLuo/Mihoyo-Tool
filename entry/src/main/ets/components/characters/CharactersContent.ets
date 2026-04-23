@@ -1,24 +1,29 @@
 /**
  * CharactersContent — 角色页内容区组件
+ *
+ * 根据 viewState 展示骨架屏、空态占位或角色网格。
+ * 不含任何业务判断，所有状态由 CharactersViewModel 驱动。
  */
-import { ThemeManager, themeManager } from '../../theme/ThemeManager'
-import { CharactersViewModel } from '../../viewmodel/CharactersViewModel'
-import { GameDataSummary , GameId } from 'core'
-import { HomePlaceholderView } from '../home/HomePlaceholderView'
-import { CharacterCard } from './CharacterCard'
-import { CharactersSkeleton } from './CharactersSkeleton'
-import { GameTabBar } from './GameTabBar'
-import { ViewState } from '../../constants/ViewStates'
+import { ThemeManager, themeManager } from '../../theme/ThemeManager';
+import { CharactersViewModel } from '../../viewmodel/CharactersViewModel';
+import { GameDataSummary } from 'core';
+import { HomePlaceholderView } from '../home/HomePlaceholderView';
+import { CharacterCard } from './CharacterCard';
+import { CharactersSkeleton } from './CharactersSkeleton';
+import { CharactersEmptyView } from './CharactersEmptyView';
+import { GameTabBar } from './GameTabBar';
+import { ViewState } from '../../constants/ViewStates';
 
 @ComponentV2
 export struct CharactersContent {
-  @Param tm: ThemeManager = new ThemeManager()
-  @Param vm: CharactersViewModel = new CharactersViewModel()
-  @Param scroller: Scroller = new Scroller()
-  @Param onCardTap: (character: GameDataSummary) => void = (_c: GameDataSummary) => {}
+  @Param vm: CharactersViewModel = new CharactersViewModel();
+  @Param scroller: Scroller = new Scroller();
+  @Param onCardTap: (character: GameDataSummary) => void = (_c: GameDataSummary) => {};
+  @Local private tm: ThemeManager = themeManager;
 
   build() {
     Column() {
+      // 多游戏时显示 Tab 栏
       if (this.vm.gameTabs.length > 1) {
         GameTabBar({
           tabs: this.vm.gameTabs,
@@ -40,46 +45,22 @@ export struct CharactersContent {
         .layoutWeight(1)
         .align(Alignment.Top)
       } else if (this.vm.viewState === ViewState.EMPTY) {
+        // 无账号：显示登录占位；有账号但无数据：显示刷新提示
         if (this.vm.accountOptions.length === 0) {
           HomePlaceholderView()
         } else {
-          Column({ space: this.tm.current.value20 }) {
-            Text('📋').fontSize(this.tm.current.value64)
-            Column({ space: this.tm.current.value8 }) {
-              Text($r('app.string.characters_placeholder_title'))
-                .font(this.tm.current.title18Bold)
-                .fontColor(this.tm.current.colorTextPrimary)
-                .textAlign(TextAlign.Center)
-              Text($r('app.string.characters_placeholder_desc'))
-                .font(this.tm.current.body16)
-                .fontColor(this.tm.current.colorTextSecondary)
-                .textAlign(TextAlign.Center)
-                .padding({ left: this.tm.current.value40, right: this.tm.current.value40 })
-            }
-            Button($r('app.string.characters_no_data_hint'))
-              .fontSize(this.tm.current.body16Medium.size)
-              .fontWeight(this.tm.current.body16Medium.weight)
-              .fontColor(this.tm.current.textOnDarkHigh)
-              .width(this.tm.current.pct90)
-              .height(this.tm.current.value50)
-              .borderRadius(this.tm.current.radius12)
-              .backgroundColor(this.tm.current.colorPrimary)
-              .onClick(() => { this.vm.refresh() })
-          }
-          .width(this.tm.current.full)
-          .layoutWeight(1)
-          .justifyContent(FlexAlign.Center)
-          .alignItems(HorizontalAlign.Center)
+          CharactersEmptyView({ onRefresh: () => { this.vm.refresh() } })
         }
       } else {
-        // LazyForEach + Grid 实现懒加载，只渲染可见区域内的卡片
+        // DATA 状态：LazyForEach + Grid 懒加载
         Grid(this.scroller) {
           LazyForEach(this.vm.dataSource, (character: GameDataSummary) => {
             GridItem() {
               CharacterCard({
                 character: character,
                 gameId: this.vm.gameTabs.length > 0
-                  ? this.vm.gameTabs[this.vm.selectedGameIdx].gameId : GameId.GENSHIN,
+                  ? this.vm.gameTabs[this.vm.selectedGameIdx].gameId
+                  : this.vm.currentGameId,
                 roleUid: this.vm.gameTabs.length > 0
                   ? this.vm.gameTabs[this.vm.selectedGameIdx].roleUid : '',
                 onTap: (c: GameDataSummary) => { this.onCardTap(c) }
@@ -113,7 +94,6 @@ export struct CharactersContent {
 export struct CharactersContentPreviewEmpty {
   build() {
     CharactersContent({
-      tm: themeManager,
       vm: new CharactersViewModel()
     })
     .height(600)

@@ -6,7 +6,7 @@
  */
 
 import { CoreInitializer, ZZZDailyNoteParser, ZZZDailyNoteData } from 'core';
-import { ZZZDailyNoteVM } from '../components/dailynote/DailyNoteModels';
+import { ZZZDailyNoteVM } from '../models/DailyNoteModels';
 import { Logger } from 'core';
 import { ViewState } from '../constants/ViewStates';
 

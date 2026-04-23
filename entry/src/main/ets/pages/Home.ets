@@ -6,16 +6,12 @@
  */
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { HomeViewModel } from '../viewmodel/HomeViewModel'
-import { MihoyoAccountVM, GameRoleCardVM } from '../components/home/HomeModels'
+import { MihoyoAccountVM, GameRoleCardVM } from '../models/HomeModels'
 import { UserGameSection } from '../components/home/UserGameSection'
 import { HomeSkeletonView } from '../components/home/HomeSkeletonView'
 import { HomePlaceholderView } from '../components/home/HomePlaceholderView'
-import { showGeetestDialog } from '../components/GeetestDialog'
-import { Logger, GameId } from 'core'
-import { AppRoutes } from '../constants/AppRoutes'
-import { GenshinDailyDetailParam } from './GenshinDailyDetail'
-import { StarRailDailyDetailParam } from './StarRailDailyDetail'
-import { ZZZDailyDetailParam } from './ZZZDailyDetail'
+import { showGeetestDialog } from '../components/GeetestDialogHelper'
+import { Logger } from 'core'
 import { BusinessError } from '@kit.BasicServicesKit'
 import { AccountSignal } from '../utils/AccountSignal'
 import { ViewState } from '../constants/ViewStates'
@@ -159,38 +155,22 @@ export struct Home {
   }
 
   private navigateToDetail(accountId: string, card: GameRoleCardVM): void {
-    if (card.gameId === GameId.GENSHIN) {
-      const param = new GenshinDailyDetailParam()
-      param.accountId = accountId
-      param.roleUid = card.roleUid
-      if (this.isSplit) {
-        this.detailStack.replacePath({ name: AppRoutes.GENSHIN_DAILY_DETAIL, param: param })
-      } else {
-        this.detailStack.pushPathByName(AppRoutes.GENSHIN_DAILY_DETAIL, param)
-      }
-      return
+    const route = this.vm.buildCardTapRoute(accountId, card)
+    if (route === null) { return }
+    if (this.isSplit) {
+      this.detailStack.replacePath({ name: route.routeName, param: route.param })
+    } else {
+      this.detailStack.pushPathByName(route.routeName, route.param)
     }
-    if (card.gameId === GameId.STARRAIL) {
-      const param = new StarRailDailyDetailParam()
-      param.accountId = accountId
-      param.roleUid = card.roleUid
-      if (this.isSplit) {
-        this.detailStack.replacePath({ name: AppRoutes.STARRAIL_DAILY_DETAIL, param: param })
-      } else {
-        this.detailStack.pushPathByName(AppRoutes.STARRAIL_DAILY_DETAIL, param)
-      }
-      return
-    }
-    if (card.gameId === GameId.ZZZ) {
-      const param = new ZZZDailyDetailParam()
-      param.accountId = accountId
-      param.roleUid = card.roleUid
-      if (this.isSplit) {
-        this.detailStack.replacePath({ name: AppRoutes.ZZZ_DAILY_DETAIL, param: param })
-      } else {
-        this.detailStack.pushPathByName(AppRoutes.ZZZ_DAILY_DETAIL, param)
-      }
-      return
-    }
+  }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct HomePreview {
+  build() {
+    Home()
   }
 }
