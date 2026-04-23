@@ -23,6 +23,11 @@ export class ApiConfig {
    */
   static readonly WIDGET_USER_AGENT: string =
     'WidgetExtension/550 CFNetwork/1335.0.3 Darwin/21.6.0';
+  /**
+   * 安卓 App User-Agent（手机号登录接口使用）
+   */
+  static readonly ANDROID_USER_AGENT: string =
+    `Mozilla/5.0 (Linux; Android 12) Mobile miHoYoBBS/${ApiConfig.APP_VERSION}`;
   /** x-rpc-sys_version：与 User-Agent 里的 iOS 版本一致 */
   static readonly SYS_VERSION: string = '16.3.1';
 

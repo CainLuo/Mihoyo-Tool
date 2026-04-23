@@ -103,8 +103,11 @@ class DefaultFileSystem implements IFileSystem {
 }
 
 export class LogFileManager {
-  static readonly MAX_FILE_SIZE_BYTES: number = 5 * 1024 * 1024; // 5MB
+  /** 单个日志文件最大大小（5MB），超过后轮转到新文件 */
+  static readonly MAX_FILE_SIZE_BYTES: number = 5 * 1024 * 1024;
+  /** 日志目录名 */
   static readonly LOG_DIR_NAME: string = 'logs';
+  /** 日志文件名前缀 */
   static readonly FILE_PREFIX: string = 'api_log_';
 
   private logDir: string = '';
@@ -217,9 +220,22 @@ export class LogFileManager {
   /** 生成轮转文件路径（在当前日期文件名后追加 _2、_3 等） */
   private getRotatedFilePath(): string {
     const baseName = LogFileManager.getCurrentFileName().replace('.txt', '');
+    // 从 _2 开始递增，找到一个不存在的文件名
     let suffix = 2;
     let candidate = this.logDir + '/' + baseName + '_' + suffix + '.txt';
-    // 简单策略：找一个不存在或较小的文件
+    while (suffix < 100) {
+      try {
+        const size = fileIo.statSync(candidate).size;
+        if (size < LogFileManager.MAX_FILE_SIZE_BYTES) {
+          return candidate;
+        }
+        suffix++;
+        candidate = this.logDir + '/' + baseName + '_' + suffix + '.txt';
+      } catch (_) {
+        // 文件不存在，可以使用
+        return candidate;
+      }
+    }
     return candidate;
   }
 }

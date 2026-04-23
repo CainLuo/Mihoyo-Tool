@@ -44,7 +44,7 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     h.set(HKey.DEVICE_NAME, ApiConfig.DEVICE_NAME);
     h.set(HKey.GAME_BIZ, HVal.GAME_BIZ_GENSHIN);
     h.set(HKey.AIGIS, '');
-    h.set(HKey.USER_AGENT, `Mozilla/5.0 (Linux; Android 12) Mobile miHoYoBBS/${ApiConfig.APP_VERSION}`);
+    h.set(HKey.USER_AGENT, ApiConfig.ANDROID_USER_AGENT);
     h.set(HKey.REFERER, HVal.REFERER_USER);
     return HttpClient.post(
       MihoyoDomain.PASSPORT + PassportApiPath.CREATE_LOGIN_CAPTCHA,
@@ -80,7 +80,7 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     h.set(HKey.DEVICE_MODEL, ApiConfig.DEVICE_MODEL);
     h.set(HKey.DEVICE_NAME, ApiConfig.DEVICE_NAME);
     h.set(HKey.AIGIS, '');
-    h.set(HKey.USER_AGENT, `Mozilla/5.0 (Linux; Android 12) Mobile miHoYoBBS/${ApiConfig.APP_VERSION}`);
+    h.set(HKey.USER_AGENT, ApiConfig.ANDROID_USER_AGENT);
     return HttpClient.post(
       MihoyoDomain.PASSPORT + PassportApiPath.LOGIN_BY_MOBILE_CAPTCHA,
       bodyStr,

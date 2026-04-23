@@ -16,7 +16,7 @@
  */
 
 /**
- * 表名枚举 — 所有 15 张表名的唯一来源，禁止在其他地方直接写表名字符串。
+ * 表名枚举 — 所有 16 张表名的唯一来源，禁止在其他地方直接写表名字符串。
  * 值与 sync_meta.data_type 字段的存储值完全对齐。
  */
 export enum TableName {
@@ -834,7 +834,7 @@ export const SYNC_META_TABLE = new TableDef(TableName.SYNC_META, [
 ], FK_ACCOUNT);
 
 /**
- * 所有 15 张表的有序列表，供 RdbManager.createTables() 循环建表使用。
+ * 所有 16 张表的有序列表，供 RdbManager.createTables() 循环建表使用。
  * 顺序很重要：account_table 必须在所有有外键的子表之前创建。
  */
 export const ALL_TABLES: TableDef[] = [

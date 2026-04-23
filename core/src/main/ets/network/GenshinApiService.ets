@@ -23,11 +23,11 @@ export class GenshinApiService extends MihoyoApiService {
     params.set('role_id', roleId);
     params.set('server', server);
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, params);
-    headers.set('x-rpc-tool_verison', ApiConfig.TOOL_VERSION_GENSHIN);
+    headers.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_GENSHIN);
     headers.set(HKey.PAGE, ApiConfig.PAGE_GENSHIN_NOTE);
     // Geetest 验证通过后，只注入 challenge（与 TeyvatGuide lunaReq.ts 一致）
     if (geetestChallenge) {
-      headers.set('x-rpc-challenge', geetestChallenge);
+      headers.set(HKey.CHALLENGE, geetestChallenge);
     }
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
@@ -58,7 +58,7 @@ export class GenshinApiService extends MihoyoApiService {
   async getCharacterList(roleId: string, server: string, cookie: string): Promise<object> {
     const bodyStr = JSON.stringify({ role_id: roleId, server: server });
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, undefined, bodyStr);
-    headers.set('x-rpc-tool_verison', ApiConfig.TOOL_VERSION_GENSHIN);
+    headers.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_GENSHIN);
     headers.set(HKey.PAGE, ApiConfig.PAGE_GENSHIN_ROLES);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
@@ -85,7 +85,7 @@ export class GenshinApiService extends MihoyoApiService {
       character_ids: characterIds,
     });
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, undefined, bodyStr);
-    headers.set('x-rpc-tool_verison', ApiConfig.TOOL_VERSION_GENSHIN);
+    headers.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_GENSHIN);
     // x-rpc-page 需要拼接第一个 avatarId，无 avatarId 时用通用页面
     const pageId = characterIds.length > 0 ? characterIds[0] : '';
     headers.set(HKey.PAGE, pageId.length > 0
@@ -114,7 +114,7 @@ export class GenshinApiService extends MihoyoApiService {
       uid: uid,
     });
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.CALCULATE, cookie, undefined, bodyStr);
-    headers.set('x-rpc-cal_type', '1');
+    headers.set(HKey.CAL_TYPE, '1');
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     return HttpClient.post(

@@ -2,22 +2,8 @@ import { common } from '@kit.AbilityKit';
 import { util } from '@kit.ArkTS';
 import { RequestParams, RequestOptions } from '../APIs';
 import { MockServiceBase } from './MockServiceBase';
-import { SignApiPath } from '../SignApiPath';
-
-/** 从 gameBiz 提取签到 host */
-function gameBizToHost(gameBiz: string): string {
-  if (gameBiz.startsWith('hk4e')) {
-    return 'hk4e';
-  }
-  if (gameBiz.startsWith('hkrpg')) {
-    return 'hkrpg';
-  }
-  if (gameBiz.startsWith('nap') || gameBiz.startsWith('zzz')) {
-    return 'zzz';
-  }
-  const idx = gameBiz.indexOf('_');
-  return idx > 0 ? gameBiz.substring(0, idx) : gameBiz;
-}
+import { SignApiPath, gameBizToSignHost } from '../SignApiPath';
+import { HKey } from '../MihoyoHeaderKey';
 
 export class SignMockService extends MockServiceBase {
   constructor(context: common.UIAbilityContext) {
@@ -45,21 +31,21 @@ export class SignMockService extends MockServiceBase {
     cookie: string,
     challenge?: string,
   ): Promise<object> {
-    const host = gameBizToHost(gameBiz);
+    const host = gameBizToSignHost(gameBiz);
     const fileName = `event_luna_${host}_sign.json`;
     return this.readMockFileByName(fileName, cookie);
   }
 
   /** 获取签到状态 — event_luna_{host}_info.json */
   async getSignInfo(gameBiz: string, roleId: string, server: string, cookie: string): Promise<object> {
-    const host = gameBizToHost(gameBiz);
+    const host = gameBizToSignHost(gameBiz);
     const fileName = `event_luna_${host}_info.json`;
     return this.readMockFileByName(fileName, cookie);
   }
 
   /** 获取今日签到奖励 — event_luna_{host}_home.json */
   async getSignReward(gameBiz: string, cookie: string): Promise<object> {
-    const host = gameBizToHost(gameBiz);
+    const host = gameBizToSignHost(gameBiz);
     const fileName = `event_luna_${host}_home.json`;
     return this.readMockFileByName(fileName, cookie);
   }

@@ -2,6 +2,7 @@ import { BaseApiService, RequestOptions, RequestParams } from './APIs';
 import { resourceManager } from '@kit.LocalizationKit';
 import { util } from '@kit.ArkTS';
 import { CoreInitializer } from '../CoreInitializer';
+import { Logger } from '../utils/Logger';
 
 /**
  * Mock 响应接口
@@ -143,7 +144,7 @@ export class MockService extends BaseApiService {
       const decoder = new util.TextDecoder('utf-8')
       return JSON.parse(decoder.decodeToString(new Uint8Array(content.buffer))) as MockResponse
     } catch (error) {
-      console.error(`Failed to get mock data: ${this.toErrorMessage(error)}`)
+      Logger.error('MockService', `Failed to get mock data: ${this.toErrorMessage(error)}`);
       return { retcode: 0, message: 'success', data: {} }
     }
   }

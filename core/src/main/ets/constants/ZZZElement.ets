@@ -7,27 +7,40 @@
  * 转换函数在边界处（ViewModel）调用一次，之后全程使用 enum。
  */
 export enum ZZZElementType {
-  PHYSICS           = 200,   // 物理
-  FIRE              = 201,   // 火
-  ICE               = 202,   // 冰
-  ELECTRIC          = 203,   // 电
-  ETHER             = 205,   // 以太
+  /** 物理 */
+  PHYSICS           = 200,
+  /** 火 */
+  FIRE              = 201,
+  /** 冰 */
+  ICE               = 202,
+  /** 电 */
+  ELECTRIC          = 203,
+  /** 以太 */
+  ETHER             = 205,
   /** 凛刃（真真专属，基础为物理，通过 sub_element_type=2001 区分） */
   ZHEN_ZHEN_ASSAULT = 2001,
   /** 烈霜（Unagi 专属，基础为冰，通过 sub_element_type=2002 区分） */
   FIRE_FROST        = 2002,
   /** 玄墨（基础为以太，通过 sub_element_type=2003 区分） */
   AURIC_ETHER       = 2003,
+  /** 未知 */
   UNKNOWN           = 0,
 }
 
 export enum ZZZProfession {
-  ATTACK  = 1,  // 强攻（PowerfulAttack）
-  STUN    = 2,  // 击破（BreakStun）
-  ANOMALY = 3,  // 异常（ElementAbnormal）
-  SUPPORT = 4,  // 支援（Support）
-  DEFENSE = 5,  // 防护（Defence）
-  RUPTURE = 6,  // 命破（Rupture）
+  /** 强攻（PowerfulAttack） */
+  ATTACK  = 1,
+  /** 击破（BreakStun） */
+  STUN    = 2,
+  /** 异常（ElementAbnormal） */
+  ANOMALY = 3,
+  /** 支援（Support） */
+  SUPPORT = 4,
+  /** 防护（Defence） */
+  DEFENSE = 5,
+  /** 命破（Rupture） */
+  RUPTURE = 6,
+  /** 未知 */
   UNKNOWN = 0,
 }
 

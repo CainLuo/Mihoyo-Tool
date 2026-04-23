@@ -118,7 +118,7 @@ export * from './src/main/ets/network/ZZZApiService';
 export * from './src/main/ets/network/SignApiService';
 
 // 业务错误类型
-export { AuthExpiredError, GeetestRequiredError, GeetestSignRequiredError, RoleNotPublicError } from './src/main/ets/errors/ApiErrors';
+export { AuthExpiredError, GeetestRequiredError, RoleNotPublicError } from './src/main/ets/errors/ApiErrors';
 export { GeetestCreateResult, GeetestVerifyInput } from './src/main/ets/errors/ApiErrors';
 
 // Cookie 刷新

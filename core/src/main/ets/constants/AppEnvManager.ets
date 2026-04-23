@@ -1,7 +1,5 @@
-import { AppEnv } from './AppEnv';
-
 /**
- * 应用环境管理器（全局单例）。
+ * AppEnvManager — 应用环境管理器（全局单例）
  *
  * 职责：持有当前运行环境，提供环境判断方法。
  * 初始化：由 CoreInitializer.initCore() 在启动时调用 AppEnvManager.setup(env)。
@@ -11,6 +9,7 @@ import { AppEnv } from './AppEnv';
  *   - entry 层：通过 'core' 导出 import 使用
  *   - Logger：通过 AppEnvManager.getEnv() 获取环境标签，不持有判断逻辑
  */
+import { AppEnv } from './AppEnv';
 export class AppEnvManager {
   private static currentEnv: AppEnv = AppEnv.DEBUG;
 

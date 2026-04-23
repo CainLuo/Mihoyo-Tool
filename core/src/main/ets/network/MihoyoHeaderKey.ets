@@ -33,6 +33,12 @@ export enum HKey {
   SIGN_GAME           = 'x-rpc-signgame',
   /** x-rpc-page：页面标识，部分接口必须携带 */
   PAGE                = 'x-rpc-page',
+  /** x-rpc-challenge：Geetest 验证通过后注入 */
+  CHALLENGE           = 'x-rpc-challenge',
+  /** x-rpc-cal_type：原神养成计算接口专用 */
+  CAL_TYPE            = 'x-rpc-cal_type',
+  /** x-rpc-cultivate_source：绝区零养成计算接口专用 */
+  CULTIVATE_SOURCE    = 'x-rpc-cultivate_source',
 
   // 其他
   REQUESTED_WITH      = 'x-requested-with',
@@ -62,6 +68,8 @@ export enum HVal {
   LANG_ZH_CN          = 'zh-cn',
   /** x-rpc-platform: 1（安卓） */
   PLATFORM_ANDROID    = '1',
+  /** x-rpc-platform: 5（Web/PC） */
+  PLATFORM_WEB        = '5',
 
   /** Referer: https://webstatic.mihoyo.com/（含尾斜杠） */
   REFERER_WEBSTATIC         = 'https://webstatic.mihoyo.com/',

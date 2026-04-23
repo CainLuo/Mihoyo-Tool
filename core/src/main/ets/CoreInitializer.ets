@@ -82,7 +82,7 @@ export class CoreInitializer {
       return;
     }
 
-    console.log('[CoreInitializer] initCore called, env=' + config.env);
+    Logger.info('CoreInitializer', 'initCore called, env=' + config.env);
     AppEnvManager.setup(config.env);
     CoreInitializer.appContext = config.context;
 

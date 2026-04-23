@@ -4,7 +4,7 @@ import { ALL_TABLES, ALL_INDEXES, TableName } from './TableSchema';
 
 /**
  * 数据库管理器
- * 全新 V1.0 架构，15 张专用表，SecurityLevel.S2 加密
+ * 全新 V1.0 架构，16 张专用表，SecurityLevel.S1 加密
  */
 export class RdbManager {
   private static rdbStore: relationalStore.RdbStore | null = null;
@@ -12,7 +12,7 @@ export class RdbManager {
   private static readonly DB_VERSION: number = 1;
 
   /**
-   * 初始化数据库，使用 SecurityLevel.S2 加密
+   * 初始化数据库，使用 SecurityLevel.S1 加密
    * 初始化后执行 PRAGMA foreign_keys = ON 并运行迁移
    */
   public static async init(context: common.UIAbilityContext): Promise<void> {

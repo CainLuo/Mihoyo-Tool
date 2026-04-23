@@ -21,11 +21,18 @@ export enum LogEventType {
 }
 
 export class ApiLogEntry {
+  /** 同文件内自增 ID */
   id: number = 0;
+  /** 日志时间戳（Unix 毫秒） */
   timestamp: number = Date.now();
+  /** 日志级别 */
   level: LogLevel = LogLevel.DEBUG;
+  /** 事件类型 */
   eventType: LogEventType = LogEventType.GENERAL;
+  /** 日志标签（模块名） */
   tag: string = '';
+  /** 日志消息 */
   message: string = '';
+  /** 附加 JSON 数据（可选，如请求/响应体） */
   extraJson: string = '';
 }

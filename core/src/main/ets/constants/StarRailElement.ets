@@ -6,13 +6,21 @@
  * 转换函数在边界处（ViewModel）调用一次，之后全程使用 enum。
  */
 export enum StarRailElement {
-  PHYSICAL  = 'physical',  // 物理
-  FIRE      = 'fire',       // 火
-  ICE       = 'ice',        // 冰
-  LIGHTNING = 'lightning',  // 雷
-  WIND      = 'wind',       // 风
-  QUANTUM   = 'quantum',    // 量子
-  IMAGINARY = 'imaginary',  // 虚数
+  /** 物理 */
+  PHYSICAL  = 'physical',
+  /** 火 */
+  FIRE      = 'fire',
+  /** 冰 */
+  ICE       = 'ice',
+  /** 雷 */
+  LIGHTNING = 'lightning',
+  /** 风 */
+  WIND      = 'wind',
+  /** 量子 */
+  QUANTUM   = 'quantum',
+  /** 虚数 */
+  IMAGINARY = 'imaginary',
+  /** 未知/无属性 */
   UNKNOWN   = '',
 }
 
