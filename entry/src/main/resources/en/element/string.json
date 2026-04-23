@@ -337,6 +337,18 @@
       "value": "Not synced"
     },
     {
+      "name": "sync_minutes_ago",
+      "value": "%d min ago"
+    },
+    {
+      "name": "sync_hours_ago",
+      "value": "%d hr ago"
+    },
+    {
+      "name": "sync_long_ago",
+      "value": "Over 1 day ago"
+    },
+    {
       "name": "home_error_retry",
       "value": "Load failed, tap to retry"
     },

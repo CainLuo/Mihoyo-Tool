@@ -52,6 +52,8 @@ export class MihoyoHeaderBuilder {
     h.set(HKey.COOKIE, cookie);
     h.set(HKey.USER_AGENT, ApiConfig.USER_AGENT);
     h.set(HKey.ACCEPT, HVal.ACCEPT_JSON);
+    // 米游社大多数 API 需要验证此字段（来源：UIGF-org/mihoyo-api-collect/other/authentication.md）
+    h.set(HKey.REQUESTED_WITH, HVal.REQUESTED_HYPERION);
 
     // ── 按 Profile 差异化注入 ─────────────────────────────────────
     if (profile === HeaderProfile.GAME_RECORD) {

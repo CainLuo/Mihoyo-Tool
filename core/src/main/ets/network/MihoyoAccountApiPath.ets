@@ -5,8 +5,15 @@ export enum MihoyoAccountApiPath {
   GET_USER_FULL_INFO = '/user/wapi/getUserFullInfo',
   /** 游戏角色绑定列表 — Domain: TAKUMI */
   GET_GAME_ROLES = '/binding/api/getUserGameRolesByCookie',
-  /** 申请 Geetest 验证任务 — Domain: BBS */
-  CREATE_VERIFICATION = '/misc/api/createVerification',
-  /** 提交 Geetest 验证结果，换取新 challenge — Domain: BBS */
-  VERIFY_VERIFICATION = '/misc/api/verifyVerification',
+  /**
+   * 申请 Geetest 验证任务 — Domain: TAKUMI_RECORD
+   * 参考 PizzaHelperUnited CreateVerificationAPI.swift：
+   * 使用 card/wapi 端点（与 daily note 同域名），服务器可关联验证上下文
+   */
+  CREATE_VERIFICATION = '/game_record/app/card/wapi/createVerification',
+  /**
+   * 提交 Geetest 验证结果，换取新 challenge — Domain: TAKUMI_RECORD
+   * 参考 PizzaHelperUnited CreateVerificationAPI.swift
+   */
+  VERIFY_VERIFICATION = '/game_record/app/card/wapi/verifyVerification',
 }

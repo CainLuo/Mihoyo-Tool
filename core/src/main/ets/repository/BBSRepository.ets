@@ -277,13 +277,16 @@ export class BBSRepository {
    * 从完整 Cookie 中构造 Widget API 所需的 Cookie 格式：stuid=xxx;stoken=v2_xxx;mid=xxx
    *
    * Widget API 需要 stoken（v2_ 格式），优先从以下字段提取：
-   * 1. stoken（手机号/二维码登录后有此字段）
-   * 2. ltoken_v2（Cookie 登录用户，ltoken_v2 与 stoken 格式相同，均为 v2_ 开头）
+   * 1. stoken（手机号/二维码登录后有此字段，必须是 v2_ 格式）
+   * 2. ltoken_v2（Cookie 登录用户，ltoken_v2 均为 v2_ 开头，可作为 stoken 使用）
+   *
+   * 注意：Widget API 只接受 v2 格式（v2_ 开头）的 stoken，v1 格式会被服务器拒绝。
+   * 参考 PizzaHelperUnited NoteAPI4GI.swift：cookie.contains("stoken=v2_")
    *
    * stuid 优先从 stuid 字段提取，其次用 account_id / ltuid_v2 / ltuid
    * mid 优先从 mid 字段提取，其次用 account_mid_v2 / ltmid_v2
    *
-   * 返回空字符串表示无法构造（Cookie 中既无 stoken 也无 ltoken_v2）
+   * 返回空字符串表示无法构造（Cookie 中无 v2 格式的 stoken/ltoken_v2）
    */
   static buildWidgetCookie(cookie: string): string {
     // 提取 stoken（优先）或 ltoken_v2（降级）
@@ -292,6 +295,12 @@ export class BBSRepository {
       stoken = BBSRepository.extractCookieField(cookie, 'ltoken_v2');
     }
     if (stoken.length === 0) {
+      return '';
+    }
+    // Widget API 只接受 v2 格式的 stoken（以 "v2_" 开头）
+    // 参考 PizzaHelperUnited NoteAPI4GI.swift：cookie.contains("stoken=v2_")
+    // v1 格式的 stoken 会被服务器拒绝，直接返回空字符串跳过 Widget 降级
+    if (!stoken.startsWith('v2_')) {
       return '';
     }
 

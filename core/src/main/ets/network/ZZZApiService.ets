@@ -26,6 +26,8 @@ export class ZZZApiService extends MihoyoApiService {
     headers.set(HKey.PAGE, ApiConfig.PAGE_ZZZ_NOTE);
     if (geetestChallenge) {
       headers.set(HKey.CHALLENGE, geetestChallenge);
+      headers.set(HKey.CHALLENGE_PATH, 'https://api-takumi-record.mihoyo.com' + ZZZApiPath.DAILY_NOTE);
+      headers.set(HKey.CHALLENGE_GAME, '8');
     }
     const opts = new RequestOptions();
     opts.extraHeaders = headers;

@@ -437,6 +437,18 @@
       "value": "未同步"
     },
     {
+      "name": "sync_minutes_ago",
+      "value": "%d 分钟前"
+    },
+    {
+      "name": "sync_hours_ago",
+      "value": "%d 小时前"
+    },
+    {
+      "name": "sync_long_ago",
+      "value": "超过 1 天前"
+    },
+    {
       "name": "home_error_retry",
       "value": "加载失败，点击重试"
     },

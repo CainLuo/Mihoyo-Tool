@@ -35,6 +35,16 @@ export enum HKey {
   PAGE                = 'x-rpc-page',
   /** x-rpc-challenge：Geetest 验证通过后注入 */
   CHALLENGE           = 'x-rpc-challenge',
+  /**
+   * x-rpc-challenge_path：Geetest 验证通过后注入，告知服务器 challenge 对应的接口完整路径
+   * 参考 PizzaHelperUnited URLRequestConfig.writeXRPCChallengeHeaders4DailyNote
+   */
+  CHALLENGE_PATH      = 'x-rpc-challenge_path',
+  /**
+   * x-rpc-challenge_game：Geetest 验证通过后注入，告知服务器 challenge 对应的游戏 ID
+   * 原神=2，星铁=6，绝区零=8
+   */
+  CHALLENGE_GAME      = 'x-rpc-challenge_game',
   /** x-rpc-cal_type：原神养成计算接口专用 */
   CAL_TYPE            = 'x-rpc-cal_type',
   /** x-rpc-cultivate_source：绝区零养成计算接口专用 */
