@@ -337,6 +337,18 @@
       "value": "未同步"
     },
     {
+      "name": "sync_minutes_ago",
+      "value": "%d 分鐘前"
+    },
+    {
+      "name": "sync_hours_ago",
+      "value": "%d 小時前"
+    },
+    {
+      "name": "sync_long_ago",
+      "value": "超過 1 天前"
+    },
+    {
       "name": "home_error_retry",
       "value": "載入失敗，點擊重試"
     },

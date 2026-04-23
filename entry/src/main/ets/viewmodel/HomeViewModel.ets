@@ -264,7 +264,7 @@ export class HomeViewModel {
     }
 
     try {
-      const newChallenge = await GeetestService.verifyVerification(result, trigger.cookie);
+      const newChallenge = await GeetestService.verifyVerification(result, trigger.cookie, trigger.gameId);
       await this.syncDailyNoteWithChallenge(
         trigger.accountId,
         trigger.cookie,
@@ -453,7 +453,7 @@ export class HomeViewModel {
    */
   private async handleGeetest(account: AccountRow, role: GameRoleRow): Promise<void> {
     try {
-      const createResult = await GeetestService.createVerification(account.cookie);
+      const createResult = await GeetestService.createVerification(account.cookie, role.gameId);
       this.geetestTrigger = new GeetestTrigger(
         createResult,
         account.cookie,
@@ -485,6 +485,22 @@ export class HomeViewModel {
     return true;
   }
 
+  /**
+   * 获取指定游戏角色的 daily_note 上次同步时间（Unix 秒级时间戳）
+   */
+  private static async getDailyNoteLastSyncTime(accountId: string, roleUid: string, gameId: GameId): Promise<number> {
+    if (gameId === GameId.GENSHIN) {
+      return CoreInitializer.genshinRepository.getDailyNoteLastSyncTime(accountId, roleUid);
+    }
+    if (gameId === GameId.STARRAIL) {
+      return CoreInitializer.starRailRepository.getDailyNoteLastSyncTime(accountId, roleUid);
+    }
+    if (gameId === GameId.ZZZ) {
+      return CoreInitializer.zzzRepository.getDailyNoteLastSyncTime(accountId, roleUid);
+    }
+    return 0;
+  }
+
   /** 从本地 DB 读取账号 + 角色 + daily_note，组装 UI ViewModel */
   private async fetchFromLocal(): Promise<MihoyoAccountVM[]> {
     const accounts = await CoreInitializer.bbsRepository.getAllAccounts();
@@ -509,6 +525,11 @@ export class HomeViewModel {
       if (snapshot === null) {
         continue;
       }
+      // 从 sync_meta 读取真实的上次同步时间，计算描述
+      let lastSyncTime = 0;
+      try {
+        lastSyncTime = await HomeViewModel.getDailyNoteLastSyncTime(account.uid, role.roleId, role.gameId);
+      } catch (_) {}
       cards[cards.length] = new GameRoleCardVM(
         role.gameId,
         role.gameId,
@@ -517,7 +538,7 @@ export class HomeViewModel {
         role.nickname,
         serverDisplayName(role.server, role.gameId) ?? role.server,
         snapshot,
-        'sync_just_now',
+        HomeViewModel.syncDescKey(lastSyncTime),
         HomeViewModel.gameLogo(role.gameId)
       );
     }
@@ -743,6 +764,35 @@ export class HomeViewModel {
   /** 根据 gameId 返回对应的游戏 Logo 图标资源 */
   static gameLogo(gameId: GameId): Resource {
     return gameIdToLogo(gameId);
+  }
+
+  /**
+   * 根据上次同步时间戳生成同步描述 key，供 GameToolCardHeader.syncDescResource 使用
+   * 格式：
+   *   'sync_not_synced'         — 从未同步
+   *   'sync_just_now'           — 1 分钟内
+   *   'sync_minutes_ago:{n}'    — n 分钟前（1 ≤ n < 60）
+   *   'sync_hours_ago:{n}'      — n 小时前（1 ≤ n < 24）
+   *   'sync_long_ago'           — 超过 24 小时
+   */
+  static syncDescKey(lastSyncTime: number): string {
+    if (lastSyncTime === 0) {
+      return 'sync_not_synced';
+    }
+    const now = Math.floor(Date.now() / 1000);
+    const diffSec = now - lastSyncTime;
+    if (diffSec < 60) {
+      return 'sync_just_now';
+    }
+    const diffMin = Math.floor(diffSec / 60);
+    if (diffMin < 60) {
+      return `sync_minutes_ago:${diffMin}`;
+    }
+    const diffHour = Math.floor(diffMin / 60);
+    if (diffHour < 24) {
+      return `sync_hours_ago:${diffHour}`;
+    }
+    return 'sync_long_ago';
   }
 
   /**

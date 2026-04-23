@@ -25,9 +25,12 @@ export class GenshinApiService extends MihoyoApiService {
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, params);
     headers.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_GENSHIN);
     headers.set(HKey.PAGE, ApiConfig.PAGE_GENSHIN_NOTE);
-    // Geetest 验证通过后，只注入 challenge（与 TeyvatGuide lunaReq.ts 一致）
+    // Geetest 验证通过后，注入 challenge + challenge_path + challenge_game
+    // 参考 PizzaHelperUnited URLRequestConfig.writeXRPCChallengeHeaders4DailyNote
     if (geetestChallenge) {
       headers.set(HKey.CHALLENGE, geetestChallenge);
+      headers.set(HKey.CHALLENGE_PATH, 'https://api-takumi-record.mihoyo.com' + GenshinApiPath.DAILY_NOTE);
+      headers.set(HKey.CHALLENGE_GAME, '2');
     }
     const opts = new RequestOptions();
     opts.extraHeaders = headers;

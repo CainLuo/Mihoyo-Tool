@@ -47,6 +47,15 @@ export abstract class GameRepository {
   }
 
   /**
+   * 获取指定数据类型的上次同步时间（Unix 秒级时间戳）
+   * 未同步过返回 0
+   */
+  async getLastSyncTime(accountId: string, roleUid: string, dataType: string): Promise<number> {
+    const meta = await this.syncMetaDao.findOne(accountId, roleUid, dataType);
+    return meta !== null ? meta.lastSyncTime : 0;
+  }
+
+  /**
    * 标记同步开始（设置 sync_status = 'syncing'）
    */
   protected async markSyncing(accountId: string, roleUid: string, dataType: string): Promise<void> {

@@ -89,6 +89,10 @@ export class ZZZRepository extends GameRepository {
     return this.needsSync(accountId, roleUid, SyncDataType.ZZZ_DAILY_NOTE);
   }
 
+  async getDailyNoteLastSyncTime(accountId: string, roleUid: string): Promise<number> {
+    return this.getLastSyncTime(accountId, roleUid, SyncDataType.ZZZ_DAILY_NOTE);
+  }
+
   async markDailyNoteSyncing(accountId: string, roleUid: string): Promise<void> {
     await this.markSyncing(accountId, roleUid, SyncDataType.ZZZ_DAILY_NOTE);
   }
@@ -131,7 +135,7 @@ export class ZZZRepository extends GameRepository {
     const resp = await (this.getService() as ZZZApiService).getDailyNote(roleUid, server, cookie, geetestChallenge);
     const respData = resp as Record<string, object>;
     const retcodeStr = `${respData['retcode'] ?? ''}`;
-    if (retcodeStr === '-100' || retcodeStr === '10001') {
+    if (retcodeStr === '-100' || retcodeStr === '10001' || retcodeStr === '-10001') {
       throw new AuthExpiredError(`retcode=${retcodeStr}`);
     }
     if (retcodeStr === '1034' || retcodeStr === '10035') {
@@ -139,6 +143,8 @@ export class ZZZRepository extends GameRepository {
       const widgetCookie = BBSRepository.buildWidgetCookie(cookie);
       if (widgetCookie.length > 0) {
         await this.doSyncDailyNoteWidget(accountId, roleUid, widgetCookie);
+        // Widget 降级成功，标记为 success
+        await this.markSuccess(accountId, roleUid, SyncDataType.ZZZ_DAILY_NOTE);
         return;
       }
       throw new Error(`retcode=${retcodeStr}: Geetest verification required and no widget cookie available`);
