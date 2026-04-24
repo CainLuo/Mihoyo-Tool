@@ -1411,6 +1411,10 @@
     {
       "name": "common_uid_format",
       "value": "UID %s"
+    },
+    {
+      "name": "split_placeholder_hint",
+      "value": "Tap an item on the left to view details"
     }
   ]
 }

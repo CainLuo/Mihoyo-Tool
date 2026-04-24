@@ -7,48 +7,23 @@
  */
 import { ComponentContent, SymbolGlyphModifier } from '@kit.ArkUI'
 import { promptAction } from '@kit.ArkUI'
+import { window } from '@kit.ArkUI'
+import { display } from '@kit.ArkUI'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { AccountOption } from '../models/AccountOption'
 import { AccountSwitchDialog, AccountSwitchDialogParams } from '../components/characters/AccountSwitchDialog'
 import { Home } from './Home'
 import { Characters } from './Characters'
 import { My } from './My'
-import { GenshinDailyDetail, GenshinDailyDetailParam } from './GenshinDailyDetail'
-import { GenshinCharacterDetailParam, GenshinCharacterDetail } from './GenshinCharacterDetail'
-import { AccountDetail } from './AccountDetail'
-import { Login } from './Login'
-import { MyAccountVM } from '../models/MyModels'
 import { AppRoutes } from '../constants/AppRoutes'
 import { splitPlaceholderBuilder } from '../components/SplitPlaceholder'
 import { CookieExpiredSignal } from '../utils/CookieExpiredSignal'
 import { FailedAccountInfo } from 'core'
 import BuildProfile from 'BuildProfile'
-import { TestPage } from './TestPage'
-import { WebViewPage, WebViewParam } from './WebViewPage'
-import { NotificationSettings } from './NotificationSettings'
 
 @Builder
 function accountSwitchDialogBuilder(params: AccountSwitchDialogParams) {
   AccountSwitchDialog({ params: params })
-}
-
-@Builder
-function allDetailBuilder(name: string, param: Object) {
-  if (name === AppRoutes.GENSHIN_DAILY_DETAIL) {
-    GenshinDailyDetail({ routerParam: param as GenshinDailyDetailParam })
-  } else if (name === AppRoutes.GENSHIN_CHARACTER_DETAIL) {
-    GenshinCharacterDetail({ routerParam: param as GenshinCharacterDetailParam })
-  } else if (name === AppRoutes.ACCOUNT_DETAIL) {
-    AccountDetail({ account: param as MyAccountVM })
-  } else if (name === AppRoutes.LOGIN) {
-    Login()
-  } else if (name === AppRoutes.TEST_PAGE) {
-    TestPage()
-  } else if (name === AppRoutes.WEB_VIEW) {
-    WebViewPage({ routerParam: param as WebViewParam })
-  } else if (name === AppRoutes.NOTIFICATION_SETTINGS) {
-    NotificationSettings()
-  }
 }
 
 const TAB_HOME = 0
@@ -61,6 +36,14 @@ export struct Main {
   @Local private selectedTab: number = TAB_HOME
   @Local private tabVersion: number = 0
   @Local private isSplit: boolean = false
+  /** 当前 Navigation 显示模式，由 setCurrentMode() 综合屏幕方向和窗口状态计算 */
+  @Local private navMode: NavigationMode = NavigationMode.Stack
+  /** 当前窗口宽度（vp），用于动态计算 navBarWidth */
+  @Local private windowWidthVp: number = 360
+
+  private windowClass: window.Window | undefined = AppStorage.get<window.Window>('windowClass')
+  private currentWindowStatusType: window.WindowStatusType | undefined =
+    this.windowClass?.getWindowStatus()
 
   readonly stack: NavPathStack = new NavPathStack()
   private placeholder: ComponentContent<object> | null = null
@@ -84,6 +67,53 @@ export struct Main {
   aboutToAppear(): void {
     this.uiCtx = this.getUIContext()
     this.placeholder = new ComponentContent(this.uiCtx, wrapBuilder(splitPlaceholderBuilder))
+    // 初始化窗口宽度和模式
+    const ctx = this.uiCtx
+    if (this.windowClass !== undefined) {
+      const rect = this.windowClass.getWindowProperties().windowRect
+      this.windowWidthVp = ctx.px2vp(rect.width)
+    }
+    this.setCurrentMode()
+    // 监听窗口尺寸变化（折叠屏展开/折叠、旋转）
+    this.windowClass?.on('windowSizeChange', () => {
+      const ctx2 = this.uiCtx
+      if (ctx2 !== null && this.windowClass !== undefined) {
+        const rect = this.windowClass.getWindowProperties().windowRect
+        this.windowWidthVp = ctx2.px2vp(rect.width)
+      }
+      this.setCurrentMode()
+    })
+    // 监听窗口状态变化（分屏模式检测）
+    this.windowClass?.on('windowStatusChange', (statusType: window.WindowStatusType) => {
+      this.currentWindowStatusType = statusType
+      this.setCurrentMode()
+    })
+  }
+
+  aboutToDisappear(): void {
+    this.windowClass?.off('windowSizeChange')
+    this.windowClass?.off('windowStatusChange')
+  }
+
+  /**
+   * 综合屏幕方向 + 窗口状态计算 Navigation 显示模式。
+   * 官方 FAQ 推荐方案：横屏时分栏（分屏除外），竖屏时按断点决定。
+   */
+  private setCurrentMode(): void {
+    const orientation = display.getDefaultDisplaySync().orientation
+    const isLandscape = orientation === display.Orientation.LANDSCAPE ||
+      orientation === display.Orientation.LANDSCAPE_INVERTED
+    if (isLandscape) {
+      // 横屏：分屏（WindowStatusType=4）强制单栏，否则分栏
+      this.navMode = (this.currentWindowStatusType === 4)
+        ? NavigationMode.Stack
+        : NavigationMode.Split
+    } else {
+      // 竖屏：窗口宽度 < 520vp 单栏，≥ 520vp 分栏（Auto 模式阈值）
+      this.navMode = this.windowWidthVp < 520
+        ? NavigationMode.Stack
+        : NavigationMode.Split
+    }
   }
 
   @Monitor('cookieExpiredSignal.queue')
@@ -229,7 +259,6 @@ export struct Main {
         .width(this.tm.current.full)
         .height(this.tm.current.full)
       }
-      .navDestination(allDetailBuilder)
       .title(this.tabTitle())
       .menus(this.currentMenuItems)
       .toolbarConfiguration([
@@ -241,7 +270,7 @@ export struct Main {
             .fontColor([this.tm.current.colorPrimary]),
           status: (this.selectedTab === TAB_HOME && this.tabVersion >= 0)
             ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
-          action: () => { this.selectedTab = TAB_HOME; this.tabVersion++ }
+          action: () => { this.selectedTab = TAB_HOME; this.tabVersion++; if (this.isSplit) { this.stack.clear() } }
         },
         {
           value: $r('app.string.characters_tab_title'),
@@ -251,7 +280,7 @@ export struct Main {
             .fontColor([this.tm.current.colorPrimary]),
           status: (this.selectedTab === TAB_CHARACTERS && this.tabVersion >= 0)
             ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
-          action: () => { this.selectedTab = TAB_CHARACTERS; this.tabVersion++ }
+          action: () => { this.selectedTab = TAB_CHARACTERS; this.tabVersion++; if (this.isSplit) { this.stack.clear() } }
         },
         {
           value: $r('app.string.main_tab_my'),
@@ -261,17 +290,19 @@ export struct Main {
             .fontColor([this.tm.current.colorPrimary]),
           status: (this.selectedTab === TAB_MY && this.tabVersion >= 0)
             ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
-          action: () => { this.selectedTab = TAB_MY; this.tabVersion++ }
+          action: () => { this.selectedTab = TAB_MY; this.tabVersion++; if (this.isSplit) { this.stack.clear() } }
         }
       ])
-      .mode(NavigationMode.Auto)
-      .navBarWidth(this.tm.current.pct45)
+      .mode(this.navMode)
+      .navBarWidth(0.4 * this.windowWidthVp)
+      .navBarWidthRange([240, 400])
+      .minContentWidth(320)
       .splitPlaceholder(this.placeholder!)
       .onNavigationModeChange((mode: NavigationMode) => {
         this.isSplit = mode === NavigationMode.Split
       })
     }
-    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
+    // Navigation 组件默认实现了底部 Tab 栏的延伸，无需手动设置 background 或 expandSafeArea
   }
 }
 

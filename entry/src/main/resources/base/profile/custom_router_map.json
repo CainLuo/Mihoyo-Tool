@@ -1,6 +1,31 @@
 {
   "routerMap": [
     {
+      "name": "GenshinDailyDetail",
+      "pageSourceFile": "src/main/ets/pages/GenshinDailyDetail.ets",
+      "buildFunction": "GenshinDailyDetailBuilder"
+    },
+    {
+      "name": "GenshinCharacterDetail",
+      "pageSourceFile": "src/main/ets/pages/GenshinCharacterDetail.ets",
+      "buildFunction": "GenshinCharacterDetailBuilder"
+    },
+    {
+      "name": "AccountDetail",
+      "pageSourceFile": "src/main/ets/pages/AccountDetail.ets",
+      "buildFunction": "AccountDetailBuilder"
+    },
+    {
+      "name": "Login",
+      "pageSourceFile": "src/main/ets/pages/Login.ets",
+      "buildFunction": "LoginBuilder"
+    },
+    {
+      "name": "NotificationSettings",
+      "pageSourceFile": "src/main/ets/pages/NotificationSettings.ets",
+      "buildFunction": "NotificationSettingsBuilder"
+    },
+    {
       "name": "StarRailCharacterDetail",
       "pageSourceFile": "src/main/ets/pages/StarRailCharacterDetail.ets",
       "buildFunction": "StarRailCharacterDetailBuilder"

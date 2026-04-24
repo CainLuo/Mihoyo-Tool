@@ -99,6 +99,7 @@ export struct ZZZDailyDetail {
       .width(this.tm.current.full)
       .height(this.tm.current.full)
       .backgroundColor(this.tm.current.colorPageBg)
+      .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
     }
     .title($r('app.string.zzz_daily_title'))
     .hideTitleBar(false)

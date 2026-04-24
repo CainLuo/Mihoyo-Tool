@@ -65,6 +65,7 @@ export struct AccountDetail {
       .height(this.tm.current.full)
       .align(Alignment.Top)
       .backgroundColor(this.tm.current.colorPageBg)
+      .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
       .edgeEffect(EdgeEffect.Spring)
     }
     .title($r('app.string.account_detail_title'))
@@ -85,4 +86,11 @@ export struct AccountDetailPreview {
       account: new MyAccountVM('uid001', 'user001', [], '旅行者', '')
     })
   }
+}
+
+// ─── Router Builder ───────────────────────────────────────────────
+
+@Builder
+export function AccountDetailBuilder(_name: string, param: Object) {
+  AccountDetail({ account: param as MyAccountVM })
 }

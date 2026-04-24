@@ -33,6 +33,7 @@ const TAG: string = 'GenshinCharacterDetailViewModel';
 /** GenshinCharacterDetailViewModel @Monitor 路径常量类型 */
 export class GenshinCharacterDetailViewModelKeys {
   viewState: string = 'vm.viewState';
+  networkErrorMsg: string = 'vm.networkErrorMsg';
 }
 
 // ─── ViewModel ───────────────────────────────────────────────────
@@ -42,6 +43,8 @@ export class GenshinCharacterDetailViewModel {
   static readonly KEYS: GenshinCharacterDetailViewModelKeys = new GenshinCharacterDetailViewModelKeys();
 
   @Trace viewState: ViewState = ViewState.LOADING;
+  /** 非空时 View 弹 Snackbar，弹完后 View 应将其清空 */
+  @Trace networkErrorMsg: string = '';
 
   // 基础信息
   @Trace charName: string = '';
@@ -91,6 +94,7 @@ export class GenshinCharacterDetailViewModel {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `loadData failed: ${msg}`);
       this.viewState = ViewState.ERROR;
+      this.networkErrorMsg = msg;
     }
   }
 

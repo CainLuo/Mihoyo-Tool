@@ -38,6 +38,7 @@ export struct WebViewPage {
     .title(this.routerParam.titleResource)
     .hideTitleBar(false)
     .backgroundColor(this.tm.current.colorPageBg)
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
     .onReady((ctx: NavDestinationContext) => {
       this.localStack = ctx.pathStack
     })

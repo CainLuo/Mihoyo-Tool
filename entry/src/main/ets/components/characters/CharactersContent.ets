@@ -13,12 +13,15 @@ import { CharactersSkeleton } from './CharactersSkeleton';
 import { CharactersEmptyView } from './CharactersEmptyView';
 import { GameTabBar } from './GameTabBar';
 import { ViewState } from '../../constants/ViewStates';
+import { AppRoutes } from '../../constants/AppRoutes';
 
 @ComponentV2
 export struct CharactersContent {
   @Param vm: CharactersViewModel = new CharactersViewModel();
   @Param scroller: Scroller = new Scroller();
   @Param onCardTap: (character: GameDataSummary) => void = (_c: GameDataSummary) => {};
+  @Param detailStack: NavPathStack = new NavPathStack();
+  @Param isSplit: boolean = false;
   @Local private tm: ThemeManager = themeManager;
 
   build() {
@@ -47,7 +50,15 @@ export struct CharactersContent {
       } else if (this.vm.viewState === ViewState.EMPTY) {
         // 无账号：显示登录占位；有账号但无数据：显示刷新提示
         if (this.vm.accountOptions.length === 0) {
-          HomePlaceholderView()
+          HomePlaceholderView({
+            onTap: () => {
+              if (this.isSplit) {
+                this.detailStack.replacePath({ name: AppRoutes.LOGIN, param: null })
+              } else {
+                this.detailStack.pushPathByName(AppRoutes.LOGIN, null)
+              }
+            }
+          })
         } else {
           CharactersEmptyView({ onRefresh: () => { this.vm.refresh() } })
         }

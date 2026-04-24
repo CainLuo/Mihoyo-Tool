@@ -1511,6 +1511,10 @@
     {
       "name": "common_uid_format",
       "value": "UID %s"
+    },
+    {
+      "name": "split_placeholder_hint",
+      "value": "点击左侧内容查看详情"
     }
   ]
 }

@@ -93,6 +93,7 @@ export struct Login {
       .width(this.tm.current.full)
       .height(this.tm.current.full)
       .backgroundColor(this.tm.current.colorPageBg)
+      .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
       .onAreaChange((_old, cur) => {
         this.windowWidth = cur.width as number
       })
@@ -113,4 +114,11 @@ export struct LoginPreview {
   build() {
     Login()
   }
+}
+
+// ─── Router Builder ───────────────────────────────────────────────
+
+@Builder
+export function LoginBuilder(_name: string, _param: Object) {
+  Login()
 }
