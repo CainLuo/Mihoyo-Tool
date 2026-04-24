@@ -41,6 +41,10 @@ var PAGES = {
     render: renderColorDesign,
     controls: colorDesignControls,
   },
+  "logo-export": {
+    render: renderLogoExport,
+    controls: logoExportControls,
+  },
   "notification-settings": {
     render: renderNotificationSettings,
     controls: notificationSettingsControls,

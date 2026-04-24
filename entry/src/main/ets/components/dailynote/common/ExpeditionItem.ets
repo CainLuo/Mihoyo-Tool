@@ -56,14 +56,20 @@ export struct ExpeditionItem {
           .font(this.tm.current.body16Medium)
           .fontColor(this.tm.current.colorPrimary)
           .layoutWeight(1)
+      } else if (this.expedition.remainSeconds === 0) {
+        // remainSeconds=0 且未完成：来自 Widget 接口，无剩余时间信息，只显示"探索中"
+        Text($r('app.string.daily_note_expedition_ongoing'))
+          .font(this.tm.current.body16)
+          .fontColor(this.tm.current.colorDanger)
+          .layoutWeight(1)
       } else {
         Row({ space: this.tm.current.value2 }) {
           Text($r('app.string.daily_note_expedition_remain_prefix'))
             .font(this.tm.current.body16)
-            .fontColor(this.tm.current.colorTextSecondary)
+            .fontColor(this.tm.current.colorDanger)
           Text(TimeFormatUtil.formatSeconds(this.expedition.remainSeconds, this.getUIContext()))
             .font(this.tm.current.body16)
-            .fontColor(this.tm.current.colorTextSecondary)
+            .fontColor(this.tm.current.colorDanger)
         }
         .layoutWeight(1)
       }

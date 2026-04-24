@@ -110,16 +110,16 @@ export class GenshinDailyNoteParser {
     data.maxResin = raw.max_resin;
     data.resinRecoveryTime = parseInt(raw.resin_recovery_time, 10) || 0;
 
-    data.currentHomeCoin = raw.current_home_coin;
-    data.maxHomeCoin = raw.max_home_coin;
-    data.homeCoinRecoveryTime = parseInt(raw.home_coin_recovery_time, 10) || 0;
+    data.currentHomeCoin = raw.current_home_coin ?? 0;
+    data.maxHomeCoin = raw.max_home_coin ?? 2400;
+    data.homeCoinRecoveryTime = parseInt(raw.home_coin_recovery_time ?? '0', 10) || 0;
 
     data.finishedTaskNum = raw.finished_task_num;
     data.totalTaskNum = raw.total_task_num;
     data.isExtraTaskRewardReceived = raw.is_extra_task_reward_received;
 
-    data.remainResinDiscountNum = raw.remain_resin_discount_num;
-    data.resinDiscountNumLimit = raw.resin_discount_num_limit;
+    data.remainResinDiscountNum = raw.remain_resin_discount_num ?? 0;
+    data.resinDiscountNumLimit = raw.resin_discount_num_limit ?? 3;
 
     data.maxExpeditionNum = raw.max_expedition_num;
     data.expeditions = GenshinDailyNoteParser.parseExpeditions(raw.expeditions);
@@ -144,6 +144,9 @@ export class GenshinDailyNoteParser {
 
   private static parseTransformer(raw: RawTransformer): GenshinTransformerData {
     const t = new GenshinTransformerData();
+    if (!raw || !raw.recovery_time) {
+      return t;
+    }
     t.obtained = raw.obtained;
     t.reached = raw.recovery_time.reached;
     t.day = raw.recovery_time.Day;

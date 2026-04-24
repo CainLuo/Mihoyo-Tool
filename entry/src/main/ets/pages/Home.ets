@@ -63,13 +63,7 @@ export struct Home {
     this.vm.networkErrorMsg = ''
     const ctx = this.uiCtx
     if (ctx === null) { return }
-    ctx.getPromptAction().showDialog({
-      title: $r('app.string.home_network_error_title'),
-      message: msg,
-      buttons: [{ text: $r('app.string.dialog_confirm'), color: $r('app.color.color_accent') }]
-    }).catch((e: BusinessError) => {
-      Logger.warn('Home', 'showDialog failed: ' + e.message)
-    })
+    showFeedback(ctx, FeedbackType.ERROR, msg)
   }
 
   @Monitor('vm.refreshCoolingDown')

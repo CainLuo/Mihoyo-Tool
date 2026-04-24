@@ -6,6 +6,7 @@ import { MihoyoHeaderBuilder, HeaderProfile } from './MihoyoHeaderBuilder';
 import { ApiConfig } from './ApiConfig';
 import { HKey } from './MihoyoHeaderKey';
 import { HttpClient } from './HttpClient';
+import { Logger } from '../utils/Logger';
 
 export class GenshinApiService extends MihoyoApiService {
 
@@ -32,29 +33,51 @@ export class GenshinApiService extends MihoyoApiService {
       headers.set(HKey.CHALLENGE_PATH, 'https://api-takumi-record.mihoyo.com' + GenshinApiPath.DAILY_NOTE);
       headers.set(HKey.CHALLENGE_GAME, '2');
     }
+    // ── [MIYOYO-NET] dailyNote 请求 header log ───────────────────────
+    Logger.info('GenshinApiService', `[MIYOYO-NET][HOS][DailyNote] URL: ${MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE}?role_id=${roleId}&server=${server}`);
+    headers.forEach((v: string, k: string) => {
+      const display = k.toLowerCase() === 'cookie' ? v.substring(0, 60) + '...' : v;
+      Logger.info('GenshinApiService', `[MIYOYO-NET][HOS][DailyNote] Header ${k}: ${display}`);
+    });
+    // ─────────────────────────────────────────────────────────────────
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
-    return HttpClient.get(
+    const result = await HttpClient.get(
       MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE,
       params,
       opts,
     );
+    // ── [MIYOYO-NET] dailyNote response log ──────────────────────────
+    Logger.info('GenshinApiService', `[MIYOYO-NET][HOS][DailyNote] Response: ${JSON.stringify(result).substring(0, 300)}`);
+    // ─────────────────────────────────────────────────────────────────
+    return result;
   }
 
   /**
-   * Widget 实时便笺 — GET，Domain=TAKUMI_RECORD，Profile=WIDGET
-   * 无 1034 Geetest 验证，需要 stoken Cookie 格式：stuid=xxx;stoken=v2_xxx;mid=xxx
-   * 参考 GenshinPizzaHelper widgetDailyNote 和 HSRPizzaHelper widgetNote 实现
+   * Widget 实时便笺 — GET，Domain=TAKUMI_RECORD
+   * 参考 PizzaHelperUnited 抓包：Widget 接口用普通 GAME_RECORD profile（miHoYoBBS UA、client_type=5、Referer=webstatic）
+   * Cookie 传完整 cookie（含 ltuid/ltoken），不是精简的 stuid+stoken+mid
    */
-  async getDailyNoteWidget(widgetCookie: string): Promise<object> {
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.WIDGET, widgetCookie);
+  async getDailyNoteWidget(cookie: string): Promise<object> {
+    const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie);
+    // ── [MIYOYO-NET] Widget 请求 header log ──────────────────────────
+    Logger.info('GenshinApiService', `[MIYOYO-NET][HOS][Widget] URL: ${MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE_WIDGET}`);
+    headers.forEach((v: string, k: string) => {
+      const display = k.toLowerCase() === 'cookie' ? v.substring(0, 60) + '...' : v;
+      Logger.info('GenshinApiService', `[MIYOYO-NET][HOS][Widget] Header ${k}: ${display}`);
+    });
+    // ─────────────────────────────────────────────────────────────────
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
-    return HttpClient.get(
+    const result = await HttpClient.get(
       MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE_WIDGET,
       undefined,
       opts,
     );
+    // ── [MIYOYO-NET] Widget response log ─────────────────────────────
+    Logger.info('GenshinApiService', `[MIYOYO-NET][HOS][Widget] Response: ${JSON.stringify(result).substring(0, 300)}`);
+    // ─────────────────────────────────────────────────────────────────
+    return result;
   }
 
   /** 角色列表 — POST，Domain=TAKUMI_RECORD，Profile=GAME_RECORD */

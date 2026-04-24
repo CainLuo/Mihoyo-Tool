@@ -28,12 +28,10 @@ export class HttpClient {
         HttpClient.instance = axios.create({
           timeout: 30000,
           sslCertificateManager: new TrustAllManager(),
-          headers: { 'Content-Type': 'application/json' },
         });
       } else {
         HttpClient.instance = axios.create({
           timeout: 30000,
-          headers: { 'Content-Type': 'application/json' },
         });
       }
     }

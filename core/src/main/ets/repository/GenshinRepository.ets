@@ -148,10 +148,11 @@ export class GenshinRepository extends GameRepository {
       throw new AuthExpiredError(`retcode=${retcodeStr}`);
     }
     if (retcodeStr === '1034' || retcodeStr === '10035') {
-      // 1034/10035：尝试降级到 Widget API（无 Geetest 验证）
+      // 1034/10035：尝试降级到 Widget API
+      // 参考 PizzaHelperUnited 抓包：Widget 接口用完整 cookie（含 ltuid/ltoken），不是精简的 widgetCookie
       const widgetCookie = BBSRepository.buildWidgetCookie(cookie);
       if (widgetCookie.length > 0) {
-        await this.doSyncDailyNoteWidget(accountId, roleUid, widgetCookie);
+        await this.doSyncDailyNoteWidget(accountId, roleUid, cookie);
         // Widget 降级成功，标记为 success
         await this.markSuccess(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE);
         return;

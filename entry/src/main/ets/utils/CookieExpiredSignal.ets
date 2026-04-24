@@ -13,6 +13,12 @@ export class CookieExpiredSignal {
   @Trace queue: FailedAccountInfo[] = []
 
   push(info: FailedAccountInfo): void {
+    // 同一个账号已在队列中则跳过，避免多个游戏角色同时失效时重复弹 Dialog
+    for (let i = 0; i < this.queue.length; i++) {
+      if (this.queue[i].username === info.username) {
+        return;
+      }
+    }
     const newQueue: FailedAccountInfo[] = []
     for (let i = 0; i < this.queue.length; i++) {
       newQueue[newQueue.length] = this.queue[i]
