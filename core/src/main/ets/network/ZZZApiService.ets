@@ -39,11 +39,13 @@ export class ZZZApiService extends MihoyoApiService {
   }
 
   /**
-   * Widget 实时便笺 — GET，Domain=TAKUMI_RECORD，Profile=WIDGET
-   * 无 1034 Geetest 验证，需要 stoken Cookie 格式：stuid=xxx;stoken=v2_xxx;mid=xxx
+   * Widget 实时便笺 — GET，Domain=TAKUMI_RECORD
+   * 参考 PizzaHelperUnited widgetNote4ZZZ：覆盖 User-Agent 为 WidgetExtension/434，其余用 ZZZ_GAME_RECORD 默认 header
    */
   async getDailyNoteWidget(widgetCookie: string): Promise<object> {
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.WIDGET, widgetCookie);
+    const headers = MihoyoHeaderBuilder.build(HeaderProfile.ZZZ_GAME_RECORD, widgetCookie);
+    // 覆盖 User-Agent 为 WidgetExtension（参考 PizzaHelperUnited widgetNote4ZZZ）
+    headers.set(HKey.USER_AGENT, 'WidgetExtension/434 CFNetwork/1492.0.1 Darwin/23.3.0');
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     return HttpClient.get(

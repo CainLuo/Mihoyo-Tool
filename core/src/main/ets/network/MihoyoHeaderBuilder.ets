@@ -56,7 +56,25 @@ export class MihoyoHeaderBuilder {
     h.set(HKey.REQUESTED_WITH, HVal.REQUESTED_HYPERION);
 
     // ── 按 Profile 差异化注入 ─────────────────────────────────────
-    if (profile === HeaderProfile.GAME_RECORD) {
+    if (profile === HeaderProfile.WIDGET) {
+      // Widget 便笺接口：严格按照真实抓包（mihoyo_apis.md）独立构建，不使用共有 header
+      // 真实 Widget 请求只有这些字段：DS、Accept、x-rpc-app_version、x-rpc-client_type、
+      // x-rpc-device_id、x-rpc-device_fp（空）、x-rpc-sys_version、Referer、User-Agent、Cookie
+      // 无 x-rpc-language、无 x-requested-with
+      const w = new Map<string, string>();
+      w.set(HKey.APP_VERSION, ApiConfig.APP_VERSION);
+      w.set(HKey.CLIENT_TYPE, HVal.CLIENT_IOS);
+      w.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
+      w.set(HKey.DEVICE_FP, '');
+      w.set(HKey.SYS_VERSION, HVal.SYS_VERSION_IOS);
+      w.set(HKey.REFERER, HVal.APP_MIHOYO);
+      w.set(HKey.ORIGIN, HVal.APP_MIHOYO);
+      w.set(HKey.USER_AGENT, ApiConfig.WIDGET_USER_AGENT);
+      w.set(HKey.ACCEPT, HVal.ACCEPT_JSON);
+      w.set(HKey.COOKIE, cookie);
+      w.set(HKey.DS, DSUtil.generateX4(params, body));
+      return w;
+    } else if (profile === HeaderProfile.GAME_RECORD) {
       h.set(HKey.CLIENT_TYPE, HVal.CLIENT_WEB);
       h.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_GENSHIN);
       h.set(HKey.REFERER, HVal.REFERER_WEBSTATIC);
@@ -81,15 +99,6 @@ export class MihoyoHeaderBuilder {
       h.set(HKey.REFERER, HVal.REFERER_ACT);
       h.set(HKey.ORIGIN, HVal.ORIGIN_ACT);
       h.set(HKey.DS, DSUtil.generateX6(params, body));
-    } else if (profile === HeaderProfile.WIDGET) {
-      // Widget 便笺接口：使用 WidgetExtension User-Agent，client_type=1（iOS App），Referer=app.mihoyo.com
-      // client_type=1 对应 iOS App，DS 使用 V2 salt（与 BBS profile 一致）
-      // 参考 mihoyo_apis.md Widget 请求头：DS 字段存在，client_type=1
-      h.set(HKey.USER_AGENT, ApiConfig.WIDGET_USER_AGENT);
-      h.set(HKey.CLIENT_TYPE, HVal.CLIENT_IOS);
-      h.set(HKey.REFERER, HVal.APP_MIHOYO);
-      h.set(HKey.ORIGIN, HVal.APP_MIHOYO);
-      h.set(HKey.DS, DSUtil.generateV2(params, body));
     }
 
     return h;

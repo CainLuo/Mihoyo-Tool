@@ -87,6 +87,13 @@ export class HomeViewModel {
   /** 非空时 View 弹系统 Alert，弹完后 View 应将其清空 */
   @Trace networkErrorMsg: string = '';
 
+  /**
+   * 当前同步是否为自动触发（冷启动/30分钟定时器）。
+   * true = 自动同步，错误静默处理（只记日志）
+   * false = 用户手动触发，错误通过 Snackbar 提示
+   */
+  private isAutoSync: boolean = true;
+
   /** 非 null 时 View 弹 GeetestDialog */
   @Trace geetestTrigger: GeetestTrigger | null = null;
 
@@ -211,6 +218,7 @@ export class HomeViewModel {
       this.refreshCoolingDown = !this.refreshCoolingDown;
       return;
     }
+    this.isAutoSync = false;
     this.isRefreshing = true;
     try {
       await this.syncAllDailyNotes();
@@ -235,6 +243,7 @@ export class HomeViewModel {
     if (this.isRefreshing) {
       return;
     }
+    this.isAutoSync = false;
     this.isRefreshing = true;
     try {
       await this.syncAllDailyNotes();
@@ -376,7 +385,12 @@ export class HomeViewModel {
           msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED_GENERAL}`) !== -1) {
         await this.handleGeetest(account, role);
       } else {
-        this.networkErrorMsg = msg;
+        // 始终记录日志
+        Logger.error(TAG, `syncDailyNote error for ${role.gameId}/${role.roleId}: ${msg}`);
+        // 自动同步静默，手动刷新才触发 Snackbar
+        if (!this.isAutoSync) {
+          this.networkErrorMsg = msg;
+        }
       }
     }
   }
@@ -452,6 +466,11 @@ export class HomeViewModel {
    * 触发 Geetest 流程
    */
   private async handleGeetest(account: AccountRow, role: GameRoleRow): Promise<void> {
+    // 已有 Geetest 弹窗等待用户操作时，跳过后续角色的 Geetest 触发
+    if (this.geetestTrigger !== null) {
+      Logger.warn(TAG, `Geetest already pending, skip for ${role.gameId}/${role.roleId}`);
+      return;
+    }
     try {
       const createResult = await GeetestService.createVerification(account.cookie, role.gameId);
       this.geetestTrigger = new GeetestTrigger(
@@ -465,7 +484,9 @@ export class HomeViewModel {
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `createVerification failed: ${msg}`);
-      this.networkErrorMsg = msg;
+      if (!this.isAutoSync) {
+        this.networkErrorMsg = msg;
+      }
     }
   }
 
