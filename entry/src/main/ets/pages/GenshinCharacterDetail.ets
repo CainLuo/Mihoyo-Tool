@@ -12,6 +12,8 @@ import { CharDetailLandscapeLayout } from '../components/chardetail/genshin/Char
 import { CharDetailWideLayout } from '../components/chardetail/genshin/CharDetailWideLayout'
 import { ViewState } from '../constants/ViewStates'
 import { CharDetailRouterParam } from '../models/CharDetailModels'
+import { showFeedback } from '../utils/FeedbackUtil'
+import { FeedbackType } from '../constants/FeedbackType'
 
 /** 原神角色详情路由参数（与 CharDetailRouterParam 字段一致，保留别名供 Builder 使用） */
 export type GenshinCharacterDetailParam = CharDetailRouterParam;
@@ -53,6 +55,16 @@ export struct GenshinCharacterDetail {
     this.vm.loadData()
   }
 
+  @Monitor(GenshinCharacterDetailViewModel.KEYS.networkErrorMsg)
+  onNetworkError(_monitor: IMonitor): void {
+    const msg = this.vm.networkErrorMsg
+    if (msg === '') { return }
+    this.vm.networkErrorMsg = ''
+    const ctx = this.uiCtx
+    if (ctx === null) { return }
+    showFeedback(ctx, FeedbackType.ERROR, msg)
+  }
+
   aboutToDisappear(): void {
     const ctx = this.uiCtx
     if (ctx === null) { return }
@@ -92,6 +104,7 @@ export struct GenshinCharacterDetail {
       .width(this.tm.current.full)
       .height(this.tm.current.full)
       .backgroundColor(this.tm.current.bgPageDeep)
+      .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
       .onAreaChange((_old, newArea) => {
         const w = newArea.width as number
         if (w < 600) { this.currentBreakpoint = 'xs' }
@@ -113,4 +126,11 @@ export struct GenshinCharacterDetailPreview {
   build() {
     GenshinCharacterDetail({ routerParam: new CharDetailRouterParam() })
   }
+}
+
+// ─── Router Builder ───────────────────────────────────────────────
+
+@Builder
+export function GenshinCharacterDetailBuilder(_name: string, param: Object) {
+  GenshinCharacterDetail({ routerParam: param as GenshinCharacterDetailParam })
 }

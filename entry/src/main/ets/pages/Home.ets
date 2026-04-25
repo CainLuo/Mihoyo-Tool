@@ -15,6 +15,7 @@ import { Logger } from 'core'
 import { BusinessError } from '@kit.BasicServicesKit'
 import { AccountSignal } from '../utils/AccountSignal'
 import { ViewState } from '../constants/ViewStates'
+import { AppRoutes } from '../constants/AppRoutes'
 import { showFeedback } from '../utils/FeedbackUtil'
 import { FeedbackType } from '../constants/FeedbackType'
 
@@ -116,7 +117,15 @@ export struct Home {
     if (this.vm.viewState === ViewState.LOADING) {
       HomeSkeletonView()
     } else if (this.vm.viewState === ViewState.EMPTY) {
-      HomePlaceholderView()
+      HomePlaceholderView({
+        onTap: () => {
+          if (this.isSplit) {
+            this.detailStack.replacePath({ name: AppRoutes.LOGIN, param: null })
+          } else {
+            this.detailStack.pushPathByName(AppRoutes.LOGIN, null)
+          }
+        }
+      })
     } else {
       Scroll(this.scroller) {
         Column({ space: this.tm.current.value20 }) {

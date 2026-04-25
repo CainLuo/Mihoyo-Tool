@@ -27,6 +27,7 @@
     {
       name: "mock",
       source: {
+        sourceRoots: ["./src/internal"],
         abilities: [
           {
             name: "EntryAbility",
@@ -38,12 +39,19 @@
     {
       name: "debug",
       source: {
+        sourceRoots: ["./src/internal"],
         abilities: [
           {
             name: "EntryAbility",
             label: "$string:EntryAbility_label_debug",
           },
         ],
+      },
+    },
+    {
+      name: "internal",
+      source: {
+        sourceRoots: ["./src/internal"],
       },
     },
     {

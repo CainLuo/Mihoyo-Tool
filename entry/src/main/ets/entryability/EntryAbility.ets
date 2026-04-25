@@ -39,18 +39,15 @@ export default class EntryAbility extends UIAbility {
   onWindowStageCreate(windowStage: window.WindowStage) {
     Logger.info(TAG, 'onWindowStageCreate');
     windowStage.getMainWindow().then((win) => {
-      // 获取状态栏高度并存入 AppStorage，供各页面读取
-      const topArea = win.getWindowAvoidArea(window.AvoidAreaType.TYPE_SYSTEM);
-      const topPx = topArea.topRect.height;
-      AppStorage.setOrCreate('topRectHeight', topPx);
+      // 将 windowClass 存入 AppStorage，供 Main.ets 直接持有并注册监听
+      AppStorage.setOrCreate('windowClass', win);
+      // 获取底部导航条高度并存入 AppStorage，供弹窗类组件读取（Navigation 不自动处理弹窗）
       const bottomArea = win.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
       const bottomPx = bottomArea.bottomRect.height;
       AppStorage.setOrCreate('bottomRectHeight', bottomPx);
       // 监听避让区域变化（折叠屏旋转等场景）
       win.on('avoidAreaChange', (data) => {
-        if (data.type === window.AvoidAreaType.TYPE_SYSTEM) {
-          AppStorage.setOrCreate('topRectHeight', data.area.topRect.height);
-        } else if (data.type === window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR) {
+        if (data.type === window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR) {
           AppStorage.setOrCreate('bottomRectHeight', data.area.bottomRect.height);
         }
       });
@@ -59,6 +56,10 @@ export default class EntryAbility extends UIAbility {
       AppStorage.setOrCreate('windowWidthPx', size.width);
       win.on('windowSizeChange', (s) => {
         AppStorage.setOrCreate('windowWidthPx', s.width);
+      });
+      // 监听窗口状态变化（分屏模式检测）：windowStatusType=4 表示分屏
+      win.on('windowStatusChange', (statusType: window.WindowStatusType) => {
+        AppStorage.setOrCreate('windowStatusType', statusType as number);
       });
     }).catch((err: Error | object) => {
       Logger.warning(TAG, `getMainWindow failed: ${JSON.stringify(err)}`);

@@ -26,8 +26,17 @@ export struct NotificationSettings {
     }
     .title($r('app.string.my_section_notification'))
     .hideTitleBar(false)
+    .backgroundColor(this.tm.current.colorPageBg)
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
     .onReady((ctx: NavDestinationContext) => {
       this.localStack = ctx.pathStack;
     })
   }
+}
+
+// ─── Router Builder ───────────────────────────────────────────────
+
+@Builder
+export function NotificationSettingsBuilder(_name: string, _param: Object) {
+  NotificationSettings()
 }

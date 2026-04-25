@@ -1,7 +1,7 @@
 /**
  * Login.ets — 登录页
  */
-import { LoginViewModel } from '../viewmodel/LoginViewModel'
+import { LoginViewModel } from 'entry/ets/viewmodel/LoginViewModel'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { LoginNarrowLayout } from '../components/login/LoginNarrowLayout'
 import { LoginWideLayout } from '../components/login/LoginWideLayout'
@@ -93,7 +93,8 @@ export struct Login {
       .width(this.tm.current.full)
       .height(this.tm.current.full)
       .backgroundColor(this.tm.current.colorPageBg)
-      .onAreaChange((_old, cur) => {
+      .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
+      .onAreaChange((_old: Area, cur: Area) => {
         this.windowWidth = cur.width as number
       })
     }
@@ -113,4 +114,11 @@ export struct LoginPreview {
   build() {
     Login()
   }
+}
+
+// ─── Router Builder ───────────────────────────────────────────────
+
+@Builder
+export function LoginBuilder(_name: string, _param: Object) {
+  Login()
 }

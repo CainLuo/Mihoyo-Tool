@@ -1,18 +1,12 @@
 /**
- * LoginViewModel.ets
+ * LoginViewModel.ets（release 版，仅支持二维码和 Cookie 登录）
  *
- * 登录页 ViewModel，支持三种登录方式：
- *   - 手机号 + 短信验证码
- *   - 二维码扫码
- *   - 手动输入 Cookie
- *
- * 登录成功后统一流程：
- *   写 AccountRepository → 写游戏角色 → 通知 View 跳转首页
+ * 手机号登录相关代码已物理隔离至 src/internal/ets/，
+ * 本文件不包含任何手机号字段、方法或 API 调用。
  */
 
 import {
   AuthRepository,
-  LoginMobileResult,
   QRCodeConfirmedData,
   LoginCookieFields,
   RoleStatItem,
@@ -21,12 +15,12 @@ import {
   BBSRepository
 } from 'core';
 import { Logger } from 'core';
-import { LoginTab, PhoneStep, QRCodeStat } from '../constants/LoginTabEnum';
+import { LoginTab, QRCodeStat } from '../constants/LoginTabEnum';
 import { MyAccountVM, MyGameRoleVM, GameStatItem } from '../models/MyModels';
 import { serverDisplayName } from '../utils/ServerNameUtil';
 import { gameIdToName, gameIdToColor } from '../utils/GameIdUtil';
 
-export { LoginTab, PhoneStep, QRCodeStat };
+export { LoginTab, QRCodeStat };
 
 const TAG: string = 'LoginViewModel';
 
@@ -40,40 +34,24 @@ export class LoginViewModelKeys {
 
 @ObservedV2
 export class LoginViewModel {
-  /** @Monitor 路径常量，View 层必须通过此对象引用，禁止直接写字符串字面量 */
   static readonly KEYS: LoginViewModelKeys = new LoginViewModelKeys();
 
   // ── 通用状态 ──────────────────────────────────────────────────
-  @Trace activeTab: LoginTab = LoginTab.PHONE;
+  /** release 版默认 Tab 为二维码 */
+  @Trace activeTab: LoginTab = LoginTab.QRCODE;
   @Trace isLoading: boolean = false;
   @Trace errorMsg: string = '';
-  /** Cookie 缺少 stoken 时触发，View 层监听后弹 Dialog */
   @Trace showNoStokenDialog: boolean = false;
-  /** 登录成功标志，View 层监听后跳转 */
   @Trace loginSuccess: boolean = false;
-  /** 登录成功后的米游社 UID，View 层用于跳转到 AccountDetail */
   @Trace loginedAccountId: string = '';
-  /** 登录成功后组装好的账号 VM，View 层直接用于跳转 */
   @Trace loginedAccountVM: MyAccountVM | null = null;
-
-  // ── 手机号登录状态 ────────────────────────────────────────────
-  @Trace phoneStep: PhoneStep = PhoneStep.INPUT_PHONE;
-  @Trace phoneNumber: string = '';
-  @Trace smsCode: string = '';
-  @Trace smsCooldown: number = 0;  // 倒计时秒数，0 表示可发送
-
-  /** 倒计时 timer ID */
-  private cooldownTimer: number = -1;
 
   // ── 二维码登录状态 ────────────────────────────────────────────
   @Trace qrCodeUrl: string = '';
   @Trace qrCodeStat: QRCodeStat = QRCodeStat.LOADING;
 
-  /** 当前二维码 ticket */
   private qrTicket: string = '';
-  /** 设备 ID（持久化，每次使用同一个） */
   private deviceId: string = '';
-  /** 轮询 timer ID */
   private pollTimer: number = -1;
 
   // ── Cookie 登录状态 ───────────────────────────────────────────
@@ -81,7 +59,6 @@ export class LoginViewModel {
 
   // ─── 通用 ────────────────────────────────────────────────────
 
-  /** 切换 Tab */
   switchTab(tab: LoginTab): void {
     this.activeTab = tab;
     this.errorMsg = '';
@@ -92,101 +69,12 @@ export class LoginViewModel {
     }
   }
 
-  /** 清理资源（页面销毁时调用） */
   dispose(): void {
     this.stopQRCodePoll();
-    this.stopCooldown();
-  }
-
-  // ─── 手机号登录 ───────────────────────────────────────────────
-
-  /**
-   * 发送短信验证码（新版接口）
-   * 调用 createLoginCaptcha，mobile/areaCode 由 AuthRepository 内部 RSA 加密
-   */
-  async sendSmsCode(): Promise<void> {
-    if (this.phoneNumber.length === 0) {
-      this.errorMsg = 'phone_empty';
-      return;
-    }
-    this.isLoading = true;
-    this.errorMsg = '';
-    try {
-      await AuthRepository.createLoginCaptcha(this.phoneNumber);
-      this.phoneStep = PhoneStep.INPUT_CODE;
-      this.startCooldown(60);
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error(TAG, `sendSmsCode failed: ${msg}`);
-      this.errorMsg = msg;
-    } finally {
-      this.isLoading = false;
-    }
-  }
-
-  /**
-   * 提交验证码登录（新版接口）
-   * loginByMobileCaptcha → getLTokenBySToken → getCookieBySToken → finalizeLogin
-   */
-  async loginByPhone(): Promise<void> {
-    if (this.smsCode.length === 0) {
-      this.errorMsg = 'code_empty';
-      return;
-    }
-    this.isLoading = true;
-    this.errorMsg = '';
-    try {
-      // 1. 提交验证码，获取 stoken + aid + mid
-      const loginResult: LoginMobileResult = await AuthRepository.loginByMobileCaptcha(this.phoneNumber, this.smsCode);
-      const stoken = loginResult.stoken;
-      const aid = loginResult.aid;
-      const mid = loginResult.mid;
-
-      // 2. stoken → ltoken
-      const ltoken = await AuthRepository.getLTokenBySToken(stoken, mid);
-
-      // 3. stoken → cookie_token
-      const cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
-
-      // 4. 组装 Cookie
-      const fields = new LoginCookieFields();
-      fields.accountId = aid;
-      fields.cookieToken = cookieToken;
-      fields.ltoken = ltoken;
-      fields.ltuid = aid;
-      fields.stoken = stoken;
-      fields.mid = mid;
-      const cookie = AuthRepository.buildCookieString(fields);
-
-      await this.finalizeLogin(aid, cookie);
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error(TAG, `loginByPhone failed: ${msg}`);
-      this.errorMsg = msg;
-    } finally {
-      this.isLoading = false;
-    }
-  }
-
-  /** 脱敏手机号，如 138****8888 */
-  get maskedPhone(): string {
-    const p = this.phoneNumber;
-    if (p.length < 7) {
-      return p;
-    }
-    return p.substring(0, 3) + '****' + p.substring(p.length - 4);
-  }
-
-  /** 返回手机号输入步骤 */
-  backToPhoneInput(): void {
-    this.phoneStep = PhoneStep.INPUT_PHONE;
-    this.smsCode = '';
-    this.errorMsg = '';
   }
 
   // ─── 二维码登录 ───────────────────────────────────────────────
 
-  /** 开始二维码登录（切换到二维码 Tab 时自动调用） */
   async startQRCodeLogin(): Promise<void> {
     this.stopQRCodePoll();
     this.qrCodeStat = QRCodeStat.LOADING;
@@ -212,19 +100,16 @@ export class LoginViewModel {
     }
   }
 
-  /** 刷新二维码（过期后用户点击刷新） */
   async refreshQRCode(): Promise<void> {
     await this.startQRCodeLogin();
   }
 
-  /** 开始轮询二维码状态（每 2 秒一次） */
   private startQRCodePoll(): void {
     this.pollTimer = setInterval(async () => {
       await this.pollQRCodeStatus();
     }, 2000) as number;
   }
 
-  /** 停止轮询 */
   private stopQRCodePoll(): void {
     if (this.pollTimer !== -1) {
       clearInterval(this.pollTimer);
@@ -232,7 +117,6 @@ export class LoginViewModel {
     }
   }
 
-  /** 单次轮询 */
   private async pollQRCodeStatus(): Promise<void> {
     try {
       const result = await AuthRepository.queryQRCode(this.deviceId, this.qrTicket);
@@ -252,14 +136,10 @@ export class LoginViewModel {
     }
   }
 
-  /** 二维码确认后，换取 Token 并写入 DB */
   private async handleQRCodeConfirmed(confirmed: QRCodeConfirmedData): Promise<void> {
     this.isLoading = true;
     try {
-      const tokenResult = await AuthRepository.getTokenByGameToken(
-        confirmed.uid,
-        confirmed.token
-      );
+      const tokenResult = await AuthRepository.getTokenByGameToken(confirmed.uid, confirmed.token);
       const stoken = tokenResult.stoken;
       const userInfo = tokenResult.userInfo;
       const mid = userInfo.mid.length > 0 ? userInfo.mid : confirmed.uid;
@@ -286,11 +166,6 @@ export class LoginViewModel {
 
   // ─── Cookie 登录 ──────────────────────────────────────────────
 
-  /**
-   * 用手动输入的 Cookie 登录
-   * 先调用 getUserFullInfo 验证 Cookie 有效性并获取 uid，
-   * 再检查 Cookie 是否包含 stoken（缺少 stoken 会导致便笺同步失败）。
-   */
   async loginByCookie(): Promise<void> {
     if (this.cookieInput.trim().length === 0) {
       this.errorMsg = 'cookie_empty';
@@ -300,15 +175,11 @@ export class LoginViewModel {
     this.errorMsg = '';
     try {
       const cookie = this.cookieInput.trim();
-
-      // 检查 stoken 是否存在，缺少则触发 Dialog 提示
       const stoken = BBSRepository.extractCookieField(cookie, 'stoken');
       if (stoken.length === 0) {
         this.showNoStokenDialog = true;
         return;
       }
-
-      // 用 getUserFullInfo 验证 Cookie 有效性，同时获取 uid
       const bbsDetail = await CoreInitializer.bbsRepository.getBbsAccountDetail(cookie);
       const username = bbsDetail.uid.length > 0 ? bbsDetail.uid : 'unknown';
       await this.finalizeLogin(username, cookie);
@@ -323,14 +194,8 @@ export class LoginViewModel {
 
   // ─── 登录成功统一流程 ─────────────────────────────────────────
 
-  /**
-   * 登录成功后统一处理：委托给 BBSRepository.login() 完成所有 DB 操作，
-   * 拿到结果后组装 AccountVM 通知 View 跳转。
-   */
   private async finalizeLogin(username: string, cookie: string): Promise<void> {
     await CoreInitializer.waitForReady();
-
-    // 全部 DB 操作和环境适配委托给 core 层，entry 不感知 mock/release 环境
     let loginResult: LoginResult;
     try {
       loginResult = await CoreInitializer.bbsRepository.login(username, cookie);
@@ -340,8 +205,6 @@ export class LoginViewModel {
       this.errorMsg = msg;
       return;
     }
-
-    // 组装 AccountVM 并通知 View 跳转
     const roleVMs: MyGameRoleVM[] = [];
     for (let i = 0; i < loginResult.roles.length; i++) {
       const r = loginResult.roles[i];
@@ -366,7 +229,6 @@ export class LoginViewModel {
 
   // ─── 工具方法 ─────────────────────────────────────────────────
 
-  /** 生成随机设备 ID */
   private static generateDeviceId(): string {
     const chars = '0123456789abcdef';
     let id = '';
@@ -380,25 +242,5 @@ export class LoginViewModel {
       }
     }
     return id;
-  }
-
-  /** 开始短信倒计时 */
-  private startCooldown(seconds: number): void {
-    this.smsCooldown = seconds;
-    this.cooldownTimer = setInterval(() => {
-      this.smsCooldown -= 1;
-      if (this.smsCooldown <= 0) {
-        this.smsCooldown = 0;
-        this.stopCooldown();
-      }
-    }, 1000) as number;
-  }
-
-  /** 停止倒计时 */
-  private stopCooldown(): void {
-    if (this.cooldownTimer !== -1) {
-      clearInterval(this.cooldownTimer);
-      this.cooldownTimer = -1;
-    }
   }
 }

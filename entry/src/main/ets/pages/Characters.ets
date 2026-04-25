@@ -138,7 +138,9 @@ export struct Characters {
     CharactersContent({
       vm: this.vm,
       scroller: this.scroller,
-      onCardTap: (c: GameDataSummary) => { this.onCardTap(c) }
+      onCardTap: (c: GameDataSummary) => { this.onCardTap(c) },
+      detailStack: this.detailStack,
+      isSplit: this.isSplit
     })
   }
 }

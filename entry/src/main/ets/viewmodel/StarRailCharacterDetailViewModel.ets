@@ -30,6 +30,7 @@ const TAG: string = 'StarRailCharacterDetailViewModel';
 
 export class StarRailCharacterDetailViewModelKeys {
   viewState: string = 'vm.viewState';
+  networkErrorMsg: string = 'vm.networkErrorMsg';
 }
 
 // ─── ViewModel ───────────────────────────────────────────────────
@@ -39,6 +40,8 @@ export class StarRailCharacterDetailViewModel {
   static readonly KEYS: StarRailCharacterDetailViewModelKeys = new StarRailCharacterDetailViewModelKeys();
 
   @Trace viewState: ViewState = ViewState.LOADING;
+  /** 非空时 View 弹 Snackbar，弹完后 View 应将其清空 */
+  @Trace networkErrorMsg: string = '';
 
   // 基础信息
   @Trace heroInfo: CharDetailHeroInfo = new CharDetailHeroInfo();
@@ -97,6 +100,7 @@ export class StarRailCharacterDetailViewModel {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `loadData failed: ${msg}`);
       this.viewState = ViewState.ERROR;
+      this.networkErrorMsg = msg;
     }
   }
 

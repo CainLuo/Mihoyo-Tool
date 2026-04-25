@@ -2,7 +2,7 @@
  * LoginCookie.ets — 手动输入 Cookie 登录组件
  */
 
-import { LoginViewModel } from '../../viewmodel/LoginViewModel';
+import { LoginViewModel } from 'entry/ets/viewmodel/LoginViewModel';
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 
 @ComponentV2

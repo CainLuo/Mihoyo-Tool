@@ -3,7 +3,6 @@
  */
 import { ConfigurationConstant, common } from '@kit.AbilityKit'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
-import { Logger } from 'core'
 import { AppRoutes } from '../constants/AppRoutes'
 import { MyAccountVM } from '../models/MyModels'
 import { AccountListSection } from '../components/my/AccountListSection'
@@ -14,8 +13,7 @@ import { AppearanceManager } from '../utils/AppearanceManager'
 import { AccountSignal } from '../utils/AccountSignal'
 import { MyViewModel } from '../viewmodel/MyViewModel'
 import { SettingRow } from '../components/SettingRow'
-
-const TAG: string = 'My'
+import { AppearanceSettingsParam } from '../pages/AppearanceSettingsPage'
 
 @ComponentV2
 export struct My {
@@ -23,7 +21,7 @@ export struct My {
   @Param isSplit: boolean = false
   @Local private tm: ThemeManager = themeManager
   @Local private vm: MyViewModel = new MyViewModel()
-  @Local private themeMode: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
+  @Local private themeMode: number = AppearanceManager.getCachedColorMode()
   @Local private signal: AccountSignal = AccountSignal.instance()
   private uiCtx: UIContext | null = null
 
@@ -81,13 +79,15 @@ export struct My {
         SectionHeader({ title: $r('app.string.my_section_appearance') })
         AppearanceSection({
           themeMode: this.themeMode,
-          onThemeChange: (mode: number) => {
-            this.themeMode = mode
-            const abilityCtx = this.getAbilityContext()
-            if (abilityCtx === null) { return }
-            AppearanceManager.applyColorMode(abilityCtx, mode).catch((_e: Error | object) => {
-              Logger.error(TAG, 'applyColorMode failed')
-            })
+          onTap: () => {
+            const param = new AppearanceSettingsParam()
+            param.themeMode = this.themeMode
+            param.onThemeChange = (mode: number) => { this.themeMode = mode }
+            if (this.isSplit) {
+              this.detailStack.replacePath({ name: AppRoutes.APPEARANCE_SETTINGS, param: param })
+            } else {
+              this.detailStack.pushPathByName(AppRoutes.APPEARANCE_SETTINGS, param)
+            }
           }
         })
 

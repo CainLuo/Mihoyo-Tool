@@ -81,11 +81,31 @@
 
 **第三步：用 `webFetch` 抓取页面**
 
-如果普通模式抓不到内容，改用 `mode="rendered"`：
+华为官方文档页面是 JavaScript 渲染的，**必须使用 `mode="rendered"`**，其他模式（`truncated`、`full`）只能拿到 53 字节的空内容：
 
 ```
+# ❌ 无效 — 只返回 53 字节空内容
+webFetch(url, mode="truncated")
+webFetch(url, mode="full")
+
+# ✅ 有效 — 能拿到完整页面正文
 webFetch(url, mode="rendered")
 ```
+
+**已验证可用的文档 URL 列表（直接用 rendered 模式访问）**：
+
+| 文档                          | URL                                                                                                       |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------- |
+| Navigation 基础架构介绍       | `https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-navigation-architecture`             |
+| Navigation 分栏开发           | `https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-navigation-split-mode`               |
+| Navigation 子页面             | `https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-navigation-navdestination`           |
+| Navigation 页面路由           | `https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-navigation-jump`                     |
+| 多设备设置界面最佳实践        | `https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-multi-settings-application-page`        |
+| 折叠屏分栏模式适配            | `https://developer.huawei.com/consumer/cn/doc/architecture-guides/app_multiplier-0000002312850858`        |
+| 分屏模式不支持分栏显示        | `https://developer.huawei.com/consumer/cn/doc/architecture-guides/news-v1_2-ts_c160-0000002396788336`     |
+| Navigation 分栏模式留白       | `https://developer.huawei.com/consumer/cn/doc/architecture-guides/educate-v1_1-ts_c56-0000002385171678`   |
+| Navigation 单栏与分栏动态切换 | `https://developer.huawei.com/consumer/cn/doc/architecture-guides/insurance-v1_2-ts_116-0000002406922585` |
+| Navigation 如何隐藏导航栏     | `https://developer.huawei.com/consumer/cn/doc/harmonyos-faqs/faqs-arkui-149`                              |
 
 **第四步：确认以下四项，缺一不可**
 

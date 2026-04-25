@@ -107,6 +107,7 @@ export struct GenshinDailyDetail {
       .width(this.tm.current.full)
       .height(this.tm.current.full)
       .backgroundColor(this.tm.current.colorPageBg)
+      .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
     }
     .title($r('app.string.genshin_daily_title'))
     .hideTitleBar(false)
@@ -121,4 +122,11 @@ export struct GenshinDailyDetailPreview {
   build() {
     GenshinDailyDetail({ routerParam: new GenshinDailyDetailParam() })
   }
+}
+
+// ─── Router Builder ───────────────────────────────────────────────
+
+@Builder
+export function GenshinDailyDetailBuilder(_name: string, param: Object) {
+  GenshinDailyDetail({ routerParam: param as GenshinDailyDetailParam })
 }

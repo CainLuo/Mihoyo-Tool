@@ -31,4 +31,6 @@ export class AppRoutes {
   static readonly WEB_VIEW = 'WebView'
   /** 通知设置页 */
   static readonly NOTIFICATION_SETTINGS = 'NotificationSettings'
+  /** 外观设置页 */
+  static readonly APPEARANCE_SETTINGS = 'AppearanceSettings'
 }

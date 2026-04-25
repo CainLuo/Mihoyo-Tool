@@ -5,7 +5,7 @@
  * ViewModel 负责轮询状态，View 层只做展示。
  */
 
-import { LoginViewModel } from '../../viewmodel/LoginViewModel';
+import { LoginViewModel } from 'entry/ets/viewmodel/LoginViewModel';
 import { QRCodeStat } from '../../constants/LoginTabEnum';
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { LoginQRCodeLoading } from './LoginQRCodeLoading';

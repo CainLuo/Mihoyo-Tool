@@ -1,10 +1,15 @@
 /**
  * NotificationGameRow — 单个游戏的体力阈值设置行
+ *
+ * 设计：
+ *   - @Local displayThreshold 管理输入框显示值，与 game.threshold 解耦
+ *   - onChange 只更新 displayThreshold（不保存），避免每次按键都触发异步保存
+ *   - onBlur 失焦时保存（调用 vm.onThresholdChange）
+ *   - @Monitor('game') 监听外部 game 引用变化（如 onFullValueShortcut 后），同步 displayThreshold
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { GameNotificationConfig } from '../../notification/NotificationModels';
 import { NotificationSettingsViewModel } from '../../viewmodel/NotificationSettingsViewModel';
-import { GameId } from 'core';
 import { gameIdToColor } from '../../utils/GameIdUtil';
 
 @ComponentV2
@@ -12,7 +17,29 @@ export struct NotificationGameRow {
   @Param accountId: string = ''
   @Param game: GameNotificationConfig = new GameNotificationConfig()
   @Param vm: NotificationSettingsViewModel = new NotificationSettingsViewModel()
-  @Local private tm: ThemeManager = themeManager;
+  @Local private tm: ThemeManager = themeManager
+  /** 输入框本地显示值，与 game.threshold 解耦 */
+  @Local private displayThreshold: string = ''
+
+  aboutToAppear(): void {
+    this.displayThreshold = `${this.game.threshold}`
+  }
+
+  /**
+   * 监听 game 引用变化（onFullValueShortcut 会创建新对象），同步显示值
+   */
+  @Monitor('game')
+  onGameRefChanged(_monitor: IMonitor): void {
+    this.displayThreshold = `${this.game.threshold}`
+  }
+
+  /** 失焦时保存当前输入值 */
+  private commitThreshold(): void {
+    const n = parseInt(this.displayThreshold)
+    if (!isNaN(n) && n > 0) {
+      this.vm.onThresholdChange(this.accountId, this.game.gameId, n).catch((_: Error | object) => {})
+    }
+  }
 
   build() {
     Row({ space: this.tm.current.value12 }) {
@@ -26,6 +53,7 @@ export struct NotificationGameRow {
         Text($r('app.string.notification_game_stamina_label', this.game.gameName, this.game.staminaName))
           .font(this.tm.current.body13)
           .fontColor(this.tm.current.colorTextPrimary)
+
         Text(this.game.maxStamina > 0
           ? $r('app.string.notification_max_from_api', this.game.maxStamina, this.game.secondsPerUnit / 60)
           : $r('app.string.notification_max_pending', this.game.secondsPerUnit / 60))
@@ -35,7 +63,7 @@ export struct NotificationGameRow {
       .alignItems(HorizontalAlign.Start)
       .layoutWeight(1)
 
-      TextInput({ text: `${this.game.threshold}` })
+      TextInput({ text: this.displayThreshold })
         .type(InputType.Number)
         .fontSize(this.tm.current.body13.size)
         .fontWeight(this.tm.current.body13.weight)
@@ -48,10 +76,16 @@ export struct NotificationGameRow {
         .border({ width: this.tm.current.value1, color: this.tm.current.colorDivider })
         .padding({ left: this.tm.current.value4, right: this.tm.current.value4 })
         .onChange((val: string) => {
-          const n = parseInt(val)
-          if (!isNaN(n)) {
-            this.vm.onThresholdChange(this.accountId, this.game.gameId, n).catch((_: Error | object) => {})
-          }
+          // 只更新本地显示值，不立即保存（避免每次按键都触发异步保存）
+          this.displayThreshold = val
+        })
+        .onBlur(() => {
+          // 失焦时保存
+          this.commitThreshold()
+        })
+        .onSubmit((_enterKey: EnterKeyType) => {
+          // 键盘确认键也触发保存
+          this.commitThreshold()
         })
 
       Text(this.game.maxStamina > 0

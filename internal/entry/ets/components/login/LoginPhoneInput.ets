@@ -1,5 +1,5 @@
 /**
- * LoginPhoneInput — 手机号输入步骤 UI
+ * LoginPhoneInput — 手机号输入步骤 UI（仅 internal）
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { LoginViewModel } from '../../viewmodel/LoginViewModel';

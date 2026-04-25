@@ -4,8 +4,6 @@
  * 在 HomeContent EMPTY 状态时展示，引导用户去登录账号。
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
-import { AppRoutes } from '../../constants/AppRoutes';
-import { RouterUtil } from '../../utils/RouterUtil';
 
 @Preview
 @ComponentV2
@@ -20,6 +18,8 @@ export struct HomePlaceholderViewPreview {
 @ComponentV2
 export struct HomePlaceholderView {
   @Local private tm: ThemeManager = themeManager
+  /** 点击按钮的回调，由父级决定跳转方式（分栏 replace / 单栏 push） */
+  @Param onTap: () => void = () => {}
 
   build() {
     Column({ space: this.tm.current.value20 }) {
@@ -49,7 +49,7 @@ export struct HomePlaceholderView {
         .borderRadius(this.tm.current.radius12)
         .backgroundColor(this.tm.current.colorPrimary)
         .onClick(() => {
-          RouterUtil.push(AppRoutes.LOGIN)
+          this.onTap()
         })
     }
     .width(this.tm.current.full)

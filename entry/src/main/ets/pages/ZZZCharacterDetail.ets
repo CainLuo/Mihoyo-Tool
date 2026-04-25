@@ -9,8 +9,11 @@ import { CharDetailLoadingView } from '../components/chardetail/common/CharDetai
 import { CharDetailEmptyView } from '../components/chardetail/common/CharDetailEmptyView';
 import { ZZZCharDetailContent } from '../components/chardetail/zzz/ZZZCharDetailContent';
 import { ZZZCharDetailHero } from '../components/chardetail/zzz/ZZZCharDetailHero';
+import { ZZZCharDetailWideLayout } from '../components/chardetail/zzz/ZZZCharDetailWideLayout';
 import { ViewState } from '../constants/ViewStates';
 import { CharDetailRouterParam } from '../models/CharDetailModels';
+import { showFeedback } from '../utils/FeedbackUtil';
+import { FeedbackType } from '../constants/FeedbackType';
 
 @ComponentV2
 export struct ZZZCharacterDetail {
@@ -19,6 +22,7 @@ export struct ZZZCharacterDetail {
   @Local private vm: ZZZCharacterDetailViewModel = new ZZZCharacterDetailViewModel();
   @Local private windowWidthVp: number = themeManager.current.value360;
   @Local private windowHeightVp: number = 780;
+  @Local private currentBreakpoint: string = 'xs';
 
   private uiCtx: UIContext | null = null;
 
@@ -48,6 +52,16 @@ export struct ZZZCharacterDetail {
     this.vm.loadData();
   }
 
+  @Monitor(ZZZCharacterDetailViewModel.KEYS.networkErrorMsg)
+  onNetworkError(_monitor: IMonitor): void {
+    const msg = this.vm.networkErrorMsg;
+    if (msg === '') { return; }
+    this.vm.networkErrorMsg = '';
+    const ctx = this.uiCtx;
+    if (ctx === null) { return; }
+    showFeedback(ctx, FeedbackType.ERROR, msg);
+  }
+
   aboutToDisappear(): void {
     const ctx = this.uiCtx;
     if (ctx === null) { return; }
@@ -73,23 +87,35 @@ export struct ZZZCharacterDetail {
         } else if (this.vm.viewState === ViewState.EMPTY || this.vm.viewState === ViewState.ERROR) {
           CharDetailEmptyView()
         } else {
-          Scroll() {
-            Column() {
-              ZZZCharDetailHero({ vm: this.vm, heroHeight: this.heroHeight() })
-              ZZZCharDetailContent({ vm: this.vm })
+          if (this.currentBreakpoint === 'md' || this.currentBreakpoint === 'lg') {
+            ZZZCharDetailWideLayout({ vm: this.vm })
+          } else {
+            Scroll() {
+              Column() {
+                ZZZCharDetailHero({ vm: this.vm, heroHeight: this.heroHeight() })
+                ZZZCharDetailContent({ vm: this.vm })
+              }
+              .width(this.tm.current.full)
             }
+            .scrollBar(BarState.Off)
             .width(this.tm.current.full)
+            .height(this.tm.current.full)
+            .align(Alignment.Top)
+            .edgeEffect(EdgeEffect.Spring)
           }
-          .scrollBar(BarState.Off)
-          .width(this.tm.current.full)
-          .height(this.tm.current.full)
-          .align(Alignment.Top)
-          .edgeEffect(EdgeEffect.Spring)
         }
       }
       .width(this.tm.current.full)
       .height(this.tm.current.full)
       .backgroundColor(this.tm.current.bgPageDeep)
+      .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
+      .onAreaChange((_old, newArea) => {
+        const w = newArea.width as number
+        if (w < 600) { this.currentBreakpoint = 'xs' }
+        else if (w < 840) { this.currentBreakpoint = 'sm' }
+        else if (w < 1200) { this.currentBreakpoint = 'md' }
+        else { this.currentBreakpoint = 'lg' }
+      })
     }
     .title($r('app.string.zzz_char_detail_title'))
     .hideTitleBar(false)
