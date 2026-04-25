@@ -2,9 +2,9 @@
  * LoginCard — 登录卡片（Tab 栏 + Tab 内容）
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
-import { LoginViewModel } from '../../viewmodel/LoginViewModel';
-import { LoginTabBar } from './LoginTabBar';
-import { LoginTabContent } from './LoginTabContent';
+import { LoginViewModel } from 'entry/ets/viewmodel/LoginViewModel';
+import { LoginTabBar } from 'entry/ets/components/login/LoginTabBar';
+import { LoginTabContent } from 'entry/ets/components/login/LoginTabContent';
 
 @ComponentV2
 export struct LoginCard {

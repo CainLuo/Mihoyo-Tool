@@ -24,6 +24,13 @@ const DEFAULT_COLOR_MODE: number = ConfigurationConstant.ColorMode.COLOR_MODE_NO
 
 export class AppearanceManager {
   private static prefs: preferences.Preferences | null = null;
+  /** 内存缓存，避免 My 页每次进入都有异步延迟导致的 UI 跳变 */
+  private static cachedColorMode: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET;
+
+  /** 同步读取缓存的颜色模式（无需 context，启动后即可用） */
+  public static getCachedColorMode(): number {
+    return AppearanceManager.cachedColorMode;
+  }
 
   private static async getPrefs(context: common.UIAbilityContext): Promise<preferences.Preferences> {
     if (AppearanceManager.prefs !== null) {
@@ -55,6 +62,8 @@ export class AppearanceManager {
     context: common.UIAbilityContext,
     colorMode: number
   ): Promise<void> {
+    // 更新内存缓存
+    AppearanceManager.cachedColorMode = colorMode;
     // 1. 立即切换
     try {
       context.setColorMode(colorMode);
@@ -77,6 +86,8 @@ export class AppearanceManager {
   public static async restoreOnLaunch(context: common.UIAbilityContext): Promise<void> {
     try {
       const colorMode = await AppearanceManager.getSavedColorMode(context);
+      // 更新内存缓存，供 My 页同步读取
+      AppearanceManager.cachedColorMode = colorMode;
       if (colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET) {
         Logger.info(TAG, 'restoreOnLaunch: follow system, skip');
         return;

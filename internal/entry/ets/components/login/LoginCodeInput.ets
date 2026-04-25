@@ -1,5 +1,5 @@
 /**
- * LoginCodeInput — 验证码输入步骤 UI
+ * LoginCodeInput — 验证码输入步骤 UI（仅 internal）
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { LoginViewModel } from '../../viewmodel/LoginViewModel';

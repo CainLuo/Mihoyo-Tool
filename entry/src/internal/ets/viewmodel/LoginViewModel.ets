@@ -1,12 +1,10 @@
 /**
- * LoginViewModel.ets（release 版，仅支持二维码和 Cookie 登录）
- *
- * 手机号登录相关代码已物理隔离至 src/internal/ets/，
- * 本文件不包含任何手机号字段、方法或 API 调用。
+ * LoginViewModel.ets（internal 版，含手机号登录完整功能）
  */
 
 import {
   AuthRepository,
+  LoginMobileResult,
   QRCodeConfirmedData,
   LoginCookieFields,
   RoleStatItem,
@@ -15,16 +13,15 @@ import {
   BBSRepository
 } from 'core';
 import { Logger } from 'core';
-import { LoginTab, QRCodeStat } from '../constants/LoginTabEnum';
-import { MyAccountVM, MyGameRoleVM, GameStatItem } from '../models/MyModels';
-import { serverDisplayName } from '../utils/ServerNameUtil';
-import { gameIdToName, gameIdToColor } from '../utils/GameIdUtil';
+import { LoginTab, PhoneStep, QRCodeStat } from 'entry/ets/constants/LoginTabEnum';
+import { MyAccountVM, MyGameRoleVM, GameStatItem } from 'entry/ets/models/MyModels';
+import { serverDisplayName } from 'entry/ets/utils/ServerNameUtil';
+import { gameIdToName, gameIdToColor } from 'entry/ets/utils/GameIdUtil';
 
-export { LoginTab, QRCodeStat };
+export { LoginTab, PhoneStep, QRCodeStat };
 
 const TAG: string = 'LoginViewModel';
 
-/** LoginViewModel @Monitor 路径常量类型 */
 export class LoginViewModelKeys {
   loginSuccess: string = 'vm.loginSuccess';
   loginedAccountId: string = 'vm.loginedAccountId';
@@ -37,14 +34,21 @@ export class LoginViewModel {
   static readonly KEYS: LoginViewModelKeys = new LoginViewModelKeys();
 
   // ── 通用状态 ──────────────────────────────────────────────────
-  /** release 版默认 Tab 为二维码 */
-  @Trace activeTab: LoginTab = LoginTab.QRCODE;
+  @Trace activeTab: LoginTab = LoginTab.PHONE;
   @Trace isLoading: boolean = false;
   @Trace errorMsg: string = '';
   @Trace showNoStokenDialog: boolean = false;
   @Trace loginSuccess: boolean = false;
   @Trace loginedAccountId: string = '';
   @Trace loginedAccountVM: MyAccountVM | null = null;
+
+  // ── 手机号登录状态 ────────────────────────────────────────────
+  @Trace phoneStep: PhoneStep = PhoneStep.INPUT_PHONE;
+  @Trace phoneNumber: string = '';
+  @Trace smsCode: string = '';
+  @Trace smsCooldown: number = 0;
+
+  private cooldownTimer: number = -1;
 
   // ── 二维码登录状态 ────────────────────────────────────────────
   @Trace qrCodeUrl: string = '';
@@ -71,6 +75,75 @@ export class LoginViewModel {
 
   dispose(): void {
     this.stopQRCodePoll();
+    this.stopCooldown();
+  }
+
+  // ─── 手机号登录 ───────────────────────────────────────────────
+
+  async sendSmsCode(): Promise<void> {
+    if (this.phoneNumber.length === 0) {
+      this.errorMsg = 'phone_empty';
+      return;
+    }
+    this.isLoading = true;
+    this.errorMsg = '';
+    try {
+      await AuthRepository.createLoginCaptcha(this.phoneNumber);
+      this.phoneStep = PhoneStep.INPUT_CODE;
+      this.startCooldown(60);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      Logger.error(TAG, `sendSmsCode failed: ${msg}`);
+      this.errorMsg = msg;
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async loginByPhone(): Promise<void> {
+    if (this.smsCode.length === 0) {
+      this.errorMsg = 'code_empty';
+      return;
+    }
+    this.isLoading = true;
+    this.errorMsg = '';
+    try {
+      const loginResult: LoginMobileResult = await AuthRepository.loginByMobileCaptcha(this.phoneNumber, this.smsCode);
+      const stoken = loginResult.stoken;
+      const aid = loginResult.aid;
+      const mid = loginResult.mid;
+      const ltoken = await AuthRepository.getLTokenBySToken(stoken, mid);
+      const cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
+      const fields = new LoginCookieFields();
+      fields.accountId = aid;
+      fields.cookieToken = cookieToken;
+      fields.ltoken = ltoken;
+      fields.ltuid = aid;
+      fields.stoken = stoken;
+      fields.mid = mid;
+      const cookie = AuthRepository.buildCookieString(fields);
+      await this.finalizeLogin(aid, cookie);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      Logger.error(TAG, `loginByPhone failed: ${msg}`);
+      this.errorMsg = msg;
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  get maskedPhone(): string {
+    const p = this.phoneNumber;
+    if (p.length < 7) {
+      return p;
+    }
+    return p.substring(0, 3) + '****' + p.substring(p.length - 4);
+  }
+
+  backToPhoneInput(): void {
+    this.phoneStep = PhoneStep.INPUT_PHONE;
+    this.smsCode = '';
+    this.errorMsg = '';
   }
 
   // ─── 二维码登录 ───────────────────────────────────────────────
@@ -242,5 +315,23 @@ export class LoginViewModel {
       }
     }
     return id;
+  }
+
+  private startCooldown(seconds: number): void {
+    this.smsCooldown = seconds;
+    this.cooldownTimer = setInterval(() => {
+      this.smsCooldown -= 1;
+      if (this.smsCooldown <= 0) {
+        this.smsCooldown = 0;
+        this.stopCooldown();
+      }
+    }, 1000) as number;
+  }
+
+  private stopCooldown(): void {
+    if (this.cooldownTimer !== -1) {
+      clearInterval(this.cooldownTimer);
+      this.cooldownTimer = -1;
+    }
   }
 }

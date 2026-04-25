@@ -21,7 +21,7 @@ export struct My {
   @Param isSplit: boolean = false
   @Local private tm: ThemeManager = themeManager
   @Local private vm: MyViewModel = new MyViewModel()
-  @Local private themeMode: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
+  @Local private themeMode: number = AppearanceManager.getCachedColorMode()
   @Local private signal: AccountSignal = AccountSignal.instance()
   private uiCtx: UIContext | null = null
 

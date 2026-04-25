@@ -1,16 +1,14 @@
 #!/bin/bash
-# 构建 release product（正式发布）并安装到模拟器
-# 支持通过 Proxyman Local Rewrite 拦截流量
+# 构建并安装到模拟器
 #
 # 用法：
-#   bash run.sh                            # 直接连真实 API
-#   bash run.sh --proxy 192.168.1.x:9090   # 流量走 Proxyman 代理
+#   bash run.sh                            # 交互选择（5 秒无输入默认 mock）
+#   bash run.sh mock                       # 直接指定 product
+#   bash run.sh debug
+#   bash run.sh internal
+#   bash run.sh release
+#   bash run.sh release --proxy 192.168.1.x:9090   # release + Proxyman 代理
 #   bash run.sh --clear-proxy              # 清除模拟器代理设置
-#
-# Proxyman 使用步骤：
-#   1. Proxyman → Tools → Local Rewrite，添加规则拦截目标 URL
-#   2. 查看 Mac IP：System Settings → Wi-Fi → Details → IP Address
-#   3. bash run.sh --proxy <Mac IP>:9090
 
 set -e
 
@@ -19,33 +17,98 @@ HDC='/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/toolchains
 HVIGOR='/Applications/DevEco-Studio.app/Contents/tools/hvigor/bin/hvigorw'
 export DEVECO_SDK_HOME='/Applications/DevEco-Studio.app/Contents/sdk'
 
-BUNDLE='com.cainluo.miyoyo.tools'
 TARGET='127.0.0.1:5555'
 AVD="${AVD:-Mate 80 Pro Max}"
 AVD_PATH="$HOME/.Huawei/Emulator/deployed/$AVD"
 IMAGE_ROOT="$HOME/Library/Huawei/Sdk"
-HAP='entry/build/default/outputs/default/entry-default-unsigned.hap'
 
+PRODUCT=''
 PROXY_HOST=''
 CLEAR_PROXY=false
 
-# 解析参数
+# ── 解析参数 ──────────────────────────────────────────────────
+for arg in "$@"; do
+  case "$arg" in
+    mock|debug|internal|release)
+      PRODUCT="$arg"
+      ;;
+    --proxy)
+      # 下一个参数是代理地址，用 shift 处理
+      ;;
+    --clear-proxy)
+      CLEAR_PROXY=true
+      ;;
+  esac
+done
+
+# 单独处理 --proxy 的值（需要位置参数）
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --proxy)
       PROXY_HOST="$2"
       shift 2
       ;;
-    --clear-proxy)
-      CLEAR_PROXY=true
-      shift
-      ;;
     *)
-      AVD="$1"
       shift
       ;;
   esac
 done
+
+# ── 清除代理（快速退出）──────────────────────────────────────
+if [ "$CLEAR_PROXY" = true ]; then
+  echo "▶ 清除模拟器代理..."
+  "$HDC" -t "$TARGET" shell param set persist.netmanager.http_proxy ""
+  echo "✓ 代理已清除"
+  exit 0
+fi
+
+# ── 交互选择 product（未通过参数指定时）──────────────────────
+if [ -z "$PRODUCT" ]; then
+  echo ""
+  echo "  选择构建目标（5 秒无输入默认 mock）："
+  echo "  [1] mock     — 本地 mock 数据，手机号登录"
+  echo "  [2] debug    — 真实 API，手机号登录，可抓包"
+  echo "  [3] internal — 真实 API，手机号登录，正式签名"
+  echo "  [4] release  — 上架包，无手机号登录"
+  echo ""
+
+  # read -t 5 在 bash 中支持超时
+  if read -t 5 -p "  输入 1/2/3/4 或直接回车：" choice 2>/dev/null; then
+    case "$choice" in
+      2) PRODUCT='debug' ;;
+      3) PRODUCT='internal' ;;
+      4) PRODUCT='release' ;;
+      *) PRODUCT='mock' ;;
+    esac
+  else
+    echo ""
+    echo "  ⏱ 超时，使用默认：mock"
+    PRODUCT='mock'
+  fi
+fi
+
+# ── 根据 product 设置 bundle 和 HAP 路径 ─────────────────────
+case "$PRODUCT" in
+  mock)
+    BUNDLE='com.cainluo.miyoyo.tools.mock'
+    HAP='entry/build/mock/outputs/mock/entry-mock-unsigned.hap'
+    ;;
+  debug)
+    BUNDLE='com.cainluo.miyoyo.tools.debug'
+    HAP='entry/build/debug/outputs/debug/entry-debug-unsigned.hap'
+    ;;
+  internal)
+    BUNDLE='com.cainluo.miyoyo.tools'
+    HAP='entry/build/internal/outputs/internal/entry-internal-signed.hap'
+    ;;
+  release)
+    BUNDLE='com.cainluo.miyoyo.tools'
+    HAP='entry/build/default/outputs/default/entry-default-unsigned.hap'
+    ;;
+esac
+
+echo ""
+echo "▶ 构建目标：$PRODUCT"
 
 # ── 1. 启动模拟器（如果还没运行）──────────────────────────────
 if "$HDC" list targets 2>/dev/null | grep -q "$TARGET"; then
@@ -67,27 +130,20 @@ else
   done
 fi
 
-# ── 2. 代理设置 ───────────────────────────────────────────────
-if [ "$CLEAR_PROXY" = true ]; then
-  echo "▶ 清除模拟器代理..."
-  "$HDC" -t "$TARGET" shell param set persist.netmanager.http_proxy ""
-  echo "✓ 代理已清除"
-  exit 0
-fi
-
+# ── 2. 代理设置（仅 release/debug 有意义）────────────────────
 if [ -n "$PROXY_HOST" ]; then
   echo "▶ 设置模拟器代理 → $PROXY_HOST"
   "$HDC" -t "$TARGET" shell param set persist.netmanager.http_proxy "$PROXY_HOST"
-  echo "✓ 代理已设置，流量将经过 Proxyman"
+  echo "✓ 代理已设置"
 fi
 
 # ── 3. Clean ──────────────────────────────────────────────────
 echo "▶ Clean..."
 "$HVIGOR" clean
 
-# ── 4. Build (default/release product) ───────────────────────
-echo "▶ Build (release)..."
-"$HVIGOR" assembleHap -p product=default
+# ── 4. Build ──────────────────────────────────────────────────
+echo "▶ Build ($PRODUCT)..."
+"$HVIGOR" assembleHap -p product="$PRODUCT"
 
 # ── 5. 安装 ──────────────────────────────────────────────────
 echo "▶ 安装..."
@@ -98,8 +154,8 @@ echo "▶ 启动..."
 "$HDC" -t "$TARGET" shell aa start -b "$BUNDLE" -a EntryAbility
 
 if [ -n "$PROXY_HOST" ]; then
-  echo "✅ 完成（release，流量经过 Proxyman: $PROXY_HOST）"
+  echo "✅ 完成（$PRODUCT，代理：$PROXY_HOST）"
   echo "   清除代理：bash run.sh --clear-proxy"
 else
-  echo "✅ 完成（release）"
+  echo "✅ 完成（$PRODUCT）"
 fi

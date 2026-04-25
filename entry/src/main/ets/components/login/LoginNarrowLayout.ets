@@ -2,7 +2,7 @@
  * LoginNarrowLayout — 登录页 Phone 单栏布局
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
-import { LoginViewModel } from '../../viewmodel/LoginViewModel';
+import { LoginViewModel } from 'entry/ets/viewmodel/LoginViewModel';
 import { LoginLogoSection } from './LoginLogoSection';
 import { LoginCard } from './LoginCard';
 import { LoginAgreement } from './LoginAgreement';

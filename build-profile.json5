@@ -1,10 +1,50 @@
 {
   app: {
-    signingConfigs: [],
+    signingConfigs: [
+      //      {
+      //        "name": "default",
+      //        "type": "HarmonyOS",
+      //        "material": {
+      //          "certpath": "/Users/cain/.ohos/config/default_Mihoyo-Tool_UjwjGm-g7XH_xKV7P6YaohbLz6LUFNlT9YNTdZ51U1g=.cer",
+      //          "keyAlias": "debugKey",
+      //          "keyPassword": "0000001BE1BF8C204E5373B6A0CB309C3DF09882C670CDC0732EB796458B96CC6D40672844CEA277396651",
+      //          "profile": "/Users/cain/.ohos/config/default_Mihoyo-Tool_UjwjGm-g7XH_xKV7P6YaohbLz6LUFNlT9YNTdZ51U1g=.p7b",
+      //          "signAlg": "SHA256withECDSA",
+      //          "storeFile": "/Users/cain/.ohos/config/default_Mihoyo-Tool_UjwjGm-g7XH_xKV7P6YaohbLz6LUFNlT9YNTdZ51U1g=.p12",
+      //          "storePassword": "0000001BA3F138785776F15E010892CCAA29C7192EB4F2389F939E77435BF90C9F4BB1F4C848FDB7F66343"
+      //        }
+      //      },
+      {
+        name: "release",
+        type: "HarmonyOS",
+        material: {
+          certpath: "/Users/cain/DevEcoStudioProjects/Mihoyo-Tool/Certificates/release/miyoyo.cer",
+          keyAlias: "Miyoyo",
+          keyPassword: "0000001F2FDC29265EB573331B7785E902AEE2C6A361A1C63C7B096986025FAEA9B3EB535986344BA64B555FC8715B",
+          profile: "/Users/cain/DevEcoStudioProjects/Mihoyo-Tool/Certificates/release/miyoyoRelease.p7b",
+          signAlg: "SHA256withECDSA",
+          storeFile: "/Users/cain/DevEcoStudioProjects/Mihoyo-Tool/Certificates/Miyoyo.p12",
+          storePassword: "0000001F344D3647F7C00157797DB0933A8C1E1757426AEDA09C3E8FFAD589CC54ECC488AEDCC5AFBEE35E106E95FF",
+        },
+      },
+      {
+        name: "internal",
+        type: "HarmonyOS",
+        material: {
+          certpath: "/Users/cain/DevEcoStudioProjects/Mihoyo-Tool/Certificates/dev/miyoyo-dev.cer",
+          keyAlias: "Miyoyo",
+          keyPassword: "0000001F2FDC29265EB573331B7785E902AEE2C6A361A1C63C7B096986025FAEA9B3EB535986344BA64B555FC8715B",
+          profile: "/Users/cain/DevEcoStudioProjects/Mihoyo-Tool/Certificates/dev/miyoyo-profileDebug.p7b",
+          signAlg: "SHA256withECDSA",
+          storeFile: "/Users/cain/DevEcoStudioProjects/Mihoyo-Tool/Certificates/Miyoyo.p12",
+          storePassword: "0000001F344D3647F7C00157797DB0933A8C1E1757426AEDA09C3E8FFAD589CC54ECC488AEDCC5AFBEE35E106E95FF",
+        },
+      },
+    ],
     products: [
       {
         name: "default",
-        signingConfig: "default",
+        signingConfig: "release",
         bundleName: "com.cainluo.miyoyo.tools",
         targetSdkVersion: "6.0.2(22)",
         compatibleSdkVersion: "6.0.2(22)",
@@ -61,6 +101,26 @@
           },
         },
       },
+      {
+        name: "internal",
+        signingConfig: "internal",
+        bundleName: "com.cainluo.miyoyo.tools",
+        label: "$string:app_name_internal",
+        targetSdkVersion: "6.0.2(22)",
+        compatibleSdkVersion: "6.0.2(22)",
+        runtimeOS: "HarmonyOS",
+        buildOption: {
+          strictMode: {
+            caseSensitiveCheck: true,
+            useNormalizedOHMUrl: true,
+          },
+          arkOptions: {
+            buildProfileFields: {
+              APP_ENV: "debug",
+            },
+          },
+        },
+      },
     ],
     buildModeSet: [
       {
@@ -71,6 +131,9 @@
       },
       {
         name: "release",
+      },
+      {
+        name: "internal",
       },
     ],
   },
@@ -91,6 +154,10 @@
           name: "debug",
           applyToProducts: ["debug"],
         },
+        {
+          name: "internal",
+          applyToProducts: ["internal"],
+        },
       ],
     },
     {
@@ -108,6 +175,10 @@
         {
           name: "debug",
           applyToProducts: ["debug"],
+        },
+        {
+          name: "internal",
+          applyToProducts: ["internal"],
         },
       ],
     },

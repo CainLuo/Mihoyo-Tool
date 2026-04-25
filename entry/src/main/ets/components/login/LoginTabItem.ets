@@ -3,7 +3,7 @@
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { LoginTab } from '../../constants/LoginTabEnum';
-import { LoginViewModel } from '../../viewmodel/LoginViewModel';
+import { LoginViewModel } from 'entry/ets/viewmodel/LoginViewModel';
 
 @ComponentV2
 export struct LoginTabItem {

@@ -2,7 +2,7 @@
  * LoginWideLayout — 登录页宽屏两栏布局
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
-import { LoginViewModel } from '../../viewmodel/LoginViewModel';
+import { LoginViewModel } from 'entry/ets/viewmodel/LoginViewModel';
 import { LoginLogoSection } from './LoginLogoSection';
 import { LoginFeatureItem } from './LoginFeatureItem';
 import { LoginCard } from './LoginCard';

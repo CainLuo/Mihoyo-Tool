@@ -1,10 +1,10 @@
 /**
- * LoginTabBar — 登录方式 Tab 栏（release 版，仅二维码和 Cookie）
+ * LoginTabBar — 登录方式 Tab 栏（internal 版，含手机号 Tab）
  */
-import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { themeManager, ThemeManager } from 'entry/ets/theme/ThemeManager';
 import { LoginViewModel } from 'entry/ets/viewmodel/LoginViewModel';
-import { LoginTab } from '../../constants/LoginTabEnum';
-import { LoginTabItem } from './LoginTabItem';
+import { LoginTab } from 'entry/ets/constants/LoginTabEnum';
+import { LoginTabItem } from 'entry/ets/components/login/LoginTabItem';
 
 @ComponentV2
 export struct LoginTabBar {
@@ -13,6 +13,8 @@ export struct LoginTabBar {
 
   build() {
     Row({ space: this.tm.current.value4 }) {
+      LoginTabItem({ vm: this.vm, tab: LoginTab.PHONE, label: $r('app.string.login_tab_phone') })
+
       LoginTabItem({ vm: this.vm, tab: LoginTab.QRCODE, label: $r('app.string.login_tab_qrcode') })
 
       LoginTabItem({ vm: this.vm, tab: LoginTab.COOKIE, label: $r('app.string.login_tab_cookie') })
