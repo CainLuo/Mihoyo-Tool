@@ -1,5 +1,9 @@
 /**
  * ThemeChip — 主题模式选择按钮
+ *
+ * @deprecated 已被 AppearanceSettingsPage 替代。
+ * AppearanceSection 不再使用内联 Chip，改为 SettingRow 样式跳转二级页。
+ * 保留此文件以维护 git history，不得删除。
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 

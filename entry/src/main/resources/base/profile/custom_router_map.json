@@ -54,6 +54,11 @@
       "name": "WebView",
       "pageSourceFile": "src/main/ets/pages/WebViewPage.ets",
       "buildFunction": "WebViewPageBuilder"
+    },
+    {
+      "name": "AppearanceSettings",
+      "pageSourceFile": "src/main/ets/pages/AppearanceSettingsPage.ets",
+      "buildFunction": "AppearanceSettingsBuilder"
     }
   ]
 }

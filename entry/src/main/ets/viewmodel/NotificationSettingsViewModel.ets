@@ -176,16 +176,34 @@ export class NotificationSettingsViewModel {
     if (acct === null) {
       return;
     }
+    // 创建新的 games 数组（新对象引用），让 @Monitor('game') 能检测到变化
+    const newGames: GameNotificationConfig[] = [];
     for (let i = 0; i < acct.games.length; i++) {
       const game = acct.games[i];
       const maxVal = game.maxStamina > 0 ? game.maxStamina : GameStaminaConstants.fallbackMax(game.gameId);
-      game.threshold = maxVal;
       const setting = new GameNotificationSetting();
       setting.enabled = game.enabled;
       setting.threshold = maxVal;
       await NotificationSettingsStore.instance().saveGameSetting(accountId, game.gameId, setting);
       await StaminaNotificationService.instance().cancelByAccountGame(accountId, game.gameId);
+      // 创建新对象，threshold 已更新
+      const newGame = new GameNotificationConfig();
+      newGame.gameId = game.gameId;
+      newGame.gameName = game.gameName;
+      newGame.staminaName = game.staminaName;
+      newGame.enabled = game.enabled;
+      newGame.threshold = maxVal;
+      newGame.maxStamina = game.maxStamina;
+      newGame.secondsPerUnit = game.secondsPerUnit;
+      newGames[newGames.length] = newGame;
     }
+    acct.games = newGames;
+    // 重新赋值触发 @Trace 更新
+    const copy: AccountNotificationConfig[] = [];
+    for (let i = 0; i < this.accounts.length; i++) {
+      copy[copy.length] = this.accounts[i];
+    }
+    this.accounts = copy;
   }
 
   onToggleAccountExpanded(accountId: string): void {

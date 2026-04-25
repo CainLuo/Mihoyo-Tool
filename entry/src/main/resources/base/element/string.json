@@ -1515,6 +1515,26 @@
     {
       "name": "split_placeholder_hint",
       "value": "点击左侧内容查看详情"
+    },
+    {
+      "name": "appearance_settings_title",
+      "value": "外观设置"
+    },
+    {
+      "name": "appearance_theme_light_desc",
+      "value": "始终使用浅色界面"
+    },
+    {
+      "name": "appearance_theme_dark_desc",
+      "value": "始终使用深色界面"
+    },
+    {
+      "name": "appearance_theme_system_desc",
+      "value": "跟随系统深色/浅色模式自动切换"
+    },
+    {
+      "name": "appearance_settings_hint",
+      "value": "选择「跟随系统」时，应用会根据系统设置自动切换深色/浅色模式。"
     }
   ]
 }

@@ -1415,6 +1415,26 @@
     {
       "name": "split_placeholder_hint",
       "value": "Tap an item on the left to view details"
+    },
+    {
+      "name": "appearance_settings_title",
+      "value": "Appearance"
+    },
+    {
+      "name": "appearance_theme_light_desc",
+      "value": "Always use light mode"
+    },
+    {
+      "name": "appearance_theme_dark_desc",
+      "value": "Always use dark mode"
+    },
+    {
+      "name": "appearance_theme_system_desc",
+      "value": "Follow system dark/light mode"
+    },
+    {
+      "name": "appearance_settings_hint",
+      "value": "When \"Follow System\" is selected, the app automatically switches between dark and light mode based on system settings."
     }
   ]
 }
