@@ -33,4 +33,6 @@ export class AppRoutes {
   static readonly NOTIFICATION_SETTINGS = 'NotificationSettings'
   /** 外观设置页 */
   static readonly APPEARANCE_SETTINGS = 'AppearanceSettings'
+  /** 隐私合规流程页（首次启动强制阅读协议） */
+  static readonly PRIVACY_CONSENT = 'PrivacyConsent'
 }

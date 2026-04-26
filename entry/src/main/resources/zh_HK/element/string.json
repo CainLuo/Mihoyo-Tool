@@ -1431,6 +1431,30 @@
     {
       "name": "appearance_settings_hint",
       "value": "選擇「跟隨系統」時，應用程式會根據系統設定自動切換深色/淺色模式。"
+    },
+    {
+      "name": "privacy_consent_terms_title",
+      "value": "用戶協議"
+    },
+    {
+      "name": "privacy_consent_privacy_title",
+      "value": "隱私政策"
+    },
+    {
+      "name": "privacy_consent_next",
+      "value": "下一步"
+    },
+    {
+      "name": "privacy_consent_agree",
+      "value": "同意並繼續"
+    },
+    {
+      "name": "privacy_consent_disagree",
+      "value": "不同意，退出"
+    },
+    {
+      "name": "privacy_consent_scroll_hint",
+      "value": "請滑動閱讀全部內容後繼續"
     }
   ]
 }

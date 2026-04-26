@@ -53,6 +53,10 @@ var PAGES = {
     render: renderAppearanceSettings,
     controls: appearanceSettingsControls,
   },
+  "privacy-dialog": {
+    render: renderPrivacyDialog,
+    controls: privacyDialogControls,
+  },
 };
 
 var curPage = "launch";

@@ -1535,6 +1535,30 @@
     {
       "name": "appearance_settings_hint",
       "value": "选择「跟随系统」时，应用会根据系统设置自动切换深色/浅色模式。"
+    },
+    {
+      "name": "privacy_consent_terms_title",
+      "value": "用户协议"
+    },
+    {
+      "name": "privacy_consent_privacy_title",
+      "value": "隐私政策"
+    },
+    {
+      "name": "privacy_consent_next",
+      "value": "下一步"
+    },
+    {
+      "name": "privacy_consent_agree",
+      "value": "同意并继续"
+    },
+    {
+      "name": "privacy_consent_disagree",
+      "value": "不同意，退出"
+    },
+    {
+      "name": "privacy_consent_scroll_hint",
+      "value": "请滑动阅读全部内容后继续"
     }
   ]
 }

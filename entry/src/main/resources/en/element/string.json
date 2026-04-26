@@ -1435,6 +1435,30 @@
     {
       "name": "appearance_settings_hint",
       "value": "When \"Follow System\" is selected, the app automatically switches between dark and light mode based on system settings."
+    },
+    {
+      "name": "privacy_consent_terms_title",
+      "value": "Terms of Service"
+    },
+    {
+      "name": "privacy_consent_privacy_title",
+      "value": "Privacy Policy"
+    },
+    {
+      "name": "privacy_consent_next",
+      "value": "Next"
+    },
+    {
+      "name": "privacy_consent_agree",
+      "value": "Agree & Continue"
+    },
+    {
+      "name": "privacy_consent_disagree",
+      "value": "Disagree & Exit"
+    },
+    {
+      "name": "privacy_consent_scroll_hint",
+      "value": "Please scroll to read all content before continuing"
     }
   ]
 }

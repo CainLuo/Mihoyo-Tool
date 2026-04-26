@@ -6,6 +6,7 @@ import myViewModelTest from './MyViewModel.test';
 import accountDetailViewModelTest from './AccountDetailViewModel.test';
 import genshinDailyDetailViewModelTest from './GenshinDailyDetailViewModel.test';
 import genshinCharDetailViewModelTest from './GenshinCharacterDetailViewModel.test';
+import privacyConsentViewModelTest from './PrivacyConsentViewModel.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -16,4 +17,5 @@ export default function testsuite() {
   accountDetailViewModelTest();
   genshinDailyDetailViewModelTest();
   genshinCharDetailViewModelTest();
+  privacyConsentViewModelTest();
 }
