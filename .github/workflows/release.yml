@@ -22,25 +22,7 @@ jobs:
       - name: Extract release notes from CHANGELOG.md
         id: changelog
         run: |
-          python3 - > /tmp/release_notes.md << 'PYEOF'
-          import sys
-          version = "${{ steps.version.outputs.VERSION }}"
-          with open("CHANGELOG.md", "r", encoding="utf-8") as f:
-              lines = f.readlines()
-          start = -1
-          end = len(lines)
-          for i, line in enumerate(lines):
-              if start == -1 and line.startswith("## " + version):
-                  start = i + 1
-              elif start != -1 and line.startswith("## "):
-                  end = i
-                  break
-          if start == -1:
-              print("请查看 CHANGELOG.md 了解本版本变更内容。")
-          else:
-              body = "".join(lines[start:end]).strip()
-              print(body if body else "请查看 CHANGELOG.md 了解本版本变更内容。")
-          PYEOF
+          python3 .github/scripts/extract_changelog.py "${{ steps.version.outputs.VERSION }}" > /tmp/release_notes.md
           cat /tmp/release_notes.md
 
       - name: Create Release
