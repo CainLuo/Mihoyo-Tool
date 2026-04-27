@@ -17,5 +17,5 @@
 
 ### 说明
 
-- 本 Release 附带未签名 App 包，需通过 `hdc install` 侧载安装（需开启开发者模式）
+- 本 Release 附带未签名 App 包（zip 压缩），解压后通过 `hdc install` 侧载安装（需开启开发者模式）
 - 正式签名版本通过华为应用市场（AppGallery）分发
