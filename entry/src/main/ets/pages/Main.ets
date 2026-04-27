@@ -301,6 +301,7 @@ export struct Main {
       .onNavigationModeChange((mode: NavigationMode) => {
         this.isSplit = mode === NavigationMode.Split
       })
+      .backgroundColor(this.tm.current.colorPageBg)
     }
     // Navigation 组件默认实现了底部 Tab 栏的延伸，无需手动设置 background 或 expandSafeArea
   }

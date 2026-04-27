@@ -2,6 +2,7 @@ import { AppRoutes } from '../constants/AppRoutes';
 import { RouterUtil } from '../utils/RouterUtil';
 import { Launch } from './Launch';
 import { Main } from './Main';
+import { PrivacyConsentPageBuilder } from './PrivacyConsentPage';
 
 @Builder
 function pageBuilder(name: string, param: Object) {
@@ -9,6 +10,8 @@ function pageBuilder(name: string, param: Object) {
     Launch()
   } else if (name === AppRoutes.MAIN) {
     Main()
+  } else if (name === AppRoutes.PRIVACY_CONSENT) {
+    PrivacyConsentPageBuilder(name, param)
   }
 }
 

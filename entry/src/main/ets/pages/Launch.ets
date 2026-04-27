@@ -14,6 +14,8 @@ import { AppRoutes } from '../constants/AppRoutes';
 import { RouterUtil } from '../utils/RouterUtil';
 import { themeManager, ThemeManager } from '../theme/ThemeManager';
 import { Logger } from 'core';
+import { common } from '@kit.AbilityKit';
+import { LegalPreferences } from '../utils/LegalPreferences';
 
 const TAG: string = 'Launch';
 
@@ -31,7 +33,18 @@ export struct Launch {
       this.logoScale = 1.0;
       this.logoOpacity = 1.0;
     });
-    this.navigateToMain();
+    this.checkPrivacyAndProceed();
+  }
+
+  private checkPrivacyAndProceed(): void {
+    const ctx = this.getUIContext().getHostContext() as common.UIAbilityContext;
+    const agreed = LegalPreferences.hasAgreed(ctx);
+    if (agreed) {
+      this.navigateToMain();
+    } else {
+      // 未同意：replace 到合规流程页，不保留 Launch 在返回栈
+      RouterUtil.replace(AppRoutes.PRIVACY_CONSENT);
+    }
   }
 
   private navigateToMain(): void {
