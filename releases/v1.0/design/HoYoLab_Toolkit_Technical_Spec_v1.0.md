@@ -133,80 +133,90 @@
 
 entry → core（单向依赖，禁止反向依赖，确保核心逻辑可复用、可维护）
 
-## 2.3 目录结构（标准规范）
+## 2.3 目录结构（实际代码结构）
 
-```plain text
+```
 core/
   src/main/ets/
     network/
-      DSUtil.ts        # DS2 加密工具（统一实现）
-      BaseHttpClient.ts # 网络请求封装
-    database/          # 关系型数据库操作
-    model/             # 数据结构与解析
-      enum/             # 枚举统一管理目录（存储元素力、命途等枚举）
-        GameElementEnum.ts # 原神元素力枚举
-        PathEnum.ts        # 星穹铁道命途枚举
-        WeaponTypeEnum.ts  # 武器类型枚举
-    repository/        # 数据仓库（统一数据出口）
-    utils/             # 通用工具类
-      constant/         # 常量统一管理目录
-        AppConstant.ts  # 全局通用常量（含刷新、Cookie/Token更新等）
-    env/               # 环境配置（Salt、版本号等）
-    uigf/              # 预留：UIGF 中间转换层
+      DSUtil.ets              # DS 加密工具（V1/V2/X6 多版本）
+      MihoyoHeaderBuilder.ets # 请求头统一构建
+      GenshinApiService.ets   # 原神 API 实现
+      StarRailApiService.ets  # 星铁 API 实现
+      ZZZApiService.ets       # 绝区零 API 实现
+      GeetestService.ets      # 极验验证服务
+    database/
+      RdbManager.ets          # 数据库管理器（初始化/事务/迁移）
+      TableSchema.ets         # 表结构定义（唯一真相来源）
+      BBSDao.ets              # 账号/游戏角色 DAO
+      GenshinDao.ets          # 原神数据 DAO
+      StarRailDao.ets         # 星铁数据 DAO
+      ZZZDao.ets              # 绝区零数据 DAO
+      SyncMetaDao.ets         # 同步状态 DAO
+    models/                   # Row 模型（对应数据库表字段）
+    parsers/                  # API 响应解析器（genshin/starrail/zzz）
+    repository/
+      BBSRepository.ets       # 账号/登录 Repository
+      GenshinRepository.ets   # 原神 Repository
+      StarRailRepository.ets  # 星铁 Repository
+      ZZZRepository.ets       # 绝区零 Repository
+    constants/
+      GameId.ets              # 游戏 ID 枚举
+      SyncDataType.ets        # 同步数据类型枚举
+      AppEnv.ets              # 环境枚举
+    CoreInitializer.ets       # core 初始化入口
+  src/mock/                   # Mock 数据（仅 mock product 包含）
+    resources/rawfile/mock/   # 按账号/角色分目录的 JSON 文件
+
 entry/
   src/main/ets/
-    pages/             # 所有UI页面（仅适配手机/折叠屏）
-    viewmodel/         # 页面状态与交互逻辑
-    router/            # 路由管理（官方Navigation + NavPathStack）
-    resources/         # 资源目录（仅包含手机/折叠屏相关资源）
-    app.ets            # 应用入口，初始化core
+    pages/                    # 所有 UI 页面
+    components/               # 可复用 UI 组件（按功能分子目录）
+    viewmodel/                # 页面 ViewModel
+    models/                   # UI 展示模型（VM 后缀）
+    utils/                    # 工具类（RouterUtil、LegalI18nRouter 等）
+    constants/                # 常量（AppRoutes 等）
+    theme/
+      AppTheme.ets            # Theme 接口定义
+      DefaultTheme.ets        # 默认主题实现
+      ThemeManager.ets        # 主题管理器（全局单例）
+    notification/             # 体力通知服务
+  EntryAbility.ets            # 应用入口，初始化 core
 ```
 
-# 3. 多环境配置（Release / Debug / Mock）
+# 3. 多环境配置（四个 Build Product）
 
-- 环境定义：Release（真实接口，关闭日志）、Debug（真实接口，开启日志）、Mock（本地JSON，不发起网络请求）。
+本项目通过 `build-profile.json5` 的 product 配置区分四个构建环境，**环境在编译时固定，不支持运行时切换**：
 
-- 环境传入：从 build-profile.json5 的 Target 中获取 APP_ENV，在 entry 的 onCreate 中传入 core 完成初始化。
+| Product    | Bundle ID                        | APP_ENV   | 说明                                       |
+| ---------- | -------------------------------- | --------- | ------------------------------------------ |
+| `mock`     | `com.cainluo.miyoyo.tools.mock`  | `mock`    | 本地 Mock 数据，含手机号登录，用于开发调试 |
+| `debug`    | `com.cainluo.miyoyo.tools.debug` | `debug`   | 真实 API，含手机号登录，可配合抓包工具     |
+| `internal` | `com.cainluo.miyoyo.tools`       | `debug`   | 真实 API，含手机号登录，内部测试正式签名   |
+| `release`  | `com.cainluo.miyoyo.tools`       | `release` | 上架包，无手机号登录，关闭调试日志         |
 
-- 数据源切换：core 根据环境自动切换，Mock 环境使用 MockDataSource，Debug/Release 环境使用 RemoteDataSource。
+- 环境传入：`EntryAbility.onCreate` 从 `BuildProfile.APP_ENV` 读取，通过 `CoreInitializer.initCore(context, appEnvFromString(APP_ENV))` 传入 core
+- 数据源切换：core 内 `MihoyoApiServiceFactory` 根据 `AppEnv` 自动选择 MockService 或 ApiService，对 Repository 层完全透明
+- Mock 数据位置：`core/src/mock/resources/rawfile/mock/{account_id}/{role_uid}/` 下的 JSON 文件
 
-# 4. 设备适配范围（当前 V1.0 明确版）
+# 4. 设备适配范围（V1.0 实际实现）
 
-## 4.1 当前 V1.0 支持设备（仅适配）
+## 4.1 V1.0 已支持设备
 
-- Phone（直屏手机）：资源限定词 **phone**，底部 TabBar 导航，单列布局。
+- **Phone（直屏手机）**：底部 TabBar 导航，单列布局
+- **Foldable / 宽屏（折叠屏展开、平板、PC）**：屏幕宽度超过断点时自动切换为左侧侧边栏导航 + 右侧内容分栏布局（Navigation Split 模式）
 
-- Foldable / WideFold / TripleFold（折叠屏手机）：资源限定词**foldable**，展开后大屏适配，默认底部 TabBar（与手机一致）；后续迭代（V2.0及以后）可优化为侧边栏，优化触发条件：折叠屏展开状态下，屏幕宽度≥1200vp，双列布局。
+实际实现采用 `Navigation` 组件的 `NavigationMode.Auto`，根据窗口宽度自动在单栏（Stack）和分栏（Split）之间切换，无需手动判断设备类型。
 
-## 4.2 当前 V1.0 不支持设备（后续迭代规划）
+## 4.2 适配架构
 
-以下设备适配延后至后续版本（V2.0 及以后），当前不做任何开发，不影响现有代码架构：
+- 布局：使用 `layoutWeight`、百分比、`vp`，禁止写死 `px`
+- 导航：`Navigation + NavPathStack`，`NavigationMode.Auto` 自动适配单栏/分栏
+- 主题：`color.json` + `dark/` 资源限定词，系统自动切换深色/浅色
 
-- Tablet（平板）
+## 4.3 后续迭代规划
 
-- PC / 2in1 / 2in1 Foldable（鸿蒙 PC / 二合一设备）
-
-- TV（电视）
-
-- 穿戴设备：所有手环（含华为手环10，轻量鸿蒙，不支持独立App）、全功能智能手表（WATCH 3/4/5系列，完整鸿蒙，后续可适配独立App）
-
-## 4.3 适配架构保障（可扩展）
-
-本项目采用鸿蒙官方「资源限定词 + 响应式布局」架构，未来新增任何设备适配时：
-
-- 不修改现有业务代码（core层完全复用）
-
-- 不重构数据库、不破坏现有功能
-
-- 仅需新增对应设备的资源目录（如 tablet/、pc/、wearable/），调整UI布局与交互，无需改动核心逻辑。
-
-## 4.4 当前适配规范（手机/折叠屏）
-
-- 布局：仅使用 flex、weight、百分比、vp，禁止写死 px，确保折叠屏展开/折叠时自动适配。
-
-- 导航：统一使用底部 TabBar（战绩 / 角色列表 / 我的），折叠屏展开后可暂不调整，后续迭代优化。
-
-- 资源目录：仅保留 base/、phone/、foldable/，其余设备资源目录暂不创建。
+- V2.0：桌面服务卡片（Service Widget）适配
 
 # 5. 网络与 API 规范
 
@@ -232,20 +242,20 @@ entry/
 
 - 说明：client_type=2 仅为网络请求鉴权兼容所需，确保能通过米游社API鉴权，与应用系统（鸿蒙/安卓）无关，不影响本应用“纯鸿蒙原生”属性，不代表应用为安卓应用。
 
-### 5.2.3 DS2 算法实现（DSUtil.ts）
+### 5.2.3 DS 算法实现（DSUtil.ets）
 
-核心逻辑（固定，禁止修改）：
-
-```typescript
-// DS2 生成逻辑
-t = 时间戳(秒)
-r = 6位随机字符串
-b = POST body（空则为""）
-q = GET 参数按 key 正序拼接
-sign = md5(`salt=${SALT}&t=${t}&r=${r}&b=${b}&q=${q}`)
-DS = `${t},${r},${sign}`
+实际实现了三个版本，根据接口类型选用：
 
 ```
+V1：t,r,sign  — sign = md5("salt=<salt>&t=<t>&r=<r>&b=<b>&q=<q>")
+V2：t,r,sign  — 与 V1 相同算法，使用不同 salt
+X6：t,r,sign  — 用于 hk4e/hkrpg/nap 游戏数据接口
+```
+
+- `t`：Unix 秒时间戳
+- `r`：6 位随机字符串（字母+数字）
+- `b`：POST body（空则为 `""`）
+- `q`：GET 参数按 key 字典序升序拼接（`key1=val1&key2=val2`）
 
 ### 5.2.4 必传请求头
 
@@ -261,7 +271,7 @@ DS = `${t},${r},${sign}`
 
 ### 5.2.5 配置管理
 
-Salt、米游社版本号统一配置在 core/env/EnvConfig.ts，支持多环境独立配置，可随米游社版本更新热切换，禁止硬编码。
+Salt、米游社版本号统一配置在 `core/src/main/ets/network/MihoyoHeaderKey.ets`，禁止硬编码。
 
 # 6. UIGF 架构设计（专业级，预留扩展）
 
@@ -298,35 +308,78 @@ UIGF 中间转换层（UigfConverter）→ core/uigf/（预留）
 
 ## 7.1 关系型数据库（RelationalStore）
 
-### 7.1.1 强制字段（每张表必须包含）
+### 7.1.1 数据库基础信息
+
+- 数据库文件名：`mihoyo_tool_v2.db`
+- 加密级别：`SecurityLevel.S1`
+- 每次连接后执行：`PRAGMA foreign_keys = ON`（启用级联删除）
+- 表结构唯一真相来源：`core/src/main/ets/database/TableSchema.ets`
+
+### 7.1.2 通用字段规范
+
+所有表包含以下通用字段：
 
 ```sql
-id            INTEGER PRIMARY KEY AUTOINCREMENT,   -- 自增主键（唯一标识，必须，独立于API返回ID）
-create_time   INTEGER,                             -- 本地插入时间（毫秒时间戳，本地生成，不被API/UIGF覆盖）
-update_time   INTEGER                              -- 本地更新时间（毫秒时间戳，本地生成，不被API/UIGF覆盖）
+id         INTEGER PRIMARY KEY AUTOINCREMENT  -- 自增主键
+account_id TEXT NOT NULL                      -- 米游社账号 UID（外键 → account_table.uid，ON DELETE CASCADE）
+update_time INTEGER                           -- 数据写入时间戳（Unix 秒，本地生成）
 ```
 
-### 7.1.2 关键规则
+游戏数据表（角色/便笺/详情）还包含：
 
-- 上述 3 个字段为本地系统字段，与 API 返回无关，由应用本地生成，不被 API 数据、UIGF 数据覆盖。
+```sql
+role_uid   TEXT NOT NULL  -- 游戏角色 UID，与 game_role_table.role_id 对应
+raw_json   TEXT NOT NULL  -- 原始 API 响应 JSON，完整保存供 Parser 重新解析
+```
 
-- API 返回的时间字段（如服务器更新时间），需单独存储（如 server_update_time），与本地时间完全分离。
+> **注意**：`create_time` 仅 `account_table` 有，其他表不包含。游戏隔离通过**独立表名**实现（原神/星铁/绝区零各自一套表），不使用 `gameId` 字段。
 
-- 所有表需额外新增 userId（米游社账号隔离）、gameId（游戏隔离）两个强制字段（独立于API返回字段），确保多账号、多游戏数据不混淆。
+### 7.1.3 实际数据表（共 16 张）
 
-### 7.1.3 主要数据表
+**基础表（2 张）**
 
-- user_accounts：米游社账号信息
+| 表名              | 说明                                         |
+| ----------------- | -------------------------------------------- |
+| `account_table`   | 米游社账号，存储 Cookie/stoken 等登录凭证    |
+| `game_role_table` | 游戏角色绑定，存储各游戏的 UID/服务器/等级等 |
 
-- game_accounts：游戏账号信息（原神/星穹铁道/绝区零）
+**原神专用表（4 张）**
 
-- characters：角色基础信息
+| 表名                        | 说明                             |
+| --------------------------- | -------------------------------- |
+| `genshin_character_list`    | 角色列表（基础属性 + 武器摘要）  |
+| `genshin_daily_note`        | 实时便笺（树脂/委托/派遣等）     |
+| `genshin_character_detail`  | 角色详情（武器/圣遗物/技能等级） |
+| `genshin_character_compute` | 角色养成计算材料消耗             |
 
-- weapons / lightCones：武器/光锥信息
+**星穹铁道专用表（4 张）**
 
-- relics / ornaments：圣遗物/遗器信息
+| 表名                      | 说明                               |
+| ------------------------- | ---------------------------------- |
+| `starrail_avatar_basic`   | 角色基础信息（属性/命途/光锥摘要） |
+| `starrail_daily_note`     | 实时便笺（开拓力/派遣/实训等）     |
+| `starrail_avatar_info`    | 角色详情（光锥/遗器/行迹树）       |
+| `starrail_avatar_compute` | 角色养成计算材料消耗               |
 
-- user_stats：实时便笺、战绩数据
+**绝区零专用表（5 张）**
+
+| 表名                 | 说明                               |
+| -------------------- | ---------------------------------- |
+| `zzz_avatar_basic`   | 代理人基础信息                     |
+| `zzz_daily_note`     | 实时便笺（电量/活跃度/录像店等）   |
+| `zzz_avatar_info`    | 代理人详情（音擎/驱动盘/技能等级） |
+| `zzz_avatar_compute` | 代理人养成计算材料消耗             |
+| `zzz_buddy`          | 邦布列表                           |
+
+**辅助表（1 张）**
+
+| 表名        | 说明                                                         |
+| ----------- | ------------------------------------------------------------ |
+| `sync_meta` | 同步状态元数据，记录每个角色每种数据类型的最后同步时间和状态 |
+
+### 7.1.4 级联删除
+
+所有游戏数据表通过外键 `FOREIGN KEY (account_id) REFERENCES account_table(uid) ON DELETE CASCADE` 关联账号表，删除账号时自动级联删除该账号下所有游戏数据。
 
 ## 7.2 轻量级存储（DataPrefs）
 
@@ -336,9 +389,25 @@ update_time   INTEGER                              -- 本地更新时间（毫�
 
 用于存储：角色/武器图片缓存、Mock 数据 JSON、本地日志（仅 Debug 环境）。
 
-# 8. UI 与页面规范（当前仅手机/折叠屏）
+# 8. UI 与页面规范
 
-- 路由：使用官方 Navigation + NavPathStack 管理路由，统一路由跳转规范。
+- 路由：使用官方 `Navigation + NavPathStack` 管理路由，`NavigationMode.Auto` 自动适配单栏/分栏
+- 架构：MVVM，UI 层只负责渲染，ViewModel 处理页面状态和交互逻辑
+- 交互规范：刷新操作遵守 30 分钟冷却规则，触发时弹出确认 Dialog
+- 国际化：所有文案放入 `string.json`，通过 `$r('app.string.xxx')` 访问，支持 `zh_CN`（base）、`zh_HK`、`en`
+- 主题：支持浅色/深色/跟随系统，使用 `color.json` + `dark/` 资源限定词，通过 `$r('app.color.xxx')` 访问
+
+**主题实现方式（实际代码）**：
+
+- `AppTheme.ets`：定义 `Theme` interface，声明所有颜色、字体、间距、圆角等 token
+- `DefaultTheme.ets`：实现 `Theme` interface，所有 token 通过 `$r('app.color.xxx')` 引用资源文件，系统自动根据深色/浅色模式切换对应的 `color.json` / `dark/element/color.json`
+- `ThemeManager.ets`：全局单例，持有当前 `Theme` 实例，UI 组件通过 `themeManager.current.xxx` 获取 token 值
+- 主题切换（浅色/深色/跟随系统）通过 `AppearanceSection` 调用系统 API 实现
+
+**首屏隐私合规**：
+
+- 首次启动时展示 `PrivacyConsentPage`（用户协议 → 隐私政策两步确认），用户同意后通过 `LegalPreferences` 持久化标记，后续启动直接进入主页面
+- 协议 HTML 文件存放在 `entry/src/main/resources/rawfile/legal/`，支持简体中文/繁体中文/英文，由 `LegalI18nRouter` 根据系统语言自动选择
 
 - 架构：采用 MVVM 架构，UI 层仅负责渲染，ViewModel 处理页面状态、交互逻辑、数据请求，不包含核心业务逻辑。
 
@@ -400,21 +469,19 @@ export const AppConstant = {
 
 4. 所有米游社 API 请求必须经过 DSUtil 生成 DS2 签名，禁止硬编码 Salt、client_type。
 
-5. 数据库表必须包含 id、create_time、update_time、userId、gameId 字段，本地时间与 API 时间分离存储。
+5. 数据库表通用字段为 `id`、`account_id`、`update_time`；游戏数据表额外包含 `role_uid`、`raw_json`；游戏隔离通过独立表名实现，不使用 `gameId` 字段；`create_time` 仅 `account_table` 有。
 
 6. 发现 ArkTS/ArkUI API/组件废弃、变更时，必须按 1.4 节规则提示用户，未经确认不得擅自升级。
 
-7. 当前仅开发手机/折叠屏适配代码，不提前编写平板、PC、TV、穿戴设备相关代码，避免冗余。
+7. 布局使用 `layoutWeight`、百分比、`vp`，禁止写死 `px`；`Navigation` 组件的 `NavigationMode.Auto` 自动处理单栏/分栏适配，无需手动判断设备类型。
 
-8. 布局仅使用 flex、weight、百分比、vp，禁止写死 px，确保折叠屏适配兼容性。
+8. 所有业务相关、配置相关常量（如刷新时间、Cookie/Token更新周期），必须统一存储在 core/utils/constant/AppConstant.ts 文件中，禁止分散硬编码，且每个常量需添加清晰注释，说明含义、用途及单位。
 
-9. 所有业务相关、配置相关常量（如刷新时间、Cookie/Token更新周期），必须统一存储在 core/utils/constant/AppConstant.ts 文件中，禁止分散硬编码，且每个常量需添加清晰注释，说明含义、用途及单位。
+9. **枚举（Enum）使用规范（强制）**：针对API返回的所有固定值类型（含示例中提及的原神元素力类型、星穹铁道命途、武器类型、游戏类型等，以及纯数值类型的固定标识，示例仅作参考，不代表全部场景），一旦发现API返回此类固定值（无论是否在现有示例中，无论值为字符串还是纯数值），均必须使用枚举（Enum）统一装载管理，禁止直接在logic层、UI层硬编码字符串或数值进行判断、赋值或业务操作，确保代码可维护性、可扩展性，避免拼写错误、数值混淆导致的业务异常。同时，为应对米游社API更新新增未识别类型的场景，所有枚举必须定义保留值（默认值），用于兼容未识别的API返回值，避免应用崩溃。本条款为枚举使用的唯一强制规范，后续章节不再重复，所有枚举相关操作均按本条执行。
 
-10. **枚举（Enum）使用规范（强制）**：针对API返回的所有固定值类型（含示例中提及的原神元素力类型、星穹铁道命途、武器类型、游戏类型等，以及纯数值类型的固定标识，示例仅作参考，不代表全部场景），一旦发现API返回此类固定值（无论是否在现有示例中，无论值为字符串还是纯数值），均必须使用枚举（Enum）统一装载管理，禁止直接在logic层、UI层硬编码字符串或数值进行判断、赋值或业务操作，确保代码可维护性、可扩展性，避免拼写错误、数值混淆导致的业务异常。同时，为应对米游社API更新新增未识别类型的场景，所有枚举必须定义保留值（默认值），用于兼容未识别的API返回值，避免应用崩溃。本条款为枚举使用的唯一强制规范，后续章节不再重复，所有枚举相关操作均按本条执行。
+10. **枚举适用场景（明确范围，示例仅作参考，不局限于以下场景）**：1. 游戏相关固定类型：原神元素力（pyro/火、hydro/水等字符串类型）、星穹铁道命途（开拓、毁灭等字符串类型）、武器类型（单手剑、双手剑等字符串类型）；2. API返回固定状态：账号登录状态、数据刷新状态、请求状态（成功/失败/加载中）等（字符串或数值类型均可）；3. 应用内部固定分类：游戏账号类型（原神、星穹铁道、绝区零）、数据类型（角色数据、武器数据、圣遗物数据）等；4. API返回的纯数值固定标识：如原神 property_type 字段（属性标识纯数值，每个数值对应唯一属性含义）、其他游戏/接口返回的纯数值固定编码（数量多、含义固定的场景优先适用）；5. 其他所有API返回的固定值类型：无论值为字符串还是纯数值，无论是否在上述示例中，只要API返回值为固定不变、且有明确对应含义的，均需纳入枚举管理。
 
-11. **枚举适用场景（明确范围，示例仅作参考，不局限于以下场景）**：1. 游戏相关固定类型：原神元素力（pyro/火、hydro/水等字符串类型）、星穹铁道命途（开拓、毁灭等字符串类型）、武器类型（单手剑、双手剑等字符串类型）；2. API返回固定状态：账号登录状态、数据刷新状态、请求状态（成功/失败/加载中）等（字符串或数值类型均可）；3. 应用内部固定分类：游戏账号类型（原神、星穹铁道、绝区零）、数据类型（角色数据、武器数据、圣遗物数据）等；4. API返回的纯数值固定标识：如原神 property_type 字段（属性标识纯数值，每个数值对应唯一属性含义）、其他游戏/接口返回的纯数值固定编码（数量多、含义固定的场景优先适用）；5. 其他所有API返回的固定值类型：无论值为字符串还是纯数值，无论是否在上述示例中，只要API返回值为固定不变、且有明确对应含义的，均需纳入枚举管理。
-
-12. **枚举存储与实现规范**：1. 存储位置：在 core/model 目录下新建 enum 文件夹，按功能分类创建枚举文件，禁止分散在logic层、UI层或其他目录；2. 命名规范：枚举文件命名格式为「功能+Enum.ts」（如 GameElementEnum.ts、PathEnum.ts、WeaponTypeEnum.ts、PropertyTypeEnum.ts），枚举名称与文件名称对应，首字母大写；3. 实现要求：枚举值与API返回的固定值（字符串/纯数值）完全一致，同时添加清晰注释说明枚举含义（尤其纯数值类型，需明确数值对应的具体含义），便于开发人员对应API返回值；对于数量较多的纯数值枚举（如原神 property_type），需按属性类别分类注释，提升可读性；4. 保留值（默认值）要求：所有枚举必须新增保留值（默认值），命名统一为 UNKNOWN，用于兼容米游社API更新后新增、本应用未及时适配的未识别类型，避免因未识别值导致应用崩溃；保留值需添加明确注释，说明其作用为兼容未识别API返回值；5. 补充说明：示例代码仅展示常见场景，不代表全部枚举类型，开发过程中若发现API返回新的固定值（无论字符串还是纯数值），需及时新增对应枚举值，遵循本规范统一管理；若暂未适配，需使用保留值兜底；6. 示例代码（仅作规范参考，不局限于以下枚举，重点补充保留值）：
+11. **枚举存储与实现规范**：1. 存储位置：在 core/model 目录下新建 enum 文件夹，按功能分类创建枚举文件，禁止分散在logic层、UI层或其他目录；2. 命名规范：枚举文件命名格式为「功能+Enum.ts」（如 GameElementEnum.ts、PathEnum.ts、WeaponTypeEnum.ts、PropertyTypeEnum.ts），枚举名称与文件名称对应，首字母大写；3. 实现要求：枚举值与API返回的固定值（字符串/纯数值）完全一致，同时添加清晰注释说明枚举含义（尤其纯数值类型，需明确数值对应的具体含义），便于开发人员对应API返回值；对于数量较多的纯数值枚举（如原神 property_type），需按属性类别分类注释，提升可读性；4. 保留值（默认值）要求：所有枚举必须新增保留值（默认值），命名统一为 UNKNOWN，用于兼容米游社API更新后新增、本应用未及时适配的未识别类型，避免因未识别值导致应用崩溃；保留值需添加明确注释，说明其作用为兼容未识别API返回值；5. 补充说明：示例代码仅展示常见场景，不代表全部枚举类型，开发过程中若发现API返回新的固定值（无论字符串还是纯数值），需及时新增对应枚举值，遵循本规范统一管理；若暂未适配，需使用保留值兜底；6. 示例代码（仅作规范参考，不局限于以下枚举，重点补充保留值）：
 
 ```TypeScript
 // core/model/enum/GameElementEnum.ts（原神元素力枚举，字符串类型，含保留值）

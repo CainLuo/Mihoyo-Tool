@@ -1,0 +1,75 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Extract release notes from CHANGELOG.md
+        id: changelog
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          # 提取对应版本的 changelog 内容（从该版本标题到下一个版本标题之间）
+          NOTES=$(awk "/^## ${VERSION}/,/^## v[0-9]/" CHANGELOG.md \
+            | grep -v "^## v[0-9]" \
+            | sed '/^$/d' \
+            | head -50)
+          if [ -z "$NOTES" ]; then
+            NOTES="请查看 CHANGELOG.md 了解本版本变更内容。"
+          fi
+          # 写入多行输出
+          {
+            echo "NOTES<<EOF"
+            echo "$NOTES"
+            echo "EOF"
+          } >> $GITHUB_OUTPUT
+
+      - name: Check for App file
+        id: app
+        run: |
+          APP_PATH="build/outputs/default/Mihoyo-Tool-default-unsigned.app"
+          if [ -f "$APP_PATH" ]; then
+            echo "EXISTS=true" >> $GITHUB_OUTPUT
+            echo "PATH=$APP_PATH" >> $GITHUB_OUTPUT
+          else
+            echo "EXISTS=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Release (with App)
+        if: steps.app.outputs.EXISTS == 'true'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.VERSION }}
+          name: ${{ steps.version.outputs.VERSION }}
+          body: ${{ steps.changelog.outputs.NOTES }}
+          draft: false
+          prerelease: false
+          files: ${{ steps.app.outputs.PATH }}
+
+      - name: Create Release (without App)
+        if: steps.app.outputs.EXISTS == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.VERSION }}
+          name: ${{ steps.version.outputs.VERSION }}
+          body: |
+            ${{ steps.changelog.outputs.NOTES }}
+
+            ---
+            > ⚠️ 本次 Release 未包含 App 安装包。请在本地使用 DevEco Studio 构建后手动上传到此 Release。
+          draft: false
+          prerelease: false
