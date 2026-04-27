@@ -22,54 +22,38 @@ jobs:
       - name: Extract release notes from CHANGELOG.md
         id: changelog
         run: |
-          VERSION="${{ steps.version.outputs.VERSION }}"
-          # 提取对应版本的 changelog 内容（从该版本标题到下一个版本标题之间）
-          NOTES=$(awk "/^## ${VERSION}/,/^## v[0-9]/" CHANGELOG.md \
-            | grep -v "^## v[0-9]" \
-            | sed '/^$/d' \
-            | head -50)
-          if [ -z "$NOTES" ]; then
-            NOTES="请查看 CHANGELOG.md 了解本版本变更内容。"
-          fi
-          # 写入多行输出
-          {
-            echo "NOTES<<EOF"
-            echo "$NOTES"
-            echo "EOF"
-          } >> $GITHUB_OUTPUT
+          python3 - << 'EOF' > /tmp/release_notes.md
+          import re
 
-      - name: Check for App file
-        id: app
-        run: |
-          APP_PATH="build/outputs/default/Mihoyo-Tool-default-unsigned.app"
-          if [ -f "$APP_PATH" ]; then
-            echo "EXISTS=true" >> $GITHUB_OUTPUT
-            echo "PATH=$APP_PATH" >> $GITHUB_OUTPUT
-          else
-            echo "EXISTS=false" >> $GITHUB_OUTPUT
-          fi
+          version = "${{ steps.version.outputs.VERSION }}"
 
-      - name: Create Release (with App)
-        if: steps.app.outputs.EXISTS == 'true'
+          with open("CHANGELOG.md", "r", encoding="utf-8") as f:
+              content = f.read()
+
+          # 找到该版本标题行的位置
+          lines = content.split("\n")
+          start = -1
+          end = len(lines)
+
+          for i, line in enumerate(lines):
+              if start == -1 and line.startswith("## " + version):
+                  start = i + 1  # 跳过标题行本身
+              elif start != -1 and line.startswith("## "):
+                  end = i
+                  break
+
+          if start == -1:
+              print("请查看 CHANGELOG.md 了解本版本变更内容。")
+          else:
+              body = "\n".join(lines[start:end]).strip()
+              print(body if body else "请查看 CHANGELOG.md 了解本版本变更内容。")
+          EOF
+
+      - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.VERSION }}
           name: ${{ steps.version.outputs.VERSION }}
-          body: ${{ steps.changelog.outputs.NOTES }}
-          draft: false
-          prerelease: false
-          files: ${{ steps.app.outputs.PATH }}
-
-      - name: Create Release (without App)
-        if: steps.app.outputs.EXISTS == 'false'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ steps.version.outputs.VERSION }}
-          name: ${{ steps.version.outputs.VERSION }}
-          body: |
-            ${{ steps.changelog.outputs.NOTES }}
-
-            ---
-            > ⚠️ 本次 Release 未包含 App 安装包。请在本地使用 DevEco Studio 构建后手动上传到此 Release。
+          body_path: /tmp/release_notes.md
           draft: false
           prerelease: false
