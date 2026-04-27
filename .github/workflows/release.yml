@@ -22,32 +22,26 @@ jobs:
       - name: Extract release notes from CHANGELOG.md
         id: changelog
         run: |
-          python3 - << 'EOF' > /tmp/release_notes.md
-          import re
-
+          python3 - > /tmp/release_notes.md << 'PYEOF'
+          import sys
           version = "${{ steps.version.outputs.VERSION }}"
-
           with open("CHANGELOG.md", "r", encoding="utf-8") as f:
-              content = f.read()
-
-          # 找到该版本标题行的位置
-          lines = content.split("\n")
+              lines = f.readlines()
           start = -1
           end = len(lines)
-
           for i, line in enumerate(lines):
               if start == -1 and line.startswith("## " + version):
-                  start = i + 1  # 跳过标题行本身
+                  start = i + 1
               elif start != -1 and line.startswith("## "):
                   end = i
                   break
-
           if start == -1:
               print("请查看 CHANGELOG.md 了解本版本变更内容。")
           else:
-              body = "\n".join(lines[start:end]).strip()
+              body = "".join(lines[start:end]).strip()
               print(body if body else "请查看 CHANGELOG.md 了解本版本变更内容。")
-          EOF
+          PYEOF
+          cat /tmp/release_notes.md
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
