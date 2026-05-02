@@ -197,6 +197,9 @@ export class HomeViewModel {
     }
     this.startAutoRefresh();
 
+    // 冷启动后推送 Widget 数据（无论是否同步，都推送最新数据）
+    StaminaNotificationService.instance().onDailyNotesSynced().catch((_: Error | object) => {});
+
     // 冷启动 Cookie 检查：首屏渲染完成后异步触发，不阻塞 UI
     ColdStartCookieChecker.checkAndRefreshAll(CoreInitializer.bbsRepository)
       .then((result: ColdStartRefreshResult) => {
@@ -443,6 +446,8 @@ export class HomeViewModel {
         await this.syncDailyNote(account, role);
       }
     }
+    // 同步完成后触发通知阈值检查和 Widget 数据推送
+    StaminaNotificationService.instance().onDailyNotesSynced().catch((_: Error | object) => {});
   }
 
   /**

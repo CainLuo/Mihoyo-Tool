@@ -107,6 +107,10 @@ export interface AppColor {
   // ---- 角色卡片叠加色 ----
   roleCardServerBg: Resource
   roleCardStatBg: Resource
+
+  // ---- Widget 卡片背景色 ----
+  /** Widget 卡片固定背景色（#2E3033），遵循鸿蒙卡片官方规范 */
+  widgetCardBg: Resource
 }
 
 // ---- 字体 Token ----
@@ -130,6 +134,7 @@ export interface Spacing {
   value1: number    // 1vp
   value1p5: number  // 1.5vp
   value2: number    // 2vp
+  value3: number    // 3vp
   value4: number    // 4vp
   value5: number    // 5vp
   value8: number    // 8vp
@@ -137,6 +142,7 @@ export interface Spacing {
   value10: number   // 10vp
   value11: number   // 11vp
   value12: number   // 12vp
+  value13: number   // 13vp
   value14: number   // 14vp
   value15: number   // 15vp
   value16: number   // 16vp

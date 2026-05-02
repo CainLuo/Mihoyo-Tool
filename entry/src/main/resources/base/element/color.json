@@ -12,6 +12,8 @@
     { "name": "color_shadow", "value": "#14000000" },
     { "name": "color_danger", "value": "#E8534A" },
     { "name": "color_danger_bg", "value": "#1AE8534A" },
+    { "name": "color_success", "value": "#4CAF50" },
+    { "name": "color_success_bg", "value": "#1A4CAF50" },
     { "name": "color_warning", "value": "#F0A030" },
     { "name": "color_accent", "value": "#007DFF" },
     { "name": "color_surface_subtle", "value": "#E0E0E0" },
@@ -21,6 +23,8 @@
     { "name": "login_input_bg", "value": "#F8F8F8" },
     { "name": "role_card_server_bg", "value": "#66000000" },
     { "name": "role_card_stat_bg", "value": "#73000000" },
+
+    { "name": "widget_card_bg", "value": "#2E3033" },
 
     { "name": "game_color_genshin", "value": "#4A90D9" },
     { "name": "game_color_starrail", "value": "#7B68EE" },

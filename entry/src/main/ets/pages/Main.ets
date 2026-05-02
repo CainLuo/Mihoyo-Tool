@@ -70,29 +70,45 @@ export struct Main {
     // 初始化窗口宽度和模式
     const ctx = this.uiCtx
     if (this.windowClass !== undefined) {
-      const rect = this.windowClass.getWindowProperties().windowRect
-      this.windowWidthVp = ctx.px2vp(rect.width)
+      try {
+        const rect = this.windowClass.getWindowProperties().windowRect
+        this.windowWidthVp = ctx.px2vp(rect.width)
+      } catch (_e) {
+        // 获取窗口属性失败时保持默认宽度
+      }
     }
     this.setCurrentMode()
     // 监听窗口尺寸变化（折叠屏展开/折叠、旋转）
     this.windowClass?.on('windowSizeChange', () => {
       const ctx2 = this.uiCtx
       if (ctx2 !== null && this.windowClass !== undefined) {
-        const rect = this.windowClass.getWindowProperties().windowRect
-        this.windowWidthVp = ctx2.px2vp(rect.width)
+        try {
+          const rect = this.windowClass.getWindowProperties().windowRect
+          this.windowWidthVp = ctx2.px2vp(rect.width)
+        } catch (_e) {
+          // 获取窗口属性失败时保持当前宽度
+        }
       }
       this.setCurrentMode()
     })
     // 监听窗口状态变化（分屏模式检测）
-    this.windowClass?.on('windowStatusChange', (statusType: window.WindowStatusType) => {
-      this.currentWindowStatusType = statusType
-      this.setCurrentMode()
-    })
+    try {
+      this.windowClass?.on('windowStatusChange', (statusType: window.WindowStatusType) => {
+        this.currentWindowStatusType = statusType
+        this.setCurrentMode()
+      })
+    } catch (_e) {
+      // 注册窗口状态监听失败时忽略
+    }
   }
 
   aboutToDisappear(): void {
-    this.windowClass?.off('windowSizeChange')
-    this.windowClass?.off('windowStatusChange')
+    try {
+      this.windowClass?.off('windowSizeChange')
+      this.windowClass?.off('windowStatusChange')
+    } catch (_e) {
+      // 注销监听失败时忽略
+    }
   }
 
   /**
@@ -100,19 +116,23 @@ export struct Main {
    * 官方 FAQ 推荐方案：横屏时分栏（分屏除外），竖屏时按断点决定。
    */
   private setCurrentMode(): void {
-    const orientation = display.getDefaultDisplaySync().orientation
-    const isLandscape = orientation === display.Orientation.LANDSCAPE ||
-      orientation === display.Orientation.LANDSCAPE_INVERTED
-    if (isLandscape) {
-      // 横屏：分屏（WindowStatusType=4）强制单栏，否则分栏
-      this.navMode = (this.currentWindowStatusType === 4)
-        ? NavigationMode.Stack
-        : NavigationMode.Split
-    } else {
-      // 竖屏：窗口宽度 < 520vp 单栏，≥ 520vp 分栏（Auto 模式阈值）
-      this.navMode = this.windowWidthVp < 520
-        ? NavigationMode.Stack
-        : NavigationMode.Split
+    try {
+      const orientation = display.getDefaultDisplaySync().orientation
+      const isLandscape = orientation === display.Orientation.LANDSCAPE ||
+        orientation === display.Orientation.LANDSCAPE_INVERTED
+      if (isLandscape) {
+        // 横屏：分屏（WindowStatusType=4）强制单栏，否则分栏
+        this.navMode = (this.currentWindowStatusType === 4)
+          ? NavigationMode.Stack
+          : NavigationMode.Split
+      } else {
+        // 竖屏：窗口宽度 < 520vp 单栏，≥ 520vp 分栏（Auto 模式阈值）
+        this.navMode = this.windowWidthVp < 520
+          ? NavigationMode.Stack
+          : NavigationMode.Split
+      }
+    } catch (_e) {
+      // 获取屏幕方向失败时保持当前模式
     }
   }
 

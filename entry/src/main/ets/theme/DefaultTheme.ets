@@ -83,6 +83,7 @@ export class DefaultTheme implements Theme {
   qrCodeBg: Color = Color.White
   roleCardServerBg: Resource = $r('app.color.role_card_server_bg')
   roleCardStatBg: Resource = $r('app.color.role_card_stat_bg')
+  widgetCardBg: Resource = $r('app.color.widget_card_bg')
 
   // ---- AppFont ----
   body10: Font = makeFont(11, FontWeight.Normal)
@@ -102,6 +103,7 @@ export class DefaultTheme implements Theme {
   value1: number = 1
   value1p5: number = 1.5
   value2: number = 2
+  value3: number = 3
   value4: number = 4
   value5: number = 5
   value8: number = 8
@@ -109,6 +111,7 @@ export class DefaultTheme implements Theme {
   value10: number = 10
   value11: number = 11
   value12: number = 12
+  value13: number = 13
   value14: number = 14
   value15: number = 15
   value16: number = 16

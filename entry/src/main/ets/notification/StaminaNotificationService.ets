@@ -13,6 +13,8 @@ import { StaminaThresholdCalculator } from './StaminaThresholdCalculator';
 import { NotificationSettingsStore } from './NotificationSettingsStore';
 import { NotificationStateStore } from './NotificationStateStore';
 import { NotificationStateEntry, NotificationStyle, GameStaminaConstants } from './NotificationModels';
+import { WidgetDataBuilder } from '../widget/utils/WidgetDataBuilder';
+import { WidgetFormIdStore } from '../widget/utils/WidgetFormIdStore';
 
 const TAG: string = 'StaminaNotificationService';
 const BUNDLE_NAME: string = 'com.cainluo.miyoyo.tools';
@@ -40,6 +42,8 @@ export class StaminaNotificationService {
     this.context = context;
     await NotificationSettingsStore.instance().init(context);
     await NotificationStateStore.instance().init(context);
+    // 初始化 WidgetFormIdStore，使主进程能够读取 formId 并推送卡片更新
+    await WidgetFormIdStore.init(context);
     Logger.info(TAG, 'init done');
   }
 
@@ -70,6 +74,28 @@ export class StaminaNotificationService {
   }
 
   async onDailyNotesSynced(): Promise<void> {
+    // Widget 数据推送不依赖通知设置，始终执行
+    try {
+      const accounts = await CoreInitializer.bbsRepository.getAllAccounts();
+      for (let ai = 0; ai < accounts.length; ai++) {
+        const account = accounts[ai];
+        // 推送 Widget 数据（先重新加载 formId 列表，确保读到最新数据）
+        WidgetFormIdStore.init(this.context!, true).then(() => {
+          WidgetDataBuilder.buildAndPushForAccount(account.uid).catch((e: Error | object) => {
+            const msg = e instanceof Error ? e.message : `${e}`;
+            Logger.warn(TAG, `widget push failed for ${account.uid}: ${msg}`);
+          });
+        }).catch((e: Error | object) => {
+          const msg = e instanceof Error ? e.message : `${e}`;
+          Logger.warn(TAG, `widget formId reload failed: ${msg}`);
+        });
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : `${e}`;
+      Logger.warn(TAG, `widget push in onDailyNotesSynced failed: ${msg}`);
+    }
+
+    // 通知调度依赖通知设置，检查后执行
     const globalSettings = await NotificationSettingsStore.instance().loadGlobal();
     if (!globalSettings.enabled) {
       return;

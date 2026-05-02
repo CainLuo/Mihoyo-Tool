@@ -91,6 +91,25 @@ export struct My {
           }
         })
 
+        SectionHeader({ title: $r('app.string.my_section_widget') })
+        Column() {
+          SettingRow({
+            label: $r('app.string.my_section_widget'),
+            onTap: () => {
+              const accounts = this.vm.accounts;
+              if (this.isSplit) {
+                this.detailStack.replacePath({ name: AppRoutes.WIDGET_SETTINGS, param: accounts })
+              } else {
+                this.detailStack.pushPathByName(AppRoutes.WIDGET_SETTINGS, accounts)
+              }
+            }
+          })
+        }
+        .width(this.tm.current.full)
+        .backgroundColor(this.tm.current.colorSurfaceCard)
+        .borderRadius(this.tm.current.radius12)
+        .clip(true)
+
         SectionHeader({ title: $r('app.string.my_section_notification') })
         Column() {
           SettingRow({
