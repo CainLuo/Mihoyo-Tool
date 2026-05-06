@@ -3,6 +3,8 @@
  *
  * 只显示圆点+连接线，不显示文字标签，节省空间。
  * 新流程：SIZE → SLOT → DONE（3 步）
+ *
+ * 适配 Light/Dark Mode：未激活圆圈使用半透明边框，确保浅色模式下可见。
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { WidgetConfigStep } from '../../viewmodel/WidgetConfigViewModel';
@@ -37,7 +39,7 @@ export struct WidgetStepIndicator {
         .border({
           width: 2,
           color: this.isStepDone(idx) || this.isCurrentStep(idx) ?
-            this.tm.current.colorPrimary : this.tm.current.colorDivider
+            this.tm.current.colorPrimary : 'rgba(255, 255, 255, 0.3)'
         })
         .justifyContent(FlexAlign.Center)
       }, (_: Object, idx: number) => `step-${idx}`)

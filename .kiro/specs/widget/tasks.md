@@ -14,6 +14,7 @@
 | 8 | 更新 EntryFormAbility | P1 | done |
 | 9 | 数据同步集成 | P1 | done |
 | 10 | 测试验证 | P1 | pending |
+| 11 | v1.1 Payload 格式迁移 | P0 | in-progress |
 
 ---
 
@@ -336,3 +337,146 @@
 - [ ] 配置页面交互
 - [ ] 预览正确性
 - [ ] Widget 点击跳转
+
+---
+
+## Phase 11: v1.1 Payload 格式迁移 🔄
+
+### 背景说明
+
+旧格式（已废弃）：
+```json
+{
+  "slotCount": "2",
+  "widgetSize": "2x2",
+  "slot0Json": "...",
+  "slot0GameId": "genshin",
+  "slot1Json": "...",
+  "slot1GameId": "starrail"
+}
+```
+
+新格式（v1.1 设计规范）：
+```json
+{
+  "payload": "{\"version\":1,\"updatedAt\":1715040000,\"accounts\":[...]}"
+}
+```
+
+### Task 11.1: 创建 WidgetPayloadParser ✅
+
+**文件**: `entry/src/main/ets/widget/utils/WidgetPayloadParser.ets` ✅
+
+**内容**:
+- `ParsedPayload` 类 — 解析后的完整 payload
+- `ParsedAccount` 类 — 账号数据
+- `ParsedGame` 类 — 游戏数据
+- `ParsedRole` 类 — 角色数据（含体力解析）
+- `parsePayload()` 函数 — 解析 payload JSON
+
+**注意事项**:
+- ArkTS 严格模式禁止使用 `ESObject` 和 `any` 类型
+- 所有 JSON.parse() 结果必须显式类型断言
+- 使用 `as PayloadJson` 等接口类型
+
+---
+
+### Task 11.2: 更新 WidgetPayloadBuilder ✅
+
+**文件**: `entry/src/main/ets/widget/utils/WidgetPayloadBuilder.ets` ✅
+
+**内容**:
+- `WidgetPayloadItem` 类 — 新 payload 结构
+- `WidgetAccountPayloadItem` 类
+- `WidgetGamePayloadItem` 类
+- `WidgetRolePayloadItem` 类
+- `toLocalStorageRecord()` — 输出单一 `payload` 字段
+
+**注意事项**:
+- 对象字面量必须显式类型（`const record: Record<string, string> = {}`）
+- 禁止直接返回 `{ 'payload': ... }`
+
+---
+
+### Task 11.3: 更新 WidgetCardContent ✅
+
+**文件**: `entry/src/main/ets/widget/components/WidgetCardContent.ets` ✅
+
+**内容**:
+- 接收 `payloadJson: string` prop（从父组件传入）
+- 使用 `parsePayload()` 解析
+- 使用 `parseSlotJson()` 解析游戏专属数据
+- 根据 `isSingleGame` 和角色数量选择渲染方式
+
+**注意事项**:
+- 不再使用 `@LocalStorageProp`，改为普通 prop
+- 父组件负责从 `@LocalStorageProp('payload')` 读取并传入
+
+---
+
+### Task 11.4: 更新 Widget 页面 ✅
+
+**文件**:
+- `entry/src/main/ets/widget/pages/Widget2x2.ets` ✅
+- `entry/src/main/ets/widget/pages/Widget2x4.ets` ✅
+- `entry/src/main/ets/widget/pages/Widget4x4.ets` ✅
+- `entry/src/main/ets/widget/pages/Widget1x2Genshin.ets` ✅
+- `entry/src/main/ets/widget/pages/Widget1x2StarRail.ets` ✅
+- `entry/src/main/ets/widget/pages/Widget1x2ZZZ.ets` ✅
+
+**内容**:
+- 使用 `@LocalStorageProp('payload')` 接收单一 JSON
+- 传递给 `WidgetCardContent` 或 `WidgetSlotRenderer`
+
+---
+
+### Task 11.5: 删除旧格式代码 ✅
+
+**已删除**:
+- 所有 `slot0Json`、`slot1Json`、`slot2Json` 字段
+- 所有 `slot0GameId`、`slot1GameId`、`slot2GameId` 字段
+- `slotCount` 字段
+- 旧格式兼容代码
+
+---
+
+### Task 11.6: 修复 ArkTS 严格模式编译错误 ⏳
+
+**编译错误**（已修复）:
+1. ✅ `ESObject` 类型限制 — 改用显式接口类型
+2. ✅ `any` 类型禁止 — 改用显式类型断言
+3. ✅ 对象字面量无类型 — 声明变量后赋值
+
+**待验证**:
+- [ ] 编译通过
+- [ ] Widget 显示正确
+- [ ] 1x2 单游戏卡片正常
+- [ ] 2x2 多游戏卡片正常
+- [ ] 2x4 卡片正常
+- [ ] 4x4 卡片正常
+
+---
+
+### 调试笔记
+
+**问题**: 所有 Widget 不显示内容
+
+**排查步骤**:
+1. 检查 `WidgetPayloadBuilder.toLocalStorageRecord()` 输出
+2. 检查 `parsePayload()` 解析结果
+3. 检查 `WidgetCardContent.buildSlotData()` 传参
+4. 检查 `parseSlotJson()` 解析游戏数据
+
+**关键数据流**:
+```
+FormExtension
+  → WidgetPayloadBuilder.buildPayload()
+  → WidgetPayload.toLocalStorageRecord()
+  → { 'payload': JSON.stringify(...) }
+  → LocalStorage
+  → @LocalStorageProp('payload')
+  → WidgetCardContent({ payloadJson })
+  → parsePayload(payloadJson)
+  → ParsedPayload
+  → WidgetSlotRenderer({ data })
+```

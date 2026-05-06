@@ -299,23 +299,44 @@ onUpdateForm 被调用（定时/系统触发）
 
 ## 四、LocalStorage Payload 结构
 
+### v1.1 新格式（当前使用）
+
 传递给 Widget 组件的数据结构：
+
+```json
+{
+  "payload": "{\"version\":1,\"updatedAt\":1715040000,\"accounts\":[{\"accountId\":\"348366494\",\"accountName\":\"旅行者A\",\"games\":[{\"gameId\":\"genshin\",\"roles\":[{\"roleId\":\"250375401\",\"nickname\":\"荧\",\"server\":\"cn_gf01\",\"rawJson\":\"{\\\"retcode\\\":0,\\\"data\\\":{...}}\"}]}]}]}"
+}
+```
+
+Widget 组件：
+1. 解析 `payload` 获取 `ParsedPayload` 对象
+2. 遍历 `accounts[i].games[j].roles[k]` 获取角色数据
+3. 从 `rawJson` 解析游戏专属数据（原神/星铁/绝区零）
+
+### 解析器
+
+**WidgetPayloadParser.ets**:
+- `parsePayload(payloadJson: string): ParsedPayload`
+- `ParsedPayload` 类包含 `accounts: ParsedAccount[]`
+- `ParsedRole` 自动检测游戏类型并解析体力数据
+
+**WidgetSlotDataParser.ets**:
+- `parseSlotJson(slotJson: string): ParsedSlotData`
+- 解析 `rawJson` 中的游戏专属字段
+
+### 旧格式（已废弃，不再支持）
 
 ```json
 {
   "slotCount": "2",
   "widgetSize": "2x2",
-  "slot0Json": "{\"accountId\":\"348366494\",\"accountName\":\"旅行者A\",\"gameId\":\"genshin\",\"roleId\":\"250375401\",\"nickname\":\"荧\",\"server\":\"cn_gf01\",\"rawJson\":\"{\\\"retcode\\\":0,\\\"data\\\":{...}}\"}",
-  "slot0GameId": "genshin",
-  "slot1Json": "...",
-  "slot1GameId": "genshin"
+  "slot0Json": "...",
+  "slot0GameId": "genshin"
 }
 ```
 
-Widget 组件：
-1. 解析 `slot{N}Json` 获取 rawJson
-2. 根据 `slot{N}GameId` 选择对应的 Parser
-3. 调用 Parser 解析 rawJson 获取渲染数据
+旧格式相关代码已全部删除，不再兼容。
 
 ## 五、配置页面设计
 

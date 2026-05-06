@@ -14,7 +14,7 @@ import { RdbManager, Logger } from 'core';
 import { WidgetConfigStore } from '../widget/utils/WidgetConfigStore';
 import { WidgetDataStoreManager } from '../widget/utils/WidgetDataStoreManager';
 import { WidgetDataStoreBuilder } from '../widget/utils/WidgetDataStoreBuilder';
-import { WidgetPayloadBuilder } from '../widget/utils/WidgetPayloadBuilder';
+import { WidgetPayloadBuilder, WidgetPayloadItem } from '../widget/utils/WidgetPayloadBuilder';
 import { WidgetConfig, WidgetSize, getMaxSlots } from '../widget/models/WidgetConfig';
 import { WidgetDataStore } from '../widget/models/WidgetDataStore';
 
@@ -147,7 +147,7 @@ export default class EntryFormAbility extends FormExtensionAbility {
       const record = payload.toLocalStorageRecord();
       const formBinding = formBindingData.createFormBindingData(record);
       await formProvider.updateForm(formId, formBinding);
-      Logger.info(TAG, `pushUpdateWithData success: formId=${formId} slots=${payload.slotCount}`);
+      Logger.info(TAG, `pushUpdateWithData success: formId=${formId} accounts=${payload.accounts.length}`);
     } catch (e) {
       const err = e as BusinessError;
       Logger.error(TAG, `pushUpdateWithData failed: code=${err.code} msg=${err.message}`);
@@ -156,9 +156,12 @@ export default class EntryFormAbility extends FormExtensionAbility {
 
   /** 创建占位数据 */
   private createPlaceholderData(config: WidgetConfig): formBindingData.FormBindingData {
+    const emptyPayload = new WidgetPayloadItem();
+    emptyPayload.version = 1;
+    emptyPayload.updatedAt = 0;
+    emptyPayload.accounts = [];
     const data: Record<string, string> = {};
-    data['widgetSize'] = config.size;
-    data['slotCount'] = '0';
+    data['payload'] = JSON.stringify(emptyPayload);
     return formBindingData.createFormBindingData(data);
   }
 

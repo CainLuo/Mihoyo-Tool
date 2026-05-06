@@ -3,11 +3,10 @@
  *
  * 从 WidgetDataStore + WidgetConfig 构建传递给 Widget 组件的 LocalStorage payload。
  *
- * 职责：
- * 1. 根据 Widget 尺寸确定 slots 数量
- * 2. 从 WidgetConfig 读取用户选择的 slots，或使用默认行为
- * 3. 从 WidgetDataStore 提取对应的 rawJson
- * 4. 构建符合 Widget 组件预期的 LocalStorage 格式
+ * v1.1 设计规范（design.md）：
+ * - 输出单一 JSON payload，包含完整的 accounts 结构
+ * - 每个 account 包含 games 数组，每个 game 包含 roles 数组
+ * - 每个 role 包含 roleId、nickname、server、rawJson
  */
 
 import { Logger } from 'core';
@@ -18,35 +17,39 @@ import { WidgetSlotRef } from '../models/WidgetDataStore';
 const TAG = 'WidgetPayloadBuilder';
 
 /**
- * 单个 Slot 的完整数据（含 rawJson）
+ * 角色 Payload
  */
-export class WidgetSlotData {
-  /** 米游社账号 UID */
-  accountId: string = '';
-  /** 账号昵称 */
-  accountName: string = '';
-  /** 游戏 ID */
-  gameId: string = '';
-  /** 游戏内 UID */
+export class WidgetRolePayloadItem {
   roleId: string = '';
-  /** 游戏内昵称 */
   nickname: string = '';
-  /** 服务器大区标识 */
   server: string = '';
-  /** API 原始响应 JSON 字符串 */
   rawJson: string = '';
+}
 
-  toJson(): string {
-    return JSON.stringify({
-      accountId: this.accountId,
-      accountName: this.accountName,
-      gameId: this.gameId,
-      roleId: this.roleId,
-      nickname: this.nickname,
-      server: this.server,
-      rawJson: this.rawJson,
-    });
-  }
+/**
+ * 游戏 Payload
+ */
+export class WidgetGamePayloadItem {
+  gameId: string = '';
+  roles: WidgetRolePayloadItem[] = [];
+}
+
+/**
+ * 账号 Payload
+ */
+export class WidgetAccountPayloadItem {
+  accountId: string = '';
+  accountName: string = '';
+  games: WidgetGamePayloadItem[] = [];
+}
+
+/**
+ * 完整的 Payload 结构
+ */
+export class WidgetPayloadItem {
+  version: number = 1;
+  updatedAt: number = 0;
+  accounts: WidgetAccountPayloadItem[] = [];
 }
 
 /**
@@ -55,35 +58,25 @@ export class WidgetSlotData {
 export class WidgetPayload {
   /** Widget 尺寸 */
   widgetSize: string = '';
-  /** Slot 数量 */
-  slotCount: number = 0;
-  /** Slot 数据数组 */
-  slots: WidgetSlotData[] = [];
+  /** 账号数据 */
+  accounts: WidgetAccountPayloadItem[] = [];
 
   /**
    * 转换为 LocalStorage 格式的 Record
    *
-   * 输出格式：
+   * 输出格式（符合 design.md 规范）：
    * {
-   *   "widgetSize": "2x2",
-   *   "slotCount": "2",
-   *   "slot0Json": "{...}",
-   *   "slot0GameId": "genshin",
-   *   "slot1Json": "{...}",
-   *   "slot1GameId": "genshin"
+   *   "payload": "{\"version\":1,\"updatedAt\":1715040000,\"accounts\":[...]}"
    * }
    */
   toLocalStorageRecord(): Record<string, string> {
+    const payloadItem = new WidgetPayloadItem();
+    payloadItem.version = 1;
+    payloadItem.updatedAt = Math.floor(Date.now() / 1000);
+    payloadItem.accounts = this.accounts;
+
     const record: Record<string, string> = {};
-    record['widgetSize'] = this.widgetSize;
-    record['slotCount'] = `${this.slotCount}`;
-
-    for (let i = 0; i < this.slots.length; i++) {
-      const slot = this.slots[i];
-      record[`slot${i}Json`] = slot.toJson();
-      record[`slot${i}GameId`] = slot.gameId;
-    }
-
+    record['payload'] = JSON.stringify(payloadItem);
     return record;
   }
 }
@@ -99,11 +92,10 @@ export class WidgetPayloadBuilder {
   static buildPayload(config: WidgetConfig | null, dataStore: WidgetDataStore): WidgetPayload {
     const payload = new WidgetPayload();
 
-    // 确定尺寸和 slot 数量
+    // 确定尺寸
     const size = config?.size ?? WidgetSize.SIZE_2x2;
     const maxSlots = getMaxSlots(size);
     payload.widgetSize = size;
-    payload.slotCount = 0;
 
     // 无数据时返回空 payload
     if (dataStore.accounts.length === 0) {
@@ -122,26 +114,53 @@ export class WidgetPayloadBuilder {
       slots = WidgetPayloadBuilder.getDefaultSlots(dataStore, maxSlots);
     }
 
-    // 从 dataStore 提取每个 slot 的完整数据
+    // 按 accountId 分组 slots
+    const accountMap: Map<string, WidgetAccountPayloadItem> = new Map();
+
     for (let i = 0; i < slots.length && i < maxSlots; i++) {
       const slotRef = slots[i];
       const role = dataStore.getRole(slotRef.accountId, slotRef.gameId, slotRef.roleId);
 
-      if (role !== null) {
-        const slotData = new WidgetSlotData();
-        slotData.accountId = slotRef.accountId;
-        slotData.accountName = slotRef.accountName;
-        slotData.gameId = slotRef.gameId;
-        slotData.roleId = slotRef.roleId;
-        slotData.nickname = role.nickname;
-        slotData.server = role.server;
-        slotData.rawJson = role.rawJson;
-        payload.slots.push(slotData);
+      if (role === null) {
+        continue;
       }
+
+      // 获取或创建账号 Payload
+      let accountPayload = accountMap.get(slotRef.accountId);
+      if (accountPayload === undefined) {
+        accountPayload = new WidgetAccountPayloadItem();
+        accountPayload.accountId = slotRef.accountId;
+        accountPayload.accountName = slotRef.accountName;
+        accountMap.set(slotRef.accountId, accountPayload);
+      }
+
+      // 查找或创建游戏 Payload
+      let gamePayload: WidgetGamePayloadItem | undefined;
+      for (const g of accountPayload.games) {
+        if (g.gameId === slotRef.gameId) {
+          gamePayload = g;
+          break;
+        }
+      }
+      if (gamePayload === undefined) {
+        gamePayload = new WidgetGamePayloadItem();
+        gamePayload.gameId = slotRef.gameId;
+        accountPayload.games.push(gamePayload);
+      }
+
+      // 添加角色
+      const rolePayload = new WidgetRolePayloadItem();
+      rolePayload.roleId = slotRef.roleId;
+      rolePayload.nickname = role.nickname;
+      rolePayload.server = role.server;
+      rolePayload.rawJson = role.rawJson;
+      gamePayload.roles.push(rolePayload);
     }
 
-    payload.slotCount = payload.slots.length;
-    Logger.info(TAG, `buildPayload: size=${size}, slots=${payload.slotCount}`);
+    // 转换为数组
+    payload.accounts = Array.from(accountMap.values());
+
+    Logger.info(TAG, `buildPayload: size=${size}, accounts=${payload.accounts.length}, totalRoles=${slots.length}`);
 
     return payload;
   }

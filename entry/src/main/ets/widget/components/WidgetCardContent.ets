@@ -2,12 +2,10 @@
  * WidgetCardContent.ets — 多游戏卡片通用内容组件
  *
  * 2×2、2×4、4×4 三种卡片共用此组件，差异通过 cardSize 参数区分。
- * 
- * v1.1 更新：支持新的多账号混显 payload 格式
- * - 新格式：slot0Json、slot1Json、slot2Json（每个 slot 含完整的账号/游戏/角色数据）
- * - 旧格式：game0Json、game1Json、game2Json（单账号多游戏）
- * 
- * 自动检测 payload 格式并选择对应的渲染方式。
+ *
+ * v1.1 更新：
+ * - 使用单一 @LocalStorageProp('payload') 接收完整 JSON
+ * - 解析 payload 决定显示内容
  *
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
@@ -22,7 +20,21 @@ import { WidgetMultiGameCompact } from './WidgetMultiGameCompact';
 import { WidgetSlotRenderer, WidgetSlotSize } from './WidgetSlotRenderer';
 import { dailyDetailPage, WIDGET_GAME_ID } from '../utils/WidgetUtils';
 import { WidgetGameData, WidgetAccountData, WidgetSingleGameData } from '../models/WidgetModels';
-import { parseSlotJson, ParsedSlotData } from '../utils/WidgetSlotDataParser';
+import { parsePayload, ParsedPayload, ParsedRole, ParsedAccount } from '../utils/WidgetPayloadParser';
+import { ParsedSlotData, parseSlotJson } from '../utils/WidgetSlotDataParser';
+
+/**
+ * Slot JSON 数据结构（用于序列化后解析）
+ */
+class SlotJsonData {
+  gameId: string = '';
+  accountId: string = '';
+  accountName: string = '';
+  roleId: string = '';
+  nickname: string = '';
+  server: string = '';
+  rawJson: string = '';
+}
 
 /** 卡片尺寸类型，决定使用哪个单游戏/多游戏组件 */
 export enum WidgetCardSize {
@@ -38,30 +50,22 @@ export struct WidgetCardContent {
 
   cardSize: WidgetCardSize = WidgetCardSize.SIZE_2x2;
 
-  // ── 新格式：多账号混显 payload ──
-  @LocalStorageProp('widgetSize') private widgetSize: string = '';
-  @LocalStorageProp('slotCount') private slotCountStr: string = '0';
-  @LocalStorageProp('slot0Json') private slot0Json: string = '';
-  @LocalStorageProp('slot1Json') private slot1Json: string = '';
-  @LocalStorageProp('slot2Json') private slot2Json: string = '';
+  // 从父组件接收 payload
+  payloadJson: string = '';
 
-  // ── 旧格式：单账号多游戏 payload ──
-  @LocalStorageProp('accountName') private accountName: string = '';
-  @LocalStorageProp('accountUid') private accountUid: string = '';
-  @LocalStorageProp('gameCount') private gameCountStr: string = '0';
-  @LocalStorageProp('game0Id') private game0Id: string = '';
-  @LocalStorageProp('game0Json') private game0Json: string = '';
-  @LocalStorageProp('game1Id') private game1Id: string = '';
-  @LocalStorageProp('game1Json') private game1Json: string = '';
-  @LocalStorageProp('game2Id') private game2Id: string = '';
-  @LocalStorageProp('game2Json') private game2Json: string = '';
+  /** 解析后的 payload */
+  private get parsed(): ParsedPayload {
+    return parsePayload(this.payloadJson);
+  }
 
-  private get slotCount(): number { return parseInt(this.slotCountStr) || 0; }
-  private get gameCount(): number { return parseInt(this.gameCountStr) || 0; }
+  /** 获取所有角色 */
+  private get allRoles(): ParsedRole[] {
+    return this.parsed.getAllRoles();
+  }
 
-  /** 是否使用新格式（多账号混显） */
-  private get useNewFormat(): boolean {
-    return this.slotCount > 0 || this.slot0Json.length > 0;
+  /** 获取游戏 ID 列表 */
+  private get gameIds(): string[] {
+    return this.parsed.getUniqueGameIds();
   }
 
   private get ringSize(): number {
@@ -85,138 +89,126 @@ export struct WidgetCardContent {
     }
   }
 
-  // ── 旧格式数据构建 ──
-
-  private buildSingleData(): WidgetSingleGameData {
-    const d = new WidgetSingleGameData();
-    d.accountName = this.accountName;
-    d.accountUid = this.accountUid;
-    d.game = WidgetGameData.fromJson(this.game0Json);
-    Logger.info('WidgetCardContent', `buildSingleData: gameId=${d.game.gameId} currentStr=${d.game.currentStr} maxStr=${d.game.maxStr}`);
-    return d;
-  }
-
-  private buildMultiData(): WidgetAccountData {
-    const acc = new WidgetAccountData();
-    acc.accountName = this.accountName;
-    acc.accountUid = this.accountUid;
-    acc.gameCount = this.gameCount;
-    acc.games.push(WidgetGameData.fromJson(this.game0Json));
-    if (this.gameCount >= 2) { acc.games.push(WidgetGameData.fromJson(this.game1Json)); }
-    if (this.gameCount >= 3) { acc.games.push(WidgetGameData.fromJson(this.game2Json)); }
-    return acc;
-  }
-
-  // ── 新格式数据解析 ──
-
-  private parseSlot(json: string): ParsedSlotData {
-    return parseSlotJson(json);
-  }
-
-  private get parsedSlots(): ParsedSlotData[] {
-    const slots: ParsedSlotData[] = [];
-    if (this.slot0Json.length > 0) { slots.push(this.parseSlot(this.slot0Json)); }
-    if (this.slotCount >= 2 && this.slot1Json.length > 0) { slots.push(this.parseSlot(this.slot1Json)); }
-    if (this.slotCount >= 3 && this.slot2Json.length > 0) { slots.push(this.parseSlot(this.slot2Json)); }
-    return slots;
-  }
-
   /** 供 @Entry 的 onClick 使用 */
   get targetPage(): string {
-    if (this.useNewFormat) {
-      const slots = this.parsedSlots;
-      if (slots.length === 1) {
-        return dailyDetailPage(slots[0].gameId);
-      }
-      return 'Main';
+    if (this.parsed.isSingleGame && this.gameIds.length > 0) {
+      return dailyDetailPage(this.gameIds[0]);
     }
-    return this.gameCount === 1 ? dailyDetailPage(this.game0Id) : 'Main';
+    return 'Main';
   }
 
   build() {
     Column() {
-      if (this.useNewFormat) {
-        // ── 新格式：多账号混显 ──
-        this.buildNewFormatContent();
+      if (this.allRoles.length === 0) {
+        // 未配置账号时显示占位提示
+        Column() {
+          Text($r('app.string.widget_no_account'))
+            .fontSize(themeManager.current.value13)
+            .fontColor($r('app.color.text_on_dark_secondary'))
+            .textAlign(TextAlign.Center)
+            .maxLines(2)
+            .textOverflow({ overflow: TextOverflow.Ellipsis })
+        }
+        .width(this.tm.current.full)
+        .height(this.tm.current.full)
+        .justifyContent(FlexAlign.Center)
+        .alignItems(HorizontalAlign.Center)
+      } else if (this.parsed.isSingleGame && this.allRoles.length === 1) {
+        // 单角色：使用 WidgetSlotRenderer
+        WidgetSlotRenderer({
+          data: this.buildSlotData(this.allRoles[0]),
+          slotSize: this.slotSize,
+        })
+      } else if (this.parsed.isSingleGame) {
+        // 单游戏多角色：使用旧组件
+        this.buildSingleGameMultiRoleContent()
       } else {
-        // ── 旧格式：单账号多游戏 ──
-        this.buildOldFormatContent();
+        // 多游戏：使用 Column 布局渲染多个 WidgetSlotRenderer
+        Column({ space: themeManager.current.value8 }) {
+          ForEach(this.allRoles, (role: ParsedRole, idx: number) => {
+            WidgetSlotRenderer({
+              data: this.buildSlotData(role),
+              slotSize: WidgetSlotSize.SIZE_1x2, // 多游戏时使用紧凑布局
+            })
+          })
+        }
+        .width(this.tm.current.full)
+        .height(this.tm.current.full)
+        .justifyContent(FlexAlign.SpaceEvenly)
       }
     }
     .width(this.tm.current.full)
     .height(this.tm.current.full)
   }
 
+  /** 构建 WidgetSlotRenderer 所需的数据 */
+  private buildSlotData(role: ParsedRole): ParsedSlotData {
+    // 构建 slot JSON 格式，然后用 parseSlotJson 解析（它会自动解析 rawJson 中的游戏专属数据）
+    const slotJsonObj: SlotJsonData = new SlotJsonData();
+    slotJsonObj.gameId = this.gameIds.length > 0 ? this.gameIds[0] : '';
+    slotJsonObj.accountId = '';
+    slotJsonObj.accountName = '';
+    slotJsonObj.roleId = role.roleId;
+    slotJsonObj.nickname = role.nickname;
+    slotJsonObj.server = role.server;
+    slotJsonObj.rawJson = role.rawJson;
+    return parseSlotJson(JSON.stringify(slotJsonObj));
+  }
+
+  /** 构建单游戏多角色内容（使用旧组件） */
   @Builder
-  private buildNewFormatContent(): void {
-    if (this.parsedSlots.length === 0) {
-      // 未配置账号时显示占位提示
-      Column() {
-        Text($r('app.string.widget_no_account'))
-          .fontSize(themeManager.current.value13)
-          .fontColor($r('app.color.text_on_dark_secondary'))
-          .textAlign(TextAlign.Center)
-          .maxLines(2)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
-      }
-      .width(this.tm.current.full)
-      .height(this.tm.current.full)
-      .justifyContent(FlexAlign.Center)
-      .alignItems(HorizontalAlign.Center)
-    } else if (this.parsedSlots.length === 1) {
-      // 单 Slot：使用新的 WidgetSlotRenderer
-      WidgetSlotRenderer({
-        data: this.parsedSlots[0],
-        slotSize: this.slotSize,
-      })
+  private buildSingleGameMultiRoleContent(): void {
+    if (this.cardSize === WidgetCardSize.SIZE_4x4) {
+      Widget4x4MultiGame({ data: this.buildMultiRoleData() })
     } else {
-      // 多 Slot：使用 Column 布局渲染多个 WidgetSlotRenderer
-      // TODO: 后续可优化为多 Slot 布局
-      Column({ space: themeManager.current.value8 }) {
-        ForEach(this.parsedSlots, (slot: ParsedSlotData, idx: number) => {
-          WidgetSlotRenderer({
-            data: slot,
-            slotSize: WidgetSlotSize.SIZE_1x2, // 多 Slot 时使用紧凑布局
-          })
-        })
-      }
-      .width(this.tm.current.full)
-      .height(this.tm.current.full)
-      .justifyContent(FlexAlign.SpaceEvenly)
+      WidgetMultiGameCompact({ data: this.buildMultiRoleData(), ringSize: this.ringSize })
     }
   }
 
-  @Builder
-  private buildOldFormatContent(): void {
-    if (this.gameCount === 0) {
-      // 未配置账号时显示占位提示
-      Column() {
-        Text($r('app.string.widget_no_account'))
-          .fontSize(themeManager.current.value13)
-          .fontColor($r('app.color.text_on_dark_secondary'))
-          .textAlign(TextAlign.Center)
-          .maxLines(2)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
+  /** 构建多角色数据 */
+  private buildMultiRoleData(): WidgetAccountData {
+    const acc = new WidgetAccountData();
+    const firstAccount = this.parsed.firstAccount;
+
+    if (firstAccount !== null) {
+      acc.accountName = firstAccount.accountName;
+      acc.accountUid = firstAccount.accountId;
+    }
+
+    acc.gameCount = this.gameIds.length;
+
+    for (const gameId of this.gameIds) {
+      const gameData = new WidgetGameData();
+      gameData.gameId = gameId;
+
+      // 从第一个匹配游戏类型的角色获取体力数据
+      const role = this.findRoleByGameId(gameId);
+
+      if (role !== null) {
+        gameData.currentStr = role.currentStamina.toString();
+        gameData.maxStr = role.maxStamina.toString();
       }
-      .width(this.tm.current.full)
-      .height(this.tm.current.full)
-      .justifyContent(FlexAlign.Center)
-      .alignItems(HorizontalAlign.Center)
-    } else if (this.gameCount === 1) {
-      if (this.cardSize === WidgetCardSize.SIZE_4x4) {
-        Widget4x4SingleGame({ data: this.buildSingleData() })
-      } else if (this.cardSize === WidgetCardSize.SIZE_2x4) {
-        Widget2x4SingleGame({ data: this.buildSingleData() })
-      } else {
-        Widget2x2SingleGame({ data: this.buildSingleData() })
+
+      acc.games.push(gameData);
+    }
+
+    return acc;
+  }
+
+  /** 根据游戏 ID 查找角色 */
+  private findRoleByGameId(gameId: string): ParsedRole | null {
+    for (const role of this.allRoles) {
+      if (gameId === WIDGET_GAME_ID.GENSHIN && role.isGenshin()) {
+        return role;
       }
-    } else {
-      if (this.cardSize === WidgetCardSize.SIZE_4x4) {
-        Widget4x4MultiGame({ data: this.buildMultiData() })
-      } else {
-        WidgetMultiGameCompact({ data: this.buildMultiData(), ringSize: this.ringSize })
+      if (gameId === WIDGET_GAME_ID.STARRAIL && role.isStarRail()) {
+        return role;
+      }
+      if (gameId === WIDGET_GAME_ID.ZZZ && role.isZZZ()) {
+        return role;
       }
     }
+    return null;
   }
 }
 

@@ -4,7 +4,22 @@
 
 ## 当前进度
 
-所有核心任务已完成，构建验证通过（`BUILD SUCCESSFUL`）。
+核心功能已完成，需要构建验证。
+
+### 最近修复（2026-05-06）
+
+1. **WidgetStepIndicator Light Mode 适配**
+   - 未激活圆圈边框颜色改为 `rgba(255, 255, 255, 0.3)`
+   - 确保浅色模式下圆圈可见
+
+2. **Widget2x2 新格式支持**
+   - 添加新格式字段：`slot0Json`、`slot1Json`、`slot2Json`
+   - 解析新格式数据获取游戏 ID 列表
+   - 正确渲染渐变背景
+
+3. **build-profile.json5 签名配置修复**
+   - 启用 `default` 签名配置（用于 mock/debug）
+   - 将绝对路径改为相对路径
 
 ### 已完成的 Phase
 
