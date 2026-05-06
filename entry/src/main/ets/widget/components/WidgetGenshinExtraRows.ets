@@ -52,6 +52,7 @@ export struct WidgetGenshinExtraRows {
       })
     }
     .width(this.tm.current.full)
+    .height(this.tm.current.full)
     .justifyContent(FlexAlign.SpaceEvenly)
   }
 }

@@ -26,10 +26,30 @@ import { SyncTask } from '../models/SyncTask';
 
 export { SyncTask } from '../models/SyncTask';
 
+/** 同步完成回调类型 */
+export type SyncCompleteCallback = () => Promise<void>;
+
 export class SyncQueueRunner {
   private static syncMetaDao: SyncMetaDao = new SyncMetaDao();
   /** 防止并发执行 */
   private static isRunning: boolean = false;
+  /** 同步完成回调列表（用于 Widget 数据刷新等） */
+  private static onCompleteCallbacks: SyncCompleteCallback[] = [];
+
+  /**
+   * 注册同步完成回调
+   * 回调会在所有任务执行完毕后按注册顺序依次调用
+   */
+  static registerOnComplete(callback: SyncCompleteCallback): void {
+    SyncQueueRunner.onCompleteCallbacks.push(callback);
+  }
+
+  /**
+   * 清除所有同步完成回调
+   */
+  static clearOnCompleteCallbacks(): void {
+    SyncQueueRunner.onCompleteCallbacks = [];
+  }
 
   /**
    * 把一批任务写入队列（status='pending'）
@@ -145,6 +165,15 @@ export class SyncQueueRunner {
           await SyncQueueRunner.executeTask(t);
         } catch (_) {
           // 单个任务失败不影响其他任务，状态已在 executeTask 里标记为 failed
+        }
+      }
+
+      // 所有任务执行完毕后，调用注册的回调
+      for (let i = 0; i < SyncQueueRunner.onCompleteCallbacks.length; i++) {
+        try {
+          await SyncQueueRunner.onCompleteCallbacks[i]();
+        } catch (_) {
+          // 回调失败不影响其他回调
         }
       }
     } finally {

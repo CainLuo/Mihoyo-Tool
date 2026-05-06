@@ -1,13 +1,16 @@
 /**
  * Widget4x4MultiGame.ets — 4×4 多游戏布局
  *
- * 顶部账号名行 + 2~3 个游戏区块（WidgetMultiGameBlock），区块间用分割线隔开。
+ * 严格按原型 wr-4x4.js 多游戏分支实现：
+ * - 顶部：账号名 + UID（固定高度）
+ * - 每个游戏区块（flex:1 均分）：游戏名+体力数字+恢复时间 + 数据行
+ * - 区块间：1px 细分割线
+ *
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { WidgetMultiGameBlock } from './WidgetMultiGameBlock';
-
 import { WidgetAccountData, WidgetGameData } from '../models/WidgetModels';
 
 @Component
@@ -25,31 +28,40 @@ export struct Widget4x4MultiGame {
   }
 
   build() {
-    Column({ space: 0 }) {
+    Column() {
+      // 顶部：账号名 + UID（固定高度，带底部分割线）
       Row({ space: themeManager.current.value8 }) {
         Text(this.displayName)
-          .fontSize(themeManager.current.value13)
+          .fontSize(themeManager.current.value12)
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_on_dark_high'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
+          .layoutWeight(1)
 
         Text(this.data.accountUid)
-          .fontSize(themeManager.current.value11)
+          .fontSize(themeManager.current.value10)
           .fontColor($r('app.color.text_on_dark_muted'))
       }
-      .margin({ bottom: this.tm.current.value8 })
+      .width(this.tm.current.full)
+      .padding({ bottom: themeManager.current.value8 })
+      .border({ width: { bottom: 1 }, color: $r('app.color.surface_inactive_border') })
+      .flexShrink(0)
 
-      Column({ space: 0 }) {
+      // 游戏区块列表（均分剩余高度）
+      Column() {
         WidgetMultiGameBlock({
           game: this.gameAt(0),
           totalGameCount: this.data.gameCount
         })
 
         if (this.data.gameCount >= 2) {
-          Divider()
-            .color($r('app.color.surface_inactive_border'))
-            .margin({ top: this.tm.current.value4, bottom: this.tm.current.value4 })
+          Column()
+            .width(this.tm.current.full)
+            .height(themeManager.current.value1)
+            .backgroundColor($r('app.color.surface_inactive_border'))
+            .opacity(0.5)
+            .flexShrink(0)
 
           WidgetMultiGameBlock({
             game: this.gameAt(1),
@@ -58,9 +70,12 @@ export struct Widget4x4MultiGame {
         }
 
         if (this.data.gameCount >= 3) {
-          Divider()
-            .color($r('app.color.surface_inactive_border'))
-            .margin({ top: this.tm.current.value4, bottom: this.tm.current.value4 })
+          Column()
+            .width(this.tm.current.full)
+            .height(themeManager.current.value1)
+            .backgroundColor($r('app.color.surface_inactive_border'))
+            .opacity(0.5)
+            .flexShrink(0)
 
           WidgetMultiGameBlock({
             game: this.gameAt(2),
@@ -69,7 +84,7 @@ export struct Widget4x4MultiGame {
         }
       }
       .layoutWeight(1)
-      .justifyContent(FlexAlign.SpaceEvenly)
+      .width(this.tm.current.full)
     }
     .width(this.tm.current.full)
     .height(this.tm.current.full)
@@ -87,7 +102,7 @@ struct Widget4x4MultiGamePreview {
     .padding(12)
     .width(352)
     .height(352)
-    .backgroundColor('#2E3033')
+    .backgroundColor('#181820')
     .borderRadius(16)
   }
 }

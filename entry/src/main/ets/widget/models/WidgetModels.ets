@@ -30,7 +30,8 @@ export class WidgetGameData {
   taskAllReceived: string = 'false';
   transformerStr: string = 'false';
   expeditionMaxStr: string = '5';
-  expeditionFlagsStr: string = '';
+  /** 已完成的派遣数量 */
+  expeditionFinishedStr: string = '0';
 
   // ---- 星铁专属 ----
   reserveStr: string = '-1';
@@ -76,7 +77,7 @@ export class WidgetGameData {
       if (obj.taskAllReceived !== undefined) { d.taskAllReceived = obj.taskAllReceived; }
       if (obj.transformerStr !== undefined) { d.transformerStr = obj.transformerStr; }
       if (obj.expeditionMaxStr !== undefined) { d.expeditionMaxStr = obj.expeditionMaxStr; }
-      if (obj.expeditionFlagsStr !== undefined) { d.expeditionFlagsStr = obj.expeditionFlagsStr; }
+      if (obj.expeditionFinishedStr !== undefined) { d.expeditionFinishedStr = obj.expeditionFinishedStr; }
       if (obj.reserveStr !== undefined) { d.reserveStr = obj.reserveStr; }
       if (obj.trainStr !== undefined) { d.trainStr = obj.trainStr; }
       if (obj.trainMaxStr !== undefined) { d.trainMaxStr = obj.trainMaxStr; }

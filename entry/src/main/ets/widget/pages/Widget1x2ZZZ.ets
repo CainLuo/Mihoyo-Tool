@@ -1,5 +1,7 @@
 /**
  * Widget1x2ZZZ.ets — 绝区零 1×2 迷你卡片
+ *
+ * v1.1 设计：游戏主题色渐变背景
  */
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
@@ -34,8 +36,11 @@ struct Widget1x2ZZZ {
     }
     .width(this.tm.current.full)
     .height(this.tm.current.full)
-    .padding(this.tm.current.value12)
-    .backgroundColor(this.tm.current.widgetCardBg)
+    .padding({
+      left: this.tm.current.value12,
+      right: this.tm.current.value12
+    })
+    .linearGradient({ angle: this.tm.current.a135, colors: [['#1e1a0e', 0], ['#2a2010', 0.5], ['#342810', 1]] })
     .borderRadius(this.tm.current.radius16)
     .onClick(() => {
       postCardAction(this, {

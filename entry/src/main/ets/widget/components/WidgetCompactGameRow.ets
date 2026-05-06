@@ -1,114 +1,178 @@
 /**
- * WidgetCompactGameRow.ets — 多游戏精简行组件
+ * WidgetCompactGameRow.ets — 多游戏精简行
  *
- * 2×2 多游戏模式和 2×4 多游戏模式共用的单行布局：
- * 小进度环 + 数值 + 游戏名 + 右侧额外数据（宝钱/后备体力/活跃度）
+ * 严格按原型实现：
+ * - 2×2：竖线（3vp 宽）+ 中间列（游戏名 + 体力数字） + 右侧列（恢复时间）
+ * - 2×4（2 游戏）：小环（36vp）+ 中间列（游戏名 + 体力数字 + 恢复时间） + 右侧列（额外数据）
+ * - 2×4（3 游戏）：更小环（24vp）+ 中间列（游戏名 + 体力数字 + 恢复时间） + 右侧列（恢复时间）
  *
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
-
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { calcIsFull, calcRatio, gameColorRes, gameNameRes, parseCurrent, parseMax, formatRecoveryDesc, WIDGET_GAME_ID } from '../utils/WidgetUtils';
 import { WidgetGameData } from '../models/WidgetModels';
+
+class ExtraDataItem {
+  label: ResourceStr = '';
+  value: string = '';
+  color: ResourceColor = Color.White;
+}
 
 @Component
 export struct WidgetCompactGameRow {
   private tm: ThemeManager = themeManager;
 
   @Prop game: WidgetGameData = new WidgetGameData();
-  /** 进度环直径（vp），2x2 用 28，2x4 用 24 */
-  ringSize: number = 28;
-  /** 进度环线宽 */
-  strokeWidth: number = 2;
+  /** 0 = 竖线模式（2×2），>0 = 小环模式（2×4） */
+  ringSize: number = 0;
+  strokeWidth: number = 3;
+  /** 总游戏数，影响 2×4 右侧内容 */
+  totalGameCount: number = 2;
 
   private get isFull(): boolean {
     return calcIsFull(this.game.currentStr, this.game.maxStr, this.game.secondsStr);
-  }
-
-  private get ratio(): number {
-    return calcRatio(this.game.currentStr, this.game.maxStr);
   }
 
   private get displayColor(): ResourceColor {
     return gameColorRes(this.game.gameId, this.isFull);
   }
 
-  build() {
-    Row({ space: themeManager.current.value8 }) {
-      Stack() {
-        Progress({ value: this.ratio * 100, total: 100, type: ProgressType.Ring })
-          .width(this.ringSize)
-          .height(this.ringSize)
-          .color(this.displayColor)
-          .backgroundColor($r('app.color.surface_inactive_border'))
-          .style({ strokeWidth: this.strokeWidth })
-
-        Text(String(parseCurrent(this.game.currentStr)))
-          .fontSize(themeManager.current.value11)
-          .fontWeight(FontWeight.Bold)
-          .fontColor(this.displayColor)
+  /** 获取第一条额外数据（2×4 两游戏时右侧显示） */
+  private getFirstExtra(): ExtraDataItem | null {
+    if (this.game.gameId === WIDGET_GAME_ID.GENSHIN) {
+      if (parseInt(this.game.coinStr) >= 0) {
+        const item = new ExtraDataItem();
+        item.label = $r('app.string.widget_home_coin');
+        item.value = this.game.coinStr + '/' + this.game.coinMaxStr;
+        item.color = $r('app.color.accent_refine');
+        return item;
       }
-      .width(this.ringSize)
-      .height(this.ringSize)
+    } else if (this.game.gameId === WIDGET_GAME_ID.STARRAIL) {
+      if (parseInt(this.game.trainStr) >= 0) {
+        const item = new ExtraDataItem();
+        item.label = $r('app.string.widget_train_score');
+        item.value = this.game.trainStr + '/' + this.game.trainMaxStr;
+        item.color = $r('app.color.accent_refine');
+        return item;
+      }
+    } else if (this.game.gameId === WIDGET_GAME_ID.ZZZ) {
+      if (parseInt(this.game.vitalityStr) >= 0) {
+        const item = new ExtraDataItem();
+        item.label = $r('app.string.widget_vitality');
+        item.value = this.game.vitalityStr + '/' + this.game.vitalityMaxStr;
+        item.color = $r('app.color.game_color_zzz');
+        return item;
+      }
+    }
+    return null;
+  }
 
+  @Builder
+  renderExtraData(extra: ExtraDataItem) {
+    Column({ space: themeManager.current.value1 }) {
+      Text(extra.label)
+        .fontSize(themeManager.current.value9)
+        .fontColor($r('app.color.text_on_dark_muted'))
+
+      Text(extra.value)
+        .fontSize(themeManager.current.value11)
+        .fontWeight(FontWeight.Medium)
+        .fontColor(extra.color)
+    }
+    .alignItems(HorizontalAlign.End)
+    .flexShrink(0)
+  }
+
+  build() {
+    Row({ space: themeManager.current.value10 }) {
+      // 左侧：竖线或小环
+      if (this.ringSize > 0) {
+        // 2×4：小进度环
+        Stack() {
+          Progress({
+            value: calcRatio(this.game.currentStr, this.game.maxStr) * 100,
+            total: 100,
+            type: ProgressType.Ring
+          })
+            .width(this.ringSize)
+            .height(this.ringSize)
+            .color(this.displayColor)
+            .backgroundColor($r('app.color.surface_inactive_border'))
+            .style({ strokeWidth: this.strokeWidth })
+        }
+        .width(this.ringSize)
+        .height(this.ringSize)
+        .flexShrink(0)
+      } else {
+        // 2×2：游戏色竖线（3vp 宽，高度约 60% 父容器）
+        Column()
+          .width(themeManager.current.value3)
+          .constraintSize({ minHeight: themeManager.current.value20, maxHeight: themeManager.current.value32 })
+          .borderRadius(themeManager.current.value2)
+          .backgroundColor(this.displayColor)
+          .flexShrink(0)
+      }
+
+      // 中间列：游戏名 + 体力数字 + (2×4 时显示恢复时间)
       Column({ space: themeManager.current.value1 }) {
         Text(gameNameRes(this.game.gameId))
-          .fontSize(themeManager.current.value11)
-          .fontColor($r('app.color.text_on_dark_tertiary'))
+          .fontSize(themeManager.current.value9)
+          .fontColor($r('app.color.text_on_dark_muted'))
+          .maxLines(1)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
 
-        Row({ space: themeManager.current.value2 }) {
+        Row({ space: this.ringSize > 0 ? themeManager.current.value1 : themeManager.current.value2 }) {
           Text(String(parseCurrent(this.game.currentStr)))
-            .fontSize(themeManager.current.value14)
+            .fontSize(this.ringSize > 0 ? (this.totalGameCount <= 2 ? themeManager.current.value16 : themeManager.current.value14) : themeManager.current.value18)
             .fontWeight(FontWeight.Bold)
             .fontColor(this.displayColor)
+            .lineHeight(themeManager.current.value18)
 
           Text('/' + String(parseMax(this.game.maxStr)))
-            .fontSize(themeManager.current.value11)
+            .fontSize(themeManager.current.value9)
             .fontColor($r('app.color.text_on_dark_muted'))
+            .alignSelf(ItemAlign.End)
+            .margin({ bottom: themeManager.current.value1 })
         }
         .alignItems(VerticalAlign.Bottom)
+
+        // 2×4 时在中间列显示恢复时间
+        if (this.ringSize > 0) {
+          Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(this.game.secondsStr))
+            .fontSize(themeManager.current.value9)
+            .fontColor(this.isFull ? $r('app.color.color_danger') : $r('app.color.text_on_dark_muted'))
+            .maxLines(1)
+            .textOverflow({ overflow: TextOverflow.Ellipsis })
+        }
       }
       .alignItems(HorizontalAlign.Start)
+      .justifyContent(FlexAlign.Center)
       .layoutWeight(1)
 
-      if (this.game.gameId === WIDGET_GAME_ID.GENSHIN && parseInt(this.game.coinStr) >= 0) {
-        Row({ space: themeManager.current.value2 }) {
-          Text($r('app.string.widget_home_coin'))
-            .fontSize(themeManager.current.value11)
-            .fontColor($r('app.color.accent_refine'))
-
-          Text(this.game.coinStr)
-            .fontSize(themeManager.current.value11)
-            .fontWeight(FontWeight.Medium)
-            .fontColor($r('app.color.accent_refine'))
+      // 右侧列
+      if (this.ringSize > 0) {
+        // 2×4：两游戏时显示额外数据，三游戏时显示恢复时间
+        if (this.totalGameCount <= 2) {
+          if (this.getFirstExtra() !== null) {
+            this.renderExtraData(this.getFirstExtra()!)
+          }
+        } else {
+          Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(this.game.secondsStr))
+            .fontSize(themeManager.current.value9)
+            .fontColor(this.isFull ? $r('app.color.color_danger') : $r('app.color.text_on_dark_muted'))
+            .maxLines(1)
+            .textOverflow({ overflow: TextOverflow.Ellipsis })
+            .flexShrink(0)
         }
-        .flexShrink(0)
-      } else if (this.game.gameId === WIDGET_GAME_ID.STARRAIL && parseInt(this.game.reserveStr) >= 0) {
-        Row({ space: themeManager.current.value2 }) {
-          Text($r('app.string.widget_reserve_prefix'))
-            .fontSize(themeManager.current.value11)
-            .fontColor($r('app.color.game_color_starrail'))
-
-          Text(this.game.reserveStr)
-            .fontSize(themeManager.current.value11)
-            .fontWeight(FontWeight.Medium)
-            .fontColor($r('app.color.game_color_starrail'))
-        }
-        .flexShrink(0)
-      } else if (this.game.gameId === WIDGET_GAME_ID.ZZZ && parseInt(this.game.vitalityStr) >= 0) {
-        Text(this.game.vitalityStr + '/' + this.game.vitalityMaxStr)
-          .fontSize(themeManager.current.value11)
-          .fontWeight(FontWeight.Medium)
-          .fontColor($r('app.color.game_color_zzz'))
-          .flexShrink(0)
       } else {
+        // 2×2：右侧显示恢复时间
         Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(this.game.secondsStr))
-          .fontSize(themeManager.current.value11)
+          .fontSize(themeManager.current.value9)
           .fontColor(this.isFull ? $r('app.color.color_danger') : $r('app.color.text_on_dark_muted'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .constraintSize({ maxWidth: themeManager.current.value64 })
+          .textAlign(TextAlign.End)
           .flexShrink(0)
       }
     }
@@ -122,7 +186,8 @@ export struct WidgetCompactGameRow {
 struct WidgetCompactGameRowPreview {
   build() {
     Column({ space: 8 }) {
-      WidgetCompactGameRow({ game: new WidgetGameData(), ringSize: 28, strokeWidth: 2 })
+      WidgetCompactGameRow({ game: new WidgetGameData(), ringSize: 0 })
+      WidgetCompactGameRow({ game: new WidgetGameData(), ringSize: 24, strokeWidth: 3 })
     }
     .padding(16)
     .width(200)

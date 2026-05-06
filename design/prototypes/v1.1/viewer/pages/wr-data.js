@@ -6,7 +6,7 @@ var WR = {
   state: { size: "2x2", game: "genshin" },
 
   colors: { genshin: "#5ba3e8", starrail: "#9b8eff", zzz: "#f7b84b" },
-  names: { genshin: "原神", starrail: "星穹铁道", zzz: "绝区零" },
+  names: { genshin: "原神", starrail: "崩坏：星穹铁道", zzz: "绝区零" },
 
   stamina: {
     genshin: { cur: 140, max: 200, rec: "4小时后回满" },
@@ -34,6 +34,15 @@ var WR = {
       { label: "录像店", val: "营业中", color: "rgba(79,195,247,.9)" },
     ],
   },
+
+  // 原神探索派遣角色头像（使用占位图 URL）
+  expeditions: [
+    { avatar: "https://upload-os-bbs.mihoyo.com/game_record/genshin/character_image/10000002@2x.png", finished: false },
+    { avatar: "https://upload-os-bbs.mihoyo.com/game_record/genshin/character_image/10000003@2x.png", finished: false },
+    { avatar: "https://upload-os-bbs.mihoyo.com/game_record/genshin/character_image/10000006@2x.png", finished: true },
+    { avatar: "https://upload-os-bbs.mihoyo.com/game_record/genshin/character_image/10000016@2x.png", finished: false },
+    { avatar: "https://upload-os-bbs.mihoyo.com/game_record/genshin/character_image/10000021@2x.png", finished: true },
+  ],
 
   // SVG 体力环（无中心数值）
   ring: function (ratio, color, size, stroke) {

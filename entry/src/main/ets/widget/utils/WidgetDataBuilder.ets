@@ -19,6 +19,11 @@ import {
   StarRailRepository,
   ZZZRepository,
   BBSRepository,
+  StarRailDailyNoteRow,
+  GenshinDailyNoteRow,
+  ZZZDailyNoteRow,
+  AccountRow,
+  GameRoleRow,
 } from 'core';
 import { WidgetFormIdStore, WidgetConfig } from './WidgetFormIdStore';
 import { WidgetGameData } from '../models/WidgetModels';
@@ -26,10 +31,10 @@ import { WidgetGameData } from '../models/WidgetModels';
 const TAG = 'WidgetDataBuilder';
 
 export class WidgetDataBuilder {
-  private static genshinRepo = new GenshinRepository();
-  private static starRailRepo = new StarRailRepository();
-  private static zzzRepo = new ZZZRepository();
-  private static bbsRepo = new BBSRepository();
+  private static genshinRepo: GenshinRepository = new GenshinRepository();
+  private static starRailRepo: StarRailRepository = new StarRailRepository();
+  private static zzzRepo: ZZZRepository = new ZZZRepository();
+  private static bbsRepo: BBSRepository = new BBSRepository();
 
   /**
    * 构建并推送指定账号下所有相关卡片的数据
@@ -67,13 +72,13 @@ export class WidgetDataBuilder {
     const selectedGames = config.selectedGames;
 
     // 读取账号信息
-    const account = await WidgetDataBuilder.bbsRepo.getAccountByUid(accountId);
-    const accountName = account !== null
+    const account: AccountRow | null = await WidgetDataBuilder.bbsRepo.getAccountByUid(accountId);
+    const accountName: string = account !== null
       ? (account.nickname.length > 0 ? account.nickname : account.username)
       : accountId;
 
     // 读取各游戏角色
-    const roles = await WidgetDataBuilder.bbsRepo.getGameRoles(accountId);
+    const roles: GameRoleRow[] = await WidgetDataBuilder.bbsRepo.getGameRoles(accountId);
     Logger.info(TAG, `[WIDGET_DIAG] buildPayload start: accountId=${accountId} account=${account !== null ? 'found' : 'null'} roles=${roles.length} selectedGames=${selectedGames.length}`);
 
     // 构建各游戏数据
@@ -140,13 +145,13 @@ export class WidgetDataBuilder {
   }
 
   private static async buildGenshinData(accountId: string, roleUid: string): Promise<WidgetGameData | null> {
-    const row = await WidgetDataBuilder.genshinRepo.getDailyNote(accountId, roleUid);
+    const row: GenshinDailyNoteRow | null = await WidgetDataBuilder.genshinRepo.getDailyNote(accountId, roleUid);
     if (row === null || row.rawJson.length === 0) {
       return null;
     }
     const parsed = GenshinDailyNoteParser.parse(row.rawJson);
     // 如果解析后体力上限为 0，说明数据无效
-    const maxResin = parsed.maxResin > 0 ? parsed.maxResin : row.maxResin;
+    const maxResin: number = parsed.maxResin > 0 ? parsed.maxResin : row.maxResin;
     if (maxResin === 0) {
       return null;
     }
@@ -162,16 +167,19 @@ export class WidgetDataBuilder {
     d.taskAllReceived = String(parsed.isExtraTaskRewardReceived);
     d.transformerStr = String(parsed.transformer.reached);
     d.expeditionMaxStr = String(parsed.maxExpeditionNum);
-    const flags: string[] = [];
+    // 统计已完成的派遣数量
+    let finishedCount = 0;
     for (let i = 0; i < parsed.expeditions.length; i++) {
-      flags.push(parsed.expeditions[i].status === 'Finished' ? 'true' : 'false');
+      if (parsed.expeditions[i].status === 'Finished') {
+        finishedCount++;
+      }
     }
-    d.expeditionFlagsStr = flags.join(',');
+    d.expeditionFinishedStr = String(finishedCount);
     return d;
   }
 
   private static async buildStarRailData(accountId: string, roleUid: string): Promise<WidgetGameData | null> {
-    const row = await WidgetDataBuilder.starRailRepo.getDailyNote(accountId, roleUid);
+    const row: StarRailDailyNoteRow | null = await WidgetDataBuilder.starRailRepo.getDailyNote(accountId, roleUid);
     if (row === null || row.rawJson.length === 0) {
       return null;
     }
@@ -196,12 +204,12 @@ export class WidgetDataBuilder {
   }
 
   private static async buildZZZData(accountId: string, roleUid: string): Promise<WidgetGameData | null> {
-    const row = await WidgetDataBuilder.zzzRepo.getDailyNote(accountId, roleUid);
+    const row: ZZZDailyNoteRow | null = await WidgetDataBuilder.zzzRepo.getDailyNote(accountId, roleUid);
     if (row === null || row.rawJson.length === 0) {
       return null;
     }
     const parsed = ZZZDailyNoteParser.parse(row.rawJson);
-    const maxEnergy = parsed.maxEnergy > 0 ? parsed.maxEnergy : row.energyMax;
+    const maxEnergy: number = parsed.maxEnergy > 0 ? parsed.maxEnergy : row.energyMax;
     if (maxEnergy === 0) {
       return null;
     }

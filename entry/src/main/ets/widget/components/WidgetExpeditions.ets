@@ -7,14 +7,22 @@
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 
+/** 派遣格子颜色（按索引区分） */
+const EXPEDITION_COLORS: ResourceColor[] = [
+  $r('app.color.game_color_genshin'),  // 蓝色
+  $r('app.color.game_color_starrail'), // 紫色
+  $r('app.color.color_danger'),        // 红色
+  $r('app.color.accent_refine'),       // 黄色
+  $r('app.color.game_color_zzz'),      // 绿色
+];
 
 @Component
 export struct WidgetExpeditions {
   private tm: ThemeManager = themeManager;
   /** 派遣总数 */
   expeditionMax: string = '5';
-  /** 各派遣完成状态，逗号分隔的 'true'/'false' 字符串 */
-  expeditionFinishedFlags: string = '';
+  /** 已完成的派遣数量 */
+  expeditionFinishedCount: string = '0';
 
   private buildIndices(): number[] {
     const count = parseInt(this.expeditionMax) || 5;
@@ -26,37 +34,47 @@ export struct WidgetExpeditions {
   }
 
   private isFinished(idx: number): boolean {
-    if (this.expeditionFinishedFlags.length === 0) {
-      return false;
+    const finishedCount = parseInt(this.expeditionFinishedCount) || 0;
+    return idx < finishedCount;
+  }
+
+  private getExpeditionColor(idx: number): ResourceColor {
+    if (idx < EXPEDITION_COLORS.length) {
+      return EXPEDITION_COLORS[idx];
     }
-    const flags = this.expeditionFinishedFlags.split(',');
-    return idx < flags.length && flags[idx] === 'true';
+    return $r('app.color.game_color_genshin');
   }
 
   build() {
     Column({ space: themeManager.current.value8 }) {
       Text($r('app.string.widget_expedition'))
-        .fontSize(themeManager.current.value14)
-        .fontColor($r('app.color.text_on_dark_secondary'))
+        .fontSize(themeManager.current.value10)
+        .fontColor($r('app.color.text_on_dark_muted'))
+        .letterSpacing(themeManager.current.value0)
+        .textCase(TextCase.UpperCase)
 
       Row() {
         ForEach(this.buildIndices(), (_: number, idx: number) => {
           Stack() {
+            // 圆形背景（半透明底色 + 彩色边框）
             Circle()
               .width(this.tm.current.value36)
               .height(this.tm.current.value36)
               .fill($r('app.color.surface_inactive_border'))
-              .stroke($r('app.color.game_color_genshin'))
+              .stroke(this.getExpeditionColor(idx))
               .strokeWidth(themeManager.current.value2)
 
+            // 头像占位
             Text('👤')
-              .fontSize(themeManager.current.value16)
+              .fontSize(themeManager.current.value14)
 
+            // 完成标记（右下角小圆圈）
             if (this.isFinished(idx)) {
               Text('✓')
-                .fontSize(themeManager.current.value11)
+                .fontSize(themeManager.current.value9)
                 .fontColor($r('app.color.text_on_dark_high'))
-                .backgroundColor($r('app.color.game_color_genshin'))
+                .fontWeight(FontWeight.Bold)
+                .backgroundColor($r('app.color.game_color_zzz'))
                 .borderRadius(this.tm.current.value8)
                 .width(this.tm.current.value14)
                 .height(this.tm.current.value14)
@@ -73,8 +91,9 @@ export struct WidgetExpeditions {
       .justifyContent(FlexAlign.SpaceBetween)
     }
     .width(this.tm.current.full)
-    .margin({ top: this.tm.current.value8 })
-    .flexShrink(0)
+    .layoutWeight(1)
+    .padding({ top: themeManager.current.value8, bottom: themeManager.current.value8 })
+    .justifyContent(FlexAlign.Center)
   }
 }
 
@@ -85,7 +104,7 @@ struct WidgetExpeditionsPreview {
     Column() {
       WidgetExpeditions({
         expeditionMax: '5',
-        expeditionFinishedFlags: 'true,false,true,false,true'
+        expeditionFinishedCount: '3'
       })
     }
     .padding(16)

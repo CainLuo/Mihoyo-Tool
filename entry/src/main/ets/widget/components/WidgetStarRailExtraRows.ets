@@ -48,6 +48,7 @@ export struct WidgetStarRailExtraRows {
       }
     }
     .width(this.tm.current.full)
+    .height(this.tm.current.full)
     .justifyContent(FlexAlign.SpaceEvenly)
   }
 }

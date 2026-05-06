@@ -24,6 +24,8 @@ export struct WidgetStaminaRing {
   valueFontSize: number = 24;
   /** 分母字体大小 */
   maxFontSize: number = 13;
+  /** 是否在环中心显示数值，默认 true */
+  showValue: boolean = true;
 
   private get isFull(): boolean {
     return calcIsFull(this.game.currentStr, this.game.maxStr, this.game.secondsStr);
@@ -46,18 +48,20 @@ export struct WidgetStaminaRing {
         .backgroundColor($r('app.color.surface_inactive_border'))
         .style({ strokeWidth: this.strokeWidth })
 
-      Column() {
-        Text(String(parseCurrent(this.game.currentStr)))
-          .fontSize(this.valueFontSize)
-          .fontWeight(FontWeight.Bold)
-          .fontColor(this.displayColor)
-          .lineHeight(this.valueFontSize + themeManager.current.value4)
+      if (this.showValue) {
+        Column() {
+          Text(String(parseCurrent(this.game.currentStr)))
+            .fontSize(this.valueFontSize)
+            .fontWeight(FontWeight.Bold)
+            .fontColor(this.displayColor)
+            .lineHeight(this.valueFontSize + themeManager.current.value4)
 
-        Text('/' + String(parseMax(this.game.maxStr)))
-          .fontSize(this.maxFontSize)
-          .fontColor($r('app.color.text_on_dark_muted'))
+          Text('/' + String(parseMax(this.game.maxStr)))
+            .fontSize(this.maxFontSize)
+            .fontColor($r('app.color.text_on_dark_muted'))
+        }
+        .alignItems(HorizontalAlign.Center)
       }
-      .alignItems(HorizontalAlign.Center)
     }
     .width(this.ringSize)
     .height(this.ringSize)

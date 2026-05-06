@@ -1,6 +1,8 @@
 /**
  * wr-4x4.js — Widget 重设计：4×4 大卡片（多区块分组版）
  *
+ * X7 实测尺寸：290.6 × 309.8 vp（内容区域）
+ * 官方字号规范：主标题 14fp/18fp，副标题 12fp/14fp，数字 32fp/40fp
  * 布局：顶部标题 + 体力区块 + 数据区块1 + 数据区块2（或派遣格子）
  * 原神：4条数据行分两组 + 派遣格子（共4个区块）
  * 星铁/绝区零：数据行分两组（共3个区块）
@@ -17,48 +19,48 @@ function wrRender4x4(cardW, cardH, games) {
     var staminaLabel =
       gid === "starrail" ? "开拓力" : gid === "zzz" ? "电量" : "原粹树脂";
 
-    // 顶部标题行
+    // 顶部标题行 - 主标题 14fp
     var header =
-      '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,.1)">' +
+      '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.1)">' +
       '<div style="width:8px;height:8px;border-radius:50%;background:' +
       color +
       ';flex-shrink:0"></div>' +
-      '<span style="font-size:16px;font-weight:700;color:rgba(255,255,255,.95);flex:1">' +
+      '<span style="font-size:14px;font-weight:700;color:rgba(255,255,255,.95);flex:1">' +
       WR.names[gid] +
       "</span>" +
-      '<span style="font-size:10px;color:rgba(255,255,255,.35)">旅行者</span>' +
+      '<span style="font-size:10px;color:rgba(255,255,255,.35)">UID 123456789</span>' +
       "</div>";
 
-    // 区块1：体力
+    // 区块1：体力 - 数字 40fp
     var block1 =
-      '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.1)">' +
-      '<div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:6px;letter-spacing:0.8px;text-transform:uppercase">' +
+      '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.1)">' +
+      '<div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:4px;letter-spacing:0.8px;text-transform:uppercase">' +
       staminaLabel +
       "</div>" +
-      '<div style="display:flex;align-items:baseline;gap:4px;margin-bottom:4px">' +
-      '<span style="font-size:36px;font-weight:700;color:' +
+      '<div style="display:flex;align-items:baseline;gap:4px;margin-bottom:3px">' +
+      '<span style="font-size:40px;font-weight:700;color:' +
       color +
       ';line-height:1">' +
       d.cur +
       "</span>" +
-      '<span style="font-size:16px;color:rgba(255,255,255,.3)">/ ' +
+      '<span style="font-size:14px;color:rgba(255,255,255,.3)">/ ' +
       d.max +
       "</span>" +
       "</div>" +
-      '<div style="font-size:13px;color:rgba(255,255,255,.5)">' +
+      '<div style="font-size:12px;color:rgba(255,255,255,.5)">' +
       d.rec +
       "</div>" +
       (gid === "starrail"
-        ? '<div style="display:flex;align-items:center;gap:6px;margin-top:4px">' +
-          '<span style="font-size:12px;color:rgba(255,255,255,.35)">后备开拓力</span>' +
-          '<span style="font-size:14px;font-weight:600;color:' +
+        ? '<div style="display:flex;align-items:center;gap:6px;margin-top:3px">' +
+          '<span style="font-size:11px;color:rgba(255,255,255,.35)">后备开拓力</span>' +
+          '<span style="font-size:13px;font-weight:600;color:' +
           color +
           '">2400</span>' +
           "</div>"
         : "") +
       "</div>";
 
-    // 数据行分组
+    // 数据行分组 - 副标题 12fp
     var showExtras = gid === "starrail" ? extras.slice(1) : extras;
 
     function renderGroup(items, hasBorder) {
@@ -66,10 +68,10 @@ function wrRender4x4(cardW, cardH, games) {
       for (var i = 0; i < items.length; i++) {
         rows +=
           '<div style="display:flex;align-items:center;justify-content:space-between;flex:1">' +
-          '<span style="font-size:13px;color:rgba(255,255,255,.45)">' +
+          '<span style="font-size:12px;color:rgba(255,255,255,.45)">' +
           items[i].label +
           "</span>" +
-          '<span style="font-size:13px;font-weight:600;color:' +
+          '<span style="font-size:12px;font-weight:600;color:' +
           items[i].color +
           '">' +
           items[i].val +
@@ -77,7 +79,7 @@ function wrRender4x4(cardW, cardH, games) {
           "</div>";
       }
       return (
-        '<div style="flex:1;display:flex;flex-direction:column;justify-content:space-evenly;padding:8px 0;' +
+        '<div style="flex:1;display:flex;flex-direction:column;justify-content:space-evenly;padding:6px 0;' +
         (hasBorder ? "border-bottom:1px solid rgba(255,255,255,.1)" : "") +
         '">' +
         rows +
@@ -85,27 +87,22 @@ function wrRender4x4(cardW, cardH, games) {
       );
     }
 
-    // 派遣格子
+    // 派遣格子 - 纯圆头像图片，无背景色无 border
     function renderExpeditions() {
-      var expColors = ["#5ba3e8", "#9b8eff", "#ef5350", "#ffca28", "#34d399"];
-      var expFinished = [false, false, true, false, true];
+      var expData = WR.expeditions;
       var avatars = "";
-      for (var ei = 0; ei < 5; ei++) {
+      for (var ei = 0; ei < expData.length; ei++) {
         avatars +=
           '<div style="position:relative;flex:1;display:flex;justify-content:center">' +
-          '<div style="width:36px;height:36px;border-radius:50%;background:' +
-          expColors[ei] +
-          "22;border:2px solid " +
-          expColors[ei] +
-          ';display:flex;align-items:center;justify-content:center;font-size:14px">👤</div>' +
-          (expFinished[ei]
-            ? '<div style="position:absolute;bottom:0;right:calc(50% - 23px);width:14px;height:14px;border-radius:50%;background:#34d399;display:flex;align-items:center;justify-content:center;font-size:9px;color:#000;font-weight:700">✓</div>'
+          '<img src="' + expData[ei].avatar + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover" />' +
+          (expData[ei].finished
+            ? '<div style="position:absolute;bottom:-2px;right:calc(50% - 18px);width:12px;height:12px;border-radius:50%;background:#34d399;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000;font-weight:700;box-shadow:0 0 0 2px #111118">✓</div>'
             : "") +
           "</div>";
       }
       return (
-        '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:8px 0">' +
-        '<div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:8px;letter-spacing:0.8px;text-transform:uppercase">探索派遣</div>' +
+        '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:6px 0">' +
+        '<div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:6px;letter-spacing:0.8px;text-transform:uppercase">探索派遣</div>' +
         '<div style="display:flex">' +
         avatars +
         "</div>" +
@@ -144,68 +141,172 @@ function wrRender4x4(cardW, cardH, games) {
     return WR.card(cardW, cardH, inner, gid);
   }
 
-  // ── 多游戏 ──────────────────────────────────────────────────────
+  // ── 多游戏：去掉顶部旅行者，每个游戏独立一行 ──────────────────────
   var gameCount = Math.min(games.length, 3);
-  var headerH = 28;
-  var availH = cardH - pad * 2 - headerH;
+  var availH = cardH - pad * 2;
   var rowH = Math.floor(availH / gameCount);
-  var maxExtra = gameCount <= 2 ? 3 : 2;
 
-  var header4 =
-    '<div style="display:flex;align-items:baseline;gap:6px;margin-bottom:8px;flex-shrink:0">' +
-    '<span style="font-size:12px;font-weight:600;color:rgba(255,255,255,.85)">旅行者</span>' +
-    '<span style="font-size:10px;color:rgba(255,255,255,.35)">182692936</span>' +
-    "</div>";
+  // 探索派遣头像渲染 - 纯圆头像图片，无背景色无 border
+  function renderExpeditionsSmall() {
+    var expData = WR.expeditions;
+    var avatars = "";
+    for (var ei = 0; ei < expData.length; ei++) {
+      avatars +=
+        '<div style="position:relative;flex-shrink:0">' +
+        '<img src="' + expData[ei].avatar + '" style="width:24px;height:24px;border-radius:50%;object-fit:cover" />' +
+        (expData[ei].finished
+          ? '<div style="position:absolute;bottom:-2px;right:-2px;width:10px;height:10px;border-radius:50%;background:#34d399;display:flex;align-items:center;justify-content:center;font-size:7px;color:#000;font-weight:700;box-shadow:0 0 0 1.5px #111118">✓</div>'
+          : "") +
+        "</div>";
+    }
+    return avatars;
+  }
 
   var blocks = "";
   for (var gi = 0; gi < gameCount; gi++) {
     var gid2 = games[gi];
     var d2 = WR.stamina[gid2];
     var color2 = WR.colors[gid2];
+    var ratio2 = d2.cur / d2.max;
     var extras2 = WR.extra[gid2] || [];
 
-    var exHtml = "";
-    for (var xi = 0; xi < Math.min(extras2.length, maxExtra); xi++) {
-      exHtml += WR.row(
-        extras2[xi].label,
-        extras2[xi].val,
-        extras2[xi].color,
-        11,
-      );
+    // 当前体力颜色
+    var curColor2;
+    if (ratio2 <= 0.3) {
+      curColor2 = "#ef5350";
+    } else if (ratio2 <= 0.7) {
+      curColor2 = "#ffca28";
+    } else {
+      curColor2 = color2;
     }
 
-    blocks +=
-      (gi > 0
-        ? '<div style="height:1px;background:rgba(255,255,255,.08);margin:4px 0;flex-shrink:0"></div>'
-        : "") +
-      '<div style="height:' +
-      rowH +
-      'px;display:flex;flex-direction:column;justify-content:center;overflow:hidden">' +
-      '<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:4px">' +
-      '<span style="font-size:12px;color:rgba(255,255,255,.4)">' +
-      WR.names[gid2] +
-      "</span>" +
-      '<span style="font-size:22px;font-weight:700;color:' +
-      color2 +
-      ';line-height:1">' +
-      d2.cur +
-      "</span>" +
-      '<span style="font-size:11px;color:rgba(255,255,255,.3)">/ ' +
-      d2.max +
-      "</span>" +
-      '<span style="font-size:11px;color:rgba(255,255,255,.4);margin-left:4px">' +
-      d2.rec +
-      "</span>" +
-      "</div>" +
-      '<div style="display:flex;flex-direction:column;gap:3px">' +
-      exHtml +
-      "</div>" +
-      "</div>";
+    if (gameCount === 2) {
+      // ── 2 个游戏：左侧体力区块，右侧数据区 ─────────
+      // 原神特殊：额外信息 + 探索派遣头像
+      var rightContent2 = "";
+      if (gid2 === "genshin") {
+        // 原神：显示洞天财瓮、每日委托、参量质变仪，下方是派遣头像
+        rightContent2 =
+          '<div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:3px">' +
+          WR.row(extras2[1].label, extras2[1].val, extras2[1].color, 11) +
+          WR.row(extras2[2].label, extras2[2].val, extras2[2].color, 11) +
+          WR.row(extras2[3].label, extras2[3].val, extras2[3].color, 11) +
+          '<div style="display:flex;align-items:center;gap:4px;margin-top:2px">' +
+          '<span style="font-size:10px;color:rgba(255,255,255,.4)">探索派遣</span>' +
+          '<span style="font-size:11px;font-weight:600;color:rgba(155,142,255,.9)">4/5</span>' +
+          "</div>" +
+          '<div style="display:flex;align-items:center;gap:4px">' +
+          renderExpeditionsSmall() +
+          "</div>" +
+          "</div>";
+      } else {
+        // 其他游戏：显示 3 条额外数据
+        var exHtml2 = "";
+        for (var xi = 0; xi < Math.min(extras2.length, 3); xi++) {
+          exHtml2 += WR.row(
+            extras2[xi].label,
+            extras2[xi].val,
+            extras2[xi].color,
+            11,
+          );
+        }
+        rightContent2 =
+          '<div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:3px">' +
+          exHtml2 +
+          "</div>";
+      }
+
+      blocks +=
+        (gi > 0
+          ? '<div style="height:1px;background:rgba(255,255,255,.08);margin:4px 0;flex-shrink:0"></div>'
+          : "") +
+        '<div style="height:' +
+        rowH +
+        'px;display:flex;align-items:center;gap:16px;overflow:hidden">' +
+        // 左侧：游戏名+UID + 体力区块
+        '<div style="flex-shrink:0;min-width:100px;display:flex;flex-direction:column;justify-content:center;gap:2px">' +
+        '<div style="display:flex;align-items:center;gap:6px">' +
+        '<span style="font-size:13px;font-weight:500;color:rgba(255,255,255,.7)">' +
+        WR.names[gid2] +
+        "</span>" +
+        '<span style="font-size:10px;color:rgba(255,255,255,.35)">UID ' +
+        (123456789 + gi) +
+        "</span>" +
+        "</div>" +
+        '<div style="display:flex;align-items:baseline;gap:3px">' +
+        '<span style="font-size:28px;font-weight:700;color:' +
+        curColor2 +
+        ';line-height:1">' +
+        d2.cur +
+        "</span>" +
+        '<span style="font-size:13px;color:rgba(255,255,255,.4)">/' +
+        d2.max +
+        "</span>" +
+        "</div>" +
+        '<span style="font-size:11px;color:rgba(255,255,255,.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
+        d2.rec +
+        "</span>" +
+        "</div>" +
+        rightContent2 +
+        "</div>";
+    } else {
+      // ── 3 个游戏：左侧体力区块，右侧4条额外数据 ─────────
+      var exHtml3 = "";
+      for (var yi = 0; yi < Math.min(extras2.length, 4); yi++) {
+        exHtml3 +=
+          '<div style="display:flex;align-items:center;justify-content:space-between">' +
+          '<span style="font-size:10px;color:rgba(255,255,255,.4)">' +
+          extras2[yi].label +
+          "</span>" +
+          '<span style="font-size:11px;font-weight:600;color:' +
+          extras2[yi].color +
+          '">' +
+          extras2[yi].val +
+          "</span>" +
+          "</div>";
+      }
+
+      blocks +=
+        (gi > 0
+          ? '<div style="height:1px;background:rgba(255,255,255,.08);margin:3px 0;flex-shrink:0"></div>'
+          : "") +
+        '<div style="height:' +
+        rowH +
+        'px;display:flex;align-items:center;gap:12px;overflow:hidden">' +
+        // 左侧：游戏名+UID + 体力区块
+        '<div style="min-width:90px;display:flex;flex-direction:column;justify-content:center;gap:1px">' +
+        '<div style="display:flex;align-items:center;gap:6px">' +
+        '<span style="font-size:11px;font-weight:500;color:rgba(255,255,255,.65)">' +
+        WR.names[gid2] +
+        "</span>" +
+        '<span style="font-size:9px;color:rgba(255,255,255,.35)">UID ' +
+        (123456789 + gi) +
+        "</span>" +
+        "</div>" +
+        '<div style="display:flex;align-items:baseline;gap:2px">' +
+        '<span style="font-size:20px;font-weight:700;color:' +
+        curColor2 +
+        ';line-height:1">' +
+        d2.cur +
+        "</span>" +
+        '<span style="font-size:11px;color:rgba(255,255,255,.4)">/' +
+        d2.max +
+        "</span>" +
+        "</div>" +
+        '<span style="font-size:10px;color:rgba(255,255,255,.45);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
+        d2.rec +
+        "</span>" +
+        "</div>" +
+        // 右侧：4条额外数据
+        '<div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:1px">' +
+        exHtml3 +
+        "</div>" +
+        "</div>";
+    }
   }
 
   var inner3 =
     '<div style="width:100%;height:100%;display:flex;flex-direction:column">' +
-    header4 +
     blocks +
     "</div>";
   return WR.card(cardW, cardH, inner3, games);

@@ -1,5 +1,7 @@
 /**
  * Widget1x2Genshin.ets — 原神 1×2 迷你卡片
+ *
+ * v1.1 设计：游戏主题色渐变背景
  */
 
 import { Logger } from 'core';
@@ -35,8 +37,11 @@ struct Widget1x2Genshin {
     }
     .width(this.tm.current.full)
     .height(this.tm.current.full)
-    .padding(this.tm.current.value12)
-    .backgroundColor(this.tm.current.widgetCardBg)
+    .padding({
+      left: this.tm.current.value12,
+      right: this.tm.current.value12
+    })
+    .linearGradient({ angle: this.tm.current.a135, colors: [['#152030', 0], ['#1a2d42', 0.5], ['#1c3350', 1]] })
     .borderRadius(this.tm.current.radius16)
     .onClick(() => {
       postCardAction(this, {

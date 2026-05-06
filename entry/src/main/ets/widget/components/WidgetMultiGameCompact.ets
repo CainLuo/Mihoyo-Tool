@@ -1,15 +1,19 @@
 /**
- * WidgetMultiGameCompact.ets — 多游戏精简列表布局（2×2 / 2×4 共用）
+ * WidgetMultiGameCompact.ets — 多游戏精简列表（2×2 / 2×4 共用）
  *
- * 顶部账号名行 + 2~3 个 WidgetCompactGameRow，区块间用分割线隔开。
- * 2×2 和 2×4 的多游戏模式结构完全相同，通过 ringSize 区分环的大小。
+ * 严格按原型 wr-2x2.js / wr-2x4.js 多游戏分支实现：
+ * - 2×2：竖线模式（ringSize=0）
+ * - 2×4（2 游戏）：小环模式（ringSize=36），右侧显示额外数据
+ * - 2×4（3 游戏）：更小环模式（ringSize=24），右侧只显示恢复时间
+ * - 顶部：账号名（10px Medium）
+ * - 每行：WidgetCompactGameRow
+ * - 行间：1px 极细分割线（rgba 8%）
  *
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { WidgetCompactGameRow } from './WidgetCompactGameRow';
-
 import { WidgetAccountData, WidgetGameData } from '../models/WidgetModels';
 
 @Component
@@ -17,8 +21,8 @@ export struct WidgetMultiGameCompact {
   private tm: ThemeManager = themeManager;
 
   @Prop data: WidgetAccountData = new WidgetAccountData();
-  /** 进度环直径（vp）：2×2 用 28，2×4 用 24 */
-  ringSize: number = 28;
+  /** 0 = 2×2 竖线模式，>0 = 2×4 小环模式 */
+  ringSize: number = 0;
 
   private get displayName(): string {
     return this.data.accountName.length > 0 ? this.data.accountName : this.data.accountUid;
@@ -28,44 +32,71 @@ export struct WidgetMultiGameCompact {
     return idx < this.data.games.length ? this.data.games[idx] : new WidgetGameData();
   }
 
+  /** 2×4 模式下根据游戏数量动态计算环大小 */
+  private get dynamicRingSize(): number {
+    if (this.ringSize === 0) {
+      return 0;
+    }
+    return this.data.gameCount <= 2 ? themeManager.current.value36 : themeManager.current.value24;
+  }
+
+  /** 2×4 模式下根据游戏数量动态计算环线宽 */
+  private get dynamicStrokeWidth(): number {
+    if (this.ringSize === 0) {
+      return 0;
+    }
+    return this.data.gameCount <= 2 ? themeManager.current.value4 : themeManager.current.value2;
+  }
+
   build() {
-    Column({ space: 0 }) {
+    Column() {
+      // 顶部账号名
       Text(this.displayName)
-        .fontSize(themeManager.current.value11)
+        .fontSize(themeManager.current.value10)
         .fontWeight(FontWeight.Medium)
-        .fontColor($r('app.color.text_on_dark_high'))
+        .fontColor($r('app.color.text_on_dark_secondary'))
         .maxLines(1)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
-        .margin({ bottom: this.tm.current.value8 })
+        .margin({ bottom: themeManager.current.value4 })
 
-      Column({ space: 0 }) {
+      // 游戏行列表（SpaceEvenly 均分剩余高度）
+      Column() {
         WidgetCompactGameRow({
           game: this.gameAt(0),
-          ringSize: this.ringSize,
-          strokeWidth: themeManager.current.value2
+          ringSize: this.dynamicRingSize,
+          strokeWidth: this.dynamicStrokeWidth,
+          totalGameCount: this.data.gameCount
         })
 
         if (this.data.gameCount >= 2) {
-          Divider()
-            .color($r('app.color.surface_inactive_border'))
-            .margin({ top: this.tm.current.value4, bottom: this.tm.current.value4 })
+          Column()
+            .width(this.tm.current.full)
+            .height(themeManager.current.value1)
+            .backgroundColor($r('app.color.surface_inactive_border'))
+            .opacity(0.5)
+            .margin({ top: themeManager.current.value4, bottom: themeManager.current.value4 })
 
           WidgetCompactGameRow({
             game: this.gameAt(1),
-            ringSize: this.ringSize,
-            strokeWidth: themeManager.current.value2
+            ringSize: this.dynamicRingSize,
+            strokeWidth: this.dynamicStrokeWidth,
+            totalGameCount: this.data.gameCount
           })
         }
 
         if (this.data.gameCount >= 3) {
-          Divider()
-            .color($r('app.color.surface_inactive_border'))
-            .margin({ top: this.tm.current.value4, bottom: this.tm.current.value4 })
+          Column()
+            .width(this.tm.current.full)
+            .height(themeManager.current.value1)
+            .backgroundColor($r('app.color.surface_inactive_border'))
+            .opacity(0.5)
+            .margin({ top: themeManager.current.value4, bottom: themeManager.current.value4 })
 
           WidgetCompactGameRow({
             game: this.gameAt(2),
-            ringSize: this.ringSize,
-            strokeWidth: themeManager.current.value2
+            ringSize: this.dynamicRingSize,
+            strokeWidth: this.dynamicStrokeWidth,
+            totalGameCount: this.data.gameCount
           })
         }
       }
@@ -83,11 +114,12 @@ export struct WidgetMultiGameCompact {
 struct WidgetMultiGameCompactPreview {
   build() {
     Column() {
-      WidgetMultiGameCompact({ data: new WidgetAccountData(), ringSize: 28 })
+      WidgetMultiGameCompact({ data: new WidgetAccountData(), ringSize: 0 })
     }
-    .padding(16)
+    .padding(12)
     .width(168)
     .height(168)
-    .backgroundColor('#1a1a2e')
+    .linearGradient({ angle: 135, colors: [['#181820', 0], ['#1c1c2c', 1]] })
+    .borderRadius(16)
   }
 }

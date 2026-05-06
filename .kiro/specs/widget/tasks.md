@@ -1,161 +1,338 @@
-# Widget 实现任务列表
+# Widget 多账号混合显示 - 任务列表
 
-版本：V1.1.0
-状态：待开始
+## 任务概览
 
----
-
-## 阶段一：基础设施
-
-### T01 — 创建 form_config.json
-
-- 在 `entry/src/main/resources/base/profile/` 下创建 `form_config.json`
-- 配置 6 个卡片模板（widget_1x2_genshin / starrail / zzz / 2x2 / 2x4 / 4x4）
-- 在 `module.json5` 的 `extensionAbilities` 中注册 `EntryFormAbility`
-- 添加多语言字符串（卡片显示名称）
-
-### T02 — 实现 WidgetFormIdStore
-
-- 创建 `entry/src/main/ets/widget/utils/WidgetFormIdStore.ets`
-- 实现 save / remove / getConfig / getFormIdsByAccount / getAllFormIds
-- 使用 Preferences 持久化存储
-
-**测试任务 T02-test**：在 `entry/src/test/` 下补充 `WidgetFormIdStore.test.ets`，覆盖 save/remove/getConfig 逻辑
-
-### T03 — 实现 WidgetDataBuilder
-
-- 创建 `entry/src/main/ets/widget/utils/WidgetDataBuilder.ets`
-- 实现 `buildPayload(formId, config)` — 从 DB 读取数据，构建 FormBindingData
-- 实现 `buildAndPushForAccount(accountId)` — 遍历 formId 推送
-- 注意：不能 import StaminaNotificationService
-
-**测试任务 T03-test**：在 `entry/src/test/` 下补充 `WidgetDataBuilder.test.ets`，注入 MockService 验证数据构建逻辑
-
-### T04 — 实现 EntryFormAbility
-
-- 创建 `entry/src/main/ets/entryformability/EntryFormAbility.ets`
-- 实现 `onAddForm`：读取 accountId/selectedGames，存 Preferences，立即推送初始数据
-- 实现 `onUpdateForm`：调用 WidgetDataBuilder 推送最新数据
-- 实现 `onRemoveForm`：删除 Preferences 中的 formId
-- 实现 `onFormEvent`：处理卡片内刷新按钮的 message 事件
+| 阶段 | 任务 | 优先级 | 状态 |
+|-----|------|-------|------|
+| 1 | 设计并实现数据模型 | P0 | done |
+| 2 | 实现全局数据存储 | P0 | done |
+| 3 | 实现配置存储 | P0 | done |
+| 4 | 实现 WidgetDataStoreBuilder | P0 | done |
+| 5 | 实现 WidgetPayloadBuilder | P0 | done |
+| 6 | 重构 Widget 组件 | P0 | done |
+| 7 | 重构配置页面 | P1 | done |
+| 8 | 更新 EntryFormAbility | P1 | done |
+| 9 | 数据同步集成 | P1 | done |
+| 10 | 测试验证 | P1 | pending |
 
 ---
 
-## 阶段二：卡片 UI
+## Phase 1: 数据模型 ✅
 
-### T05 — 实现 Widget1x2Genshin
+### Task 1.1: 创建 WidgetRole 模型 ✅
 
-- 创建 `entry/src/main/ets/widget/pages/Widget1x2Genshin.ets`
-- 显示：UID + 体力环 + 原粹树脂数值/上限 + 回满时间
-- 体力满时数值变红
+**文件**: `entry/src/main/ets/widget/models/WidgetRole.ets` ✅
 
-**测试任务 T05-test**：文件末尾添加 `@Preview`，覆盖空态、有数据、体力满三种状态
-
-### T06 — 实现 Widget1x2StarRail
-
-- 创建 `entry/src/main/ets/widget/pages/Widget1x2StarRail.ets`
-- 显示：UID + 体力环 + 开拓力数值/上限 + 后备开拓力 + 回满时间
-
-**测试任务 T06-test**：文件末尾添加 `@Preview`
-
-### T07 — 实现 Widget1x2ZZZ
-
-- 创建 `entry/src/main/ets/widget/pages/Widget1x2ZZZ.ets`
-- 显示：UID + 体力环 + 电量数值/上限 + 回满时间
-
-**测试任务 T07-test**：文件末尾添加 `@Preview`
-
-### T08 — 实现 Widget2x2
-
-- 创建 `entry/src/main/ets/widget/pages/Widget2x2.ets`
-- 单游戏（gameCount=1）：详细模式，体力环 + 额外数据行
-- 多游戏（gameCount=2-3）：精简模式，每款游戏一行
-- 根据 `gameCount` 字段自动切换布局
-
-**测试任务 T08-test**：文件末尾添加 `@Preview`，覆盖单游戏（原神/星铁/绝区零）和多游戏（2款/3款）
-
-### T09 — 实现 Widget2x4
-
-- 创建 `entry/src/main/ets/widget/pages/Widget2x4.ets`
-- 单游戏：左右分栏，左侧体力环，右侧数据行（约 4-5 行）
-- 多游戏（2款）：纵向排列，每款基础信息 + 1行额外数据
-- 多游戏（3款）：纵向排列，每款横排一行（体力环+数值+游戏名·回满时间+右侧额外数据）
-
-**测试任务 T09-test**：文件末尾添加 `@Preview`，覆盖单游戏和多游戏（2款/3款）
-
-### T10 — 实现 Widget4x4
-
-- 创建 `entry/src/main/ets/widget/pages/Widget4x4.ets`
-- 单游戏（原神）：完整数据 + 底部探索派遣 5 个角色头像（5等分，已完成有 ✓）
-- 单游戏（星铁）：完整数据（含货币战争、模拟宇宙本周积分）
-- 单游戏（绝区零）：完整数据（今日活跃度、刮刮卡/占卜、录像店经营）
-- 多游戏（2款）：每款基础信息 + 3行额外数据
-- 多游戏（3款）：每款基础信息 + 2行额外数据
-
-**测试任务 T10-test**：文件末尾添加 `@Preview`，覆盖三款游戏单游戏和多游戏
+**内容**:
+- `roleId` — 游戏内 UID（对应 core 的 GameRoleRow.roleId）
+- `nickname` — 游戏内昵称
+- `server` — 服务器大区标识
+- `rawJson` — API 原始响应 JSON 字符串
 
 ---
 
-## 阶段三：App 内入口
+### Task 1.2: 创建 WidgetGame 模型 ✅
 
-### T11 — My 页面新增 Widget 入口区域
+**文件**: `entry/src/main/ets/widget/models/WidgetGame.ets` ✅
 
-- 在 `entry/src/main/ets/components/my/` 下新建 `WidgetSection.ets`
-- 根据已登录账号动态展示，每个账号显示可添加的游戏卡片按钮
-- 点击调用 `formProvider.openFormManager(want)`，携带 accountId 和 formName
-- 在 `My.ets` 中引入 `WidgetSection`
-
-**测试任务 T11-test**：文件末尾添加 `@Preview`，覆盖无账号、单账号、多账号三种状态
+**内容**:
+- `gameId` — 游戏 ID
+- `roles` — 角色列表
 
 ---
 
-## 阶段四：数据推送集成
+### Task 1.3: 创建 WidgetAccount 模型 ✅
 
-### T12 — StaminaNotificationService 集成 Widget 推送
+**文件**: `entry/src/main/ets/widget/models/WidgetAccount.ets` ✅
 
-- 在 `StaminaNotificationService` 的体力检测逻辑中，检测到数据变化时调用 `WidgetDataBuilder.buildAndPushForAccount(accountId)`
-- 确保不在 EntryFormAbility 进程中调用（进程隔离）
-
-### T13 — 账号删除时清理 Widget 数据
-
-- 在 `BBSRepository.deleteAccount` 完成后，调用 `WidgetFormIdStore.getFormIdsByAccount(accountId)` 获取相关 formId
-- 对每个 formId 推送空态数据（或调用 `formProvider.deleteForm` 删除卡片）
+**内容**:
+- `accountId` — 米游社账号 UID
+- `accountName` — 账号昵称
+- `games` — 游戏列表
 
 ---
 
-## 阶段五：锁屏卡片
+### Task 1.4: 创建 WidgetDataStore 模型 ✅
 
-### T14 — 锁屏卡片配置
+**文件**: `entry/src/main/ets/widget/models/WidgetDataStore.ets` ✅
 
-- 为 `widget_1x2_genshin`、`widget_1x2_starrail`、`widget_1x2_zzz` 添加锁屏支持
-- 新增锁屏专用配置（`renderingMode: autoColor`）
-- 在 AppGallery Connect 申请「锁屏卡片」开放能力
+**内容**:
+- `version` — 数据版本号
+- `updatedAt` — 更新时间戳
+- `accounts` — 账号列表
+- `getRole()` — 根据三元组获取角色
+- `getAllSlots()` — 获取所有 slot 列表
+- `WidgetSlotRef` — Slot 引用类（三元组）
 
 ---
 
-## 任务依赖关系
+### Task 1.5: 创建 WidgetConfig 模型 ✅
 
-```
-T01 → T04
-T02 → T03 → T04
-T02 → T12
-T03 → T12
-T04 → T05~T10（EntryFormAbility 需要先有卡片 UI 文件）
-T05~T10 → 可并行
-T11 → T03（需要 openFormManager）
-T12 → T03
-T13 → T02
-T14 → T05~T07（锁屏使用 1×2 模板）
-```
+**文件**: `entry/src/main/ets/widget/models/WidgetConfig.ets` ✅
 
-## 建议执行顺序
+**内容**:
+- `formId` — Widget 实例 ID
+- `size` — Widget 尺寸
+- `slots` — 选择的槽位列表（WidgetSlotRef[]）
+- `WidgetSize` 枚举
+- `getMaxSlots()` 函数
 
-1. T01（配置文件）
-2. T02（FormIdStore）→ T02-test
-3. T03（DataBuilder）→ T03-test
-4. T04（EntryFormAbility）
-5. T05 ~ T10（卡片 UI，可并行）→ 各自的 test
-6. T11（My 页面入口）→ T11-test
-7. T12（通知服务集成）
-8. T13（账号删除清理）
-9. T14（锁屏配置）
+---
+
+## Phase 2: 数据存储 ✅
+
+### Task 2.1: 实现 WidgetDataStoreManager ✅
+
+**文件**: `entry/src/main/ets/widget/utils/WidgetDataStoreManager.ets` ✅
+
+**内容**:
+- `init(context)` — 初始化 Preferences
+- `save(data)` — 保存全局数据
+- `load()` — 加载全局数据
+- `clear()` — 清除数据
+
+---
+
+### Task 2.2: 实现 WidgetConfigStore ✅
+
+**文件**: `entry/src/main/ets/widget/utils/WidgetConfigStore.ets` ✅
+
+**内容**:
+- `init(context)` — 初始化 Preferences
+- `saveConfig(config)` — 保存 Widget 配置
+- `loadConfig(formId)` — 加载 Widget 配置
+- `deleteConfig(formId)` — 删除 Widget 配置
+- `getAllConfigs()` — 获取所有配置
+
+---
+
+## Phase 3: 数据构建 ✅
+
+### Task 3.1: 实现 WidgetDataStoreBuilder ✅
+
+**文件**: `entry/src/main/ets/widget/utils/WidgetDataStoreBuilder.ets` ✅
+
+**内容**:
+- `buildFromDB()` — 从数据库读取所有账号数据，构建完整 WidgetDataStore
+- `refreshAndSave()` — 重新构建并保存
+- `initAndSave()` — 首次初始化
+- `updateRoleRawJson()` — 增量更新单个角色
+
+**验收标准**:
+- [x] 正确读取所有账号的游戏角色数据
+- [x] 填充 rawJson 字段
+- [x] 复用 core Repository
+
+---
+
+### Task 3.2: 实现 WidgetPayloadBuilder ✅
+
+**文件**: `entry/src/main/ets/widget/utils/WidgetPayloadBuilder.ets` ✅
+
+**内容**:
+- `buildPayload(config, dataStore)` — 根据配置提取 slots 数据
+- `buildForFormExtension()` — 为 FormExtension 构建 LocalStorage 数据
+- `getDefaultSlots()` — 默认行为（取第一个账号的前 N 个角色）
+- `WidgetSlotData` 类 — 单个 Slot 的完整数据
+- `WidgetPayload` 类 — 构建结果，含 `toLocalStorageRecord()` 方法
+
+**验收标准**:
+- [x] 正确匹配 slots 三元组
+- [x] 处理 slots 为空时的默认行为
+- [x] 构建符合 Widget 组件预期的 LocalStorage 格式
+
+---
+
+## Phase 4: Widget 组件 ✅
+
+### Task 4.1: 创建 WidgetSlotDataParser ✅
+
+**文件**: `entry/src/main/ets/widget/utils/WidgetSlotDataParser.ets` ✅
+
+**内容**:
+- `parseSlotJson()` — 从 WidgetSlotData JSON 解析为 ParsedSlotData
+- `parseGenshinData()` — 解析原神便签数据
+- `parseStarRailData()` — 解析星铁便签数据
+- `parseZZZData()` — 解析绝区零便签数据
+- `ParsedSlotData` 类 — 统一的解析结果
+
+**验收标准**:
+- [x] 支持原神/星铁/绝区零三种游戏
+- [x] 解析失败时返回默认值，不崩溃
+- [x] 字段与 UI 显示需求对齐
+
+---
+
+### Task 4.2: 创建 WidgetSlotRenderer 组件 ✅
+
+**文件**: `entry/src/main/ets/widget/components/WidgetSlotRenderer.ets` ✅
+
+**内容**:
+- 接收单个 ParsedSlotData
+- 根据 slotSize 选择布局（1x2 迷你布局 / 2x2 标准布局）
+- 支持 1x2、2x2、2x4、4x4 四种尺寸
+- 渲染：游戏名 + UID + 体力 + 恢复时间 + 额外数据行
+
+**验收标准**:
+- [x] 支持原神/星铁/绝区零三种游戏
+- [x] 星铁特殊布局（后备开拓力在右侧）
+- [x] 字体大小、颜色符合规范
+- [x] 体力颜色：0-30% 红色，30-70% 橙色，70-100% 游戏主题色
+
+---
+
+### Task 4.3: 更新 WidgetCardContent 组件 ✅
+
+**文件**: `entry/src/main/ets/widget/components/WidgetCardContent.ets` ✅
+
+**内容**:
+- 支持新格式（slot0Json、slot1Json、slot2Json）
+- 向后兼容旧格式（game0Json、game1Json、game2Json）
+- 自动检测 payload 格式并选择渲染方式
+
+**验收标准**:
+- [x] 新旧格式自动切换
+- [x] 单 Slot 使用 WidgetSlotRenderer
+- [x] 多 Slot 使用 Column 布局
+
+---
+
+### Task 4.4: 更新 Widget2x2 页面（保持现有实现）✅
+
+**文件**: `entry/src/main/ets/widget/pages/Widget2x2.ets` ✅
+
+**说明**: 现有实现已支持通过 WidgetCardContent 自动适配新格式，无需修改。
+
+---
+
+## Phase 5: 配置页面
+
+### Task 5.1: 重构 WidgetConfigViewModel ✅
+
+**文件**: `entry/src/main/ets/viewmodel/WidgetConfigViewModel.ets` ✅
+
+**内容**:
+- 修改为支持多账号 slot 选择
+- slots 数组存储选中的 WidgetSlotRef（三元组）
+- 根据尺寸限制 slots 数量
+
+**验收标准**:
+- [x] 支持跨账号选择游戏
+- [x] 预览正确显示选中的 slots
+
+---
+
+### Task 5.2: 重构配置页面 UI ✅
+
+**文件**: `entry/src/main/ets/pages/WidgetSettings.ets` ✅
+
+**内容**:
+- Slot 选择步骤改为显示所有账号的所有角色
+- 支持跨账号选择
+- 更新预览组件
+
+**验收标准**:
+- [x] 显示所有账号的游戏列表
+- [x] 支持多选（受尺寸限制）
+- [x] 预览实时更新
+
+---
+
+### Task 5.3: 更新 WidgetConfigPreview 组件 ✅
+
+**文件**: `entry/src/main/ets/components/widgetconfig/WidgetConfigPreview.ets` ✅
+
+**内容**:
+- 接收 selectedSlots 数组
+- 渲染对应数量的 Slot 预览
+- 正确显示渐变背景
+
+**验收标准**:
+- [x] 预览与实际 Widget 一致
+- [x] 渐变背景正确
+
+---
+
+## Phase 6: EntryFormAbility 集成 ✅
+
+### Task 6.1: 更新 onAddForm ✅
+
+**文件**: `entry/src/main/ets/entryformability/EntryFormAbility.ets` ✅
+
+**内容**:
+- 解析 want.parameters 中的 widgetConfig
+- 保存 Widget 配置到 WidgetConfigStore
+- 构建初始 payload
+
+**验收标准**:
+- [x] 配置正确保存
+- [x] Widget 正确显示初始数据
+
+---
+
+### Task 6.2: 更新 onUpdateForm ✅
+
+**文件**: `entry/src/main/ets/entryformability/EntryFormAbility.ets` ✅
+
+**内容**:
+- 读取全局数据 WidgetDataStore
+- 根据 formId 读取配置 WidgetConfig
+- 构建更新 payload
+
+**验收标准**:
+- [x] 数据正确更新
+- [x] 处理配置不存在的情况
+
+---
+
+### Task 6.3: 更新 onRemoveForm ✅
+
+**文件**: `entry/src/main/ets/entryformability/EntryFormAbility.ets` ✅
+
+**内容**:
+- 删除 Widget 配置
+
+**验收标准**:
+- [x] 配置正确清理
+
+---
+
+## Phase 7: 数据同步 ✅
+
+### Task 7.1: 更新数据同步逻辑 ✅
+
+**文件**: 
+- `core/src/main/ets/repository/SyncQueueRunner.ets` ✅
+- `entry/src/main/ets/entryability/EntryAbility.ets` ✅
+
+**内容**:
+- 在 `SyncQueueRunner` 中添加 `registerOnComplete()` 回调机制
+- 在 `EntryAbility.onCreate()` 中注册 Widget 数据刷新回调
+- 同步完成后自动调用 `WidgetDataStoreBuilder.refreshAndSave()`
+
+**验收标准**:
+- [x] 同步后 Widget 数据更新
+- [x] 回调机制可扩展（支持多个回调）
+
+---
+
+## 测试计划
+
+### 单元测试
+
+- [ ] 数据模型序列化/反序列化
+- [ ] Payload 构建逻辑
+- [ ] 配置存储读写
+
+### 集成测试
+
+- [ ] 添加 Widget 流程
+- [ ] Widget 数据刷新
+- [ ] 多账号混合显示
+- [ ] 删除账号后的处理
+
+### UI 测试
+
+- [ ] 配置页面交互
+- [ ] 预览正确性
+- [ ] Widget 点击跳转
