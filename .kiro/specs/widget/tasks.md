@@ -14,7 +14,7 @@
 | 8 | 更新 EntryFormAbility | P1 | done |
 | 9 | 数据同步集成 | P1 | done |
 | 10 | 测试验证 | P1 | pending |
-| 11 | v1.1 Payload 格式迁移 | P0 | in-progress |
+| 11 | v1.1 Payload 格式迁移 | P0 | done |
 
 ---
 
@@ -440,16 +440,17 @@
 
 ---
 
-### Task 11.6: 修复 ArkTS 严格模式编译错误 ⏳
+### Task 11.6: 修复 ArkTS 严格模式编译错误 ✅
 
 **编译错误**（已修复）:
 1. ✅ `ESObject` 类型限制 — 改用显式接口类型
 2. ✅ `any` 类型禁止 — 改用显式类型断言
 3. ✅ 对象字面量无类型 — 声明变量后赋值
+4. ✅ `@LocalStorageProp` 跨组件传递 — 改为子组件直接读取 LocalStorage
 
-**待验证**:
-- [ ] 编译通过
-- [ ] Widget 显示正确
+**已验证**:
+- [x] 编译通过
+- [ ] Widget 显示正确（待真机测试）
 - [ ] 1x2 单游戏卡片正常
 - [ ] 2x2 多游戏卡片正常
 - [ ] 2x4 卡片正常
@@ -459,13 +460,37 @@
 
 ### 调试笔记
 
-**问题**: 所有 Widget 不显示内容
+**问题 1**: 所有 Widget 显示黑屏（2024-05-07）
 
-**排查步骤**:
-1. 检查 `WidgetPayloadBuilder.toLocalStorageRecord()` 输出
-2. 检查 `parsePayload()` 解析结果
-3. 检查 `WidgetCardContent.buildSlotData()` 传参
-4. 检查 `parseSlotJson()` 解析游戏数据
+**根本原因**: 
+1. `WidgetSlotDataParser.ets` 使用了 `??` 空值合并运算符
+2. `WidgetSlotDataParser.ets` 使用了 union 类型 `Record<string, Object> | null`
+3. `WidgetPayloadParser.ets` 使用了 `??` 运算符
+4. `WidgetSlotRenderer.ets` 的 `build()` 方法调用 `@Builder` 方法时语法不正确
+
+**ArkTS Widget Form 限制**:
+- 禁止使用 `??` 空值合并运算符
+- 禁止使用 union 类型（如 `Type | null`）
+- 禁止使用可选链 `?.`
+- 禁止使用任何日志系统（console、hilog 均不支持）
+
+**修复内容**:
+
+1. **WidgetSlotDataParser.ets**:
+   - `parseSlotJson()` — 移除所有 `??`，改用三元运算符 `x !== undefined ? x : default`
+   - `parseRawJson()` — 移除 union 类型，改用显式 null 检查
+   - `parseGenshinData()` — 移除所有 `??` 和 `as Record<string, Object> | null`
+   - `parseStarRailData()` — 移除所有 `??`
+   - `parseZZZData()` — 移除 union 类型和 `??`
+
+2. **WidgetPayloadParser.ets**:
+   - `parsePayload()` — `accObj.accountId ?? ''` 改为 `accObj.accountId !== undefined ? accObj.accountId : ''`
+
+3. **WidgetSlotRenderer.ets**:
+   - `build()` 方法中调用 `@Builder` 方法时移除分号和 `void` 返回类型
+   - `this.buildMiniLayout();` → `this.buildMiniLayout()`
+
+**当前状态**: 编译通过，待真机验证
 
 **关键数据流**:
 ```
@@ -480,3 +505,17 @@ FormExtension
   → ParsedPayload
   → WidgetSlotRenderer({ data })
 ```
+
+---
+
+### 待验证事项（换电脑后继续）
+
+1. **Widget 黑屏问题是否修复**: 在模拟器/真机上添加 Widget 验证
+2. **rawJson 解析是否正确**: 检查 `parseSlotJson()` 是否正确解析游戏数据
+3. **体力数据是否显示**: 验证 `currentStamina`/`maxStamina` 是否正确提取
+
+**验证步骤**:
+1. 在模拟器上长按桌面 → 服务卡片 → 选择 MiYoYo Tools
+2. 添加 2x2 尺寸的 Widget
+3. 观察是否显示体力数据
+4. 如果仍然黑屏，检查 `WidgetCardContent` 的条件分支逻辑

@@ -56,8 +56,8 @@ export class ParsedRole {
       return;
     }
     try {
-      const resp: ApiResponseJson = JSON.parse(this.rawJson) as ApiResponseJson;
-      const data: ApiDataJson = resp.data;
+      // rawJson 直接就是 data 对象
+      const data: ApiDataJson = JSON.parse(this.rawJson) as ApiDataJson;
       if (data === undefined || data === null) {
         return;
       }
@@ -198,14 +198,8 @@ interface RoleJson {
 }
 
 /**
- * API 响应 JSON 结构
+ * API data 对象 JSON 结构（rawJson 存储的就是这个格式）
  */
-interface ApiResponseJson {
-  retcode: number;
-  message: string;
-  data: ApiDataJson;
-}
-
 interface ApiDataJson {
   current_resin?: number;
   max_resin?: number;
@@ -231,40 +225,46 @@ interface ProgressJson {
  */
 export function parsePayload(payloadJson: string): ParsedPayload {
   const result = new ParsedPayload();
-
+  
   if (payloadJson.length === 0) {
+    // 空 payload 返回默认值
     return result;
   }
 
   try {
     const obj: PayloadJson = JSON.parse(payloadJson) as PayloadJson;
-    result.version = obj.version ?? 1;
-    result.updatedAt = obj.updatedAt ?? 0;
+    result.version = obj.version !== undefined ? obj.version : 1;
+    result.updatedAt = obj.updatedAt !== undefined ? obj.updatedAt : 0;
 
-    const accounts: AccountJson[] | undefined = obj.accounts;
+    // 安全检查 accounts 字段
+    if (obj.accounts === undefined || obj.accounts === null) {
+      return result;
+    }
+
+    const accounts: AccountJson[] = obj.accounts;
     if (accounts !== undefined && accounts !== null) {
       for (let i = 0; i < accounts.length; i++) {
         const accObj: AccountJson = accounts[i];
         const parsedAcc = new ParsedAccount();
-        parsedAcc.accountId = accObj.accountId ?? '';
-        parsedAcc.accountName = accObj.accountName ?? '';
+        parsedAcc.accountId = accObj.accountId !== undefined ? accObj.accountId : '';
+        parsedAcc.accountName = accObj.accountName !== undefined ? accObj.accountName : '';
 
         const games: GameJson[] | undefined = accObj.games;
         if (games !== undefined && games !== null) {
           for (let j = 0; j < games.length; j++) {
             const gameObj: GameJson = games[j];
             const parsedGame = new ParsedGame();
-            parsedGame.gameId = gameObj.gameId ?? '';
+            parsedGame.gameId = gameObj.gameId !== undefined ? gameObj.gameId : '';
 
             const roles: RoleJson[] | undefined = gameObj.roles;
             if (roles !== undefined && roles !== null) {
               for (let k = 0; k < roles.length; k++) {
                 const roleObj: RoleJson = roles[k];
                 const parsedRole = new ParsedRole();
-                parsedRole.roleId = roleObj.roleId ?? '';
-                parsedRole.nickname = roleObj.nickname ?? '';
-                parsedRole.server = roleObj.server ?? '';
-                parsedRole.rawJson = roleObj.rawJson ?? '';
+                parsedRole.roleId = roleObj.roleId !== undefined ? roleObj.roleId : '';
+                parsedRole.nickname = roleObj.nickname !== undefined ? roleObj.nickname : '';
+                parsedRole.server = roleObj.server !== undefined ? roleObj.server : '';
+                parsedRole.rawJson = roleObj.rawJson !== undefined ? roleObj.rawJson : '';
 
                 // 解析体力数据
                 parseStaminaData(parsedRole);
@@ -289,6 +289,9 @@ export function parsePayload(payloadJson: string): ParsedPayload {
 
 /**
  * 解析体力数据
+ *
+ * 注意：rawJson 存储的是 API 响应中的 data 对象（不带 retcode/message 结构）
+ * 例如原神：{"current_resin": 140, "max_resin": 200, ...}
  */
 function parseStaminaData(role: ParsedRole): void {
   if (role.rawJson.length === 0) {
@@ -296,8 +299,8 @@ function parseStaminaData(role: ParsedRole): void {
   }
 
   try {
-    const resp: ApiResponseJson = JSON.parse(role.rawJson) as ApiResponseJson;
-    const data: ApiDataJson = resp.data;
+    // rawJson 直接就是 data 对象，不需要从 resp.data 取
+    const data: ApiDataJson = JSON.parse(role.rawJson) as ApiDataJson;
 
     if (data === undefined || data === null) {
       return;
@@ -305,18 +308,18 @@ function parseStaminaData(role: ParsedRole): void {
 
     // 尝试原神格式
     if (data.current_resin !== undefined) {
-      role.currentStamina = data.current_resin ?? 0;
-      role.maxStamina = data.max_resin ?? 160;
+      role.currentStamina = data.current_resin !== undefined ? data.current_resin : 0;
+      role.maxStamina = data.max_resin !== undefined ? data.max_resin : 160;
       const recoveryTime: string | undefined = data.resin_recovery_time;
-      role.recoverySeconds = recoveryTime !== undefined ? parseInt(recoveryTime, 10) || 0 : 0;
+      role.recoverySeconds = recoveryTime !== undefined ? parseInt(recoveryTime, 10) : 0;
       return;
     }
 
     // 尝试星铁格式
     if (data.current_stamina !== undefined) {
-      role.currentStamina = data.current_stamina ?? 0;
-      role.maxStamina = data.max_stamina ?? 240;
-      role.recoverySeconds = data.stamina_recover_time ?? 0;
+      role.currentStamina = data.current_stamina !== undefined ? data.current_stamina : 0;
+      role.maxStamina = data.max_stamina !== undefined ? data.max_stamina : 240;
+      role.recoverySeconds = data.stamina_recover_time !== undefined ? data.stamina_recover_time : 0;
       return;
     }
 
@@ -325,10 +328,10 @@ function parseStaminaData(role: ParsedRole): void {
     if (energy !== undefined && energy !== null) {
       const progress: ProgressJson | undefined = energy.progress;
       if (progress !== undefined && progress !== null) {
-        role.currentStamina = progress.current ?? 0;
-        role.maxStamina = progress.max ?? 240;
+        role.currentStamina = progress.current !== undefined ? progress.current : 0;
+        role.maxStamina = progress.max !== undefined ? progress.max : 240;
       }
-      role.recoverySeconds = energy.restore ?? 0;
+      role.recoverySeconds = energy.restore !== undefined ? energy.restore : 0;
     }
   } catch (_e) {
     // 解析失败保持默认值

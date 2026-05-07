@@ -160,7 +160,10 @@ export class WidgetPayloadBuilder {
     // 转换为数组
     payload.accounts = Array.from(accountMap.values());
 
+    // 打印 payload 详情
+    const payloadJson = JSON.stringify(payload.toLocalStorageRecord()['payload']);
     Logger.info(TAG, `buildPayload: size=${size}, accounts=${payload.accounts.length}, totalRoles=${slots.length}`);
+    Logger.info(TAG, `buildPayload: payload preview: ${payloadJson.substring(0, 500)}`);
 
     return payload;
   }

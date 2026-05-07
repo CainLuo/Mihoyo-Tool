@@ -1,10 +1,29 @@
 # Widget 多账号混合显示 - 开发状态记录
 
-**最后更新**: 2026-05-06
+**最后更新**: 2026-05-07
 
 ## 当前进度
 
-核心功能已完成，需要构建验证。
+核心功能已完成，构建验证通过。
+
+### 最近修复（2026-05-07 下午）
+
+1. **WidgetPayloadParser rawJson 格式问题修复**
+   - 问题：`parseStaminaData()` 期望 `rawJson` 是完整 API 响应 `{retcode, message, data}`，但实际存储的是 `data` 对象本身
+   - 影响：导致 1x2 卡片不显示体力值，2x2 卡片一片黑（crash）
+   - 解决：修改 `parseStaminaData()` 和 `detectGameType()` 直接解析 `rawJson` 作为 `ApiDataJson`
+   - 影响文件：`entry/src/main/ets/widget/utils/WidgetPayloadParser.ets`
+
+### 最近修复（2026-05-07）
+
+1. **@LocalStorageProp 跨组件传递问题修复**
+   - 问题：`@LocalStorageProp` 装饰的属性不能传递给子组件的普通属性
+   - 解决：`WidgetCardContent` 组件改为直接使用 `@LocalStorageProp('payload')` 读取数据
+   - 影响文件：
+     - `entry/src/main/ets/widget/components/WidgetCardContent.ets`
+     - `entry/src/main/ets/widget/pages/Widget2x2.ets`
+     - `entry/src/main/ets/widget/pages/Widget2x4.ets`
+     - `entry/src/main/ets/widget/pages/Widget4x4.ets`
 
 ### 最近修复（2026-05-06）
 
@@ -60,6 +79,10 @@
 - [ ] 多账号混合显示
 - [ ] 删除账号后的处理
 - [ ] 同步完成后 Widget 自动更新
+- [ ] 1x2 单游戏卡片正常
+- [ ] 2x2 多游戏卡片正常
+- [ ] 2x4 卡片正常
+- [ ] 4x4 卡片正常
 
 ### 2. 可能需要检查的问题
 

@@ -91,7 +91,9 @@ struct Widget2x4 {
     Column() {
       WidgetCardContent({ 
         cardSize: WidgetCardSize.SIZE_2x4,
-        payloadJson: this.payloadJson 
+        allRoles: this.allRoles,
+        gameIds: this.gameIds,
+        isSingleGame: this.parsed.isSingleGame,
       })
     }
     .width(this.tm.current.full)

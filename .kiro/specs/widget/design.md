@@ -440,3 +440,93 @@ entry/src/main/ets/widget/utils/
 entry/src/main/ets/widget/utils/
 └── WidgetPayloadBuilder.ets    ← 从 DataStore + Config 构建 LocalStorage payload
 ```
+
+---
+
+## 九、ArkTS Widget Form 技术限制
+
+> ⚠️ **重要**: Widget Form 使用独立的渲染引擎，存在以下严格限制
+
+### 9.1 禁止使用的语法
+
+| 禁止项 | 原因 | 替代方案 |
+|-------|------|---------|
+| `??` 空值合并运算符 | ArkTS 严格模式不支持 | `x !== undefined ? x : default` |
+| `?.` 可选链 | ArkTS 严格模式不支持 | 显式 null 检查 + 直接访问 |
+| `Type \| null` union 类型 | Widget 渲染引擎不支持 | 使用非 null 类型 + 默认值 |
+| `console.log` / `hilog` | Form 不支持日志系统 | 无法调试，只能通过行为推断 |
+| `any` / `ESObject` 类型 | ArkTS 严格模式禁止 | 显式接口类型 + 类型断言 |
+
+### 9.2 @Builder 方法调用规范
+
+```typescript
+// ❌ 错误 — 会导致 Widget 黑屏
+build() {
+  if (this.isMini) {
+    this.buildMiniLayout();  // 分号会导致问题
+  }
+}
+
+// ✅ 正确
+build() {
+  if (this.isMini) {
+    this.buildMiniLayout()  // 无分号
+  }
+}
+```
+
+### 9.3 @Component 装饰器
+
+Widget 必须使用 `@Component`（V1 体系），不支持 `@ComponentV2`。
+
+### 9.4 数据流调试
+
+由于 Form 不支持日志，调试时需要：
+1. 在 `EntryFormAbility` 中使用 `Logger`（主进程支持）
+2. 验证 `WidgetPayloadBuilder.buildPayload()` 输出的 JSON 结构
+3. 通过 Widget 行为推断渲染逻辑是否正确
+
+---
+
+## 十、文件清单
+
+### 10.1 数据模型
+
+| 文件 | 职责 |
+|-----|------|
+| `entry/src/main/ets/widget/models/WidgetDataStore.ets` | 全局数据存储模型 |
+| `entry/src/main/ets/widget/models/WidgetAccount.ets` | 账号模型 |
+| `entry/src/main/ets/widget/models/WidgetGame.ets` | 游戏模型 |
+| `entry/src/main/ets/widget/models/WidgetRole.ets` | 角色模型（含 rawJson） |
+| `entry/src/main/ets/widget/models/WidgetConfig.ets` | Widget 配置模型 |
+
+### 10.2 存储管理
+
+| 文件 | 职责 |
+|-----|------|
+| `entry/src/main/ets/widget/utils/WidgetDataStoreManager.ets` | 全局数据读写 |
+| `entry/src/main/ets/widget/utils/WidgetConfigStore.ets` | 配置读写 |
+
+### 10.3 数据构建
+
+| 文件 | 职责 |
+|-----|------|
+| `entry/src/main/ets/widget/utils/WidgetDataStoreBuilder.ets` | 从 DB 构建数据 |
+| `entry/src/main/ets/widget/utils/WidgetPayloadBuilder.ets` | 构建 LocalStorage payload |
+| `entry/src/main/ets/widget/utils/WidgetPayloadParser.ets` | 解析 v1.1 payload 格式 |
+| `entry/src/main/ets/widget/utils/WidgetSlotDataParser.ets` | 解析游戏专属数据 |
+
+### 10.4 Widget 组件
+
+| 文件 | 职责 |
+|-----|------|
+| `entry/src/main/ets/widget/pages/Widget2x2.ets` | 2x2 卡片入口 |
+| `entry/src/main/ets/widget/pages/Widget4x4.ets` | 4x4 卡片入口 |
+| `entry/src/main/ets/widget/components/WidgetCardContent.ets` | 卡片内容组件 |
+| `entry/src/main/ets/widget/components/WidgetSlotRenderer.ets` | Slot 渲染组件 |
+
+### 10.5 Form Extension
+
+| 文件 | 职责 |
+|-----|------|
+| `entry/src/main/ets/entryformability/EntryFormAbility.ets` | Form 生命周期管理 |

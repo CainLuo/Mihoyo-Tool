@@ -56,6 +56,8 @@ export class WidgetZZZData {
 
 /**
  * 解析后的 Slot 数据（统一接口）
+ *
+ * 注意：Widget 卡片渲染引擎对类型有限制，避免使用 union 类型。
  */
 export class ParsedSlotData {
   gameId: string = '';
@@ -70,14 +72,14 @@ export class ParsedSlotData {
   maxStamina: number = 160;
   recoverySeconds: number = 0;
 
-  // 原神专属
-  genshin: WidgetGenshinData | null = null;
+  // 原神专属（无数据时为默认值，不使用 null）
+  genshin: WidgetGenshinData = new WidgetGenshinData();
 
   // 星铁专属
-  starrail: WidgetStarRailData | null = null;
+  starrail: WidgetStarRailData = new WidgetStarRailData();
 
   // 绝区零专属
-  zzz: WidgetZZZData | null = null;
+  zzz: WidgetZZZData = new WidgetZZZData();
 }
 
 /**
@@ -92,15 +94,15 @@ export function parseSlotJson(slotJson: string): ParsedSlotData {
 
   try {
     const obj = JSON.parse(slotJson) as Record<string, Object>;
-    result.gameId = (obj['gameId'] as string) ?? '';
-    result.accountId = (obj['accountId'] as string) ?? '';
-    result.accountName = (obj['accountName'] as string) ?? '';
-    result.roleId = (obj['roleId'] as string) ?? '';
-    result.nickname = (obj['nickname'] as string) ?? '';
-    result.server = (obj['server'] as string) ?? '';
+    result.gameId = obj['gameId'] !== undefined ? (obj['gameId'] as string) : '';
+    result.accountId = obj['accountId'] !== undefined ? (obj['accountId'] as string) : '';
+    result.accountName = obj['accountName'] !== undefined ? (obj['accountName'] as string) : '';
+    result.roleId = obj['roleId'] !== undefined ? (obj['roleId'] as string) : '';
+    result.nickname = obj['nickname'] !== undefined ? (obj['nickname'] as string) : '';
+    result.server = obj['server'] !== undefined ? (obj['server'] as string) : '';
 
-    const rawJson = obj['rawJson'] as string;
-    if (rawJson && rawJson.length > 0) {
+    const rawJson = obj['rawJson'] !== undefined ? (obj['rawJson'] as string) : '';
+    if (rawJson.length > 0) {
       parseRawJson(result, rawJson);
     }
   } catch (_e) {
@@ -116,8 +118,12 @@ export function parseSlotJson(slotJson: string): ParsedSlotData {
 function parseRawJson(result: ParsedSlotData, rawJson: string): void {
   try {
     const resp = JSON.parse(rawJson) as Record<string, Object>;
-    // API 响应格式：{ retcode: 0, message: 'OK', data: {...} }
-    const data = (resp['data'] ?? resp) as Record<string, Object>;
+    // rawJson 存储的是 data 对象本身（不带 retcode/message 结构）
+    // 降级逻辑：如果 resp['data'] 存在则使用，否则直接使用 resp
+    let data: Record<string, Object> = resp;
+    if (resp['data'] !== undefined && resp['data'] !== null) {
+      data = resp['data'] as Record<string, Object>;
+    }
 
     if (result.gameId === WIDGET_GAME_ID.GENSHIN) {
       result.genshin = parseGenshinData(data);
@@ -145,23 +151,25 @@ function parseRawJson(result: ParsedSlotData, rawJson: string): void {
  */
 function parseGenshinData(data: Record<string, Object>): WidgetGenshinData {
   const result = new WidgetGenshinData();
-  result.currentResin = Number(data['current_resin'] ?? 0);
-  result.maxResin = Number(data['max_resin'] ?? 160);
-  result.resinRecoveryTime = parseInt(String(data['resin_recovery_time'] ?? '0'), 10) || 0;
-  result.currentHomeCoin = Number(data['current_home_coin'] ?? 0);
-  result.maxHomeCoin = Number(data['max_home_coin'] ?? 2400);
-  result.finishedTaskNum = Number(data['finished_task_num'] ?? 0);
-  result.totalTaskNum = Number(data['total_task_num'] ?? 4);
-  result.remainResinDiscountNum = Number(data['remain_resin_discount_num'] ?? 0);
-  result.currentExpeditionNum = Number(data['current_expedition_num'] ?? 0);
-  result.maxExpeditionNum = Number(data['max_expedition_num'] ?? 5);
+  result.currentResin = data['current_resin'] !== undefined ? Number(data['current_resin']) : 0;
+  result.maxResin = data['max_resin'] !== undefined ? Number(data['max_resin']) : 160;
+  result.resinRecoveryTime = data['resin_recovery_time'] !== undefined ? parseInt(String(data['resin_recovery_time']), 10) : 0;
+  result.currentHomeCoin = data['current_home_coin'] !== undefined ? Number(data['current_home_coin']) : 0;
+  result.maxHomeCoin = data['max_home_coin'] !== undefined ? Number(data['max_home_coin']) : 2400;
+  result.finishedTaskNum = data['finished_task_num'] !== undefined ? Number(data['finished_task_num']) : 0;
+  result.totalTaskNum = data['total_task_num'] !== undefined ? Number(data['total_task_num']) : 4;
+  result.remainResinDiscountNum = data['remain_resin_discount_num'] !== undefined ? Number(data['remain_resin_discount_num']) : 0;
+  result.currentExpeditionNum = data['current_expedition_num'] !== undefined ? Number(data['current_expedition_num']) : 0;
+  result.maxExpeditionNum = data['max_expedition_num'] !== undefined ? Number(data['max_expedition_num']) : 5;
 
-  const transformer = data['transformer'] as Record<string, Object> | null;
-  if (transformer) {
-    result.transformerObtained = Boolean(transformer['obtained']);
-    const recoveryTime = transformer['recovery_time'] as Record<string, Object> | null;
-    if (recoveryTime) {
-      result.transformerReached = Boolean(recoveryTime['reached']);
+  const transformer = data['transformer'];
+  if (transformer !== undefined && transformer !== null) {
+    const transformerObj = transformer as Record<string, Object>;
+    result.transformerObtained = transformerObj['obtained'] !== undefined ? Boolean(transformerObj['obtained']) : false;
+    const recoveryTime = transformerObj['recovery_time'];
+    if (recoveryTime !== undefined && recoveryTime !== null) {
+      const recoveryTimeObj = recoveryTime as Record<string, Object>;
+      result.transformerReached = recoveryTimeObj['reached'] !== undefined ? Boolean(recoveryTimeObj['reached']) : false;
     }
   }
 
@@ -173,14 +181,14 @@ function parseGenshinData(data: Record<string, Object>): WidgetGenshinData {
  */
 function parseStarRailData(data: Record<string, Object>): WidgetStarRailData {
   const result = new WidgetStarRailData();
-  result.currentStamina = Number(data['current_stamina'] ?? 0);
-  result.maxStamina = Number(data['max_stamina'] ?? 240);
-  result.staminaRecoverTime = Number(data['stamina_recover_time'] ?? 0);
-  result.currentReserveStamina = Number(data['current_reserve_stamina'] ?? 0);
-  result.currentTrainScore = Number(data['current_train_score'] ?? 0);
-  result.maxTrainScore = Number(data['max_train_score'] ?? 500);
-  result.weeklyCocoonCnt = Number(data['weekly_cocoon_cnt'] ?? 0);
-  result.weeklyCocoonLimit = Number(data['weekly_cocoon_limit'] ?? 3);
+  result.currentStamina = data['current_stamina'] !== undefined ? Number(data['current_stamina']) : 0;
+  result.maxStamina = data['max_stamina'] !== undefined ? Number(data['max_stamina']) : 240;
+  result.staminaRecoverTime = data['stamina_recover_time'] !== undefined ? Number(data['stamina_recover_time']) : 0;
+  result.currentReserveStamina = data['current_reserve_stamina'] !== undefined ? Number(data['current_reserve_stamina']) : 0;
+  result.currentTrainScore = data['current_train_score'] !== undefined ? Number(data['current_train_score']) : 0;
+  result.maxTrainScore = data['max_train_score'] !== undefined ? Number(data['max_train_score']) : 500;
+  result.weeklyCocoonCnt = data['weekly_cocoon_cnt'] !== undefined ? Number(data['weekly_cocoon_cnt']) : 0;
+  result.weeklyCocoonLimit = data['weekly_cocoon_limit'] !== undefined ? Number(data['weekly_cocoon_limit']) : 3;
   return result;
 }
 
@@ -190,26 +198,30 @@ function parseStarRailData(data: Record<string, Object>): WidgetStarRailData {
 function parseZZZData(data: Record<string, Object>): WidgetZZZData {
   const result = new WidgetZZZData();
 
-  const energy = data['energy'] as Record<string, Object> | null;
-  if (energy) {
-    const progress = energy['progress'] as Record<string, Object> | null;
-    if (progress) {
-      result.currentEnergy = Number(progress['current'] ?? 0);
-      result.maxEnergy = Number(progress['max'] ?? 240);
+  const energy = data['energy'];
+  if (energy !== undefined && energy !== null) {
+    const energyObj = energy as Record<string, Object>;
+    const progress = energyObj['progress'];
+    if (progress !== undefined && progress !== null) {
+      const progressObj = progress as Record<string, Object>;
+      result.currentEnergy = progressObj['current'] !== undefined ? Number(progressObj['current']) : 0;
+      result.maxEnergy = progressObj['max'] !== undefined ? Number(progressObj['max']) : 240;
     }
-    result.energyRecoverTime = Number(energy['restore'] ?? 0);
+    result.energyRecoverTime = energyObj['restore'] !== undefined ? Number(energyObj['restore']) : 0;
   }
 
-  const vitality = data['vitality'] as Record<string, Object> | null;
-  if (vitality) {
-    result.currentVitality = Number(vitality['current'] ?? 0);
-    result.maxVitality = Number(vitality['max'] ?? 400);
+  const vitality = data['vitality'];
+  if (vitality !== undefined && vitality !== null) {
+    const vitalityObj = vitality as Record<string, Object>;
+    result.currentVitality = vitalityObj['current'] !== undefined ? Number(vitalityObj['current']) : 0;
+    result.maxVitality = vitalityObj['max'] !== undefined ? Number(vitalityObj['max']) : 400;
   }
 
-  result.cardSign = String(data['card_sign'] ?? '');
-  const vhsSale = data['vhs_sale'] as Record<string, Object> | null;
-  if (vhsSale) {
-    result.videoStoreState = String(vhsSale['sale_state'] ?? '');
+  result.cardSign = data['card_sign'] !== undefined ? String(data['card_sign']) : '';
+  const vhsSale = data['vhs_sale'];
+  if (vhsSale !== undefined && vhsSale !== null) {
+    const vhsSaleObj = vhsSale as Record<string, Object>;
+    result.videoStoreState = vhsSaleObj['sale_state'] !== undefined ? String(vhsSaleObj['sale_state']) : '';
   }
 
   return result;

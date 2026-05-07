@@ -50,52 +50,10 @@ export struct WidgetCardContent {
 
   cardSize: WidgetCardSize = WidgetCardSize.SIZE_2x2;
 
-  // 从父组件接收 payload
-  payloadJson: string = '';
-
-  /** 解析后的 payload */
-  private get parsed(): ParsedPayload {
-    return parsePayload(this.payloadJson);
-  }
-
-  /** 获取所有角色 */
-  private get allRoles(): ParsedRole[] {
-    return this.parsed.getAllRoles();
-  }
-
-  /** 获取游戏 ID 列表 */
-  private get gameIds(): string[] {
-    return this.parsed.getUniqueGameIds();
-  }
-
-  private get ringSize(): number {
-    if (this.cardSize === WidgetCardSize.SIZE_2x2) {
-      return 0;
-    }
-    return 1;
-  }
-
-  /** 获取 SlotSize 枚举值 */
-  private get slotSize(): WidgetSlotSize {
-    switch (this.cardSize) {
-      case WidgetCardSize.SIZE_1x2:
-        return WidgetSlotSize.SIZE_1x2;
-      case WidgetCardSize.SIZE_2x4:
-        return WidgetSlotSize.SIZE_2x4;
-      case WidgetCardSize.SIZE_4x4:
-        return WidgetSlotSize.SIZE_4x4;
-      default:
-        return WidgetSlotSize.SIZE_2x2;
-    }
-  }
-
-  /** 供 @Entry 的 onClick 使用 */
-  get targetPage(): string {
-    if (this.parsed.isSingleGame && this.gameIds.length > 0) {
-      return dailyDetailPage(this.gameIds[0]);
-    }
-    return 'Main';
-  }
+  // 从父组件接收解析后的数据
+  allRoles: ParsedRole[] = [];
+  gameIds: string[] = [];
+  isSingleGame: boolean = true;
 
   build() {
     Column() {
@@ -113,13 +71,13 @@ export struct WidgetCardContent {
         .height(this.tm.current.full)
         .justifyContent(FlexAlign.Center)
         .alignItems(HorizontalAlign.Center)
-      } else if (this.parsed.isSingleGame && this.allRoles.length === 1) {
+      } else if (this.isSingleGame && this.allRoles.length === 1) {
         // 单角色：使用 WidgetSlotRenderer
         WidgetSlotRenderer({
           data: this.buildSlotData(this.allRoles[0]),
           slotSize: this.slotSize,
         })
-      } else if (this.parsed.isSingleGame) {
+      } else if (this.isSingleGame) {
         // 单游戏多角色：使用旧组件
         this.buildSingleGameMultiRoleContent()
       } else {
@@ -141,11 +99,42 @@ export struct WidgetCardContent {
     .height(this.tm.current.full)
   }
 
+  /** 获取 SlotSize 枚举值 */
+  private get slotSize(): WidgetSlotSize {
+    switch (this.cardSize) {
+      case WidgetCardSize.SIZE_1x2:
+        return WidgetSlotSize.SIZE_1x2;
+      case WidgetCardSize.SIZE_2x4:
+        return WidgetSlotSize.SIZE_2x4;
+      case WidgetCardSize.SIZE_4x4:
+        return WidgetSlotSize.SIZE_4x4;
+      default:
+        return WidgetSlotSize.SIZE_2x2;
+    }
+  }
+
+  private get ringSize(): number {
+    if (this.cardSize === WidgetCardSize.SIZE_2x2) {
+      return 0;
+    }
+    return 1;
+  }
+
   /** 构建 WidgetSlotRenderer 所需的数据 */
   private buildSlotData(role: ParsedRole): ParsedSlotData {
+    // 从角色数据推断游戏类型
+    let detectedGameId = '';
+    if (role.isGenshin()) {
+      detectedGameId = WIDGET_GAME_ID.GENSHIN;
+    } else if (role.isStarRail()) {
+      detectedGameId = WIDGET_GAME_ID.STARRAIL;
+    } else if (role.isZZZ()) {
+      detectedGameId = WIDGET_GAME_ID.ZZZ;
+    }
+    
     // 构建 slot JSON 格式，然后用 parseSlotJson 解析（它会自动解析 rawJson 中的游戏专属数据）
     const slotJsonObj: SlotJsonData = new SlotJsonData();
-    slotJsonObj.gameId = this.gameIds.length > 0 ? this.gameIds[0] : '';
+    slotJsonObj.gameId = detectedGameId;
     slotJsonObj.accountId = '';
     slotJsonObj.accountName = '';
     slotJsonObj.roleId = role.roleId;
@@ -168,16 +157,13 @@ export struct WidgetCardContent {
   /** 构建多角色数据 */
   private buildMultiRoleData(): WidgetAccountData {
     const acc = new WidgetAccountData();
-    const firstAccount = this.parsed.firstAccount;
 
-    if (firstAccount !== null) {
-      acc.accountName = firstAccount.accountName;
-      acc.accountUid = firstAccount.accountId;
-    }
-
+    acc.accountName = '';
+    acc.accountUid = '';
     acc.gameCount = this.gameIds.length;
 
-    for (const gameId of this.gameIds) {
+    for (let i = 0; i < this.gameIds.length; i++) {
+      const gameId = this.gameIds[i];
       const gameData = new WidgetGameData();
       gameData.gameId = gameId;
 
@@ -197,7 +183,8 @@ export struct WidgetCardContent {
 
   /** 根据游戏 ID 查找角色 */
   private findRoleByGameId(gameId: string): ParsedRole | null {
-    for (const role of this.allRoles) {
+    for (let i = 0; i < this.allRoles.length; i++) {
+      const role = this.allRoles[i];
       if (gameId === WIDGET_GAME_ID.GENSHIN && role.isGenshin()) {
         return role;
       }

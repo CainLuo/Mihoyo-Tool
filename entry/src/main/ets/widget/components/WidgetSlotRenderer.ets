@@ -138,9 +138,9 @@ export struct WidgetSlotRenderer {
 
   build() {
     if (this.isMini) {
-      this.buildMiniLayout();
+      this.buildMiniLayout()
     } else {
-      this.buildStandardLayout();
+      this.buildStandardLayout()
     }
   }
 

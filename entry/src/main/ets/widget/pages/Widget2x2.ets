@@ -13,6 +13,8 @@ import { WidgetCardContent, WidgetCardSize } from '../components/WidgetCardConte
 import { parsePayload, ParsedPayload, ParsedRole } from '../utils/WidgetPayloadParser';
 import { dailyDetailPage, WIDGET_GAME_ID } from '../utils/WidgetUtils';
 
+const TAG = 'Widget2x2';
+
 /** 游戏背景色系 */
 class GameColorBase {
   dark: string = '#181820';
@@ -94,7 +96,9 @@ struct Widget2x2 {
     Column() {
       WidgetCardContent({ 
         cardSize: WidgetCardSize.SIZE_2x2,
-        payloadJson: this.payloadJson 
+        allRoles: this.allRoles,
+        gameIds: this.gameIds,
+        isSingleGame: this.parsed.isSingleGame,
       })
     }
     .width(this.tm.current.full)
