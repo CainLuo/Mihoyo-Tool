@@ -508,14 +508,117 @@ FormExtension
 
 ---
 
-### 待验证事项（换电脑后继续）
+### 调试笔记（续）
 
-1. **Widget 黑屏问题是否修复**: 在模拟器/真机上添加 Widget 验证
-2. **rawJson 解析是否正确**: 检查 `parseSlotJson()` 是否正确解析游戏数据
-3. **体力数据是否显示**: 验证 `currentStamina`/`maxStamina` 是否正确提取
+**问题 2**: 1x2 Widget 仍然黑屏（2024-05-07 续）
+
+**根本原因**: 
+1. `Widget1x2Genshin.ets` 使用了 `parsed.firstAccount?.accountName ?? ''`
+2. `Widget1x2StarRail.ets` 同样使用了 `??` 和 `?.`
+3. `Widget1x2ZZZ.ets` 同样使用了 `??` 和 `?.`
+4. 三个文件都有未使用的 `Logger` import 和 `TAG` 常量
+
+**修复内容**:
+
+1. **Widget1x2Genshin.ets**:
+   - 移除 `??` 和 `?.` 运算符
+   - 使用显式 null 检查：`if (firstAccount !== null)`
+   - 移除未使用的 `Logger` import 和 `TAG` 常量
+   - 根据游戏类型查找角色（`isGenshin()`）
+
+2. **Widget1x2StarRail.ets**:
+   - 移除 `??` 和 `?.` 运算符
+   - 使用显式 null 检查
+   - 移除未使用的 `Logger` import 和 `TAG` 常量
+   - 根据游戏类型查找角色（`isStarRail()`）
+
+3. **Widget1x2ZZZ.ets**:
+   - 移除 `??` 和 `?.` 运算符
+   - 使用显式 null 检查
+   - 移除未使用的 `Logger` import 和 `TAG` 常量
+   - 根据游戏类型查找角色（`isZZZ()`）
+
+**1x2 Widget 逻辑修正**:
+- 1x2 有三个独立模板（genshin/starrail/zzz）
+- 每个模板只显示对应游戏的角色数据
+- 通过 `isGenshin()`/`isStarRail()`/`isZZZ()` 方法匹配游戏类型
+- 如果没有匹配的角色，fallback 到第一个角色
+
+**当前状态**: 所有 Widget 文件已修复，待真机验证
+
+---
+
+### 调试笔记（续 2）
+
+**问题 3**: 原神 1x2 卡片显示绝区零数据（2024-05-09）
+
+**根本原因**: 
+1. `WidgetPayloadBuilder.getDefaultSlots()` 返回第一个账号的前 N 个角色，**不区分游戏类型**
+2. 如果第一个角色是绝区零，payload 里就包含绝区零数据
+3. `Widget1x2Genshin.buildData()` 中 `isGenshin()` 检测 `rawJson` 没有 `current_resin` 字段，返回 false
+4. fallback 到第一个角色（绝区零），导致原神模板显示绝区零数据
+
+**数据流分析**:
+```
+EntryFormAbility.onAddForm()
+  → WidgetPayloadBuilder.buildPayload(config, dataStore)
+  → getDefaultSlots(dataStore, maxSlots)  // ❌ 未根据 formName 过滤
+  → 返回第一个账号的所有游戏的第一个角色
+  → 可能包含绝区零数据
+  → Widget1x2Genshin.isGenshin() 检测 rawJson 无 current_resin
+  → fallback 到第一个角色（绝区零）
+```
+
+**修复内容**:
+
+1. **WidgetConfig.ets**:
+   - 新增 `formName` 字段，存储卡片模板名（如 `widget_1x2_genshin`）
+   - 更新 `toJson()` 和 `fromJson()` 方法
+
+2. **EntryFormAbility.ets**:
+   - 在解析配置时保存 `formName`
+   - `config.formName = formName`
+
+3. **WidgetPayloadBuilder.ets**:
+   - 新增 `gameIdFromFormName(formName)` 方法：
+     - `widget_1x2_genshin` → `genshin`
+     - `widget_1x2_starrail` → `starrail`
+     - `widget_1x2_zzz` → `zzz`
+   - 修改 `getDefaultSlots(dataStore, maxSlots, formName)`:
+     - 根据 `formName` 过滤游戏类型
+     - 只返回对应游戏的角色数据
+
+**修改文件清单**:
+- `entry/src/main/ets/widget/models/WidgetConfig.ets`
+- `entry/src/main/ets/entryformability/EntryFormAbility.ets`
+- `entry/src/main/ets/widget/utils/WidgetPayloadBuilder.ets`
+
+**当前状态**: 代码已修改，待编译验证
+
+---
+
+### 待验证事项（换 macOS 后继续）
+
+**编译验证**:
+- [ ] 在 DevEco Studio 中编译 mock 环境
+- [ ] 确认无 ArkTS 严格模式错误
+
+**功能验证**:
+- [ ] 启动 App，确保有账号数据
+- [ ] 添加 1x2 原神卡片，确认显示原神数据
+- [ ] 添加 1x2 星铁卡片，确认显示星铁数据
+- [ ] 添加 1x2 绝区零卡片，确认显示绝区零数据
+- [ ] 添加 2x2 卡片，确认多角色显示正常
+- [ ] 重启模拟器后添加新卡片，确认数据正确
 
 **验证步骤**:
-1. 在模拟器上长按桌面 → 服务卡片 → 选择 MiYoYo Tools
-2. 添加 2x2 尺寸的 Widget
-3. 观察是否显示体力数据
-4. 如果仍然黑屏，检查 `WidgetCardContent` 的条件分支逻辑
+1. 在 DevEco Studio 中 Build → Build Hap(s)/APP(s) → Build Hap(s)
+2. 运行到模拟器
+3. 长按桌面 → 服务卡片 → MiYoYo Tools
+4. 分别添加三种 1x2 卡片，观察数据是否匹配游戏类型
+5. 添加 2x2 卡片，观察多角色显示
+
+**如果仍然有问题**:
+1. 检查 `EntryFormAbility` 日志，确认 `formName` 正确传递
+2. 检查 `WidgetPayloadBuilder.getDefaultSlots()` 日志，确认过滤逻辑正确
+3. 检查 payload JSON 结构，确认只包含对应游戏的角色

@@ -10,6 +10,7 @@ import { WidgetSlotRef } from './WidgetDataStore';
 /** WidgetConfig JSON 结构 */
 interface WidgetConfigJson {
   formId: string;
+  formName: string;
   size: string;
   slots: Object[];
 }
@@ -47,6 +48,8 @@ export function getMaxSlots(size: WidgetSize): number {
 export class WidgetConfig {
   /** Widget 实例 ID（formId） */
   formId: string = '';
+  /** 卡片模板名，如 'widget_1x2_genshin' */
+  formName: string = '';
   /** Widget 尺寸 */
   size: WidgetSize = WidgetSize.SIZE_2x2;
   /** 选择的槽位列表（只存三元组，不存 rawJson） */
@@ -55,6 +58,7 @@ export class WidgetConfig {
   toJson(): string {
     const obj: WidgetConfigJson = {
       formId: this.formId,
+      formName: this.formName,
       size: this.size,
       slots: this.slots.map((s) => s.toJson()),
     };
@@ -69,6 +73,7 @@ export class WidgetConfig {
     try {
       const obj = JSON.parse(json) as Record<string, Object>;
       if (obj['formId'] !== undefined) { d.formId = obj['formId'] as string; }
+      if (obj['formName'] !== undefined) { d.formName = obj['formName'] as string; }
       if (obj['size'] !== undefined) { d.size = obj['size'] as WidgetSize; }
       if (obj['slots'] !== undefined) {
         const slotsArr = obj['slots'] as Object[];

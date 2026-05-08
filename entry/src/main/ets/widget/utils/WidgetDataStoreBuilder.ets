@@ -32,6 +32,7 @@ export class WidgetDataStoreBuilder {
     try {
       // 1. 获取所有账号
       const accounts = await CoreInitializer.bbsRepository.getAllAccounts();
+      Logger.info(TAG, `buildFromDB: found ${accounts.length} accounts`);
       if (accounts.length === 0) {
         Logger.info(TAG, 'buildFromDB: no accounts found');
         return store;
@@ -40,12 +41,15 @@ export class WidgetDataStoreBuilder {
       // 2. 遍历每个账号
       for (let i = 0; i < accounts.length; i++) {
         const account = accounts[i];
+        Logger.info(TAG, `buildFromDB: processing account[${i}] uid=${account.uid} nickname=${account.nickname}`);
+        
         const widgetAccount = new WidgetAccount();
         widgetAccount.accountId = account.uid;
         widgetAccount.accountName = account.nickname || account.username;
 
         // 3. 获取该账号下的所有游戏角色
         const roles = await CoreInitializer.bbsRepository.getGameRoles(account.uid);
+        Logger.info(TAG, `buildFromDB: account ${account.uid} has ${roles.length} roles`);
         if (roles.length === 0) {
           continue;
         }
@@ -55,6 +59,7 @@ export class WidgetDataStoreBuilder {
         for (let j = 0; j < roles.length; j++) {
           const role = roles[j];
           const gameIdStr = WidgetDataStoreBuilder.gameIdToString(role.gameId);
+          Logger.info(TAG, `buildFromDB:   role[${j}] gameId=${gameIdStr} roleId=${role.roleId} nickname=${role.nickname}`);
 
           // 创建或获取 WidgetGame
           let widgetGame = gameMap[gameIdStr];
@@ -66,6 +71,7 @@ export class WidgetDataStoreBuilder {
 
           // 创建 WidgetRole 并填充 rawJson
           const widgetRole = await WidgetDataStoreBuilder.buildWidgetRole(account.uid, role);
+          Logger.info(TAG, `buildFromDB:     rawJson.length=${widgetRole.rawJson.length}`);
           widgetGame.roles.push(widgetRole);
         }
 

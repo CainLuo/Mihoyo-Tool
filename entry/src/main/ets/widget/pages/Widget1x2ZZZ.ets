@@ -7,13 +7,10 @@
  * - 游戏主题色渐变背景
  */
 
-import { Logger } from 'core';
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { Widget1x2Content } from '../components/Widget1x2Content';
 import { WidgetGameData, WidgetSingleGameData } from '../models/WidgetModels';
-import { parsePayload } from '../utils/WidgetPayloadParser';
-
-const TAG = 'Widget1x2ZZZ';
+import { parsePayload, ParsedRole } from '../utils/WidgetPayloadParser';
 
 let storageZZZ1x2 = new LocalStorage();
 
@@ -29,22 +26,41 @@ struct Widget1x2ZZZ {
     const d = new WidgetSingleGameData();
     const parsed = parsePayload(this.payloadJson);
 
-    // 获取第一个角色的数据
+    // 获取所有角色
     const roles = parsed.getAllRoles();
     if (roles.length === 0) {
-      Logger.info(TAG, 'buildData: no roles found');
       return d;
     }
 
-    const firstRole = roles[0];
-    d.accountName = parsed.firstAccount?.accountName ?? '';
-    d.accountUid = parsed.firstAccount?.accountId ?? '';
-    d.game = new WidgetGameData();
-    d.game.gameId = parsed.getUniqueGameIds()[0] ?? '';
-    d.game.currentStr = firstRole.currentStamina.toString();
-    d.game.maxStr = firstRole.maxStamina.toString();
+    // 查找绝区零角色（因为这是绝区零模板）
+    let zzzRole: ParsedRole | null = null;
+    for (let i = 0; i < roles.length; i++) {
+      if (roles[i].isZZZ()) {
+        zzzRole = roles[i];
+        break;
+      }
+    }
 
-    Logger.info(TAG, `buildData: gameId=${d.game.gameId} current=${d.game.currentStr}/${d.game.maxStr}`);
+    if (zzzRole === null) {
+      // 没有绝区零数据，使用第一个角色作为 fallback
+      zzzRole = roles[0];
+    }
+
+    // 获取账号信息
+    const firstAccount = parsed.firstAccount;
+    if (firstAccount !== null) {
+      d.accountName = firstAccount.accountName;
+    }
+    // UID 显示游戏角色 UID，不是米游社账号 UID
+    d.accountUid = zzzRole.roleId;
+
+    // 填充游戏数据
+    d.game = new WidgetGameData();
+    d.game.gameId = 'zzz';
+    d.game.currentStr = String(zzzRole.currentStamina);
+    d.game.maxStr = String(zzzRole.maxStamina);
+    d.game.secondsStr = String(zzzRole.recoverySeconds);
+
     return d;
   }
 

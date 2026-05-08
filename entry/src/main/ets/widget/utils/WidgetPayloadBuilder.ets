@@ -110,8 +110,9 @@ export class WidgetPayloadBuilder {
       // 使用用户配置的 slots
       slots = config.slots;
     } else {
-      // 默认行为：取第一个账号的前 N 个角色
-      slots = WidgetPayloadBuilder.getDefaultSlots(dataStore, maxSlots);
+      // 默认行为：取第一个账号的前 N 个角色（根据 formName 过滤游戏类型）
+      const formName = config?.formName ?? '';
+      slots = WidgetPayloadBuilder.getDefaultSlots(dataStore, maxSlots, formName);
     }
 
     // 按 accountId 分组 slots
@@ -170,8 +171,13 @@ export class WidgetPayloadBuilder {
 
   /**
    * 获取默认 slots（第一个账号的前 N 个角色）
+   *
+   * 对于 1x2 模板，根据 formName 过滤游戏类型：
+   * - 'widget_1x2_genshin' → 只返回原神角色
+   * - 'widget_1x2_starrail' → 只返回星铁角色
+   * - 'widget_1x2_zzz' → 只返回绝区零角色
    */
-  private static getDefaultSlots(dataStore: WidgetDataStore, maxSlots: number): WidgetSlotRef[] {
+  private static getDefaultSlots(dataStore: WidgetDataStore, maxSlots: number, formName: string): WidgetSlotRef[] {
     const slots: WidgetSlotRef[] = [];
     const firstAccount = dataStore.firstAccount;
 
@@ -179,9 +185,21 @@ export class WidgetPayloadBuilder {
       return slots;
     }
 
+    // 从 formName 提取游戏类型
+    const targetGameId = WidgetPayloadBuilder.gameIdFromFormName(formName);
+    const filterByGame = targetGameId.length > 0;
+
+    Logger.info(TAG, `getDefaultSlots: formName=${formName}, targetGameId=${targetGameId}, filterByGame=${filterByGame}`);
+
     // 遍历第一个账号的所有游戏和角色
     for (let i = 0; i < firstAccount.games.length && slots.length < maxSlots; i++) {
       const game = firstAccount.games[i];
+      
+      // 如果需要过滤游戏类型，跳过不匹配的游戏
+      if (filterByGame && game.gameId !== targetGameId) {
+        continue;
+      }
+      
       for (let j = 0; j < game.roles.length && slots.length < maxSlots; j++) {
         const role = game.roles[j];
         const slot = new WidgetSlotRef();
@@ -196,6 +214,20 @@ export class WidgetPayloadBuilder {
     }
 
     return slots;
+  }
+
+  /**
+   * 从 formName 提取游戏 ID
+   */
+  private static gameIdFromFormName(formName: string): string {
+    if (formName === 'widget_1x2_genshin') {
+      return 'genshin';
+    } else if (formName === 'widget_1x2_starrail') {
+      return 'starrail';
+    } else if (formName === 'widget_1x2_zzz') {
+      return 'zzz';
+    }
+    return '';
   }
 
   /**

@@ -163,6 +163,7 @@
 ```json
 {
   "formId": "12345",
+  "formName": "widget_1x2_genshin",
   "size": "2x2",
   "slots": [
     { "accountId": "348366494", "gameId": "genshin", "roleId": "250375401" },
@@ -176,6 +177,7 @@
 | 字段 | 类型 | 说明 |
 |-----|------|-----|
 | formId | string | Widget 实例 ID |
+| formName | string | 卡片模板名（如 `widget_1x2_genshin`、`widget_1x2_starrail`、`widget_1x2_zzz`、`widget_2x2`、`widget_2x4`、`widget_4x4`） |
 | size | string | Widget 尺寸（1x2/2x2/2x4/4x4） |
 | slots | array | 选择的槽位列表（三元组：accountId + gameId + roleId） |
 
@@ -186,6 +188,14 @@
 | accountId | string | 米游社账号 UID |
 | gameId | string | 游戏 ID |
 | roleId | string | 游戏内 UID |
+
+**formName 用途**：
+- 用于区分 1x2 的三个游戏专属模板
+- `WidgetPayloadBuilder.getDefaultSlots()` 根据 `formName` 过滤游戏类型：
+  - `widget_1x2_genshin` → 只返回原神角色
+  - `widget_1x2_starrail` → 只返回星铁角色
+  - `widget_1x2_zzz` → 只返回绝区零角色
+  - 其他模板 → 返回所有游戏角色
 
 ### 2.3 默认行为
 
