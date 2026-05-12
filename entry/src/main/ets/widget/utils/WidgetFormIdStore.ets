@@ -10,9 +10,8 @@
 
 import { preferences } from '@kit.ArkData';
 import { common } from '@kit.AbilityKit';
-import { Logger } from 'core';
 
-const TAG = 'WidgetFormIdStore';
+const TAG = 'WIDGET';
 const STORE_NAME = 'widget_form_ids';
 const KEY_PREFIX = 'form_';
 
@@ -44,7 +43,7 @@ export class WidgetFormIdStore {
     try {
       WidgetFormIdStore.store = await preferences.getPreferences(context, STORE_NAME);
     } catch (e) {
-      Logger.error(TAG, `init failed: ${JSON.stringify(e)}`);
+      // 静默处理错误
     }
   }
 
@@ -52,15 +51,13 @@ export class WidgetFormIdStore {
   static async save(formId: string, config: WidgetConfig): Promise<void> {
     const store = WidgetFormIdStore.store;
     if (!store) {
-      Logger.error(TAG, 'save: store not initialized');
       return;
     }
     try {
       await store.put(KEY_PREFIX + formId, JSON.stringify(config));
       await store.flush();
-      Logger.info(TAG, `saved formId=${formId}, accountId=${config.accountId}`);
     } catch (e) {
-      Logger.error(TAG, `save failed: ${JSON.stringify(e)}`);
+      // 静默处理错误
     }
   }
 
@@ -73,9 +70,8 @@ export class WidgetFormIdStore {
     try {
       await store.delete(KEY_PREFIX + formId);
       await store.flush();
-      Logger.info(TAG, `removed formId=${formId}`);
     } catch (e) {
-      Logger.error(TAG, `remove failed: ${JSON.stringify(e)}`);
+      // 静默处理错误
     }
   }
 
@@ -92,7 +88,7 @@ export class WidgetFormIdStore {
       }
       return JSON.parse(raw) as WidgetConfig;
     } catch (e) {
-      Logger.error(TAG, `getConfig failed: ${JSON.stringify(e)}`);
+      // 静默处理错误
       return null;
     }
   }
@@ -115,7 +111,7 @@ export class WidgetFormIdStore {
       }
       return formIds;
     } catch (e) {
-      Logger.error(TAG, `getAllFormIds failed: ${JSON.stringify(e)}`);
+      // 静默处理错误
       return [];
     }
   }

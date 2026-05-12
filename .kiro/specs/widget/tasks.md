@@ -597,11 +597,11 @@ EntryFormAbility.onAddForm()
 
 ---
 
-### 待验证事项（换 macOS 后继续）
+### 待验证事项（macOS 端继续）
 
 **编译验证**:
-- [ ] 在 DevEco Studio 中编译 mock 环境
-- [ ] 确认无 ArkTS 严格模式错误
+- [x] 在 DevEco Studio 中编译 mock 环境
+- [x] 确认无 ArkTS 严格模式错误
 
 **功能验证**:
 - [ ] 启动 App，确保有账号数据
@@ -622,3 +622,109 @@ EntryFormAbility.onAddForm()
 1. 检查 `EntryFormAbility` 日志，确认 `formName` 正确传递
 2. 检查 `WidgetPayloadBuilder.getDefaultSlots()` 日志，确认过滤逻辑正确
 3. 检查 payload JSON 结构，确认只包含对应游戏的角色
+
+---
+
+### 调试笔记（续 3）
+
+**问题 4**: `WidgetDataStoreManager load failed: prefs not initialized`（2026-05-09 macOS）
+
+**根本原因**: 
+1. `EntryFormAbility.initStoreSync()` 中 `WidgetDataStoreManager.init(this.context)` 是异步调用但没有等待完成
+2. FormExtension 在独立进程中运行，需要单独初始化存储
+3. `onAddForm()` 同步返回后，后续的 `load()` 在 `init()` 完成前被调用
+
+**修复内容**:
+
+1. **EntryFormAbility.ets**:
+   - 将 `initStoreSync()` 改为 `initStoreAsync()`，返回 `Promise<void>`
+   - 在 `onAddForm()` 中异步调用 `initStoreAsync()`，完成后才加载数据
+   - 立即返回占位数据，异步更新 Widget
+   - 在 `pushUpdate()` 开头也调用 `initStoreAsync()` 确保初始化
+
+**关键修改**:
+```typescript
+// 旧代码（错误）
+private initStoreSync(): void {
+  WidgetConfigStore.init(this.context);  // 异步但不等待
+  WidgetDataStoreManager.init(this.context);  // 异步但不等待
+}
+
+// 新代码（正确）
+private async initStoreAsync(): Promise<void> {
+  await WidgetConfigStore.init(this.context);
+  await WidgetDataStoreManager.init(this.context);
+}
+```
+
+**当前状态**: 编译通过，待添加新 Widget 验证
+
+---
+
+### 已完成的修复清单
+
+| 文件 | 修复内容 | 状态 |
+|-----|---------|-----|
+| `WidgetSlotDataParser.ets` | 移除 `??` 和 union 类型 | ✅ |
+| `WidgetPayloadParser.ets` | 移除 `??` 运算符 | ✅ |
+| `WidgetSlotRenderer.ets` | 修复 `@Builder` 调用语法 | ✅ |
+| `Widget1x2Genshin.ets` | 移除 `??` 和 `?.`，添加游戏类型过滤 | ✅ |
+| `Widget1x2StarRail.ets` | 移除 `??` 和 `?.`，添加游戏类型过滤 | ✅ |
+| `Widget1x2ZZZ.ets` | 移除 `??` 和 `?.`，添加游戏类型过滤 | ✅ |
+| `WidgetConfig.ets` | 新增 `formName` 字段 | ✅ |
+| `EntryFormAbility.ets` | 保存 `formName` 到配置 | ✅ |
+| `WidgetPayloadBuilder.ets` | 新增 `gameIdFromFormName()` 和游戏过滤逻辑 | ✅ |
+| `EntryFormAbility.ets` | 修复异步初始化问题 | ✅ |
+
+---
+
+### 调试笔记（续 5）— 数据初始化时机问题
+
+**问题 6**: 1x2 Widget 添加时白屏/黑屏，无数据显示（2026-05-09 续）
+
+**根本原因**: 
+1. `EntryAbility.onCreate()` 中 `WidgetDataStoreManager.init()` 是异步调用但没有等待完成
+2. **没有立即构建并保存 Widget 数据**，只在同步完成回调中调用 `refreshAndSave()`
+3. 首次添加 Widget 时，Preferences 中可能还没有数据
+4. `EntryFormAbility` 从 Preferences 读取数据时返回空对象
+
+**数据流分析**:
+```
+EntryAbility.onCreate()
+  → CoreInitializer.initCore()
+  → WidgetDataStoreManager.init()  // 只初始化 Preferences，不构建数据
+  → SyncQueueRunner.registerOnComplete(refreshAndSave)  // 等待同步完成才构建数据
+
+用户添加 Widget
+  → EntryFormAbility.onAddForm()
+  → WidgetDataStoreManager.load()  // ❌ Preferences 可能为空
+  → 返回空 payload
+  → Widget 显示白屏
+```
+
+**修复内容**:
+
+1. **EntryAbility.ets**:
+   - 将 `WidgetDataStoreManager.init()` 改为 `await`
+   - 在初始化完成后立即调用 `WidgetDataStoreBuilder.initAndSave()`
+   - 确保添加 Widget 时 Preferences 已有数据
+
+**修复后数据流**:
+```
+EntryAbility.onCreate()
+  → CoreInitializer.initCore()
+  → await WidgetDataStoreManager.init()
+  → await WidgetDataStoreBuilder.initAndSave()  // ✅ 立即构建并保存数据
+  → Preferences 有数据
+
+用户添加 Widget
+  → EntryFormAbility.onAddForm()
+  → WidgetDataStoreManager.load()  // ✅ 从 Preferences 读取数据
+  → WidgetPayloadBuilder.buildPayload()
+  → Widget 正确显示
+```
+
+**修改文件清单**:
+- `entry/src/main/ets/entryability/EntryAbility.ets` — 添加立即初始化逻辑
+
+**当前状态**: 编译通过 ✅，待真机验证

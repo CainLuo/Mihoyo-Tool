@@ -24,13 +24,10 @@
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
-import hilog from '@ohos.hilog';
-import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { widgetTheme } from '../utils/WidgetTheme';
 import { WidgetExpeditions } from './WidgetExpeditions';
 import { gameColorRes, gameNameRes, staminaLabelRes, calcIsFull, formatRecoveryDesc, parseCurrent, parseMax, WIDGET_GAME_ID } from '../utils/WidgetUtils';
 import { WidgetSingleGameData, WidgetGameData } from '../models/WidgetModels';
-
-const WIDGET_LOG_DOMAIN = 0x0001;
 
 /** 单条数据行：标签左，数值右，flex:1 撑满区块高度 */
 @Component
@@ -42,12 +39,12 @@ struct DataRow {
   build() {
     Row() {
       Text(this.label)
-        .fontSize(themeManager.current.value13)
+        .fontSize(widgetTheme.value13)
         .fontColor($r('app.color.text_on_dark_secondary'))
         .layoutWeight(1)
 
       Text(this.value)
-        .fontSize(themeManager.current.value13)
+        .fontSize(widgetTheme.value13)
         .fontWeight(FontWeight.Medium)
         .fontColor(this.valueColor)
     }
@@ -59,19 +56,11 @@ struct DataRow {
 
 @Component
 export struct Widget4x4SingleGame {
-  private tm: ThemeManager = themeManager;
 
   @Prop data: WidgetSingleGameData = new WidgetSingleGameData();
 
   aboutToAppear() {
-    hilog.info(WIDGET_LOG_DOMAIN, 'Widget4x4', '=== Widget4x4SingleGame aboutToAppear ===');
-    hilog.info(WIDGET_LOG_DOMAIN, 'Widget4x4', 'gameId: %{public}s', this.data.game.gameId);
-    hilog.info(WIDGET_LOG_DOMAIN, 'Widget4x4', 'currentStr: %{public}s | maxStr: %{public}s | secondsStr: %{public}s', this.data.game.currentStr, this.data.game.maxStr, this.data.game.secondsStr);
-    hilog.info(WIDGET_LOG_DOMAIN, 'Widget4x4', 'coinStr: %{public}s | coinMaxStr: %{public}s', this.data.game.coinStr, this.data.game.coinMaxStr);
-    hilog.info(WIDGET_LOG_DOMAIN, 'Widget4x4', 'taskStr: %{public}s | taskTotalStr: %{public}s | taskAllReceived: %{public}s', this.data.game.taskStr, this.data.game.taskTotalStr, this.data.game.taskAllReceived);
-    hilog.info(WIDGET_LOG_DOMAIN, 'Widget4x4', 'transformerStr: %{public}s', this.data.game.transformerStr);
-    hilog.info(WIDGET_LOG_DOMAIN, 'Widget4x4', 'expeditionMaxStr: %{public}s | expeditionFinishedStr: %{public}s', this.data.game.expeditionMaxStr, this.data.game.expeditionFinishedStr);
-    hilog.info(WIDGET_LOG_DOMAIN, 'Widget4x4', 'expeditionFinished: %{public}d', this.expeditionFinished);
+    // 静默处理
   }
 
   private get displayName(): string {
@@ -94,27 +83,27 @@ export struct Widget4x4SingleGame {
   build() {
     Column() {
       // ── 顶部标题行（带底部分割线）──
-      Row({ space: themeManager.current.value5 }) {
+      Row({ space: widgetTheme.value5 }) {
         Column()
-          .width(themeManager.current.value8)
-          .height(themeManager.current.value8)
-          .borderRadius(themeManager.current.value8)
+          .width(widgetTheme.value8)
+          .height(widgetTheme.value8)
+          .borderRadius(widgetTheme.value8)
           .backgroundColor(this.gameColor)
           .flexShrink(0)
 
         Text(gameNameRes(this.data.game.gameId))
-          .fontSize(themeManager.current.value16)
+          .fontSize(widgetTheme.value16)
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.text_on_dark_high'))
           .layoutWeight(1)
 
         Text(this.displayName)
-          .fontSize(themeManager.current.value10)
+          .fontSize(widgetTheme.value10)
           .fontColor($r('app.color.text_on_dark_muted'))
       }
-      .width(this.tm.current.full)
+      .width(widgetTheme.full)
       .alignItems(VerticalAlign.Center)
-      .padding({ bottom: themeManager.current.value10 })
+      .padding({ bottom: widgetTheme.value10 })
       .border({ width: { bottom: 1 }, color: $r('app.color.surface_inactive_border') })
       .flexShrink(0)
 
@@ -122,52 +111,52 @@ export struct Widget4x4SingleGame {
       Column() {
         // 体力标签（uppercase 小字）
         Text(staminaLabelRes(this.data.game.gameId))
-          .fontSize(themeManager.current.value10)
+          .fontSize(widgetTheme.value10)
           .fontColor($r('app.color.text_on_dark_muted'))
-          .margin({ bottom: themeManager.current.value5 })
+          .margin({ bottom: widgetTheme.value5 })
 
         // 体力数字 + /上限
-        Row({ space: themeManager.current.value4 }) {
+        Row({ space: widgetTheme.value4 }) {
           Text(String(parseCurrent(this.data.game.currentStr)))
-            .fontSize(themeManager.current.value36)
+            .fontSize(widgetTheme.value36)
             .fontWeight(FontWeight.Bold)
             .fontColor(this.isFull ? $r('app.color.color_danger') : this.gameColor)
-            .lineHeight(themeManager.current.value36)
+            .lineHeight(widgetTheme.value36)
 
           Text('/ ' + String(parseMax(this.data.game.maxStr)))
-            .fontSize(themeManager.current.value16)
+            .fontSize(widgetTheme.value16)
             .fontColor($r('app.color.text_on_dark_muted'))
             .alignSelf(ItemAlign.End)
-            .margin({ bottom: themeManager.current.value4 })
+            .margin({ bottom: widgetTheme.value4 })
         }
         .alignItems(VerticalAlign.Bottom)
-        .margin({ bottom: themeManager.current.value4 })
+        .margin({ bottom: widgetTheme.value4 })
 
         // 恢复时间
         Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(this.data.game.secondsStr))
-          .fontSize(themeManager.current.value13)
+          .fontSize(widgetTheme.value13)
           .fontColor(this.isFull ? $r('app.color.color_danger') : $r('app.color.text_on_dark_secondary'))
 
         // 星铁：后备开拓力
         if (this.data.game.gameId === WIDGET_GAME_ID.STARRAIL && parseInt(this.data.game.reserveStr) >= 0) {
-          Row({ space: themeManager.current.value5 }) {
+          Row({ space: widgetTheme.value5 }) {
             Text($r('app.string.widget_reserve_stamina'))
-              .fontSize(themeManager.current.value12)
+              .fontSize(widgetTheme.value12)
               .fontColor($r('app.color.text_on_dark_muted'))
 
             Text(this.data.game.reserveStr)
-              .fontSize(themeManager.current.value14)
+              .fontSize(widgetTheme.value14)
               .fontWeight(FontWeight.Medium)
               .fontColor($r('app.color.game_color_starrail'))
           }
-          .margin({ top: themeManager.current.value4 })
+          .margin({ top: widgetTheme.value4 })
         }
       }
-      .width(this.tm.current.full)
+      .width(widgetTheme.full)
       .layoutWeight(1)
       .alignItems(HorizontalAlign.Start)
       .justifyContent(FlexAlign.Center)
-      .padding({ top: themeManager.current.value8, bottom: themeManager.current.value8 })
+      .padding({ top: widgetTheme.value8, bottom: widgetTheme.value8 })
       .border({ width: { bottom: 1 }, color: $r('app.color.surface_inactive_border') })
 
       // ── 区块2：探索派遣 + 洞天财瓮（flex:1，原神）──
@@ -190,10 +179,10 @@ export struct Widget4x4SingleGame {
             })
           }
         }
-        .width(this.tm.current.full)
+        .width(widgetTheme.full)
         .layoutWeight(1)
         .justifyContent(FlexAlign.SpaceEvenly)
-        .padding({ top: themeManager.current.value8, bottom: themeManager.current.value8 })
+        .padding({ top: widgetTheme.value8, bottom: widgetTheme.value8 })
         .border({ width: { bottom: 1 }, color: $r('app.color.surface_inactive_border') })
 
         // ── 区块3：每日委托 + 参量质变仪（flex:1，原神）──
@@ -218,10 +207,10 @@ export struct Widget4x4SingleGame {
             })
           }
         }
-        .width(this.tm.current.full)
+        .width(widgetTheme.full)
         .layoutWeight(1)
         .justifyContent(FlexAlign.SpaceEvenly)
-        .padding({ top: themeManager.current.value8, bottom: themeManager.current.value8 })
+        .padding({ top: widgetTheme.value8, bottom: widgetTheme.value8 })
         .border({ width: { bottom: 1 }, color: $r('app.color.surface_inactive_border') })
 
         // ── 区块4：探索派遣格子（flex:1，原神）──
@@ -230,7 +219,7 @@ export struct Widget4x4SingleGame {
           expeditionFinishedCount: this.data.game.expeditionFinishedStr
         })
           .layoutWeight(1)
-          .padding({ top: themeManager.current.value8, bottom: themeManager.current.value8 })
+          .padding({ top: widgetTheme.value8, bottom: widgetTheme.value8 })
 
       } else if (this.data.game.gameId === WIDGET_GAME_ID.STARRAIL) {
         // ── 星铁：数据行前半（flex:1）：每日实训 + 历战余响 ──
@@ -242,10 +231,10 @@ export struct Widget4x4SingleGame {
             DataRow({ label: $r('app.string.widget_cocoon'), value: this.data.game.cocoonStr + '/' + this.data.game.cocoonLimitStr, valueColor: $r('app.color.accent_refine') })
           }
         }
-        .width(this.tm.current.full)
+        .width(widgetTheme.full)
         .layoutWeight(1)
         .justifyContent(FlexAlign.SpaceEvenly)
-        .padding({ top: themeManager.current.value8, bottom: themeManager.current.value8 })
+        .padding({ top: widgetTheme.value8, bottom: widgetTheme.value8 })
         .border({ width: { bottom: 1 }, color: $r('app.color.surface_inactive_border') })
 
         // ── 星铁：数据行后半（flex:1）：货币战争 ──
@@ -254,10 +243,10 @@ export struct Widget4x4SingleGame {
             DataRow({ label: $r('app.string.widget_rogue_weekly'), value: this.data.game.rogueStr + '/' + this.data.game.rogueMaxStr, valueColor: $r('app.color.game_color_zzz') })
           }
         }
-        .width(this.tm.current.full)
+        .width(widgetTheme.full)
         .layoutWeight(1)
         .justifyContent(FlexAlign.SpaceEvenly)
-        .padding({ top: themeManager.current.value8, bottom: themeManager.current.value8 })
+        .padding({ top: widgetTheme.value8, bottom: widgetTheme.value8 })
 
       } else if (this.data.game.gameId === WIDGET_GAME_ID.ZZZ) {
         // ── 绝区零：数据行前半（flex:1）──
@@ -273,10 +262,10 @@ export struct Widget4x4SingleGame {
             })
           }
         }
-        .width(this.tm.current.full)
+        .width(widgetTheme.full)
         .layoutWeight(1)
         .justifyContent(FlexAlign.SpaceEvenly)
-        .padding({ top: themeManager.current.value8, bottom: themeManager.current.value8 })
+        .padding({ top: widgetTheme.value8, bottom: widgetTheme.value8 })
         .border({ width: { bottom: 1 }, color: $r('app.color.surface_inactive_border') })
 
         // ── 绝区零：数据行后半（flex:1）──
@@ -289,14 +278,14 @@ export struct Widget4x4SingleGame {
             })
           }
         }
-        .width(this.tm.current.full)
+        .width(widgetTheme.full)
         .layoutWeight(1)
         .justifyContent(FlexAlign.SpaceEvenly)
-        .padding({ top: themeManager.current.value8, bottom: themeManager.current.value8 })
+        .padding({ top: widgetTheme.value8, bottom: widgetTheme.value8 })
       }
     }
-    .width(this.tm.current.full)
-    .height(this.tm.current.full)
+    .width(widgetTheme.full)
+    .height(widgetTheme.full)
     .alignItems(HorizontalAlign.Start)
   }
 }

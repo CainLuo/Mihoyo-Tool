@@ -6,17 +6,16 @@
  */
 
 import { WidgetDataRow } from './WidgetDataRow';
-import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { widgetTheme } from '../utils/WidgetTheme';
 
 import { WidgetGameData } from '../models/WidgetModels';
 
 @Component
 export struct WidgetZZZExtraRows {
-  private tm: ThemeManager = themeManager;
 
   @Prop game: WidgetGameData = new WidgetGameData();
   /** 数据行字体大小，默认 body12（13vp），4×4 传 body13（14vp） */
-  fontSize: number = themeManager.current.value12;
+  fontSize: number = widgetTheme.value12;
 
   build() {
     Column({ space: 0 }) {
@@ -55,8 +54,8 @@ export struct WidgetZZZExtraRows {
         })
       }
     }
-    .width(this.tm.current.full)
-    .height(this.tm.current.full)
+    .width(widgetTheme.full)
+    .height(widgetTheme.full)
     .justifyContent(FlexAlign.SpaceEvenly)
   }
 }

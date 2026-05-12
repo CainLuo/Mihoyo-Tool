@@ -1,86 +1,79 @@
 /**
  * Widget1x2Genshin.ets — 原神 1×2 迷你卡片
  *
- * v1.1 设计：
- * - 使用单一 @LocalStorageProp('payload') 接收完整 JSON
- * - 解析 payload 决定显示内容
- * - 游戏主题色渐变背景
- *
- * 注意：Widget Form 不支持 `??` 运算符，必须使用三元运算符
+ * 测试版本：使用纯色背景，排查 linearGradient 和资源引用问题
  */
 
-import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { Widget1x2Content } from '../components/Widget1x2Content';
 import { WidgetGameData, WidgetSingleGameData } from '../models/WidgetModels';
 import { parsePayload, ParsedRole } from '../utils/WidgetPayloadParser';
 
-let storageGenshin1x2 = new LocalStorage();
+let storage: LocalStorage = new LocalStorage();
 
-@Entry(storageGenshin1x2)
+@Entry(storage)
 @Component
 struct Widget1x2Genshin {
-  private tm: ThemeManager = themeManager;
-
-  // 单一 payload 字段
   @LocalStorageProp('payload') payloadJson: string = '';
 
-  private buildData(): WidgetSingleGameData {
-    const d = new WidgetSingleGameData();
-    const parsed = parsePayload(this.payloadJson);
+  // private buildData(): WidgetSingleGameData {
+  //   const d = new WidgetSingleGameData();
+  //   const parsed = parsePayload(this.payloadJson);
 
-    // 获取所有角色
-    const roles = parsed.getAllRoles();
-    if (roles.length === 0) {
-      return d;
-    }
+  //   const roles = parsed.getAllRoles();
+  //   if (roles.length === 0) {
+  //     // 无数据时，返回默认的原神占位数据
+  //     d.game = new WidgetGameData();
+  //     d.game.gameId = 'genshin';
+  //     return d;
+  //   }
 
-    // 查找原神角色（因为这是原神模板）
-    let genshinRole: ParsedRole | null = null;
-    for (let i = 0; i < roles.length; i++) {
-      if (roles[i].isGenshin()) {
-        genshinRole = roles[i];
-        break;
-      }
-    }
+  //   let genshinRole: ParsedRole = new ParsedRole();
+  //   let found = false;
+  //   for (let i = 0; i < roles.length; i++) {
+  //     if (roles[i].isGenshin()) {
+  //       genshinRole = roles[i];
+  //       found = true;
+  //       break;
+  //     }
+  //   }
 
-    if (genshinRole === null) {
-      // 没有原神数据，使用第一个角色作为 fallback
-      genshinRole = roles[0];
-    }
+  //   // 如果找不到原神数据，使用第一个角色的数据，但保持 gameId 为 genshin
+  //   // 因为这是原神卡片模板，不应该显示其他游戏的数据
+  //   if (!found) {
+  //     genshinRole = roles[0];
+  //   }
 
-    // 获取账号信息
-    const firstAccount = parsed.firstAccount;
-    if (firstAccount !== null) {
-      d.accountName = firstAccount.accountName;
-    }
-    // UID 显示游戏角色 UID，不是米游社账号 UID
-    d.accountUid = genshinRole.roleId;
+  //   const firstAccount = parsed.firstAccount;
+  //   if (firstAccount.accountName.length > 0) {
+  //     d.accountName = firstAccount.accountName;
+  //   }
+  //   d.accountUid = genshinRole.roleId;
 
-    // 填充游戏数据
-    d.game = new WidgetGameData();
-    d.game.gameId = 'genshin';
-    d.game.currentStr = String(genshinRole.currentStamina);
-    d.game.maxStr = String(genshinRole.maxStamina);
-    d.game.secondsStr = String(genshinRole.recoverySeconds);
+  //   d.game = new WidgetGameData();
+  //   // 始终使用 'genshin' 作为 gameId，因为这是原神卡片模板
+  //   d.game.gameId = 'genshin';
+  //   d.game.currentStr = String(genshinRole.currentStamina);
+  //   d.game.maxStr = String(genshinRole.maxStamina);
+  //   d.game.secondsStr = String(genshinRole.recoverySeconds);
 
-    return d;
-  }
+  //   return d;
+  // }
 
   build() {
     Column() {
-      Widget1x2Content({
-        data: this.buildData(),
-        gameColor: $r('app.color.game_color_genshin')
-      })
+      Text("Hello Word")
+        .fontColor(Color.Red)
+      // Widget1x2Content({
+      //   data: this.buildData(),
+      //   gameColor: $r('app.color.game_color_genshin')
+      // })
     }
-    .width(this.tm.current.full)
-    .height(this.tm.current.full)
-    .padding({
-      left: this.tm.current.value12,
-      right: this.tm.current.value12
-    })
-    .linearGradient({ angle: this.tm.current.a135, colors: [['#152030', 0], ['#1a2d42', 0.5], ['#1c3350', 1]] })
-    .borderRadius(this.tm.current.radius16)
+    .width('100%')
+    .height('100%')
+    .backgroundColor(Color.Blue)
+    // .padding({ left: 12, right: 12 })
+    // .linearGradient({ angle: 135, colors: [[$r('app.color.widget_bg_genshin_dark'), 0], [$r('app.color.widget_bg_genshin_mid'), 0.5], [$r('app.color.widget_bg_genshin_light'), 1]] })
+    // .borderRadius(16)
     .onClick(() => {
       postCardAction(this, {
         action: 'router',
@@ -91,16 +84,16 @@ struct Widget1x2Genshin {
   }
 }
 
-@Preview
-@Component
-struct Widget1x2GenshinPreview {
-  build() {
-    Column({ space: 12 }) {
-      Widget1x2Genshin()
-        .width(168)
-        .height(80)
-    }
-    .padding(16)
-    .backgroundColor('#1a1a2e')
-  }
-}
+// @Preview
+// @Component
+// struct Widget1x2GenshinPreview {
+//   build() {
+//     Column({ space: 12 }) {
+//       Widget1x2Genshin()
+//         .width(168)
+//         .height(80)
+//     }
+//     .padding(16)
+//     .backgroundColor($r('app.color.widget_preview_bg'))
+//   }
+// }

@@ -11,16 +11,14 @@
  * 注意：星铁使用独立组件 Widget1x2StarRailContent.ets
  *
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
+ * 不能使用 @ObservedV2/@Trace 装饰的类。
  */
 
-import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { calcIsFull, calcRatio, formatRecoveryDesc, gameNameRes, parseCurrent, parseMax } from '../utils/WidgetUtils';
 import { WidgetSingleGameData } from '../models/WidgetModels';
 
 @Component
 export struct Widget1x2Content {
-  private tm: ThemeManager = themeManager;
-
   @Prop data: WidgetSingleGameData = new WidgetSingleGameData();
   gameColor: ResourceColor = $r('app.color.game_color_genshin');
 
@@ -51,51 +49,51 @@ export struct Widget1x2Content {
   }
 
   build() {
-    Row({ space: themeManager.current.value8 }) {
+    Row({ space: 8 }) {
       // 左侧：游戏色竖线装饰条（3vp 宽，上下 8px padding）
       Stack() {
         Column()
-          .width(themeManager.current.value3)
-          .borderRadius(themeManager.current.value2)
+          .width(3)
+          .borderRadius(2)
           .backgroundColor(this.gameColor)
-          .height(this.tm.current.full)
+          .height('100%')
       }
-      .width(themeManager.current.value3)
-      .height(this.tm.current.full)
-      .padding({ top: this.tm.current.value8, bottom: this.tm.current.value8 })
+      .width(3)
+      .height('100%')
+      .padding({ top: 8, bottom: 8 })
       .alignContent(Alignment.Center)
       .flexShrink(0)
 
       // 右侧：游戏名+UID + 体力 + 恢复时间
       Column() {
         // 第一行：游戏名 + UID
-        Row({ space: themeManager.current.value4 }) {
+        Row({ space: 4 }) {
           Text(gameNameRes(this.data.game.gameId))
-            .fontSize(themeManager.current.value10)
+            .fontSize(10)
             .fontWeight(FontWeight.Medium)
             .fontColor($r('app.color.text_on_dark_secondary'))
 
           Text('UID ' + this.data.accountUid)
-            .fontSize(themeManager.current.value9)
+            .fontSize(9)
             .fontColor($r('app.color.text_on_dark_muted'))
         }
 
         // 第二行：当前体力 / 最大体力
-        Row({ space: themeManager.current.value2 }) {
+        Row({ space: 2 }) {
           Text(String(parseCurrent(this.data.game.currentStr)))
-            .fontSize(themeManager.current.value18)
+            .fontSize(18)
             .fontWeight(FontWeight.Bold)
             .fontColor(this.staminaColor)
 
           Text('/' + String(parseMax(this.data.game.maxStr)))
-            .fontSize(themeManager.current.value18)
+            .fontSize(18)
             .fontColor($r('app.color.text_on_dark_muted'))
         }
         .alignItems(VerticalAlign.Bottom)
 
         // 第三行：恢复时间
         Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(this.data.game.secondsStr))
-          .fontSize(themeManager.current.value10)
+          .fontSize(10)
           .fontColor(this.isFull ? $r('app.color.color_danger') : $r('app.color.text_on_dark_tertiary'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -104,8 +102,8 @@ export struct Widget1x2Content {
       .justifyContent(FlexAlign.Center)
       .layoutWeight(1)
     }
-    .width(this.tm.current.full)
-    .height(this.tm.current.full)
+    .width('100%')
+    .height('100%')
     .alignItems(VerticalAlign.Center)
   }
 }
@@ -122,10 +120,10 @@ struct Widget1x2ContentPreview {
         .width(168)
         .height(56)
         .padding(12)
-        .linearGradient({ angle: 135, colors: [['#152030', 0], ['#1c3350', 1]] })
+        .linearGradient({ angle: 135, colors: [[$r('app.color.widget_bg_genshin_dark'), 0], [$r('app.color.widget_bg_genshin_light'), 1]] })
         .borderRadius(16)
     }
     .padding(16)
-    .backgroundColor('#1a1a2e')
+    .backgroundColor($r('app.color.widget_preview_bg'))
   }
 }

@@ -8,7 +8,7 @@ import { Logger } from 'core';
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { MyAccountVM } from '../../models/MyModels';
 
-const TAG = 'WidgetSection';
+const TAG = 'WIDGET';
 const BUNDLE_NAME = 'com.cainluo.miyoyo.tools';
 const ABILITY_NAME = 'EntryFormAbility';
 const MODULE_NAME = 'entry';

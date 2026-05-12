@@ -8,7 +8,7 @@
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
-import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { widgetTheme } from '../utils/WidgetTheme';
 import { WidgetStaminaRing } from './WidgetStaminaRing';
 import { WidgetGenshinExtraRows } from './WidgetGenshinExtraRows';
 import { WidgetStarRailExtraRows } from './WidgetStarRailExtraRows';
@@ -18,7 +18,6 @@ import { WidgetSingleGameData } from '../models/WidgetModels';
 
 @Component
 export struct Widget2x4SingleGame {
-  private tm: ThemeManager = themeManager;
 
   @Prop data: WidgetSingleGameData = new WidgetSingleGameData();
 
@@ -35,24 +34,24 @@ export struct Widget2x4SingleGame {
   }
 
   build() {
-    Row({ space: themeManager.current.value14 }) {
+    Row({ space: widgetTheme.value14 }) {
       // ── 左侧：体力环 + 恢复时间 ──
-      Column({ space: themeManager.current.value5 }) {
+      Column({ space: widgetTheme.value5 }) {
         WidgetStaminaRing({
           game: this.data.game,
           gameColor: this.gameColor,
-          ringSize: themeManager.current.value80,
-          strokeWidth: themeManager.current.value8,
-          valueFontSize: themeManager.current.value22,
-          maxFontSize: themeManager.current.value11
+          ringSize: widgetTheme.value80,
+          strokeWidth: widgetTheme.value8,
+          valueFontSize: widgetTheme.value22,
+          maxFontSize: widgetTheme.value11
         })
 
         Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(this.data.game.secondsStr))
-          .fontSize(themeManager.current.value9)
+          .fontSize(widgetTheme.value9)
           .fontColor(this.isFull ? $r('app.color.color_danger') : $r('app.color.text_on_dark_muted'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .constraintSize({ maxWidth: themeManager.current.value90 })
+          .constraintSize({ maxWidth: widgetTheme.value90 })
           .textAlign(TextAlign.Center)
       }
       .alignItems(HorizontalAlign.Center)
@@ -62,54 +61,54 @@ export struct Widget2x4SingleGame {
       // ── 右侧：游戏标题 + 数据行 ──
       Column() {
         // 游戏色圆点 + 游戏名 + 账号名
-        Row({ space: themeManager.current.value5 }) {
+        Row({ space: widgetTheme.value5 }) {
           Column()
-            .width(themeManager.current.value5)
-            .height(themeManager.current.value5)
-            .borderRadius(themeManager.current.value5)
+            .width(widgetTheme.value5)
+            .height(widgetTheme.value5)
+            .borderRadius(widgetTheme.value5)
             .backgroundColor(this.gameColor)
             .flexShrink(0)
 
           Text(gameNameRes(this.data.game.gameId))
-            .fontSize(themeManager.current.value13)
+            .fontSize(widgetTheme.value13)
             .fontWeight(FontWeight.Bold)
             .fontColor($r('app.color.text_on_dark_high'))
 
           Text(this.displayName)
-            .fontSize(themeManager.current.value10)
+            .fontSize(widgetTheme.value10)
             .fontColor($r('app.color.text_on_dark_muted'))
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
             .layoutWeight(1)
         }
-        .width(this.tm.current.full)
+        .width(widgetTheme.full)
         .alignItems(VerticalAlign.Center)
-        .margin({ bottom: themeManager.current.value8 })
+        .margin({ bottom: widgetTheme.value8 })
 
         // 星铁：后备开拓力
         if (this.data.game.gameId === WIDGET_GAME_ID.STARRAIL && parseInt(this.data.game.reserveStr) >= 0) {
-          Row({ space: themeManager.current.value4 }) {
+          Row({ space: widgetTheme.value4 }) {
             Text($r('app.string.widget_reserve_stamina'))
-              .fontSize(themeManager.current.value10)
+              .fontSize(widgetTheme.value10)
               .fontColor($r('app.color.text_on_dark_muted'))
 
             Text(this.data.game.reserveStr)
-              .fontSize(themeManager.current.value12)
+              .fontSize(widgetTheme.value12)
               .fontWeight(FontWeight.Medium)
               .fontColor($r('app.color.game_color_starrail'))
           }
-          .margin({ bottom: themeManager.current.value5 })
+          .margin({ bottom: widgetTheme.value5 })
         }
 
         // 额外数据行
         if (this.data.game.gameId === WIDGET_GAME_ID.GENSHIN) {
-          WidgetGenshinExtraRows({ game: this.data.game, fontSize: themeManager.current.value11 })
+          WidgetGenshinExtraRows({ game: this.data.game, fontSize: widgetTheme.value11 })
             .layoutWeight(1)
         } else if (this.data.game.gameId === WIDGET_GAME_ID.STARRAIL) {
-          WidgetStarRailExtraRows({ game: this.data.game, fontSize: themeManager.current.value11 })
+          WidgetStarRailExtraRows({ game: this.data.game, fontSize: widgetTheme.value11 })
             .layoutWeight(1)
         } else if (this.data.game.gameId === WIDGET_GAME_ID.ZZZ) {
-          WidgetZZZExtraRows({ game: this.data.game, fontSize: themeManager.current.value11 })
+          WidgetZZZExtraRows({ game: this.data.game, fontSize: widgetTheme.value11 })
             .layoutWeight(1)
         }
       }
@@ -117,8 +116,8 @@ export struct Widget2x4SingleGame {
       .justifyContent(FlexAlign.Center)
       .layoutWeight(1)
     }
-    .width(this.tm.current.full)
-    .height(this.tm.current.full)
+    .width(widgetTheme.full)
+    .height(widgetTheme.full)
     .alignItems(VerticalAlign.Center)
   }
 }

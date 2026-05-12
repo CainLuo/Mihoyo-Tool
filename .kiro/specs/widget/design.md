@@ -496,6 +496,36 @@ Widget 必须使用 `@Component`（V1 体系），不支持 `@ComponentV2`。
 2. 验证 `WidgetPayloadBuilder.buildPayload()` 输出的 JSON 结构
 3. 通过 Widget 行为推断渲染逻辑是否正确
 
+### 9.5 FormExtension 异步初始化
+
+**重要**: FormExtension 在独立进程中运行，所有存储初始化必须异步完成：
+
+```typescript
+// ❌ 错误 — 同步调用异步方法，导致后续 load() 失败
+private initStoreSync(): void {
+  WidgetConfigStore.init(this.context);  // 异步但不等待
+  WidgetDataStoreManager.init(this.context);  // 异步但不等待
+}
+
+// ✅ 正确 — 等待初始化完成后再调用 load()
+private async initStoreAsync(): Promise<void> {
+  await WidgetConfigStore.init(this.context);
+  await WidgetDataStoreManager.init(this.context);
+}
+
+onAddForm(want: Want): formBindingData.FormBindingData {
+  // 立即返回占位数据
+  const placeholder = this.createPlaceholderData(config);
+  
+  // 异步初始化并更新
+  this.initStoreAsync().then(() => {
+    this.loadDataAndUpdate(formId, config);
+  });
+  
+  return placeholder;
+}
+```
+
 ---
 
 ## 十、文件清单
@@ -540,3 +570,147 @@ Widget 必须使用 `@Component`（V1 体系），不支持 `@ComponentV2`。
 | 文件 | 职责 |
 |-----|------|
 | `entry/src/main/ets/entryformability/EntryFormAbility.ets` | Form 生命周期管理 |
+
+
+---
+
+## 十一、黑屏问题注意事项（关键）
+
+> ⚠️ **重要**: FormExtension 进程生命周期限制导致 Widget 可能黑屏
+
+### 11.1 问题根因
+
+1. **FormExtension 进程只能存活 10 秒**：`onAddForm()` 返回后，进程在 10 秒内无新回调就会被杀掉
+2. **异步更新可能不执行**：`onAddForm()` 中调用异步方法更新数据，可能在进程被杀前未完成
+3. **设备重启使用 `onAddForm()` 返回值**：如果返回空数据，卡片会永久显示空状态
+
+### 11.2 解决方案
+
+**必须在 `onAddForm()` 中同步读取并返回真实数据**：
+
+```typescript
+onAddForm(want: Want): formBindingData.FormBindingData {
+  // ✅ 同步读取 Preferences
+  const prefs = preferences.getPreferencesSync(this.context, 'widget_data_store');
+  const json = prefs.getSync('global_data', '') as string;
+  
+  if (json.length > 0) {
+    // 返回真实数据
+    return formBindingData.createFormBindingData({ payload: json });
+  }
+  
+  // 兜底：返回空数据
+  return formBindingData.createFormBindingData({
+    payload: '{"version":1,"updatedAt":0,"accounts":[]}'
+  });
+}
+```
+
+### 11.3 Preferences 同步 API（API 10+）
+
+| 方法 | 说明 |
+|-----|------|
+| `getPreferencesSync(context, name)` | 同步获取 Preferences 实例 |
+| `getSync(key, defaultValue)` | 同步读取数据 |
+| `getAllSync()` | 同步获取所有数据 |
+
+### 11.4 Widget 组件空数据处理
+
+Widget 组件必须能正确处理空数据（`accounts: []`），显示占位 UI 而不是黑屏：
+
+```typescript
+build() {
+  Column() {
+    if (this.parsedPayload.accounts.length === 0) {
+      // 显示"暂无数据"占位 UI
+      Text('暂无数据')
+        .fontSize(12)
+        .fontColor($r('app.color.colorTextSecondary'))
+    } else {
+      // 正常渲染
+      // ...
+    }
+  }
+}
+```
+
+### 11.5 参考资料
+
+- **详细调研报告**：`.kiro/specs/widget/research-notes.md`
+- **技术笔记**：`design/research/FormKit-Notes.md`（第 14-16 节）
+- **官方文档**：[卡片数据同步异常](https://developer.huawei.com/consumer/cn/doc/architecture-guides/news-v1_2-ts_c80-0000002411768157)
+
+
+---
+
+## 十二、Widget LocalStorage 使用规范
+
+### 12.1 官方示例验证
+
+根据官方示例仓库 [CardInfoRefresh](https://gitee.com/harmonyos_samples/CardInfoRefresh/blob/master/entry/src/main/ets/widget/pages/WidgetCard.ets)，Widget 必须创建 LocalStorage 实例并传给 `@Entry`：
+
+```typescript
+// ✅ 正确写法（官方示例）
+let storageLocal = new LocalStorage();
+
+@Entry(storageLocal)
+@Component
+struct WidgetCard {
+  @LocalStorageProp('formTime') formTime: string = '';
+  @LocalStorageProp('formId') formId: string = '';
+  @LocalStorageProp('cardList') cardList: Array<CardListItemData> = [];
+}
+```
+
+### 12.2 数据注入机制
+
+`FormExtensionAbility.onAddForm()` 返回的数据会自动注入到 Widget 的 LocalStorage：
+
+1. **FormExtensionAbility** 调用 `formBindingData.createFormBindingData(data)`
+2. **系统框架** 将 `data` 对象的字段注入到 Widget 的 LocalStorage
+3. **Widget 组件** 通过 `@LocalStorageProp('fieldName')` 读取数据
+
+### 12.3 支持的数据格式
+
+`createFormBindingData()` 支持两种格式：
+
+| 格式 | 示例 | 使用场景 |
+|------|------|---------|
+| 对象 | `{ formId: '123', formTime: '...' }` | 多字段传递（官方示例） |
+| Record | `{ payload: '...' }` | 单一 JSON 字段（本项目） |
+
+### 12.4 本项目的实现
+
+本项目使用单一 `payload` 字段传递完整 JSON：
+
+```typescript
+// EntryFormAbility.onAddForm()
+const dataStore = WidgetDataStoreManager.loadSync(this.context);
+const payload = WidgetPayloadBuilder.buildPayload(config, dataStore);
+const record = payload.toLocalStorageRecord(); // { payload: "..." }
+return formBindingData.createFormBindingData(record);
+```
+
+```typescript
+// Widget 组件
+let storage: LocalStorage = new LocalStorage();
+
+@Entry(storage)
+@Component
+struct Widget2x2 {
+  @LocalStorageProp('payload') payloadJson: string = '';
+  
+  // 解析 payload
+  private get parsed(): ParsedPayload {
+    return parsePayload(this.payloadJson);
+  }
+}
+```
+
+### 12.5 常见问题
+
+| 问题 | 原因 | 解决方案 |
+|------|------|---------|
+| Widget 黑屏 | LocalStorage 实例未正确初始化 | 确保使用 `let storage = new LocalStorage();` + `@Entry(storage)` |
+| 数据为空 | `onAddForm()` 返回时 Preferences 中无数据 | 确保 App 进程在启动时写入初始 payload |
+| 设备重启后数据丢失 | 只依赖 `onAddForm()` 返回值 | Preferences 作为持久化存储，`onAddForm()` 同步读取 |

@@ -15,6 +15,7 @@ import { NotificationStateStore } from './NotificationStateStore';
 import { NotificationStateEntry, NotificationStyle, GameStaminaConstants } from './NotificationModels';
 import { WidgetDataBuilder } from '../widget/utils/WidgetDataBuilder';
 import { WidgetFormIdStore } from '../widget/utils/WidgetFormIdStore';
+import { WidgetDataStoreBuilder } from '../widget/utils/WidgetDataStoreBuilder';
 
 const TAG: string = 'StaminaNotificationService';
 const BUNDLE_NAME: string = 'com.cainluo.miyoyo.tools';
@@ -74,9 +75,16 @@ export class StaminaNotificationService {
   }
 
   async onDailyNotesSynced(): Promise<void> {
+    Logger.info(TAG, '[WIDGET_DEBUG] onDailyNotesSynced: start');
     // Widget 数据推送不依赖通知设置，始终执行
     try {
+      // 先更新 Preferences 中的全局数据（供 EntryFormAbility 读取）
+      Logger.info(TAG, '[WIDGET_DEBUG] onDailyNotesSynced: calling refreshAndSave');
+      const refreshSuccess = await WidgetDataStoreBuilder.refreshAndSave();
+      Logger.info(TAG, `[WIDGET_DEBUG] onDailyNotesSynced: refreshAndSave done, success=${refreshSuccess}`);
+
       const accounts = await CoreInitializer.bbsRepository.getAllAccounts();
+      Logger.info(TAG, `[WIDGET_DEBUG] onDailyNotesSynced: found ${accounts.length} accounts for push`);
       for (let ai = 0; ai < accounts.length; ai++) {
         const account = accounts[ai];
         // 推送 Widget 数据（先重新加载 formId 列表，确保读到最新数据）
@@ -92,7 +100,7 @@ export class StaminaNotificationService {
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : `${e}`;
-      Logger.warn(TAG, `widget push in onDailyNotesSynced failed: ${msg}`);
+      Logger.warn(TAG, `[WIDGET_DEBUG] onDailyNotesSynced failed: ${msg}`);
     }
 
     // 通知调度依赖通知设置，检查后执行

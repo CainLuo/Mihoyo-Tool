@@ -6,6 +6,7 @@
  * 2. 选择要显示的角色 slots（跨账号多选）
  * 3. 完成 → 调用 formProvider.openFormManager()
  */
+import { common } from '@kit.AbilityKit';
 import { themeManager, ThemeManager } from '../theme/ThemeManager';
 import { WidgetConfigViewModel, WidgetConfigStep } from '../viewmodel/WidgetConfigViewModel';
 import { WidgetSize } from '../widget/models/WidgetConfig';
@@ -53,6 +54,19 @@ function getGameName(gameId: string): ResourceStr {
   return gameId;
 }
 
+/** 游戏类型配置（用于 1x2 卡片选择，使用 core 的 GameId） */
+interface GameTypeConfig {
+  gameId: string;
+  label: ResourceStr;
+  color: ResourceColor;
+}
+
+const GAME_TYPE_CONFIGS: GameTypeConfig[] = [
+  { gameId: GameId.GENSHIN, label: $r('app.string.game_name_genshin'), color: '#5ba3e8' },
+  { gameId: GameId.STARRAIL, label: $r('app.string.game_name_starrail'), color: '#9b8eff' },
+  { gameId: GameId.ZZZ, label: $r('app.string.game_name_zzz'), color: '#f7b84b' },
+];
+
 @ComponentV2
 export struct WidgetSettings {
   @Local private tm: ThemeManager = themeManager;
@@ -61,7 +75,9 @@ export struct WidgetSettings {
   private localStack: NavPathStack | null = null;
 
   async aboutToAppear(): Promise<void> {
-    await this.vm.init();
+    // 获取 context 用于初始化 WidgetDataStoreManager
+    const context = this.getUIContext().getHostContext() as common.UIAbilityContext;
+    await this.vm.init(context);
     this.isLoading = false;
     this.vm.onConfigComplete = () => {
       this.localStack?.pop();
@@ -120,12 +136,17 @@ export struct WidgetSettings {
           .justifyContent(FlexAlign.Center)
 
           // 步骤指示器
-          WidgetStepIndicator({ currentStep: this.vm.currentStep })
+          WidgetStepIndicator({
+            currentStep: this.vm.currentStep,
+            selectedSize: this.vm.selectedSize
+          })
 
           // 步骤内容
           Column() {
             if (this.vm.currentStep === WidgetConfigStep.SIZE) {
               this.renderSizeStep()
+            } else if (this.vm.currentStep === WidgetConfigStep.GAME) {
+              this.renderGameStep()
             } else if (this.vm.currentStep === WidgetConfigStep.SLOT) {
               this.renderSlotStep()
             } else if (this.vm.currentStep === WidgetConfigStep.DONE) {
@@ -324,17 +345,105 @@ export struct WidgetSettings {
     return this.vm.selectedSize === size ? this.tm.current.colorPrimary : this.tm.current.colorTextSecondary;
   }
 
-  // ─── 步骤 2：Slot 选择 ─────────────────────────────────────────────
+  // ─── 步骤 2：游戏类型选择（仅 1x2 卡片）─────────────────────────────────────
+
+  @Builder
+  renderGameStep() {
+    Column({ space: this.tm.current.value10 }) {
+      // 提示文字
+      Text($r('app.string.widget_select_game_hint'))
+        .fontSize(this.tm.current.body12.size)
+        .fontColor(this.tm.current.colorTextSecondary)
+        .width(this.tm.current.full)
+        .margin({ bottom: this.tm.current.value8 })
+
+      ForEach(GAME_TYPE_CONFIGS, (config: GameTypeConfig) => {
+        this.GameTypeOption(config)
+      }, (config: GameTypeConfig) => config.gameId)
+    }
+    .width(this.tm.current.full)
+  }
+
+  @Builder
+  GameTypeOption(config: GameTypeConfig) {
+    Row() {
+      // 左侧：游戏色块
+      Column()
+        .width(40)
+        .height(40)
+        .borderRadius(this.tm.current.radius12)
+        .backgroundColor(config.color)
+        .justifyContent(FlexAlign.Center)
+        .opacity(this.vm.hasDataForGame(config.gameId) ? 1 : 0.3)
+
+      // 中间：游戏名称 + 账号数量
+      Column() {
+        Text(config.label)
+          .fontSize(this.tm.current.body13Bold.size)
+          .fontWeight(this.tm.current.body13Bold.weight)
+          .fontColor(this.vm.selectedGameType === config.gameId ?
+            this.tm.current.colorPrimary : this.tm.current.colorTextPrimary)
+
+        Text(`${this.vm.getSlotsForGame(config.gameId).length} 个账号`)
+          .fontSize(this.tm.current.body12.size)
+          .fontColor(this.tm.current.colorTextSecondary)
+          .margin({ top: this.tm.current.value2 })
+      }
+      .alignItems(HorizontalAlign.Start)
+      .layoutWeight(1)
+      .margin({ left: this.tm.current.value12 })
+
+      // 右侧：选中状态
+      if (this.vm.selectedGameType === config.gameId) {
+        Row() {
+          Text('✓')
+            .fontSize(this.tm.current.body12.size)
+            .fontColor(Color.White)
+        }
+        .width(this.tm.current.value18)
+        .height(this.tm.current.value18)
+        .borderRadius(this.tm.current.value9)
+        .backgroundColor(this.tm.current.colorPrimary)
+        .justifyContent(FlexAlign.Center)
+      }
+    }
+    .width(this.tm.current.full)
+    .padding(this.tm.current.value14)
+    .backgroundColor(this.vm.selectedGameType === config.gameId ?
+      'rgba(58,111,216,0.15)' : Color.Transparent)
+    .borderRadius(this.tm.current.radius12)
+    .border({
+      width: 2,
+      color: this.vm.selectedGameType === config.gameId ?
+        this.tm.current.colorPrimary : this.tm.current.colorDivider
+    })
+    .opacity(this.vm.hasDataForGame(config.gameId) ? 1 : 0.5)
+    .onClick(() => {
+      if (this.vm.hasDataForGame(config.gameId)) {
+        this.vm.selectGameType(config.gameId);
+      }
+    })
+  }
+
+  // ─── 步骤 3：Slot 选择 ─────────────────────────────────────────────
 
   @Builder
   renderSlotStep() {
     Column({ space: this.tm.current.value10 }) {
-      // 提示文字
-      Text(`已选 ${this.vm.selectedSlots.length}/${this.vm.getMaxSlots()} 个角色`)
-        .fontSize(this.tm.current.body12.size)
-        .fontColor(this.tm.current.colorPrimary)
-        .width(this.tm.current.full)
-        .margin({ bottom: this.tm.current.value8 })
+      // 提示文字（根据尺寸显示不同的提示）
+      if (this.vm.selectedSize === WidgetSize.SIZE_1x2) {
+        Text($r('app.string.widget_select_account_hint'))
+          .fontSize(this.tm.current.body12.size)
+          .fontColor(this.tm.current.colorTextSecondary)
+          .width(this.tm.current.full)
+          .margin({ bottom: this.tm.current.value8 })
+      } else {
+        Text(`已选 ${this.vm.selectedSlots.length}/${this.vm.getMaxSlots()} 个角色`)
+          .fontSize(this.tm.current.body12.size)
+          .fontColor(this.tm.current.colorPrimary)
+          .width(this.tm.current.full)
+          .margin({ bottom: this.tm.current.value8 })
+      }
 
       // 所有账号的所有角色列表
       ForEach(this.vm.getAllSlots(), (slot: WidgetSlotRef) => {

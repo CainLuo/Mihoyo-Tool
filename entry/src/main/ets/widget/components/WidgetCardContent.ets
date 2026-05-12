@@ -8,19 +8,18 @@
  * - 解析 payload 决定显示内容
  *
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
+ *
+ * 重要约束：
+ * - Widget 组件不能导入 core 模块（HSP）
+ * - Widget 组件不能使用 hilog，只能使用 console.log 或静默处理
  */
 
-import { Logger } from 'core';
-import { themeManager, ThemeManager } from '../../theme/ThemeManager';
-import { Widget2x2SingleGame } from './Widget2x2SingleGame';
-import { Widget2x4SingleGame } from './Widget2x4SingleGame';
-import { Widget4x4SingleGame } from './Widget4x4SingleGame';
 import { Widget4x4MultiGame } from './Widget4x4MultiGame';
 import { WidgetMultiGameCompact } from './WidgetMultiGameCompact';
 import { WidgetSlotRenderer, WidgetSlotSize } from './WidgetSlotRenderer';
-import { dailyDetailPage, WIDGET_GAME_ID } from '../utils/WidgetUtils';
-import { WidgetGameData, WidgetAccountData, WidgetSingleGameData } from '../models/WidgetModels';
-import { parsePayload, ParsedPayload, ParsedRole, ParsedAccount } from '../utils/WidgetPayloadParser';
+import { WIDGET_GAME_ID } from '../utils/WidgetUtils';
+import { WidgetGameData, WidgetAccountData } from '../models/WidgetModels';
+import { ParsedRole } from '../utils/WidgetPayloadParser';
 import { ParsedSlotData, parseSlotJson } from '../utils/WidgetSlotDataParser';
 
 /**
@@ -46,7 +45,6 @@ export enum WidgetCardSize {
 
 @Component
 export struct WidgetCardContent {
-  private tm: ThemeManager = themeManager;
 
   cardSize: WidgetCardSize = WidgetCardSize.SIZE_2x2;
 
@@ -61,14 +59,14 @@ export struct WidgetCardContent {
         // 未配置账号时显示占位提示
         Column() {
           Text($r('app.string.widget_no_account'))
-            .fontSize(themeManager.current.value13)
+            .fontSize(13)
             .fontColor($r('app.color.text_on_dark_secondary'))
             .textAlign(TextAlign.Center)
             .maxLines(2)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
         }
-        .width(this.tm.current.full)
-        .height(this.tm.current.full)
+        .width('100%')
+        .height('100%')
         .justifyContent(FlexAlign.Center)
         .alignItems(HorizontalAlign.Center)
       } else if (this.isSingleGame && this.allRoles.length === 1) {
@@ -82,7 +80,7 @@ export struct WidgetCardContent {
         this.buildSingleGameMultiRoleContent()
       } else {
         // 多游戏：使用 Column 布局渲染多个 WidgetSlotRenderer
-        Column({ space: themeManager.current.value8 }) {
+        Column({ space: 8 }) {
           ForEach(this.allRoles, (role: ParsedRole, idx: number) => {
             WidgetSlotRenderer({
               data: this.buildSlotData(role),
@@ -90,13 +88,13 @@ export struct WidgetCardContent {
             })
           })
         }
-        .width(this.tm.current.full)
-        .height(this.tm.current.full)
+        .width('100%')
+        .height('100%')
         .justifyContent(FlexAlign.SpaceEvenly)
       }
     }
-    .width(this.tm.current.full)
-    .height(this.tm.current.full)
+    .width('100%')
+    .height('100%')
   }
 
   /** 获取 SlotSize 枚举值 */
@@ -168,9 +166,10 @@ export struct WidgetCardContent {
       gameData.gameId = gameId;
 
       // 从第一个匹配游戏类型的角色获取体力数据
+      // 注意：Widget Form 不支持 union 类型，使用 roleId 判断是否有有效数据
       const role = this.findRoleByGameId(gameId);
 
-      if (role !== null) {
+      if (role.roleId.length > 0) {
         gameData.currentStr = role.currentStamina.toString();
         gameData.maxStr = role.maxStamina.toString();
       }
@@ -182,7 +181,7 @@ export struct WidgetCardContent {
   }
 
   /** 根据游戏 ID 查找角色 */
-  private findRoleByGameId(gameId: string): ParsedRole | null {
+  private findRoleByGameId(gameId: string): ParsedRole {
     for (let i = 0; i < this.allRoles.length; i++) {
       const role = this.allRoles[i];
       if (gameId === WIDGET_GAME_ID.GENSHIN && role.isGenshin()) {
@@ -195,7 +194,7 @@ export struct WidgetCardContent {
         return role;
       }
     }
-    return null;
+    return new ParsedRole();
   }
 }
 
@@ -208,17 +207,17 @@ struct WidgetCardContentPreview {
         .width(168)
         .height(168)
         .padding(12)
-        .backgroundColor('#2E3033')
+        .backgroundColor($r('app.color.widget_card_bg'))
         .borderRadius(16)
 
       WidgetCardContent({ cardSize: WidgetCardSize.SIZE_2x4 })
         .width(352)
         .height(168)
         .padding(12)
-        .backgroundColor('#2E3033')
+        .backgroundColor($r('app.color.widget_card_bg'))
         .borderRadius(16)
     }
     .padding(16)
-    .backgroundColor('#1a1a2e')
+    .backgroundColor($r('app.color.widget_preview_bg'))
   }
 }

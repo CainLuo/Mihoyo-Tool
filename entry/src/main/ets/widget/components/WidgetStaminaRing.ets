@@ -9,7 +9,7 @@
 
 import { calcIsFull, calcRatio, gameColorRes, parseCurrent, parseMax } from '../utils/WidgetUtils';
 import { WidgetGameData } from '../models/WidgetModels';
-import { themeManager } from '../../theme/ThemeManager';
+import { widgetTheme } from '../utils/WidgetTheme';
 
 @Component
 export struct WidgetStaminaRing {
@@ -54,7 +54,7 @@ export struct WidgetStaminaRing {
             .fontSize(this.valueFontSize)
             .fontWeight(FontWeight.Bold)
             .fontColor(this.displayColor)
-            .lineHeight(this.valueFontSize + themeManager.current.value4)
+            .lineHeight(this.valueFontSize + widgetTheme.value4)
 
           Text('/' + String(parseMax(this.game.maxStr)))
             .fontSize(this.maxFontSize)

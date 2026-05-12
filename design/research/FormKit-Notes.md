@@ -756,3 +756,651 @@ onAddForm(want: Want) {
 - [卡片数据同步异常（官方）](https://developer.huawei.com/consumer/cn/doc/architecture-guides/news-v1_2-ts_c80-0000002411768157)
 - [覆盖安装偶现卡片显示异常问题（官方）](https://developer.huawei.com/consumer/cn/doc/architecture-guides/traffic-v1_1-ts_65-0000002425634985)
 - [ArkTS卡片使用自定义字体（官方）](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-ui-widget-load-custom-font)
+
+
+---
+
+## 十四、Preferences 同步 API（解决黑屏问题的关键）
+
+> **来源**：[@ohos.data.preferences API 参考](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-data-preferences)
+>
+> 调研日期：2026-05-11
+
+### 14.1 为什么需要同步 API
+
+根据第 12.1 节，FormExtension 进程在生命周期回调完成后只能存活 **10 秒**。
+
+如果 `onAddForm()` 使用异步 API 读取 Preferences：
+1. `onAddForm()` 立即返回占位数据
+2. 异步回调可能在进程被杀前未执行
+3. `formProvider.updateForm()` 不会执行
+4. 卡片永久显示空数据（黑屏）
+
+**解决方案**：使用同步 API 在 `onAddForm()` 中**同步**读取并返回真实数据。
+
+### 14.2 可用的同步方法（API 10+）
+
+| 方法 | 说明 | 可用版本 |
+|-----|------|---------|
+| `preferences.getPreferencesSync(context, name)` | 同步获取 Preferences 实例 | API 10+ |
+| `prefs.getSync(key, defaultValue)` | 同步读取数据 | API 10+ |
+| `prefs.getAllSync()` | 同步获取所有数据 | API 10+ |
+| `prefs.putSync(key, value)` | 同步写入数据 | API 10+ |
+| `prefs.hasSync(key)` | 同步检查 key 是否存在 | API 10+ |
+| `prefs.deleteSync(key)` | 同步删除数据 | API 10+ |
+| `prefs.flushSync()` | 同步刷新到磁盘 | API 14+ |
+| `prefs.clearSync()` | 同步清空数据 | API 10+ |
+
+### 14.3 代码示例
+
+```typescript
+import { preferences } from '@kit.ArkData';
+import { formBindingData } from '@kit.FormKit';
+
+onAddForm(want: Want): formBindingData.FormBindingData {
+  const formId = want.parameters?.[formInfo.FormParam.IDENTITY_KEY] as string ?? '';
+  
+  // ✅ 同步读取数据
+  try {
+    const prefs = preferences.getPreferencesSync(this.context, 'widget_data_store');
+    const json = prefs.getSync('global_data', '') as string;
+    
+    if (json.length > 0) {
+      const data = JSON.parse(json);
+      // 构建并返回真实数据
+      return formBindingData.createFormBindingData({
+        payload: json
+      });
+    }
+  } catch (e) {
+    hilog.error(DOMAIN, TAG, `sync read failed: ${JSON.stringify(e)}`);
+  }
+  
+  // 兜底：返回空数据
+  return formBindingData.createFormBindingData({
+    payload: '{"version":1,"updatedAt":0,"accounts":[]}'
+  });
+}
+```
+
+### 14.4 注意事项
+
+1. **多进程安全**：Preferences 不支持多进程并发写入。本项目主应用写入，FormExtension 只读取，风险可控。
+2. **API 版本**：同步方法需要 API 10+，本项目目标 API 18，满足要求。
+3. **错误处理**：同步方法可能抛异常，必须 try-catch 包裹。
+
+---
+
+## 十五、黑屏问题排查清单
+
+当 Widget 出现黑屏时，按以下步骤排查：
+
+### 15.1 检查 `onAddForm()` 返回值
+
+- [ ] 是否返回了真实数据（而不是占位数据）？
+- [ ] 是否使用了同步 API 读取 Preferences？
+- [ ] payload JSON 结构是否正确？
+
+### 15.2 检查 Widget 组件
+
+- [ ] 是否正确处理空数据（`accounts: []`）？
+- [ ] 是否有占位 UI 而不是黑屏？
+- [ ] 是否正确使用 `@LocalStorageProp` 接收数据？
+
+### 15.3 检查导入链
+
+- [ ] `EntryFormAbility.ets` 是否导入了 HSP 模块（core）？
+- [ ] 是否导入了不支持的模块（`backgroundTaskManager`、`audio` 等）？
+- [ ] 使用 DevEco Studio 的 "Analyze Dependencies" 检查导入链
+
+### 15.4 检查 .abc 文件
+
+- [ ] HAP 包中是否存在对应的 .abc 文件？
+- [ ] 执行 Build → Clean Project 后重新编译
+
+### 15.5 检查日志
+
+```bash
+# 导出 Widget 日志
+./export-widget-logs.sh
+
+# 检查关键日志
+grep "WIDGET_DEBUG" logs/widget_logs_*.txt
+```
+
+关键日志：
+- `onAddForm: formId=xxx` — 确认 onAddForm 被调用
+- `returning real data, accounts=N` — 确认返回了真实数据
+- `sync read failed` — 同步读取失败
+
+---
+
+## 十六、Widget 预览空白问题分析（重要发现）
+
+> **调研日期**：2026-05-12
+> **问题现象**：长按 App icon 进入预览页显示空白，添加 Widget 到桌面也空白，运行 run.sh 后已添加的 Widget 能正常显示
+
+### 16.1 问题分析
+
+根据官方文档的多个关键发现：
+
+#### 发现 1：ArkTS Widget 不支持即时预览
+
+来自官方文档 [ArkTS卡片概述](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-form-overview)：
+
+> ArkTS卡片还存在如下约束：
+> - **不支持极速预览**
+> - 不支持断点调试能力
+> - 不支持Hot Reload热重载
+> - 不支持setTimeout
+
+**这意味着**：
+- DevEco Studio 的预览器（Previewer）**无法预览 ArkTS Widget**
+- 长按 App icon 进入的卡片预览页是由**卡片渲染服务**（Form Rendering Service）负责渲染的
+- 卡片渲染服务运行 `widget.abc` 文件来渲染 Widget UI
+
+#### 发现 2：Widget 组件必须使用 @Entry + new LocalStorage()
+
+来自官方最佳实践文档 [音乐服务卡片](https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-music-card)：
+
+```typescript
+// ✅ 官方示例的正确写法
+let storageUpdateByMsg = new LocalStorage();
+
+@Entry(storageUpdateByMsg)
+@Component
+struct PlayControlCard2x4 {
+  @LocalStorageProp('formId') formId: string = '';
+  @LocalStorageProp('isNeedRequestUpdate') isNeedRequestUpdate: boolean = false;
+  // ...
+}
+```
+
+**关键点**：
+- Widget 组件**必须**使用 `let storage = new LocalStorage()` 创建 LocalStorage 实例
+- Widget 组件**必须**使用 `@Entry(storage)` 装饰器
+- 数据接收**必须**使用 `@LocalStorageProp('key')` 装饰器
+- 这与普通页面使用 `@ComponentV2` 不同，Widget 只能使用 `@Component`（V1 体系）
+
+**本项目之前的错误记录**：
+> ~~方案 C 中说"Widget 组件不需要也不应该在 Widget 组件中创建 `LocalStorage` 实例"是**错误的**~~
+
+**正确做法**：
+```typescript
+// ✅ 正确
+let storage: LocalStorage = new LocalStorage();
+
+@Entry(storage)
+@Component
+struct Widget1x2Genshin {
+  @LocalStorageProp('payload') payloadJson: string = '';
+  // ...
+}
+```
+
+#### 发现 3：预览时 onAddForm 被调用但进程存活时间有限
+
+来自 [Widget 生命周期管理](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-ui-widget-lifecycle)：
+
+> The FormExtensionAbility cannot reside in the background. It persists for **10 seconds** after the lifecycle callback is completed and exits if no new lifecycle callback is invoked during this time frame.
+
+来自最佳实践文档 [卡片更新与数据交互](https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-card-update-and-data-interaction)：
+
+> 弹出卡片预览弹窗时，所有卡片都会触发 `onAddForm()`
+> 关闭弹窗或息屏时，会触发所有卡片的 `onRemoveForm()`
+
+**这意味着**：
+- 预览页打开时，`onAddForm()` **会被调用**
+- 但 `onAddForm()` 必须在**方法返回前**准备好数据
+- 如果使用异步 API（如 `await preferences.getPreferences()`），数据可能在进程被杀前未准备好
+- **必须使用同步 API（`getPreferencesSync` + `getSync`）在 `onAddForm()` 中读取数据**
+
+#### 发现 4：数据传递必须通过 LocalStorageProp
+
+来自官方文档 [LocalStorage](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-localstorage)：
+
+> This decorator can be used in **ArkTS widgets** since API version 9.
+
+来自 [卡片更新与数据交互](https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-card-update-and-data-interaction)：
+
+> 卡片页面使用页面级的UI状态存储 `LocalStorage` 接收 `onAddForm()` 接口传递的数据。
+> 使用装饰器 `@LocalStorageProp` 装饰的状态变量接收数据类的详细信息，装饰器 `@LocalStorageProp(key)` 中的key值需与数据类的键值一一对应。
+
+**数据流**：
+```
+EntryFormAbility.onAddForm() 
+  → formBindingData.createFormBindingData({ payload: jsonStr })
+    → Widget 组件 @LocalStorageProp('payload') payloadJson: string
+```
+
+#### 发现 5：Widget 渲染服务独立运行
+
+来自官方文档 [ArkTS卡片实现原理](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-form-overview)：
+
+> 卡片渲染服务根据form_config.json配置的卡片信息运行widget.abc文件的卡片页面代码进行渲染，并将渲染后的数据发送至卡片使用方对应的卡片组件。
+
+**关键点**：
+- 卡片渲染服务运行 `widget.abc` 文件
+- 卡片渲染服务由卡片管理服务管理
+- 同一卡片提供方的渲染实例运行在同一个ArkTS虚拟机运行环境中
+- **如果 `widget.abc` 文件有问题，Widget 就会空白**
+
+### 16.2 根本原因推测
+
+根据用户描述的问题现象：
+
+| 现象 | 可能原因 |
+|-----|---------|
+| 长按 App icon 预览空白 | `onAddForm()` 返回的数据为空或格式错误，或 Widget 组件未正确处理空数据 |
+| 添加到桌面空白 | 同上，`onAddForm()` 返回的数据有问题 |
+| 运行 run.sh 后已添加的 Widget 正常显示 | `onUpdateForm()` 或 `formProvider.updateForm()` 正确推送了数据 |
+| 长按预览始终空白 | Widget 渲染服务在预览时未正确初始化，或数据未同步保存到 Preferences |
+
+### 16.3 解决方案
+
+#### 方案 A：确保 onAddForm() 使用同步 API
+
+在 `EntryFormAbility.ets` 中，**必须使用同步 API** 读取 Preferences：
+
+```typescript
+import { preferences } from '@kit.ArkData';
+
+onAddForm(want: Want): formBindingData.FormBindingData {
+  // ✅ 使用同步 API
+  const prefs = preferences.getPreferencesSync(this.context, { name: 'widget_data_store' });
+  const json = prefs.getSync('global_data', '') as string;
+  
+  if (json.length > 0) {
+    return formBindingData.createFormBindingData({ payload: json });
+  }
+  
+  // 兜底：返回空数据（但要有有效结构）
+  return formBindingData.createFormBindingData({
+    payload: '{"version":1,"updatedAt":0,"accounts":[]}'
+  });
+}
+```
+
+**错误做法**：
+```typescript
+// ❌ 异步 API - 数据可能在进程被杀前未准备好
+const prefs = await preferences.getPreferences(this.context, 'widget_data_store');
+const json = await prefs.get('global_data', '') as string;
+```
+
+#### 方案 B：主应用启动时保存数据到 Preferences
+
+在 `EntryAbility.onCreate()` 中，确保调用数据保存：
+
+```typescript
+// EntryAbility.ets
+async onCreate(want: Want, launchParam: AbilityConstant.LaunchParam) {
+  // 初始化 Preferences
+  await WidgetDataStoreManager.init(this.context);
+  
+  // 从 core 模块读取数据并保存到 Preferences
+  const data = await this.buildWidgetData();
+  await WidgetDataStoreManager.save(data);
+}
+```
+
+#### 方案 C：检查 Widget 组件是否有有效 UI
+
+即使数据为空，Widget 组件也应该显示占位 UI，而不是空白：
+
+```typescript
+build() {
+  Column() {
+    if (this.payloadJson.length === 0) {
+      // 显示占位 UI
+      Text("暂无数据")
+        .fontColor(Color.Gray)
+    } else {
+      // 显示正常内容
+      Widget1x2Content({ data: this.buildData() })
+    }
+  }
+  .width('100%')
+  .height('100%')
+  .backgroundColor(Color.Blue) // 使用明显颜色方便调试
+}
+```escript
+// ✅ 正确：同步读取并返回
+onAddForm(want: Want): formBindingData.FormBindingData {
+  try {
+    const prefs = preferences.getPreferencesSync(this.context, 'widget_data_store');
+    const json = prefs.getSync('global_data', '') as string;
+    
+    // 即使 json 为空，也要返回有效的 payload 结构
+    const payload = json.length > 0 ? json : '{"version":1,"accounts":[]}';
+    
+    return formBindingData.createFormBindingData({
+      payload: payload
+    });
+  } catch (e) {
+    // 兜底：返回有效的空数据结构
+    return formBindingData.createFormBindingData({
+      payload: '{"version":1,"accounts":[]}'
+    });
+  }
+}
+```
+
+#### 方案 B：检查 Widget 组件的数据接收
+
+在 `Widget1x2Genshin.ets` 中确认：
+
+1. 使用 `@LocalStorageProp('payload')` 接收数据
+2. 在 `aboutToAppear()` 或直接使用时解析 payload
+3. 必须处理 payload 为空字符串或无效 JSON 的情况
+
+```typescript
+@Component
+struct Widget1x2Genshin {
+  @LocalStorageProp('payload') payloadJson: string = '';
+  
+  // 直接在属性初始化时解析（Widget 不支持复杂初始化逻辑）
+  // 或在 build() 方法中惰性解析
+  
+  build() {
+    Column() {
+      if (this.payloadJson.length === 0) {
+        // 空数据占位 UI
+        Text('暂无数据')
+          .fontSize(12)
+          .fontColor(Color.White)
+      } else {
+        // 正常渲染
+        Widget1x2Content({ ... })
+      }
+    }
+    .width('100%')
+    .height('100%')
+    .backgroundColor(Color.Blue)  // 使用 Color 枚举，不要用字符串
+  }
+}
+```
+
+#### 方案 C：确保 Widget 组件语法正确
+
+**重要发现**：当前 `Widget1x2Genshin.ets` 文件有编译错误！
+
+错误列表：
+1. `Cannot find name 'LocalStorage'` — 未导入
+2. `Cannot find name 'Entry'` — 未导入
+3. `Cannot find name 'Component'` — 未导入
+4. `Cannot find name 'LocalStorageProp'` — 未导入
+5. `Cannot find name 'Column'` / `Text` / `Color` — 未导入
+6. `Cannot find name 'postCardAction'` — 未导入
+
+**原因**：Widget 文件**不能手动创建 LocalStorage 实例**！
+
+根据官方文档：
+- Widget 组件由卡片渲染服务加载
+- `@LocalStorageProp` 的数据由 `formBindingData.createFormBindingData()` 提供
+- **不需要也不应该**在 Widget 组件中创建 `LocalStorage` 实例
+
+**正确写法**：
+
+```typescript
+// ❌ 错误：手动创建 LocalStorage
+let storage: LocalStorage = new LocalStorage();
+@Entry(storage)
+@Component
+struct Widget1x2Genshin { ... }
+
+// ✅ 正确：直接使用 @Component，不需要 @Entry
+@Component
+struct Widget1x2Genshin {
+  @LocalStorageProp('payload') payloadJson: string = '';
+  
+  build() { ... }
+}
+```
+
+#### 方案 D：检查模块导入
+
+Widget 组件只能导入标记为 **"supported in ArkTS widgets"** 的 API。
+
+当前 `Widget1x2Genshin.ets` 导入了：
+- `Widget1x2Content` — 需要确认该组件是否也使用正确的装饰器
+- `WidgetGameData` / `WidgetSingleGameData` — 数据模型，应该没问题
+- `parsePayload` / `ParsedRole` — 解析逻辑，需要确认是否有不支持的 API
+
+#### 方案 E：检查模拟器限制
+
+根据官方文档：
+
+> 模拟器与真机存在以下差异：
+> - 模拟器**不支持 1×1 卡片预览**
+> - 模拟器**不支持背板透明卡片预览**
+> - 模拟器**不支持互动卡片预览**
+
+**建议**：在真机上测试 Widget 效果，模拟器可能无法正确渲染动态 Widget。
+
+### 16.4 立即行动项
+
+1. **修复 Widget 组件语法错误**：
+   - 移除 `let storage = new LocalStorage()`
+   - 移除 `@Entry(storage)`，只保留 `@Component`
+   - 确保所有导入的模块都支持 ArkTS Widget
+
+2. **验证 onAddForm() 返回值**：
+   - 添加日志确认 `onAddForm()` 被调用
+   - 确认返回的 `FormBindingData` 包含 `payload` 字段
+   - 确认 `payload` 是有效的 JSON 字符串
+
+3. **简化 Widget 组件**：
+   - 先只渲染一个 `Text` 组件验证数据传递
+   - 确认能显示后逐步添加复杂 UI
+
+4. **在真机上测试**：
+   - 模拟器的 Widget 渲染可能有 bug
+   - 使用真机验证预览和添加流程
+
+---
+
+## 十七、最佳实践总结
+
+### 16.1 `onAddForm()` 正确实现
+
+```typescript
+onAddForm(want: Want): formBindingData.FormBindingData {
+  // 1. 解析参数
+  const formId = want.parameters?.[formInfo.FormParam.IDENTITY_KEY] as string ?? '';
+  const config = this.parseConfig(want);
+  
+  // 2. 同步读取数据并返回
+  try {
+    const prefs = preferences.getPreferencesSync(this.context, PREFS_NAME);
+    const json = prefs.getSync(KEY_GLOBAL_DATA, '') as string;
+    
+    if (json.length > 0) {
+      const dataStore = WidgetDataStore.fromJson(json);
+      const payload = WidgetPayloadBuilder.buildPayload(config, dataStore);
+      return formBindingData.createFormBindingData(payload.toLocalStorageRecord());
+    }
+  } catch (e) {
+    // 记录错误日志
+  }
+  
+  // 3. 兜底：返回空数据
+  return formBindingData.createFormBindingData({
+    payload: '{"version":1,"updatedAt":0,"accounts":[]}'
+  });
+  
+  // 注意：不要在这里调用异步方法保存配置
+  // 异步保存应该在后台任务或其他地方处理
+}
+```
+
+### 16.2 Widget 组件正确实现
+
+```typescript
+@Component
+export struct Widget2x2 {
+  @LocalStorageProp('payload') payloadStr: string = '';
+  private parsedPayload: ParsedPayload = new ParsedPayload();
+
+  aboutToAppear(): void {
+    if (this.payloadStr.length > 0) {
+      try {
+        this.parsedPayload = WidgetPayloadParser.parse(this.payloadStr);
+      } catch (e) {
+        // 解析失败，使用默认空数据
+      }
+    }
+  }
+
+  build() {
+    Column() {
+      if (this.parsedPayload.accounts.length === 0) {
+        // 占位 UI
+        this.buildEmptyState()
+      } else {
+        // 正常渲染
+        this.buildContent()
+      }
+    }
+    .width('100%')
+    .height('100%')
+    .backgroundColor($r('app.color.colorPageBg'))
+  }
+
+  @Builder
+  buildEmptyState() {
+    Column() {
+      Text('暂无数据')
+        .fontSize(12)
+        .fontColor($r('app.color.colorTextSecondary'))
+    }
+    .width('100%')
+    .height('100%')
+    .justifyContent(FlexAlign.Center)
+  }
+
+  @Builder
+  buildContent() {
+    // 正常渲染逻辑
+  }
+}
+```
+
+
+---
+
+## 十七、Widget 组件装饰器规范（重要修正）
+
+### 17.1 官方推荐写法（来自音乐服务卡片最佳实践）
+
+**经过查阅官方文档确认**：Widget 组件**必须**使用 `@Entry(storage)` + `new LocalStorage()`：
+
+```typescript
+// ✅ 官方示例的正确写法
+let storage: LocalStorage = new LocalStorage();
+
+@Entry(storage)
+@Component
+struct PlayControlCard2x4 {
+  @LocalStorageProp('formId') formId: string = '';
+  @LocalStorageProp('isNeedRequestUpdate') isNeedRequestUpdate: boolean = false;
+  
+  build() {
+    Column() {
+      // Widget UI
+    }
+  }
+}
+```
+
+**来源**：[音乐服务卡片 - 官方最佳实践](https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-music-card)
+
+### 17.2 本项目之前的错误记录
+
+> ~~方案 C 中说"Widget 组件不需要也不应该在 Widget 组件中创建 `LocalStorage` 实例"是**错误的**~~
+
+**正确做法**：
+```typescript
+// ✅ 正确
+let storage: LocalStorage = new LocalStorage();
+
+@Entry(storage)
+@Component
+struct Widget1x2Genshin {
+  @LocalStorageProp('payload') payloadJson: string = '';
+  // ...
+}
+```
+
+### 17.3 关键规则
+
+| 规则 | 说明 |
+|-----|------|
+| 必须使用 `@Component` | Widget 只支持 V1 体系，不支持 `@ComponentV2` |
+| 必须使用 `@Entry(storage)` | 必须手动创建 LocalStorage 实例并传入 |
+| 必须使用 `@LocalStorageProp` | 用于接收来自 `formBindingData` 的数据 |
+| 不能使用 `@State` | Widget 不支持 `@State`，只能用 `@LocalStorageProp` |
+
+### 17.4 模拟器限制
+
+来自官方文档 [ArkTS卡片概述](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-form-overview)：
+
+| 模拟器限制 | 说明 |
+|-----------|------|
+| 不支持 1×1 卡片预览 | 模拟器无法预览 1×1 尺寸的卡片 |
+| 不支持背板透明卡片预览 | 模拟器无法预览透明背景卡片 |
+| 不支持互动卡片预览 | 模拟器无法预览互动卡片 |
+
+**建议**：在真机上测试卡片效果，模拟器只能做基础功能验证。
+
+---
+
+## 十八、Widget 预览空白的真正原因
+
+### 18.1 数据流分析
+
+```
+EntryFormAbility.onAddForm() 
+  → formBindingData.createFormBindingData({ payload: jsonStr })
+    → 卡片渲染服务运行 widget.abc
+      → Widget 组件 @LocalStorageProp('payload') 接收数据
+        → Widget UI 渲染
+```
+
+### 18.2 可能的问题点
+
+| 问题点 | 检查方法 |
+|-------|---------|
+| `onAddForm()` 未被调用 | 检查日志 `[WIDGET_DEBUG] onAddForm` |
+| `onAddForm()` 返回空数据 | 检查日志 `returning real data, payload len=N` |
+| Preferences 中没有数据 | 检查主应用启动时是否调用 `WidgetDataStoreManager.save()` |
+| Widget 组件有编译错误 | 执行 `hvigorw assembleHap` 检查 |
+| 模拟器渲染问题 | 在真机上测试 |
+
+### 18.3 调试步骤
+
+1. **检查日志**：
+   ```bash
+   hilog | grep "WIDGET_DEBUG"
+   ```
+
+2. **确认数据流**：
+   - 主应用启动 → `WidgetDataStoreManager.save()` → Preferences 有数据
+   - 长按 App icon → `onAddForm()` → 读取 Preferences → 返回 FormBindingData
+   - 卡片渲染服务 → 运行 `widget.abc` → 渲染 Widget UI
+
+3. **简化 Widget UI**：
+   - 先用最简单的 `Text("Hello")` 验证渲染
+   - 确认能显示后逐步恢复复杂 UI
+
+---
+
+## 十九、参考资料（2026-05-12 更新）
+
+### 官方文档
+
+- [ArkTS卡片概述](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-form-overview) — 卡片架构、实现原理、约束限制
+- [创建ArkTS卡片](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-ui-widget-creation) — 工程结构、创建步骤
+- [管理ArkTS卡片生命周期](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-ui-widget-lifecycle) — onAddForm、onUpdateForm 等
+- [卡片更新与数据交互](https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-card-update-and-data-interaction) — 数据初始化、更新机制
+- [音乐服务卡片](https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-music-card) — 完整示例代码，包含正确的 Widget 组件写法

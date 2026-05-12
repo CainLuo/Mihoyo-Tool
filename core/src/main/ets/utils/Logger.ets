@@ -1,4 +1,5 @@
 import { AppEnvManager } from '../constants/AppEnvManager';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 
 /**
  * 日志等级枚举。
@@ -28,10 +29,17 @@ export interface LogContext {
  * ℹ️ℹ️ℹ️ [INFO] [2026-02-28 19:42:11.037] [mock] [#12] [EntryAbility.ets:33:7] [EntryAbility.onWindowStageCreate] [EntryAbility] onWindowStageCreate ℹ️ℹ️ℹ️
  *
  * 环境判断职责由 AppEnvManager 负责，Logger 只通过 AppEnvManager.getEnv() 读取环境标签。
+ * 
+ * HiLog 支持：
+ * - 支持按 tag 过滤：hilog -T <tag>
+ * - 支持按 domain 过滤：hilog -D 0xFF00
+ * - 支持隐私保护：%{public}/%{private}
+ * - 支持 isLoggable() 预检查，避免耗时的日志参数构造
  */
 export class Logger {
   private static readonly UNKNOWN: string = 'unknown';
   private static sequence: number = 0;
+  private static readonly DOMAIN: number = 0xFF00;
 
   /**
    * 快速构造日志上下文。
@@ -90,6 +98,10 @@ export class Logger {
       ` [${tag}] ${message}` +
       ` ${levelMarker}`;
 
+    // 优先使用 HiLog（支持过滤和隐私保护）
+    Logger.printHiLog(level, tag, message, context);
+    
+    // 同时输出到 console（兼容旧的 Log 窗口查看方式）
     switch (level) {
       case LogLevel.INFO:
         console.info(finalLog);
@@ -106,6 +118,62 @@ export class Logger {
       case LogLevel.TRACE:
         console.info(finalLog);
         return;
+    }
+  }
+
+  /**
+   * 使用 HiLog 输出日志（支持过滤和隐私保护）
+   */
+  private static printHiLog(level: LogLevel, tag: string, message: string, context?: LogContext): void {
+    // HiLog 的日志级别映射
+    let hilogLevel: hilog.LogLevel;
+    switch (level) {
+      case LogLevel.DEBUG:
+        hilogLevel = hilog.LogLevel.DEBUG;
+        break;
+      case LogLevel.INFO:
+        hilogLevel = hilog.LogLevel.INFO;
+        break;
+      case LogLevel.WARNING:
+        hilogLevel = hilog.LogLevel.WARN;
+        break;
+      case LogLevel.ERROR:
+        hilogLevel = hilog.LogLevel.ERROR;
+        break;
+      case LogLevel.TRACE:
+        hilogLevel = hilog.LogLevel.INFO;
+        break;
+      default:
+        hilogLevel = hilog.LogLevel.INFO;
+    }
+
+    // 使用 isLoggable() 预检查，避免在不满足日志级别时执行耗时的日志参数构造
+    if (!hilog.isLoggable(Logger.DOMAIN, tag, hilogLevel)) {
+      return;
+    }
+
+    // 格式化 HiLog 消息（简化版，不包含时间戳等冗长信息）
+    const location: string = Logger.formatLocation(context);
+    const method: string = Logger.formatMethod(context);
+    const envLabel: string = AppEnvManager.getEnv();
+    
+    // 使用格式化字符串，支持隐私保护
+    const format = `%{public}s [%{public}s] [%{public}s] [%{public}s] %{public}s`;
+    const args = [tag, envLabel, location, method, message];
+    
+    switch (hilogLevel) {
+      case hilog.LogLevel.DEBUG:
+        hilog.debug(Logger.DOMAIN, tag, format, ...args);
+        break;
+      case hilog.LogLevel.INFO:
+        hilog.info(Logger.DOMAIN, tag, format, ...args);
+        break;
+      case hilog.LogLevel.WARN:
+        hilog.warn(Logger.DOMAIN, tag, format, ...args);
+        break;
+      case hilog.LogLevel.ERROR:
+        hilog.error(Logger.DOMAIN, tag, format, ...args);
+        break;
     }
   }
 

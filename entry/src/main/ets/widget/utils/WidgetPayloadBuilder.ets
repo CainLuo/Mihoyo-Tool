@@ -14,7 +14,7 @@ import { WidgetDataStore } from '../models/WidgetDataStore';
 import { WidgetConfig, WidgetSize, getMaxSlots } from '../models/WidgetConfig';
 import { WidgetSlotRef } from '../models/WidgetDataStore';
 
-const TAG = 'WidgetPayloadBuilder';
+const TAG = 'WIDGET';
 
 /**
  * 角色 Payload
@@ -75,8 +75,13 @@ export class WidgetPayload {
     payloadItem.updatedAt = Math.floor(Date.now() / 1000);
     payloadItem.accounts = this.accounts;
 
+    const payloadJson = JSON.stringify(payloadItem);
     const record: Record<string, string> = {};
-    record['payload'] = JSON.stringify(payloadItem);
+    record['payload'] = payloadJson;
+    
+    Logger.info(TAG, `[WIDGET_DEBUG] toLocalStorageRecord: payload json length=${payloadJson.length}`);
+    Logger.info(TAG, `[WIDGET_DEBUG] toLocalStorageRecord: payload preview (first 500 chars)=${payloadJson.substring(0, 500)}`);
+    
     return record;
   }
 }
@@ -90,6 +95,7 @@ export class WidgetPayloadBuilder {
    * @returns WidgetPayload 构建结果
    */
   static buildPayload(config: WidgetConfig | null, dataStore: WidgetDataStore): WidgetPayload {
+    Logger.info(TAG, `[WIDGET_DEBUG] buildPayload: start config=${config !== null ? 'has config' : 'null'} dataStore.accounts=${dataStore.accounts.length}`);
     const payload = new WidgetPayload();
 
     // 确定尺寸
@@ -99,7 +105,7 @@ export class WidgetPayloadBuilder {
 
     // 无数据时返回空 payload
     if (dataStore.accounts.length === 0) {
-      Logger.info(TAG, 'buildPayload: no data in store');
+      Logger.info(TAG, '[WIDGET_DEBUG] buildPayload: no accounts, returning empty payload');
       return payload;
     }
 
@@ -118,13 +124,17 @@ export class WidgetPayloadBuilder {
     // 按 accountId 分组 slots
     const accountMap: Map<string, WidgetAccountPayloadItem> = new Map();
 
+    Logger.info(TAG, `[WIDGET_DEBUG] buildPayload: processing ${slots.length} slots (max=${maxSlots})`);
     for (let i = 0; i < slots.length && i < maxSlots; i++) {
       const slotRef = slots[i];
       const role = dataStore.getRole(slotRef.accountId, slotRef.gameId, slotRef.roleId);
 
       if (role === null) {
+        Logger.warn(TAG, `[WIDGET_DEBUG] buildPayload: role not found ${slotRef.accountId}/${slotRef.gameId}/${slotRef.roleId}`);
         continue;
       }
+
+      Logger.info(TAG, `[WIDGET_DEBUG] buildPayload: slot[${i}] accountId=${slotRef.accountId} gameId=${slotRef.gameId} roleId=${slotRef.roleId} rawJsonLen=${role.rawJson.length}`);
 
       // 获取或创建账号 Payload
       let accountPayload = accountMap.get(slotRef.accountId);
@@ -160,11 +170,7 @@ export class WidgetPayloadBuilder {
 
     // 转换为数组
     payload.accounts = Array.from(accountMap.values());
-
-    // 打印 payload 详情
-    const payloadJson = JSON.stringify(payload.toLocalStorageRecord()['payload']);
-    Logger.info(TAG, `buildPayload: size=${size}, accounts=${payload.accounts.length}, totalRoles=${slots.length}`);
-    Logger.info(TAG, `buildPayload: payload preview: ${payloadJson.substring(0, 500)}`);
+    Logger.info(TAG, `[WIDGET_DEBUG] buildPayload: done, payload.accounts=${payload.accounts.length}`);
 
     return payload;
   }
@@ -188,8 +194,6 @@ export class WidgetPayloadBuilder {
     // 从 formName 提取游戏类型
     const targetGameId = WidgetPayloadBuilder.gameIdFromFormName(formName);
     const filterByGame = targetGameId.length > 0;
-
-    Logger.info(TAG, `getDefaultSlots: formName=${formName}, targetGameId=${targetGameId}, filterByGame=${filterByGame}`);
 
     // 遍历第一个账号的所有游戏和角色
     for (let i = 0; i < firstAccount.games.length && slots.length < maxSlots; i++) {

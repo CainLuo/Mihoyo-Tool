@@ -6,32 +6,33 @@
  * - 解析 payload 决定显示内容
  * - 单游戏：游戏主题色渐变背景
  * - 多游戏：多色混合渐变背景
+ *
+ * LocalStorage 使用说明（参考官方示例 CardInfoRefresh）：
+ * - Widget 必须创建 LocalStorage 实例并传给 @Entry
+ * - FormExtensionAbility 通过 createFormBindingData 传递的数据会注入到此实例
+ * - @LocalStorageProp('payload') 从该实例读取数据
  */
 
-import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { WidgetCardContent, WidgetCardSize } from '../components/WidgetCardContent';
 import { parsePayload, ParsedPayload, ParsedRole } from '../utils/WidgetPayloadParser';
 import { dailyDetailPage, WIDGET_GAME_ID } from '../utils/WidgetUtils';
 
-const TAG = 'Widget2x2';
-
 /** 游戏背景色系 */
 class GameColorBase {
-  dark: string = '#181820';
-  mid: string = '#1c1c2c';
+  dark: ResourceColor = $r('app.color.widget_bg_default_dark');
+  mid: ResourceColor = $r('app.color.widget_bg_default_mid');
 
-  constructor(dark: string, mid: string) {
+  constructor(dark: ResourceColor, mid: ResourceColor) {
     this.dark = dark;
     this.mid = mid;
   }
 }
 
-let storage2x2 = new LocalStorage();
+let storage: LocalStorage = new LocalStorage();
 
-@Entry(storage2x2)
+@Entry(storage)
 @Component
 struct Widget2x2 {
-  private tm: ThemeManager = themeManager;
 
   // 单一 payload 字段
   @LocalStorageProp('payload') payloadJson: string = '';
@@ -56,12 +57,12 @@ struct Widget2x2 {
     const gameId = this.gameIds.length > 0 ? this.gameIds[0] : '';
 
     if (gameId === WIDGET_GAME_ID.STARRAIL) {
-      return { angle: this.tm.current.a135, colors: [['#181828', 0], ['#201830', 0.5], ['#261c40', 1]] };
+      return { angle: 135, colors: [[$r('app.color.widget_bg_starrail_dark'), 0], [$r('app.color.widget_bg_starrail_mid'), 0.5], [$r('app.color.widget_bg_starrail_light'), 1]] };
     }
     if (gameId === WIDGET_GAME_ID.ZZZ) {
-      return { angle: this.tm.current.a135, colors: [['#1e1a0e', 0], ['#2a2010', 0.5], ['#342810', 1]] };
+      return { angle: 135, colors: [[$r('app.color.widget_bg_zzz_dark'), 0], [$r('app.color.widget_bg_zzz_mid'), 0.5], [$r('app.color.widget_bg_zzz_light'), 1]] };
     }
-    return { angle: this.tm.current.a135, colors: [['#152030', 0], ['#1a2d42', 0.5], ['#1c3350', 1]] };
+    return { angle: 135, colors: [[$r('app.color.widget_bg_genshin_dark'), 0], [$r('app.color.widget_bg_genshin_mid'), 0.5], [$r('app.color.widget_bg_genshin_light'), 1]] };
   }
 
   /** 多游戏渐变背景（按要求混合各游戏色系） */
@@ -72,24 +73,24 @@ struct Widget2x2 {
       // 双游戏：左上第一款色系，右下第二款色系
       const c0 = this.gameColorBase(games[0]);
       const c1 = this.gameColorBase(games[1]);
-      return { angle: this.tm.current.a135, colors: [[c0.dark, 0], [c0.mid, 0.4], [c1.mid, 0.6], [c1.dark, 1]] };
+      return { angle: 135, colors: [[c0.dark, 0], [c0.mid, 0.4], [c1.mid, 0.6], [c1.dark, 1]] };
     }
     if (games.length >= 3) {
       // 三游戏：三段渐变
       const c0 = this.gameColorBase(games[0]);
       const c1 = this.gameColorBase(games[1]);
       const c2 = this.gameColorBase(games[2]);
-      return { angle: this.tm.current.a135, colors: [[c0.dark, 0], [c0.mid, 0.25], [c1.mid, 0.5], [c2.mid, 0.75], [c2.dark, 1]] };
+      return { angle: 135, colors: [[c0.dark, 0], [c0.mid, 0.25], [c1.mid, 0.5], [c2.mid, 0.75], [c2.dark, 1]] };
     }
-    return { angle: this.tm.current.a135, colors: [['#181820', 0], ['#1c1c2c', 1]] };
+    return { angle: 135, colors: [[$r('app.color.widget_bg_default_dark'), 0], [$r('app.color.widget_bg_default_mid'), 1]] };
   }
 
   /** 获取游戏对应的深色背景色系 */
   private gameColorBase(gameId: string): GameColorBase {
-    if (gameId === WIDGET_GAME_ID.GENSHIN) return new GameColorBase('#152030', '#1a2d42');
-    if (gameId === WIDGET_GAME_ID.STARRAIL) return new GameColorBase('#181828', '#201830');
-    if (gameId === WIDGET_GAME_ID.ZZZ) return new GameColorBase('#1e1a0e', '#2a2010');
-    return new GameColorBase('#181820', '#1c1c2c');
+    if (gameId === WIDGET_GAME_ID.GENSHIN) return new GameColorBase($r('app.color.widget_bg_genshin_dark'), $r('app.color.widget_bg_genshin_mid'));
+    if (gameId === WIDGET_GAME_ID.STARRAIL) return new GameColorBase($r('app.color.widget_bg_starrail_dark'), $r('app.color.widget_bg_starrail_mid'));
+    if (gameId === WIDGET_GAME_ID.ZZZ) return new GameColorBase($r('app.color.widget_bg_zzz_dark'), $r('app.color.widget_bg_zzz_mid'));
+    return new GameColorBase($r('app.color.widget_bg_default_dark'), $r('app.color.widget_bg_default_mid'));
   }
 
   build() {
@@ -101,11 +102,11 @@ struct Widget2x2 {
         isSingleGame: this.parsed.isSingleGame,
       })
     }
-    .width(this.tm.current.full)
-    .height(this.tm.current.full)
-    .padding(this.tm.current.value12)
+    .width('100%')
+    .height('100%')
+    .padding(12)
     .linearGradient(this.parsed.isSingleGame ? this.singleGameGradient : this.multiGameGradient)
-    .borderRadius(this.tm.current.radius16)
+    .borderRadius(16)
     .onClick(() => {
       const page = this.parsed.isSingleGame && this.gameIds.length > 0 ?
         dailyDetailPage(this.gameIds[0]) : 'Main';
@@ -124,6 +125,6 @@ struct Widget2x2Preview {
         .height(168)
     }
     .padding(16)
-    .backgroundColor('#1a1a2e')
+    .backgroundColor($r('app.color.widget_preview_bg'))
   }
 }

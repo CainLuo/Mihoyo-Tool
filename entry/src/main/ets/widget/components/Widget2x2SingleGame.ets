@@ -10,7 +10,7 @@
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
-import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { widgetTheme } from '../utils/WidgetTheme';
 import { gameColorRes, gameNameRes, calcIsFull, calcRatio, formatRecoveryDesc, parseCurrent, parseMax, WIDGET_GAME_ID } from '../utils/WidgetUtils';
 import { WidgetSingleGameData } from '../models/WidgetModels';
 
@@ -23,7 +23,6 @@ class ExtraRow {
 
 @Component
 export struct Widget2x2SingleGame {
-  private tm: ThemeManager = themeManager;
 
   @Prop data: WidgetSingleGameData = new WidgetSingleGameData();
 
@@ -131,42 +130,42 @@ export struct Widget2x2SingleGame {
   build() {
     Column() {
       // ── 头部：游戏名 + UID ──
-      Column({ space: themeManager.current.value1 }) {
+      Column({ space: widgetTheme.value1 }) {
         Text(gameNameRes(this.data.game.gameId))
-          .fontSize(themeManager.current.value12)
+          .fontSize(widgetTheme.value12)
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.text_on_dark_high'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
 
         Text('UID ' + this.data.accountUid)
-          .fontSize(themeManager.current.value10)
+          .fontSize(widgetTheme.value10)
           .fontColor($r('app.color.text_on_dark_muted'))
       }
-      .width(this.tm.current.full)
+      .width(widgetTheme.full)
       .alignItems(HorizontalAlign.Start)
-      .margin({ bottom: themeManager.current.value8 })
+      .margin({ bottom: widgetTheme.value8 })
 
       // ── 体力区块 ──
       if (this.data.game.gameId === WIDGET_GAME_ID.STARRAIL) {
         // 星铁特殊布局：左侧体力 + 右侧后备开拓力
         Row() {
           // 左侧：当前/最大 + 恢复时间
-          Column({ space: themeManager.current.value2 }) {
-            Row({ space: themeManager.current.value3 }) {
+          Column({ space: widgetTheme.value2 }) {
+            Row({ space: widgetTheme.value3 }) {
               Text(String(parseCurrent(this.data.game.currentStr)))
-                .fontSize(themeManager.current.value24)
+                .fontSize(widgetTheme.value24)
                 .fontWeight(FontWeight.Bold)
                 .fontColor(this.staminaColor)
 
               Text('/' + String(parseMax(this.data.game.maxStr)))
-                .fontSize(themeManager.current.value14)
+                .fontSize(widgetTheme.value14)
                 .fontColor($r('app.color.text_on_dark_muted'))
             }
             .alignItems(VerticalAlign.Bottom)
 
             Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(this.data.game.secondsStr))
-              .fontSize(themeManager.current.value11)
+              .fontSize(widgetTheme.value11)
               .fontColor($r('app.color.text_on_dark_secondary'))
               .maxLines(1)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -175,72 +174,72 @@ export struct Widget2x2SingleGame {
           .layoutWeight(1)
 
           // 右侧：后备开拓力
-          Column({ space: themeManager.current.value1 }) {
+          Column({ space: widgetTheme.value1 }) {
             Text($r('app.string.widget_reserve_prefix'))
-              .fontSize(themeManager.current.value9)
+              .fontSize(widgetTheme.value9)
               .fontColor($r('app.color.text_on_dark_muted'))
 
             Text(this.reserveStamina)
-              .fontSize(themeManager.current.value12)
+              .fontSize(widgetTheme.value12)
               .fontWeight(FontWeight.Bold)
               .fontColor(this.gameColor)
           }
           .alignItems(HorizontalAlign.End)
         }
-        .width(this.tm.current.full)
+        .width(widgetTheme.full)
         .alignItems(VerticalAlign.Top)
-        .margin({ bottom: themeManager.current.value8 })
+        .margin({ bottom: widgetTheme.value8 })
       } else {
         // 原神/绝区零：标准布局
-        Column({ space: themeManager.current.value2 }) {
-          Row({ space: themeManager.current.value3 }) {
+        Column({ space: widgetTheme.value2 }) {
+          Row({ space: widgetTheme.value3 }) {
             Text(String(parseCurrent(this.data.game.currentStr)))
-              .fontSize(themeManager.current.value24)
+              .fontSize(widgetTheme.value24)
               .fontWeight(FontWeight.Bold)
               .fontColor(this.staminaColor)
 
             Text('/' + String(parseMax(this.data.game.maxStr)))
-              .fontSize(themeManager.current.value14)
+              .fontSize(widgetTheme.value14)
               .fontColor($r('app.color.text_on_dark_muted'))
           }
           .alignItems(VerticalAlign.Bottom)
 
           Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(this.data.game.secondsStr))
-            .fontSize(themeManager.current.value11)
+            .fontSize(widgetTheme.value11)
             .fontColor($r('app.color.text_on_dark_secondary'))
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
         }
-        .width(this.tm.current.full)
+        .width(widgetTheme.full)
         .alignItems(HorizontalAlign.Start)
-        .margin({ bottom: themeManager.current.value8 })
+        .margin({ bottom: widgetTheme.value8 })
       }
 
       // ── 底部：额外数据行 ──
-      Column({ space: themeManager.current.value5 }) {
+      Column({ space: widgetTheme.value5 }) {
         ForEach(this.extraRows, (row: ExtraRow, idx: number) => {
           Row() {
             Text(row.label)
-              .fontSize(themeManager.current.value11)
+              .fontSize(widgetTheme.value11)
               .fontColor($r('app.color.text_on_dark_tertiary'))
               .layoutWeight(1)
               .maxLines(1)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
 
             Text(row.value)
-              .fontSize(themeManager.current.value11)
+              .fontSize(widgetTheme.value11)
               .fontWeight(FontWeight.Bold)
               .fontColor(row.color)
           }
-          .width(this.tm.current.full)
+          .width(widgetTheme.full)
         })
       }
-      .width(this.tm.current.full)
+      .width(widgetTheme.full)
       .layoutWeight(1)
       .justifyContent(FlexAlign.Center)
     }
-    .width(this.tm.current.full)
-    .height(this.tm.current.full)
+    .width(widgetTheme.full)
+    .height(widgetTheme.full)
     .alignItems(HorizontalAlign.Start)
     .justifyContent(FlexAlign.Start)
   }

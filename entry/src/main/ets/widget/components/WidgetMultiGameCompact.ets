@@ -12,13 +12,12 @@
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
-import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { widgetTheme } from '../utils/WidgetTheme';
 import { WidgetCompactGameRow } from './WidgetCompactGameRow';
 import { WidgetAccountData, WidgetGameData } from '../models/WidgetModels';
 
 @Component
 export struct WidgetMultiGameCompact {
-  private tm: ThemeManager = themeManager;
 
   @Prop data: WidgetAccountData = new WidgetAccountData();
   /** 0 = 2×2 竖线模式，>0 = 2×4 小环模式 */
@@ -37,7 +36,7 @@ export struct WidgetMultiGameCompact {
     if (this.ringSize === 0) {
       return 0;
     }
-    return this.data.gameCount <= 2 ? themeManager.current.value36 : themeManager.current.value24;
+    return this.data.gameCount <= 2 ? widgetTheme.value36 : widgetTheme.value24;
   }
 
   /** 2×4 模式下根据游戏数量动态计算环线宽 */
@@ -45,19 +44,19 @@ export struct WidgetMultiGameCompact {
     if (this.ringSize === 0) {
       return 0;
     }
-    return this.data.gameCount <= 2 ? themeManager.current.value4 : themeManager.current.value2;
+    return this.data.gameCount <= 2 ? widgetTheme.value4 : widgetTheme.value2;
   }
 
   build() {
     Column() {
       // 顶部账号名
       Text(this.displayName)
-        .fontSize(themeManager.current.value10)
+        .fontSize(widgetTheme.value10)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_on_dark_secondary'))
         .maxLines(1)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
-        .margin({ bottom: themeManager.current.value4 })
+        .margin({ bottom: widgetTheme.value4 })
 
       // 游戏行列表（SpaceEvenly 均分剩余高度）
       Column() {
@@ -70,11 +69,11 @@ export struct WidgetMultiGameCompact {
 
         if (this.data.gameCount >= 2) {
           Column()
-            .width(this.tm.current.full)
-            .height(themeManager.current.value1)
+            .width(widgetTheme.full)
+            .height(widgetTheme.value1)
             .backgroundColor($r('app.color.surface_inactive_border'))
             .opacity(0.5)
-            .margin({ top: themeManager.current.value4, bottom: themeManager.current.value4 })
+            .margin({ top: widgetTheme.value4, bottom: widgetTheme.value4 })
 
           WidgetCompactGameRow({
             game: this.gameAt(1),
@@ -86,11 +85,11 @@ export struct WidgetMultiGameCompact {
 
         if (this.data.gameCount >= 3) {
           Column()
-            .width(this.tm.current.full)
-            .height(themeManager.current.value1)
+            .width(widgetTheme.full)
+            .height(widgetTheme.value1)
             .backgroundColor($r('app.color.surface_inactive_border'))
             .opacity(0.5)
-            .margin({ top: themeManager.current.value4, bottom: themeManager.current.value4 })
+            .margin({ top: widgetTheme.value4, bottom: widgetTheme.value4 })
 
           WidgetCompactGameRow({
             game: this.gameAt(2),
@@ -103,8 +102,8 @@ export struct WidgetMultiGameCompact {
       .layoutWeight(1)
       .justifyContent(FlexAlign.SpaceEvenly)
     }
-    .width(this.tm.current.full)
-    .height(this.tm.current.full)
+    .width(widgetTheme.full)
+    .height(widgetTheme.full)
     .alignItems(HorizontalAlign.Start)
   }
 }

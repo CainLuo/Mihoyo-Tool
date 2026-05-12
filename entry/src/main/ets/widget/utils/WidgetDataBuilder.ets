@@ -28,7 +28,7 @@ import {
 import { WidgetFormIdStore, WidgetConfig } from './WidgetFormIdStore';
 import { WidgetGameData } from '../models/WidgetModels';
 
-const TAG = 'WidgetDataBuilder';
+const TAG = 'WIDGET';
 
 export class WidgetDataBuilder {
   private static genshinRepo: GenshinRepository = new GenshinRepository();

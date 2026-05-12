@@ -5,7 +5,7 @@
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
-import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { widgetTheme } from '../utils/WidgetTheme';
 
 /** 派遣格子颜色（按索引区分） */
 const EXPEDITION_COLORS: ResourceColor[] = [
@@ -18,7 +18,6 @@ const EXPEDITION_COLORS: ResourceColor[] = [
 
 @Component
 export struct WidgetExpeditions {
-  private tm: ThemeManager = themeManager;
   /** 派遣总数 */
   expeditionMax: string = '5';
   /** 已完成的派遣数量 */
@@ -46,11 +45,11 @@ export struct WidgetExpeditions {
   }
 
   build() {
-    Column({ space: themeManager.current.value8 }) {
+    Column({ space: widgetTheme.value8 }) {
       Text($r('app.string.widget_expedition'))
-        .fontSize(themeManager.current.value10)
+        .fontSize(widgetTheme.value10)
         .fontColor($r('app.color.text_on_dark_muted'))
-        .letterSpacing(themeManager.current.value0)
+        .letterSpacing(widgetTheme.value0)
         .textCase(TextCase.UpperCase)
 
       Row() {
@@ -58,41 +57,41 @@ export struct WidgetExpeditions {
           Stack() {
             // 圆形背景（半透明底色 + 彩色边框）
             Circle()
-              .width(this.tm.current.value36)
-              .height(this.tm.current.value36)
+              .width(widgetTheme.value36)
+              .height(widgetTheme.value36)
               .fill($r('app.color.surface_inactive_border'))
               .stroke(this.getExpeditionColor(idx))
-              .strokeWidth(themeManager.current.value2)
+              .strokeWidth(widgetTheme.value2)
 
             // 头像占位
             Text('👤')
-              .fontSize(themeManager.current.value14)
+              .fontSize(widgetTheme.value14)
 
             // 完成标记（右下角小圆圈）
             if (this.isFinished(idx)) {
               Text('✓')
-                .fontSize(themeManager.current.value9)
+                .fontSize(widgetTheme.value9)
                 .fontColor($r('app.color.text_on_dark_high'))
                 .fontWeight(FontWeight.Bold)
                 .backgroundColor($r('app.color.game_color_zzz'))
-                .borderRadius(this.tm.current.value8)
-                .width(this.tm.current.value14)
-                .height(this.tm.current.value14)
+                .borderRadius(widgetTheme.value8)
+                .width(widgetTheme.value14)
+                .height(widgetTheme.value14)
                 .textAlign(TextAlign.Center)
-                .position({ x: themeManager.current.value22, y: themeManager.current.value22 })
+                .position({ x: widgetTheme.value22, y: widgetTheme.value22 })
             }
           }
-          .width(this.tm.current.value36)
-          .height(this.tm.current.value36)
+          .width(widgetTheme.value36)
+          .height(widgetTheme.value36)
           .layoutWeight(1)
         }, (idx: number) => String(idx))
       }
-      .width(this.tm.current.full)
+      .width(widgetTheme.full)
       .justifyContent(FlexAlign.SpaceBetween)
     }
-    .width(this.tm.current.full)
+    .width(widgetTheme.full)
     .layoutWeight(1)
-    .padding({ top: themeManager.current.value8, bottom: themeManager.current.value8 })
+    .padding({ top: widgetTheme.value8, bottom: widgetTheme.value8 })
     .justifyContent(FlexAlign.Center)
   }
 }

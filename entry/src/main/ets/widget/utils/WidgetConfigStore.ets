@@ -7,10 +7,9 @@
 
 import { preferences } from '@kit.ArkData';
 import { common } from '@kit.AbilityKit';
-import { Logger } from 'core';
 import { WidgetConfig } from '../models/WidgetConfig';
 
-const TAG = 'WidgetConfigStore';
+const TAG = 'WIDGET';
 const PREFS_NAME = 'widget_configs';
 
 /**
@@ -30,9 +29,8 @@ export class WidgetConfigStore {
   static async init(context: common.Context): Promise<void> {
     try {
       WidgetConfigStore.prefs = await preferences.getPreferences(context, PREFS_NAME);
-      Logger.info(TAG, 'init success');
     } catch (e) {
-      Logger.error(TAG, `init failed: ${JSON.stringify(e)}`);
+      // 静默处理错误
     }
   }
 
@@ -41,7 +39,6 @@ export class WidgetConfigStore {
    */
   static async saveConfig(config: WidgetConfig): Promise<boolean> {
     if (WidgetConfigStore.prefs === null) {
-      Logger.error(TAG, 'saveConfig failed: prefs not initialized');
       return false;
     }
     try {
@@ -49,10 +46,9 @@ export class WidgetConfigStore {
       const json = config.toJson();
       await WidgetConfigStore.prefs.put(key, json);
       await WidgetConfigStore.prefs.flush();
-      Logger.info(TAG, `saveConfig success: formId=${config.formId} slots=${config.slots.length}`);
       return true;
     } catch (e) {
-      Logger.error(TAG, `saveConfig failed: ${JSON.stringify(e)}`);
+      // 静默处理错误
       return false;
     }
   }
@@ -63,22 +59,19 @@ export class WidgetConfigStore {
    */
   static async loadConfig(formId: string): Promise<WidgetConfig> {
     if (WidgetConfigStore.prefs === null) {
-      Logger.error(TAG, 'loadConfig failed: prefs not initialized');
       return new WidgetConfig();
     }
     try {
       const key = getConfigKey(formId);
       const json = await WidgetConfigStore.prefs.get(key, '') as string;
       if (json.length === 0) {
-        Logger.info(TAG, `loadConfig: no config found for formId=${formId}`);
         return new WidgetConfig();
       }
       const config = WidgetConfig.fromJson(json);
       config.formId = formId;
-      Logger.info(TAG, `loadConfig success: formId=${formId} slots=${config.slots.length}`);
       return config;
     } catch (e) {
-      Logger.error(TAG, `loadConfig failed: ${JSON.stringify(e)}`);
+      // 静默处理错误
       return new WidgetConfig();
     }
   }
@@ -88,17 +81,15 @@ export class WidgetConfigStore {
    */
   static async deleteConfig(formId: string): Promise<boolean> {
     if (WidgetConfigStore.prefs === null) {
-      Logger.error(TAG, 'deleteConfig failed: prefs not initialized');
       return false;
     }
     try {
       const key = getConfigKey(formId);
       await WidgetConfigStore.prefs.delete(key);
       await WidgetConfigStore.prefs.flush();
-      Logger.info(TAG, `deleteConfig success: formId=${formId}`);
       return true;
     } catch (e) {
-      Logger.error(TAG, `deleteConfig failed: ${JSON.stringify(e)}`);
+      // 静默处理错误
       return false;
     }
   }
@@ -108,7 +99,6 @@ export class WidgetConfigStore {
    */
   static async getAllConfigs(): Promise<WidgetConfig[]> {
     if (WidgetConfigStore.prefs === null) {
-      Logger.error(TAG, 'getAllConfigs failed: prefs not initialized');
       return [];
     }
     try {
@@ -124,10 +114,9 @@ export class WidgetConfigStore {
           }
         }
       }
-      Logger.info(TAG, `getAllConfigs success: ${configs.length} configs`);
       return configs;
     } catch (e) {
-      Logger.error(TAG, `getAllConfigs failed: ${JSON.stringify(e)}`);
+      // 静默处理错误
       return [];
     }
   }

@@ -1,13 +1,21 @@
 /**
  * WidgetConfigViewModel — Widget 卡片配置页的 ViewModel
  *
- * 支持多账号混合显示：
- * 1. 选择卡片尺寸（1×2 / 2×2 / 2×4 / 4×4）
+ * 配置流程根据卡片尺寸不同而不同：
+ *
+ * **1x2 卡片**（游戏专用模板）：
+ * 1. 选择卡片尺寸（1×2）
+ * 2. 选择游戏类型（原神/星铁/绝区零）
+ * 3. 选择该游戏的账号
+ * 4. 完成 → 调用 formProvider.openFormManager()
+ *
+ * **2x2 / 2x4 / 4x4 卡片**（通用模板）：
+ * 1. 选择卡片尺寸
  * 2. 选择要显示的角色 slots（跨账号多选）
  * 3. 完成 → 调用 formProvider.openFormManager()
  */
 import { formProvider } from '@kit.FormKit';
-import { Want } from '@kit.AbilityKit';
+import { Want, common } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { Logger, GameId } from 'core';
 import { WidgetSize, WidgetConfig, getMaxSlots } from '../widget/models/WidgetConfig';
@@ -16,12 +24,13 @@ import { WidgetDataStoreManager } from '../widget/utils/WidgetDataStoreManager';
 import { WidgetDataStoreBuilder } from '../widget/utils/WidgetDataStoreBuilder';
 import BuildProfile from 'BuildProfile';
 
-const TAG = 'WidgetConfigViewModel';
+const TAG = 'WIDGET';
 
 /** 配置步骤枚举 */
 export enum WidgetConfigStep {
   SIZE = 'size',
-  SLOT = 'slot',
+  GAME = 'game',    // 仅 1x2 卡片：选择游戏类型
+  SLOT = 'slot',    // 选择账号/角色
   DONE = 'done',
 }
 
@@ -35,6 +44,9 @@ export class WidgetConfigViewModel {
 
   /** 选中的卡片尺寸 */
   @Trace selectedSize: WidgetSize = WidgetSize.SIZE_2x2;
+
+  /** 选中的游戏类型（仅 1x2 卡片使用，使用 core 的 GameId 枚举） */
+  @Trace selectedGameType: string = GameId.GENSHIN;
 
   /** 选中的 slots（三元组列表） */
   @Trace selectedSlots: WidgetSlotRef[] = [];
@@ -50,9 +62,14 @@ export class WidgetConfigViewModel {
   /**
    * 初始化数据
    * 从 Preferences 加载数据，如果为空则从 DB 构建
+   * @param context UIAbilityContext，用于初始化 Preferences
    */
-  async init(): Promise<void> {
+  async init(context?: common.UIAbilityContext): Promise<void> {
     try {
+      // 初始化 Preferences（如果提供了 context）
+      if (context !== undefined) {
+        await WidgetDataStoreManager.init(context);
+      }
       // 尝试从 Preferences 加载
       let store = await WidgetDataStoreManager.load();
       if (store.accounts.length === 0) {
@@ -75,6 +92,9 @@ export class WidgetConfigViewModel {
     switch (this.currentStep) {
       case WidgetConfigStep.SIZE:
         return true;
+      case WidgetConfigStep.GAME:
+        // 1x2 卡片必须选择游戏类型
+        return true;
       case WidgetConfigStep.SLOT:
         return this.selectedSlots.length > 0;
       case WidgetConfigStep.DONE:
@@ -90,19 +110,38 @@ export class WidgetConfigViewModel {
 
   /** 前进到下一步 */
   goNext(): void {
-    const steps = [WidgetConfigStep.SIZE, WidgetConfigStep.SLOT, WidgetConfigStep.DONE];
-    const curIdx = steps.indexOf(this.currentStep);
-    if (curIdx < steps.length - 1 && this.canGoNext()) {
-      this.currentStep = steps[curIdx + 1];
+    // 根据尺寸决定步骤流程
+    if (this.selectedSize === WidgetSize.SIZE_1x2) {
+      // 1x2 卡片：SIZE → GAME → SLOT → DONE
+      const steps1x2 = [WidgetConfigStep.SIZE, WidgetConfigStep.GAME, WidgetConfigStep.SLOT, WidgetConfigStep.DONE];
+      const curIdx = steps1x2.indexOf(this.currentStep);
+      if (curIdx < steps1x2.length - 1 && this.canGoNext()) {
+        this.currentStep = steps1x2[curIdx + 1];
+      }
+    } else {
+      // 其他尺寸：SIZE → SLOT → DONE
+      const stepsOther = [WidgetConfigStep.SIZE, WidgetConfigStep.SLOT, WidgetConfigStep.DONE];
+      const curIdx = stepsOther.indexOf(this.currentStep);
+      if (curIdx < stepsOther.length - 1 && this.canGoNext()) {
+        this.currentStep = stepsOther[curIdx + 1];
+      }
     }
   }
 
   /** 返回上一步 */
   goPrev(): void {
-    const steps = [WidgetConfigStep.SIZE, WidgetConfigStep.SLOT, WidgetConfigStep.DONE];
-    const curIdx = steps.indexOf(this.currentStep);
-    if (curIdx > 0) {
-      this.currentStep = steps[curIdx - 1];
+    if (this.selectedSize === WidgetSize.SIZE_1x2) {
+      const steps1x2 = [WidgetConfigStep.SIZE, WidgetConfigStep.GAME, WidgetConfigStep.SLOT, WidgetConfigStep.DONE];
+      const curIdx = steps1x2.indexOf(this.currentStep);
+      if (curIdx > 0) {
+        this.currentStep = steps1x2[curIdx - 1];
+      }
+    } else {
+      const stepsOther = [WidgetConfigStep.SIZE, WidgetConfigStep.SLOT, WidgetConfigStep.DONE];
+      const curIdx = stepsOther.indexOf(this.currentStep);
+      if (curIdx > 0) {
+        this.currentStep = stepsOther[curIdx - 1];
+      }
     }
   }
 
@@ -110,6 +149,7 @@ export class WidgetConfigViewModel {
   reset(): void {
     this.currentStep = WidgetConfigStep.SIZE;
     this.selectedSize = WidgetSize.SIZE_2x2;
+    this.selectedGameType = GameId.GENSHIN;
     this.selectedSlots = [];
   }
 
@@ -123,6 +163,10 @@ export class WidgetConfigViewModel {
     if (this.selectedSlots.length > maxSlots) {
       this.selectedSlots = this.selectedSlots.slice(0, maxSlots);
     }
+    // 切换尺寸时重置游戏类型
+    if (size !== WidgetSize.SIZE_1x2) {
+      this.selectedGameType = GameId.GENSHIN;
+    }
   }
 
   /** 获取最大 slots 数量 */
@@ -130,10 +174,46 @@ export class WidgetConfigViewModel {
     return getMaxSlots(this.selectedSize);
   }
 
+  // ── 游戏类型选择（仅 1x2 卡片）─────────────────────────────────────
+
+  /** 选择游戏类型 */
+  selectGameType(gameType: string): void {
+    this.selectedGameType = gameType;
+    // 切换游戏类型时清空已选 slots
+    this.selectedSlots = [];
+  }
+
+  /** 获取所有可选的游戏类型（使用 core 的 GameId） */
+  getAvailableGameTypes(): string[] {
+    return [GameId.GENSHIN, GameId.STARRAIL, GameId.ZZZ];
+  }
+
+  /** 判断游戏类型是否有可用数据 */
+  hasDataForGame(gameType: string): boolean {
+    const slots = this.getSlotsForGame(gameType);
+    return slots.length > 0;
+  }
+
+  /** 获取指定游戏类型的所有 slots */
+  getSlotsForGame(gameType: string): WidgetSlotRef[] {
+    const allSlots = this.dataStore.getAllSlots();
+    const filtered: WidgetSlotRef[] = [];
+    for (let i = 0; i < allSlots.length; i++) {
+      if (allSlots[i].gameId === gameType) {
+        filtered.push(allSlots[i]);
+      }
+    }
+    return filtered;
+  }
+
   // ── Slot 选择 ─────────────────────────────────────────────────────
 
   /** 获取所有可用的 slots */
   getAllSlots(): WidgetSlotRef[] {
+    // 1x2 卡片只显示当前选中游戏的 slots
+    if (this.selectedSize === WidgetSize.SIZE_1x2) {
+      return this.getSlotsForGame(this.selectedGameType);
+    }
     return this.dataStore.getAllSlots();
   }
 
@@ -219,12 +299,11 @@ export class WidgetConfigViewModel {
 
   /** 根据选中的尺寸返回对应的 formName */
   private sizeToFormName(): string {
-    // 1×2 有三个独立模板，根据选中的第一个 slot 决定
+    // 1×2 有三个独立模板，根据选中的游戏类型决定
     if (this.selectedSize === WidgetSize.SIZE_1x2) {
-      const firstGame = this.selectedSlots[0]?.gameId ?? 'genshin';
-      if (firstGame === 'starrail') {
+      if (this.selectedGameType === GameId.STARRAIL) {
         return 'widget_1x2_starrail';
-      } else if (firstGame === 'zzz') {
+      } else if (this.selectedGameType === GameId.ZZZ) {
         return 'widget_1x2_zzz';
       }
       return 'widget_1x2_genshin';

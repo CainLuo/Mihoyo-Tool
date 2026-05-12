@@ -10,8 +10,10 @@
       "updateEnabled": true,
       "updateDuration": 1,
       "defaultDimension": "1*2",
-      "supportDimensions": ["1*2"],
-      "renderingMode": "autoColor",
+      "supportDimensions": [
+        "1*2"
+      ],
+      "renderingMode": "fullColor",
       "isDefault": false,
       "metadata": []
     },
@@ -25,8 +27,10 @@
       "updateEnabled": true,
       "updateDuration": 1,
       "defaultDimension": "1*2",
-      "supportDimensions": ["1*2"],
-      "renderingMode": "autoColor",
+      "supportDimensions": [
+        "1*2"
+      ],
+      "renderingMode": "fullColor",
       "isDefault": false,
       "metadata": []
     },
@@ -40,8 +44,10 @@
       "updateEnabled": true,
       "updateDuration": 1,
       "defaultDimension": "1*2",
-      "supportDimensions": ["1*2"],
-      "renderingMode": "autoColor",
+      "supportDimensions": [
+        "1*2"
+      ],
+      "renderingMode": "fullColor",
       "isDefault": false,
       "metadata": []
     },
@@ -55,7 +61,9 @@
       "updateEnabled": true,
       "updateDuration": 1,
       "defaultDimension": "2*2",
-      "supportDimensions": ["2*2"],
+      "supportDimensions": [
+        "2*2"
+      ],
       "renderingMode": "fullColor",
       "isDefault": true,
       "metadata": []
@@ -70,7 +78,9 @@
       "updateEnabled": true,
       "updateDuration": 1,
       "defaultDimension": "2*4",
-      "supportDimensions": ["2*4"],
+      "supportDimensions": [
+        "2*4"
+      ],
       "renderingMode": "fullColor",
       "isDefault": false,
       "metadata": []
@@ -85,7 +95,9 @@
       "updateEnabled": true,
       "updateDuration": 1,
       "defaultDimension": "4*4",
-      "supportDimensions": ["4*4"],
+      "supportDimensions": [
+        "4*4"
+      ],
       "renderingMode": "fullColor",
       "isDefault": false,
       "metadata": []

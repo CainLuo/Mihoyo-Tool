@@ -86,8 +86,12 @@ export class SyncQueueRunner {
         const t2 = new SyncTask();
         t2.accountId = accountId; t2.roleUid = role.roleId; t2.server = role.server; t2.cookie = cookie;
         t2.dataType = SyncDataType.GENSHIN_CHARACTER_DETAIL;
+        const t3 = new SyncTask();
+        t3.accountId = accountId; t3.roleUid = role.roleId; t3.server = role.server; t3.cookie = cookie;
+        t3.dataType = SyncDataType.GENSHIN_DAILY_NOTE;
         tasks[tasks.length] = t1;
         tasks[tasks.length] = t2;
+        tasks[tasks.length] = t3;
       } else if (role.gameId === GameId.STARRAIL) {
         const t1 = new SyncTask();
         t1.accountId = accountId; t1.roleUid = role.roleId; t1.server = role.server; t1.cookie = cookie;
@@ -95,8 +99,12 @@ export class SyncQueueRunner {
         const t2 = new SyncTask();
         t2.accountId = accountId; t2.roleUid = role.roleId; t2.server = role.server; t2.cookie = cookie;
         t2.dataType = SyncDataType.STARRAIL_AVATAR_INFO;
+        const t3 = new SyncTask();
+        t3.accountId = accountId; t3.roleUid = role.roleId; t3.server = role.server; t3.cookie = cookie;
+        t3.dataType = SyncDataType.STARRAIL_DAILY_NOTE;
         tasks[tasks.length] = t1;
         tasks[tasks.length] = t2;
+        tasks[tasks.length] = t3;
       } else if (role.gameId === GameId.ZZZ) {
         const t1 = new SyncTask();
         t1.accountId = accountId; t1.roleUid = role.roleId; t1.server = role.server; t1.cookie = cookie;
@@ -107,9 +115,13 @@ export class SyncQueueRunner {
         const t3 = new SyncTask();
         t3.accountId = accountId; t3.roleUid = role.roleId; t3.server = role.server; t3.cookie = cookie;
         t3.dataType = SyncDataType.ZZZ_BUDDY;
+        const t4 = new SyncTask();
+        t4.accountId = accountId; t4.roleUid = role.roleId; t4.server = role.server; t4.cookie = cookie;
+        t4.dataType = SyncDataType.ZZZ_DAILY_NOTE;
         tasks[tasks.length] = t1;
         tasks[tasks.length] = t2;
         tasks[tasks.length] = t3;
+        tasks[tasks.length] = t4;
       }
     }
     return tasks;
@@ -194,10 +206,14 @@ export class SyncQueueRunner {
       await CoreInitializer.genshinRepository.syncAvatarList(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.GENSHIN_CHARACTER_DETAIL) {
       await CoreInitializer.genshinRepository.syncAvatarDetail(accountId, roleUid, server, cookie);
+    } else if (dataType === SyncDataType.GENSHIN_DAILY_NOTE) {
+      await CoreInitializer.genshinRepository.syncDailyNote(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.STARRAIL_AVATAR_BASIC) {
       await CoreInitializer.starRailRepository.syncAvatarList(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.STARRAIL_AVATAR_INFO) {
       await CoreInitializer.starRailRepository.syncAvatarInfo(accountId, roleUid, server, cookie);
+    } else if (dataType === SyncDataType.STARRAIL_DAILY_NOTE) {
+      await CoreInitializer.starRailRepository.syncDailyNote(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.ZZZ_AVATAR_BASIC) {
       await CoreInitializer.zzzRepository.syncAvatarList(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.ZZZ_AVATAR_INFO) {
@@ -210,6 +226,8 @@ export class SyncQueueRunner {
       }
     } else if (dataType === SyncDataType.ZZZ_BUDDY) {
       await CoreInitializer.zzzRepository.syncBuddyList(accountId, roleUid, server, cookie);
+    } else if (dataType === SyncDataType.ZZZ_DAILY_NOTE) {
+      await CoreInitializer.zzzRepository.syncDailyNote(accountId, roleUid, server, cookie);
     }
   }
 }

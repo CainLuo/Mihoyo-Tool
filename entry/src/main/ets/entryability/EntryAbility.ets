@@ -20,12 +20,12 @@ export default class EntryAbility extends UIAbility {
 
     // 初始化核心库，直接传递 AppEnv，无需任何转换
     CoreInitializer.initCore({ env: APP_ENV, context: this.context })
-      .then(() => {
+      .then(async () => {
         Logger.info(TAG, `CoreV2 initialized. env=${APP_ENV}`);
         // 初始化 Widget 数据存储
-        WidgetDataStoreManager.init(this.context).catch((e: Error | object) => {
-          Logger.warning(TAG, `WidgetDataStoreManager.init failed: ${JSON.stringify(e)}`);
-        });
+        await WidgetDataStoreManager.init(this.context);
+        // 立即构建并保存 Widget 数据（确保添加卡片时有数据可用）
+        await WidgetDataStoreBuilder.initAndSave();
         // 注册同步完成回调：同步完成后刷新 Widget 数据
         SyncQueueRunner.registerOnComplete(async () => {
           Logger.info(TAG, 'SyncQueueRunner.onComplete: refreshing Widget data');

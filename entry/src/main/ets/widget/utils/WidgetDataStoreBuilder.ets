@@ -17,7 +17,7 @@ import { WidgetGame } from '../models/WidgetGame';
 import { WidgetRole } from '../models/WidgetRole';
 import { WidgetDataStoreManager } from './WidgetDataStoreManager';
 
-const TAG = 'WidgetDataStoreBuilder';
+const TAG = 'WIDGET';
 
 export class WidgetDataStoreBuilder {
   /**
@@ -26,22 +26,23 @@ export class WidgetDataStoreBuilder {
    * 遍历所有账号的所有游戏角色，读取便签数据填充 rawJson
    */
   static async buildFromDB(): Promise<WidgetDataStore> {
+    Logger.info(TAG, '[WIDGET_DEBUG] buildFromDB: start');
     const store = new WidgetDataStore();
     store.updatedAt = Math.floor(Date.now() / 1000);
 
     try {
       // 1. 获取所有账号
       const accounts = await CoreInitializer.bbsRepository.getAllAccounts();
-      Logger.info(TAG, `buildFromDB: found ${accounts.length} accounts`);
+      Logger.info(TAG, `[WIDGET_DEBUG] buildFromDB: found ${accounts.length} accounts`);
       if (accounts.length === 0) {
-        Logger.info(TAG, 'buildFromDB: no accounts found');
+        Logger.info(TAG, '[WIDGET_DEBUG] buildFromDB: no accounts found, returning empty store');
         return store;
       }
 
       // 2. 遍历每个账号
       for (let i = 0; i < accounts.length; i++) {
         const account = accounts[i];
-        Logger.info(TAG, `buildFromDB: processing account[${i}] uid=${account.uid} nickname=${account.nickname}`);
+        Logger.info(TAG, `[WIDGET_DEBUG] buildFromDB: processing account[${i}] uid=${account.uid} nickname=${account.nickname || 'null'}`);
         
         const widgetAccount = new WidgetAccount();
         widgetAccount.accountId = account.uid;
@@ -49,8 +50,9 @@ export class WidgetDataStoreBuilder {
 
         // 3. 获取该账号下的所有游戏角色
         const roles = await CoreInitializer.bbsRepository.getGameRoles(account.uid);
-        Logger.info(TAG, `buildFromDB: account ${account.uid} has ${roles.length} roles`);
+        Logger.info(TAG, `[WIDGET_DEBUG] buildFromDB:   account ${account.uid} has ${roles.length} roles`);
         if (roles.length === 0) {
+          Logger.info(TAG, `[WIDGET_DEBUG] buildFromDB:   no roles for account ${account.uid}, skipping`);
           continue;
         }
 
@@ -59,7 +61,7 @@ export class WidgetDataStoreBuilder {
         for (let j = 0; j < roles.length; j++) {
           const role = roles[j];
           const gameIdStr = WidgetDataStoreBuilder.gameIdToString(role.gameId);
-          Logger.info(TAG, `buildFromDB:   role[${j}] gameId=${gameIdStr} roleId=${role.roleId} nickname=${role.nickname}`);
+          Logger.info(TAG, `[WIDGET_DEBUG] buildFromDB:     role[${j}] gameId=${gameIdStr} roleId=${role.roleId} nickname=${role.nickname || 'null'}`);
 
           // 创建或获取 WidgetGame
           let widgetGame = gameMap[gameIdStr];
@@ -71,12 +73,13 @@ export class WidgetDataStoreBuilder {
 
           // 创建 WidgetRole 并填充 rawJson
           const widgetRole = await WidgetDataStoreBuilder.buildWidgetRole(account.uid, role);
-          Logger.info(TAG, `buildFromDB:     rawJson.length=${widgetRole.rawJson.length}`);
+          Logger.info(TAG, `[WIDGET_DEBUG] buildFromDB:       rawJson.length=${widgetRole.rawJson.length} hasData=${widgetRole.rawJson.length > 0}`);
           widgetGame.roles.push(widgetRole);
         }
 
         // 5. 将所有游戏添加到账号
         const gameIds = Object.keys(gameMap);
+        Logger.info(TAG, `[WIDGET_DEBUG] buildFromDB:   account ${account.uid} has ${gameIds.length} games: ${gameIds.join(', ')}`);
         for (let k = 0; k < gameIds.length; k++) {
           widgetAccount.games.push(gameMap[gameIds[k]]);
         }
@@ -84,7 +87,7 @@ export class WidgetDataStoreBuilder {
         store.accounts.push(widgetAccount);
       }
 
-      Logger.info(TAG, `buildFromDB: ${store.accounts.length} accounts, ${WidgetDataStoreBuilder.countTotalRoles(store)} roles`);
+      Logger.info(TAG, `[WIDGET_DEBUG] buildFromDB: done, total=${store.accounts.length} accounts, ${WidgetDataStoreBuilder.countTotalRoles(store)} roles`);
     } catch (e) {
       Logger.error(TAG, `buildFromDB failed: ${JSON.stringify(e)}`);
     }
@@ -106,17 +109,26 @@ export class WidgetDataStoreBuilder {
       let rawJson = '';
 
       if (role.gameId === GameId.GENSHIN) {
+        Logger.info(TAG, `[WIDGET_DEBUG] buildWidgetRole: reading genshin dailyNote for ${accountId}/${role.roleId}`);
         const dailyNote = await CoreInitializer.genshinRepository.getDailyNote(accountId, role.roleId);
         rawJson = dailyNote?.rawJson ?? '';
+        Logger.info(TAG, `[WIDGET_DEBUG] buildWidgetRole:   genshin dailyNote found=${dailyNote !== null} rawJson.length=${rawJson.length}`);
       } else if (role.gameId === GameId.STARRAIL) {
+        Logger.info(TAG, `[WIDGET_DEBUG] buildWidgetRole: reading starrail dailyNote for ${accountId}/${role.roleId}`);
         const dailyNote = await CoreInitializer.starRailRepository.getDailyNote(accountId, role.roleId);
         rawJson = dailyNote?.rawJson ?? '';
+        Logger.info(TAG, `[WIDGET_DEBUG] buildWidgetRole:   starrail dailyNote found=${dailyNote !== null} rawJson.length=${rawJson.length}`);
       } else if (role.gameId === GameId.ZZZ) {
+        Logger.info(TAG, `[WIDGET_DEBUG] buildWidgetRole: reading zzz dailyNote for ${accountId}/${role.roleId}`);
         const dailyNote = await CoreInitializer.zzzRepository.getDailyNote(accountId, role.roleId);
         rawJson = dailyNote?.rawJson ?? '';
+        Logger.info(TAG, `[WIDGET_DEBUG] buildWidgetRole:   zzz dailyNote found=${dailyNote !== null} rawJson.length=${rawJson.length}`);
+      } else {
+        Logger.warn(TAG, `[WIDGET_DEBUG] buildWidgetRole: unsupported gameId=${role.gameId}`);
       }
 
       widgetRole.rawJson = rawJson;
+      Logger.info(TAG, `[WIDGET_DEBUG] buildWidgetRole: final rawJson.length=${widgetRole.rawJson.length}`);
     } catch (e) {
       Logger.error(TAG, `buildWidgetRole failed for ${accountId}/${role.gameId}/${role.roleId}: ${JSON.stringify(e)}`);
       widgetRole.rawJson = '';
@@ -131,12 +143,15 @@ export class WidgetDataStoreBuilder {
    * @returns 是否刷新成功
    */
   static async refreshAndSave(): Promise<boolean> {
+    Logger.info(TAG, '[WIDGET_DEBUG] refreshAndSave: start');
     try {
       const store = await WidgetDataStoreBuilder.buildFromDB();
+      Logger.info(TAG, `[WIDGET_DEBUG] refreshAndSave: buildFromDB done, accounts=${store.accounts.length}`);
       const success = await WidgetDataStoreManager.save(store);
+      Logger.info(TAG, `[WIDGET_DEBUG] refreshAndSave: save done, success=${success}`);
       return success;
     } catch (e) {
-      Logger.error(TAG, `refreshAndSave failed: ${JSON.stringify(e)}`);
+      Logger.error(TAG, `[WIDGET_DEBUG] refreshAndSave failed: ${JSON.stringify(e)}`);
       return false;
     }
   }
@@ -145,15 +160,20 @@ export class WidgetDataStoreBuilder {
    * 初始化：从 DB 构建数据并保存（首次启动时调用）
    */
   static async initAndSave(): Promise<boolean> {
+    Logger.info(TAG, '[WIDGET_DEBUG] initAndSave: start');
     // 先尝试加载已有数据
     const existingStore = await WidgetDataStoreManager.load();
+    Logger.info(TAG, `[WIDGET_DEBUG] initAndSave: existing accounts=${existingStore.accounts.length}`);
     if (existingStore.accounts.length > 0) {
-      Logger.info(TAG, 'initAndSave: data already exists, skip build');
+      Logger.info(TAG, '[WIDGET_DEBUG] initAndSave: data already exists, skip build');
       return true;
     }
 
     // 无数据则构建新数据
-    return WidgetDataStoreBuilder.refreshAndSave();
+    Logger.info(TAG, '[WIDGET_DEBUG] initAndSave: no data, calling refreshAndSave');
+    const success = await WidgetDataStoreBuilder.refreshAndSave();
+    Logger.info(TAG, `[WIDGET_DEBUG] initAndSave: refreshAndSave result=${success}`);
+    return success;
   }
 
   /**
@@ -166,6 +186,7 @@ export class WidgetDataStoreBuilder {
     gameId: string,
     roleId: string,
   ): Promise<boolean> {
+    Logger.info(TAG, `[WIDGET_DEBUG] updateRoleRawJson: start ${accountId}/${gameId}/${roleId}`);
     try {
       const store = await WidgetDataStoreManager.load();
       const role = store.getRole(accountId, gameId, roleId);
@@ -179,21 +200,29 @@ export class WidgetDataStoreBuilder {
       const gameIdEnum = WidgetDataStoreBuilder.stringToGameId(gameId);
 
       if (gameIdEnum === GameId.GENSHIN) {
+        Logger.info(TAG, `[WIDGET_DEBUG] updateRoleRawJson: reading genshin dailyNote for ${accountId}/${roleId}`);
         const dailyNote = await CoreInitializer.genshinRepository.getDailyNote(accountId, roleId);
         rawJson = dailyNote?.rawJson ?? '';
+        Logger.info(TAG, `[WIDGET_DEBUG] updateRoleRawJson:   genshin dailyNote found=${dailyNote !== null} rawJson.length=${rawJson.length}`);
       } else if (gameIdEnum === GameId.STARRAIL) {
+        Logger.info(TAG, `[WIDGET_DEBUG] updateRoleRawJson: reading starrail dailyNote for ${accountId}/${roleId}`);
         const dailyNote = await CoreInitializer.starRailRepository.getDailyNote(accountId, roleId);
         rawJson = dailyNote?.rawJson ?? '';
+        Logger.info(TAG, `[WIDGET_DEBUG] updateRoleRawJson:   starrail dailyNote found=${dailyNote !== null} rawJson.length=${rawJson.length}`);
       } else if (gameIdEnum === GameId.ZZZ) {
+        Logger.info(TAG, `[WIDGET_DEBUG] updateRoleRawJson: reading zzz dailyNote for ${accountId}/${roleId}`);
         const dailyNote = await CoreInitializer.zzzRepository.getDailyNote(accountId, roleId);
         rawJson = dailyNote?.rawJson ?? '';
+        Logger.info(TAG, `[WIDGET_DEBUG] updateRoleRawJson:   zzz dailyNote found=${dailyNote !== null} rawJson.length=${rawJson.length}`);
+      } else {
+        Logger.warn(TAG, `[WIDGET_DEBUG] updateRoleRawJson: unsupported gameId=${gameId}`);
       }
 
       role.rawJson = rawJson;
       store.updatedAt = Math.floor(Date.now() / 1000);
       await WidgetDataStoreManager.save(store);
 
-      Logger.info(TAG, `updateRoleRawJson: updated ${accountId}/${gameId}/${roleId}`);
+      Logger.info(TAG, `[WIDGET_DEBUG] updateRoleRawJson: updated ${accountId}/${gameId}/${roleId}, rawJson.length=${rawJson.length}`);
       return true;
     } catch (e) {
       Logger.error(TAG, `updateRoleRawJson failed: ${JSON.stringify(e)}`);

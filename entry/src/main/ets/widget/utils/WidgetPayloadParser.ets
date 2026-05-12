@@ -83,9 +83,13 @@ export class ParsedGame {
 
   /**
    * 获取第一个角色（用于单角色显示）
+   * 注意：Widget Form 不支持 union 类型，返回默认对象而非 null
    */
-  get firstRole(): ParsedRole | null {
-    return this.roles.length > 0 ? this.roles[0] : null;
+  get firstRole(): ParsedRole {
+    if (this.roles.length > 0) {
+      return this.roles[0];
+    }
+    return new ParsedRole();
   }
 }
 
@@ -136,9 +140,13 @@ export class ParsedPayload {
 
   /**
    * 获取第一个账号
+   * 注意：Widget Form 不支持 union 类型，返回默认对象而非 null
    */
-  get firstAccount(): ParsedAccount | null {
-    return this.accounts.length > 0 ? this.accounts[0] : null;
+  get firstAccount(): ParsedAccount {
+    if (this.accounts.length > 0) {
+      return this.accounts[0];
+    }
+    return new ParsedAccount();
   }
 
   /**
@@ -249,14 +257,16 @@ export function parsePayload(payloadJson: string): ParsedPayload {
         parsedAcc.accountId = accObj.accountId !== undefined ? accObj.accountId : '';
         parsedAcc.accountName = accObj.accountName !== undefined ? accObj.accountName : '';
 
-        const games: GameJson[] | undefined = accObj.games;
+        // 注意：Widget Form 不支持 union 类型，使用显式类型检查
+        const games = accObj.games;
         if (games !== undefined && games !== null) {
           for (let j = 0; j < games.length; j++) {
             const gameObj: GameJson = games[j];
             const parsedGame = new ParsedGame();
             parsedGame.gameId = gameObj.gameId !== undefined ? gameObj.gameId : '';
 
-            const roles: RoleJson[] | undefined = gameObj.roles;
+            // 注意：Widget Form 不支持 union 类型
+            const roles = gameObj.roles;
             if (roles !== undefined && roles !== null) {
               for (let k = 0; k < roles.length; k++) {
                 const roleObj: RoleJson = roles[k];
@@ -292,6 +302,8 @@ export function parsePayload(payloadJson: string): ParsedPayload {
  *
  * 注意：rawJson 存储的是 API 响应中的 data 对象（不带 retcode/message 结构）
  * 例如原神：{"current_resin": 140, "max_resin": 200, ...}
+ * 
+ * 注意：Widget Form 不支持 union 类型，所有变量使用显式类型
  */
 function parseStaminaData(role: ParsedRole): void {
   if (role.rawJson.length === 0) {
@@ -310,7 +322,7 @@ function parseStaminaData(role: ParsedRole): void {
     if (data.current_resin !== undefined) {
       role.currentStamina = data.current_resin !== undefined ? data.current_resin : 0;
       role.maxStamina = data.max_resin !== undefined ? data.max_resin : 160;
-      const recoveryTime: string | undefined = data.resin_recovery_time;
+      const recoveryTime = data.resin_recovery_time;
       role.recoverySeconds = recoveryTime !== undefined ? parseInt(recoveryTime, 10) : 0;
       return;
     }
@@ -324,9 +336,9 @@ function parseStaminaData(role: ParsedRole): void {
     }
 
     // 尝试绝区零格式
-    const energy: EnergyJson | undefined = data.energy;
+    const energy = data.energy;
     if (energy !== undefined && energy !== null) {
-      const progress: ProgressJson | undefined = energy.progress;
+      const progress = energy.progress;
       if (progress !== undefined && progress !== null) {
         role.currentStamina = progress.current !== undefined ? progress.current : 0;
         role.maxStamina = progress.max !== undefined ? progress.max : 240;

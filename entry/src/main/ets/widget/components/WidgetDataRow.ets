@@ -5,11 +5,10 @@
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
-import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { widgetTheme } from '../utils/WidgetTheme';
 
 @Component
 export struct WidgetDataRow {
-  private tm: ThemeManager = themeManager;
   label: ResourceStr = '';
   value: ResourceStr = '';
   valueColor: ResourceColor = $r('app.color.text_on_dark_high');
@@ -27,7 +26,7 @@ export struct WidgetDataRow {
         .fontWeight(FontWeight.Medium)
         .fontColor(this.valueColor)
     }
-    .width(this.tm.current.full)
+    .width(widgetTheme.full)
   }
 }
 
