@@ -1395,7 +1395,67 @@ EntryFormAbility.onAddForm()
 
 ---
 
-## 十九、参考资料（2026-05-12 更新）
+## 十九、白屏问题官方排查指南
+
+> **来源**：[如何定位并解决卡片白屏展示的问题 - 官方行业常见问题](https://developer.huawei.com/consumer/cn/doc/architecture-guides/common-v1_26-ts_c227-0000002535499060)
+
+### 19.1 白屏问题根因速查表
+
+| 问题现象 | 关键日志 | 问题根因 | 解决方案 |
+|:---|:---|:---|:---|
+| 卡片白屏 | `setFormOpacity` | 卡片透明度被设置较低（如 0.005），导致内容不可见 | 将卡片的 `opacity` 属性设置为合理可见的值（如 1） |
+| `Cannot get SourceMap info, dump raw stack` | 卡片页面直接/间接引入了不支持卡片的模块 | 只使用带有 `@form` 标签的 API |
+| `Cannot get SourceMap info, dump raw stack` | 自定义业务逻辑错误（如访问空数组对象属性） | 添加边界值和空值条件判断 |
+| `Get file size failed, errno is 0` | 图片还未完成加载就打开 fd | 确保图片完全下载并写入文件系统后再获取 fd |
+| `load SharedMemoryImage timeout!` | 图片大小超过共享内存限制（API 20+ 总计 10MB，最多 20 张；API 19- 最多 5 张，每张 ≤2MB） | 对图片进行压缩，分批次更新 |
+
+### 19.2 关键发现
+
+1. **一个卡片报错会导致所有卡片白屏**：
+   > 当卡片的页面功能复杂时，可能在卡片的实际运行时才崩溃报错，体现为卡片显示白屏。
+   > **注意：一个卡片报错后会导致应用的所有卡片渲染全部挂掉成为白屏**
+
+2. **模拟器限制**：
+   - 不支持 1×1 卡片预览
+   - 不支持背板透明卡片预览
+   - 不支持互动卡片预览
+   - **示例效果请以真机运行为准，当前不支持 DevEco Studio 预览器**
+
+3. **预览时的生命周期**：
+   - 用户长按桌面应用图标，桌面弹出卡片添加弹窗时，会触发 `onAddForm()`
+   - 关闭弹窗或息屏时，会触发所有卡片的 `onRemoveForm()`
+   - 点击「添加至桌面」时，只有被添加的卡片保留
+
+### 19.3 调试方法
+
+1. **查看卡片渲染服务日志**：
+   在 IDE 中选择 `com.ohos.formrenderservice` 卡片渲染服务，查看 error 日志
+
+2. **检查日志关键词**：
+   - `setFormOpacity` — 透明度设置问题
+   - `Cannot get SourceMap info, dump raw stack` — 模块导入或业务逻辑错误
+   - `Get file size failed` — 图片加载问题
+   - `load SharedMemoryImage timeout!` — 图片大小超限
+
+3. **简化卡片代码定位问题**：
+   - 暂时移除复杂组件，使用基础组件（`Text`、`Image`）测试
+   - 确认能显示后逐步恢复复杂 UI
+
+### 19.4 图片相关限制
+
+| API 版本 | 共享内存总限制 | 图片数量限制 | 单张图片限制 |
+|:---|:---|:---|:---|
+| API 20+ | 10MB | 20 张 | 无明确单张限制 |
+| API 19- | — | 5 张 | 2MB |
+
+**建议**：
+- 卡片加载的图片大小不超过 2MB
+- 对图片进行压缩处理
+- 分批次更新多张图片
+
+---
+
+## 二十、参考资料（2026-05-12 更新）
 
 ### 官方文档
 
@@ -1404,3 +1464,5 @@ EntryFormAbility.onAddForm()
 - [管理ArkTS卡片生命周期](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-ui-widget-lifecycle) — onAddForm、onUpdateForm 等
 - [卡片更新与数据交互](https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-card-update-and-data-interaction) — 数据初始化、更新机制
 - [音乐服务卡片](https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-music-card) — 完整示例代码，包含正确的 Widget 组件写法
+- [如何定位并解决卡片白屏展示的问题](https://developer.huawei.com/consumer/cn/doc/architecture-guides/common-v1_26-ts_c227-0000002535499060) — 白屏问题排查指南
+- [ArkTS卡片适配常见问题](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-ui-widget-adapt-faq) — V2 装饰器、白屏定位、深浅色适配
