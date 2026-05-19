@@ -1466,3 +1466,479 @@ EntryFormAbility.onAddForm()
 - [音乐服务卡片](https://developer.huawei.com/consumer/cn/doc/best-practices/bpta-music-card) — 完整示例代码，包含正确的 Widget 组件写法
 - [如何定位并解决卡片白屏展示的问题](https://developer.huawei.com/consumer/cn/doc/architecture-guides/common-v1_26-ts_c227-0000002535499060) — 白屏问题排查指南
 - [ArkTS卡片适配常见问题](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-ui-widget-adapt-faq) — V2 装饰器、白屏定位、深浅色适配
+---
+
+## 十七、Widget 子组件数据传递关键发现（重要）
+
+> **调研日期**：2026-05-16
+> **问题现象**：2x2 Widget 显示"未配置账号"占位图，但数据已正确传到 Widget 页面
+> **根本原因**：Widget 子组件使用普通属性接收数组/对象类型数据时，数据无法正确传递
+
+### 17.1 问题描述
+
+`Widget2x2` 页面能正确接收到 `payload` 数据（`payload len: 3706, roles count: 2`），但传递给子组件 `WidgetCardContent` 后，子组件内的 `allRoles.length === 0`，导致显示占位图。
+
+### 17.2 根本原因
+
+在 Widget（ArkTS 卡片）中，**子组件接收复杂类型（数组、对象）参数时必须使用 `@Prop` 装饰器**，普通属性无法正确传递。
+
+### 17.3 错误写法
+
+```typescript
+// ❌ 错误 — 普通属性接收数组，数据无法传递
+@Component
+export struct WidgetCardContent {
+  cardSize: WidgetCardSize = WidgetCardSize.SIZE_2x2;
+  
+  // 普通属性，无法接收父组件传递的数组
+  allRoles: ParsedRole[] = [];
+  gameIds: string[] = [];
+  isSingleGame: boolean = true;
+  
+  build() {
+    if (this.allRoles.length === 0) {
+      // 永远进入这个分支，显示占位图
+    }
+  }
+}
+```
+
+### 17.4 正确写法
+
+```typescript
+// ✅ 正确 — 使用 @Prop 接收数组/对象类型
+@Component
+export struct WidgetCardContent {
+  cardSize: WidgetCardSize = WidgetCardSize.SIZE_2x2;
+  
+  // 使用 @Prop 装饰器接收复杂类型
+  @Prop allRoles: ParsedRole[] = [];
+  @Prop gameIds: string[] = [];
+  @Prop isSingleGame: boolean = true;
+  
+  build() {
+    if (this.allRoles.length === 0) {
+      // 正确判断，有数据时显示内容
+    }
+  }
+}
+```
+
+### 17.5 对比：1x2 Widget 的正确实现
+
+`Widget1x2Genshin` 和 `Widget1x2Content` 的实现是正确的：
+
+```typescript
+// Widget1x2Genshin.ets
+build() {
+  Column() {
+    Widget1x2Content({
+      data: this.buildData(),  // 在 build() 中计算并传递
+      gameColor: $r('app.color.game_color_genshin')
+    })
+  }
+}
+
+// Widget1x2Content.ets
+@Component
+export struct Widget1x2Content {
+  @Prop data: WidgetSingleGameData = new WidgetSingleGameData();  // ✅ 使用 @Prop
+  gameColor: ResourceColor = $r('app.color.game_color_genshin');
+}
+```
+
+### 17.6 为什么 `cardSize` 不需要 `@Prop`？
+
+`cardSize` 是**枚举类型（number）**，属于简单类型，可以使用普通属性。但 `allRoles`、`gameIds` 是**数组类型**，属于复杂类型，必须使用 `@Prop`。
+
+### 17.7 官方文档佐证
+
+来自 [@ohos.app.form.formBindingData API 参考](https://developer.huawei.com/consumer/cn/doc/harmonyos-references/js-apis-app-form-formbindingdata)：
+
+> 在卡片刷新过程中，卡片UI通过 **@LocalStorageProp** 接收卡片数据时，FormBindingData对象会序列化，即卡片数据会转换成 **string类型**。
+
+这说明 Widget 的数据传递机制与普通 ArkUI 不同，需要特别注意装饰器的使用。
+
+### 17.8 修复后的效果
+
+修复后，2x2 Widget 能正确显示数据，不再显示"未配置账号"占位图。
+
+
+---
+
+## 二十一、Widget 子组件接收数组参数必须使用 @Prop（重要发现）
+
+> **调研日期**：2026-05-16
+> **问题现象**：Widget 主组件能正确接收 `@LocalStorageProp('payload')` 数据，但子组件使用普通属性接收数组参数时数据为空
+
+### 21.1 问题描述
+
+Widget 主组件通过 `@LocalStorageProp('payload')` 接收数据后，传递给子组件：
+
+```typescript
+// 主组件
+@Component
+struct Widget2x2 {
+  @LocalStorageProp('payload') payloadJson: string = '';
+  
+  build() {
+    Column() {
+      WidgetCardContent({
+        allRoles: this.getAllRoles(),  // 传递数组
+        gameIds: this.getGameIds(),
+        isSingleGame: this.getIsSingleGame(),
+      })
+    }
+  }
+}
+
+// 子组件（错误写法）
+@Component
+export struct WidgetCardContent {
+  allRoles: ParsedRole[] = [];      // ❌ 普通属性，无法接收数据
+  gameIds: string[] = [];
+  isSingleGame: boolean = true;
+}
+```
+
+**现象**：`allRoles` 始终为空数组，即使主组件传递了正确的数据。
+
+### 21.2 根本原因
+
+Widget 渲染引擎的限制：
+
+- **Widget 只支持 `@LocalStorageProp` 接收外部传入的数据**
+- 但 `@LocalStorageProp` 只能用于接收来自 `formBindingData` 的数据
+- 对于组件间传递的复杂数据（数组、对象），**必须使用 `@Prop` 装饰器**
+
+### 21.3 正确写法
+
+```typescript
+// 子组件（正确写法）
+@Component
+export struct WidgetCardContent {
+  @Prop allRoles: ParsedRole[] = [];      // ✅ 使用 @Prop 接收数组
+  @Prop gameIds: string[] = [];           // ✅ 使用 @Prop 接收数组
+  @Prop isSingleGame: boolean = true;     // ✅ 使用 @Prop 接收基本类型
+}
+```
+
+### 21.4 关键规则
+
+| 场景 | 正确装饰器 | 说明 |
+|-----|-----------|------|
+| 接收 `formBindingData` 数据 | `@LocalStorageProp('key')` | 主组件接收来自 FormExtensionAbility 的数据 |
+| 子组件接收数组/对象参数 | `@Prop` | Widget 中子组件接收复杂数据必须用 `@Prop` |
+| 子组件接收基本类型参数 | `@Prop` | 虽然普通属性可以接收基本类型，但建议统一使用 `@Prop` |
+
+---
+
+## 二十二、formProvider.openFormManager 无法传递自定义参数（关键发现）
+
+> **调研日期**：2026-05-16
+> **问题现象**：在 `want.parameters` 中传递的 `widgetConfig` 参数无法到达 `onAddForm()`
+
+### 22.1 问题描述
+
+```typescript
+// WidgetConfigViewModel.complete()
+const want: Want = {
+  bundleName: BuildProfile.BUNDLE_NAME,
+  abilityName: 'EntryFormAbility',
+  parameters: {
+    'ohos.extra.param.key.form_dimension': dimension,
+    'ohos.extra.param.key.form_name': formName,
+    'ohos.extra.param.key.module_name': 'entry',
+    'widgetConfig': config.toJson(),  // 自定义参数
+  },
+};
+
+formProvider.openFormManager(want);
+```
+
+```typescript
+// EntryFormAbility.onAddForm()
+const widgetConfigRaw = want.parameters?.['widgetConfig'] as string ?? '';
+// widgetConfigRaw.length 始终为 0
+```
+
+### 22.2 根本原因
+
+`formProvider.openFormManager()` 是拉起系统的**卡片管理页面**，而不是直接创建卡片。
+
+- 系统只处理标准参数：`form_dimension`、`form_name`、`module_name`
+- 自定义参数（如 `widgetConfig`）**被系统丢弃**，不会传递到 `onAddForm()`
+
+### 22.3 解决方案
+
+**方案 A：通过 Preferences 传递配置**
+
+1. 在 `complete()` 时，将配置保存到 Preferences（使用 `formName` 作为临时 key）
+2. 在 `onAddForm()` 时，从 Preferences 读取配置
+3. 使用后删除临时配置
+
+```typescript
+// ViewModel.complete()
+async savePendingConfig(formName: string, config: WidgetConfig): Promise<void> {
+  const prefs = await preferences.getPreferences(context, 'widget_configs');
+  await prefs.put('pending_config_' + formName, config.toJson());
+  await prefs.flush();
+}
+
+// EntryFormAbility.onAddForm()
+const pendingKey = 'pending_config_' + formName;
+const configJson = prefs.getSync(pendingKey, '') as string;
+if (configJson.length > 0) {
+  config = WidgetConfig.fromJson(configJson);
+  prefs.deleteSync(pendingKey);  // 清除临时配置
+}
+```
+
+**方案 B：使用标准参数传递信息**
+
+如果只需要传递简单信息（如游戏类型），可以通过 `formName` 编码：
+
+- `widget_1x2_genshin` → 显示原神数据
+- `widget_1x2_starrail` → 显示星铁数据
+
+### 22.4 注意事项
+
+- 同一个 `formName` 可以有多个卡片实例，所以用 `formName` 作为临时 key 只适用于单实例场景
+- 如果用户快速连续添加多个相同尺寸的卡片，可能会出现配置覆盖问题
+- 建议在 `onAddForm()` 后立即删除 pending config，避免残留
+
+---
+
+## 二十三、完整的数据流最佳实践
+
+### 23.1 配置页添加卡片流程
+
+```
+用户在 WidgetSettings 页面选择尺寸和角色
+    ↓
+WidgetConfigViewModel.complete()
+    ↓
+1. 将配置保存到 Preferences（key = 'pending_config_' + formName）
+2. 调用 formProvider.openFormManager(want)
+    ↓
+系统弹出卡片管理页面
+    ↓
+用户点击「添加至桌面」
+    ↓
+EntryFormAbility.onAddForm() 被调用
+    ↓
+1. 从 want.parameters 获取 formName（标准参数，一定存在）
+2. 从 Preferences 读取 pending_config_{formName}
+3. 构建 payload 并返回
+4. 删除 pending config
+    ↓
+卡片渲染服务渲染 Widget UI
+```
+
+### 23.2 代码示例
+
+**ViewModel**:
+```typescript
+async complete(): Promise<void> {
+  const formName = this.sizeToFormName();
+  const config = new WidgetConfig();
+  config.size = this.selectedSize;
+  config.slots = this.selectedSlots;
+  
+  // 先保存配置到 Preferences
+  await this.savePendingConfig(formName, config);
+  
+  // 调用 openFormManager
+  const want: Want = {
+    bundleName: BuildProfile.BUNDLE_NAME,
+    abilityName: 'EntryFormAbility',
+    parameters: {
+      'ohos.extra.param.key.form_dimension': this.sizeToDimension(),
+      'ohos.extra.param.key.form_name': formName,
+      'ohos.extra.param.key.module_name': 'entry',
+      // 自定义参数无法传递，通过 Preferences 传递
+    },
+  };
+  formProvider.openFormManager(want);
+}
+```
+
+**EntryFormAbility**:
+```typescript
+onAddForm(want: Want): formBindingData.FormBindingData {
+  const formName = want.parameters?.[formInfo.FormParam.NAME_KEY] as string ?? '';
+  
+  // 初始化 Preferences
+  const prefs = preferences.getPreferencesSync(this.context, { name: 'widget_configs' });
+  
+  // 读取 pending config
+  let config: WidgetConfig | null = null;
+  const pendingKey = 'pending_config_' + formName;
+  const configJson = prefs.getSync(pendingKey, '') as string;
+  
+  if (configJson.length > 0) {
+    config = WidgetConfig.fromJson(configJson);
+    config.formId = formId;
+    config.formName = formName;
+    prefs.deleteSync(pendingKey);  // 清除临时配置
+  }
+  
+  // 如果没有配置，使用默认行为
+  if (config === null) {
+    config = new WidgetConfig();
+    config.size = this.dimensionToSize(dimension);
+    config.slots = [];
+  }
+  
+  // 构建并返回 payload
+  const payload = WidgetPayloadBuilder.buildPayload(config, dataStore);
+  return formBindingData.createFormBindingData(payload.toLocalStorageRecord());
+}
+```
+
+
+---
+
+## 十七、Widget 组件数组属性传递问题（关键发现）
+
+> **调研日期**：2026-05-16
+> **问题现象**：2x2 Widget 添加后白屏，日志显示数据已正确传递，但组件内部数组属性为空
+
+### 17.1 问题描述
+
+**现象**：
+- `onAddForm()` 返回的数据正确，日志显示 payload 包含完整数据
+- 但 Widget 组件内部接收到的数组属性为空（如 `allRoles: []`）
+- 导致 Widget 显示占位图而不是真实数据
+
+**根因**：
+- Widget 组件使用**普通属性**（不带装饰器）接收数组参数时，在 Widget 渲染服务中可能无法正确接收
+- 必须使用 `@Prop` 装饰器才能正确接收数组参数
+
+### 17.2 错误示例
+
+```typescript
+// ❌ 错误 — 使用普通属性接收数组
+@Component
+struct WidgetCardContent {
+  allRoles: WidgetRolePayloadItem[] = [];  // 普通属性
+  gameIds: string[] = [];                   // 普通属性
+  isSingleGame: boolean = false;
+}
+```
+
+### 17.3 正确示例
+
+```typescript
+// ✅ 正确 — 使用 @Prop 装饰器接收数组
+@Component
+struct WidgetCardContent {
+  @Prop allRoles: WidgetRolePayloadItem[] = [];  // @Prop 装饰器
+  @Prop gameIds: string[] = [];                   // @Prop 装饰器
+  @Prop isSingleGame: boolean = false;
+}
+```
+
+### 17.4 影响范围
+
+- **所有在 Widget 组件间传递的数组参数都必须使用 `@Prop` 装饰器**
+- 包括：`WidgetCardContent`、`Widget2x2SingleGame`、`Widget4x4MultiGame` 等
+
+### 17.5 相关代码位置
+
+| 文件 | 修改 |
+|------|------|
+| `entry/src/main/ets/widget/components/WidgetCardContent.ets` | `allRoles`、`gameIds`、`isSingleGame` 改为 `@Prop` |
+
+---
+
+## 十八、openFormManager 自定义参数传递问题（关键发现）
+
+> **调研日期**：2026-05-16
+> **问题现象**：2x2 Widget 始终显示默认游戏（原神、星铁），不随用户配置变化
+
+### 18.1 问题描述
+
+**现象**：
+- 用户在 WidgetSetting 页面选择了特定游戏组合（如星铁、ZZZ）
+- 添加 Widget 后，Widget 始终显示原神和星铁
+- 配置没有被正确应用
+
+**根因分析**：
+
+根据官方文档 [应用内拉起卡片管理加桌](https://developer.huawei.com/consumer/cn/doc/harmonyos-guides/arkts-ui-widget-open-formmanager)，`formProvider.openFormManager(want)` 的 `want.parameters` 中只能传递以下标准参数：
+
+| 参数名 | 说明 |
+|--------|------|
+| `ohos.extra.param.key.form_dimension` | 卡片尺寸 |
+| `ohos.extra.param.key.form_name` | 卡片模板名 |
+| `ohos.extra.param.key.module_name` | 模块名 |
+
+**官方文档没有说明可以传递自定义参数**（如 `widgetConfig`、`pendingConfigKey`）。
+
+### 18.2 已验证的行为
+
+通过日志验证：
+1. `want.parameters` 中传递的 `pendingConfigKey` **能被** `onAddForm()` 读取到
+2. `want.parameters` 中传递的 `widgetConfig` **能被** `onAddForm()` 读取到
+3. 但关键问题是 **保存配置到 Preferences 是异步的，而 `complete()` 方法没有等待保存完成就调用了 `openFormManager()`**
+
+### 18.3 解决方案
+
+**方案：使用 await 等待配置保存完成**
+
+```typescript
+// WidgetConfigViewModel.ets
+async complete(): Promise<void> {
+  // ...
+  
+  try {
+    // ✅ 关键：必须等待配置保存完成后再调用 openFormManager
+    await this.savePendingConfig(pendingConfigKey, configJson);
+    Logger.info(TAG, `complete: config saved to Preferences, key=${pendingConfigKey}`);
+    
+    formProvider.openFormManager(want);
+    // ...
+  } catch (e) {
+    // ...
+  }
+}
+
+// WidgetSettings.ets（调用处）
+Button($r('app.string.widget_btn_add'))
+  .onClick(async () => { await this.vm.complete(); })
+```
+
+### 18.4 数据流总结
+
+```
+用户选择游戏组合
+    ↓
+WidgetConfigViewModel.selectedSlots 更新
+    ↓
+点击"添加"按钮
+    ↓
+await complete()
+    ↓
+await savePendingConfig(pendingConfigKey, configJson)  // 先保存
+    ↓
+formProvider.openFormManager(want)  // 后打开
+    ↓
+EntryFormAbility.onAddForm(want)
+    ↓
+读取 want.parameters['pendingConfigKey']
+    ↓
+从 Preferences 读取 pendingConfigKey 对应的配置
+    ↓
+WidgetPayloadBuilder.buildPayload(config, dataStore)
+    ↓
+返回真实数据给 Widget 组件
+```
+
+### 18.5 相关代码位置
+
+| 文件 | 修改 |
+|------|------|
+| `entry/src/main/ets/viewmodel/WidgetConfigViewModel.ets` | `complete()` 改为 `async`，添加 `await this.savePendingConfig()` |
+| `entry/src/main/ets/pages/WidgetSettings.ets` | `onClick` 改为 `async () => { await this.vm.complete(); }` |
+| `entry/src/main/ets/entryformability/EntryFormAbility.ets` | 添加详细日志，验证配置读取 |
