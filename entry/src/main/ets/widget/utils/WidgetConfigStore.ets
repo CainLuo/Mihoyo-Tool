@@ -7,6 +7,7 @@
 
 import { preferences } from '@kit.ArkData';
 import { common } from '@kit.AbilityKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
 import { WidgetConfig } from '../models/WidgetConfig';
 
 const TAG = 'WIDGET';
@@ -39,16 +40,21 @@ export class WidgetConfigStore {
    */
   static async saveConfig(config: WidgetConfig): Promise<boolean> {
     if (WidgetConfigStore.prefs === null) {
+      hilog.warn(0xFF00, 'WIDGET', `[WIDGET_DEBUG] WidgetConfigStore.saveConfig: prefs is null`);
       return false;
     }
     try {
       const key = getConfigKey(config.formId);
       const json = config.toJson();
+      hilog.info(0xFF00, 'WIDGET', `[WIDGET_DEBUG] WidgetConfigStore.saveConfig: key=` + key + ` jsonLen=` + json.length + ` slots=` + config.slots.length);
+      // 打印 json 前 500 字符
+      hilog.info(0xFF00, 'WIDGET', `[WIDGET_DEBUG] WidgetConfigStore.saveConfig: json preview=` + json.substring(0, 500));
       await WidgetConfigStore.prefs.put(key, json);
       await WidgetConfigStore.prefs.flush();
+      hilog.info(0xFF00, 'WIDGET', `[WIDGET_DEBUG] WidgetConfigStore.saveConfig: ✅ saved`);
       return true;
     } catch (e) {
-      // 静默处理错误
+      hilog.error(0xFF00, 'WIDGET', `[WIDGET_DEBUG] WidgetConfigStore.saveConfig error: ` + JSON.stringify(e));
       return false;
     }
   }

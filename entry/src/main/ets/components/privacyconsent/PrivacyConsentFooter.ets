@@ -71,7 +71,6 @@ export struct PrivacyConsentFooter {
     }
     .width(this.tm.current.full)
     .padding(this.tm.current.value16)
-    .backgroundColor(this.tm.current.colorPageBg)
     .border({ width: { top: this.tm.current.value1 }, color: this.tm.current.colorDivider })
   }
 }

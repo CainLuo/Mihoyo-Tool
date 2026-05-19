@@ -36,10 +36,11 @@ export default class EntryFormAbility extends FormExtensionAbility {
    * 卡片被添加到桌面时触发
    *
    * 流程：
-   * 1. 读取 want.parameters 中的 widgetConfig
-   * 2. 使用同步 API 从 Preferences 读取 WidgetDataStore
-   * 3. 构建并返回 payload（必须在方法返回前完成）
-   * 4. 异步保存配置（用于后续刷新）
+   * 1. 从 want.parameters 获取 formName（标准参数，可传递）
+   * 2. 直接使用 formName 作为 key 读取配置（不依赖自定义参数）
+   * 3. 使用同步 API 从 Preferences 读取 WidgetDataStore
+   * 4. 构建并返回 payload（必须在方法返回前完成）
+   * 5. 异步保存配置（用于后续刷新）
    *
    * 重要：FormExtension 进程在 onAddForm() 返回后只有 10 秒存活时间，
    * 因此必须使用同步 API 读取数据并立即返回，不能依赖异步更新。
@@ -48,17 +49,59 @@ export default class EntryFormAbility extends FormExtensionAbility {
     const formId = want.parameters?.[formInfo.FormParam.IDENTITY_KEY] as string ?? '';
     const formName = want.parameters?.[formInfo.FormParam.NAME_KEY] as string ?? '';
     const dimension = want.parameters?.[formInfo.FormParam.DIMENSION_KEY] as number ?? 2;
-    const widgetConfigRaw = want.parameters?.['widgetConfig'] as string ?? '';
 
-    hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] onAddForm: formId=${formId} formName=${formName} dimension=${dimension} configLen=${widgetConfigRaw.length}`);
+    hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG] ========== onAddForm START ==========');
+    hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG] onAddForm: formId=' + formId + ' formName=' + formName + ' dimension=' + dimension);
+
+    // 同步初始化 Preferences（用于读取配置）
+    if (this.prefs === null) {
+      try {
+        // 关键：先清除缓存，确保读取到主应用进程写入的最新数据
+        // Preferences 在多进程间共享，但可能有缓存，需要清除缓存后重新读取
+        preferences.removePreferencesFromCacheSync(this.context, { name: 'widget_configs' });
+        hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG] onAddForm: cache cleared');
+        
+        // 注意：getPreferencesSync 的参数格式是 { name: string }
+        // 与 getPreferences(context, name) 不同
+        this.prefs = preferences.getPreferencesSync(this.context, { name: 'widget_configs' });
+        hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG] onAddForm: prefs initialized');
+        
+        // 验证：列出 Preferences 中所有的 key
+        const all = this.prefs.getAll();
+        const keys = Object.keys(all);
+        hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG] onAddForm: prefs keys count=' + keys.length);
+        for (let i = 0; i < keys.length; i++) {
+          hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG] onAddForm: prefs key[' + i + ']=' + keys[i]);
+        }
+      } catch (e) {
+        hilog.warn(DOMAIN, TAG, '[WIDGET_DEBUG] onAddForm: failed to init prefs: ' + JSON.stringify(e));
+      }
+    }
 
     // 解析配置
     let config: WidgetConfig | null = null;
-    if (widgetConfigRaw.length > 0) {
-      config = WidgetConfig.fromJson(widgetConfigRaw);
-      config.formId = formId;
-      config.formName = formName;
-      hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] config parsed: size=${config.size} slots=${config.slots.length}`);
+    
+    // 关键修复：直接使用 formName 作为配置 key（与 complete() 保持一致）
+    // formName 是标准参数，可以正确传递
+    if (formName.length > 0) {
+      hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG] trying to load config with key=' + formName);
+      config = this.loadPendingConfig(formName);
+      if (config !== null) {
+        config.formId = formId;
+        config.formName = formName;
+        hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG] ✅ config loaded: size=' + config.size + ' slots=' + config.slots.length);
+        // 打印每个 slot 的详细信息
+        for (let i = 0; i < config.slots.length; i++) {
+          const slot = config.slots[i];
+          hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG]   slot[' + i + ']: accountId=' + slot.accountId + ' gameId=' + slot.gameId + ' roleId=' + slot.roleId);
+        }
+        // 删除临时配置（已关联到 formId）
+        this.deletePendingConfig(formName);
+      } else {
+        hilog.warn(DOMAIN, TAG, '[WIDGET_DEBUG] ⚠️ config NOT FOUND for key=' + formName);
+      }
+    } else {
+      hilog.warn(DOMAIN, TAG, '[WIDGET_DEBUG] ⚠️ formName is EMPTY, cannot load config');
     }
 
     // 如果没有配置，使用默认行为
@@ -68,13 +111,36 @@ export default class EntryFormAbility extends FormExtensionAbility {
       config.formName = formName;
       config.size = this.dimensionToSize(dimension);
       config.slots = [];
-      hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] using default config: size=${config.size}`);
+      hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG] using default config: size=' + config.size + ' formName=' + formName);
     }
 
     // ✅ 使用同步 API 读取 Preferences 中的数据
     // 注意：必须在 onAddForm() 返回前完成，不能依赖异步更新
     const dataStore = WidgetDataStoreManager.loadSync(this.context);
-    hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] loadSync: accounts=${dataStore.accounts.length}`);
+    const accountIds = Object.keys(dataStore.data);
+    hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG] loadSync: accounts=' + accountIds.length + ' version=' + dataStore.version);
+    
+    // 🔬 调试：打印 dataStore 的详细结构
+    for (let i = 0; i < accountIds.length; i++) {
+      const accountId = accountIds[i];
+      const acc = dataStore.data[accountId];
+      const roleIds = Object.keys(acc.slots);
+      hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG] dataStore.account[' + i + ']: accountId=' + accountId + ' roles=' + roleIds.length);
+      for (let j = 0; j < roleIds.length; j++) {
+        const roleId = roleIds[j];
+        const slot = acc.slots[roleId];
+        hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG]   role[' + j + ']: roleId=' + roleId + ' gameId=' + slot.gameId + ' rawJsonLen=' + slot.rawJson.length);
+      }
+    }
+
+    // 🔬 实验：如果数据为空，使用硬编码 mock 数据
+    if (!dataStore.hasData) {
+      hilog.warn(DOMAIN, TAG, `[WIDGET_DEBUG] ⚠️ EXPERIMENT: dataStore is empty, using MOCK data`);
+      const mockPayload = this.buildMockPayload();
+      hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] mockPayload len=${mockPayload.length}`);
+      const mockRecord: Record<string, string> = { 'payload': mockPayload };
+      return formBindingData.createFormBindingData(mockRecord);
+    }
 
     // 构建 payload
     const payload = WidgetPayloadBuilder.buildPayload(config, dataStore);
@@ -84,6 +150,7 @@ export default class EntryFormAbility extends FormExtensionAbility {
     hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] returning real data, payload len=${payloadStr.length}`);
 
     // 异步保存配置（用于后续刷新，不阻塞返回）
+    hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] saveConfigAsync: calling with config.formId=` + config.formId + ` slots=` + config.slots.length);
     this.saveConfigAsync(formId, config);
 
     // 立即返回真实数据
@@ -164,19 +231,19 @@ export default class EntryFormAbility extends FormExtensionAbility {
 
       // 从 Preferences 读取已保存的数据（由主应用构建）
       const dataStore = await WidgetDataStoreManager.load();
-      hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] dataStore loaded: accounts=${dataStore.accounts.length}`);
+      const accountIds = Object.keys(dataStore.data);
+      hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] dataStore loaded: accounts=${accountIds.length} version=${dataStore.version}`);
       
-      // 打印每个账号的游戏和角色信息
-      for (let i = 0; i < dataStore.accounts.length; i++) {
-        const acc = dataStore.accounts[i];
-        hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] account[${i}]: id=${acc.accountId} games=${acc.games.length}`);
-        for (let j = 0; j < acc.games.length; j++) {
-          const game = acc.games[j];
-          hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG]   game[${j}]: id=${game.gameId} roles=${game.roles.length}`);
-          for (let k = 0; k < game.roles.length; k++) {
-            const role = game.roles[k];
-            hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG]     role[${k}]: roleId=${role.roleId} rawJsonLen=${role.rawJson.length}`);
-          }
+      // 打印每个账号的角色信息
+      for (let i = 0; i < accountIds.length; i++) {
+        const accountId = accountIds[i];
+        const acc = dataStore.data[accountId];
+        const roleIds = Object.keys(acc.slots);
+        hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] account[${i}]: id=${accountId} roles=${roleIds.length}`);
+        for (let j = 0; j < roleIds.length; j++) {
+          const roleId = roleIds[j];
+          const slot = acc.slots[roleId];
+          hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG]   role[${j}]: roleId=${roleId} gameId=${slot.gameId} rawJsonLen=${slot.rawJson.length}`);
         }
       }
 
@@ -278,6 +345,19 @@ export default class EntryFormAbility extends FormExtensionAbility {
   }
 
   /**
+   * 🔬 实验：构建硬编码 mock payload
+   * 
+   * 用于验证：如果 Widget 能正常显示 mock 数据，说明问题在数据链路（loadSync 返回空）
+   * 如果 Widget 仍然白屏，说明问题在 @LocalStorageProp 或 Widget 组件本身
+   */
+  private buildMockPayload(): string {
+    // 手动构建 JSON 字符串，避免 ArkTS 严格模式的对象字面量限制
+    const mockPayload = '{"version":1,"updatedAt":' + Math.floor(Date.now() / 1000) + ',"accounts":[{"accountId":"mock_account_1","accountName":"测试账号","games":[{"gameId":"genshin","roles":[{"roleId":"123456789","nickname":"旅行者","server":"cn_gf01","rawJson":"{\\"current_resin\\":140,\\"max_resin\\":160,\\"resin_recovery_time\\":\\"18000\\"}"}]},{"gameId":"starrail","roles":[{"roleId":"987654321","nickname":"开拓者","server":"prod_gf_cn","rawJson":"{\\"current_stamina\\":80,\\"max_stamina\\":180,\\"stamina_recover_time\\":\\"36000\\"}"}]}]}]}';
+    
+    return mockPayload;
+  }
+
+  /**
    * dimension 转 WidgetSize
    */
   private dimensionToSize(dimension: number): WidgetSize {
@@ -289,5 +369,47 @@ export default class EntryFormAbility extends FormExtensionAbility {
       return WidgetSize.SIZE_4x4;
     }
     return WidgetSize.SIZE_2x2;
+  }
+
+  /**
+   * 从 Preferences 加载 pending config
+   */
+  private loadPendingConfig(key: string): WidgetConfig | null {
+    if (this.prefs === null) {
+      hilog.warn(DOMAIN, TAG, '[WIDGET_DEBUG] loadPendingConfig: prefs is null');
+      return null;
+    }
+    try {
+      hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG] loadPendingConfig: reading key=' + key);
+      const json = this.prefs.getSync(key, '') as string;
+      hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG] loadPendingConfig: json.length=' + json.length);
+      if (json.length === 0) {
+        hilog.warn(DOMAIN, TAG, '[WIDGET_DEBUG] loadPendingConfig: json is empty');
+        return null;
+      }
+      // 打印 json 内容前 200 字符
+      hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG] loadPendingConfig: json preview=' + json.substring(0, 200));
+      const config = WidgetConfig.fromJson(json);
+      hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG] loadPendingConfig: parsed slots=' + config.slots.length);
+      return config;
+    } catch (e) {
+      hilog.error(DOMAIN, TAG, '[WIDGET_DEBUG] loadPendingConfig error: ' + JSON.stringify(e));
+      return null;
+    }
+  }
+
+  /**
+   * 删除 pending config
+   */
+  private deletePendingConfig(key: string): void {
+    if (this.prefs === null) {
+      return;
+    }
+    try {
+      this.prefs.deleteSync(key);
+      this.prefs.flush();
+    } catch (e) {
+      // 静默处理错误
+    }
   }
 }

@@ -17,11 +17,13 @@
 import { formProvider } from '@kit.FormKit';
 import { Want, common } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { preferences } from '@kit.ArkData';
 import { Logger, GameId } from 'core';
 import { WidgetSize, WidgetConfig, getMaxSlots } from '../widget/models/WidgetConfig';
 import { WidgetSlotRef, WidgetDataStore } from '../widget/models/WidgetDataStore';
 import { WidgetDataStoreManager } from '../widget/utils/WidgetDataStoreManager';
 import { WidgetDataStoreBuilder } from '../widget/utils/WidgetDataStoreBuilder';
+import { WidgetSettingsUIState, WidgetSettingsCallbacks, WidgetSettingsSlotHelper } from '../models/WidgetSettingsModels';
 import BuildProfile from 'BuildProfile';
 
 const TAG = 'WIDGET';
@@ -54,8 +56,20 @@ export class WidgetConfigViewModel {
   /** 全局数据存储 */
   @Trace dataStore: WidgetDataStore = new WidgetDataStore();
 
+  /** UI State（供 View 层直接使用） */
+  @Trace uiState: WidgetSettingsUIState = new WidgetSettingsUIState();
+
+  /** 回调函数集合（供 View 层直接使用） */
+  callbacks: WidgetSettingsCallbacks = new WidgetSettingsCallbacks();
+
+  /** Slot 辅助方法（供 View 层直接使用） */
+  slotHelper: WidgetSettingsSlotHelper = new WidgetSettingsSlotHelper();
+
   /** 配置完成回调 */
   onConfigComplete: WidgetConfigCallback | null = null;
+
+  /** Context 用于保存配置 */
+  private context: common.UIAbilityContext | null = null;
 
   // ── 初始化 ───────────────────────────────────────────────────────
 
@@ -66,23 +80,96 @@ export class WidgetConfigViewModel {
    */
   async init(context?: common.UIAbilityContext): Promise<void> {
     try {
-      // 初始化 Preferences（如果提供了 context）
+      // 保存 context 用于后续保存配置
       if (context !== undefined) {
+        this.context = context;
         await WidgetDataStoreManager.init(context);
       }
       // 尝试从 Preferences 加载
       let store = await WidgetDataStoreManager.load();
-      if (store.accounts.length === 0) {
+      if (!store.hasData) {
         // 无数据则从 DB 构建
         store = await WidgetDataStoreBuilder.buildFromDB();
         await WidgetDataStoreManager.save(store);
       }
       this.dataStore = store;
-      Logger.info(TAG, `init: ${store.accounts.length} accounts`);
+      const accountCount = Object.keys(store.data).length;
+      Logger.info(TAG, `init: ${accountCount} accounts`);
+      
+      // 初始化回调函数
+      this.initCallbacks();
+      // 初始化辅助方法
+      this.initSlotHelper();
+      // 同步 UI State
+      this.syncUIState();
     } catch (e) {
       Logger.error(TAG, `init failed: ${JSON.stringify(e)}`);
       this.dataStore = new WidgetDataStore();
     }
+  }
+
+  /**
+   * 初始化回调函数
+   * View 层直接使用 vm.callbacks，不需要自己管理回调
+   */
+  private initCallbacks(): void {
+    this.callbacks.onSizeSelect = (size: WidgetSize) => {
+      this.selectSize(size);
+      this.syncUIState();
+    };
+    this.callbacks.onGameSelect = (gameId: string) => {
+      this.selectGameType(gameId);
+      this.syncUIState();
+    };
+    this.callbacks.onSlotToggle = (slot: WidgetSlotRef) => {
+      this.toggleSlot(slot);
+      this.syncUIState();
+    };
+    this.callbacks.onPrev = () => {
+      this.goPrev();
+      this.syncUIState();
+    };
+    this.callbacks.onNext = () => {
+      this.goNext();
+      this.syncUIState();
+    };
+    this.callbacks.onComplete = async () => {
+      await this.complete();
+    };
+  }
+
+  /**
+   * 初始化 Slot 辅助方法
+   * View 层直接使用 vm.slotHelper，不需要自己管理
+   * 
+   * 注意：游戏颜色和名称使用 GameIdUtil 工具函数，不在此处初始化
+   */
+  private initSlotHelper(): void {
+    this.slotHelper.getSlotsForGame = (gameId: string): WidgetSlotRef[] => {
+      return this.getSlotsForGame(gameId);
+    };
+    this.slotHelper.hasDataForGame = (gameId: string): boolean => {
+      return this.hasDataForGame(gameId);
+    };
+    this.slotHelper.isSlotSelected = (accountId: string, gameId: string, roleId: string): boolean => {
+      return this.isSlotSelected(accountId, gameId, roleId);
+    };
+  }
+
+  /**
+   * 将 ViewModel 状态同步到 UI State
+   * UI State 是 View 层使用的展示数据，ViewModel 负责组装
+   */
+  private syncUIState(): void {
+    this.uiState.currentStep = this.currentStep;
+    this.uiState.selectedSize = this.selectedSize;
+    this.uiState.selectedGameType = this.selectedGameType;
+    this.uiState.allSlots = this.getAllSlots();
+    this.uiState.selectedSlots = this.selectedSlots;
+    this.uiState.maxSlots = this.getMaxSlots();
+    this.uiState.selectedSummary = this.getSelectedSummary();
+    this.uiState.canGoPrev = this.canGoPrev();
+    this.uiState.canGoNext = this.canGoNext();
   }
 
   // ── 步骤导航 ─────────────────────────────────────────────────────
@@ -196,7 +283,7 @@ export class WidgetConfigViewModel {
 
   /** 获取指定游戏类型的所有 slots */
   getSlotsForGame(gameType: string): WidgetSlotRef[] {
-    const allSlots = this.dataStore.getAllSlots();
+    const allSlots = this.dataStore.getAllSlotRefs();
     const filtered: WidgetSlotRef[] = [];
     for (let i = 0; i < allSlots.length; i++) {
       if (allSlots[i].gameId === gameType) {
@@ -214,7 +301,7 @@ export class WidgetConfigViewModel {
     if (this.selectedSize === WidgetSize.SIZE_1x2) {
       return this.getSlotsForGame(this.selectedGameType);
     }
-    return this.dataStore.getAllSlots();
+    return this.dataStore.getAllSlotRefs();
   }
 
   /** 判断 slot 是否已选中 */
@@ -256,8 +343,28 @@ export class WidgetConfigViewModel {
 
   /**
    * 完成配置，调用 formProvider.openFormManager()
+   * 
+   * 注意：formProvider.openFormManager() 的 want.parameters 中只能传递标准参数，
+   * 自定义参数（如 widgetConfig）无法传递到 onAddForm()。
+   * 因此需要在调用 openFormManager 之前将配置保存到 Preferences，
+   * 在 onAddForm() 时读取并应用。
    */
-  complete(): void {
+  /**
+   * 完成配置，调用 formProvider.openFormManager()
+   * 
+   * 重要发现（来自官方文档验证）：
+   * - openFormManager 的 want.parameters 只支持三个标准参数：
+   *   - ohos.extra.param.key.form_dimension
+   *   - ohos.extra.param.key.form_name
+   *   - ohos.extra.param.key.module_name
+   * - 自定义参数无法传递到 onAddForm()
+   * 
+   * 解决方案：
+   * - 使用 formName 作为配置存储的 key（不使用 pending_config_ 前缀）
+   * - 在 onAddForm() 中直接根据 formName 读取配置
+   * - 必须在调用 openFormManager 之前保存配置
+   */
+  async complete(): Promise<void> {
     if (this.selectedSlots.length === 0) {
       Logger.error(TAG, 'complete: no slots selected');
       return;
@@ -266,10 +373,15 @@ export class WidgetConfigViewModel {
     const formName = this.sizeToFormName();
     const dimension = this.sizeToDimension();
 
-    // 构建配置保存到 Preferences（后续 FormExtension 会读取）
+    // 构建配置
     const config = new WidgetConfig();
     config.size = this.selectedSize;
     config.slots = this.selectedSlots;
+
+    // 关键：直接使用 formName 作为配置 key（不带前缀）
+    // 这样 onAddForm() 可以根据 want.parameters 中的 formName 直接读取
+    const configKey = formName;
+    const configJson = config.toJson();
 
     const want: Want = {
       bundleName: BuildProfile.BUNDLE_NAME,
@@ -278,13 +390,17 @@ export class WidgetConfigViewModel {
         'ohos.extra.param.key.form_dimension': dimension,
         'ohos.extra.param.key.form_name': formName,
         'ohos.extra.param.key.module_name': 'entry',
-        'widgetConfig': config.toJson(),
+        // 注意：自定义参数无法传递，已验证
       },
     };
 
-    Logger.info(TAG, `complete: bundleName=${BuildProfile.BUNDLE_NAME} formName=${formName} slots=${this.selectedSlots.length}`);
+    Logger.info(TAG, `complete: formName=${formName} configKey=${configKey} slots=${this.selectedSlots.length} selectedGames=${this.getSelectedGameIds().join(',')}`);
 
     try {
+      // 关键：必须等待配置保存完成后再调用 openFormManager
+      await this.savePendingConfig(configKey, configJson);
+      Logger.info(TAG, `complete: config saved, key=${configKey} jsonLen=${configJson.length}`);
+      
       formProvider.openFormManager(want);
       if (this.onConfigComplete !== null) {
         this.onConfigComplete();
@@ -292,6 +408,73 @@ export class WidgetConfigViewModel {
     } catch (e) {
       const err = e as BusinessError;
       Logger.error(TAG, `openFormManager failed: code=${err.code} msg=${err.message}`);
+    }
+  }
+
+  /**
+   * 获取选中 slots 对应的游戏 ID 列表（去重）
+   */
+  private getSelectedGameIds(): string[] {
+    const gameIds: string[] = [];
+    for (let i = 0; i < this.selectedSlots.length; i++) {
+      const slot = this.selectedSlots[i];
+      let found = false;
+      for (let j = 0; j < gameIds.length; j++) {
+        if (gameIds[j] === slot.gameId) {
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        gameIds.push(slot.gameId);
+      }
+    }
+    return gameIds;
+  }
+
+  /**
+   * 保存 pending config 到 Preferences
+   * 
+   * 注意：此方法在主应用进程执行，onAddForm() 在 FormExtension 进程执行。
+   * 两个进程通过 Preferences 文件共享数据，必须确保 flush() 完成后再调用 openFormManager()。
+   */
+  private async savePendingConfig(key: string, configJson: string): Promise<void> {
+    if (this.context === null) {
+      Logger.error(TAG, 'savePendingConfig: context is null');
+      return;
+    }
+    try {
+      Logger.info(TAG, `savePendingConfig: start saving key=${key} jsonLen=${configJson.length}`);
+      
+      // 关键：先清除缓存，确保获取最新的 Preferences 实例
+      // 这样可以避免多进程间的缓存不一致问题
+      preferences.removePreferencesFromCacheSync(this.context, { name: 'widget_configs' });
+      Logger.info(TAG, `savePendingConfig: cache cleared`);
+      
+      // 获取 Preferences 实例
+      const prefs = await preferences.getPreferences(this.context, 'widget_configs');
+      Logger.info(TAG, `savePendingConfig: prefs instance obtained`);
+      
+      // 写入配置
+      await prefs.put(key, configJson);
+      Logger.info(TAG, `savePendingConfig: put done`);
+      
+      // 刷新到磁盘（使用同步 API 确保数据立即写入）
+      prefs.flushSync();
+      Logger.info(TAG, `savePendingConfig: flushSync done`);
+      
+      // 验证写入：立即读取确认（使用同步 API）
+      const verifyJson = prefs.getSync(key, '') as string;
+      Logger.info(TAG, `savePendingConfig: verify read jsonLen=${verifyJson.length}`);
+      
+      if (verifyJson.length === 0) {
+        Logger.error(TAG, `savePendingConfig: VERIFY FAILED - json is empty after flush!`);
+      } else {
+        Logger.info(TAG, `savePendingConfig: ✅ VERIFY SUCCESS`);
+      }
+    } catch (e) {
+      const err = e as BusinessError;
+      Logger.error(TAG, `savePendingConfig failed: code=${err.code} msg=${err.message}`);
     }
   }
 

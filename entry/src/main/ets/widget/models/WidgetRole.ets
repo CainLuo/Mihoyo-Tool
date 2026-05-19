@@ -9,11 +9,11 @@
  */
 
 /** WidgetRole JSON 结构 */
-interface WidgetRoleJson {
-  roleId: string;
-  nickname: string;
-  server: string;
-  rawJson: string;
+export interface WidgetRoleJson {
+  roleId?: string;
+  nickname?: string;
+  server?: string;
+  rawJson?: string;
 }
 
 /**
@@ -39,12 +39,12 @@ export class WidgetRole {
     return obj;
   }
 
-  static fromJson(obj: Record<string, Object>): WidgetRole {
+  static fromJson(obj: WidgetRoleJson): WidgetRole {
     const d = new WidgetRole();
-    if (obj['roleId'] !== undefined) { d.roleId = obj['roleId'] as string; }
-    if (obj['nickname'] !== undefined) { d.nickname = obj['nickname'] as string; }
-    if (obj['server'] !== undefined) { d.server = obj['server'] as string; }
-    if (obj['rawJson'] !== undefined) { d.rawJson = obj['rawJson'] as string; }
+    d.roleId = obj.roleId ?? '';
+    d.nickname = obj.nickname ?? '';
+    d.server = obj.server ?? '';
+    d.rawJson = obj.rawJson ?? '';
     return d;
   }
 }

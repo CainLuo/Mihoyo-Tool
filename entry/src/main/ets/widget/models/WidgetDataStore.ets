@@ -1,23 +1,64 @@
 /**
- * WidgetDataStore.ets — Widget 全局数据存储模型
+ * WidgetDataStore.ets — Widget 全局数据存储模型（v2）
  *
- * 所有 Widget 共享的一份数据，包含所有账号所有游戏角色的便签 rawJson。
- * 存储位置：Preferences 文件名 widget_data_store，Key global_data
+ * 存储结构（扁平化设计）：
+ * {
+ *   "version": 2,
+ *   "updatedAt": 1779012632,
+ *   "data": {
+ *     "{accountId}": {
+ *       "accountName": "CainLuo",
+ *       "slots": {
+ *         "{roleId}": { "gameId": "genshin", "nickname": "...", "rawJson": "..." }
+ *       }
+ *     }
+ *   },
+ *   "widgets": {
+ *     "widget12": ["accountId/roleId"],
+ *     "widget22": ["accountId/roleId", "accountId/roleId"],
+ *     "form_12345678": ["accountId/roleId"]
+ *   }
+ * }
+ *
+ * 关键设计：
+ * - data.{accountId}.slots.{roleId} 扁平存储，支持 O(1) 查询
+ * - widgets 区分「预配置」（widget12/widget22等）和「已添加卡片」（form_xxx）
+ * - 使用 "accountId/roleId" 作为全局唯一的 slot 标识
  */
 
-import { WidgetAccount } from './WidgetAccount';
-import { WidgetGame } from './WidgetGame';
-import { WidgetRole } from './WidgetRole';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+
+const TAG = 'WIDGET';
+const DOMAIN = 0xFF00;
+
+// ── JSON 结构接口定义 ─────────────────────────────────────────────
+
+/** Slot JSON 结构 */
+interface WidgetSlotDataJson {
+  gameId: string;
+  nickname: string;
+  server: string;
+  serverName: string;
+  level: number;
+  rawJson: string;
+}
+
+/** Account JSON 结构 */
+interface WidgetAccountDataJson {
+  accountName: string;
+  slots: Record<string, WidgetSlotDataJson>;
+}
 
 /** WidgetDataStore JSON 结构 */
 interface WidgetDataStoreJson {
   version: number;
   updatedAt: number;
-  accounts: Object[];
+  data: Record<string, WidgetAccountDataJson>;
+  widgets: Record<string, string[]>;
 }
 
 /** WidgetSlotRef JSON 结构 */
-interface WidgetSlotRefJson {
+export interface WidgetSlotRefJson {
   accountId: string;
   accountName: string;
   gameId: string;
@@ -26,128 +67,88 @@ interface WidgetSlotRefJson {
   server: string;
 }
 
-/**
- * Widget 全局数据存储
- */
-export class WidgetDataStore {
-  /** 数据版本号，用于迁移 */
-  version: number = 1;
-  /** 数据更新时间戳（秒） */
-  updatedAt: number = 0;
-  /** 账号列表 */
-  accounts: WidgetAccount[] = [];
+// ── 数据模型类 ─────────────────────────────────────────────────────
 
-  toJson(): string {
-    const obj: WidgetDataStoreJson = {
-      version: this.version,
-      updatedAt: this.updatedAt,
-      accounts: this.accounts.map((a) => a.toJson()),
+/**
+ * 角色 Slot 数据（存储在 data.{accountId}.slots.{roleId} 中）
+ */
+export class WidgetSlotData {
+  /** 游戏 ID（genshin/starrail/zzz） */
+  gameId: string = '';
+  /** 游戏内昵称 */
+  nickname: string = '';
+  /** 服务器大区标识（cn_gf01/prod_gf_cn） */
+  server: string = '';
+  /** 服务器名称（天空岛/星穹列车） */
+  serverName: string = '';
+  /** 冒险等级 */
+  level: number = 0;
+  /** DailyNote API 原始响应 JSON */
+  rawJson: string = '';
+
+  toJson(): WidgetSlotDataJson {
+    const obj: WidgetSlotDataJson = {
+      gameId: this.gameId,
+      nickname: this.nickname,
+      server: this.server,
+      serverName: this.serverName,
+      level: this.level,
+      rawJson: this.rawJson,
     };
-    return JSON.stringify(obj);
+    return obj;
   }
 
-  static fromJson(json: string): WidgetDataStore {
-    const d = new WidgetDataStore();
-    if (json.length === 0) {
-      return d;
-    }
-    try {
-      const obj = JSON.parse(json) as Record<string, Object>;
-      if (obj['version'] !== undefined) { d.version = obj['version'] as number; }
-      if (obj['updatedAt'] !== undefined) { d.updatedAt = obj['updatedAt'] as number; }
-      if (obj['accounts'] !== undefined) {
-        const accountsArr = obj['accounts'] as Object[];
-        for (let i = 0; i < accountsArr.length; i++) {
-          d.accounts.push(WidgetAccount.fromJson(accountsArr[i] as Record<string, Object>));
-        }
-      }
-    } catch (_e) {
-      // 解析失败返回默认值，不崩溃
-    }
+  static fromJson(obj: WidgetSlotDataJson): WidgetSlotData {
+    const d = new WidgetSlotData();
+    d.gameId = obj.gameId;
+    d.nickname = obj.nickname;
+    d.server = obj.server;
+    d.serverName = obj.serverName;
+    d.level = obj.level;
+    d.rawJson = obj.rawJson;
     return d;
   }
+}
 
-  /**
-   * 根据 accountId 获取账号数据
-   */
-  getAccount(accountId: string): WidgetAccount | null {
-    for (let i = 0; i < this.accounts.length; i++) {
-      if (this.accounts[i].accountId === accountId) {
-        return this.accounts[i];
+/**
+ * 账号数据（存储在 data.{accountId} 中）
+ */
+export class WidgetAccountDataV2 {
+  accountName: string = '';
+  /** 角色列表，key 为 roleId */
+  slots: Record<string, WidgetSlotData> = {};
+
+  toJson(): WidgetAccountDataJson {
+    const slotsJson: Record<string, WidgetSlotDataJson> = {};
+    const keys = Object.keys(this.slots);
+    for (let i = 0; i < keys.length; i++) {
+      const roleId = keys[i];
+      slotsJson[roleId] = this.slots[roleId].toJson();
+    }
+    const obj: WidgetAccountDataJson = {
+      accountName: this.accountName,
+      slots: slotsJson,
+    };
+    return obj;
+  }
+
+  static fromJson(obj: WidgetAccountDataJson): WidgetAccountDataV2 {
+    const d = new WidgetAccountDataV2();
+    d.accountName = obj.accountName;
+    if (obj.slots !== undefined && obj.slots !== null) {
+      const keys = Object.keys(obj.slots);
+      for (let i = 0; i < keys.length; i++) {
+        const roleId = keys[i];
+        d.slots[roleId] = WidgetSlotData.fromJson(obj.slots[roleId]);
       }
     }
-    return null;
-  }
-
-  /**
-   * 根据三元组获取角色数据
-   */
-  getRole(accountId: string, gameId: string, roleId: string): WidgetRole | null {
-    const account = this.getAccount(accountId);
-    if (account === null) {
-      return null;
-    }
-    const game = account.getGame(gameId);
-    if (game === null) {
-      return null;
-    }
-    for (let i = 0; i < game.roles.length; i++) {
-      if (game.roles[i].roleId === roleId) {
-        return game.roles[i];
-      }
-    }
-    return null;
-  }
-
-  /**
-   * 获取第一个账号（用于默认显示）
-   */
-  get firstAccount(): WidgetAccount | null {
-    if (this.accounts.length > 0) {
-      return this.accounts[0];
-    }
-    return null;
-  }
-
-  /**
-   * 获取所有可用的 slot 列表（用于配置页面）
-   */
-  getAllSlots(): WidgetSlotRef[] {
-    const slots: WidgetSlotRef[] = [];
-    for (let i = 0; i < this.accounts.length; i++) {
-      const account = this.accounts[i];
-      for (let j = 0; j < account.games.length; j++) {
-        const game = account.games[j];
-        for (let k = 0; k < game.roles.length; k++) {
-          const role = game.roles[k];
-          const slot = new WidgetSlotRef();
-          slot.accountId = account.accountId;
-          slot.accountName = account.accountName;
-          slot.gameId = game.gameId;
-          slot.roleId = role.roleId;
-          slot.nickname = role.nickname;
-          slot.server = role.server;
-          slots.push(slot);
-        }
-      }
-    }
-    return slots;
-  }
-
-  /**
-   * 更新指定角色的 rawJson
-   */
-  updateRoleRawJson(accountId: string, gameId: string, roleId: string, rawJson: string): void {
-    const role = this.getRole(accountId, gameId, roleId);
-    if (role !== null) {
-      role.rawJson = rawJson;
-    }
+    return d;
   }
 }
 
 /**
  * Widget Slot 引用（三元组）
- * 用于配置页面选择和 WidgetConfig 存储
+ * 用于配置页面选择和 widgets 配置存储
  */
 export class WidgetSlotRef {
   /** 米游社账号 UID */
@@ -175,21 +176,240 @@ export class WidgetSlotRef {
     return obj;
   }
 
-  static fromJson(obj: Record<string, Object>): WidgetSlotRef {
+  static fromJson(obj: WidgetSlotRefJson): WidgetSlotRef {
     const d = new WidgetSlotRef();
-    if (obj['accountId'] !== undefined) { d.accountId = obj['accountId'] as string; }
-    if (obj['accountName'] !== undefined) { d.accountName = obj['accountName'] as string; }
-    if (obj['gameId'] !== undefined) { d.gameId = obj['gameId'] as string; }
-    if (obj['roleId'] !== undefined) { d.roleId = obj['roleId'] as string; }
-    if (obj['nickname'] !== undefined) { d.nickname = obj['nickname'] as string; }
-    if (obj['server'] !== undefined) { d.server = obj['server'] as string; }
+    d.accountId = obj.accountId;
+    d.accountName = obj.accountName;
+    d.gameId = obj.gameId;
+    d.roleId = obj.roleId;
+    d.nickname = obj.nickname;
+    d.server = obj.server;
     return d;
   }
 
   /**
-   * 唯一标识符：accountId_gameId_roleId
+   * 唯一标识符：accountId/roleId
    */
   get key(): string {
-    return `${this.accountId}_${this.gameId}_${this.roleId}`;
+    return `${this.accountId}/${this.roleId}`;
+  }
+}
+
+/**
+ * Widget 全局数据存储（v2）
+ */
+export class WidgetDataStore {
+  /** 数据版本号 */
+  version: number = 2;
+  /** 数据更新时间戳（秒） */
+  updatedAt: number = 0;
+  /** 所有账号数据，key 为 accountId */
+  data: Record<string, WidgetAccountDataV2> = {};
+  /** 各尺寸卡片的配置 */
+  widgets: Record<string, string[]> = {};
+
+  /**
+   * 序列化为 JSON 字符串
+   */
+  toJson(): string {
+    const dataJson: Record<string, WidgetAccountDataJson> = {};
+    const accountIds = Object.keys(this.data);
+    for (let i = 0; i < accountIds.length; i++) {
+      const accountId = accountIds[i];
+      dataJson[accountId] = this.data[accountId].toJson();
+    }
+
+    const obj: WidgetDataStoreJson = {
+      version: this.version,
+      updatedAt: this.updatedAt,
+      data: dataJson,
+      widgets: this.widgets,
+    };
+    return JSON.stringify(obj);
+  }
+
+  /**
+   * 从 JSON 字符串反序列化
+   */
+  static fromJson(json: string): WidgetDataStore {
+    const d = new WidgetDataStore();
+    if (json.length === 0) {
+      return d;
+    }
+    try {
+      const obj: WidgetDataStoreJson = JSON.parse(json) as WidgetDataStoreJson;
+      d.version = obj.version;
+      d.updatedAt = obj.updatedAt;
+      if (obj.data !== undefined && obj.data !== null) {
+        const accountIds = Object.keys(obj.data);
+        for (let i = 0; i < accountIds.length; i++) {
+          const accountId = accountIds[i];
+          d.data[accountId] = WidgetAccountDataV2.fromJson(obj.data[accountId]);
+        }
+      }
+      if (obj.widgets !== undefined && obj.widgets !== null) {
+        d.widgets = obj.widgets;
+      }
+    } catch (e) {
+      hilog.error(DOMAIN, TAG, `[WIDGET_DEBUG] WidgetDataStore.fromJson failed: ${JSON.stringify(e)}`);
+    }
+    return d;
+  }
+
+  /**
+   * 根据 accountId/roleId 获取角色数据（O(1) 查询）
+   */
+  getRole(accountId: string, roleId: string): WidgetSlotData | null {
+    const account = this.data[accountId];
+    if (account === undefined) {
+      return null;
+    }
+    const slot = account.slots[roleId];
+    if (slot === undefined) {
+      return null;
+    }
+    return slot;
+  }
+
+  /**
+   * 根据 slotKey（accountId/roleId）获取角色数据
+   */
+  getRoleByKey(slotKey: string): WidgetSlotData | null {
+    const parts = slotKey.split('/');
+    if (parts.length !== 2) {
+      return null;
+    }
+    return this.getRole(parts[0], parts[1]);
+  }
+
+  /**
+   * 获取账号名称
+   */
+  getAccountName(accountId: string): string {
+    const account = this.data[accountId];
+    if (account === undefined) {
+      return '';
+    }
+    return account.accountName;
+  }
+
+  /**
+   * 获取第一个账号 ID（用于 fallback）
+   */
+  get firstAccountId(): string | null {
+    const keys = Object.keys(this.data);
+    if (keys.length > 0) {
+      return keys[0];
+    }
+    return null;
+  }
+
+  /**
+   * 获取第一个账号的第一个角色（用于 fallback）
+   */
+  get firstSlot(): WidgetSlotData | null {
+    const accountId = this.firstAccountId;
+    if (accountId === null) {
+      return null;
+    }
+    const account = this.data[accountId];
+    const roleIds = Object.keys(account.slots);
+    if (roleIds.length > 0) {
+      return account.slots[roleIds[0]];
+    }
+    return null;
+  }
+
+  /**
+   * 获取账号下的所有角色 key 列表
+   */
+  getSlotsByAccount(accountId: string): string[] {
+    const account = this.data[accountId];
+    if (account === undefined) {
+      return [];
+    }
+    const roleIds = Object.keys(account.slots);
+    const result: string[] = [];
+    for (let i = 0; i < roleIds.length; i++) {
+      result.push(`${accountId}/${roleIds[i]}`);
+    }
+    return result;
+  }
+
+  /**
+   * 获取所有可用的 slot 列表（用于配置页面）
+   */
+  getAllSlotRefs(): WidgetSlotRef[] {
+    const result: WidgetSlotRef[] = [];
+    const accountIds = Object.keys(this.data);
+    for (let i = 0; i < accountIds.length; i++) {
+      const accountId = accountIds[i];
+      const account = this.data[accountId];
+      const roleIds = Object.keys(account.slots);
+      for (let j = 0; j < roleIds.length; j++) {
+        const roleId = roleIds[j];
+        const slot = account.slots[roleId];
+        const ref = new WidgetSlotRef();
+        ref.accountId = accountId;
+        ref.accountName = account.accountName;
+        ref.gameId = slot.gameId;
+        ref.roleId = roleId;
+        ref.nickname = slot.nickname;
+        ref.server = slot.server;
+        result.push(ref);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * 检查是否有数据
+   */
+  get hasData(): boolean {
+    return Object.keys(this.data).length > 0;
+  }
+
+  /**
+   * 获取预配置的 slots（如 widget12、widget22）
+   */
+  getPresetSlots(widgetName: string): string[] {
+    const slots = this.widgets[widgetName];
+    if (slots === undefined) {
+      return [];
+    }
+    return slots;
+  }
+
+  /**
+   * 设置预配置的 slots
+   */
+  setPresetSlots(widgetName: string, slots: string[]): void {
+    this.widgets[widgetName] = slots;
+  }
+
+  /**
+   * 获取已添加卡片的配置
+   */
+  getFormConfig(formId: string): string[] {
+    const key = `form_${formId}`;
+    return this.getPresetSlots(key);
+  }
+
+  /**
+   * 设置已添加卡片的配置
+   */
+  setFormConfig(formId: string, slots: string[]): void {
+    const key = `form_${formId}`;
+    this.widgets[key] = slots;
+  }
+
+  /**
+   * 更新指定角色的 rawJson
+   */
+  updateRoleRawJson(accountId: string, roleId: string, rawJson: string): void {
+    const slot = this.getRole(accountId, roleId);
+    if (slot !== null) {
+      slot.rawJson = rawJson;
+    }
   }
 }

@@ -1,17 +1,17 @@
 /**
- * WidgetCardContent.ets — 多游戏卡片通用内容组件
+ * WidgetCardContent.ets - Multi-game card content component
  *
- * 2×2、2×4、4×4 三种卡片共用此组件，差异通过 cardSize 参数区分。
+ * Shared by 2x2, 2x4, 4x4 cards, differentiated by cardSize parameter.
  *
- * v1.1 更新：
- * - 使用单一 @LocalStorageProp('payload') 接收完整 JSON
- * - 解析 payload 决定显示内容
+ * v1.1 update:
+ * - Use single @LocalStorageProp('payload') to receive complete JSON
+ * - Parse payload to determine display content
  *
- * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
+ * Uses @Component (V1) because card rendering engine does not support @ComponentV2.
  *
- * 重要约束：
- * - Widget 组件不能导入 core 模块（HSP）
- * - Widget 组件不能使用 hilog，只能使用 console.log 或静默处理
+ * Important constraints:
+ * - Widget components cannot import core module (HSP)
+ * - Widget components cannot use hilog, only console.log or silent handling
  */
 
 import { Widget4x4MultiGame } from './Widget4x4MultiGame';
@@ -23,7 +23,7 @@ import { ParsedRole } from '../utils/WidgetPayloadParser';
 import { ParsedSlotData, parseSlotJson } from '../utils/WidgetSlotDataParser';
 
 /**
- * Slot JSON 数据结构（用于序列化后解析）
+ * Slot JSON data structure (for serialization then parsing)
  */
 class SlotJsonData {
   gameId: string = '';
@@ -35,7 +35,7 @@ class SlotJsonData {
   rawJson: string = '';
 }
 
-/** 卡片尺寸类型，决定使用哪个单游戏/多游戏组件 */
+/** Card size type, determines which single/multi-game component to use */
 export enum WidgetCardSize {
   SIZE_1x2,
   SIZE_2x2,
@@ -48,15 +48,16 @@ export struct WidgetCardContent {
 
   cardSize: WidgetCardSize = WidgetCardSize.SIZE_2x2;
 
-  // 从父组件接收解析后的数据
-  allRoles: ParsedRole[] = [];
-  gameIds: string[] = [];
-  isSingleGame: boolean = true;
+  // Parsed data received from parent component
+  // Note: Widget requires @Prop for object/array types to receive data correctly
+  @Prop allRoles: ParsedRole[] = [];
+  @Prop gameIds: string[] = [];
+  @Prop isSingleGame: boolean = true;
 
   build() {
     Column() {
       if (this.allRoles.length === 0) {
-        // 未配置账号时显示占位提示
+        // Show placeholder when no account configured
         Column() {
           Text($r('app.string.widget_no_account'))
             .fontSize(13)
@@ -70,21 +71,21 @@ export struct WidgetCardContent {
         .justifyContent(FlexAlign.Center)
         .alignItems(HorizontalAlign.Center)
       } else if (this.isSingleGame && this.allRoles.length === 1) {
-        // 单角色：使用 WidgetSlotRenderer
+        // Single role: use WidgetSlotRenderer
         WidgetSlotRenderer({
           data: this.buildSlotData(this.allRoles[0]),
           slotSize: this.slotSize,
         })
       } else if (this.isSingleGame) {
-        // 单游戏多角色：使用旧组件
+        // Single game multiple roles: use old component
         this.buildSingleGameMultiRoleContent()
       } else {
-        // 多游戏：使用 Column 布局渲染多个 WidgetSlotRenderer
+        // Multiple games: use Column layout to render multiple WidgetSlotRenderer
         Column({ space: 8 }) {
           ForEach(this.allRoles, (role: ParsedRole, idx: number) => {
             WidgetSlotRenderer({
               data: this.buildSlotData(role),
-              slotSize: WidgetSlotSize.SIZE_1x2, // 多游戏时使用紧凑布局
+              slotSize: WidgetSlotSize.SIZE_1x2, // Use compact layout for multi-game
             })
           })
         }
@@ -97,7 +98,7 @@ export struct WidgetCardContent {
     .height('100%')
   }
 
-  /** 获取 SlotSize 枚举值 */
+  /** Get SlotSize enum value */
   private get slotSize(): WidgetSlotSize {
     switch (this.cardSize) {
       case WidgetCardSize.SIZE_1x2:
@@ -118,31 +119,53 @@ export struct WidgetCardContent {
     return 1;
   }
 
-  /** 构建 WidgetSlotRenderer 所需的数据 */
+  /** Build data for WidgetSlotRenderer */
   private buildSlotData(role: ParsedRole): ParsedSlotData {
-    // 从角色数据推断游戏类型
-    let detectedGameId = '';
-    if (role.isGenshin()) {
-      detectedGameId = WIDGET_GAME_ID.GENSHIN;
-    } else if (role.isStarRail()) {
-      detectedGameId = WIDGET_GAME_ID.STARRAIL;
-    } else if (role.isZZZ()) {
-      detectedGameId = WIDGET_GAME_ID.ZZZ;
-    }
-    
-    // 构建 slot JSON 格式，然后用 parseSlotJson 解析（它会自动解析 rawJson 中的游戏专属数据）
-    const slotJsonObj: SlotJsonData = new SlotJsonData();
-    slotJsonObj.gameId = detectedGameId;
+    // Build SlotJsonData and serialize to JSON, then parse using parseSlotJson
+    // This correctly fills genshin/starrail/zzz game-specific fields
+    const slotJsonObj = new SlotJsonData();
+    slotJsonObj.gameId = this.detectGameId(role);
     slotJsonObj.accountId = '';
     slotJsonObj.accountName = '';
     slotJsonObj.roleId = role.roleId;
     slotJsonObj.nickname = role.nickname;
     slotJsonObj.server = role.server;
     slotJsonObj.rawJson = role.rawJson;
-    return parseSlotJson(JSON.stringify(slotJsonObj));
+    
+    // Serialize and parse using parseSlotJson to correctly parse game-specific data
+    const slotJson = JSON.stringify(slotJsonObj);
+    return parseSlotJson(slotJson);
   }
 
-  /** 构建单游戏多角色内容（使用旧组件） */
+  /** Detect game type */
+  private detectGameId(role: ParsedRole): string {
+    if (role.rawJson.length === 0) {
+      // Infer from maxStamina
+      if (role.maxStamina === 160) {
+        return WIDGET_GAME_ID.GENSHIN;
+      }
+      return WIDGET_GAME_ID.STARRAIL;
+    }
+    
+    try {
+      const data = JSON.parse(role.rawJson) as Record<string, Object>;
+      if (data['current_resin'] !== undefined) {
+        return WIDGET_GAME_ID.GENSHIN;
+      }
+      if (data['current_stamina'] !== undefined) {
+        return WIDGET_GAME_ID.STARRAIL;
+      }
+      if (data['energy'] !== undefined) {
+        return WIDGET_GAME_ID.ZZZ;
+      }
+    } catch (_e) {
+      // Parse failed, use default
+    }
+    
+    return WIDGET_GAME_ID.GENSHIN;
+  }
+
+  /** Build single game multiple roles content (using old component) */
   @Builder
   private buildSingleGameMultiRoleContent(): void {
     if (this.cardSize === WidgetCardSize.SIZE_4x4) {
@@ -152,7 +175,7 @@ export struct WidgetCardContent {
     }
   }
 
-  /** 构建多角色数据 */
+  /** Build multi-role data */
   private buildMultiRoleData(): WidgetAccountData {
     const acc = new WidgetAccountData();
 
@@ -165,8 +188,8 @@ export struct WidgetCardContent {
       const gameData = new WidgetGameData();
       gameData.gameId = gameId;
 
-      // 从第一个匹配游戏类型的角色获取体力数据
-      // 注意：Widget Form 不支持 union 类型，使用 roleId 判断是否有有效数据
+      // Get stamina data from first matching game type role
+      // Note: Widget Form does not support union type, use roleId to check if valid data
       const role = this.findRoleByGameId(gameId);
 
       if (role.roleId.length > 0) {
@@ -180,7 +203,7 @@ export struct WidgetCardContent {
     return acc;
   }
 
-  /** 根据游戏 ID 查找角色 */
+  /** Find role by game ID */
   private findRoleByGameId(gameId: string): ParsedRole {
     for (let i = 0; i < this.allRoles.length; i++) {
       const role = this.allRoles[i];

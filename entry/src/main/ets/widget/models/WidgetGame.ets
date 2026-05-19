@@ -4,12 +4,12 @@
  * 字段命名与 core 模块保持一致
  */
 
-import { WidgetRole } from './WidgetRole';
+import { WidgetRole, WidgetRoleJson } from './WidgetRole';
 
 /** WidgetGame JSON 结构 */
-interface WidgetGameJson {
-  gameId: string;
-  roles: Object[];
+export interface WidgetGameJson {
+  gameId?: string;
+  roles?: WidgetRoleJson[];
 }
 
 /**
@@ -29,13 +29,12 @@ export class WidgetGame {
     return obj;
   }
 
-  static fromJson(obj: Record<string, Object>): WidgetGame {
+  static fromJson(obj: WidgetGameJson): WidgetGame {
     const d = new WidgetGame();
-    if (obj['gameId'] !== undefined) { d.gameId = obj['gameId'] as string; }
-    if (obj['roles'] !== undefined) {
-      const rolesArr = obj['roles'] as Object[];
-      for (let i = 0; i < rolesArr.length; i++) {
-        d.roles.push(WidgetRole.fromJson(rolesArr[i] as Record<string, Object>));
+    d.gameId = obj.gameId ?? '';
+    if (obj.roles !== undefined && obj.roles !== null) {
+      for (let i = 0; i < obj.roles.length; i++) {
+        d.roles.push(WidgetRole.fromJson(obj.roles[i]));
       }
     }
     return d;

@@ -1813,6 +1813,14 @@
       "value": "选择卡片要显示的游戏类型"
     },
     {
+      "name": "widget_selected_count",
+      "value": "已选 %1$d/%2$d 个角色"
+    },
+    {
+      "name": "widget_game_account_count",
+      "value": "%d 个账号"
+    },
+    {
       "name": "widget_step_size",
       "value": "尺寸"
     },

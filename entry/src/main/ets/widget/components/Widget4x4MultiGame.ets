@@ -9,7 +9,7 @@
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
-import { widgetTheme } from '../utils/WidgetTheme';
+import { widgetTheme, WT } from '../utils/WidgetTheme';
 import { WidgetMultiGameBlock } from './WidgetMultiGameBlock';
 import { WidgetAccountData, WidgetGameData } from '../models/WidgetModels';
 

@@ -66,13 +66,11 @@ export struct PrivacyConsentPage {
       }
       .width(this.tm.current.full)
       .height(this.tm.current.full)
-      .backgroundColor(this.tm.current.colorPageBg)
     }
     .title(this.vm.step === 'terms'
       ? $r('app.string.privacy_consent_terms_title')
       : $r('app.string.privacy_consent_privacy_title'))
     .hideTitleBar(false)
-    .backgroundColor(this.tm.current.colorPageBg)
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
   }
 }

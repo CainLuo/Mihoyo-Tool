@@ -1,8 +1,10 @@
 /**
- * WidgetDataStoreManager.ets — Widget 全局数据存储管理器
+ * WidgetDataStoreManager.ets — Widget 全局数据存储管理器（v2）
  *
  * 负责将 WidgetDataStore 持久化到 Preferences
  * 存储位置：Preferences 文件名 widget_data_store，Key global_data
+ *
+ * v2 数据结构：扁平化的 data + widgets 配置
  *
  * 重要约束：
  * - FormExtension 进程不能导入 core 模块（HSP）
@@ -30,7 +32,6 @@ export class WidgetDataStoreManager {
 
   /**
    * 初始化 Preferences（异步版本）
-   * 可在 UIAbility 或 FormExtensionAbility 中调用
    */
   static async init(context: common.Context): Promise<void> {
     hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] init: prefs=${WidgetDataStoreManager.prefs === null ? 'null' : 'not null'}`);
@@ -44,10 +45,6 @@ export class WidgetDataStoreManager {
 
   /**
    * 初始化 Preferences（同步版本，API 10+）
-   * 用于 FormExtensionAbility.onAddForm() 中同步初始化
-   *
-   * @param context 应用上下文
-   * @returns Preferences 实例，失败返回 null
    */
   static initSync(context: common.Context): preferences.Preferences | null {
     hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] initSync: start`);
@@ -63,19 +60,13 @@ export class WidgetDataStoreManager {
 
   /**
    * 同步加载全局 Widget 数据（API 10+）
-   * 用于 FormExtensionAbility.onAddForm() 中同步读取数据
-   *
-   * @param context 应用上下文（如果 prefs 未初始化）
-   * @returns WidgetDataStore 实例，失败时返回空对象
    */
   static loadSync(context?: common.Context): WidgetDataStore {
     hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] loadSync: start`);
     
     try {
-      // 优先使用已缓存的 prefs
       let prefs = WidgetDataStoreManager.prefs;
       
-      // 如果没有缓存且提供了 context，则同步初始化
       if (prefs === null && context !== undefined) {
         prefs = WidgetDataStoreManager.initSync(context);
       }
@@ -94,7 +85,8 @@ export class WidgetDataStoreManager {
       }
       
       const data = WidgetDataStore.fromJson(json);
-      hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] loadSync: parsed successfully, accounts=${data.accounts.length}`);
+      const accountCount = Object.keys(data.data).length;
+      hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] loadSync: parsed successfully, accounts=${accountCount} version=${data.version}`);
       
       return data;
     } catch (e) {
@@ -108,7 +100,8 @@ export class WidgetDataStoreManager {
    */
   static async save(data: WidgetDataStore): Promise<boolean> {
     hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] === SAVE TO PREFERENCES START ===`);
-    hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] save: accounts=${data.accounts.length}`);
+    const accountCount = Object.keys(data.data).length;
+    hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] save: accounts=${accountCount} version=${data.version}`);
     if (WidgetDataStoreManager.prefs === null) {
       hilog.error(DOMAIN, TAG, `[WIDGET_DEBUG] save failed: prefs is null`);
       return false;
@@ -117,21 +110,30 @@ export class WidgetDataStoreManager {
       const json = data.toJson();
       hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] save: payload json length=${json.length}`);
       
-      // 打印完整的payload结构（用于调试）
+      // 打印 payload 预览
       hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] save: payload preview (first 500 chars)=${json.substring(0, 500)}`);
       
-      // 打印每个账号的游戏和角色信息
-      for (let i = 0; i < data.accounts.length; i++) {
-        const acc = data.accounts[i];
-        hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] save: account[${i}] id=${acc.accountId} name=${acc.accountName} games=${acc.games.length}`);
-        for (let j = 0; j < acc.games.length; j++) {
-          const game = acc.games[j];
-          hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] save:   game[${j}] id=${game.gameId} roles=${game.roles.length}`);
-          for (let k = 0; k < game.roles.length; k++) {
-            const role = game.roles[k];
-            hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] save:     role[${k}] roleId=${role.roleId} nickname=${role.nickname} server=${role.server} rawJsonLen=${role.rawJson.length}`);
-          }
+      // 打印每个账号的角色信息
+      const accountIds = Object.keys(data.data);
+      for (let i = 0; i < accountIds.length; i++) {
+        const accountId = accountIds[i];
+        const account = data.data[accountId];
+        const roleIds = Object.keys(account.slots);
+        hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] save: account[${i}] id=${accountId} name=${account.accountName} roles=${roleIds.length}`);
+        for (let j = 0; j < roleIds.length; j++) {
+          const roleId = roleIds[j];
+          const slot = account.slots[roleId];
+          hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] save:   role[${j}] roleId=${roleId} gameId=${slot.gameId} rawJsonLen=${slot.rawJson.length}`);
         }
+      }
+      
+      // 打印 widgets 配置
+      const widgetKeys = Object.keys(data.widgets);
+      hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] save: widgets config keys=${widgetKeys.length}`);
+      for (let i = 0; i < widgetKeys.length; i++) {
+        const key = widgetKeys[i];
+        const slots = data.widgets[key];
+        hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] save:   widgets[${key}]=${slots.join(',')}`);
       }
       
       await WidgetDataStoreManager.prefs.put(KEY_GLOBAL_DATA, json);
@@ -147,7 +149,6 @@ export class WidgetDataStoreManager {
 
   /**
    * 加载全局 Widget 数据
-   * @returns WidgetDataStore 实例，失败时返回空对象
    */
   static async load(): Promise<WidgetDataStore> {
     hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] === LOAD FROM PREFERENCES START ===`);
@@ -164,23 +165,23 @@ export class WidgetDataStoreManager {
         return new WidgetDataStore();
       }
       
-      // 打印payload预览
       hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] load: payload preview (first 500 chars)=${json.substring(0, 500)}`);
       
       const data = WidgetDataStore.fromJson(json);
-      hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] load: parsed successfully, accounts=${data.accounts.length}`);
+      const accountCount = Object.keys(data.data).length;
+      hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] load: parsed successfully, accounts=${accountCount} version=${data.version}`);
       
-      // 打印每个账号的游戏和角色信息
-      for (let i = 0; i < data.accounts.length; i++) {
-        const acc = data.accounts[i];
-        hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] load: account[${i}] id=${acc.accountId} name=${acc.accountName} games=${acc.games.length}`);
-        for (let j = 0; j < acc.games.length; j++) {
-          const game = acc.games[j];
-          hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] load:   game[${j}] id=${game.gameId} roles=${game.roles.length}`);
-          for (let k = 0; k < game.roles.length; k++) {
-            const role = game.roles[k];
-            hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] load:     role[${k}] roleId=${role.roleId} nickname=${role.nickname} server=${role.server} rawJsonLen=${role.rawJson.length}`);
-          }
+      // 打印每个账号的角色信息
+      const accountIds = Object.keys(data.data);
+      for (let i = 0; i < accountIds.length; i++) {
+        const accountId = accountIds[i];
+        const account = data.data[accountId];
+        const roleIds = Object.keys(account.slots);
+        hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] load: account[${i}] id=${accountId} roles=${roleIds.length}`);
+        for (let j = 0; j < roleIds.length; j++) {
+          const roleId = roleIds[j];
+          const slot = account.slots[roleId];
+          hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] load:   role[${j}] roleId=${roleId} gameId=${slot.gameId} rawJsonLen=${slot.rawJson.length}`);
         }
       }
       
@@ -204,7 +205,6 @@ export class WidgetDataStoreManager {
       await WidgetDataStoreManager.prefs.flush();
       return true;
     } catch (e) {
-      // 静默处理错误
       return false;
     }
   }

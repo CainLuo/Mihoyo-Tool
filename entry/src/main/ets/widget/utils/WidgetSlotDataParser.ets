@@ -82,6 +82,17 @@ export class ParsedSlotData {
   zzz: WidgetZZZData = new WidgetZZZData();
 }
 
+/** Slot Json 结构 */
+interface WidgetSlotJson {
+  gameId?: string;
+  accountId?: string;
+  accountName?: string;
+  roleId?: string;
+  nickname?: string;
+  server?: string;
+  rawJson?: string;
+}
+
 /**
  * 从 WidgetSlotData JSON 解析为 ParsedSlotData
  */
@@ -93,15 +104,15 @@ export function parseSlotJson(slotJson: string): ParsedSlotData {
   }
 
   try {
-    const obj = JSON.parse(slotJson) as Record<string, Object>;
-    result.gameId = obj['gameId'] !== undefined ? (obj['gameId'] as string) : '';
-    result.accountId = obj['accountId'] !== undefined ? (obj['accountId'] as string) : '';
-    result.accountName = obj['accountName'] !== undefined ? (obj['accountName'] as string) : '';
-    result.roleId = obj['roleId'] !== undefined ? (obj['roleId'] as string) : '';
-    result.nickname = obj['nickname'] !== undefined ? (obj['nickname'] as string) : '';
-    result.server = obj['server'] !== undefined ? (obj['server'] as string) : '';
+    const obj = JSON.parse(slotJson) as WidgetSlotJson;
+    result.gameId = obj.gameId ?? '';
+    result.accountId = obj.accountId ?? '';
+    result.accountName = obj.accountName ?? '';
+    result.roleId = obj.roleId ?? '';
+    result.nickname = obj.nickname ?? '';
+    result.server = obj.server ?? '';
 
-    const rawJson = obj['rawJson'] !== undefined ? (obj['rawJson'] as string) : '';
+    const rawJson = obj.rawJson ?? '';
     if (rawJson.length > 0) {
       parseRawJson(result, rawJson);
     }

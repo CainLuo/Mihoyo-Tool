@@ -8,6 +8,33 @@
  * 避免在 @Entry 组件里平铺几十个 @LocalStorageProp 字段。
  */
 
+/** WidgetGameData JSON 结构 */
+interface WidgetGameDataJson {
+  gameId?: string;
+  currentStr?: string;
+  maxStr?: string;
+  secondsStr?: string;
+  coinStr?: string;
+  coinMaxStr?: string;
+  taskStr?: string;
+  taskTotalStr?: string;
+  taskAllReceived?: string;
+  transformerStr?: string;
+  expeditionMaxStr?: string;
+  expeditionFinishedStr?: string;
+  reserveStr?: string;
+  trainStr?: string;
+  trainMaxStr?: string;
+  cocoonStr?: string;
+  cocoonLimitStr?: string;
+  rogueStr?: string;
+  rogueMaxStr?: string;
+  vitalityStr?: string;
+  vitalityMaxStr?: string;
+  cardSign?: string;
+  videoStore?: string;
+}
+
 /**
  * 单款游戏的体力和额外数据
  * 所有数值字段以字符串存储（来自 LocalStorage），-1 表示该字段不可用/不显示
@@ -65,30 +92,30 @@ export class WidgetGameData {
       return d;
     }
     try {
-      const obj = JSON.parse(json) as Record<string, string>;
-      if (obj.gameId !== undefined) { d.gameId = obj.gameId; }
-      if (obj.currentStr !== undefined) { d.currentStr = obj.currentStr; }
-      if (obj.maxStr !== undefined) { d.maxStr = obj.maxStr; }
-      if (obj.secondsStr !== undefined) { d.secondsStr = obj.secondsStr; }
-      if (obj.coinStr !== undefined) { d.coinStr = obj.coinStr; }
-      if (obj.coinMaxStr !== undefined) { d.coinMaxStr = obj.coinMaxStr; }
-      if (obj.taskStr !== undefined) { d.taskStr = obj.taskStr; }
-      if (obj.taskTotalStr !== undefined) { d.taskTotalStr = obj.taskTotalStr; }
-      if (obj.taskAllReceived !== undefined) { d.taskAllReceived = obj.taskAllReceived; }
-      if (obj.transformerStr !== undefined) { d.transformerStr = obj.transformerStr; }
-      if (obj.expeditionMaxStr !== undefined) { d.expeditionMaxStr = obj.expeditionMaxStr; }
-      if (obj.expeditionFinishedStr !== undefined) { d.expeditionFinishedStr = obj.expeditionFinishedStr; }
-      if (obj.reserveStr !== undefined) { d.reserveStr = obj.reserveStr; }
-      if (obj.trainStr !== undefined) { d.trainStr = obj.trainStr; }
-      if (obj.trainMaxStr !== undefined) { d.trainMaxStr = obj.trainMaxStr; }
-      if (obj.cocoonStr !== undefined) { d.cocoonStr = obj.cocoonStr; }
-      if (obj.cocoonLimitStr !== undefined) { d.cocoonLimitStr = obj.cocoonLimitStr; }
-      if (obj.rogueStr !== undefined) { d.rogueStr = obj.rogueStr; }
-      if (obj.rogueMaxStr !== undefined) { d.rogueMaxStr = obj.rogueMaxStr; }
-      if (obj.vitalityStr !== undefined) { d.vitalityStr = obj.vitalityStr; }
-      if (obj.vitalityMaxStr !== undefined) { d.vitalityMaxStr = obj.vitalityMaxStr; }
-      if (obj.cardSign !== undefined) { d.cardSign = obj.cardSign; }
-      if (obj.videoStore !== undefined) { d.videoStore = obj.videoStore; }
+      const obj = JSON.parse(json) as WidgetGameDataJson;
+      d.gameId = obj.gameId ?? '';
+      d.currentStr = obj.currentStr ?? '0';
+      d.maxStr = obj.maxStr ?? '200';
+      d.secondsStr = obj.secondsStr ?? '0';
+      d.coinStr = obj.coinStr ?? '-1';
+      d.coinMaxStr = obj.coinMaxStr ?? '0';
+      d.taskStr = obj.taskStr ?? '-1';
+      d.taskTotalStr = obj.taskTotalStr ?? '0';
+      d.taskAllReceived = obj.taskAllReceived ?? 'false';
+      d.transformerStr = obj.transformerStr ?? 'false';
+      d.expeditionMaxStr = obj.expeditionMaxStr ?? '5';
+      d.expeditionFinishedStr = obj.expeditionFinishedStr ?? '0';
+      d.reserveStr = obj.reserveStr ?? '-1';
+      d.trainStr = obj.trainStr ?? '-1';
+      d.trainMaxStr = obj.trainMaxStr ?? '0';
+      d.cocoonStr = obj.cocoonStr ?? '-1';
+      d.cocoonLimitStr = obj.cocoonLimitStr ?? '0';
+      d.rogueStr = obj.rogueStr ?? '-1';
+      d.rogueMaxStr = obj.rogueMaxStr ?? '0';
+      d.vitalityStr = obj.vitalityStr ?? '-1';
+      d.vitalityMaxStr = obj.vitalityMaxStr ?? '0';
+      d.cardSign = obj.cardSign ?? '';
+      d.videoStore = obj.videoStore ?? '';
     } catch (_e) {
       // 解析失败返回默认值，不崩溃
     }

@@ -4,14 +4,14 @@
  * 字段命名与 core 模块保持一致
  */
 
-import { WidgetGame } from './WidgetGame';
+import { WidgetGame, WidgetGameJson } from './WidgetGame';
 import { WidgetRole } from './WidgetRole';
 
 /** WidgetAccount JSON 结构 */
 interface WidgetAccountJson {
-  accountId: string;
-  accountName: string;
-  games: Object[];
+  accountId?: string;
+  accountName?: string;
+  games?: WidgetGameJson[];
 }
 
 /**
@@ -34,14 +34,13 @@ export class WidgetAccount {
     return obj;
   }
 
-  static fromJson(obj: Record<string, Object>): WidgetAccount {
+  static fromJson(obj: WidgetAccountJson): WidgetAccount {
     const d = new WidgetAccount();
-    if (obj['accountId'] !== undefined) { d.accountId = obj['accountId'] as string; }
-    if (obj['accountName'] !== undefined) { d.accountName = obj['accountName'] as string; }
-    if (obj['games'] !== undefined) {
-      const gamesArr = obj['games'] as Object[];
-      for (let i = 0; i < gamesArr.length; i++) {
-        d.games.push(WidgetGame.fromJson(gamesArr[i] as Record<string, Object>));
+    d.accountId = obj.accountId ?? '';
+    d.accountName = obj.accountName ?? '';
+    if (obj.games !== undefined && obj.games !== null) {
+      for (let i = 0; i < obj.games.length; i++) {
+        d.games.push(WidgetGame.fromJson(obj.games[i]));
       }
     }
     return d;

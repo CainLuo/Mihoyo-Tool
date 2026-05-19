@@ -3,18 +3,15 @@
  *
  * 从 WidgetDataStore + WidgetConfig 构建传递给 Widget 组件的 LocalStorage payload。
  *
- * v1.1 设计规范（design.md）：
- * - 输出单一 JSON payload，包含完整的 accounts 结构
- * - 每个 account 包含 games 数组，每个 game 包含 roles 数组
- * - 每个 role 包含 roleId、nickname、server、rawJson
+ * v2 设计规范：
+ * - 使用扁平化 data 结构查询（O(1)）
+ * - 支持预配置和已添加卡片配置
+ * - 输出格式兼容 Widget 组件（accounts[].games[].roles[]）
  */
 
-import { Logger } from 'core';
-import { WidgetDataStore } from '../models/WidgetDataStore';
+import { WidgetLog } from './WidgetLog';
+import { WidgetDataStore, WidgetSlotData, WidgetSlotRef } from '../models/WidgetDataStore';
 import { WidgetConfig, WidgetSize, getMaxSlots } from '../models/WidgetConfig';
-import { WidgetSlotRef } from '../models/WidgetDataStore';
-
-const TAG = 'WIDGET';
 
 /**
  * 角色 Payload
@@ -63,11 +60,6 @@ export class WidgetPayload {
 
   /**
    * 转换为 LocalStorage 格式的 Record
-   *
-   * 输出格式（符合 design.md 规范）：
-   * {
-   *   "payload": "{\"version\":1,\"updatedAt\":1715040000,\"accounts\":[...]}"
-   * }
    */
   toLocalStorageRecord(): Record<string, string> {
     const payloadItem = new WidgetPayloadItem();
@@ -79,8 +71,7 @@ export class WidgetPayload {
     const record: Record<string, string> = {};
     record['payload'] = payloadJson;
     
-    Logger.info(TAG, `[WIDGET_DEBUG] toLocalStorageRecord: payload json length=${payloadJson.length}`);
-    Logger.info(TAG, `[WIDGET_DEBUG] toLocalStorageRecord: payload preview (first 500 chars)=${payloadJson.substring(0, 500)}`);
+    WidgetLog.info(`[WIDGET_DEBUG] toLocalStorageRecord: payload json length=${payloadJson.length}`);
     
     return record;
   }
@@ -95,7 +86,7 @@ export class WidgetPayloadBuilder {
    * @returns WidgetPayload 构建结果
    */
   static buildPayload(config: WidgetConfig | null, dataStore: WidgetDataStore): WidgetPayload {
-    Logger.info(TAG, `[WIDGET_DEBUG] buildPayload: start config=${config !== null ? 'has config' : 'null'} dataStore.accounts=${dataStore.accounts.length}`);
+    WidgetLog.info(`[WIDGET_DEBUG] buildPayload: start config=${config !== null ? 'has config' : 'null'} dataStore.hasData=${dataStore.hasData}`);
     const payload = new WidgetPayload();
 
     // 确定尺寸
@@ -104,120 +95,163 @@ export class WidgetPayloadBuilder {
     payload.widgetSize = size;
 
     // 无数据时返回空 payload
-    if (dataStore.accounts.length === 0) {
-      Logger.info(TAG, '[WIDGET_DEBUG] buildPayload: no accounts, returning empty payload');
+    if (!dataStore.hasData) {
+      WidgetLog.info('[WIDGET_DEBUG] buildPayload: no accounts, returning empty payload');
       return payload;
     }
 
-    // 确定要显示的 slots
-    let slots: WidgetSlotRef[] = [];
+    // 确定要显示的 slot keys
+    let slotKeys: string[] = [];
 
     if (config !== null && config.slots.length > 0) {
       // 使用用户配置的 slots
-      slots = config.slots;
+      slotKeys = WidgetPayloadBuilder.extractSlotKeys(config.slots);
+      WidgetLog.info(`[WIDGET_DEBUG] buildPayload: ✅ USING USER SLOTS count=${slotKeys.length}`);
+      for (let i = 0; i < slotKeys.length; i++) {
+        WidgetLog.info(`[WIDGET_DEBUG] buildPayload:   userSlot[${i}]=${slotKeys[i]}`);
+      }
     } else {
-      // 默认行为：取第一个账号的前 N 个角色（根据 formName 过滤游戏类型）
+      // 尝试从预配置读取
       const formName = config?.formName ?? '';
-      slots = WidgetPayloadBuilder.getDefaultSlots(dataStore, maxSlots, formName);
+      const presetKey = WidgetPayloadBuilder.formNameToPresetKey(formName);
+      
+      if (presetKey.length > 0) {
+        slotKeys = dataStore.getPresetSlots(presetKey);
+        WidgetLog.info(`[WIDGET_DEBUG] buildPayload: using preset ${presetKey} slots=${slotKeys.length}`);
+      }
+      
+      // 如果预配置也为空，使用 fallback
+      if (slotKeys.length === 0) {
+        WidgetLog.warn(`[WIDGET_DEBUG] buildPayload: ⚠️ FALLBACK TO DEFAULT SLOTS`);
+        slotKeys = WidgetPayloadBuilder.getDefaultSlotKeys(dataStore, maxSlots, formName);
+      }
     }
 
-    // 按 accountId 分组 slots
+    // 按 accountId 分组构建 payload
     const accountMap: Map<string, WidgetAccountPayloadItem> = new Map();
 
-    Logger.info(TAG, `[WIDGET_DEBUG] buildPayload: processing ${slots.length} slots (max=${maxSlots})`);
-    for (let i = 0; i < slots.length && i < maxSlots; i++) {
-      const slotRef = slots[i];
-      const role = dataStore.getRole(slotRef.accountId, slotRef.gameId, slotRef.roleId);
+    WidgetLog.info(`[WIDGET_DEBUG] buildPayload: processing ${slotKeys.length} slots (max=${maxSlots})`);
+    for (let i = 0; i < slotKeys.length && i < maxSlots; i++) {
+      const slotKey = slotKeys[i];
+      const parts = slotKey.split('/');
+      if (parts.length !== 2) {
+        WidgetLog.warn(`[WIDGET_DEBUG] buildPayload: invalid slotKey ${slotKey}`);
+        continue;
+      }
+      const accountId = parts[0];
+      const roleId = parts[1];
 
-      if (role === null) {
-        Logger.warn(TAG, `[WIDGET_DEBUG] buildPayload: role not found ${slotRef.accountId}/${slotRef.gameId}/${slotRef.roleId}`);
+      const slotData = dataStore.getRole(accountId, roleId);
+      if (slotData === null) {
+        WidgetLog.warn(`[WIDGET_DEBUG] buildPayload: role not found ${slotKey}`);
         continue;
       }
 
-      Logger.info(TAG, `[WIDGET_DEBUG] buildPayload: slot[${i}] accountId=${slotRef.accountId} gameId=${slotRef.gameId} roleId=${slotRef.roleId} rawJsonLen=${role.rawJson.length}`);
+      WidgetLog.info(`[WIDGET_DEBUG] buildPayload: slot[${i}] ${slotKey} gameId=${slotData.gameId} rawJsonLen=${slotData.rawJson.length}`);
 
       // 获取或创建账号 Payload
-      let accountPayload = accountMap.get(slotRef.accountId);
+      let accountPayload = accountMap.get(accountId);
       if (accountPayload === undefined) {
         accountPayload = new WidgetAccountPayloadItem();
-        accountPayload.accountId = slotRef.accountId;
-        accountPayload.accountName = slotRef.accountName;
-        accountMap.set(slotRef.accountId, accountPayload);
+        accountPayload.accountId = accountId;
+        accountPayload.accountName = dataStore.getAccountName(accountId);
+        accountMap.set(accountId, accountPayload);
       }
 
       // 查找或创建游戏 Payload
       let gamePayload: WidgetGamePayloadItem | undefined;
       for (const g of accountPayload.games) {
-        if (g.gameId === slotRef.gameId) {
+        if (g.gameId === slotData.gameId) {
           gamePayload = g;
           break;
         }
       }
       if (gamePayload === undefined) {
         gamePayload = new WidgetGamePayloadItem();
-        gamePayload.gameId = slotRef.gameId;
+        gamePayload.gameId = slotData.gameId;
         accountPayload.games.push(gamePayload);
       }
 
       // 添加角色
       const rolePayload = new WidgetRolePayloadItem();
-      rolePayload.roleId = slotRef.roleId;
-      rolePayload.nickname = role.nickname;
-      rolePayload.server = role.server;
-      rolePayload.rawJson = role.rawJson;
+      rolePayload.roleId = roleId;
+      rolePayload.nickname = slotData.nickname;
+      rolePayload.server = slotData.server;
+      rolePayload.rawJson = slotData.rawJson;
       gamePayload.roles.push(rolePayload);
     }
 
     // 转换为数组
-    payload.accounts = Array.from(accountMap.values());
-    Logger.info(TAG, `[WIDGET_DEBUG] buildPayload: done, payload.accounts=${payload.accounts.length}`);
+    payload.accounts = WidgetPayloadBuilder.mapToArray(accountMap);
+    WidgetLog.info(`[WIDGET_DEBUG] buildPayload: done, payload.accounts=${payload.accounts.length}`);
 
     return payload;
   }
 
   /**
-   * 获取默认 slots（第一个账号的前 N 个角色）
-   *
-   * 对于 1x2 模板，根据 formName 过滤游戏类型：
-   * - 'widget_1x2_genshin' → 只返回原神角色
-   * - 'widget_1x2_starrail' → 只返回星铁角色
-   * - 'widget_1x2_zzz' → 只返回绝区零角色
+   * 从 WidgetSlotRef[] 提取 slotKey[]
    */
-  private static getDefaultSlots(dataStore: WidgetDataStore, maxSlots: number, formName: string): WidgetSlotRef[] {
-    const slots: WidgetSlotRef[] = [];
-    const firstAccount = dataStore.firstAccount;
+  private static extractSlotKeys(slots: WidgetSlotRef[]): string[] {
+    const result: string[] = [];
+    for (let i = 0; i < slots.length; i++) {
+      result.push(slots[i].key);
+    }
+    return result;
+  }
 
-    if (firstAccount === null) {
-      return slots;
+  /**
+   * formName 转预配置 key
+   * widget_1x2_genshin → widget12
+   * widget_2x2 → widget22
+   */
+  private static formNameToPresetKey(formName: string): string {
+    if (formName.startsWith('widget_1x2')) {
+      return 'widget12';
+    } else if (formName.startsWith('widget_2x2')) {
+      return 'widget22';
+    } else if (formName.startsWith('widget_2x4')) {
+      return 'widget24';
+    } else if (formName.startsWith('widget_4x4')) {
+      return 'widget44';
+    }
+    return '';
+  }
+
+  /**
+   * 获取默认 slot keys（第一个账号的前 N 个角色）
+   */
+  private static getDefaultSlotKeys(dataStore: WidgetDataStore, maxSlots: number, formName: string): string[] {
+    const slotKeys: string[] = [];
+    const firstAccountId = dataStore.firstAccountId;
+    
+    if (firstAccountId === null) {
+      return slotKeys;
     }
 
     // 从 formName 提取游戏类型
     const targetGameId = WidgetPayloadBuilder.gameIdFromFormName(formName);
     const filterByGame = targetGameId.length > 0;
 
-    // 遍历第一个账号的所有游戏和角色
-    for (let i = 0; i < firstAccount.games.length && slots.length < maxSlots; i++) {
-      const game = firstAccount.games[i];
+    // 获取第一个账号的所有角色
+    const allSlotKeys = dataStore.getSlotsByAccount(firstAccountId);
+    
+    for (let i = 0; i < allSlotKeys.length && slotKeys.length < maxSlots; i++) {
+      const slotKey = allSlotKeys[i];
+      const slotData = dataStore.getRoleByKey(slotKey);
       
-      // 如果需要过滤游戏类型，跳过不匹配的游戏
-      if (filterByGame && game.gameId !== targetGameId) {
+      if (slotData === null) {
         continue;
       }
       
-      for (let j = 0; j < game.roles.length && slots.length < maxSlots; j++) {
-        const role = game.roles[j];
-        const slot = new WidgetSlotRef();
-        slot.accountId = firstAccount.accountId;
-        slot.accountName = firstAccount.accountName;
-        slot.gameId = game.gameId;
-        slot.roleId = role.roleId;
-        slot.nickname = role.nickname;
-        slot.server = role.server;
-        slots.push(slot);
+      // 如果需要过滤游戏类型，跳过不匹配的游戏
+      if (filterByGame && slotData.gameId !== targetGameId) {
+        continue;
       }
+      
+      slotKeys.push(slotKey);
     }
 
-    return slots;
+    return slotKeys;
   }
 
   /**
@@ -236,11 +270,6 @@ export class WidgetPayloadBuilder {
 
   /**
    * 为 FormExtension 构建 LocalStorage 数据
-   *
-   * @param formId Widget 实例 ID
-   * @param size Widget 尺寸字符串
-   * @param dataStore 全局数据存储
-   * @returns LocalStorage 格式的 Record
    */
   static async buildForFormExtension(
     formId: string,
@@ -259,7 +288,7 @@ export class WidgetPayloadBuilder {
       widgetSize = WidgetSize.SIZE_2x2;
     }
 
-    // 构建默认配置（FormExtension 不读取用户配置，直接使用默认行为）
+    // 构建默认配置
     const config = new WidgetConfig();
     config.formId = formId;
     config.size = widgetSize;
@@ -272,10 +301,34 @@ export class WidgetPayloadBuilder {
 
   /**
    * 获取所有可用的 slot 选项（用于配置页面）
-   *
-   * 返回格式化的列表，包含账号名、游戏名、角色名等信息
    */
   static getAllSlotOptions(dataStore: WidgetDataStore): WidgetSlotRef[] {
-    return dataStore.getAllSlots();
+    return dataStore.getAllSlotRefs();
+  }
+
+  /**
+   * Map 转数组
+   */
+  private static mapToArray(map: Map<string, WidgetAccountPayloadItem>): WidgetAccountPayloadItem[] {
+    const result: WidgetAccountPayloadItem[] = [];
+    const keys = WidgetPayloadBuilder.getMapKeys(map);
+    for (let i = 0; i < keys.length; i++) {
+      const value = map.get(keys[i]);
+      if (value !== undefined) {
+        result.push(value);
+      }
+    }
+    return result;
+  }
+
+  /**
+   * 获取 Map 的所有 key
+   */
+  private static getMapKeys(map: Map<string, WidgetAccountPayloadItem>): string[] {
+    const keys: string[] = [];
+    map.forEach((value: WidgetAccountPayloadItem, key: string) => {
+      keys.push(key);
+    });
+    return keys;
   }
 }

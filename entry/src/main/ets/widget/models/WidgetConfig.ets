@@ -5,14 +5,14 @@
  * 存储位置：Preferences 文件名 widget_configs，Key form_{formId}
  */
 
-import { WidgetSlotRef } from './WidgetDataStore';
+import { WidgetSlotRef, WidgetSlotRefJson } from './WidgetDataStore';
 
 /** WidgetConfig JSON 结构 */
 interface WidgetConfigJson {
   formId: string;
   formName: string;
   size: string;
-  slots: Object[];
+  slots: WidgetSlotRefJson[];
 }
 
 /**
@@ -71,14 +71,13 @@ export class WidgetConfig {
       return d;
     }
     try {
-      const obj = JSON.parse(json) as Record<string, Object>;
-      if (obj['formId'] !== undefined) { d.formId = obj['formId'] as string; }
-      if (obj['formName'] !== undefined) { d.formName = obj['formName'] as string; }
-      if (obj['size'] !== undefined) { d.size = obj['size'] as WidgetSize; }
-      if (obj['slots'] !== undefined) {
-        const slotsArr = obj['slots'] as Object[];
-        for (let i = 0; i < slotsArr.length; i++) {
-          d.slots.push(WidgetSlotRef.fromJson(slotsArr[i] as Record<string, Object>));
+      const obj = JSON.parse(json) as WidgetConfigJson;
+      d.formId = obj.formId ?? '';
+      d.formName = obj.formName ?? '';
+      d.size = obj.size as WidgetSize ?? WidgetSize.SIZE_2x2;
+      if (obj.slots !== undefined && obj.slots !== null) {
+        for (let i = 0; i < obj.slots.length; i++) {
+          d.slots.push(WidgetSlotRef.fromJson(obj.slots[i]));
         }
       }
     } catch (_e) {

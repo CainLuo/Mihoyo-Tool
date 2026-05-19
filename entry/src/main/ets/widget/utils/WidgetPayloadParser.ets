@@ -160,14 +160,25 @@ export class ParsedPayload {
    * 获取所有游戏 ID（去重）
    */
   getUniqueGameIds(): string[] {
-    const gameIds: Set<string> = new Set();
+    const gameIds: string[] = [];
     for (let i = 0; i < this.accounts.length; i++) {
       const account = this.accounts[i];
       for (let j = 0; j < account.games.length; j++) {
-        gameIds.add(account.games[j].gameId);
+        const gameId = account.games[j].gameId;
+        // 手动去重
+        let found = false;
+        for (let k = 0; k < gameIds.length; k++) {
+          if (gameIds[k] === gameId) {
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          gameIds.push(gameId);
+        }
       }
     }
-    return Array.from(gameIds);
+    return gameIds;
   }
 
   /**
