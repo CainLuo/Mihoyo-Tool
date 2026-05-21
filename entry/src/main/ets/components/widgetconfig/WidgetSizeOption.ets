@@ -57,7 +57,7 @@ export struct WidgetSizeOption {
     }
     .width(this.tm.current.full)
     .padding(this.tm.current.value14)
-    .backgroundColor(this.isSelected ? this.tm.current.surfaceActivePrimary : Color.Transparent)
+    .backgroundColor(this.isSelected ? this.tm.current.surfaceActivePrimary : this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
     .border({
       width: this.tm.current.value2,

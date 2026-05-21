@@ -7,9 +7,13 @@
 import { WidgetSize } from '../widget/models/WidgetConfig';
 import { WidgetSlotRef } from '../widget/models/WidgetDataStore';
 import { WidgetConfigStep } from '../viewmodel/WidgetConfigViewModel';
+import { MihoyoAccountVM } from './HomeModels';
 
 /** 配置步骤枚举（重新导出，方便使用） */
 export { WidgetConfigStep };
+
+/** 重新导出 MihoyoAccountVM，方便使用 */
+export { MihoyoAccountVM } from './HomeModels';
 
 /**
  * WidgetSettingsUIState — Widget 配置页主内容区域的 UI State
@@ -27,8 +31,11 @@ export class WidgetSettingsUIState {
   /** 选中的游戏类型（仅 1x2 卡片使用） */
   @Trace selectedGameType: string = '';
 
-  /** 所有可选的 slots */
+  /** 所有可选的 slots（扁平列表，用于 1x2） */
   @Trace allSlots: WidgetSlotRef[] = [];
+
+  /** 按账号分组的 slots（用于 2x2 及以上，直接复用首页的 MihoyoAccountVM） */
+  @Trace accountGroups: MihoyoAccountVM[] = [];
 
   /** 已选中的 slots */
   @Trace selectedSlots: WidgetSlotRef[] = [];

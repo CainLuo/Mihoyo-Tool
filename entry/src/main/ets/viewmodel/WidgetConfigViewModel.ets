@@ -23,7 +23,9 @@ import { WidgetSize, WidgetConfig, getMaxSlots } from '../widget/models/WidgetCo
 import { WidgetSlotRef, WidgetDataStore } from '../widget/models/WidgetDataStore';
 import { WidgetDataStoreManager } from '../widget/utils/WidgetDataStoreManager';
 import { WidgetDataStoreBuilder } from '../widget/utils/WidgetDataStoreBuilder';
-import { WidgetSettingsUIState, WidgetSettingsCallbacks, WidgetSettingsSlotHelper } from '../models/WidgetSettingsModels';
+import { WidgetSettingsUIState, WidgetSettingsCallbacks, WidgetSettingsSlotHelper, MihoyoAccountVM } from '../models/WidgetSettingsModels';
+import { GameRoleCardVM } from '../models/HomeModels';
+import { gameIdStrToLogo } from '../utils/GameIdUtil';
 import BuildProfile from 'BuildProfile';
 
 const TAG = 'WIDGET';
@@ -165,6 +167,7 @@ export class WidgetConfigViewModel {
     this.uiState.selectedSize = this.selectedSize;
     this.uiState.selectedGameType = this.selectedGameType;
     this.uiState.allSlots = this.getAllSlots();
+    this.uiState.accountGroups = this.getAccountGroups();
     this.uiState.selectedSlots = this.selectedSlots;
     this.uiState.maxSlots = this.getMaxSlots();
     this.uiState.selectedSummary = this.getSelectedSummary();
@@ -304,6 +307,81 @@ export class WidgetConfigViewModel {
     return this.dataStore.getAllSlotRefs();
   }
 
+  /**
+   * 获取按账号分组的 slots（用于 2x2 及以上尺寸）
+   * 组内角色按游戏排序：原神 → 星铁 → 绝区零
+   * 直接返回 MihoyoAccountVM[]，复用首页的 UserGameSection 组件
+   */
+  getAccountGroups(): MihoyoAccountVM[] {
+    // 1x2 卡片不使用分组，返回空数组
+    if (this.selectedSize === WidgetSize.SIZE_1x2) {
+      return [];
+    }
+
+    const groups: MihoyoAccountVM[] = [];
+    const accountIds = Object.keys(this.dataStore.data);
+
+    // 游戏排序顺序
+    const gameOrder: Record<string, number> = {
+      'genshin': 0,
+      'starrail': 1,
+      'zzz': 2,
+      'honkai3': 3,
+    };
+
+    for (let i = 0; i < accountIds.length; i++) {
+      const accountId = accountIds[i];
+      const account = this.dataStore.data[accountId];
+      const roleIds = Object.keys(account.slots);
+
+      // 收集该账号下所有 slot
+      const roles: GameRoleCardVM[] = [];
+      for (let j = 0; j < roleIds.length; j++) {
+        const roleId = roleIds[j];
+        const slot = account.slots[roleId];
+        
+        // 构建 GameRoleCardVM（只填充 Widget 配置需要的字段）
+        const role = new GameRoleCardVM(
+          slot.gameId as GameId,
+          '',
+          $r('app.color.color_primary'),
+          roleId,
+          slot.nickname,
+          slot.serverName,
+          null,  // snapshot 不需要
+          '',    // lastSyncDesc 不需要
+          gameIdStrToLogo(slot.gameId)
+        );
+        roles.push(role);
+      }
+
+      // 按 gameId 排序
+      for (let a = 0; a < roles.length; a++) {
+        for (let b = a + 1; b < roles.length; b++) {
+          const orderA = gameOrder[roles[a].gameId] ?? 99;
+          const orderB = gameOrder[roles[b].gameId] ?? 99;
+          if (orderA > orderB) {
+            const temp = roles[a];
+            roles[a] = roles[b];
+            roles[b] = temp;
+          }
+        }
+      }
+
+      // 构建 MihoyoAccountVM
+      const vm = new MihoyoAccountVM(
+        accountId,
+        accountId,
+        roles,
+        account.accountName,
+        account.avatarUrl
+      );
+      groups.push(vm);
+    }
+
+    return groups;
+  }
+
   /** 判断 slot 是否已选中 */
   isSlotSelected(accountId: string, gameId: string, roleId: string): boolean {
     for (let i = 0; i < this.selectedSlots.length; i++) {
@@ -317,9 +395,23 @@ export class WidgetConfigViewModel {
 
   /**
    * 切换 slot 的选中状态
+   * - 1x2 卡片：单选模式，点击新项直接替换
+   * - 其他尺寸：多选模式，点击切换选中/取消
    * @returns 切换后的选中状态（true 表示选中，false 表示取消）
    */
   toggleSlot(slot: WidgetSlotRef): boolean {
+    // 1x2 卡片：单选模式
+    if (this.selectedSize === WidgetSize.SIZE_1x2) {
+      // 如果点击的是当前已选中的项，不做任何改变（保持选中）
+      if (this.selectedSlots.length > 0 && this.selectedSlots[0].key === slot.key) {
+        return true;
+      }
+      // 否则替换为新选中的项
+      this.selectedSlots = [slot];
+      return true;
+    }
+
+    // 其他尺寸：多选模式
     for (let i = 0; i < this.selectedSlots.length; i++) {
       if (this.selectedSlots[i].key === slot.key) {
         this.selectedSlots.splice(i, 1);
@@ -523,8 +615,16 @@ export class WidgetConfigViewModel {
     const names: string[] = [];
     for (let i = 0; i < this.selectedSlots.length; i++) {
       const slot = this.selectedSlots[i];
-      names.push(`${slot.nickname} (${slot.gameId})`);
+      names.push(`${slot.nickname} (${this.gameIdToName(slot.gameId)})`);
     }
     return names.join('、');
+  }
+
+  /** gameId 转游戏名称 */
+  private gameIdToName(gameId: string): string {
+    if (gameId === GameId.GENSHIN || gameId === 'genshin') return '原神';
+    if (gameId === GameId.STARRAIL || gameId === 'starrail') return '星穹铁道';
+    if (gameId === GameId.ZZZ || gameId === 'zzz') return '绝区零';
+    return '未知';
   }
 }

@@ -28,7 +28,7 @@ export struct WidgetSettingsBottomButtons {
           .layoutWeight(1)
           .fontSize(this.tm.current.body13.size)
           .fontColor(this.tm.current.colorTextPrimary)
-          .backgroundColor(Color.Transparent)
+          .backgroundColor(this.tm.current.colorSurfaceCard)
           .border({ width: this.tm.current.value1, color: this.tm.current.colorDivider })
           .borderRadius(this.tm.current.radius12)
           .onClick(() => { this.onPrev(); })

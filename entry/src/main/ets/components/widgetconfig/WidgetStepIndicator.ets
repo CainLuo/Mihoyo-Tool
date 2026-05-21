@@ -47,7 +47,7 @@ export struct WidgetStepIndicator {
         .height(this.tm.current.value20)
         .borderRadius(this.tm.current.value10)
         .backgroundColor(this.isStepDone(idx) || this.isCurrentStep(idx) ?
-          this.tm.current.colorPrimary : Color.Transparent)
+          this.tm.current.colorPrimary : this.tm.current.colorSurfaceCard)
         .border({
           width: 2,
           color: this.isStepDone(idx) || this.isCurrentStep(idx) ?
@@ -66,6 +66,11 @@ export struct WidgetStepIndicator {
   }
 
   private isStepDone(stepIdx: number): boolean {
+    // DONE 步骤时，所有圆圈都显示勾（包括当前步骤）
+    if (this.currentStep === WidgetConfigStep.DONE) {
+      return true;
+    }
+    // 其他步骤：只有已完成的步骤显示勾
     return stepIdx < this.currentStepIndex;
   }
 }

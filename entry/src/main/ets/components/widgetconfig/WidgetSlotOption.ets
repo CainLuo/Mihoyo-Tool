@@ -5,6 +5,7 @@
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { WidgetSlotRef } from '../../widget/models/WidgetDataStore';
+import { gameIdStrToLogo } from '../../utils/GameIdUtil';
 
 @ComponentV2
 export struct WidgetSlotOption {
@@ -22,12 +23,12 @@ export struct WidgetSlotOption {
 
   build() {
     Row() {
-      // 左侧：游戏色条
-      Column()
-        .width(this.tm.current.value3)
-        .height(this.tm.current.value36)
-        .borderRadius(this.tm.current.radius8)
-        .backgroundColor(this.gameColor)
+      // 左侧：游戏 logo
+      Image(gameIdStrToLogo(this.slot.gameId))
+        .width(this.tm.current.value40)
+        .height(this.tm.current.value40)
+        .borderRadius(this.tm.current.radius12)
+        .objectFit(ImageFit.Cover)
 
       // 中间：账号 + 游戏 + 角色信息
       Column() {
@@ -81,7 +82,7 @@ export struct WidgetSlotOption {
     }
     .width(this.tm.current.full)
     .padding(this.tm.current.value14)
-    .backgroundColor(this.isSelected ? this.tm.current.surfaceActivePrimary : Color.Transparent)
+    .backgroundColor(this.isSelected ? this.tm.current.surfaceActivePrimary : this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
     .border({
       width: this.tm.current.value1,

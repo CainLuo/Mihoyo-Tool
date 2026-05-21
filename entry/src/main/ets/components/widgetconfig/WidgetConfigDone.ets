@@ -20,6 +20,11 @@ export struct WidgetConfigDone {
   @Param selectedSummary: string = '';
   @Local private tm: ThemeManager = themeManager;
 
+  private get sizeLabel(): ResourceStr {
+    const label = SIZE_LABELS[this.selectedSize];
+    return label !== undefined ? label : '';
+  }
+
   build() {
     Column({ space: this.tm.current.value16 }) {
       // 完成图标
@@ -38,12 +43,12 @@ export struct WidgetConfigDone {
 
       // 配置摘要
       Column({ space: this.tm.current.value10 }) {
-        this.SummaryRow('尺寸', SIZE_LABELS[this.selectedSize])
-        this.SummaryRow('已选角色', this.selectedSummary)
+        this.SummaryRow($r('app.string.widget_summary_size'), this.sizeLabel)
+        this.SummaryRow($r('app.string.widget_summary_roles'), this.selectedSummary)
       }
       .width(this.tm.current.full)
       .padding(this.tm.current.value14)
-      .backgroundColor(this.tm.current.colorSurfaceSubtle)
+      .backgroundColor(this.tm.current.colorSurfaceCard)
       .borderRadius(this.tm.current.radius12)
     }
     .width(this.tm.current.full)
@@ -54,21 +59,26 @@ export struct WidgetConfigDone {
   @Builder
   SummaryRow(label: ResourceStr, value: string | ResourceStr) {
     Row() {
+      // 左侧标签：固定宽度
       Text(label)
         .fontSize(this.tm.current.body13.size)
         .fontColor(this.tm.current.colorTextSecondary)
-        .layoutWeight(1)
+        .width(this.tm.current.value80)
+        .flexShrink(0)
 
-      Text(typeof value === 'string' ? value : '')
+      // 右侧值：可换行、可滚动
+      Text(value)
         .fontSize(this.tm.current.body13.size)
         .fontWeight(FontWeight.Medium)
         .fontColor(this.tm.current.colorTextPrimary)
-        .maxLines(2)
+        .layoutWeight(1)
+        .maxLines(3)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
         .textAlign(TextAlign.End)
     }
     .width(this.tm.current.full)
     .justifyContent(FlexAlign.SpaceBetween)
+    .alignItems(VerticalAlign.Top)
   }
 }
 

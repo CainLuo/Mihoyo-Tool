@@ -51,42 +51,51 @@ export struct WidgetSettingsMainContent {
           })
 
           // 步骤内容
-          Column() {
-            if (this.state.currentStep === WidgetConfigStep.SIZE) {
-              WidgetSettingsSizeStep({
-                selectedSize: this.state.selectedSize,
-                onSizeSelect: this.callbacks.onSizeSelect
-              })
-            } else if (this.state.currentStep === WidgetConfigStep.GAME) {
-              WidgetSettingsGameStep({
-                selectedGameType: this.state.selectedGameType,
-                getSlotsForGame: this.slotHelper.getSlotsForGame,
-                hasDataForGame: this.slotHelper.hasDataForGame,
-                onGameSelect: this.callbacks.onGameSelect
-              })
-            } else if (this.state.currentStep === WidgetConfigStep.SLOT) {
-              WidgetSettingsSlotStep({
-                selectedSize: this.state.selectedSize,
-                allSlots: this.state.allSlots,
-                selectedSlots: this.state.selectedSlots,
-                maxSlots: this.state.maxSlots,
-                isSlotSelected: this.slotHelper.isSlotSelected,
-                onSlotToggle: this.callbacks.onSlotToggle
-              })
-            } else if (this.state.currentStep === WidgetConfigStep.DONE) {
-              WidgetConfigDone({
-                selectedSize: this.state.selectedSize,
-                selectedSummary: this.state.selectedSummary
-              })
+          if (this.state.currentStep === WidgetConfigStep.SLOT) {
+            // SLOT 步骤：不加 padding，让组件自己管理（和首页战绩工具一致）
+            WidgetSettingsSlotStep({
+              selectedSize: this.state.selectedSize,
+              allSlots: this.state.allSlots,
+              accountGroups: this.state.accountGroups,
+              selectedSlots: this.state.selectedSlots,
+              maxSlots: this.state.maxSlots,
+              isSlotSelected: this.slotHelper.isSlotSelected,
+              onSlotToggle: this.callbacks.onSlotToggle
+            })
+          } else {
+            // 其他步骤：统一加 padding
+            Column() {
+              if (this.state.currentStep === WidgetConfigStep.SIZE) {
+                WidgetSettingsSizeStep({
+                  selectedSize: this.state.selectedSize,
+                  onSizeSelect: this.callbacks.onSizeSelect
+                })
+              } else if (this.state.currentStep === WidgetConfigStep.GAME) {
+                WidgetSettingsGameStep({
+                  selectedGameType: this.state.selectedGameType,
+                  getSlotsForGame: this.slotHelper.getSlotsForGame,
+                  hasDataForGame: this.slotHelper.hasDataForGame,
+                  onGameSelect: this.callbacks.onGameSelect
+                })
+              } else if (this.state.currentStep === WidgetConfigStep.DONE) {
+                WidgetConfigDone({
+                  selectedSize: this.state.selectedSize,
+                  selectedSummary: this.state.selectedSummary
+                })
+              }
             }
+            .width(this.tm.current.full)
+            .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
           }
-          .width(this.tm.current.full)
-          .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
         }
         .width(this.tm.current.full)
       }
       .scrollBar(BarState.Off)
+      .width(this.tm.current.full)
+      .height(this.tm.current.full)
       .layoutWeight(1)
+      .align(Alignment.Top)
+      .edgeEffect(EdgeEffect.Spring)
 
       // 底部按钮
       WidgetSettingsBottomButtons({

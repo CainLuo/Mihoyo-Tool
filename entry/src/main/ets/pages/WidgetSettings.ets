@@ -39,20 +39,15 @@ export struct WidgetSettings {
 
   build() {
     NavDestination() {
-      Column() {
-        if (this.isLoading) {
-          WidgetSettingsLoading()
-        } else {
-          WidgetSettingsMainContent({
-            state: this.vm.uiState,
-            callbacks: this.vm.callbacks,
-            slotHelper: this.vm.slotHelper
-          })
-        }
+      if (this.isLoading) {
+        WidgetSettingsLoading()
+      } else {
+        WidgetSettingsMainContent({
+          state: this.vm.uiState,
+          callbacks: this.vm.callbacks,
+          slotHelper: this.vm.slotHelper
+        })
       }
-      .width(this.tm.current.full)
-      .height(this.tm.current.full)
-      .backgroundColor(this.tm.current.colorPageBg)
     }
     .title($r('app.string.widget_config_title'))
     .hideTitleBar(false)

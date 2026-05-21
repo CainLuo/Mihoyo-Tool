@@ -56,6 +56,7 @@ export class WidgetDataStoreBuilder {
         // 创建账号数据
         const accountData = new WidgetAccountDataV2();
         accountData.accountName = account.nickname || account.username;
+        accountData.avatarUrl = account.avatarUrl || '';
 
         // 3. 获取该账号下的所有游戏角色
         const roles = await CoreInitializer.bbsRepository.getGameRoles(account.uid);

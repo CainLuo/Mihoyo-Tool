@@ -46,6 +46,7 @@ interface WidgetSlotDataJson {
 /** Account JSON 结构 */
 interface WidgetAccountDataJson {
   accountName: string;
+  avatarUrl?: string;
   slots: Record<string, WidgetSlotDataJson>;
 }
 
@@ -115,6 +116,8 @@ export class WidgetSlotData {
  */
 export class WidgetAccountDataV2 {
   accountName: string = '';
+  /** 账号头像 URL */
+  avatarUrl: string = '';
   /** 角色列表，key 为 roleId */
   slots: Record<string, WidgetSlotData> = {};
 
@@ -127,6 +130,7 @@ export class WidgetAccountDataV2 {
     }
     const obj: WidgetAccountDataJson = {
       accountName: this.accountName,
+      avatarUrl: this.avatarUrl,
       slots: slotsJson,
     };
     return obj;
@@ -135,6 +139,7 @@ export class WidgetAccountDataV2 {
   static fromJson(obj: WidgetAccountDataJson): WidgetAccountDataV2 {
     const d = new WidgetAccountDataV2();
     d.accountName = obj.accountName;
+    d.avatarUrl = obj.avatarUrl ?? '';
     if (obj.slots !== undefined && obj.slots !== null) {
       const keys = Object.keys(obj.slots);
       for (let i = 0; i < keys.length; i++) {
@@ -338,10 +343,22 @@ export class WidgetDataStore {
 
   /**
    * 获取所有可用的 slot 列表（用于配置页面）
+   * 按游戏排序：原神 → 星铁 → 绝区零
    */
   getAllSlotRefs(): WidgetSlotRef[] {
     const result: WidgetSlotRef[] = [];
     const accountIds = Object.keys(this.data);
+
+    // 定义游戏排序顺序
+    const gameOrder: Record<string, number> = {
+      'genshin': 0,
+      'starrail': 1,
+      'zzz': 2,
+      'honkai3': 3,
+    };
+
+    // 先收集所有 slot
+    const allSlots: WidgetSlotRef[] = [];
     for (let i = 0; i < accountIds.length; i++) {
       const accountId = accountIds[i];
       const account = this.data[accountId];
@@ -356,10 +373,24 @@ export class WidgetDataStore {
         ref.roleId = roleId;
         ref.nickname = slot.nickname;
         ref.server = slot.server;
-        result.push(ref);
+        allSlots.push(ref);
       }
     }
-    return result;
+
+    // 按游戏排序
+    for (let i = 0; i < allSlots.length; i++) {
+      for (let j = i + 1; j < allSlots.length; j++) {
+        const orderI = gameOrder[allSlots[i].gameId] ?? 99;
+        const orderJ = gameOrder[allSlots[j].gameId] ?? 99;
+        if (orderI > orderJ) {
+          const temp = allSlots[i];
+          allSlots[i] = allSlots[j];
+          allSlots[j] = temp;
+        }
+      }
+    }
+
+    return allSlots;
   }
 
   /**

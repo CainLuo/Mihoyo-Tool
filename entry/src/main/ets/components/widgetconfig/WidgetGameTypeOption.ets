@@ -5,7 +5,7 @@
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { GameId } from 'core';
-import { gameIdStrToColor } from '../../utils/GameIdUtil';
+import { gameIdStrToLogo, gameIdStrToColor } from '../../utils/GameIdUtil';
 
 /** 游戏类型配置 */
 export interface GameTypeConfig {
@@ -29,13 +29,12 @@ export struct WidgetGameTypeOption {
 
   build() {
     Row() {
-      // 左侧：游戏色块
-      Column()
+      // 左侧：游戏图标
+      Image(gameIdStrToLogo(this.config.gameId))
         .width(this.tm.current.value40)
         .height(this.tm.current.value40)
         .borderRadius(this.tm.current.radius12)
-        .backgroundColor(gameIdStrToColor(this.config.gameId))
-        .justifyContent(FlexAlign.Center)
+        .objectFit(ImageFit.Cover)
         .opacity(this.hasData ? 1 : 0.3)
 
       // 中间：游戏名称 + 账号数量
@@ -43,7 +42,7 @@ export struct WidgetGameTypeOption {
         Text(this.config.label)
           .fontSize(this.tm.current.body13Bold.size)
           .fontWeight(this.tm.current.body13Bold.weight)
-          .fontColor(this.isSelected ? this.tm.current.colorPrimary : this.tm.current.colorTextPrimary)
+          .fontColor(this.isSelected ? gameIdStrToColor(this.config.gameId) : this.tm.current.colorTextPrimary)
 
         Text($r('app.string.widget_game_account_count', this.accountCount))
           .fontSize(this.tm.current.body12.size)
@@ -64,7 +63,7 @@ export struct WidgetGameTypeOption {
         .width(this.tm.current.value18)
         .height(this.tm.current.value18)
         .borderRadius(this.tm.current.value9)
-        .backgroundColor(this.tm.current.colorPrimary)
+        .backgroundColor(gameIdStrToColor(this.config.gameId))
         .justifyContent(FlexAlign.Center)
       }
     }
@@ -74,7 +73,7 @@ export struct WidgetGameTypeOption {
     .borderRadius(this.tm.current.radius12)
     .border({
       width: this.tm.current.value2,
-      color: this.isSelected ? this.tm.current.colorPrimary : this.tm.current.colorDivider
+      color: this.isSelected ? gameIdStrToColor(this.config.gameId) : this.tm.current.colorDivider
     })
     .opacity(this.hasData ? 1 : 0.5)
     .onClick(() => {
