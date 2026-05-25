@@ -2,6 +2,7 @@
  * LoginPhoneInput — 手机号输入步骤 UI（仅 internal）
  */
 import { themeManager, ThemeManager } from 'entry/ets/theme/ThemeManager';
+import { ThemeFonts } from '../../../../../main/ets/theme/ThemeFonts'
 import { LoginViewModel } from 'entry/ets/viewmodel/LoginViewModel';
 
 @ComponentV2
@@ -11,10 +12,10 @@ export struct LoginPhoneInput {
   @Local private tm: ThemeManager = themeManager;
 
   build() {
-    Column({ space: this.tm.current.value16 }) {
+    Column({ space: this.tm.current.font16 }) {
       Column({ space: this.tm.current.value8 }) {
         Text($r('app.string.login_phone_label'))
-          .font(this.tm.current.body12)
+          .font(ThemeFonts.font13)
           .fontColor(this.tm.current.colorTextSecondary)
           .width(this.tm.current.full)
 
@@ -43,7 +44,7 @@ export struct LoginPhoneInput {
         .onClick(() => { this.onSendSms() })
 
       Text($r('app.string.login_phone_hint'))
-        .font(this.tm.current.body12)
+        .font(ThemeFonts.font13)
         .fontColor(this.tm.current.colorPlaceholder)
         .width(this.tm.current.full)
         .textAlign(TextAlign.Center)

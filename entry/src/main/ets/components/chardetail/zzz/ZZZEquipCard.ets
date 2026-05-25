@@ -19,12 +19,12 @@ export struct ZZZEquipCard {
 
       Row() {
         Text(this.equip.mainStatName)
-          .fontSize(this.tm.current.body10.size)
+          .fontSize(this.tm.current.font11)
           .fontColor(this.tm.current.accentPrimaryStrong)
           .layoutWeight(1)
 
         Text(this.equip.mainStatValue)
-          .fontSize(this.tm.current.body13Bold.size)
+          .fontSize(this.tm.current.fontBold14)
           .fontWeight(FontWeight.Bold)
           .fontColor(this.tm.current.textOnDarkHigh)
       }
@@ -36,12 +36,12 @@ export struct ZZZEquipCard {
         ForEach(this.equip.subStats, (sub: ZZZSubStat) => {
           Row() {
             Text(sub.name)
-              .fontSize(this.tm.current.body10.size)
+              .fontSize(this.tm.current.font11)
               .fontColor(sub.valid ? this.tm.current.accentRefine : this.tm.current.textOnDarkGhost)
               .layoutWeight(1)
 
             Text(sub.value)
-              .fontSize(this.tm.current.body10.size)
+              .fontSize(this.tm.current.font11)
               .fontColor(sub.valid ? this.tm.current.accentRefine : this.tm.current.textOnDarkHigh)
           }
           .width(this.tm.current.full)

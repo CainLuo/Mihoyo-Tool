@@ -135,6 +135,13 @@ export class WidgetDataStoreBuilder {
 
       slotData.rawJson = rawJson;
       Logger.info(TAG, `[WIDGET_DEBUG] buildSlotData: final rawJson.length=${slotData.rawJson.length}`);
+      // 打印 rawJson 前 500 字符，检查是否包含派遣和洞天宝钱字段
+      if (slotData.rawJson.length > 0) {
+        Logger.info(TAG, `[WIDGET_DEBUG] buildSlotData: rawJson preview=${slotData.rawJson.substring(0, Math.min(500, slotData.rawJson.length))}`);
+        const hasExpedition = slotData.rawJson.includes('max_expedition_num');
+        const hasHomeCoin = slotData.rawJson.includes('current_home_coin');
+        Logger.info(TAG, `[WIDGET_DEBUG] buildSlotData: hasExpedition=${hasExpedition} hasHomeCoin=${hasHomeCoin}`);
+      }
     } catch (e) {
       Logger.error(TAG, `buildSlotData failed for ${accountId}/${role.gameId}/${role.roleId}: ${JSON.stringify(e)}`);
       slotData.rawJson = '';

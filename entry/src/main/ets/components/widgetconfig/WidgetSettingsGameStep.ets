@@ -24,7 +24,7 @@ export struct WidgetSettingsGameStep {
   build() {
     Column({ space: this.tm.current.value10 }) {
       Text($r('app.string.widget_select_game_hint'))
-        .fontSize(this.tm.current.body12.size)
+        .fontSize(this.tm.current.font13)
         .fontColor(this.tm.current.colorTextSecondary)
         .width(this.tm.current.full)
         .margin({ bottom: this.tm.current.value8 })
@@ -59,7 +59,7 @@ export struct WidgetSettingsGameStepPreview {
       })
     }
     .width(this.tm.current.value360)
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 }

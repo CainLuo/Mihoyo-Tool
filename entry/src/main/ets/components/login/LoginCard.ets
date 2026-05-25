@@ -21,7 +21,7 @@ export struct LoginCard {
     .borderRadius(this.tm.current.radius12)
     .borderWidth(this.tm.current.value1)
     .borderColor(this.tm.current.colorDivider)
-    .padding(this.tm.current.value20)
+    .padding(this.tm.current.font20)
     .shadow({
       radius: this.tm.current.shadowRadius,
       color: this.tm.current.shadowColor,

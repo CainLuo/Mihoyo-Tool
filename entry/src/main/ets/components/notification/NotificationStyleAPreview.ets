@@ -2,6 +2,7 @@
  * NotificationStyleAPreview — 样式 A 通知气泡预览
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
+import { ThemeFonts } from '../../theme/ThemeFonts'
 import { NotificationBubbleHeader } from './NotificationBubbleHeader'
 
 @ComponentV2
@@ -15,17 +16,17 @@ export struct NotificationStyleAPreview {
 
         Text($r('app.string.notification_content_title_style_a',
           $r('app.string.game_name_genshin'), '昵称'))
-          .font(this.tm.current.body13Bold)
+          .font(ThemeFonts.fontBold14)
           .fontColor(this.tm.current.colorTextPrimary)
 
         Text($r('app.string.notification_content_body_style_a',
           $r('app.string.notification_stamina_genshin'), 200, 200))
-          .font(this.tm.current.body12)
+          .font(ThemeFonts.font13)
           .fontColor(this.tm.current.colorTextSecondary)
 
         Text($r('app.string.notification_content_sub_style_a',
           $r('app.string.server_genshin_cn_official'), '100000001'))
-          .font(this.tm.current.body10)
+          .font(ThemeFonts.font11)
           .fontColor(this.tm.current.colorTextSecondary)
           .opacity(0.7)
       }
@@ -36,7 +37,7 @@ export struct NotificationStyleAPreview {
       .alignItems(HorizontalAlign.Start)
 
       Text($r('app.string.notification_style_a_desc'))
-        .font(this.tm.current.body10)
+        .font(ThemeFonts.font11)
         .fontColor(this.tm.current.colorTextSecondary)
         .opacity(0.7)
     }

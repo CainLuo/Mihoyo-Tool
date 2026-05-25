@@ -29,7 +29,7 @@ export struct ZZZWeaponSection {
               .border({ width: this.tm.current.value1, color: this.tm.current.surfaceInactiveBorder, style: BorderStyle.Dashed })
 
             Text($r('app.string.zzz_char_detail_no_weapon'))
-              .fontSize(this.tm.current.body13.size)
+              .fontSize(this.tm.current.font14)
               .fontColor(this.tm.current.textOnDarkMuted)
           }
           .width(this.tm.current.full)

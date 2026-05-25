@@ -78,7 +78,7 @@ export struct CharDetailConsColumn {
           // 无图标兜底：激活时显示序号，未激活时显示锁图标
           Stack() {
             Text(c.isActived ? `${c.pos}` : '')
-              .fontSize(this.tm.current.body13Bold.size)
+              .fontSize(this.tm.current.fontBold14)
               .fontWeight(FontWeight.Bold)
               .fontColor(c.isActived ? this.tm.current.accentPrimaryStrong : this.tm.current.textInactive)
               .textAlign(TextAlign.Center)

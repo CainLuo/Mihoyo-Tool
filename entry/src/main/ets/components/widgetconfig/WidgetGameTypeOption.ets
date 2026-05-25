@@ -40,12 +40,12 @@ export struct WidgetGameTypeOption {
       // 中间：游戏名称 + 账号数量
       Column() {
         Text(this.config.label)
-          .fontSize(this.tm.current.body13Bold.size)
-          .fontWeight(this.tm.current.body13Bold.weight)
+          .fontSize(this.tm.current.fontBold14)
+          .fontWeight(FontWeight.Bold)
           .fontColor(this.isSelected ? gameIdStrToColor(this.config.gameId) : this.tm.current.colorTextPrimary)
 
         Text($r('app.string.widget_game_account_count', this.accountCount))
-          .fontSize(this.tm.current.body12.size)
+          .fontSize(this.tm.current.font13)
           .fontColor(this.tm.current.colorTextSecondary)
           .margin({ top: this.tm.current.value2 })
       }
@@ -57,19 +57,19 @@ export struct WidgetGameTypeOption {
       if (this.isSelected) {
         Row() {
           Text('✓')
-            .fontSize(this.tm.current.body12.size)
+            .fontSize(this.tm.current.font13)
             .fontColor(Color.White)
         }
-        .width(this.tm.current.value18)
-        .height(this.tm.current.value18)
+        .width(this.tm.current.font18)
+        .height(this.tm.current.font18)
         .borderRadius(this.tm.current.value9)
         .backgroundColor(gameIdStrToColor(this.config.gameId))
         .justifyContent(FlexAlign.Center)
       }
     }
     .width(this.tm.current.full)
-    .padding(this.tm.current.value14)
-    .backgroundColor(this.isSelected ? this.tm.current.surfaceActivePrimary : Color.Transparent)
+    .padding(this.tm.current.font14)
+    .backgroundColor(this.isSelected ? this.tm.current.surfaceActivePrimary : this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
     .border({
       width: this.tm.current.value2,
@@ -104,7 +104,7 @@ struct WidgetGameTypeOptionPreview {
         hasData: false
       })
     }
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 }

@@ -89,15 +89,15 @@ export struct CharDetailHeroPanelWide {
       // 左上角：名字 + 等级 + 好感
       Column({ space: this.tm.current.value4 }) {
         Text(this.vm.charName)
-          .fontSize(this.tm.current.title18Bold.size)
+          .fontSize(this.tm.current.fontBold18)
           .fontWeight(FontWeight.Bold)
           .fontColor(this.tm.current.textOnDarkHigh)
           .textShadow({ radius: this.tm.current.value8, color: this.tm.current.overlayShadow, offsetY: 2 })
         Text(`Lv.${this.vm.charLevel}`)
-          .fontSize(this.tm.current.body12.size)
+          .fontSize(this.tm.current.font13)
           .fontColor(this.tm.current.textOnDarkMedium)
         Text($r('app.string.char_detail_fetter_label'))
-          .fontSize(this.tm.current.body12.size)
+          .fontSize(this.tm.current.font13)
           .fontColor(elementColor(this.vm.charElement))
       }
       .alignItems(HorizontalAlign.Start)

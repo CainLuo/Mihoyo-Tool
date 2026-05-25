@@ -82,10 +82,10 @@ export struct CharDetailPortraitLayout {
       } else {
         Row({ space: this.tm.current.value8 }) {
           SymbolGlyph($r('sys.symbol.lock'))
-            .fontSize(this.tm.current.value16)
+            .fontSize(this.tm.current.font16)
             .fontColor([this.tm.current.textOnDarkMuted])
           Text($r('app.string.char_detail_no_weapon'))
-            .fontSize(this.tm.current.body13.size)
+            .fontSize(this.tm.current.font14)
             .fontColor(this.tm.current.textOnDarkMuted)
         }
         .width(this.tm.current.full)

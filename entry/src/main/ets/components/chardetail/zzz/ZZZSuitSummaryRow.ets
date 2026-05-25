@@ -15,13 +15,13 @@ export struct ZZZSuitSummaryRow {
   build() {
     Row({ space: this.tm.current.value8 }) {
       Text(this.suit.suitName)
-        .fontSize(this.tm.current.body13Bold.size)
+        .fontSize(this.tm.current.fontBold14)
         .fontWeight(FontWeight.Bold)
         .fontColor(this.tm.current.textOnDarkHigh)
         .layoutWeight(1)
 
       Text($r('app.string.zzz_char_detail_suit_pieces', 2))
-        .fontSize(this.tm.current.body10.size)
+        .fontSize(this.tm.current.font11)
         .fontColor(this.suit.count >= 2 ? this.tm.current.accentRefine : this.tm.current.textOnDarkMuted)
         .backgroundColor(this.suit.count >= 2 ? this.tm.current.accentRefineBg : this.tm.current.surfaceDarkLg)
         .border({ width: this.tm.current.value1, color: this.suit.count >= 2 ? this.tm.current.accentRefine : this.tm.current.surfaceInactiveBorder })
@@ -30,7 +30,7 @@ export struct ZZZSuitSummaryRow {
 
       if (this.suit.suitOwn >= 4) {
         Text($r('app.string.zzz_char_detail_suit_pieces', 4))
-          .fontSize(this.tm.current.body10.size)
+          .fontSize(this.tm.current.font11)
           .fontColor(this.suit.count >= 4 ? this.tm.current.accentRefine : this.tm.current.textOnDarkMuted)
           .backgroundColor(this.suit.count >= 4 ? this.tm.current.accentRefineBg : this.tm.current.surfaceDarkLg)
           .border({ width: this.tm.current.value1, color: this.suit.count >= 4 ? this.tm.current.accentRefine : this.tm.current.surfaceInactiveBorder })
@@ -38,7 +38,7 @@ export struct ZZZSuitSummaryRow {
           .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.value1, bottom: this.tm.current.value1 })
       }
       Text(`${this.suit.count}/${this.suit.suitOwn}`)
-        .fontSize(this.tm.current.body13Bold.size)
+        .fontSize(this.tm.current.fontBold14)
         .fontWeight(FontWeight.Bold)
         .fontColor(this.tm.current.accentRefine)
     }

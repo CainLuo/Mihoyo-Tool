@@ -41,7 +41,7 @@ export struct WidgetSettingsMainContent {
             })
           }
           .width(this.tm.current.full)
-          .padding({ top: this.tm.current.value16, bottom: this.tm.current.value16 })
+          .padding({ top: this.tm.current.font16, bottom: this.tm.current.font16 })
           .justifyContent(FlexAlign.Center)
 
           // 步骤指示器
@@ -85,7 +85,7 @@ export struct WidgetSettingsMainContent {
               }
             }
             .width(this.tm.current.full)
-            .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
+            .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })
           }
         }
         .width(this.tm.current.full)
@@ -96,6 +96,7 @@ export struct WidgetSettingsMainContent {
       .layoutWeight(1)
       .align(Alignment.Top)
       .edgeEffect(EdgeEffect.Spring)
+      .backgroundColor(this.tm.current.colorPageBg)
 
       // 底部按钮
       WidgetSettingsBottomButtons({

@@ -92,6 +92,73 @@ function cardBgColors(gameId: string): string[] {
   return ['#181820', '#1c1c2c', '#1c1c2c'];
 }
 
+/** 根据多个游戏 ID 生成混合渐变色 */
+function multiGameGradientColors(slots: WidgetSlotRef[]): Array<[string, number]> {
+  const gameIds: string[] = [];
+  for (let i = 0; i < slots.length; i++) {
+    const gameId = slots[i].gameId;
+    let found = false;
+    for (let j = 0; j < gameIds.length; j++) {
+      if (gameIds[j] === gameId) {
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      gameIds.push(gameId);
+    }
+  }
+  
+  if (gameIds.length === 0) {
+    return [['#181820', 0], ['#1c1c2c', 1]];
+  }
+  
+  if (gameIds.length === 1) {
+    const colors = cardBgColors(gameIds[0]);
+    return [[colors[0], 0], [colors[1], 0.5], [colors[2], 1]];
+  }
+  
+  // 双游戏
+  if (gameIds.length === 2) {
+    const c0 = cardBgColors(gameIds[0]);
+    const c1 = cardBgColors(gameIds[1]);
+    return [[c0[0], 0], [c0[1], 0.4], [c1[1], 0.6], [c1[0], 1]];
+  }
+  
+  // 三游戏及以上
+  const count = gameIds.length;
+  const colors: string[][] = [];
+  for (let i = 0; i < count; i++) {
+    colors.push(cardBgColors(gameIds[i]));
+  }
+  
+  const result: Array<[string, number]> = [];
+  result.push([colors[0][0], 0]);
+  
+  for (let i = 0; i < count; i++) {
+    const position = (i + 0.5) / count;
+    result.push([colors[i][1], position]);
+  }
+  
+  result.push([colors[count - 1][0], 1]);
+
+  return result;
+}
+
+/** 判断是否为单游戏 */
+function isSingleGame(slots: WidgetSlotRef[]): boolean {
+  if (slots.length <= 1) {
+    return true;
+  }
+  const firstGameId = slots[0].gameId;
+  for (let i = 1; i < slots.length; i++) {
+    if (slots[i].gameId !== firstGameId) {
+      return false;
+    }
+  }
+  return true;
+}
+
 @ComponentV2
 export struct WidgetConfigPreview {
   @Param selectedSize: WidgetSize = WidgetSize.SIZE_2x2;
@@ -111,6 +178,14 @@ export struct WidgetConfigPreview {
   }
 
   private get cardGradient(): LinearGradient {
+    // 多游戏时使用混合渐变色
+    if (!isSingleGame(this.selectedSlots)) {
+      return {
+        angle: this.tm.current.a135,
+        colors: multiGameGradientColors(this.selectedSlots)
+      };
+    }
+    // 单游戏时使用该游戏的渐变色
     const colors = cardBgColors(this.firstGameId);
     return {
       angle: this.tm.current.a135,
@@ -150,7 +225,7 @@ export struct WidgetConfigPreview {
   EmptyPreview() {
     Column() {
       Text('请选择要显示的角色')
-        .fontSize(this.tm.current.body12.size)
+        .fontSize(this.tm.current.font13)
         .fontColor('rgba(255,255,255,0.5)')
     }
     .width(this.tm.current.full)
@@ -166,7 +241,7 @@ export struct WidgetConfigPreview {
       // 左侧：游戏色竖线装饰条
       Column()
         .width(3)
-        .height(this.dimensions.height - this.tm.current.value24)
+        .height(this.dimensions.height - this.tm.current.font24)
         .borderRadius(2)
         .backgroundColor(gameColor(this.firstGameId))
 
@@ -400,7 +475,7 @@ struct WidgetConfigPreviewSample {
         selectedSlots: this.sampleSlots
       })
     }
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 }

@@ -2,6 +2,7 @@
  * NotificationPermissionWarning — 通知权限被拒绝提示
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
+import { ThemeFonts } from '../../theme/ThemeFonts'
 
 @ComponentV2
 export struct NotificationPermissionWarning {
@@ -10,13 +11,13 @@ export struct NotificationPermissionWarning {
   build() {
     Row({ space: this.tm.current.value8 }) {
       Text($r('app.string.notification_warning_icon'))
-        .fontSize(this.tm.current.value16)
+        .fontSize(this.tm.current.font16)
       Column({ space: this.tm.current.value4 }) {
         Text($r('app.string.notification_permission_denied_title'))
-          .font(this.tm.current.body13Bold)
+          .font(ThemeFonts.fontBold14)
           .fontColor(this.tm.current.colorWarning)
         Text($r('app.string.notification_permission_denied_desc'))
-          .font(this.tm.current.body12)
+          .font(ThemeFonts.font13)
           .fontColor(this.tm.current.colorWarning)
       }
       .alignItems(HorizontalAlign.Start)

@@ -12,7 +12,7 @@ export struct CharDetailSectionLabel {
 
   build() {
     Text(this.title)
-      .fontSize(this.tm.current.body12.size)
+      .fontSize(this.tm.current.font13)
       .fontColor(this.tm.current.textOnDarkSecondary)
       .width(this.tm.current.full)
       .padding({ bottom: this.tm.current.value4 })

@@ -9,9 +9,12 @@
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
-import { widgetTheme } from '../utils/WidgetTheme';
 import { calcIsFull, calcRatio, gameColorRes, gameNameRes, parseCurrent, parseMax, formatRecoveryDesc, WIDGET_GAME_ID } from '../utils/WidgetUtils';
 import { WidgetGameData } from '../models/WidgetModels';
+import { DefaultTheme } from '../../theme/DefaultTheme';
+
+/** 主题常量实例 */
+const theme = new DefaultTheme();
 
 class ExtraDataItem {
   label: ResourceStr = '';
@@ -69,13 +72,13 @@ export struct WidgetCompactGameRow {
 
   @Builder
   renderExtraData(extra: ExtraDataItem) {
-    Column({ space: widgetTheme.value1 }) {
+    Column({ space: theme.value1 }) {
       Text(extra.label)
-        .fontSize(widgetTheme.value9)
+        .fontSize(theme.value9)
         .fontColor($r('app.color.text_on_dark_muted'))
 
       Text(extra.value)
-        .fontSize(widgetTheme.value11)
+        .fontSize(theme.value11)
         .fontWeight(FontWeight.Medium)
         .fontColor(extra.color)
     }
@@ -84,7 +87,7 @@ export struct WidgetCompactGameRow {
   }
 
   build() {
-    Row({ space: widgetTheme.value10 }) {
+    Row({ space: theme.value10 }) {
       // 左侧：竖线或小环
       if (this.ringSize > 0) {
         // 2×4：小进度环
@@ -106,40 +109,40 @@ export struct WidgetCompactGameRow {
       } else {
         // 2×2：游戏色竖线（3vp 宽，高度约 60% 父容器）
         Column()
-          .width(widgetTheme.value3)
-          .constraintSize({ minHeight: widgetTheme.value20, maxHeight: widgetTheme.value32 })
-          .borderRadius(widgetTheme.value2)
+          .width(theme.value3)
+          .constraintSize({ minHeight: theme.value20, maxHeight: theme.value32 })
+          .borderRadius(theme.value2)
           .backgroundColor(this.displayColor)
           .flexShrink(0)
       }
 
       // 中间列：游戏名 + 体力数字 + (2×4 时显示恢复时间)
-      Column({ space: widgetTheme.value1 }) {
+      Column({ space: theme.value1 }) {
         Text(gameNameRes(this.game.gameId))
-          .fontSize(widgetTheme.value9)
+          .fontSize(theme.value9)
           .fontColor($r('app.color.text_on_dark_muted'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
 
-        Row({ space: this.ringSize > 0 ? widgetTheme.value1 : widgetTheme.value2 }) {
+        Row({ space: this.ringSize > 0 ? theme.value1 : theme.value2 }) {
           Text(String(parseCurrent(this.game.currentStr)))
-            .fontSize(this.ringSize > 0 ? (this.totalGameCount <= 2 ? widgetTheme.value16 : widgetTheme.value14) : widgetTheme.value18)
+            .fontSize(this.ringSize > 0 ? (this.totalGameCount <= 2 ? theme.value16 : theme.value14) : theme.value18)
             .fontWeight(FontWeight.Bold)
             .fontColor(this.displayColor)
-            .lineHeight(widgetTheme.value18)
+            .lineHeight(theme.value18)
 
           Text('/' + String(parseMax(this.game.maxStr)))
-            .fontSize(widgetTheme.value9)
+            .fontSize(theme.value9)
             .fontColor($r('app.color.text_on_dark_muted'))
             .alignSelf(ItemAlign.End)
-            .margin({ bottom: widgetTheme.value1 })
+            .margin({ bottom: theme.value1 })
         }
         .alignItems(VerticalAlign.Bottom)
 
         // 2×4 时在中间列显示恢复时间
         if (this.ringSize > 0) {
           Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(this.game.secondsStr))
-            .fontSize(widgetTheme.value9)
+            .fontSize(theme.value9)
             .fontColor(this.isFull ? $r('app.color.color_danger') : $r('app.color.text_on_dark_muted'))
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -158,7 +161,7 @@ export struct WidgetCompactGameRow {
           }
         } else {
           Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(this.game.secondsStr))
-            .fontSize(widgetTheme.value9)
+            .fontSize(theme.value9)
             .fontColor(this.isFull ? $r('app.color.color_danger') : $r('app.color.text_on_dark_muted'))
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -167,7 +170,7 @@ export struct WidgetCompactGameRow {
       } else {
         // 2×2：右侧显示恢复时间
         Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(this.game.secondsStr))
-          .fontSize(widgetTheme.value9)
+          .fontSize(theme.value9)
           .fontColor(this.isFull ? $r('app.color.color_danger') : $r('app.color.text_on_dark_muted'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -175,7 +178,7 @@ export struct WidgetCompactGameRow {
           .flexShrink(0)
       }
     }
-    .width(widgetTheme.full)
+    .width(theme.full)
     .alignItems(VerticalAlign.Center)
   }
 }

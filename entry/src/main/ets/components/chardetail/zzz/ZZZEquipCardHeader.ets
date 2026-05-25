@@ -21,7 +21,7 @@ export struct ZZZEquipCardHeader {
       }
 
       Text(this.equip.suitName)
-        .fontSize(this.tm.current.body12.size)
+        .fontSize(this.tm.current.font13)
         .fontWeight(FontWeight.Bold)
         .fontColor(this.tm.current.textOnDarkHigh)
         .maxLines(1)

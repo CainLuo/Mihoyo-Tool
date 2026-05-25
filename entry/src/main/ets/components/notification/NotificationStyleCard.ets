@@ -2,6 +2,7 @@
  * NotificationStyleCard — 通知样式选择卡片
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
+import { ThemeFonts } from '../../theme/ThemeFonts'
 import { NotificationStyle } from '../../notification/NotificationModels'
 import { NotificationSettingsViewModel } from '../../viewmodel/NotificationSettingsViewModel'
 import { NotificationStyleAPreview } from './NotificationStyleAPreview'
@@ -24,8 +25,8 @@ export struct NotificationStyleCard {
               .fill($r('app.color.color_primary'))
           }
         }
-        .width(this.tm.current.value20)
-        .height(this.tm.current.value20)
+        .width(this.tm.current.font20)
+        .height(this.tm.current.font20)
         .borderRadius(this.tm.current.value10)
         .border({
           width: this.tm.current.value2,
@@ -35,10 +36,10 @@ export struct NotificationStyleCard {
 
         Column({ space: this.tm.current.value2 }) {
           Text(this.title)
-            .font(this.tm.current.body13Bold)
+            .font(ThemeFonts.fontBold14)
             .fontColor(this.tm.current.colorTextPrimary)
           Text(this.desc)
-            .font(this.tm.current.body12)
+            .font(ThemeFonts.font13)
             .fontColor(this.tm.current.colorTextSecondary)
         }
         .alignItems(HorizontalAlign.Start)

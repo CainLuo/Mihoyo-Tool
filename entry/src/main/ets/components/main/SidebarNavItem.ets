@@ -22,7 +22,7 @@ export struct SidebarNavItem {
           : this.tm.current.colorTextSecondary)
 
       Text(this.label)
-        .font(this.tab === this.selectedTab ? this.tm.current.body16Medium : this.tm.current.body16)
+        .font(this.tab === this.selectedTab ? this.tm.current.fontMedium17 : this.tm.current.font17)
         .fontColor(this.tab === this.selectedTab
           ? this.tm.current.colorPrimary
           : this.tm.current.colorTextSecondary)
@@ -57,7 +57,7 @@ export struct SidebarNavItemPreview {
 
       SidebarNavItem({ tab: 2, selectedTab: 0, label: $r('app.string.main_tab_my') })
     }
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .width(this.tm.current.value200)
     .backgroundColor('#1a1a2e')
   }

@@ -2,6 +2,7 @@
  * TestSectionHeader — 测试页分区标题（仅 Mock/Debug 环境使用）
  */
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
+import { ThemeFonts } from '../theme/ThemeFonts'
 
 @ComponentV2
 export struct TestSectionHeader {
@@ -10,7 +11,7 @@ export struct TestSectionHeader {
 
   build() {
     Text(this.title)
-      .font(this.tm.current.body13)
+      .font(ThemeFonts.font14)
       .fontColor(this.tm.current.colorTextSecondary)
       .width(this.tm.current.full)
       .padding({

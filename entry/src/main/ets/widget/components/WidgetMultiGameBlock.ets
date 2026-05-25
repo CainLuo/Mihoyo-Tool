@@ -9,12 +9,15 @@
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
-import { widgetTheme } from '../utils/WidgetTheme';
 import { WidgetGenshinExtraRows } from './WidgetGenshinExtraRows';
 import { WidgetStarRailExtraRows } from './WidgetStarRailExtraRows';
 import { WidgetZZZExtraRows } from './WidgetZZZExtraRows';
 import { gameColorRes, gameNameRes, calcIsFull, formatRecoveryDesc, parseCurrent, parseMax, WIDGET_GAME_ID } from '../utils/WidgetUtils';
 import { WidgetGameData } from '../models/WidgetModels';
+import { DefaultTheme } from '../../theme/DefaultTheme';
+
+/** 主题常量实例 */
+const theme = new DefaultTheme();
 
 @Component
 export struct WidgetMultiGameBlock {
@@ -38,61 +41,61 @@ export struct WidgetMultiGameBlock {
   build() {
     Column() {
       // 游戏名 + 体力数字 + 恢复时间（一行）
-      Row({ space: widgetTheme.value8 }) {
+      Row({ space: theme.value8 }) {
         Text(gameNameRes(this.game.gameId))
-          .fontSize(widgetTheme.value12)
+          .fontSize(theme.value12)
           .fontColor($r('app.color.text_on_dark_secondary'))
           .flexShrink(0)
 
-        Row({ space: widgetTheme.value2 }) {
+        Row({ space: theme.value2 }) {
           Text(String(parseCurrent(this.game.currentStr)))
-            .fontSize(widgetTheme.value22)
+            .fontSize(theme.value22)
             .fontWeight(FontWeight.Bold)
             .fontColor(this.isFull ? $r('app.color.color_danger') : this.gameColor)
-            .lineHeight(widgetTheme.value24)
+            .lineHeight(theme.value24)
 
           Text('/ ' + String(parseMax(this.game.maxStr)))
-            .fontSize(widgetTheme.value11)
+            .fontSize(theme.value11)
             .fontColor($r('app.color.text_on_dark_muted'))
             .alignSelf(ItemAlign.End)
-            .margin({ bottom: widgetTheme.value2 })
+            .margin({ bottom: theme.value2 })
         }
         .alignItems(VerticalAlign.Bottom)
 
         Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(this.game.secondsStr))
-          .fontSize(widgetTheme.value11)
+          .fontSize(theme.value11)
           .fontColor(this.isFull ? $r('app.color.color_danger') : $r('app.color.text_on_dark_secondary'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
           .layoutWeight(1)
           .textAlign(TextAlign.End)
       }
-      .width(widgetTheme.full)
+      .width(theme.full)
       .alignItems(VerticalAlign.Center)
       .flexShrink(0)
-      .margin({ bottom: widgetTheme.value4 })
+      .margin({ bottom: theme.value4 })
 
       // 额外数据行（flex:1 space-evenly）
       Column() {
         if (this.game.gameId === WIDGET_GAME_ID.GENSHIN) {
-          WidgetGenshinExtraRows({ game: this.game, fontSize: widgetTheme.value11 })
-            .height(widgetTheme.full)
+          WidgetGenshinExtraRows({ game: this.game, fontSize: theme.value11 })
+            .height(theme.full)
         } else if (this.game.gameId === WIDGET_GAME_ID.STARRAIL) {
-          WidgetStarRailExtraRows({ game: this.game, fontSize: widgetTheme.value11 })
-            .height(widgetTheme.full)
+          WidgetStarRailExtraRows({ game: this.game, fontSize: theme.value11 })
+            .height(theme.full)
         } else if (this.game.gameId === WIDGET_GAME_ID.ZZZ) {
-          WidgetZZZExtraRows({ game: this.game, fontSize: widgetTheme.value11 })
-            .height(widgetTheme.full)
+          WidgetZZZExtraRows({ game: this.game, fontSize: theme.value11 })
+            .height(theme.full)
         }
       }
-      .width(widgetTheme.full)
+      .width(theme.full)
       .layoutWeight(1)
     }
-    .width(widgetTheme.full)
+    .width(theme.full)
     .layoutWeight(1)
     .alignItems(HorizontalAlign.Start)
     .justifyContent(FlexAlign.Center)
-    .padding({ top: widgetTheme.value8, bottom: widgetTheme.value8 })
+    .padding({ top: theme.value8, bottom: theme.value8 })
   }
 }
 

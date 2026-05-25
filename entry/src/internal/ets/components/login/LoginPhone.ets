@@ -2,6 +2,7 @@
  * LoginPhone.ets — 手机号 + 短信验证码登录组件（仅 internal）
  */
 import { LoginViewModel } from 'entry/ets/viewmodel/LoginViewModel';
+import { ThemeFonts } from '../../../../../main/ets/theme/ThemeFonts'
 import { PhoneStep } from 'entry/ets/constants/LoginTabEnum';
 import { themeManager, ThemeManager } from 'entry/ets/theme/ThemeManager';
 import { LoginPhoneInput } from 'entry/ets/components/login/LoginPhoneInput';
@@ -13,7 +14,7 @@ export struct LoginPhone {
   @Local private tm: ThemeManager = themeManager;
 
   build() {
-    Column({ space: this.tm.current.value16 }) {
+    Column({ space: this.tm.current.font16 }) {
       if (this.vm.phoneStep === PhoneStep.INPUT_PHONE) {
         LoginPhoneInput({
           vm: this.vm,
@@ -28,7 +29,7 @@ export struct LoginPhone {
 
       if (this.vm.errorMsg.length > 0) {
         Text(this.vm.errorMsg)
-          .font(this.tm.current.body13)
+          .font(ThemeFonts.font14)
           .fontColor(this.tm.current.colorDanger)
           .width(this.tm.current.full)
           .textAlign(TextAlign.Center)

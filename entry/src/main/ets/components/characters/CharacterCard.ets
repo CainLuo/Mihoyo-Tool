@@ -7,6 +7,7 @@
  *   - zzz：稀有度+属性+特性胶囊标签纵向（左上）+ 影画（右上）+ 等级+阵营（底部）
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { ThemeFonts } from '../../theme/ThemeFonts'
 import { GameDataSummary, GameId } from 'core';
 import { genshinElementFromString, elementIcon } from '../../constants/GenshinElement';
 import { starRailElementIcon, starRailPathIcon } from '../../constants/StarRailElement';
@@ -53,7 +54,7 @@ export struct CharacterCard {
           // 底部渐变遮罩 + 角色名
           Column() {
             Text(this.character.name)
-              .font(this.tm.current.body13Bold)
+              .font(ThemeFonts.fontBold14)
               .fontColor(this.tm.current.textOnDarkHigh)
               .maxLines(1)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -70,7 +71,7 @@ export struct CharacterCard {
             angle: this.tm.current.a180,
             colors: [[this.tm.current.colorTransparent, 0.0], [this.tm.current.overlayGradientEnd, 1.0]]
           })
-          .padding({ top: this.tm.current.value20 })
+          .padding({ top: this.tm.current.font20 })
           .position({ x: 0, y: this.tm.current.full })
           .markAnchor({ x: 0, y: this.tm.current.full })
           .zIndex(2)
@@ -86,7 +87,7 @@ export struct CharacterCard {
 
           // 右上角：命座/星魂/影画数字
           Text(`${this.character.extraInt1}`)
-            .fontSize(this.tm.current.body12.size)
+            .fontSize(this.tm.current.font13)
             .fontWeight(FontWeight.Bold)
             .fontColor($r('app.color.rarity_5star'))
             .width(this.tm.current.value22)
@@ -126,7 +127,7 @@ export struct CharacterCard {
 
               Row({ space: this.tm.current.value2 }) {
                 Text($r('app.string.character_weapon_level_prefix', this.character.weaponLevel))
-                  .fontSize(this.tm.current.body10.size)
+                  .fontSize(this.tm.current.font11)
                   .fontWeight(FontWeight.Medium)
                   .fontColor(this.tm.current.textOnDarkGhost)
                   .layoutWeight(1)
@@ -134,7 +135,7 @@ export struct CharacterCard {
                 Text(this.gameId === GameId.STARRAIL
                   ? `S${this.character.weaponAffix}`
                   : `R${this.character.weaponAffix}`)
-                  .fontSize(this.tm.current.body10.size)
+                  .fontSize(this.tm.current.font11)
                   .fontWeight(FontWeight.Bold)
                   .fontColor(this.tm.current.accentRefine)
                   .backgroundColor(this.tm.current.accentRefineBg)
@@ -142,7 +143,7 @@ export struct CharacterCard {
                   .padding({ left: this.tm.current.value2, right: this.tm.current.value2 })
               }
               .width(this.tm.current.full)
-              .height(this.tm.current.value18)
+              .height(this.tm.current.font18)
               .padding({ left: this.tm.current.value4, right: this.tm.current.value4 })
               .alignItems(VerticalAlign.Center)
             } else {
@@ -157,7 +158,7 @@ export struct CharacterCard {
                     .border({ width: 2, color: $r('app.color.color_text_secondary') })
                   Column()
                     .width(2)
-                    .height(this.tm.current.value24)
+                    .height(this.tm.current.font24)
                     .backgroundColor($r('app.color.color_text_secondary'))
                     .rotate({ angle: 45 })
                 }
@@ -166,7 +167,7 @@ export struct CharacterCard {
                 .opacity(0.4)
 
                 Text($r('app.string.character_weapon_none'))
-                  .fontSize(this.tm.current.body10.size)
+                  .fontSize(this.tm.current.font11)
                   .fontColor(this.tm.current.colorTextSecondary)
                   .opacity(0.5)
               }
@@ -216,8 +217,8 @@ export struct CharacterCard {
   private genshinTopLeft() {
     if (elementIcon(genshinElementFromString(this.character.extraText1)) !== null) {
       Image(elementIcon(genshinElementFromString(this.character.extraText1)) as Resource)
-        .width(this.tm.current.value24)
-        .height(this.tm.current.value24)
+        .width(this.tm.current.font24)
+        .height(this.tm.current.font24)
         .objectFit(ImageFit.Contain)
         .position({ x: this.tm.current.value8, y: this.tm.current.value8 })
         .zIndex(3)
@@ -284,14 +285,14 @@ export struct CharacterCard {
   private genshinBottomBar() {
     Row({ space: this.tm.current.value8 }) {
       Text($r('app.string.character_level_value', this.character.level))
-        .font(this.tm.current.body13)
+        .font(ThemeFonts.font14)
         .fontColor(this.tm.current.colorTextSecondary)
       Column()
         .width(1)
         .height(this.tm.current.value10)
         .backgroundColor(this.tm.current.colorDivider)
       Text($r('app.string.character_fetter_value', this.character.extraInt2))
-        .font(this.tm.current.body13)
+        .font(ThemeFonts.font14)
         .fontColor(this.tm.current.colorTextSecondary)
     }
     .width(this.tm.current.full)
@@ -309,7 +310,7 @@ export struct CharacterCard {
   private starrailBottomBar() {
     Row() {
       Text($r('app.string.character_level_value', this.character.level))
-        .font(this.tm.current.body13)
+        .font(ThemeFonts.font14)
         .fontColor(this.tm.current.colorTextSecondary)
     }
     .width(this.tm.current.full)
@@ -327,7 +328,7 @@ export struct CharacterCard {
   private zzzBottomBar() {
     Row({ space: this.tm.current.value8 }) {
       Text($r('app.string.character_level_value', this.character.level))
-        .font(this.tm.current.body13)
+        .font(ThemeFonts.font14)
         .fontColor(this.tm.current.colorTextSecondary)
         .flexShrink(0)
       if (this.character.groupIconUrl) {
@@ -337,8 +338,8 @@ export struct CharacterCard {
           .backgroundColor(this.tm.current.colorDivider)
           .flexShrink(0)
         Image(this.character.groupIconUrl)
-          .width(this.tm.current.value20)
-          .height(this.tm.current.value20)
+          .width(this.tm.current.font20)
+          .height(this.tm.current.font20)
           .objectFit(ImageFit.Contain)
           .flexShrink(0)
       }

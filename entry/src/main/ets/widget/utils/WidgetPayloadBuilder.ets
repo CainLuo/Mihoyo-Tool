@@ -148,6 +148,14 @@ export class WidgetPayloadBuilder {
       }
 
       WidgetLog.info(`[WIDGET_DEBUG] buildPayload: slot[${i}] ${slotKey} gameId=${slotData.gameId} rawJsonLen=${slotData.rawJson.length}`);
+      // 🔬 关键调试：打印 rawJson 内容，检查是否包含派遣和洞天宝钱字段
+      if (slotData.rawJson.length > 0) {
+        WidgetLog.info(`[WIDGET_DEBUG] buildPayload: rawJson preview=${slotData.rawJson.substring(0, Math.min(500, slotData.rawJson.length))}`);
+        // 检查关键字段是否存在
+        const hasExpedition = slotData.rawJson.includes('max_expedition_num');
+        const hasHomeCoin = slotData.rawJson.includes('current_home_coin');
+        WidgetLog.info(`[WIDGET_DEBUG] buildPayload: hasExpedition=${hasExpedition} hasHomeCoin=${hasHomeCoin}`);
+      }
 
       // 获取或创建账号 Payload
       let accountPayload = accountMap.get(accountId);

@@ -24,7 +24,7 @@ export struct CharDetailLandscapeLayout {
           CharDetailStatsPanel({ vm: this.vm, isPhone: true, phoneCols: 4 })
           CharDetailRelicsPanel({ vm: this.vm, isPhone: true })
             .padding({ left: this.tm.current.value8, right: this.tm.current.value8 })
-          Row().height(this.tm.current.value20)
+          Row().height(this.tm.current.font20)
         }
         .width(this.tm.current.full)
       }

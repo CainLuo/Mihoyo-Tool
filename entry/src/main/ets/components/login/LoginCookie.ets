@@ -3,6 +3,7 @@
  */
 
 import { LoginViewModel } from 'entry/ets/viewmodel/LoginViewModel';
+import { ThemeFonts } from '../../theme/ThemeFonts'
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 
 @ComponentV2
@@ -11,17 +12,17 @@ export struct LoginCookie {
   @Local private tm: ThemeManager = themeManager;
 
   build() {
-    Column({ space: this.tm.current.value16 }) {
+    Column({ space: this.tm.current.font16 }) {
       // Cookie 输入框
       Column({ space: this.tm.current.value8 }) {
         Text($r('app.string.login_cookie_label'))
-          .font(this.tm.current.body12)
+          .font(ThemeFonts.font13)
           .fontColor(this.tm.current.colorTextSecondary)
           .width(this.tm.current.full)
 
         // 操作说明
         Text($r('app.string.login_cookie_hint'))
-          .font(this.tm.current.body10)
+          .font(ThemeFonts.font11)
           .fontColor(this.tm.current.colorPlaceholder)
           .width(this.tm.current.full)
 
@@ -55,7 +56,7 @@ export struct LoginCookie {
 
       // 安全提示
       Text($r('app.string.login_cookie_security_hint'))
-        .font(this.tm.current.body12)
+        .font(ThemeFonts.font13)
         .fontColor(this.tm.current.colorPlaceholder)
         .width(this.tm.current.full)
         .textAlign(TextAlign.Center)
@@ -63,7 +64,7 @@ export struct LoginCookie {
       // 错误提示
       if (this.vm.errorMsg.length > 0) {
         Text(this.vm.errorMsg)
-          .font(this.tm.current.body13)
+          .font(ThemeFonts.font14)
           .fontColor(this.tm.current.colorDanger)
           .width(this.tm.current.full)
           .textAlign(TextAlign.Center)
@@ -84,7 +85,7 @@ export struct LoginCookiePreview {
     Column() {
       LoginCookie({ vm: new LoginViewModel() })
     }
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 }

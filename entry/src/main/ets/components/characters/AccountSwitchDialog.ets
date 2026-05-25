@@ -5,6 +5,7 @@
  * 样式参考 My 页账号列表，显示头像 + 昵称 + UID。
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
+import { ThemeFonts } from '../../theme/ThemeFonts'
 import { AccountOption } from '../../models/AccountOption'
 
 @ObservedV2
@@ -32,12 +33,12 @@ export struct AccountSwitchDialog {
       // 标题栏
       Row() {
         Text($r('app.string.characters_switch_account_title'))
-          .font(this.tm.current.body16Medium)
+          .font(ThemeFonts.fontMedium17)
           .fontColor(this.tm.current.colorTextPrimary)
           .layoutWeight(1)
         Button({ type: ButtonType.Circle }) {
           SymbolGlyph($r('sys.symbol.xmark'))
-            .fontSize(this.tm.current.value16)
+            .fontSize(this.tm.current.font16)
             .fontColor([this.tm.current.colorTextSecondary])
         }
         .width(this.tm.current.value32)
@@ -47,9 +48,9 @@ export struct AccountSwitchDialog {
       }
       .width(this.tm.current.full)
       .padding({
-        left: this.tm.current.value20,
+        left: this.tm.current.font20,
         right: this.tm.current.value12,
-        top: this.tm.current.value16,
+        top: this.tm.current.font16,
         bottom: this.tm.current.value8
       })
       .alignItems(VerticalAlign.Center)
@@ -86,12 +87,12 @@ export struct AccountSwitchDialog {
               // 昵称 + UID
               Column({ space: this.tm.current.value2 }) {
                 Text(opt.nickname !== '' ? opt.nickname : opt.username)
-                  .font(this.tm.current.body16Medium)
+                  .font(ThemeFonts.fontMedium17)
                   .fontColor(this.tm.current.colorTextPrimary)
                   .maxLines(1)
                   .textOverflow({ overflow: TextOverflow.Ellipsis })
                 Text(opt.uid !== '' ? $r('app.string.common_uid_format', opt.uid) : opt.username)
-                  .font(this.tm.current.body13)
+                  .font(ThemeFonts.font14)
                   .fontColor(this.tm.current.colorTextSecondary)
                   .maxLines(1)
                   .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -102,15 +103,15 @@ export struct AccountSwitchDialog {
               // 选中勾
               if (i === this.params.selectedIdx) {
                 SymbolGlyph($r('sys.symbol.checkmark'))
-                  .fontSize(this.tm.current.value18)
+                  .fontSize(this.tm.current.font18)
                   .fontColor([this.tm.current.colorPrimary])
                   .flexShrink(0)
               }
             }
             .width(this.tm.current.full)
             .padding({
-              left: this.tm.current.value20,
-              right: this.tm.current.value20,
+              left: this.tm.current.font20,
+              right: this.tm.current.font20,
               top: this.tm.current.value12,
               bottom: this.tm.current.value12
             })

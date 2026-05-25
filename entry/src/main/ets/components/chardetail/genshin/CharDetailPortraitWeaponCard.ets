@@ -31,45 +31,45 @@ export struct CharDetailPortraitWeaponCard {
       }
       Column({ space: this.tm.current.value4 }) {
         Text(this.weapon.name)
-          .fontSize(this.tm.current.body13Bold.size)
+          .fontSize(this.tm.current.fontBold14)
           .fontWeight(FontWeight.Bold)
           .fontColor(this.tm.current.textOnDarkHigh)
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
         Row({ space: this.tm.current.value8 }) {
           Text(`Lv.${this.weapon.level}`)
-            .fontSize(this.tm.current.body10.size)
+            .fontSize(this.tm.current.font11)
             .fontColor(this.tm.current.textOnDarkMuted)
           Text($r('app.string.char_detail_weapon_refine_prefix', this.weapon.affix))
-            .fontSize(this.tm.current.body10.size)
+            .fontSize(this.tm.current.font11)
             .fontWeight(FontWeight.Bold)
             .fontColor(this.tm.current.accentRefine)
             .backgroundColor(this.tm.current.accentRefineBg)
             .borderRadius(this.tm.current.value4)
             .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.value1, bottom: this.tm.current.value1 })
           Text(this.starsText(this.weapon.rarity))
-            .fontSize(this.tm.current.body10.size)
+            .fontSize(this.tm.current.font11)
             .fontColor(this.tm.current.accentRefine)
         }
         if (this.weapon.baseAtk > 0 || this.weapon.subLabel !== null) {
           Row({ space: this.tm.current.value2 }) {
             if (this.weapon.baseAtk > 0) {
               Text($r('app.string.char_detail_weapon_atk'))
-                .fontSize(this.tm.current.body10.size)
+                .fontSize(this.tm.current.font11)
                 .fontColor(this.tm.current.accentRefine)
               Text(`${this.weapon.baseAtk}`)
-                .fontSize(this.tm.current.body10.size)
+                .fontSize(this.tm.current.font11)
                 .fontColor(this.tm.current.accentRefine)
             }
             if (this.weapon.subLabel !== null) {
               Text($r('app.string.common_dot_separator'))
-                .fontSize(this.tm.current.body10.size)
+                .fontSize(this.tm.current.font11)
                 .fontColor(this.tm.current.accentRefine)
               Text(this.weapon.subLabel)
-                .fontSize(this.tm.current.body10.size)
+                .fontSize(this.tm.current.font11)
                 .fontColor(this.tm.current.accentRefine)
               Text(this.weapon.subVal)
-                .fontSize(this.tm.current.body10.size)
+                .fontSize(this.tm.current.font11)
                 .fontColor(this.tm.current.accentRefine)
             }
           }

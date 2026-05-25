@@ -2,6 +2,7 @@
  * NotificationMasterToggle — 通知总开关行
  */
 import { common } from '@kit.AbilityKit'
+import { ThemeFonts } from '../../theme/ThemeFonts'
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
 import { NotificationSettingsViewModel } from '../../viewmodel/NotificationSettingsViewModel'
 
@@ -15,10 +16,10 @@ export struct NotificationMasterToggle {
     Row() {
       Column({ space: this.tm.current.value4 }) {
         Text($r('app.string.notification_master_switch'))
-          .font(this.tm.current.body16)
+          .font(ThemeFonts.font17)
           .fontColor(this.tm.current.colorTextPrimary)
         Text($r('app.string.notification_master_switch_desc'))
-          .font(this.tm.current.body12)
+          .font(ThemeFonts.font13)
           .fontColor(this.tm.current.colorTextSecondary)
       }
       .alignItems(HorizontalAlign.Start)
@@ -33,10 +34,10 @@ export struct NotificationMasterToggle {
     }
     .width(this.tm.current.full)
     .padding({
-      left: this.tm.current.value16,
-      right: this.tm.current.value16,
-      top: this.tm.current.value14,
-      bottom: this.tm.current.value14,
+      left: this.tm.current.font16,
+      right: this.tm.current.font16,
+      top: this.tm.current.font14,
+      bottom: this.tm.current.font14,
     })
     .backgroundColor(this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)

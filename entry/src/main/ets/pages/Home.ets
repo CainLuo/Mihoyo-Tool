@@ -128,7 +128,7 @@ export struct Home {
       })
     } else {
       Scroll(this.scroller) {
-        Column({ space: this.tm.current.value20 }) {
+        Column({ space: this.tm.current.font20 }) {
           ForEach(this.vm.accounts, (account: MihoyoAccountVM) => {
             UserGameSection({
               account: account,

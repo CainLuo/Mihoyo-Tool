@@ -36,12 +36,12 @@ export struct StarRailSkillNode {
       }
       if (this.iconSize >= this.tm.current.value36) {
         Text(`${this.skill.level}`)
-          .fontSize(this.tm.current.body12.size)
+          .fontSize(this.tm.current.font13)
           .fontWeight(FontWeight.Bold)
           .fontColor(this.skill.isActivated ? this.tm.current.accentRefine : this.tm.current.textOnDarkMuted)
         if (this.skill.remake !== '') {
           Text(this.skill.remake)
-            .fontSize(this.tm.current.body10.size)
+            .fontSize(this.tm.current.font11)
             .fontColor(this.tm.current.textOnDarkMuted)
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })

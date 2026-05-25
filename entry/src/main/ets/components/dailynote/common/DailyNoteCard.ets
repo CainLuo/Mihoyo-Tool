@@ -11,6 +11,7 @@
  */
 
 import { themeManager, ThemeManager } from '../../../theme/ThemeManager'
+import { ThemeFonts } from '../../../theme/ThemeFonts'
 
 // ── Preview：简单文字值卡片 ──
 @Preview
@@ -94,14 +95,14 @@ export struct DailyNoteCard {
         // 中间：标题 + 副标题
         Column({ space: this.tm.current.value2 }) {
           Text(this.title)
-            .font(this.tm.current.body16)
+            .font(ThemeFonts.font17)
             .fontColor(this.tm.current.colorTextPrimary)
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
 
           if (this.hasSubtitle) {
             Text(this.subtitle)
-              .font(this.tm.current.body13)
+              .font(ThemeFonts.font14)
               .fontColor(this.tm.current.colorTextSecondary)
               .maxLines(2)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -115,15 +116,15 @@ export struct DailyNoteCard {
           this.customRight()
         } else if (this.hasValueText) {
           Text(this.valueText)
-            .font(this.tm.current.body16Medium)
+            .font(ThemeFonts.fontMedium17)
             .fontColor(this.valueColor !== '' ? this.valueColor : this.tm.current.colorTextPrimary)
             .maxLines(1)
         }
       }
       .width(this.tm.current.full)
       .padding({
-        left: this.tm.current.value16,
-        right: this.tm.current.value16,
+        left: this.tm.current.font16,
+        right: this.tm.current.font16,
         top: this.tm.current.value12,
         bottom: this.tm.current.value12
       })

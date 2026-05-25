@@ -93,27 +93,27 @@ export struct WidgetSection {
     Column({ space: 0 }) {
       Row() {
         Text(account.nickname.length > 0 ? account.nickname : account.username)
-          .fontSize(this.tm.current.body13.size)
+          .fontSize(this.tm.current.font14)
           .fontWeight(FontWeight.Medium)
           .fontColor(this.tm.current.colorTextPrimary)
           .layoutWeight(1)
         Text(account.uid)
-          .fontSize(this.tm.current.body10.size)
+          .fontSize(this.tm.current.font11)
           .fontColor(this.tm.current.colorTextSecondary)
       }
       .width(this.tm.current.full)
       .padding({
         top: this.tm.current.value12,
         bottom: this.tm.current.value8,
-        left: this.tm.current.value16,
-        right: this.tm.current.value16,
+        left: this.tm.current.font16,
+        right: this.tm.current.font16,
       })
 
       Row({ space: this.tm.current.value8 }) {
         ForEach(this.getGameIds(account), (gameId: string) => {
           Button({ type: ButtonType.Normal }) {
             Text(gameIdToLabel(gameId))
-              .fontSize(this.tm.current.body12.size)
+              .fontSize(this.tm.current.font13)
               .fontColor(this.tm.current.colorTextPrimary)
           }
           .height(this.tm.current.value36)
@@ -128,7 +128,7 @@ export struct WidgetSection {
         if (this.getGameIds(account).length >= 2) {
           Button({ type: ButtonType.Normal }) {
             Text($r('app.string.widget_add_all_games'))
-              .fontSize(this.tm.current.body12.size)
+              .fontSize(this.tm.current.font13)
               .fontColor(this.tm.current.colorPrimary)
           }
           .height(this.tm.current.value36)
@@ -143,8 +143,8 @@ export struct WidgetSection {
       .width(this.tm.current.full)
       .padding({
         bottom: this.tm.current.value12,
-        left: this.tm.current.value16,
-        right: this.tm.current.value16,
+        left: this.tm.current.font16,
+        right: this.tm.current.font16,
       })
     }
     .width(this.tm.current.full)
@@ -161,7 +161,7 @@ export struct WidgetSectionPreview {
     Column({ space: 16 }) {
       WidgetSection({ accounts: [] })
     }
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 }

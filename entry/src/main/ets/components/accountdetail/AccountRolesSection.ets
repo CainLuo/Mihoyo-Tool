@@ -5,6 +5,7 @@
  * 空态时显示提示文字。
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
+import { ThemeFonts } from '../../theme/ThemeFonts'
 import { MyGameRoleVM, GameStatItem } from '../../models/MyModels'
 import { GameId } from 'core'
 import { AccountRoleCard } from './AccountRoleCard'
@@ -19,7 +20,7 @@ export struct AccountRolesSection {
       if (this.roles.length === 0) {
         Row() {
           Text($r('app.string.my_account_empty'))
-            .font(this.tm.current.body16)
+            .font(ThemeFonts.font17)
             .fontColor(this.tm.current.colorTextSecondary)
         }
         .width(this.tm.current.full)

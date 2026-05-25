@@ -4,6 +4,7 @@
  * 仅在 DailyNoteZZZ 中使用。
  */
 import { themeManager, ThemeManager } from '../../../theme/ThemeManager';
+import { ThemeFonts } from '../../../theme/ThemeFonts'
 import { ZZZDailyNoteVM } from '../../../models/DailyNoteModels';
 import { TimeFormatUtil } from '../../../utils/TimeFormatUtil';
 
@@ -26,16 +27,16 @@ export struct ZZZDailyCard {
       Row() {
         Column({ space: this.tm.current.value2 }) {
           Text($r('app.string.daily_note_energy'))
-            .font(this.tm.current.body16Medium)
+            .font(ThemeFonts.fontMedium17)
             .fontColor(this.tm.current.colorTextPrimary)
 
           if (this.data.energyRecoverySeconds > 0) {
             Text(TimeFormatUtil.formatSeconds(this.data.energyRecoverySeconds, this.getUIContext()))
-              .font(this.tm.current.body12)
+              .font(ThemeFonts.font13)
               .fontColor(this.tm.current.colorTextSecondary)
           } else {
             Text($r('app.string.daily_note_expedition_finished'))
-              .font(this.tm.current.body12)
+              .font(ThemeFonts.font13)
               .fontColor(this.tm.current.colorPrimary)
           }
         }
@@ -44,19 +45,19 @@ export struct ZZZDailyCard {
 
         Row({ space: this.tm.current.value2 }) {
           Text(this.data.currentEnergy.toString())
-            .font(this.tm.current.title20Bold)
+            .font(ThemeFonts.fontBold20)
             .fontColor(this.energyColor())
 
           Text('/' + this.data.maxEnergy.toString())
-            .font(this.tm.current.body13)
+            .font(ThemeFonts.font14)
             .fontColor(this.tm.current.colorTextSecondary)
         }
         .alignItems(VerticalAlign.Bottom)
       }
       .width(this.tm.current.full)
       .padding({
-        left: this.tm.current.value16,
-        right: this.tm.current.value16,
+        left: this.tm.current.font16,
+        right: this.tm.current.font16,
         top: this.tm.current.value12,
         bottom: this.tm.current.value8
       })
@@ -65,13 +66,13 @@ export struct ZZZDailyCard {
       Row() {
         Column({ space: this.tm.current.value2 }) {
           Text($r('app.string.daily_note_vitality'))
-            .font(this.tm.current.body16Medium)
+            .font(ThemeFonts.fontMedium17)
             .fontColor(this.tm.current.colorTextPrimary)
 
           Text(this.data.currentVitality >= this.data.maxVitality
             ? $r('app.string.daily_note_vitality_done')
             : $r('app.string.daily_note_vitality_hint'))
-            .font(this.tm.current.body12)
+            .font(ThemeFonts.font13)
             .fontColor(this.data.currentVitality >= this.data.maxVitality
               ? this.tm.current.colorPrimary : this.tm.current.colorTextSecondary)
         }
@@ -80,20 +81,20 @@ export struct ZZZDailyCard {
 
         Row({ space: this.tm.current.value2 }) {
           Text(this.data.currentVitality.toString())
-            .font(this.tm.current.title20Bold)
+            .font(ThemeFonts.fontBold20)
             .fontColor(this.data.currentVitality >= this.data.maxVitality
               ? this.tm.current.colorPrimary : this.tm.current.colorTextSecondary)
 
           Text('/' + this.data.maxVitality.toString())
-            .font(this.tm.current.body13)
+            .font(ThemeFonts.font14)
             .fontColor(this.tm.current.colorTextSecondary)
         }
         .alignItems(VerticalAlign.Bottom)
       }
       .width(this.tm.current.full)
       .padding({
-        left: this.tm.current.value16,
-        right: this.tm.current.value16,
+        left: this.tm.current.font16,
+        right: this.tm.current.font16,
         top: this.tm.current.value12,
         bottom: this.tm.current.value8
       })

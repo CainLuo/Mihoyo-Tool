@@ -28,7 +28,7 @@ export struct CharDetailSkillItem {
           .border({ width: this.tm.current.value1p5, color: this.tm.current.surfaceGlass })
       }
       Text(`${this.skill.level}`)
-        .fontSize(this.tm.current.body12.size)
+        .fontSize(this.tm.current.font13)
         .fontWeight(FontWeight.Bold)
         .fontColor(elementColor(this.charElement))
     }

@@ -24,7 +24,7 @@ export struct HomeSkeletonView {
 
   build() {
     Scroll() {
-      Column({ space: this.tm.current.value20 }) {
+      Column({ space: this.tm.current.font20 }) {
         AccountSkeletonCard()
 
         AccountSkeletonCard()
@@ -32,7 +32,7 @@ export struct HomeSkeletonView {
         Row().height(this.tm.current.value40)
       }
       .width(this.tm.current.full)
-      .padding({ top: this.tm.current.value16 })
+      .padding({ top: this.tm.current.font16 })
     }
     .scrollBar(BarState.Off)
     .layoutWeight(1)

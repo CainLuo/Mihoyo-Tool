@@ -34,7 +34,7 @@ export struct CharDetailHeroNameOverlay {
     .height(this.tm.current.full)
     .alignItems(HorizontalAlign.Start)
     .justifyContent(FlexAlign.End)
-    .padding({ left: this.tm.current.value56, right: this.tm.current.pct40, bottom: this.tm.current.value24 })
+    .padding({ left: this.tm.current.value56, right: this.tm.current.pct40, bottom: this.tm.current.font24 })
     .zIndex(2)
   }
 }

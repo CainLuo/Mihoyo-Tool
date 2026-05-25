@@ -7,9 +7,12 @@
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
+import { DefaultTheme } from '../../theme/DefaultTheme';
 import { calcIsFull, calcRatio, gameColorRes, parseCurrent, parseMax } from '../utils/WidgetUtils';
 import { WidgetGameData } from '../models/WidgetModels';
-import { widgetTheme } from '../utils/WidgetTheme';
+
+/** 主题常量实例 */
+const theme = new DefaultTheme();
 
 @Component
 export struct WidgetStaminaRing {
@@ -54,7 +57,7 @@ export struct WidgetStaminaRing {
             .fontSize(this.valueFontSize)
             .fontWeight(FontWeight.Bold)
             .fontColor(this.displayColor)
-            .lineHeight(this.valueFontSize + widgetTheme.value4)
+            .lineHeight(this.valueFontSize + theme.value4)
 
           Text('/' + String(parseMax(this.game.maxStr)))
             .fontSize(this.maxFontSize)

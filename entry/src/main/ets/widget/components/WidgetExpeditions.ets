@@ -5,7 +5,10 @@
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
-import { widgetTheme } from '../utils/WidgetTheme';
+import { DefaultTheme } from '../../theme/DefaultTheme';
+
+/** 主题常量实例 */
+const theme = new DefaultTheme();
 
 /** 派遣格子颜色（按索引区分） */
 const EXPEDITION_COLORS: ResourceColor[] = [
@@ -45,11 +48,11 @@ export struct WidgetExpeditions {
   }
 
   build() {
-    Column({ space: widgetTheme.value8 }) {
+    Column({ space: theme.value8 }) {
       Text($r('app.string.widget_expedition'))
-        .fontSize(widgetTheme.value10)
+        .fontSize(theme.value10)
         .fontColor($r('app.color.text_on_dark_muted'))
-        .letterSpacing(widgetTheme.value0)
+        .letterSpacing(theme.value0)
         .textCase(TextCase.UpperCase)
 
       Row() {
@@ -57,41 +60,41 @@ export struct WidgetExpeditions {
           Stack() {
             // 圆形背景（半透明底色 + 彩色边框）
             Circle()
-              .width(widgetTheme.value36)
-              .height(widgetTheme.value36)
+              .width(theme.value36)
+              .height(theme.value36)
               .fill($r('app.color.surface_inactive_border'))
               .stroke(this.getExpeditionColor(idx))
-              .strokeWidth(widgetTheme.value2)
+              .strokeWidth(theme.value2)
 
             // 头像占位
             Text('👤')
-              .fontSize(widgetTheme.value14)
+              .fontSize(theme.value14)
 
             // 完成标记（右下角小圆圈）
             if (this.isFinished(idx)) {
               Text('✓')
-                .fontSize(widgetTheme.value9)
+                .fontSize(theme.value9)
                 .fontColor($r('app.color.text_on_dark_high'))
                 .fontWeight(FontWeight.Bold)
                 .backgroundColor($r('app.color.game_color_zzz'))
-                .borderRadius(widgetTheme.value8)
-                .width(widgetTheme.value14)
-                .height(widgetTheme.value14)
+                .borderRadius(theme.value8)
+                .width(theme.value14)
+                .height(theme.value14)
                 .textAlign(TextAlign.Center)
-                .position({ x: widgetTheme.value22, y: widgetTheme.value22 })
+                .position({ x: theme.value22, y: theme.value22 })
             }
           }
-          .width(widgetTheme.value36)
-          .height(widgetTheme.value36)
+          .width(theme.value36)
+          .height(theme.value36)
           .layoutWeight(1)
         }, (idx: number) => String(idx))
       }
-      .width(widgetTheme.full)
+      .width(theme.full)
       .justifyContent(FlexAlign.SpaceBetween)
     }
-    .width(widgetTheme.full)
+    .width(theme.full)
     .layoutWeight(1)
-    .padding({ top: widgetTheme.value8, bottom: widgetTheme.value8 })
+    .padding({ top: theme.value8, bottom: theme.value8 })
     .justifyContent(FlexAlign.Center)
   }
 }

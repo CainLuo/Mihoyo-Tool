@@ -40,7 +40,7 @@ export struct AccountDetail {
   build() {
     NavDestination() {
       Scroll() {
-        Column({ space: this.tm.current.value20 }) {
+        Column({ space: this.tm.current.font20 }) {
           AccountHeaderCard({ account: this.account })
 
           SectionHeader({ title: $r('app.string.account_detail_section_roles') })
@@ -56,8 +56,8 @@ export struct AccountDetail {
         .width(this.tm.current.full)
         .padding({
           top: this.tm.current.value12,
-          left: this.tm.current.value20,
-          right: this.tm.current.value20
+          left: this.tm.current.font20,
+          right: this.tm.current.font20
         })
       }
       .scrollBar(BarState.Off)

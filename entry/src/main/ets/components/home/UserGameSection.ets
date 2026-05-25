@@ -80,7 +80,7 @@ export struct UserGameSection {
           }, (role: GameRoleCardVM) => role.roleUid + role.gameId)
         }
         .width(this.tm.current.full)
-        .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
+        .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })
         .transition(TransitionEffect.OPACITY.animation({ duration: 200, curve: Curve.EaseInOut })
           .combine(TransitionEffect.translate({ y: -8 })))
       }
@@ -113,7 +113,7 @@ export struct UserGameSectionPreview {
         onSlotToggle: () => {}
       })
     }
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 }

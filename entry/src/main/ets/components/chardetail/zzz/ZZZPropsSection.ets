@@ -21,12 +21,12 @@ export struct ZZZPropsSection {
         ForEach(this.vm.properties, (prop: ZZZCharDetailProperty, idx: number) => {
           Row() {
             Text(prop.name)
-              .fontSize(this.tm.current.body13.size)
+              .fontSize(this.tm.current.font14)
               .fontColor(this.tm.current.textOnDarkSecondary)
               .layoutWeight(1)
 
             Text(prop.final)
-              .fontSize(this.tm.current.body13Bold.size)
+              .fontSize(this.tm.current.fontBold14)
               .fontWeight(FontWeight.Bold)
               .fontColor(this.tm.current.textOnDarkHigh)
           }

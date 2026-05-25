@@ -4,6 +4,7 @@
  * 展示：数值（大字）+ 标签（小字）
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
+import { ThemeFonts } from '../../theme/ThemeFonts'
 
 @ComponentV2
 export struct AccountRoleStatItem {
@@ -16,12 +17,12 @@ export struct AccountRoleStatItem {
   build() {
     Column({ space: this.tm.current.value2 }) {
       Text(this.value)
-        .font(this.tm.current.body16Medium)
+        .font(ThemeFonts.fontMedium17)
         .fontColor(this.tm.current.textOnDarkHigh)
         .maxLines(1)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
       Text(this.name)
-        .font(this.tm.current.body13)
+        .font(ThemeFonts.font14)
         .fontColor(this.tm.current.textOnDarkSecondary)
         .maxLines(2)
         .textOverflow({ overflow: TextOverflow.Ellipsis })

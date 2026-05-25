@@ -12,9 +12,12 @@
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
-import { widgetTheme } from '../utils/WidgetTheme';
 import { WidgetCompactGameRow } from './WidgetCompactGameRow';
 import { WidgetAccountData, WidgetGameData } from '../models/WidgetModels';
+import { DefaultTheme } from '../../theme/DefaultTheme';
+
+/** 主题常量实例 */
+const theme = new DefaultTheme();
 
 @Component
 export struct WidgetMultiGameCompact {
@@ -36,7 +39,7 @@ export struct WidgetMultiGameCompact {
     if (this.ringSize === 0) {
       return 0;
     }
-    return this.data.gameCount <= 2 ? widgetTheme.value36 : widgetTheme.value24;
+    return this.data.gameCount <= 2 ? theme.value36 : theme.value24;
   }
 
   /** 2×4 模式下根据游戏数量动态计算环线宽 */
@@ -44,19 +47,19 @@ export struct WidgetMultiGameCompact {
     if (this.ringSize === 0) {
       return 0;
     }
-    return this.data.gameCount <= 2 ? widgetTheme.value4 : widgetTheme.value2;
+    return this.data.gameCount <= 2 ? theme.value4 : theme.value2;
   }
 
   build() {
     Column() {
       // 顶部账号名
       Text(this.displayName)
-        .fontSize(widgetTheme.value10)
+        .fontSize(theme.value10)
         .fontWeight(FontWeight.Medium)
         .fontColor($r('app.color.text_on_dark_secondary'))
         .maxLines(1)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
-        .margin({ bottom: widgetTheme.value4 })
+        .margin({ bottom: theme.value4 })
 
       // 游戏行列表（SpaceEvenly 均分剩余高度）
       Column() {
@@ -69,11 +72,11 @@ export struct WidgetMultiGameCompact {
 
         if (this.data.gameCount >= 2) {
           Column()
-            .width(widgetTheme.full)
-            .height(widgetTheme.value1)
+            .width(theme.full)
+            .height(theme.value1)
             .backgroundColor($r('app.color.surface_inactive_border'))
             .opacity(0.5)
-            .margin({ top: widgetTheme.value4, bottom: widgetTheme.value4 })
+            .margin({ top: theme.value4, bottom: theme.value4 })
 
           WidgetCompactGameRow({
             game: this.gameAt(1),
@@ -85,11 +88,11 @@ export struct WidgetMultiGameCompact {
 
         if (this.data.gameCount >= 3) {
           Column()
-            .width(widgetTheme.full)
-            .height(widgetTheme.value1)
+            .width(theme.full)
+            .height(theme.value1)
             .backgroundColor($r('app.color.surface_inactive_border'))
             .opacity(0.5)
-            .margin({ top: widgetTheme.value4, bottom: widgetTheme.value4 })
+            .margin({ top: theme.value4, bottom: theme.value4 })
 
           WidgetCompactGameRow({
             game: this.gameAt(2),
@@ -102,8 +105,8 @@ export struct WidgetMultiGameCompact {
       .layoutWeight(1)
       .justifyContent(FlexAlign.SpaceEvenly)
     }
-    .width(widgetTheme.full)
-    .height(widgetTheme.full)
+    .width(theme.full)
+    .height(theme.full)
     .alignItems(HorizontalAlign.Start)
   }
 }

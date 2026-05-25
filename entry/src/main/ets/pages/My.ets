@@ -56,7 +56,7 @@ export struct My {
 
   build() {
     Scroll() {
-      Column({ space: this.tm.current.value20 }) {
+      Column({ space: this.tm.current.font20 }) {
         SectionHeader({ title: $r('app.string.my_section_account') })
         AccountListSection({
           accounts: this.vm.accounts,
@@ -135,9 +135,9 @@ export struct My {
       }
       .width(this.tm.current.full)
       .padding({
-        top: this.tm.current.value16,
-        left: this.tm.current.value20,
-        right: this.tm.current.value20
+        top: this.tm.current.font16,
+        left: this.tm.current.font20,
+        right: this.tm.current.font20
       })
     }
     .scrollBar(BarState.Off)

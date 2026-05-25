@@ -34,26 +34,26 @@ export struct WidgetSlotOption {
       Column() {
         Row({ space: this.tm.current.value4 }) {
           Text(this.slot.accountName)
-            .fontSize(this.tm.current.body13Bold.size)
-            .fontWeight(this.tm.current.body13Bold.weight)
+            .fontSize(this.tm.current.fontBold14)
+            .fontWeight(FontWeight.Bold)
             .fontColor(this.isSelected ? this.tm.current.colorPrimary : this.tm.current.colorTextPrimary)
 
           Text('·')
-            .fontSize(this.tm.current.body13.size)
+            .fontSize(this.tm.current.font14)
             .fontColor(this.tm.current.colorTextSecondary)
 
           Text(this.gameName)
-            .fontSize(this.tm.current.body12.size)
+            .fontSize(this.tm.current.font13)
             .fontColor(this.gameColor)
         }
 
         Row({ space: this.tm.current.value4 }) {
           Text(this.slot.nickname)
-            .fontSize(this.tm.current.body12.size)
+            .fontSize(this.tm.current.font13)
             .fontColor(this.tm.current.colorTextSecondary)
 
           Text(`UID ${this.slot.roleId}`)
-            .fontSize(this.tm.current.body10.size)
+            .fontSize(this.tm.current.font11)
             .fontColor(this.tm.current.colorTextSecondary)
         }
         .margin({ top: this.tm.current.value2 })
@@ -66,12 +66,12 @@ export struct WidgetSlotOption {
       Row() {
         if (this.isSelected) {
           Text('✓')
-            .fontSize(this.tm.current.body12.size)
+            .fontSize(this.tm.current.font13)
             .fontColor(Color.White)
         }
       }
-      .width(this.tm.current.value18)
-      .height(this.tm.current.value18)
+      .width(this.tm.current.font18)
+      .height(this.tm.current.font18)
       .borderRadius(this.tm.current.value9)
       .backgroundColor(this.isSelected ? this.gameColor : Color.Transparent)
       .border({
@@ -81,7 +81,7 @@ export struct WidgetSlotOption {
       .justifyContent(FlexAlign.Center)
     }
     .width(this.tm.current.full)
-    .padding(this.tm.current.value14)
+    .padding(this.tm.current.font14)
     .backgroundColor(this.isSelected ? this.tm.current.surfaceActivePrimary : this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
     .border({
@@ -114,7 +114,7 @@ struct WidgetSlotOptionPreview {
         isSelected: false
       })
     }
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 

@@ -5,14 +5,17 @@
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
-import { widgetTheme } from '../utils/WidgetTheme';
+import { DefaultTheme } from '../../theme/DefaultTheme';
+
+/** 主题常量实例 */
+const theme = new DefaultTheme();
 
 @Component
 export struct WidgetDataRow {
   label: ResourceStr = '';
   value: ResourceStr = '';
   valueColor: ResourceColor = $r('app.color.text_on_dark_high');
-  fontSize: number = 13;
+  fontSize: number = theme.font13;
 
   build() {
     Row() {
@@ -26,7 +29,7 @@ export struct WidgetDataRow {
         .fontWeight(FontWeight.Medium)
         .fontColor(this.valueColor)
     }
-    .width(widgetTheme.full)
+    .width(theme.full)
   }
 }
 

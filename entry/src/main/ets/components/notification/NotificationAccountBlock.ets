@@ -27,14 +27,14 @@ export struct NotificationAccountBlock {
         Column() {
           Divider()
             .color(this.tm.current.colorDivider)
-            .margin({ left: this.tm.current.value16, right: this.tm.current.value16 })
+            .margin({ left: this.tm.current.font16, right: this.tm.current.font16 })
 
           ForEach(this.acct.games, (game: GameNotificationConfig) => {
             NotificationGameRow({ accountId: this.acct.accountId, game: game, vm: this.vm })
 
             Divider()
               .color(this.tm.current.colorDivider)
-              .margin({ left: this.tm.current.value16, right: this.tm.current.value16 })
+              .margin({ left: this.tm.current.font16, right: this.tm.current.font16 })
           }, (game: GameNotificationConfig) => game.gameId)
 
           NotificationFullValueRow({ accountId: this.acct.accountId, vm: this.vm })
@@ -71,7 +71,7 @@ export struct NotificationAccountBlockPreview {
     Column() {
       NotificationAccountBlock({ acct: this.acct })
     }
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 }

@@ -5,6 +5,7 @@
  * 步骤二：「同意并继续」+ 「不同意，退出」（未读完时均禁用）
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { ThemeFonts } from '../../theme/ThemeFonts'
 
 @ComponentV2
 export struct PrivacyConsentFooter {
@@ -19,7 +20,7 @@ export struct PrivacyConsentFooter {
     Column({ space: this.tm.current.value8 }) {
       if (!this.canProceed) {
         Text($r('app.string.privacy_consent_scroll_hint'))
-          .font(this.tm.current.body12)
+          .font(ThemeFonts.font13)
           .fontColor(this.tm.current.colorTextSecondary)
           .textAlign(TextAlign.Center)
           .width(this.tm.current.full)
@@ -33,8 +34,8 @@ export struct PrivacyConsentFooter {
           .backgroundColor(this.canProceed
             ? this.tm.current.colorPrimary
             : this.tm.current.colorSurfaceSubtle)
-          .fontSize(this.tm.current.body15Bold.size)
-          .fontWeight(this.tm.current.body15Bold.weight)
+          .fontSize(this.tm.current.fontBold16)
+          .fontWeight(FontWeight.Bold)
           .fontColor(this.canProceed
             ? this.tm.current.textOnDarkHigh
             : this.tm.current.colorTextSecondary)
@@ -48,8 +49,8 @@ export struct PrivacyConsentFooter {
           .backgroundColor(this.canProceed
             ? this.tm.current.colorPrimary
             : this.tm.current.colorSurfaceSubtle)
-          .fontSize(this.tm.current.body15Bold.size)
-          .fontWeight(this.tm.current.body15Bold.weight)
+          .fontSize(this.tm.current.fontBold16)
+          .fontWeight(FontWeight.Bold)
           .fontColor(this.canProceed
             ? this.tm.current.textOnDarkHigh
             : this.tm.current.colorTextSecondary)
@@ -61,7 +62,7 @@ export struct PrivacyConsentFooter {
           .height(this.tm.current.value40)
           .borderRadius(this.tm.current.radius8)
           .backgroundColor(Color.Transparent)
-          .fontSize(this.tm.current.body13.size)
+          .fontSize(this.tm.current.font14)
           .fontColor(this.canProceed
             ? this.tm.current.colorTextSecondary
             : this.tm.current.colorSurfaceSubtle)
@@ -70,7 +71,7 @@ export struct PrivacyConsentFooter {
       }
     }
     .width(this.tm.current.full)
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .border({ width: { top: this.tm.current.value1 }, color: this.tm.current.colorDivider })
   }
 }
@@ -83,7 +84,7 @@ export struct PrivacyConsentFooterPreview {
   @Local private tm: ThemeManager = themeManager;
 
   build() {
-    Column({ space: this.tm.current.value16 }) {
+    Column({ space: this.tm.current.font16 }) {
       PrivacyConsentFooter({ step: 'terms', canProceed: false })
 
       PrivacyConsentFooter({ step: 'terms', canProceed: true })
@@ -92,7 +93,7 @@ export struct PrivacyConsentFooterPreview {
 
       PrivacyConsentFooter({ step: 'privacy', canProceed: true })
     }
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 }

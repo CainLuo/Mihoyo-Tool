@@ -26,7 +26,7 @@ export struct WidgetSettingsBottomButtons {
         Button($r('app.string.widget_btn_prev'))
           .height(this.tm.current.value44)
           .layoutWeight(1)
-          .fontSize(this.tm.current.body13.size)
+          .fontSize(this.tm.current.font14)
           .fontColor(this.tm.current.colorTextPrimary)
           .backgroundColor(this.tm.current.colorSurfaceCard)
           .border({ width: this.tm.current.value1, color: this.tm.current.colorDivider })
@@ -38,8 +38,8 @@ export struct WidgetSettingsBottomButtons {
         Button($r('app.string.widget_btn_add'))
           .height(this.tm.current.value44)
           .layoutWeight(2)
-          .fontSize(this.tm.current.body13Bold.size)
-          .fontWeight(this.tm.current.body13Bold.weight)
+          .fontSize(this.tm.current.fontBold14)
+          .fontWeight(FontWeight.Bold)
           .fontColor(Color.White)
           .backgroundColor(this.tm.current.colorPrimary)
           .borderRadius(this.tm.current.radius12)
@@ -48,8 +48,8 @@ export struct WidgetSettingsBottomButtons {
         Button($r('app.string.widget_btn_next'))
           .height(this.tm.current.value44)
           .layoutWeight(2)
-          .fontSize(this.tm.current.body13Bold.size)
-          .fontWeight(this.tm.current.body13Bold.weight)
+          .fontSize(this.tm.current.fontBold14)
+          .fontWeight(FontWeight.Bold)
           .fontColor(Color.White)
           .backgroundColor(this.tm.current.colorPrimary)
           .borderRadius(this.tm.current.radius12)
@@ -60,10 +60,10 @@ export struct WidgetSettingsBottomButtons {
     }
     .width(this.tm.current.full)
     .padding({
-      left: this.tm.current.value16,
-      right: this.tm.current.value16,
+      left: this.tm.current.font16,
+      right: this.tm.current.font16,
       top: this.tm.current.value12,
-      bottom: this.tm.current.value24
+      bottom: this.tm.current.font24
     })
   }
 }

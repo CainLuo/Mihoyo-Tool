@@ -85,18 +85,25 @@ export class DefaultTheme implements Theme {
   roleCardStatBg: Resource = $r('app.color.role_card_stat_bg')
   widgetCardBg: Resource = $r('app.color.widget_card_bg')
 
-  // ---- AppFont ----
-  body10: Font = makeFont(11, FontWeight.Normal)
-  body12: Font = makeFont(13, FontWeight.Normal)
-  body13: Font = makeFont(14, FontWeight.Normal)
-  body13Bold: Font = makeFont(14, FontWeight.Bold)
-  body15Bold: Font = makeFont(16, FontWeight.Bold)
-  body16: Font = makeFont(17, FontWeight.Normal)
-  body16Medium: Font = makeFont(17, FontWeight.Medium)
-  title18Bold: Font = makeFont(18, FontWeight.Bold)
-  title20Bold: Font = makeFont(20, FontWeight.Bold)
-  title24Bold: Font = makeFont(24, FontWeight.Bold)
-  title26Bold: Font = makeFont(26, FontWeight.Bold)
+  // ---- FontSize ----
+  font9: number = 9
+  font10: number = 10
+  font11: number = 11
+  font13: number = 13
+  font14: number = 14
+  fontBold14: number = 14
+  font16: number = 16
+  fontBold16: number = 16
+  font17: number = 17
+  fontMedium17: number = 17
+  font18: number = 18
+  fontBold18: number = 18
+  font20: number = 20
+  fontBold20: number = 20
+  font24: number = 24
+  fontBold24: number = 24
+  font26: number = 26
+  fontBold26: number = 26
 
   // ---- Spacing ----
   value0: number = 0
@@ -181,23 +188,7 @@ export class DefaultTheme implements Theme {
   charDetailConsInactiveOpacity: number = 0.3
   charDetailLockIconRatio: number = 0.6
 
-  constructor(fontFamily: string = '') {
-    if (fontFamily !== '') {
-      this.initFonts(fontFamily)
-    }
-  }
-
-  protected initFonts(family: string): void {
-    this.body10 = makeFont(11, FontWeight.Normal, family)
-    this.body12 = makeFont(13, FontWeight.Normal, family)
-    this.body13 = makeFont(14, FontWeight.Normal, family)
-    this.body13Bold = makeFont(14, FontWeight.Bold, family)
-    this.body15Bold = makeFont(16, FontWeight.Bold, family)
-    this.body16 = makeFont(17, FontWeight.Normal, family)
-    this.body16Medium = makeFont(17, FontWeight.Medium, family)
-    this.title18Bold = makeFont(18, FontWeight.Bold, family)
-    this.title20Bold = makeFont(20, FontWeight.Bold, family)
-    this.title24Bold = makeFont(24, FontWeight.Bold, family)
-    this.title26Bold = makeFont(26, FontWeight.Bold, family)
+  constructor() {
+    // 无需初始化，所有字段已在声明时赋值
   }
 }

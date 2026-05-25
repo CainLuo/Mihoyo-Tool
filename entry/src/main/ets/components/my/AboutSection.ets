@@ -26,7 +26,7 @@ export struct AboutSection {
 
       Divider()
         .color(this.tm.current.colorDivider)
-        .margin({ left: this.tm.current.value16 })
+        .margin({ left: this.tm.current.font16 })
 
       SettingRow({
         label: $r('app.string.my_clear_cache'),
@@ -36,7 +36,7 @@ export struct AboutSection {
 
       Divider()
         .color(this.tm.current.colorDivider)
-        .margin({ left: this.tm.current.value16 })
+        .margin({ left: this.tm.current.font16 })
 
       SettingRow({
         label: $r('app.string.my_about_version'),
@@ -66,7 +66,7 @@ export struct AboutSectionPreview {
     Column() {
       AboutSection({ vm: new MyViewModel() })
     }
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 }

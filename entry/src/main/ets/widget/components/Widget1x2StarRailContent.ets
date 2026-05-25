@@ -12,6 +12,10 @@
 
 import { calcIsFull, calcRatio, formatRecoveryDesc, parseCurrent, parseMax } from '../utils/WidgetUtils';
 import { WidgetSingleGameData } from '../models/WidgetModels';
+import { DefaultTheme } from '../../theme/DefaultTheme';
+
+/** 主题常量实例 */
+const theme = new DefaultTheme();
 
 @Component
 export struct Widget1x2StarRailContent {
@@ -45,34 +49,34 @@ export struct Widget1x2StarRailContent {
   }
 
   build() {
-    Row({ space: 8 }) {
+    Row({ space: theme.value8 }) {
       // 左侧：游戏色竖线装饰条（3vp 宽，上下 8px padding）
       Stack() {
         Column()
-          .width(3)
-          .borderRadius(2)
+          .width(theme.value3)
+          .borderRadius(theme.value2)
           .backgroundColor(this.gameColor)
-          .height('100%')
+          .height(theme.full)
       }
-      .width(3)
-      .height('100%')
-      .padding({ top: 8, bottom: 8 })
+      .width(theme.value3)
+      .height(theme.full)
+      .padding({ top: theme.value8, bottom: theme.value8 })
       .alignContent(Alignment.Center)
       .flexShrink(0)
 
       // 中间：游戏名 + UID + 恢复时间
-      Column({ space: 2 }) {
+      Column({ space: theme.value2 }) {
         Text($r('app.string.game_name_starrail'))
-          .fontSize(10)
+          .fontSize(theme.font10)
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_on_dark_secondary'))
 
         Text('UID ' + this.data.accountUid)
-          .fontSize(9)
+          .fontSize(theme.font9)
           .fontColor($r('app.color.text_on_dark_muted'))
 
         Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(this.data.game.secondsStr))
-          .fontSize(10)
+          .fontSize(theme.font10)
           .fontColor(this.isFull ? $r('app.color.color_danger') : $r('app.color.text_on_dark_tertiary'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -84,25 +88,25 @@ export struct Widget1x2StarRailContent {
       // 右侧：当前值 + Divider + 最大值
       Column() {
         Text(String(parseCurrent(this.data.game.currentStr)))
-          .fontSize(16)
+          .fontSize(theme.fontBold16)
           .fontWeight(FontWeight.Bold)
           .fontColor(this.staminaColor)
 
         Divider()
-          .width(20)
-          .height(1)
+          .width(theme.value20)
+          .height(theme.value1)
           .color($r('app.color.text_on_dark_muted'))
 
         Text(String(parseMax(this.data.game.maxStr)))
-          .fontSize(12)
+          .fontSize(theme.font13)
           .fontColor($r('app.color.text_on_dark_muted'))
       }
       .alignItems(HorizontalAlign.End)
       .justifyContent(FlexAlign.Center)
       .flexShrink(0)
     }
-    .width('100%')
-    .height('100%')
+    .width(theme.full)
+    .height(theme.full)
     .alignItems(VerticalAlign.Center)
   }
 }

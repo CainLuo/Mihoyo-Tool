@@ -25,7 +25,7 @@ export struct ZZZWeaponCard {
 
       Column({ space: this.tm.current.value4 }) {
         Text(this.weapon.name)
-          .fontSize(this.tm.current.body13Bold.size)
+          .fontSize(this.tm.current.fontBold14)
           .fontWeight(FontWeight.Bold)
           .fontColor(this.tm.current.textOnDarkHigh)
           .maxLines(1)
@@ -33,11 +33,11 @@ export struct ZZZWeaponCard {
 
         Row({ space: this.tm.current.value8 }) {
           Text(`Lv.${this.weapon.level}`)
-            .fontSize(this.tm.current.body10.size)
+            .fontSize(this.tm.current.font11)
             .fontColor(this.tm.current.textOnDarkMuted)
 
           Text(this.weapon.rarity)
-            .fontSize(this.tm.current.body10.size)
+            .fontSize(this.tm.current.font11)
             .fontWeight(FontWeight.Bold)
             .fontColor(this.tm.current.accentRefine)
             .backgroundColor(this.tm.current.accentRefineBg)
@@ -47,7 +47,7 @@ export struct ZZZWeaponCard {
 
         if (this.weapon.talentTitle !== '') {
           Text(this.weapon.talentTitle)
-            .fontSize(this.tm.current.body12.size)
+            .fontSize(this.tm.current.font13)
             .fontColor(this.tm.current.textOnDarkSecondary)
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })

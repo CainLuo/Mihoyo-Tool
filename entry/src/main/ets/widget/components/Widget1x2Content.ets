@@ -16,6 +16,10 @@
 
 import { calcIsFull, calcRatio, formatRecoveryDesc, gameNameRes, parseCurrent, parseMax } from '../utils/WidgetUtils';
 import { WidgetSingleGameData } from '../models/WidgetModels';
+import { DefaultTheme } from '../../theme/DefaultTheme';
+
+/** 主题常量实例 */
+const theme = new DefaultTheme();
 
 @Component
 export struct Widget1x2Content {
@@ -49,51 +53,51 @@ export struct Widget1x2Content {
   }
 
   build() {
-    Row({ space: 8 }) {
+    Row({ space: theme.value8 }) {
       // 左侧：游戏色竖线装饰条（3vp 宽，上下 8px padding）
       Stack() {
         Column()
-          .width(3)
-          .borderRadius(2)
+          .width(theme.value3)
+          .borderRadius(theme.value2)
           .backgroundColor(this.gameColor)
-          .height('100%')
+          .height(theme.full)
       }
-      .width(3)
-      .height('100%')
-      .padding({ top: 8, bottom: 8 })
+      .width(theme.value3)
+      .height(theme.full)
+      .padding({ top: theme.value8, bottom: theme.value8 })
       .alignContent(Alignment.Center)
       .flexShrink(0)
 
       // 右侧：游戏名+UID + 体力 + 恢复时间
       Column() {
         // 第一行：游戏名 + UID
-        Row({ space: 4 }) {
+        Row({ space: theme.value4 }) {
           Text(gameNameRes(this.data.game.gameId))
-            .fontSize(10)
+            .fontSize(theme.font10)
             .fontWeight(FontWeight.Medium)
             .fontColor($r('app.color.text_on_dark_secondary'))
 
           Text('UID ' + this.data.accountUid)
-            .fontSize(9)
+            .fontSize(theme.font9)
             .fontColor($r('app.color.text_on_dark_muted'))
         }
 
         // 第二行：当前体力 / 最大体力
-        Row({ space: 2 }) {
+        Row({ space: theme.value2 }) {
           Text(String(parseCurrent(this.data.game.currentStr)))
-            .fontSize(18)
+            .fontSize(theme.fontBold18)
             .fontWeight(FontWeight.Bold)
             .fontColor(this.staminaColor)
 
           Text('/' + String(parseMax(this.data.game.maxStr)))
-            .fontSize(18)
+            .fontSize(theme.fontBold18)
             .fontColor($r('app.color.text_on_dark_muted'))
         }
         .alignItems(VerticalAlign.Bottom)
 
         // 第三行：恢复时间
         Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(this.data.game.secondsStr))
-          .fontSize(10)
+          .fontSize(theme.font10)
           .fontColor(this.isFull ? $r('app.color.color_danger') : $r('app.color.text_on_dark_tertiary'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -102,8 +106,8 @@ export struct Widget1x2Content {
       .justifyContent(FlexAlign.Center)
       .layoutWeight(1)
     }
-    .width('100%')
-    .height('100%')
+    .width(theme.full)
+    .height(theme.full)
     .alignItems(VerticalAlign.Center)
   }
 }

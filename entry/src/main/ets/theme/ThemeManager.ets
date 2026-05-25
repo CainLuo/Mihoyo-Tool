@@ -8,24 +8,25 @@
  *
  * 组件用法（@ComponentV2）：
  *   import { themeManager } from '../theme/ThemeManager'
+ *   import { ThemeFonts } from '../theme/ThemeFonts'
  *
  *   @ComponentV2
  *   struct MyComponent {
  *     @Local tm = themeManager
  *     build() {
  *       Text('hello')
- *         .font(this.tm.current.body16)
+ *         .font(ThemeFonts.font17)
  *         .fontColor(this.tm.current.colorTextPrimary)
  *     }
  *   }
  *
  * 切换主题：
  *   themeManager.current = new DarkTheme()
- *   themeManager.current = new DarkTheme('MiSans')  // 同时换字体
  * ============================================================
  */
 
 import { Theme } from './AppTheme'
+
 import { DefaultTheme } from './DefaultTheme'
 
 @ObservedV2

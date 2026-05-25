@@ -5,6 +5,7 @@
  * My 页和 Setting 页均可复用。
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
+import { ThemeFonts } from '../../theme/ThemeFonts'
 import { MyAccountVM, MyGameRoleVM } from '../../models/MyModels'
 import { GameId } from 'core'
 import { AccountListItem } from './AccountListItem'
@@ -21,7 +22,7 @@ export struct AccountListSection {
       if (this.accounts.length === 0) {
         Row() {
           Text($r('app.string.my_account_empty'))
-            .font(this.tm.current.body16)
+            .font(ThemeFonts.font17)
             .fontColor(this.tm.current.colorTextSecondary)
         }
         .width(this.tm.current.full)
@@ -37,7 +38,7 @@ export struct AccountListSection {
           if (idx < this.accounts.length - 1) {
             Divider()
               .color(this.tm.current.colorDivider)
-              .margin({ left: this.tm.current.value16 })
+              .margin({ left: this.tm.current.font16 })
           }
         }, (account: MyAccountVM) => account.accountId)
       }
@@ -46,8 +47,8 @@ export struct AccountListSection {
         .color(this.tm.current.colorDivider)
 
       Button($r('app.string.my_account_add'), { type: ButtonType.Normal })
-        .fontSize(this.tm.current.body16.size)
-        .fontWeight(this.tm.current.body16.weight)
+        .fontSize(this.tm.current.font17)
+        .fontWeight(FontWeight.Normal)
         .fontColor(this.tm.current.colorPrimary)
         .width(this.tm.current.full)
         .height(this.tm.current.value50)
@@ -69,7 +70,7 @@ export struct AccountListSectionPreview {
   @Local private tm: ThemeManager = themeManager
 
   build() {
-    Column({ space: this.tm.current.value16 }) {
+    Column({ space: this.tm.current.font16 }) {
       AccountListSection({
         accounts: [
           new MyAccountVM('user001', 'user001', [
@@ -81,7 +82,7 @@ export struct AccountListSectionPreview {
 
       AccountListSection({ accounts: [] })
     }
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 }

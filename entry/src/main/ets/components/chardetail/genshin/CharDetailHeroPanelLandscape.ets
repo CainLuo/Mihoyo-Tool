@@ -63,10 +63,10 @@ export struct CharDetailHeroPanelLandscape {
   LevelAndFetterRow() {
     Row({ space: this.tm.current.value4 }) {
       Text(`Lv.${this.vm.charLevel}`)
-        .fontSize(this.tm.current.body10.size)
+        .fontSize(this.tm.current.font11)
         .fontColor(this.tm.current.textOnDarkMedium)
       Text($r('app.string.char_detail_fetter_label'))
-        .fontSize(this.tm.current.body10.size)
+        .fontSize(this.tm.current.font11)
         .fontColor(elementColor(this.vm.charElement))
         .backgroundColor(this.tm.current.surfaceFetterBg)
         .border({ width: this.tm.current.value1, color: this.tm.current.surfaceFetterBorder })

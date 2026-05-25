@@ -66,7 +66,7 @@ export struct CharDetailHeroInfoOverlay {
     .padding({
       left: this.paddingLeft(),
       right: this.paddingRight(),
-      bottom: this.tm.current.value24
+      bottom: this.tm.current.font24
     })
     .zIndex(2)
   }

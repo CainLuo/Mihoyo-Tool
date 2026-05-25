@@ -14,10 +14,10 @@ export struct StarRailCharDetailHeroInfo {
   build() {
     Row({ space: this.tm.current.value8 }) {
       Text(`Lv.${this.vm.charLevel}`)
-        .fontSize(this.tm.current.body12.size)
+        .fontSize(this.tm.current.font13)
         .fontColor(this.tm.current.textOnDarkMedium)
       Text($r('app.string.starrail_char_detail_rank_prefix', this.vm.charRank))
-        .fontSize(this.tm.current.body10.size)
+        .fontSize(this.tm.current.font11)
         .fontWeight(FontWeight.Bold)
         .fontColor(this.tm.current.accentRefine)
         .backgroundColor(this.tm.current.accentRefineBg)

@@ -2,6 +2,7 @@
  * CharDetailEmptyView — 角色详情空态/错误视图
  */
 import { ThemeManager, themeManager } from '../../../theme/ThemeManager';
+import { ThemeFonts } from '../../../theme/ThemeFonts'
 
 @ComponentV2
 export struct CharDetailEmptyView {
@@ -10,7 +11,7 @@ export struct CharDetailEmptyView {
   build() {
     Row() {
       Text($r('app.string.char_detail_no_data'))
-        .font(this.tm.current.body13)
+        .font(ThemeFonts.font14)
         .fontColor(this.tm.current.colorTextSecondary)
     }
     .width(this.tm.current.full)

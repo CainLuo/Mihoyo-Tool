@@ -16,10 +16,10 @@ export struct CharDetailRelicPlaceholder {
   build() {
     Column({ space: this.tm.current.value4 }) {
       SymbolGlyph($r('sys.symbol.lock'))
-        .fontSize(this.tm.current.value20)
+        .fontSize(this.tm.current.font20)
         .fontColor([this.tm.current.textOnDarkMuted])
       Text(this.posName)
-        .fontSize(this.tm.current.body12.size)
+        .fontSize(this.tm.current.font13)
         .fontColor(this.tm.current.textOnDarkMuted)
     }
     .width(this.tm.current.full)

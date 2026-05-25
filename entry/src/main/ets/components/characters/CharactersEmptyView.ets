@@ -5,6 +5,7 @@
  * 提示用户点击刷新按钮触发同步。
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { ThemeFonts } from '../../theme/ThemeFonts'
 
 @ComponentV2
 export struct CharactersEmptyView {
@@ -12,24 +13,24 @@ export struct CharactersEmptyView {
   @Local private tm: ThemeManager = themeManager;
 
   build() {
-    Column({ space: this.tm.current.value20 }) {
+    Column({ space: this.tm.current.font20 }) {
       Text('📋').fontSize(this.tm.current.value64)
 
       Column({ space: this.tm.current.value8 }) {
         Text($r('app.string.characters_placeholder_title'))
-          .font(this.tm.current.title18Bold)
+          .font(ThemeFonts.fontBold18)
           .fontColor(this.tm.current.colorTextPrimary)
           .textAlign(TextAlign.Center)
         Text($r('app.string.characters_placeholder_desc'))
-          .font(this.tm.current.body16)
+          .font(ThemeFonts.font17)
           .fontColor(this.tm.current.colorTextSecondary)
           .textAlign(TextAlign.Center)
           .padding({ left: this.tm.current.value40, right: this.tm.current.value40 })
       }
 
       Button($r('app.string.characters_no_data_hint'))
-        .fontSize(this.tm.current.body16Medium.size)
-        .fontWeight(this.tm.current.body16Medium.weight)
+        .fontSize(this.tm.current.fontMedium17)
+        .fontWeight(FontWeight.Medium)
         .fontColor(this.tm.current.textOnDarkHigh)
         .width(this.tm.current.pct90)
         .height(this.tm.current.value50)

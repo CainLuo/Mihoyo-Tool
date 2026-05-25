@@ -113,19 +113,26 @@ export interface AppColor {
   widgetCardBg: Resource
 }
 
-// ---- 字体 Token ----
-export interface AppFont {
-  body10: Font
-  body12: Font
-  body13: Font
-  body13Bold: Font
-  body15Bold: Font
-  body16: Font
-  body16Medium: Font
-  title18Bold: Font
-  title20Bold: Font
-  title24Bold: Font
-  title26Bold: Font
+// ---- 字体大小 Token（纯数字，兼容 Widget 等受限环境）----
+export interface FontSize {
+  font9: number           // 9vp
+  font10: number          // 10vp
+  font11: number          // 11vp
+  font13: number          // 13vp
+  font14: number          // 14vp
+  fontBold14: number      // 14vp Bold
+  font16: number          // 16vp
+  fontBold16: number      // 16vp Bold
+  font17: number          // 17vp
+  fontMedium17: number    // 17vp Medium
+  font18: number          // 18vp
+  fontBold18: number      // 18vp Bold
+  font20: number          // 20vp
+  fontBold20: number      // 20vp Bold
+  font24: number          // 24vp
+  fontBold24: number      // 24vp Bold
+  font26: number          // 26vp
+  fontBold26: number      // 26vp Bold
 }
 
 // ---- 间距/尺寸 Token（纯数值，命名即数值）----
@@ -226,7 +233,7 @@ export interface Opacity {
   charDetailLockIconRatio: number        // 0.6
 }
 
-export interface Theme extends AppColor, AppFont, Spacing, Percent, Radius, Shadow, Angle, Opacity, Duration {}
+export interface Theme extends AppColor, FontSize, Spacing, Percent, Radius, Shadow, Angle, Opacity, Duration {}
 
 // ---- 辅助函数 ----
 export function makeFont(size: number, weight: FontWeight, family: string = ''): Font {

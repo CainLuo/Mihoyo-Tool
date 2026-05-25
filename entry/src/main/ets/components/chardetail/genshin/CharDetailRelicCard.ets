@@ -24,7 +24,7 @@ export struct CharDetailRelicCard {
         }
         Column({ space: this.tm.current.value2 }) {
           Text(this.relic.setName !== '' ? this.relic.setName : (this.relic.mainStatLabel ?? $r('app.string.char_detail_no_data')))
-            .fontSize(this.tm.current.body12.size)
+            .fontSize(this.tm.current.font13)
             .fontWeight(FontWeight.Bold)
             .fontColor(this.tm.current.textOnDarkHigh)
             .maxLines(1)
@@ -48,11 +48,11 @@ export struct CharDetailRelicCard {
       // 主词条行
       Row() {
         Text(this.relic.mainStatLabel ?? $r('app.string.char_detail_no_data'))
-          .fontSize(this.tm.current.body10.size)
+          .fontSize(this.tm.current.font11)
           .fontColor(this.tm.current.accentPrimaryStrong)
           .layoutWeight(1)
         Text(this.relic.mainStatValue)
-          .fontSize(this.tm.current.body13Bold.size)
+          .fontSize(this.tm.current.fontBold14)
           .fontWeight(FontWeight.Bold)
           .fontColor(this.tm.current.textOnDarkHigh)
       }
@@ -65,11 +65,11 @@ export struct CharDetailRelicCard {
         ForEach(this.relic.subStats, (sub: RelicSubStat) => {
           Row() {
             Text(sub.label ?? $r('app.string.char_detail_no_data'))
-              .fontSize(this.tm.current.body10.size)
+              .fontSize(this.tm.current.font11)
               .fontColor(this.tm.current.textOnDarkGhost)
               .layoutWeight(1)
             Text(sub.value)
-              .fontSize(this.tm.current.body10.size)
+              .fontSize(this.tm.current.font11)
               .fontColor(this.tm.current.textOnDarkHigh)
           }
           .width(this.tm.current.full)

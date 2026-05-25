@@ -38,11 +38,11 @@ export struct CharactersContent {
 
       if (this.vm.viewState === ViewState.LOADING) {
         Scroll() {
-          Column({ space: this.tm.current.value16 }) {
+          Column({ space: this.tm.current.font16 }) {
             CharactersSkeleton()
           }
           .width(this.tm.current.full)
-          .padding({ top: this.tm.current.value16 })
+          .padding({ top: this.tm.current.font16 })
         }
         .scrollBar(BarState.Off)
         .layoutWeight(1)
@@ -84,8 +84,8 @@ export struct CharactersContent {
         .rowsGap(this.tm.current.value12)
         .padding({
           top: this.tm.current.value8,
-          left: this.tm.current.value16,
-          right: this.tm.current.value16,
+          left: this.tm.current.font16,
+          right: this.tm.current.font16,
           bottom: this.tm.current.value40
         })
         .edgeEffect(EdgeEffect.Spring)

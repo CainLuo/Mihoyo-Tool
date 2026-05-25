@@ -14,11 +14,18 @@
  * - Widget 必须创建 LocalStorage 实例并传给 @Entry
  * - FormExtensionAbility 通过 createFormBindingData 传递的数据会注入到此实例
  * - @LocalStorageProp('payload') 从该实例读取数据
+ *
+ * 测试：使用 AppTheme 的 DefaultTheme 获取数值（不使用 @ObservedV2/@Trace）
  */
 
 import { Widget1x2Content } from '../components/Widget1x2Content';
 import { WidgetGameData, WidgetSingleGameData } from '../models/WidgetModels';
 import { parsePayload, ParsedRole } from '../utils/WidgetPayloadParser';
+import { widgetSingleGameGradient, WIDGET_GAME_ID } from '../utils/WidgetUtils';
+import { DefaultTheme } from '../../theme/DefaultTheme';
+
+/** 主题常量实例（Widget 直接使用，不依赖 @ObservedV2/@Trace） */
+const theme = new DefaultTheme();
 
 let storage: LocalStorage = new LocalStorage();
 
@@ -81,14 +88,14 @@ struct Widget1x2Genshin {
         gameColor: $r('app.color.game_color_genshin')
       })
     }
-    .width('100%')
-    .height('100%')
+    .width(theme.full)
+    .height(theme.full)
     .padding({
-      left: 12,
-      right: 12
+      left: theme.value12,
+      right: theme.value12
     })
-    .linearGradient({ angle: 135, colors: [[$r('app.color.widget_bg_genshin_dark'), 0], [$r('app.color.widget_bg_genshin_mid'), 0.5], [$r('app.color.widget_bg_genshin_light'), 1]] })
-    .borderRadius(16)
+    .linearGradient(widgetSingleGameGradient(WIDGET_GAME_ID.GENSHIN))
+    .borderRadius(theme.radius16)
     .onClick(() => {
       postCardAction(this, {
         action: 'router',

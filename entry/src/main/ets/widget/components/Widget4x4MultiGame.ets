@@ -9,9 +9,12 @@
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
-import { widgetTheme, WT } from '../utils/WidgetTheme';
 import { WidgetMultiGameBlock } from './WidgetMultiGameBlock';
 import { WidgetAccountData, WidgetGameData } from '../models/WidgetModels';
+import { DefaultTheme } from '../../theme/DefaultTheme';
+
+/** 主题常量实例 */
+const theme = new DefaultTheme();
 
 @Component
 export struct Widget4x4MultiGame {
@@ -29,9 +32,9 @@ export struct Widget4x4MultiGame {
   build() {
     Column() {
       // 顶部：账号名 + UID（固定高度，带底部分割线）
-      Row({ space: widgetTheme.value8 }) {
+      Row({ space: theme.value8 }) {
         Text(this.displayName)
-          .fontSize(widgetTheme.value12)
+          .fontSize(theme.value12)
           .fontWeight(FontWeight.Medium)
           .fontColor($r('app.color.text_on_dark_high'))
           .maxLines(1)
@@ -39,11 +42,11 @@ export struct Widget4x4MultiGame {
           .layoutWeight(1)
 
         Text(this.data.accountUid)
-          .fontSize(widgetTheme.value10)
+          .fontSize(theme.value10)
           .fontColor($r('app.color.text_on_dark_muted'))
       }
-      .width(widgetTheme.full)
-      .padding({ bottom: widgetTheme.value8 })
+      .width(theme.full)
+      .padding({ bottom: theme.value8 })
       .border({ width: { bottom: 1 }, color: $r('app.color.surface_inactive_border') })
       .flexShrink(0)
 
@@ -56,8 +59,8 @@ export struct Widget4x4MultiGame {
 
         if (this.data.gameCount >= 2) {
           Column()
-            .width(widgetTheme.full)
-            .height(widgetTheme.value1)
+            .width(theme.full)
+            .height(theme.value1)
             .backgroundColor($r('app.color.surface_inactive_border'))
             .opacity(0.5)
             .flexShrink(0)
@@ -70,8 +73,8 @@ export struct Widget4x4MultiGame {
 
         if (this.data.gameCount >= 3) {
           Column()
-            .width(widgetTheme.full)
-            .height(widgetTheme.value1)
+            .width(theme.full)
+            .height(theme.value1)
             .backgroundColor($r('app.color.surface_inactive_border'))
             .opacity(0.5)
             .flexShrink(0)
@@ -83,10 +86,10 @@ export struct Widget4x4MultiGame {
         }
       }
       .layoutWeight(1)
-      .width(widgetTheme.full)
+      .width(theme.full)
     }
-    .width(widgetTheme.full)
-    .height(widgetTheme.full)
+    .width(theme.full)
+    .height(theme.full)
     .alignItems(HorizontalAlign.Start)
   }
 }

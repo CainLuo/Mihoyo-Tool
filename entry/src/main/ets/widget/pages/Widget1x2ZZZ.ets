@@ -19,6 +19,11 @@
 import { Widget1x2Content } from '../components/Widget1x2Content';
 import { WidgetGameData, WidgetSingleGameData } from '../models/WidgetModels';
 import { parsePayload, ParsedRole } from '../utils/WidgetPayloadParser';
+import { widgetSingleGameGradient, WIDGET_GAME_ID } from '../utils/WidgetUtils';
+import { DefaultTheme } from '../../theme/DefaultTheme';
+
+/** 主题常量实例（Widget 直接使用，不依赖 @ObservedV2/@Trace） */
+const theme = new DefaultTheme();
 
 let storage: LocalStorage = new LocalStorage();
 
@@ -81,14 +86,14 @@ struct Widget1x2ZZZ {
         gameColor: $r('app.color.game_color_zzz')
       })
     }
-    .width('100%')
-    .height('100%')
+    .width(theme.full)
+    .height(theme.full)
     .padding({
-      left: 12,
-      right: 12
+      left: theme.value12,
+      right: theme.value12
     })
-    .linearGradient({ angle: 135, colors: [[$r('app.color.widget_bg_zzz_dark'), 0], [$r('app.color.widget_bg_zzz_mid'), 0.5], [$r('app.color.widget_bg_zzz_light'), 1]] })
-    .borderRadius(16)
+    .linearGradient(widgetSingleGameGradient(WIDGET_GAME_ID.ZZZ))
+    .borderRadius(theme.radius16)
     .onClick(() => {
       postCardAction(this, {
         action: 'router',

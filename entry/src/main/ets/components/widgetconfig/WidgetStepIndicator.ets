@@ -43,8 +43,8 @@ export struct WidgetStepIndicator {
               .fontColor(Color.White)
           }
         }
-        .width(this.tm.current.value20)
-        .height(this.tm.current.value20)
+        .width(this.tm.current.font20)
+        .height(this.tm.current.font20)
         .borderRadius(this.tm.current.value10)
         .backgroundColor(this.isStepDone(idx) || this.isCurrentStep(idx) ?
           this.tm.current.colorPrimary : this.tm.current.colorSurfaceCard)
@@ -87,7 +87,7 @@ export struct WidgetStepIndicatorPreview {
       WidgetStepIndicator({ currentStep: WidgetConfigStep.GAME, selectedSize: WidgetSize.SIZE_1x2 })
       WidgetStepIndicator({ currentStep: WidgetConfigStep.DONE, selectedSize: WidgetSize.SIZE_1x2 })
     }
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 }

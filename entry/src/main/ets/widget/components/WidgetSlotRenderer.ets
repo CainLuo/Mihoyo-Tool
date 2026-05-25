@@ -13,9 +13,12 @@
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
-import { widgetTheme } from '../utils/WidgetTheme';
 import { WIDGET_GAME_ID, gameNameRes, formatRecoveryDesc, gameColorRes } from '../utils/WidgetUtils';
 import { ParsedSlotData, WidgetGenshinData, WidgetStarRailData, WidgetZZZData } from '../utils/WidgetSlotDataParser';
+import { DefaultTheme } from '../../theme/DefaultTheme';
+
+/** 主题常量实例 */
+const theme = new DefaultTheme();
 
 /** Slot 尺寸枚举 */
 export enum WidgetSlotSize {
@@ -85,7 +88,7 @@ export struct WidgetSlotRenderer {
       }
       if (g.maxHomeCoin > 0) {
         rows.push({
-          label: '洞天宝钱',
+          label: '洞天财瓮',
           value: `${g.currentHomeCoin}/${g.maxHomeCoin}`,
           color: $r('app.color.color_warning'),
         });
@@ -146,48 +149,48 @@ export struct WidgetSlotRenderer {
   /** 迷你布局（1x2） */
   @Builder
   private buildMiniLayout(): void {
-    Row({ space: widgetTheme.value8 }) {
+    Row({ space: theme.value8 }) {
       // 左侧：游戏色竖线装饰条
       Stack() {
         Column()
-          .width(widgetTheme.value3)
-          .borderRadius(widgetTheme.value2)
+          .width(theme.value3)
+          .borderRadius(theme.value2)
           .backgroundColor(this.gameColor)
-          .height(widgetTheme.full)
+          .height(theme.full)
       }
-      .width(widgetTheme.value3)
-      .height(widgetTheme.full)
-      .padding({ top: widgetTheme.value8, bottom: widgetTheme.value8 })
+      .width(theme.value3)
+      .height(theme.full)
+      .padding({ top: theme.value8, bottom: theme.value8 })
       .alignContent(Alignment.Center)
       .flexShrink(0)
 
       // 右侧：游戏名+UID + 体力
       Column() {
-        Row({ space: widgetTheme.value4 }) {
+        Row({ space: theme.value4 }) {
           Text(gameNameRes(this.data.gameId))
-            .fontSize(widgetTheme.value10)
+            .fontSize(theme.value10)
             .fontWeight(FontWeight.Medium)
             .fontColor($r('app.color.text_on_dark_secondary'))
 
           Text('UID ' + this.data.roleId)
-            .fontSize(widgetTheme.value9)
+            .fontSize(theme.value9)
             .fontColor($r('app.color.text_on_dark_muted'))
         }
 
-        Row({ space: widgetTheme.value2 }) {
+        Row({ space: theme.value2 }) {
           Text(String(this.data.currentStamina))
-            .fontSize(widgetTheme.value18)
+            .fontSize(theme.value18)
             .fontWeight(FontWeight.Bold)
             .fontColor(this.staminaColor)
 
           Text('/' + String(this.data.maxStamina))
-            .fontSize(widgetTheme.value18)
+            .fontSize(theme.value18)
             .fontColor($r('app.color.text_on_dark_muted'))
         }
         .alignItems(VerticalAlign.Bottom)
 
         Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(String(this.data.recoverySeconds)))
-          .fontSize(widgetTheme.value10)
+          .fontSize(theme.value10)
           .fontColor(this.isFull ? $r('app.color.color_danger') : $r('app.color.text_on_dark_tertiary'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -196,8 +199,8 @@ export struct WidgetSlotRenderer {
       .justifyContent(FlexAlign.Center)
       .layoutWeight(1)
     }
-    .width(widgetTheme.full)
-    .height(widgetTheme.full)
+    .width(theme.full)
+    .height(theme.full)
     .alignItems(VerticalAlign.Center)
   }
 
@@ -206,41 +209,41 @@ export struct WidgetSlotRenderer {
   private buildStandardLayout(): void {
     Column() {
       // 头部：游戏名 + UID
-      Column({ space: widgetTheme.value1 }) {
+      Column({ space: theme.value1 }) {
         Text(gameNameRes(this.data.gameId))
-          .fontSize(widgetTheme.value12)
+          .fontSize(theme.value12)
           .fontWeight(FontWeight.Bold)
           .fontColor($r('app.color.text_on_dark_high'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
 
         Text('UID ' + this.data.roleId)
-          .fontSize(widgetTheme.value10)
+          .fontSize(theme.value10)
           .fontColor($r('app.color.text_on_dark_muted'))
       }
-      .width(widgetTheme.full)
+      .width(theme.full)
       .alignItems(HorizontalAlign.Start)
-      .margin({ bottom: widgetTheme.value8 })
+      .margin({ bottom: theme.value8 })
 
       // 体力区块
       if (this.data.gameId === WIDGET_GAME_ID.STARRAIL) {
         // 星铁特殊布局：左侧体力 + 右侧后备开拓力
         Row() {
-          Column({ space: widgetTheme.value2 }) {
-            Row({ space: widgetTheme.value3 }) {
+          Column({ space: theme.value2 }) {
+            Row({ space: theme.value3 }) {
               Text(String(this.data.currentStamina))
-                .fontSize(widgetTheme.value24)
+                .fontSize(theme.value24)
                 .fontWeight(FontWeight.Bold)
                 .fontColor(this.staminaColor)
 
               Text('/' + String(this.data.maxStamina))
-                .fontSize(widgetTheme.value14)
+                .fontSize(theme.value14)
                 .fontColor($r('app.color.text_on_dark_muted'))
             }
             .alignItems(VerticalAlign.Bottom)
 
             Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(String(this.data.recoverySeconds)))
-              .fontSize(widgetTheme.value11)
+              .fontSize(theme.value11)
               .fontColor($r('app.color.text_on_dark_secondary'))
               .maxLines(1)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -249,72 +252,72 @@ export struct WidgetSlotRenderer {
           .layoutWeight(1)
 
           // 右侧：后备开拓力
-          Column({ space: widgetTheme.value1 }) {
+          Column({ space: theme.value1 }) {
             Text($r('app.string.widget_reserve_prefix'))
-              .fontSize(widgetTheme.value9)
+              .fontSize(theme.value9)
               .fontColor($r('app.color.text_on_dark_muted'))
 
             Text(this.reserveStamina)
-              .fontSize(widgetTheme.value12)
+              .fontSize(theme.value12)
               .fontWeight(FontWeight.Bold)
               .fontColor(this.gameColor)
           }
           .alignItems(HorizontalAlign.End)
         }
-        .width(widgetTheme.full)
+        .width(theme.full)
         .alignItems(VerticalAlign.Top)
-        .margin({ bottom: widgetTheme.value8 })
+        .margin({ bottom: theme.value8 })
       } else {
         // 原神/绝区零：标准布局
-        Column({ space: widgetTheme.value2 }) {
-          Row({ space: widgetTheme.value3 }) {
+        Column({ space: theme.value2 }) {
+          Row({ space: theme.value3 }) {
             Text(String(this.data.currentStamina))
-              .fontSize(widgetTheme.value24)
+              .fontSize(theme.value24)
               .fontWeight(FontWeight.Bold)
               .fontColor(this.staminaColor)
 
             Text('/' + String(this.data.maxStamina))
-              .fontSize(widgetTheme.value14)
+              .fontSize(theme.value14)
               .fontColor($r('app.color.text_on_dark_muted'))
           }
           .alignItems(VerticalAlign.Bottom)
 
           Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(String(this.data.recoverySeconds)))
-            .fontSize(widgetTheme.value11)
+            .fontSize(theme.value11)
             .fontColor($r('app.color.text_on_dark_secondary'))
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
         }
-        .width(widgetTheme.full)
+        .width(theme.full)
         .alignItems(HorizontalAlign.Start)
-        .margin({ bottom: widgetTheme.value8 })
+        .margin({ bottom: theme.value8 })
       }
 
       // 底部：额外数据行
-      Column({ space: widgetTheme.value5 }) {
+      Column({ space: theme.value5 }) {
         ForEach(this.extraRows, (row: ExtraRow, idx: number) => {
           Row() {
             Text(row.label)
-              .fontSize(widgetTheme.value11)
+              .fontSize(theme.value11)
               .fontColor($r('app.color.text_on_dark_tertiary'))
               .layoutWeight(1)
               .maxLines(1)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
 
             Text(row.value)
-              .fontSize(widgetTheme.value11)
+              .fontSize(theme.value11)
               .fontWeight(FontWeight.Bold)
               .fontColor(row.color)
           }
-          .width(widgetTheme.full)
+          .width(theme.full)
         })
       }
-      .width(widgetTheme.full)
+      .width(theme.full)
       .layoutWeight(1)
       .justifyContent(FlexAlign.Center)
     }
-    .width(widgetTheme.full)
-    .height(widgetTheme.full)
+    .width(theme.full)
+    .height(theme.full)
     .alignItems(HorizontalAlign.Start)
     .justifyContent(FlexAlign.Start)
   }

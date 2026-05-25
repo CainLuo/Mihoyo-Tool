@@ -4,10 +4,16 @@
  * v1.1 design:
  * - Use single @LocalStorageProp('payload') to receive complete JSON
  * - Parse payload to determine display content
+ * - Dynamic gradient color based on game type
  */
 
 import { WidgetCardContent, WidgetCardSize } from '../components/WidgetCardContent';
 import { parsePayload, ParsedRole } from '../utils/WidgetPayloadParser';
+import { widgetGradient } from '../utils/WidgetUtils';
+import { DefaultTheme } from '../../theme/DefaultTheme';
+
+/** 主题常量实例（Widget 直接使用，不依赖 @ObservedV2/@Trace） */
+const theme = new DefaultTheme();
 
 let storage: LocalStorage = new LocalStorage();
 
@@ -29,19 +35,29 @@ struct Widget4x4 {
   }
 
   build() {
-    Column() {
-      WidgetCardContent({
-        cardSize: WidgetCardSize.SIZE_4x4,
-        allRoles: this.getAllRoles(),
-        gameIds: this.getGameIds(),
-        isSingleGame: this.getIsSingleGame(),
-      })
+    Stack() {
+      // Background layer with gradient
+      Column()
+        .width(theme.full)
+        .height(theme.full)
+        .linearGradient(widgetGradient(this.getGameIds()))
+        .borderRadius(theme.radius16)
+
+      // Content layer
+      Column() {
+        WidgetCardContent({
+          cardSize: WidgetCardSize.SIZE_4x4,
+          allRoles: this.getAllRoles(),
+          gameIds: this.getGameIds(),
+          isSingleGame: this.getIsSingleGame(),
+        })
+      }
+      .width(theme.full)
+      .height(theme.full)
+      .padding(theme.value12)
     }
-    .width('100%')
-    .height('100%')
-    .linearGradient({ angle: 135, colors: [['#152030', 0], ['#1c3350', 1]] })
-    .borderRadius(16)
-    .padding(12)
+    .width(theme.full)
+    .height(theme.full)
     .onClick(() => {
       postCardAction(this, {
         action: 'router',
@@ -49,19 +65,5 @@ struct Widget4x4 {
         params: { page: 'Main' }
       });
     })
-  }
-}
-
-@Preview
-@Component
-struct Widget4x4Preview {
-  build() {
-    Column({ space: 12 }) {
-      Widget4x4()
-        .width(352)
-        .height(352)
-    }
-    .padding(16)
-    .backgroundColor($r('app.color.widget_preview_bg'))
   }
 }

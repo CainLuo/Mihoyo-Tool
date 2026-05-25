@@ -352,8 +352,12 @@ export default class EntryFormAbility extends FormExtensionAbility {
    */
   private buildMockPayload(): string {
     // 手动构建 JSON 字符串，避免 ArkTS 严格模式的对象字面量限制
-    const mockPayload = '{"version":1,"updatedAt":' + Math.floor(Date.now() / 1000) + ',"accounts":[{"accountId":"mock_account_1","accountName":"测试账号","games":[{"gameId":"genshin","roles":[{"roleId":"123456789","nickname":"旅行者","server":"cn_gf01","rawJson":"{\\"current_resin\\":140,\\"max_resin\\":160,\\"resin_recovery_time\\":\\"18000\\"}"}]},{"gameId":"starrail","roles":[{"roleId":"987654321","nickname":"开拓者","server":"prod_gf_cn","rawJson":"{\\"current_stamina\\":80,\\"max_stamina\\":180,\\"stamina_recover_time\\":\\"36000\\"}"}]}]}]}';
+    // 包含完整的原神便笺数据（含派遣、洞天宝钱等字段）
+    const rawJson = '{"current_resin":152,"max_resin":200,"resin_recovery_time":"22825","finished_task_num":0,"total_task_num":4,"is_extra_task_reward_received":false,"remain_resin_discount_num":3,"resin_discount_num_limit":3,"current_expedition_num":5,"max_expedition_num":5,"expeditions":[{"status":"Finished","remained_time":"0"},{"status":"Finished","remained_time":"0"},{"status":"Ongoing","remained_time":"12345"}],"current_home_coin":1230,"max_home_coin":2400,"home_coin_recovery_time":"139968","transformer":{"obtained":true,"recovery_time":{"Day":6,"Hour":0,"Minute":0,"Second":0,"reached":false}}}';
+    const rawJsonEscaped = rawJson.replace(/"/g, '\\\\"');
+    const mockPayload = '{"version":1,"updatedAt":' + Math.floor(Date.now() / 1000) + ',"accounts":[{"accountId":"mock_account_1","accountName":"测试账号","games":[{"gameId":"genshin","roles":[{"roleId":"123456789","nickname":"旅行者","server":"cn_gf01","rawJson":"' + rawJsonEscaped + '"}]}]}]}';
     
+    hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] buildMockPayload: rawJson includes max_expedition_num=5, max_home_coin=2400`);
     return mockPayload;
   }
 

@@ -5,6 +5,7 @@
  * 使用方：GameToolCardContent
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { ThemeFonts } from '../../theme/ThemeFonts'
 import { TimeFormatUtil } from '../../utils/TimeFormatUtil';
 
 // ─── Preview ─────────────────────────────────────────────────────
@@ -59,16 +60,16 @@ export struct GameStaminaBlock {
     Row({ space: this.tm.current.value10 }) {
       Column({ space: this.tm.current.value2 }) {
         Text(this.label)
-          .font(this.tm.current.body13)
+          .font(ThemeFonts.font14)
           .fontColor(this.tm.current.colorTextSecondary)
 
         Row({ space: this.tm.current.value4 }) {
           Text(this.current.toString())
-            .font(this.tm.current.title24Bold)
+            .font(ThemeFonts.fontBold24)
             .fontColor(this.primaryColor)
 
           Text('/' + this.max.toString())
-            .font(this.tm.current.body16)
+            .font(ThemeFonts.font17)
             .fontColor(this.tm.current.colorTextSecondary)
             .alignSelf(ItemAlign.End)
             .margin({ bottom: this.tm.current.value2 })
@@ -77,7 +78,7 @@ export struct GameStaminaBlock {
 
         if (this.recoverySeconds > 0) {
           Text(TimeFormatUtil.recoveryDesc(this.recoverySeconds, this.getUIContext()))
-            .font(this.tm.current.body13)
+            .font(ThemeFonts.font14)
             .fontColor(this.recoveryColor !== '' ? this.recoveryColor : this.tm.current.colorTextSecondary)
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })

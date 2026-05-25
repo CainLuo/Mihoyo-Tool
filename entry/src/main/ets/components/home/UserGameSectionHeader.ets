@@ -4,6 +4,7 @@
  * 仅在 UserGameSection 中使用。
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { ThemeFonts } from '../../theme/ThemeFonts'
 import { MihoyoAccountVM } from '../../models/HomeModels';
 
 @ComponentV2
@@ -33,24 +34,24 @@ export struct UserGameSectionHeader {
       }
 
       Text(this.account.nickname !== '' ? this.account.nickname : this.account.username)
-        .font(this.tm.current.body16Medium)
+        .font(ThemeFonts.fontMedium17)
         .fontColor(this.tm.current.colorTextPrimary)
         .layoutWeight(1)
         .maxLines(1)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
 
       Text($r('app.string.home_game_count_format', this.account.roles.length))
-        .font(this.tm.current.body13)
+        .font(ThemeFonts.font14)
         .fontColor(this.tm.current.colorTextSecondary)
 
       SymbolGlyph($r('sys.symbol.chevron_down'))
-        .fontSize(this.tm.current.value16)
+        .fontSize(this.tm.current.font16)
         .fontColor([this.tm.current.colorTextSecondary])
         .rotate({ angle: this.collapsed ? -90 : 0 })
         .animation({ duration: 250, curve: Curve.EaseInOut })
     }
     .width(this.tm.current.full)
-    .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
+    .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })
     .alignItems(VerticalAlign.Center)
     .onClick(() => { this.onToggle() })
   }

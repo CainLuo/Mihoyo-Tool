@@ -5,17 +5,19 @@
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
+import { DefaultTheme } from '../../theme/DefaultTheme';
 import { WidgetDataRow } from './WidgetDataRow';
-import { widgetTheme } from '../utils/WidgetTheme';
-
 import { WidgetGameData } from '../models/WidgetModels';
+
+/** 主题常量实例 */
+const theme = new DefaultTheme();
 
 @Component
 export struct WidgetZZZExtraRows {
 
   @Prop game: WidgetGameData = new WidgetGameData();
   /** 数据行字体大小，默认 body12（13vp），4×4 传 body13（14vp） */
-  fontSize: number = widgetTheme.value12;
+  fontSize: number = theme.value12;
 
   build() {
     Column({ space: 0 }) {
@@ -54,8 +56,8 @@ export struct WidgetZZZExtraRows {
         })
       }
     }
-    .width(widgetTheme.full)
-    .height(widgetTheme.full)
+    .width(theme.full)
+    .height(theme.full)
     .justifyContent(FlexAlign.SpaceEvenly)
   }
 }

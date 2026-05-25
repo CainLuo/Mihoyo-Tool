@@ -129,6 +129,7 @@ export function parseSlotJson(slotJson: string): ParsedSlotData {
 function parseRawJson(result: ParsedSlotData, rawJson: string): void {
   try {
     const resp = JSON.parse(rawJson) as Record<string, Object>;
+    
     // rawJson 存储的是 data 对象本身（不带 retcode/message 结构）
     // 降级逻辑：如果 resp['data'] 存在则使用，否则直接使用 resp
     let data: Record<string, Object> = resp;
@@ -162,6 +163,7 @@ function parseRawJson(result: ParsedSlotData, rawJson: string): void {
  */
 function parseGenshinData(data: Record<string, Object>): WidgetGenshinData {
   const result = new WidgetGenshinData();
+  
   result.currentResin = data['current_resin'] !== undefined ? Number(data['current_resin']) : 0;
   result.maxResin = data['max_resin'] !== undefined ? Number(data['max_resin']) : 160;
   result.resinRecoveryTime = data['resin_recovery_time'] !== undefined ? parseInt(String(data['resin_recovery_time']), 10) : 0;
@@ -170,8 +172,24 @@ function parseGenshinData(data: Record<string, Object>): WidgetGenshinData {
   result.finishedTaskNum = data['finished_task_num'] !== undefined ? Number(data['finished_task_num']) : 0;
   result.totalTaskNum = data['total_task_num'] !== undefined ? Number(data['total_task_num']) : 4;
   result.remainResinDiscountNum = data['remain_resin_discount_num'] !== undefined ? Number(data['remain_resin_discount_num']) : 0;
-  result.currentExpeditionNum = data['current_expedition_num'] !== undefined ? Number(data['current_expedition_num']) : 0;
+
+  // 派遣：maxExpeditionNum 从 API 获取，currentExpeditionNum 计算已完成的数量
   result.maxExpeditionNum = data['max_expedition_num'] !== undefined ? Number(data['max_expedition_num']) : 5;
+
+  // 遍历 expeditions 数组统计已完成的派遣数量
+  const expeditions = data['expeditions'];
+  if (expeditions !== undefined && expeditions !== null && Array.isArray(expeditions)) {
+    let finishedCount = 0;
+    for (let i = 0; i < expeditions.length; i++) {
+      const exp = expeditions[i] as Record<string, Object>;
+      if (exp['status'] === 'Finished') {
+        finishedCount++;
+      }
+    }
+    result.currentExpeditionNum = finishedCount;
+  } else {
+    result.currentExpeditionNum = 0;
+  }
 
   const transformer = data['transformer'];
   if (transformer !== undefined && transformer !== null) {

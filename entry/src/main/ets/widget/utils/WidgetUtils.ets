@@ -111,3 +111,145 @@ export function formatRecoveryDesc(secondsStr: string): ResourceStr {
   }
   return $r('app.string.widget_recovery_minutes', minutes);
 }
+
+// ============================================================
+// 渐变背景工具函数（使用 $r() 资源引用）
+// ============================================================
+
+/** Widget 卡片渐变角度常量 */
+export const WIDGET_GRADIENT_ANGLE: number = 135;
+
+/** 渐变位置常量 */
+export class GradientPosition {
+  /** 起点 */
+  static readonly START: number = 0;
+  /** 单游戏中点 */
+  static readonly MID: number = 0.5;
+  /** 终点 */
+  static readonly END: number = 1;
+  /** 双游戏第一段结束 */
+  static readonly TWO_GAME_FIRST_END: number = 0.4;
+  /** 双游戏第二段开始 */
+  static readonly TWO_GAME_SECOND_START: number = 0.6;
+  /** 三游戏第一段中点 */
+  static readonly THREE_GAME_FIRST_MID: number = 0.25;
+  /** 三游戏第二段中点 */
+  static readonly THREE_GAME_SECOND_MID: number = 0.5;
+  /** 三游戏第三段中点 */
+  static readonly THREE_GAME_THIRD_MID: number = 0.75;
+}
+
+/**
+ * 根据游戏 ID 返回渐变背景深色资源
+ */
+export function widgetBgDarkRes(gameId: string): Resource {
+  if (gameId === WIDGET_GAME_ID.STARRAIL) return $r('app.color.widget_bg_starrail_dark');
+  if (gameId === WIDGET_GAME_ID.ZZZ) return $r('app.color.widget_bg_zzz_dark');
+  return $r('app.color.widget_bg_genshin_dark');
+}
+
+/**
+ * 根据游戏 ID 返回渐变背景中间色资源
+ */
+export function widgetBgMidRes(gameId: string): Resource {
+  if (gameId === WIDGET_GAME_ID.STARRAIL) return $r('app.color.widget_bg_starrail_mid');
+  if (gameId === WIDGET_GAME_ID.ZZZ) return $r('app.color.widget_bg_zzz_mid');
+  return $r('app.color.widget_bg_genshin_mid');
+}
+
+/**
+ * 根据游戏 ID 返回渐变背景浅色资源
+ */
+export function widgetBgLightRes(gameId: string): Resource {
+  if (gameId === WIDGET_GAME_ID.STARRAIL) return $r('app.color.widget_bg_starrail_light');
+  if (gameId === WIDGET_GAME_ID.ZZZ) return $r('app.color.widget_bg_zzz_light');
+  return $r('app.color.widget_bg_genshin_light');
+}
+
+/**
+ * 单游戏渐变背景
+ * 
+ * @param gameId 游戏 ID
+ * @returns LinearGradient 对象
+ */
+export function widgetSingleGameGradient(gameId: string): LinearGradient {
+  return {
+    angle: WIDGET_GRADIENT_ANGLE,
+    colors: [
+      [widgetBgDarkRes(gameId), GradientPosition.START],
+      [widgetBgMidRes(gameId), GradientPosition.MID],
+      [widgetBgLightRes(gameId), GradientPosition.END]
+    ]
+  };
+}
+
+/**
+ * 双游戏混合渐变背景
+ * 左上角第一款游戏色系，右下角第二款游戏色系
+ * 
+ * @param gameId0 第一个游戏 ID（左上）
+ * @param gameId1 第二个游戏 ID（右下）
+ * @returns LinearGradient 对象
+ */
+export function widgetTwoGameGradient(gameId0: string, gameId1: string): LinearGradient {
+  return {
+    angle: WIDGET_GRADIENT_ANGLE,
+    colors: [
+      [widgetBgDarkRes(gameId0), GradientPosition.START],
+      [widgetBgMidRes(gameId0), GradientPosition.TWO_GAME_FIRST_END],
+      [widgetBgMidRes(gameId1), GradientPosition.TWO_GAME_SECOND_START],
+      [widgetBgDarkRes(gameId1), GradientPosition.END]
+    ]
+  };
+}
+
+/**
+ * 三游戏及以上混合渐变背景
+ * 多段渐变，每个游戏占一段
+ * 
+ * @param gameIds 游戏 ID 数组（取前三个）
+ * @returns LinearGradient 对象
+ */
+export function widgetMultiGameGradient(gameIds: string[]): LinearGradient {
+  if (gameIds.length === 0) {
+    // 无游戏数据时使用默认背景色
+    return {
+      angle: WIDGET_GRADIENT_ANGLE,
+      colors: [
+        [$r('app.color.widget_bg_default_dark'), GradientPosition.START],
+        [$r('app.color.widget_bg_default_mid'), GradientPosition.MID],
+        [$r('app.color.widget_bg_default_light'), GradientPosition.END]
+      ]
+    };
+  }
+  
+  if (gameIds.length === 1) {
+    return widgetSingleGameGradient(gameIds[0]);
+  }
+  
+  if (gameIds.length === 2) {
+    return widgetTwoGameGradient(gameIds[0], gameIds[1]);
+  }
+  
+  // 三游戏及以上
+  return {
+    angle: WIDGET_GRADIENT_ANGLE,
+    colors: [
+      [widgetBgDarkRes(gameIds[0]), GradientPosition.START],
+      [widgetBgMidRes(gameIds[0]), GradientPosition.THREE_GAME_FIRST_MID],
+      [widgetBgMidRes(gameIds[1]), GradientPosition.THREE_GAME_SECOND_MID],
+      [widgetBgMidRes(gameIds[2]), GradientPosition.THREE_GAME_THIRD_MID],
+      [widgetBgDarkRes(gameIds[2]), GradientPosition.END]
+    ]
+  };
+}
+
+/**
+ * 根据游戏数量自动选择渐变背景
+ * 
+ * @param gameIds 游戏 ID 数组
+ * @returns LinearGradient 对象
+ */
+export function widgetGradient(gameIds: string[]): LinearGradient {
+  return widgetMultiGameGradient(gameIds);
+}

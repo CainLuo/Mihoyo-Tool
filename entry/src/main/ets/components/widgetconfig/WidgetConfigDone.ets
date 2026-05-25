@@ -26,19 +26,19 @@ export struct WidgetConfigDone {
   }
 
   build() {
-    Column({ space: this.tm.current.value16 }) {
+    Column({ space: this.tm.current.font16 }) {
       // 完成图标
       Text('🎉')
         .fontSize(32)
 
       // 完成文字
       Text($r('app.string.widget_config_done_title'))
-        .fontSize(this.tm.current.body16.size)
+        .fontSize(this.tm.current.font17)
         .fontWeight(FontWeight.Bold)
         .fontColor(this.tm.current.colorTextPrimary)
 
       Text($r('app.string.widget_config_done_desc'))
-        .fontSize(this.tm.current.body12.size)
+        .fontSize(this.tm.current.font13)
         .fontColor(this.tm.current.colorTextSecondary)
 
       // 配置摘要
@@ -47,13 +47,13 @@ export struct WidgetConfigDone {
         this.SummaryRow($r('app.string.widget_summary_roles'), this.selectedSummary)
       }
       .width(this.tm.current.full)
-      .padding(this.tm.current.value14)
+      .padding(this.tm.current.font14)
       .backgroundColor(this.tm.current.colorSurfaceCard)
       .borderRadius(this.tm.current.radius12)
     }
     .width(this.tm.current.full)
     .alignItems(HorizontalAlign.Center)
-    .padding({ top: this.tm.current.value8, bottom: this.tm.current.value20 })
+    .padding({ top: this.tm.current.value8, bottom: this.tm.current.font20 })
   }
 
   @Builder
@@ -61,14 +61,14 @@ export struct WidgetConfigDone {
     Row() {
       // 左侧标签：固定宽度
       Text(label)
-        .fontSize(this.tm.current.body13.size)
+        .fontSize(this.tm.current.font14)
         .fontColor(this.tm.current.colorTextSecondary)
         .width(this.tm.current.value80)
         .flexShrink(0)
 
       // 右侧值：可换行、可滚动
       Text(value)
-        .fontSize(this.tm.current.body13.size)
+        .fontSize(this.tm.current.font14)
         .fontWeight(FontWeight.Medium)
         .fontColor(this.tm.current.colorTextPrimary)
         .layoutWeight(1)
@@ -94,7 +94,7 @@ export struct WidgetConfigDonePreview {
         selectedSummary: '荧 (原神)、开拓者 (崩坏：星穹铁道)'
       })
     }
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 }

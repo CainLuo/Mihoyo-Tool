@@ -30,17 +30,17 @@ export struct WidgetSettingsSlotStep {
       // 顶部提示文字
       if (this.selectedSize === WidgetSize.SIZE_1x2) {
         Text($r('app.string.widget_select_account_hint'))
-          .fontSize(this.tm.current.body12.size)
+          .fontSize(this.tm.current.font13)
           .fontColor(this.tm.current.colorTextSecondary)
           .width(this.tm.current.full)
-          .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
+          .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })
           .margin({ bottom: this.tm.current.value8 })
       } else {
         Text($r('app.string.widget_selected_count', this.selectedSlots.length, this.maxSlots))
-          .fontSize(this.tm.current.body12.size)
+          .fontSize(this.tm.current.font13)
           .fontColor(this.tm.current.colorPrimary)
           .width(this.tm.current.full)
-          .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
+          .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })
           .margin({ bottom: this.tm.current.value8 })
       }
 
@@ -58,7 +58,7 @@ export struct WidgetSettingsSlotStep {
           }, (slot: WidgetSlotRef) => slot.key)
         }
         .width(this.tm.current.full)
-        .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
+        .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })
       } else {
         // 2x2 及以上：按账号分组，复用 UserGameSection（Widget 配置模式）
         ForEach(this.accountGroups, (account: MihoyoAccountVM) => {
@@ -93,7 +93,7 @@ export struct WidgetSettingsSlotStepPreview {
       })
     }
     .width(this.tm.current.value360)
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 }

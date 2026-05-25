@@ -2,6 +2,7 @@
  * LoginQRCodeExpired — 二维码已过期状态
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { ThemeFonts } from '../../theme/ThemeFonts'
 
 @ComponentV2
 export struct LoginQRCodeExpired {
@@ -20,7 +21,7 @@ export struct LoginQRCodeExpired {
 
       Column({ space: this.tm.current.value12 }) {
         Text($r('app.string.login_qrcode_expired'))
-          .font(this.tm.current.body13)
+          .font(ThemeFonts.font14)
           .fontColor(this.tm.current.colorTextPrimary)
           .textAlign(TextAlign.Center)
 

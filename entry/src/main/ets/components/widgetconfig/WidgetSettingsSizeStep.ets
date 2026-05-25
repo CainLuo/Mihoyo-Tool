@@ -48,7 +48,7 @@ export struct WidgetSettingsSizeStepPreview {
       })
     }
     .width(this.tm.current.value360)
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 }

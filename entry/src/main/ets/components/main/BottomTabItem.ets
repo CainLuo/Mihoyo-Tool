@@ -19,7 +19,7 @@ export struct BottomTabItem {
         .opacity(this.tab === this.selectedTab ? 1.0 : 0.4)
 
       Text(this.label)
-        .fontSize(this.tm.current.value11)
+        .fontSize(this.tm.current.font11)
         .fontColor(this.tab === this.selectedTab
           ? this.tm.current.colorPrimary
           : this.tm.current.colorTextSecondary)

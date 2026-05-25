@@ -2,6 +2,7 @@
  * LoginLogoSection — 登录页 Logo 区
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { ThemeFonts } from '../../theme/ThemeFonts'
 
 @ComponentV2
 export struct LoginLogoSection {
@@ -16,11 +17,11 @@ export struct LoginLogoSection {
         .borderRadius(this.tm.current.value28)
 
       Text($r('app.string.app_name'))
-        .font(this.tm.current.title20Bold)
+        .font(ThemeFonts.fontBold20)
         .fontColor(this.tm.current.colorTextPrimary)
 
       Text($r('app.string.launch_subtitle'))
-        .font(this.tm.current.body12)
+        .font(ThemeFonts.font13)
         .fontColor(this.tm.current.colorTextSecondary)
     }
     .alignItems(HorizontalAlign.Center)

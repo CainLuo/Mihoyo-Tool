@@ -4,6 +4,7 @@
  * 仅在 GameToolCard 中使用。
  */
 import { GameId } from 'core';
+import { ThemeFonts } from '../../theme/ThemeFonts'
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { GameRoleCardVM } from '../../models/HomeModels';
 import { gameIdToName } from '../../utils/GameIdUtil';
@@ -38,20 +39,20 @@ export struct GameToolCardHeader {
 
       Column({ space: this.tm.current.value2 }) {
         Text(gameIdToName(this.card.gameId))
-          .font(this.tm.current.body16Medium)
+          .font(ThemeFonts.fontMedium17)
           .fontColor(this.tm.current.colorTextPrimary)
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
 
         Row({ space: this.tm.current.value8 }) {
           Text(this.card.server)
-            .font(this.tm.current.body13)
+            .font(ThemeFonts.font14)
             .fontColor(this.tm.current.colorTextSecondary)
             .maxLines(1)
             .flexShrink(0)
 
           Text(this.card.nickname)
-            .font(this.tm.current.body13)
+            .font(ThemeFonts.font14)
             .fontColor(this.tm.current.colorTextSecondary)
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -62,7 +63,7 @@ export struct GameToolCardHeader {
       .layoutWeight(1)
 
       Text(this.syncDescResource(this.card.lastSyncDesc))
-        .font(this.tm.current.body13)
+        .font(ThemeFonts.font14)
         .fontColor(this.tm.current.colorTextSecondary)
     }
     .width(this.tm.current.full)

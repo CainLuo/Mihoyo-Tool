@@ -2,6 +2,7 @@
  * DailyNoteEmptyView — 便笺详情页无数据状态
  */
 import { themeManager, ThemeManager } from '../../../theme/ThemeManager'
+import { ThemeFonts } from '../../../theme/ThemeFonts'
 
 @ComponentV2
 export struct DailyNoteEmptyView {
@@ -10,7 +11,7 @@ export struct DailyNoteEmptyView {
   build() {
     Row() {
       Text($r('app.string.home_no_data_hint'))
-        .font(this.tm.current.body13)
+        .font(ThemeFonts.font14)
         .fontColor(this.tm.current.colorTextSecondary)
     }
     .width(this.tm.current.full)

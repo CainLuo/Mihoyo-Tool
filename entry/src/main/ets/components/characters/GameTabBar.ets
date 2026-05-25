@@ -6,6 +6,7 @@
  */
 import { GameId } from 'core';
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { ThemeFonts } from '../../theme/ThemeFonts';
 import { GameTabItem } from '../../models/GameTabItem';
 
 // ── Preview：多游戏 Tab，第一个选中 ──
@@ -38,13 +39,13 @@ export struct GameTabBar {
       Row({ space: this.tm.current.value8 }) {
         ForEach(this.tabs, (tab: GameTabItem, idx: number) => {
           Text(tab.gameName)
-            .font(idx === this.selectedIdx ? this.tm.current.body16Medium : this.tm.current.body16)
+            .font(idx === this.selectedIdx ? ThemeFonts.fontMedium17 : ThemeFonts.font17)
             .fontColor(idx === this.selectedIdx
               ? this.tm.current.colorPrimary
               : this.tm.current.colorTextSecondary)
             .padding({
-              left: this.tm.current.value16,
-              right: this.tm.current.value16,
+              left: this.tm.current.font16,
+              right: this.tm.current.font16,
               top: this.tm.current.value8,
               bottom: this.tm.current.value8
             })
@@ -55,7 +56,7 @@ export struct GameTabBar {
             .onClick(() => { this.onSelect(idx); })
         }, (tab: GameTabItem) => tab.gameId + tab.roleUid)
       }
-      .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
+      .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })
     }
     .scrollable(ScrollDirection.Horizontal)
     .scrollBar(BarState.Off)

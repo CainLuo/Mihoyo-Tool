@@ -17,8 +17,8 @@ export struct ThemeChip {
 
   build() {
     Button(this.label, { type: ButtonType.Normal })
-      .fontSize(this.tm.current.body13.size)
-      .fontWeight(this.tm.current.body13.weight)
+      .fontSize(this.tm.current.font14)
+      .fontWeight(FontWeight.Normal)
       .fontColor(this.selectedMode === this.mode ? this.tm.current.textOnDarkHigh : this.tm.current.colorTextSecondary)
       .padding({
         left: this.tm.current.value8,
