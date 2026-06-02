@@ -25,7 +25,7 @@ export struct WidgetGenshinExtraRows {
         WidgetDataRow({
           label: $r('app.string.widget_home_coin'),
           value: this.game.coinStr + '/' + this.game.coinMaxStr,
-          valueColor: $r('app.color.accent_refine'),
+          valueColor: $r('app.color.color_warning'),
           fontSize: this.fontSize
         })
       }
@@ -36,7 +36,7 @@ export struct WidgetGenshinExtraRows {
           value: this.game.taskAllReceived === 'true'
             ? $r('app.string.widget_task_received')
             : this.game.taskStr + '/' + this.game.taskTotalStr,
-          valueColor: $r('app.color.accent_refine'),
+          valueColor: $r('app.color.color_warning'),
           fontSize: this.fontSize
         })
       }
@@ -47,8 +47,8 @@ export struct WidgetGenshinExtraRows {
           ? $r('app.string.widget_transformer_ready')
           : $r('app.string.widget_transformer_cooling'),
         valueColor: this.game.transformerStr === 'true'
-          ? $r('app.color.accent_refine')
-          : $r('app.color.text_on_dark_muted'),
+          ? $r('app.color.color_warning')
+          : $r('app.color.gray_500'),
         fontSize: this.fontSize
       })
     }
@@ -67,6 +67,6 @@ struct WidgetGenshinExtraRowsPreview {
     }
     .padding(16)
     .width(200)
-    .backgroundColor('#1a1a2e')
+    .backgroundColor($r('app.color.dark_400'))
   }
 }

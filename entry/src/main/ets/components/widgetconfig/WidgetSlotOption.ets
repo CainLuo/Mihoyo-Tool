@@ -6,6 +6,7 @@
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { WidgetSlotRef } from '../../widget/models/WidgetDataStore';
 import { gameIdStrToLogo } from '../../utils/GameIdUtil';
+import { TransparentColorCache } from '../../utils/ColorUtil';
 
 @ComponentV2
 export struct WidgetSlotOption {
@@ -82,11 +83,11 @@ export struct WidgetSlotOption {
     }
     .width(this.tm.current.full)
     .padding(this.tm.current.font14)
-    .backgroundColor(this.isSelected ? this.tm.current.surfaceActivePrimary : this.tm.current.colorSurfaceCard)
+    .backgroundColor(this.isSelected ? TransparentColorCache.blue500With15 : this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
     .border({
       width: this.tm.current.value1,
-      color: this.isSelected ? this.tm.current.surfaceActiveBorder : this.tm.current.colorDivider
+      color: this.isSelected ? TransparentColorCache.blue500With60 : this.tm.current.colorDivider
     })
     .onClick(() => { this.onTap(); })
   }

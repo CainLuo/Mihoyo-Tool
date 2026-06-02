@@ -21,13 +21,13 @@ export struct ZZZSkillsSection {
         ForEach(this.vm.skills, (skill: ZZZCharDetailSkill, idx: number) => {
           ZZZSkillItem({ skill: skill })
             .width(this.tm.current.full)
-            .border({ width: { bottom: idx < this.vm.skills.length - 1 ? this.tm.current.value1 : 0 }, color: this.tm.current.surfaceGlass })
+            .border({ width: { bottom: idx < this.vm.skills.length - 1 ? this.tm.current.value1 : 0 }, color: '#1AFFFFFF' })
             .padding({ top: this.tm.current.value8, bottom: this.tm.current.value8 })
         }, (skill: ZZZCharDetailSkill, idx: number) => `skill_${idx}`)
       }
       .width(this.tm.current.full)
-      .backgroundColor(this.tm.current.surfaceDarkLg)
-      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
+      .backgroundColor('#99000000')
+      .border({ width: this.tm.current.value1, color: '#1AFFFFFF' })
       .borderRadius(this.tm.current.radius12)
       .alignItems(HorizontalAlign.Start)
     }

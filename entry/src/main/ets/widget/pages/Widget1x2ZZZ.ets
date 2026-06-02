@@ -3,23 +3,24 @@
  *
  * v1.1 设计：
  * - 使用单一 @LocalStorageProp('payload') 接收完整 JSON
- * - 解析 payload 决定显示内容
+ * - 通过 ViewModel 构建 UIState
  * - 游戏主题色渐变背景
  *
  * 注意：
  * - Widget Form 不支持 union 类型，使用默认对象而非 null
  * - Widget 使用 @Component（V1 体系），不能使用 @ObservedV2/@Trace
+ * - Widget build() 方法中不能声明局部变量，必须使用组件方法
  *
- * LocalStorage 使用说明（参考官方示例 CardInfoRefresh）：
- * - Widget 必须创建 LocalStorage 实例并传给 @Entry
- * - FormExtensionAbility 通过 createFormBindingData 传递的数据会注入到此实例
- * - @LocalStorageProp('payload') 从该实例读取数据
+ * MVVM 数据流：
+ *   payload JSON → parsePayload() → ParsedPayload → Widget1x2ViewModel.buildUIState() → UIState → Component
  */
 
-import { Widget1x2Content } from '../components/Widget1x2Content';
-import { WidgetGameData, WidgetSingleGameData } from '../models/WidgetModels';
-import { parsePayload, ParsedRole } from '../utils/WidgetPayloadParser';
-import { widgetSingleGameGradient, WIDGET_GAME_ID } from '../utils/WidgetUtils';
+import { Widget1x2ContentView } from '../components/Widget1x2ContentView';
+import { WidgetEmptyContent } from '../components/WidgetEmptyContent';
+import { parsePayload } from '../utils/WidgetPayloadParser';
+import { Widget1x2UIState } from '../models/WidgetUIStates';
+import { Widget1x2ViewModel } from '../viewmodel/Widget1x2ViewModel';
+import { widgetSingleGameGradient, WIDGET_GAME_ID, getGameColor } from '../utils/WidgetUtils';
 import { DefaultTheme } from '../../theme/DefaultTheme';
 
 /** 主题常量实例（Widget 直接使用，不依赖 @ObservedV2/@Trace） */
@@ -30,61 +31,24 @@ let storage: LocalStorage = new LocalStorage();
 @Entry(storage)
 @Component
 struct Widget1x2ZZZ {
-  // 单一 payload 字段
   @LocalStorageProp('payload') payloadJson: string = '';
 
-  private buildData(): WidgetSingleGameData {
-    const d = new WidgetSingleGameData();
+  /** 构建 UIState（在组件方法中调用 ViewModel） */
+  private getUIState(): Widget1x2UIState {
     const parsed = parsePayload(this.payloadJson);
-
-    // 获取所有角色
-    const roles = parsed.getAllRoles();
-    if (roles.length === 0) {
-      return d;
-    }
-
-    // 查找绝区零角色（因为这是绝区零模板）
-    // 注意：Widget Form 不支持 union 类型，使用普通变量
-    let zzzRole: ParsedRole = new ParsedRole();
-    let found = false;
-    for (let i = 0; i < roles.length; i++) {
-      if (roles[i].isZZZ()) {
-        zzzRole = roles[i];
-        found = true;
-        break;
-      }
-    }
-
-    if (!found) {
-      // 没有绝区零数据，使用第一个角色作为 fallback
-      zzzRole = roles[0];
-    }
-
-    // 获取账号信息
-    // 注意：Widget Form 不支持 union 类型，firstAccount 返回默认对象
-    const firstAccount = parsed.firstAccount;
-    if (firstAccount.accountName.length > 0) {
-      d.accountName = firstAccount.accountName;
-    }
-    // UID 显示游戏角色 UID，不是米游社账号 UID
-    d.accountUid = zzzRole.roleId;
-
-    // 填充游戏数据
-    d.game = new WidgetGameData();
-    d.game.gameId = 'zzz';
-    d.game.currentStr = String(zzzRole.currentStamina);
-    d.game.maxStr = String(zzzRole.maxStamina);
-    d.game.secondsStr = String(zzzRole.recoverySeconds);
-
-    return d;
+    return Widget1x2ViewModel.buildUIState(parsed, WIDGET_GAME_ID.ZZZ);
   }
 
   build() {
     Column() {
-      Widget1x2Content({
-        data: this.buildData(),
-        gameColor: $r('app.color.game_color_zzz')
-      })
+      if (this.getUIState().isEmpty) {
+        WidgetEmptyContent()
+      } else {
+        Widget1x2ContentView({
+          state: this.getUIState().role,
+          gameColor: getGameColor(WIDGET_GAME_ID.ZZZ)
+        })
+      }
     }
     .width(theme.full)
     .height(theme.full)
@@ -114,7 +78,6 @@ struct Widget1x2ZZZPreview {
         .height(80)
     }
     .padding(16)
-    .backgroundColor($r('app.color.widget_preview_bg'))
+    .backgroundColor($r('app.color.widget_bg'))
   }
 }
-

@@ -32,7 +32,7 @@ export enum WidgetSlotSize {
 class ExtraRow {
   label: string = '';
   value: string = '';
-  color: ResourceColor = $r('app.color.text_on_dark_medium');
+  color: ResourceColor = $r('app.color.gray_300');
 }
 
 @Component
@@ -106,7 +106,7 @@ export struct WidgetSlotRenderer {
         rows.push({
           label: '历战余响',
           value: `${s.weeklyCocoonCnt}/${s.weeklyCocoonLimit}`,
-          color: $r('app.color.accent_refine'),
+          color: $r('app.color.color_warning'),
         });
       }
     } else if (this.data.gameId === WIDGET_GAME_ID.ZZZ && this.data.zzz) {
@@ -122,7 +122,7 @@ export struct WidgetSlotRenderer {
         rows.push({
           label: '刮刮卡',
           value: z.cardSign === 'CardSignDone' ? '已完成' : '未完成',
-          color: z.cardSign === 'CardSignDone' ? $r('app.color.color_success') : $r('app.color.text_on_dark_muted'),
+          color: z.cardSign === 'CardSignDone' ? $r('app.color.color_success') : $r('app.color.gray_500'),
         });
       }
     }
@@ -170,11 +170,11 @@ export struct WidgetSlotRenderer {
           Text(gameNameRes(this.data.gameId))
             .fontSize(theme.value10)
             .fontWeight(FontWeight.Medium)
-            .fontColor($r('app.color.text_on_dark_secondary'))
+            .fontColor($r('app.color.gray_400'))
 
           Text('UID ' + this.data.roleId)
             .fontSize(theme.value9)
-            .fontColor($r('app.color.text_on_dark_muted'))
+            .fontColor($r('app.color.gray_500'))
         }
 
         Row({ space: theme.value2 }) {
@@ -185,13 +185,13 @@ export struct WidgetSlotRenderer {
 
           Text('/' + String(this.data.maxStamina))
             .fontSize(theme.value18)
-            .fontColor($r('app.color.text_on_dark_muted'))
+            .fontColor($r('app.color.gray_500'))
         }
         .alignItems(VerticalAlign.Bottom)
 
         Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(String(this.data.recoverySeconds)))
           .fontSize(theme.value10)
-          .fontColor(this.isFull ? $r('app.color.color_danger') : $r('app.color.text_on_dark_tertiary'))
+          .fontColor(this.isFull ? $r('app.color.color_danger') : $r('app.color.gray_600'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
       }
@@ -213,13 +213,13 @@ export struct WidgetSlotRenderer {
         Text(gameNameRes(this.data.gameId))
           .fontSize(theme.value12)
           .fontWeight(FontWeight.Bold)
-          .fontColor($r('app.color.text_on_dark_high'))
+          .fontColor($r('app.color.white'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
 
         Text('UID ' + this.data.roleId)
           .fontSize(theme.value10)
-          .fontColor($r('app.color.text_on_dark_muted'))
+          .fontColor($r('app.color.gray_500'))
       }
       .width(theme.full)
       .alignItems(HorizontalAlign.Start)
@@ -238,13 +238,13 @@ export struct WidgetSlotRenderer {
 
               Text('/' + String(this.data.maxStamina))
                 .fontSize(theme.value14)
-                .fontColor($r('app.color.text_on_dark_muted'))
+                .fontColor($r('app.color.gray_500'))
             }
             .alignItems(VerticalAlign.Bottom)
 
             Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(String(this.data.recoverySeconds)))
               .fontSize(theme.value11)
-              .fontColor($r('app.color.text_on_dark_secondary'))
+              .fontColor($r('app.color.gray_400'))
               .maxLines(1)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
           }
@@ -255,7 +255,7 @@ export struct WidgetSlotRenderer {
           Column({ space: theme.value1 }) {
             Text($r('app.string.widget_reserve_prefix'))
               .fontSize(theme.value9)
-              .fontColor($r('app.color.text_on_dark_muted'))
+              .fontColor($r('app.color.gray_500'))
 
             Text(this.reserveStamina)
               .fontSize(theme.value12)
@@ -278,13 +278,13 @@ export struct WidgetSlotRenderer {
 
             Text('/' + String(this.data.maxStamina))
               .fontSize(theme.value14)
-              .fontColor($r('app.color.text_on_dark_muted'))
+              .fontColor($r('app.color.gray_500'))
           }
           .alignItems(VerticalAlign.Bottom)
 
           Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(String(this.data.recoverySeconds)))
             .fontSize(theme.value11)
-            .fontColor($r('app.color.text_on_dark_secondary'))
+            .fontColor($r('app.color.gray_400'))
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
         }
@@ -299,7 +299,7 @@ export struct WidgetSlotRenderer {
           Row() {
             Text(row.label)
               .fontSize(theme.value11)
-              .fontColor($r('app.color.text_on_dark_tertiary'))
+              .fontColor($r('app.color.gray_600'))
               .layoutWeight(1)
               .maxLines(1)
               .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -336,7 +336,7 @@ struct WidgetSlotRendererPreview {
         .width(168)
         .height(168)
         .padding(12)
-        .linearGradient({ angle: 135, colors: [['#152030', 0], ['#1c3350', 1]] })
+        .linearGradient({ angle: 135, colors: [[$r('app.color.widget_bg_genshin_1'), 0], [$r('app.color.widget_bg_genshin_3'), 1]] })
         .borderRadius(16)
 
       // 1x2 预览
@@ -347,10 +347,10 @@ struct WidgetSlotRendererPreview {
         .width(168)
         .height(80)
         .padding(12)
-        .linearGradient({ angle: 135, colors: [['#152030', 0], ['#1c3350', 1]] })
+        .linearGradient({ angle: 135, colors: [[$r('app.color.widget_bg_genshin_1'), 0], [$r('app.color.widget_bg_genshin_3'), 1]] })
         .borderRadius(16)
     }
     .padding(16)
-    .backgroundColor('#1a1a2e')
+    .backgroundColor($r('app.color.dark_400'))
   }
 }

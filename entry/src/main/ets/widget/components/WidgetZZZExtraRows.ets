@@ -37,8 +37,8 @@ export struct WidgetZZZExtraRows {
             ? $r('app.string.widget_card_done')
             : $r('app.string.widget_card_not_done'),
           valueColor: this.game.cardSign !== 'CardSignNo'
-            ? $r('app.color.text_on_dark_high')
-            : $r('app.color.text_on_dark_muted'),
+            ? $r('app.color.white')
+            : $r('app.color.gray_500'),
           fontSize: this.fontSize
         })
       }
@@ -50,8 +50,8 @@ export struct WidgetZZZExtraRows {
             ? $r('app.string.widget_store_open')
             : $r('app.string.widget_store_closed'),
           valueColor: this.game.videoStore === 'SaleStateDoing'
-            ? $r('app.color.accent_refine')
-            : $r('app.color.text_on_dark_muted'),
+            ? $r('app.color.color_warning')
+            : $r('app.color.gray_500'),
           fontSize: this.fontSize
         })
       }
@@ -71,6 +71,6 @@ struct WidgetZZZExtraRowsPreview {
     }
     .padding(16)
     .width(200)
-    .backgroundColor('#1a1a2e')
+    .backgroundColor($r('app.color.dark_400'))
   }
 }

@@ -11,7 +11,7 @@ export struct SkeletonBlock {
   @Param blockW: Length = themeManager.current.full;
   @Param blockH: number = themeManager.current.value16;
   @Param blockR: number = themeManager.current.value8;
-  @Local private shimmerOpacity: number = themeManager.current.shimmerOpacityHigh;
+  @Local private shimmerOpacity: number = 1.0;
   private uiCtx: UIContext | null = null;
 
   aboutToAppear(): void {
@@ -30,7 +30,7 @@ export struct SkeletonBlock {
         playMode: PlayMode.Alternate
       },
       () => {
-        this.shimmerOpacity = this.tm.current.shimmerOpacityLow;
+        this.shimmerOpacity = this.tm.current.opacity03;
       }
     );
   }

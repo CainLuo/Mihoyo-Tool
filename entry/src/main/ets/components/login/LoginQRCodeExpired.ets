@@ -17,7 +17,7 @@ export struct LoginQRCodeExpired {
         .height(this.tm.current.value200)
         .color(this.tm.current.qrCodeFg)
         .backgroundColor(this.tm.current.qrCodeBg)
-        .opacity(this.tm.current.charDetailConsInactiveOpacity)
+        .opacity(this.tm.current.opacity03)
 
       Column({ space: this.tm.current.value12 }) {
         Text($r('app.string.login_qrcode_expired'))
@@ -37,7 +37,7 @@ export struct LoginQRCodeExpired {
       .height(this.tm.current.value200)
       .justifyContent(FlexAlign.Center)
       .alignItems(HorizontalAlign.Center)
-      .backgroundColor(this.tm.current.surfaceDarkLg)
+      .backgroundColor('#99000000')
     }
     .width(this.tm.current.value200)
     .height(this.tm.current.value200)

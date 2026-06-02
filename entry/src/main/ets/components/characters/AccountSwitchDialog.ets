@@ -43,7 +43,7 @@ export struct AccountSwitchDialog {
         }
         .width(this.tm.current.value32)
         .height(this.tm.current.value32)
-        .backgroundColor(this.tm.current.colorTransparent)
+        .backgroundColor(Color.Transparent)
         .onClick(() => { this.params.onClose() })
       }
       .width(this.tm.current.full)
@@ -117,8 +117,8 @@ export struct AccountSwitchDialog {
             })
             .alignItems(VerticalAlign.Center)
             .backgroundColor(i === this.params.selectedIdx
-              ? this.tm.current.surfaceActivePrimary
-              : this.tm.current.colorTransparent)
+              ? '#263A6FD8'
+              : Color.Transparent)
             .onClick(() => {
               this.params.onSelect(i)
               this.params.onClose()

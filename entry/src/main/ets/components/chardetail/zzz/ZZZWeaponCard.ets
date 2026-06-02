@@ -20,7 +20,7 @@ export struct ZZZWeaponCard {
           .height(this.tm.current.value52)
           .objectFit(ImageFit.Contain)
           .borderRadius(this.tm.current.value8)
-          .backgroundColor(this.tm.current.surfaceGlass)
+          .backgroundColor('#1AFFFFFF')
       }
 
       Column({ space: this.tm.current.value4 }) {
@@ -34,13 +34,13 @@ export struct ZZZWeaponCard {
         Row({ space: this.tm.current.value8 }) {
           Text(`Lv.${this.weapon.level}`)
             .fontSize(this.tm.current.font11)
-            .fontColor(this.tm.current.textOnDarkMuted)
+            .fontColor('#59FFFFFF')
 
           Text(this.weapon.rarity)
             .fontSize(this.tm.current.font11)
             .fontWeight(FontWeight.Bold)
             .fontColor(this.tm.current.accentRefine)
-            .backgroundColor(this.tm.current.accentRefineBg)
+            .backgroundColor('#33FFCA28')
             .borderRadius(this.tm.current.value4)
             .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.value1, bottom: this.tm.current.value1 })
         }
@@ -48,7 +48,7 @@ export struct ZZZWeaponCard {
         if (this.weapon.talentTitle !== '') {
           Text(this.weapon.talentTitle)
             .fontSize(this.tm.current.font13)
-            .fontColor(this.tm.current.textOnDarkSecondary)
+            .fontColor('#80FFFFFF')
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
         }

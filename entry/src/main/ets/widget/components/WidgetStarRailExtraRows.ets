@@ -25,7 +25,7 @@ export struct WidgetStarRailExtraRows {
         WidgetDataRow({
           label: $r('app.string.widget_train_score'),
           value: this.game.trainStr + '/' + this.game.trainMaxStr,
-          valueColor: $r('app.color.accent_refine'),
+          valueColor: $r('app.color.color_warning'),
           fontSize: this.fontSize
         })
       }
@@ -34,7 +34,7 @@ export struct WidgetStarRailExtraRows {
         WidgetDataRow({
           label: $r('app.string.widget_cocoon'),
           value: this.game.cocoonStr + '/' + this.game.cocoonLimitStr,
-          valueColor: $r('app.color.accent_refine'),
+          valueColor: $r('app.color.color_warning'),
           fontSize: this.fontSize
         })
       }
@@ -63,6 +63,6 @@ struct WidgetStarRailExtraRowsPreview {
     }
     .padding(16)
     .width(200)
-    .backgroundColor('#1a1a2e')
+    .backgroundColor($r('app.color.dark_400'))
   }
 }

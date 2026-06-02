@@ -14,14 +14,14 @@ const theme = new DefaultTheme();
 export struct WidgetDataRow {
   label: ResourceStr = '';
   value: ResourceStr = '';
-  valueColor: ResourceColor = $r('app.color.text_on_dark_high');
+  valueColor: ResourceColor = $r('app.color.white');
   fontSize: number = theme.font13;
 
   build() {
     Row() {
       Text(this.label)
         .fontSize(this.fontSize)
-        .fontColor($r('app.color.text_on_dark_secondary'))
+        .fontColor($r('app.color.gray_400'))
         .layoutWeight(1)
 
       Text(this.value)
@@ -41,19 +41,19 @@ struct WidgetDataRowPreview {
       WidgetDataRow({
         label: $r('app.string.widget_home_coin'),
         value: '1800/2400',
-        valueColor: $r('app.color.accent_refine'),
+        valueColor: $r('app.color.color_warning'),
         fontSize: 13
       })
 
       WidgetDataRow({
         label: $r('app.string.widget_daily_task'),
         value: '4/4',
-        valueColor: $r('app.color.accent_refine'),
+        valueColor: $r('app.color.color_warning'),
         fontSize: 13
       })
     }
     .padding(16)
     .width(200)
-    .backgroundColor('#1a1a2e')
+    .backgroundColor($r('app.color.dark_400'))
   }
 }

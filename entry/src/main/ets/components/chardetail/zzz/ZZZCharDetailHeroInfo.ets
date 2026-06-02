@@ -29,7 +29,7 @@ export struct ZZZCharDetailHeroInfo {
           .fontSize(this.tm.current.font11)
           .fontWeight(FontWeight.Bold)
           .fontColor(this.tm.current.accentRefine)
-          .backgroundColor(this.tm.current.accentRefineBg)
+          .backgroundColor('#33FFCA28')
           .borderRadius(this.tm.current.value4)
           .padding({
             left: this.tm.current.value4, right: this.tm.current.value4,
@@ -37,7 +37,7 @@ export struct ZZZCharDetailHeroInfo {
           })
         Text($r('app.string.zzz_char_detail_rank_prefix', this.vm.charRank))
           .fontSize(this.tm.current.font11)
-          .fontColor(this.tm.current.textOnDarkMuted)
+          .fontColor('#59FFFFFF')
       }
     }
   }

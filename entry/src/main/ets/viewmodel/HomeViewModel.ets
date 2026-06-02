@@ -668,7 +668,7 @@ export class HomeViewModel {
           srRows[srRows.length] = new GameDataRowVM(
             $r('app.string.starrail_reserve_stamina_title'),
             `${data.currentReserveStamina}`,
-            $r('app.color.color_text_secondary')
+            $r('app.color.gray_700')
           );
         }
         if (data.currentTrainScore >= 0) {
@@ -755,7 +755,7 @@ export class HomeViewModel {
         );
         if (data.videoStoreState !== '' && data.videoStoreState !== 'SaleStateUnknown') {
           let vhsValue: ResourceStr = $r('app.string.zzz_video_store_closed');
-          let vhsColor: ResourceColor = $r('app.color.color_text_secondary');
+          let vhsColor: ResourceColor = $r('app.color.gray_700');
           if (data.videoStoreState === 'SaleStateDone') {
             vhsValue = $r('app.string.zzz_video_store_done');
             vhsColor = $r('app.color.color_primary');

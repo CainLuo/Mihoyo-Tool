@@ -22,18 +22,18 @@ export struct ZZZSuitSummaryRow {
 
       Text($r('app.string.zzz_char_detail_suit_pieces', 2))
         .fontSize(this.tm.current.font11)
-        .fontColor(this.suit.count >= 2 ? this.tm.current.accentRefine : this.tm.current.textOnDarkMuted)
-        .backgroundColor(this.suit.count >= 2 ? this.tm.current.accentRefineBg : this.tm.current.surfaceDarkLg)
-        .border({ width: this.tm.current.value1, color: this.suit.count >= 2 ? this.tm.current.accentRefine : this.tm.current.surfaceInactiveBorder })
+        .fontColor(this.suit.count >= 2 ? this.tm.current.accentRefine : '#59FFFFFF')
+        .backgroundColor(this.suit.count >= 2 ? '#33FFCA28' : '#99000000')
+        .border({ width: this.tm.current.value1, color: this.suit.count >= 2 ? this.tm.current.accentRefine : '#1AFFFFFF' })
         .borderRadius(this.tm.current.value4)
         .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.value1, bottom: this.tm.current.value1 })
 
       if (this.suit.suitOwn >= 4) {
         Text($r('app.string.zzz_char_detail_suit_pieces', 4))
           .fontSize(this.tm.current.font11)
-          .fontColor(this.suit.count >= 4 ? this.tm.current.accentRefine : this.tm.current.textOnDarkMuted)
-          .backgroundColor(this.suit.count >= 4 ? this.tm.current.accentRefineBg : this.tm.current.surfaceDarkLg)
-          .border({ width: this.tm.current.value1, color: this.suit.count >= 4 ? this.tm.current.accentRefine : this.tm.current.surfaceInactiveBorder })
+          .fontColor(this.suit.count >= 4 ? this.tm.current.accentRefine : '#59FFFFFF')
+          .backgroundColor(this.suit.count >= 4 ? '#33FFCA28' : '#99000000')
+          .border({ width: this.tm.current.value1, color: this.suit.count >= 4 ? this.tm.current.accentRefine : '#1AFFFFFF' })
           .borderRadius(this.tm.current.value4)
           .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.value1, bottom: this.tm.current.value1 })
       }

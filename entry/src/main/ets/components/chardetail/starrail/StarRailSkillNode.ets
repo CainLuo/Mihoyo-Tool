@@ -24,10 +24,10 @@ export struct StarRailSkillNode {
             .borderRadius(this.iconSize / 2)
             .backgroundColor(this.skill.isActivated ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDarkLg)
             .border({ width: this.tm.current.value1p5, color: this.skill.isActivated ? this.tm.current.surfaceActiveBorder : this.tm.current.surfaceInactiveBorder })
-            .opacity(this.skill.isActivated ? 1.0 : this.tm.current.charDetailConsInactiveOpacity)
+            .opacity(this.skill.isActivated ? 1.0 : this.tm.current.opacity03)
           if (!this.skill.isActivated) {
             SymbolGlyph($r('sys.symbol.lock'))
-              .fontSize(this.iconSize * this.tm.current.charDetailLockIconRatio)
+              .fontSize(this.iconSize * this.tm.current.opacity06)
               .fontColor([this.tm.current.textLockIcon])
           }
         }

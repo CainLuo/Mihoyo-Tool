@@ -25,7 +25,7 @@ export struct GeetestDialogTitleBar {
       }
       .width(this.tm.current.value56)
       .height(this.tm.current.value56)
-      .backgroundColor(this.tm.current.colorTransparent)
+      .backgroundColor(Color.Transparent)
       .onClick(() => { this.onClose() })
     }
     .width(this.tm.current.full)

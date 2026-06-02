@@ -8,11 +8,35 @@
  * 因此这里直接定义游戏 ID 常量，不从 core 导入 GameId。
  */
 
+import { WidgetColors } from '../models/WidgetUIStates';
+
 /** 卡片渲染进程内使用的游戏 ID 常量（与 core/GameId 枚举值保持一致） */
 export class WIDGET_GAME_ID {
   static readonly GENSHIN: string = 'genshin';
   static readonly STARRAIL: string = 'starrail';
   static readonly ZZZ: string = 'zzz';
+}
+
+/**
+ * 根据游戏 ID 返回游戏名称字符串
+ * 注意：卡片渲染进程不支持 $r()，使用硬编码字符串
+ */
+export function getGameName(gameId: string): string {
+  if (gameId === WIDGET_GAME_ID.GENSHIN) { return '原神'; }
+  if (gameId === WIDGET_GAME_ID.STARRAIL) { return '崩坏：星穹铁道'; }
+  if (gameId === WIDGET_GAME_ID.ZZZ) { return '绝区零'; }
+  return '未知游戏';
+}
+
+/**
+ * 根据游戏 ID 返回游戏主色（Resource 类型）
+ * 使用 $r() 引用 color.json 中的颜色资源
+ */
+export function getGameColor(gameId: string): Resource {
+  if (gameId === WIDGET_GAME_ID.GENSHIN) { return WidgetColors.GENSHIN_PRIMARY; }
+  if (gameId === WIDGET_GAME_ID.STARRAIL) { return WidgetColors.STARRAIL_PRIMARY; }
+  if (gameId === WIDGET_GAME_ID.ZZZ) { return WidgetColors.ZZZ_PRIMARY; }
+  return WidgetColors.GAME_DEFAULT;
 }
 
 /**
@@ -143,27 +167,27 @@ export class GradientPosition {
  * 根据游戏 ID 返回渐变背景深色资源
  */
 export function widgetBgDarkRes(gameId: string): Resource {
-  if (gameId === WIDGET_GAME_ID.STARRAIL) return $r('app.color.widget_bg_starrail_dark');
-  if (gameId === WIDGET_GAME_ID.ZZZ) return $r('app.color.widget_bg_zzz_dark');
-  return $r('app.color.widget_bg_genshin_dark');
+  if (gameId === WIDGET_GAME_ID.STARRAIL) return $r('app.color.widget_bg_starrail_1');
+  if (gameId === WIDGET_GAME_ID.ZZZ) return $r('app.color.widget_bg_zzz_1');
+  return $r('app.color.widget_bg_genshin_1');
 }
 
 /**
  * 根据游戏 ID 返回渐变背景中间色资源
  */
 export function widgetBgMidRes(gameId: string): Resource {
-  if (gameId === WIDGET_GAME_ID.STARRAIL) return $r('app.color.widget_bg_starrail_mid');
-  if (gameId === WIDGET_GAME_ID.ZZZ) return $r('app.color.widget_bg_zzz_mid');
-  return $r('app.color.widget_bg_genshin_mid');
+  if (gameId === WIDGET_GAME_ID.STARRAIL) return $r('app.color.widget_bg_starrail_2');
+  if (gameId === WIDGET_GAME_ID.ZZZ) return $r('app.color.widget_bg_zzz_2');
+  return $r('app.color.widget_bg_genshin_2');
 }
 
 /**
  * 根据游戏 ID 返回渐变背景浅色资源
  */
 export function widgetBgLightRes(gameId: string): Resource {
-  if (gameId === WIDGET_GAME_ID.STARRAIL) return $r('app.color.widget_bg_starrail_light');
-  if (gameId === WIDGET_GAME_ID.ZZZ) return $r('app.color.widget_bg_zzz_light');
-  return $r('app.color.widget_bg_genshin_light');
+  if (gameId === WIDGET_GAME_ID.STARRAIL) return $r('app.color.widget_bg_starrail_3');
+  if (gameId === WIDGET_GAME_ID.ZZZ) return $r('app.color.widget_bg_zzz_3');
+  return $r('app.color.widget_bg_genshin_3');
 }
 
 /**
@@ -216,9 +240,9 @@ export function widgetMultiGameGradient(gameIds: string[]): LinearGradient {
     return {
       angle: WIDGET_GRADIENT_ANGLE,
       colors: [
-        [$r('app.color.widget_bg_default_dark'), GradientPosition.START],
+        [$r('app.color.widget_bg_default_1'), GradientPosition.START],
         [$r('app.color.widget_bg_default_mid'), GradientPosition.MID],
-        [$r('app.color.widget_bg_default_light'), GradientPosition.END]
+        [$r('app.color.widget_bg_default_2'), GradientPosition.END]
       ]
     };
   }

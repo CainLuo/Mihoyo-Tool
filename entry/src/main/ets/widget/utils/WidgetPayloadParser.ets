@@ -21,35 +21,52 @@ export class ParsedRole {
   maxStamina: number = 160;
   recoverySeconds: number = 0;
 
-  // 游戏类型标记（从 rawJson 解析得出）
-  private _gameType: string = '';
+  // 游戏类型标记（优先使用父级传入的 gameId，其次从 rawJson 推断）
+  private _gameId: string = '';
+
+  /**
+   * 设置游戏 ID（由父级 ParsedGame 在解析时设置）
+   */
+  setGameId(gameId: string): void {
+    this._gameId = gameId;
+  }
+
+  /**
+   * 获取游戏 ID（优先使用父级传入值，其次从 rawJson 推断）
+   */
+  get gameId(): string {
+    // 优先返回父级设置的游戏 ID
+    if (this._gameId.length > 0) {
+      return this._gameId;
+    }
+    // 否则从 rawJson 推断
+    this.detectGameType();
+    return this._gameId;
+  }
 
   /**
    * 判断是否为原神数据
    */
   isGenshin(): boolean {
-    this.detectGameType();
-    return this._gameType === 'genshin';
+    return this.gameId === WIDGET_GAME_ID.GENSHIN;
   }
 
   /**
    * 判断是否为星铁数据
    */
   isStarRail(): boolean {
-    this.detectGameType();
-    return this._gameType === 'starrail';
+    return this.gameId === WIDGET_GAME_ID.STARRAIL;
   }
 
   /**
    * 判断是否为绝区零数据
    */
   isZZZ(): boolean {
-    this.detectGameType();
-    return this._gameType === 'zzz';
+    return this.gameId === WIDGET_GAME_ID.ZZZ;
   }
 
   private detectGameType(): void {
-    if (this._gameType.length > 0) {
+    if (this._gameId.length > 0) {
       return;
     }
     if (this.rawJson.length === 0) {
@@ -62,11 +79,11 @@ export class ParsedRole {
         return;
       }
       if (data.current_resin !== undefined) {
-        this._gameType = 'genshin';
+        this._gameId = WIDGET_GAME_ID.GENSHIN;
       } else if (data.current_stamina !== undefined) {
-        this._gameType = 'starrail';
+        this._gameId = WIDGET_GAME_ID.STARRAIL;
       } else if (data.energy !== undefined) {
-        this._gameType = 'zzz';
+        this._gameId = WIDGET_GAME_ID.ZZZ;
       }
     } catch (_e) {
       // 忽略解析错误
@@ -286,6 +303,9 @@ export function parsePayload(payloadJson: string): ParsedPayload {
                 parsedRole.nickname = roleObj.nickname !== undefined ? roleObj.nickname : '';
                 parsedRole.server = roleObj.server !== undefined ? roleObj.server : '';
                 parsedRole.rawJson = roleObj.rawJson !== undefined ? roleObj.rawJson : '';
+                
+                // 关键：设置父级的 gameId，确保 gameId 始终正确
+                parsedRole.setGameId(parsedGame.gameId);
 
                 // 解析体力数据
                 parseStaminaData(parsedRole);

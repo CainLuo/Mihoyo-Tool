@@ -6,6 +6,7 @@ import { AppearanceManager } from '../utils/AppearanceManager';
 import { StaminaNotificationService } from '../notification/StaminaNotificationService';
 import { WidgetDataStoreBuilder } from '../widget/utils/WidgetDataStoreBuilder';
 import { WidgetDataStoreManager } from '../widget/utils/WidgetDataStoreManager';
+import { TransparentColorCache } from '../utils/ColorUtil';
 
 const TAG: string = 'EntryAbility';
 
@@ -17,6 +18,9 @@ export default class EntryAbility extends UIAbility {
     AppearanceManager.restoreOnLaunch(this.context).catch((error: Error | object) => {
       Logger.warning(TAG, `restoreOnLaunch failed: ${JSON.stringify(error)}`);
     });
+
+    // 初始化透明色缓存（从 color.json 读取基础颜色并计算）
+    TransparentColorCache.init(this.context);
 
     // 初始化核心库，直接传递 AppEnv，无需任何转换
     CoreInitializer.initCore({ env: APP_ENV, context: this.context })

@@ -69,7 +69,7 @@ export struct WidgetGameTypeOption {
     }
     .width(this.tm.current.full)
     .padding(this.tm.current.font14)
-    .backgroundColor(this.isSelected ? this.tm.current.surfaceActivePrimary : this.tm.current.colorSurfaceCard)
+    .backgroundColor(this.isSelected ? '#263A6FD8' : this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
     .border({
       width: this.tm.current.value2,

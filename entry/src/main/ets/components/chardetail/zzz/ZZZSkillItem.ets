@@ -19,7 +19,7 @@ export struct ZZZSkillItem {
             .width(this.tm.current.value4)
             .height(this.tm.current.font16)
             .borderRadius(this.tm.current.value2)
-            .backgroundColor(this.tm.current.accentPrimaryStrong)
+            .backgroundColor(this.tm.current.accentRefine)
 
           Text(this.skill.items[0].title)
             .fontSize(this.tm.current.font13)
@@ -30,7 +30,7 @@ export struct ZZZSkillItem {
           Text(`Lv.${this.skill.level}`)
             .fontSize(this.tm.current.font13)
             .fontColor(this.tm.current.accentRefine)
-            .backgroundColor(this.tm.current.accentRefineBg)
+            .backgroundColor('#33FFCA28')
             .borderRadius(this.tm.current.value4)
             .padding({
               left: this.tm.current.value4, right: this.tm.current.value4,

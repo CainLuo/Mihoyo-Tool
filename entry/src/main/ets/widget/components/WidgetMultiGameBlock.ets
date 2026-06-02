@@ -44,7 +44,7 @@ export struct WidgetMultiGameBlock {
       Row({ space: theme.value8 }) {
         Text(gameNameRes(this.game.gameId))
           .fontSize(theme.value12)
-          .fontColor($r('app.color.text_on_dark_secondary'))
+          .fontColor($r('app.color.gray_400'))
           .flexShrink(0)
 
         Row({ space: theme.value2 }) {
@@ -56,7 +56,7 @@ export struct WidgetMultiGameBlock {
 
           Text('/ ' + String(parseMax(this.game.maxStr)))
             .fontSize(theme.value11)
-            .fontColor($r('app.color.text_on_dark_muted'))
+            .fontColor($r('app.color.gray_500'))
             .alignSelf(ItemAlign.End)
             .margin({ bottom: theme.value2 })
         }
@@ -64,7 +64,7 @@ export struct WidgetMultiGameBlock {
 
         Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(this.game.secondsStr))
           .fontSize(theme.value11)
-          .fontColor(this.isFull ? $r('app.color.color_danger') : $r('app.color.text_on_dark_secondary'))
+          .fontColor(this.isFull ? $r('app.color.color_danger') : $r('app.color.gray_400'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
           .layoutWeight(1)
@@ -108,6 +108,6 @@ struct WidgetMultiGameBlockPreview {
     }
     .padding(16)
     .width(352)
-    .backgroundColor('#181820')
+    .backgroundColor($r('app.color.widget_bg_default_1'))
   }
 }

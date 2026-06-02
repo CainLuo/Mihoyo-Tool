@@ -22,7 +22,7 @@ export struct ZZZPropsSection {
           Row() {
             Text(prop.name)
               .fontSize(this.tm.current.font14)
-              .fontColor(this.tm.current.textOnDarkSecondary)
+              .fontColor('#80FFFFFF')
               .layoutWeight(1)
 
             Text(prop.final)
@@ -32,12 +32,12 @@ export struct ZZZPropsSection {
           }
           .width(this.tm.current.full)
           .padding({ left: this.tm.current.value12, right: this.tm.current.value12, top: this.tm.current.value8, bottom: this.tm.current.value8 })
-          .border({ width: { bottom: idx < this.vm.properties.length - 1 ? this.tm.current.value1 : 0 }, color: this.tm.current.surfaceGlass })
+          .border({ width: { bottom: idx < this.vm.properties.length - 1 ? this.tm.current.value1 : 0 }, color: '#1AFFFFFF' })
         }, (prop: ZZZCharDetailProperty, idx: number) => `prop_${idx}`)
       }
       .width(this.tm.current.full)
-      .backgroundColor(this.tm.current.surfaceDarkLg)
-      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
+      .backgroundColor('#99000000')
+      .border({ width: this.tm.current.value1, color: '#1AFFFFFF' })
       .borderRadius(this.tm.current.radius12)
       .alignItems(HorizontalAlign.Start)
     }

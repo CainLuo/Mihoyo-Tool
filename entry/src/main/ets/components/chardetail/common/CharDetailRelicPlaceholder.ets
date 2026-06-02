@@ -6,6 +6,7 @@
  * 使用方：CharDetailRelicsPanel、StarRailCharDetailContent、ZZZEquipSection
  */
 import { themeManager, ThemeManager } from '../../../theme/ThemeManager';
+import { TransparentColorCache } from '../../../utils/ColorUtil';
 
 @ComponentV2
 export struct CharDetailRelicPlaceholder {
@@ -17,17 +18,17 @@ export struct CharDetailRelicPlaceholder {
     Column({ space: this.tm.current.value4 }) {
       SymbolGlyph($r('sys.symbol.lock'))
         .fontSize(this.tm.current.font20)
-        .fontColor([this.tm.current.textOnDarkMuted])
+        .fontColor([TransparentColorCache.whiteWith35])
       Text(this.posName)
         .fontSize(this.tm.current.font13)
-        .fontColor(this.tm.current.textOnDarkMuted)
+        .fontColor(TransparentColorCache.whiteWith35)
     }
     .width(this.tm.current.full)
     .height(this.tm.current.value80)
     .justifyContent(FlexAlign.Center)
     .alignItems(HorizontalAlign.Center)
-    .backgroundColor(this.tm.current.surfaceDarkMd)
-    .border({ width: this.tm.current.value1, color: this.tm.current.surfaceInactiveBorder, style: BorderStyle.Dashed })
+    .backgroundColor(TransparentColorCache.blackWith40)
+    .border({ width: this.tm.current.value1, color: TransparentColorCache.whiteWith10, style: BorderStyle.Dashed })
     .borderRadius(this.tm.current.radius8)
   }
 }

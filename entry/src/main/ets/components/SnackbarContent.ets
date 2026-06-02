@@ -56,7 +56,7 @@ export struct SnackbarContent {
     .backgroundColor(this.tm.current.colorSurfaceCard)
     .border({ width: this.tm.current.value1, color: this.tm.current.colorDivider })
     .borderRadius(this.tm.current.radius12)
-    .shadow({ radius: this.tm.current.radius12, color: this.tm.current.colorMask, offsetX: 0, offsetY: 4 })
+    .shadow({ radius: this.tm.current.radius12, color: '#28000000', offsetX: 0, offsetY: 4 })
   }
 }
 

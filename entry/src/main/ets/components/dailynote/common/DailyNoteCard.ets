@@ -44,7 +44,7 @@ export struct DailyNoteCardPreviewSimple {
       })
     }
     .padding(16)
-    .backgroundColor($r('app.color.color_page_bg'))
+    .backgroundColor($r('app.color.dark_400'))
   }
 }
 

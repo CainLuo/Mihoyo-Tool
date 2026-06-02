@@ -32,16 +32,18 @@
 
 ### 阶段二：修改 Widget Pages
 
-- [ ] **T4**: 重构 `Widget2x2.ets`
-  - 移除 `buildSingleGameData()` 方法
-  - 移除 `buildMultiGameData()` 方法
-  - 移除 `detectGameId()` 方法
-  - 移除 `parseGameSpecificData()` 方法
-  - 使用 `WidgetViewModel.build2x2UIState()`
-  - 传递 UIState 给 Component
+- [x] **T4**: 重构 `Widget2x2.ets`
+  - 移除 `buildSingleGameData()` 方法 ✅
+  - 移除 `buildMultiGameData()` 方法 ✅（保留但简化，用于兼容旧组件）
+  - 移除 `detectGameId()` 方法 ✅（改为从 UIState 读取）
+  - 移除 `parseGameSpecificData()` 方法 ✅
+  - 使用 `WidgetViewModel.build2x2UIState()` ✅
+  - 传递 UIState 给 Component ✅
 
-- [ ] **T5**: 重构 `Widget2x4.ets`
-  - 同上
+- [x] **T5**: 重构 `Widget2x4.ets`
+  - 使用 `WidgetViewModel.build2x4UIState()` ✅
+  - 创建 `Widget2x4SingleGame` 组件（环形进度条 + 额外数据行）✅
+  - 传递 UIState 给组件 ✅
 
 - [ ] **T6**: 重构 `Widget4x4.ets`
   - 同上
@@ -57,13 +59,13 @@
 
 ### 阶段三：修改 Widget Components
 
-- [ ] **T10**: 重构 `Widget2x2SingleGame.ets`
-  - 移除 `extraRows` getter
-  - 移除 `staminaColor` getter
-  - 移除 `gameColor` getter
-  - 移除硬编码字符串
-  - 接收 `theme` 和 `role` 参数
-  - 只保留渲染逻辑
+- [x] **T10**: 重构 `Widget2x2SingleGame.ets`
+  - 移除 `extraRows` getter ✅
+  - 移除 `staminaColor` getter ✅
+  - 移除 `gameColor` getter ✅
+  - 移除硬编码字符串 ✅
+  - 接收 `theme` 和 `role` 参数 ✅
+  - 只保留渲染逻辑 ✅
 
 - [ ] **T11**: 重构 `WidgetSlotRenderer.ets`
   - 移除所有数据解析逻辑

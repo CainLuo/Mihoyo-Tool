@@ -223,7 +223,7 @@ export struct Main {
     ctx.getPromptAction().openCustomDialog(content, {
       alignment: DialogAlignment.Bottom,
       offset: { dx: 0, dy: 0 },
-      maskColor: this.tm.current.colorMask,
+      maskColor: '#80000000',
       isModal: true,
       autoCancel: true
     }).catch((_: Error | object) => {});

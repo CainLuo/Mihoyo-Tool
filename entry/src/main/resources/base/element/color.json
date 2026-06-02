@@ -1,6 +1,118 @@
 {
   "color": [
     {
+      "name": "black",
+      "value": "#000000"
+    },
+    {
+      "name": "white",
+      "value": "#FFFFFF"
+    },
+    {
+      "name": "gray_100",
+      "value": "#EEEEEE"
+    },
+    {
+      "name": "gray_200",
+      "value": "#E0E0E0"
+    },
+    {
+      "name": "gray_300",
+      "value": "#CCCCCC"
+    },
+    {
+      "name": "gray_400",
+      "value": "#AAAAAA"
+    },
+    {
+      "name": "gray_500",
+      "value": "#999999"
+    },
+    {
+      "name": "gray_600",
+      "value": "#888888"
+    },
+    {
+      "name": "gray_700",
+      "value": "#666666"
+    },
+    {
+      "name": "gray_800",
+      "value": "#444444"
+    },
+    {
+      "name": "gray_900",
+      "value": "#333333"
+    },
+    {
+      "name": "dark_400",
+      "value": "#1A1A2E"
+    },
+    {
+      "name": "gold",
+      "value": "#FFD700"
+    },
+    {
+      "name": "widget_bg_genshin_1",
+      "value": "#152030"
+    },
+    {
+      "name": "widget_bg_genshin_2",
+      "value": "#1a2d42"
+    },
+    {
+      "name": "widget_bg_genshin_3",
+      "value": "#1c3350"
+    },
+    {
+      "name": "widget_bg_starrail_1",
+      "value": "#181828"
+    },
+    {
+      "name": "widget_bg_starrail_2",
+      "value": "#201830"
+    },
+    {
+      "name": "widget_bg_starrail_3",
+      "value": "#261c40"
+    },
+    {
+      "name": "widget_bg_zzz_1",
+      "value": "#1e1a0e"
+    },
+    {
+      "name": "widget_bg_zzz_2",
+      "value": "#2a2010"
+    },
+    {
+      "name": "widget_bg_zzz_3",
+      "value": "#342810"
+    },
+    {
+      "name": "widget_bg_default_1",
+      "value": "#181820"
+    },
+    {
+      "name": "widget_bg_default_2",
+      "value": "#1c1c2c"
+    },
+    {
+      "name": "widget_gradient_1",
+      "value": "#1a1a2e"
+    },
+    {
+      "name": "widget_gradient_2",
+      "value": "#0d0d18"
+    },
+    {
+      "name": "widget_bg",
+      "value": "#2E3033"
+    },
+    {
+      "name": "dark_500",
+      "value": "#0D0D18"
+    },
+    {
       "name": "start_window_background",
       "value": "#000000"
     },

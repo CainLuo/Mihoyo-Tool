@@ -95,8 +95,8 @@ export default class EntryFormAbility extends FormExtensionAbility {
           const slot = config.slots[i];
           hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG]   slot[' + i + ']: accountId=' + slot.accountId + ' gameId=' + slot.gameId + ' roleId=' + slot.roleId);
         }
-        // 删除临时配置（已关联到 formId）
-        this.deletePendingConfig(formName);
+        // 注意：不要在这里删除临时配置，因为后续刷新还需要使用
+        // 配置会在 saveConfigAsync 中被保存到 formId 对应的 key 下
       } else {
         hilog.warn(DOMAIN, TAG, '[WIDGET_DEBUG] ⚠️ config NOT FOUND for key=' + formName);
       }
@@ -138,6 +138,21 @@ export default class EntryFormAbility extends FormExtensionAbility {
       hilog.warn(DOMAIN, TAG, `[WIDGET_DEBUG] ⚠️ EXPERIMENT: dataStore is empty, using MOCK data`);
       const mockPayload = this.buildMockPayload();
       hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] mockPayload len=${mockPayload.length}`);
+      // 打印 mock payload 的前 500 字符
+      hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] mockPayload preview=${mockPayload.substring(0, Math.min(500, mockPayload.length))}`);
+      
+      // 验证 JSON 是否能正确解析
+      try {
+        interface MockPayloadVerify {
+          version?: number;
+          accounts?: Object[];
+        }
+        const verifyObj: MockPayloadVerify = JSON.parse(mockPayload);
+        hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] mockPayload verify: version=${verifyObj.version} accounts=${verifyObj.accounts?.length ?? 0}`);
+      } catch (e) {
+        hilog.error(DOMAIN, TAG, `[WIDGET_DEBUG] mockPayload JSON parse FAILED: ${JSON.stringify(e)}`);
+      }
+      
       const mockRecord: Record<string, string> = { 'payload': mockPayload };
       return formBindingData.createFormBindingData(mockRecord);
     }

@@ -475,6 +475,16 @@ export class WidgetConfigViewModel {
     const configKey = formName;
     const configJson = config.toJson();
 
+    // 🔧 修复：同时保存预配置到 WidgetDataStore.widgets
+    // 这样 EntryFormAbility 可以从 dataStore.getPresetSlots() 读取
+    const presetKey = this.sizeToPresetKey();
+    const slotKeys: string[] = [];
+    for (let i = 0; i < this.selectedSlots.length; i++) {
+      slotKeys.push(this.selectedSlots[i].key);
+    }
+    Logger.info(TAG, `complete: saving preset ${presetKey} with slots=${slotKeys.join(',')}`);
+    await this.savePresetSlots(presetKey, slotKeys);
+
     const want: Want = {
       bundleName: BuildProfile.BUNDLE_NAME,
       abilityName: 'EntryFormAbility',
@@ -626,5 +636,41 @@ export class WidgetConfigViewModel {
     if (gameId === GameId.STARRAIL || gameId === 'starrail') return '星穹铁道';
     if (gameId === GameId.ZZZ || gameId === 'zzz') return '绝区零';
     return '未知';
+  }
+
+  /**
+   * 根据选中的尺寸返回对应的 preset key（用于 WidgetDataStore.widgets）
+   * 区别于 sizeToFormName()：preset key 是 widget12/widget22 等，不带游戏后缀
+   */
+  private sizeToPresetKey(): string {
+    if (this.selectedSize === WidgetSize.SIZE_1x2) {
+      return 'widget12';
+    }
+    if (this.selectedSize === WidgetSize.SIZE_2x4) {
+      return 'widget24';
+    }
+    if (this.selectedSize === WidgetSize.SIZE_4x4) {
+      return 'widget44';
+    }
+    return 'widget22';
+  }
+
+  /**
+   * 保存预配置到 WidgetDataStore.widgets
+   * 这样 EntryFormAbility 可以从 dataStore.getPresetSlots() 读取
+   */
+  private async savePresetSlots(presetKey: string, slotKeys: string[]): Promise<void> {
+    Logger.info(TAG, `savePresetSlots: presetKey=${presetKey} slots=${slotKeys.join(',')}`);
+    
+    // 更新内存中的 dataStore
+    this.dataStore.setPresetSlots(presetKey, slotKeys);
+    
+    // 持久化到 Preferences
+    const saved = await WidgetDataStoreManager.save(this.dataStore);
+    if (saved) {
+      Logger.info(TAG, `savePresetSlots: SUCCESS - saved to WidgetDataStore.widgets[${presetKey}]`);
+    } else {
+      Logger.error(TAG, `savePresetSlots: FAILED - could not save to WidgetDataStore`);
+    }
   }
 }

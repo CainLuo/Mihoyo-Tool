@@ -22,7 +22,7 @@ export struct LoginTabItem {
       .fontWeight(this.vm.activeTab === this.tab ? FontWeight.Bold : FontWeight.Normal)
       .backgroundColor(this.vm.activeTab === this.tab
         ? this.tm.current.colorPrimary
-        : this.tm.current.colorTransparent)
+        : Color.Transparent)
       .borderRadius(this.tm.current.radius8)
       .padding({
         left: this.tm.current.value12,

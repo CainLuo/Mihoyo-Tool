@@ -10,7 +10,7 @@ import { ThemeFonts } from '../../theme/ThemeFonts'
 export struct GameDataRow {
   @Param label: Resource = $r('app.string.app_name');
   @Param value: ResourceStr = '';
-  @Param valueColor: ResourceColor = $r('app.color.color_text_primary');
+  @Param valueColor: ResourceColor = $r('app.color.gray_900');
   @Local private tm: ThemeManager = themeManager;
 
   build() {

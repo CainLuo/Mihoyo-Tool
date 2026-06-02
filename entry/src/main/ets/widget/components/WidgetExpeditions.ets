@@ -15,7 +15,7 @@ const EXPEDITION_COLORS: ResourceColor[] = [
   $r('app.color.game_color_genshin'),  // 蓝色
   $r('app.color.game_color_starrail'), // 紫色
   $r('app.color.color_danger'),        // 红色
-  $r('app.color.accent_refine'),       // 黄色
+  $r('app.color.color_warning'),       // 黄色
   $r('app.color.game_color_zzz'),      // 绿色
 ];
 
@@ -51,7 +51,7 @@ export struct WidgetExpeditions {
     Column({ space: theme.value8 }) {
       Text($r('app.string.widget_expedition'))
         .fontSize(theme.value10)
-        .fontColor($r('app.color.text_on_dark_muted'))
+        .fontColor($r('app.color.gray_500'))
         .letterSpacing(theme.value0)
         .textCase(TextCase.UpperCase)
 
@@ -62,7 +62,7 @@ export struct WidgetExpeditions {
             Circle()
               .width(theme.value36)
               .height(theme.value36)
-              .fill($r('app.color.surface_inactive_border'))
+              .fill($r('app.color.white'))
               .stroke(this.getExpeditionColor(idx))
               .strokeWidth(theme.value2)
 
@@ -74,7 +74,7 @@ export struct WidgetExpeditions {
             if (this.isFinished(idx)) {
               Text('✓')
                 .fontSize(theme.value9)
-                .fontColor($r('app.color.text_on_dark_high'))
+                .fontColor($r('app.color.white'))
                 .fontWeight(FontWeight.Bold)
                 .backgroundColor($r('app.color.game_color_zzz'))
                 .borderRadius(theme.value8)
@@ -111,6 +111,6 @@ struct WidgetExpeditionsPreview {
     }
     .padding(16)
     .width(200)
-    .backgroundColor('#1a1a2e')
+    .backgroundColor($r('app.color.dark_400'))
   }
 }

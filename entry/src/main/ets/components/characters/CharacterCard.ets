@@ -31,8 +31,8 @@ export struct CharacterCard {
             .width(this.tm.current.full)
             .aspectRatio(1)
             .backgroundColor(this.character.rarity >= 5
-              ? $r('app.color.rarity_5star_bg')
-              : $r('app.color.rarity_4star_bg'))
+              ? $r('app.color.dark_400')
+              : $r('app.color.dark_400'))
 
           // 角色图片（原神用 iconUrl，星铁/绝区零用 squareIconUrl 半身立绘）
           if (this.gameId === GameId.GENSHIN) {
@@ -69,7 +69,7 @@ export struct CharacterCard {
           .justifyContent(FlexAlign.End)
           .linearGradient({
             angle: this.tm.current.a180,
-            colors: [[this.tm.current.colorTransparent, 0.0], [this.tm.current.overlayGradientEnd, 1.0]]
+            colors: [[Color.Transparent, 0.0], [this.tm.current.overlayGradientEnd, 1.0]]
           })
           .padding({ top: this.tm.current.font20 })
           .position({ x: 0, y: this.tm.current.full })
@@ -89,12 +89,12 @@ export struct CharacterCard {
           Text(`${this.character.extraInt1}`)
             .fontSize(this.tm.current.font13)
             .fontWeight(FontWeight.Bold)
-            .fontColor($r('app.color.rarity_5star'))
+            .fontColor($r('app.color.gold'))
             .width(this.tm.current.value22)
             .height(this.tm.current.value22)
             .borderRadius(this.tm.current.value22 / 2)
-            .backgroundColor($r('app.color.color_mask'))
-            .border({ width: this.tm.current.value1p5, color: $r('app.color.color_surface_subtle') })
+            .backgroundColor($r('app.color.black'))
+            .border({ width: this.tm.current.value1p5, color: $r('app.color.gray_200') })
             .textAlign(TextAlign.Center)
             .position({ x: this.tm.current.full, y: this.tm.current.value8 })
             .markAnchor({ x: this.tm.current.full, y: 0 })
@@ -119,7 +119,7 @@ export struct CharacterCard {
                   Column()
                     .width(this.tm.current.full)
                     .height(this.tm.current.full)
-                    .backgroundColor($r('app.color.color_placeholder'))
+                    .backgroundColor($r('app.color.gray_600'))
                 }
               }
               .layoutWeight(1)
@@ -155,11 +155,11 @@ export struct CharacterCard {
                     .width(this.tm.current.value22)
                     .height(this.tm.current.value22)
                     .borderRadius(this.tm.current.value22 / 2)
-                    .border({ width: 2, color: $r('app.color.color_text_secondary') })
+                    .border({ width: 2, color: $r('app.color.gray_700') })
                   Column()
                     .width(2)
                     .height(this.tm.current.font24)
-                    .backgroundColor($r('app.color.color_text_secondary'))
+                    .backgroundColor($r('app.color.gray_700'))
                     .rotate({ angle: 45 })
                 }
                 .width(this.tm.current.value22)
@@ -179,9 +179,9 @@ export struct CharacterCard {
           }
           .width(this.tm.current.value64)
           .height(this.tm.current.value64)
-          .backgroundColor($r('app.color.weapon_overlay_bg'))
+          .backgroundColor($r('app.color.black'))
           .borderRadius({ topLeft: this.tm.current.radius8, topRight: 0, bottomLeft: 0, bottomRight: 0 })
-          .border({ width: { top: 1, left: 1 }, color: $r('app.color.color_surface_subtle') })
+          .border({ width: { top: 1, left: 1 }, color: $r('app.color.gray_200') })
           .clip(true)
           .zIndex(4)
         }

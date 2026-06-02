@@ -187,6 +187,8 @@ export class DefaultTheme implements Theme {
   shimmerOpacityLow: number = 0.3
   charDetailConsInactiveOpacity: number = 0.3
   charDetailLockIconRatio: number = 0.6
+  opacity03: number = 0.3
+  opacity06: number = 0.6
 
   constructor() {
     // 无需初始化，所有字段已在声明时赋值

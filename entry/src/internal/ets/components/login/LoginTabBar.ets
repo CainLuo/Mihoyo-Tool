@@ -20,7 +20,7 @@ export struct LoginTabBar {
       LoginTabItem({ vm: this.vm, tab: LoginTab.COOKIE, label: $r('app.string.login_tab_cookie') })
     }
     .width(this.tm.current.full)
-    .backgroundColor(this.tm.current.loginTabBarBg)
+    .backgroundColor(this.tm.current.colorSurfaceSubtle)
     .borderRadius(this.tm.current.radius8)
     .padding(this.tm.current.value4)
     .margin({ bottom: this.tm.current.font18 })

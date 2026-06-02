@@ -26,7 +26,7 @@ export struct CharDetailPortraitWeaponCard {
           .height(this.tm.current.value52)
           .objectFit(ImageFit.Contain)
           .borderRadius(this.tm.current.value8)
-          .backgroundColor(this.tm.current.surfaceGlass)
+          .backgroundColor('#1AFFFFFF')
           .flexShrink(0)
       }
       Column({ space: this.tm.current.value4 }) {
@@ -39,12 +39,12 @@ export struct CharDetailPortraitWeaponCard {
         Row({ space: this.tm.current.value8 }) {
           Text(`Lv.${this.weapon.level}`)
             .fontSize(this.tm.current.font11)
-            .fontColor(this.tm.current.textOnDarkMuted)
+            .fontColor('#80FFFFFF')
           Text($r('app.string.char_detail_weapon_refine_prefix', this.weapon.affix))
             .fontSize(this.tm.current.font11)
             .fontWeight(FontWeight.Bold)
             .fontColor(this.tm.current.accentRefine)
-            .backgroundColor(this.tm.current.accentRefineBg)
+            .backgroundColor('#33FFCA28')
             .borderRadius(this.tm.current.value4)
             .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.value1, bottom: this.tm.current.value1 })
           Text(this.starsText(this.weapon.rarity))
@@ -80,8 +80,8 @@ export struct CharDetailPortraitWeaponCard {
     }
     .width(this.tm.current.full)
     .padding(this.tm.current.value12)
-    .backgroundColor(this.tm.current.surfaceDarkLg)
-    .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
+    .backgroundColor('#99000000')
+    .border({ width: this.tm.current.value1, color: '#1AFFFFFF' })
     .borderRadius(this.tm.current.radius12)
     .alignItems(VerticalAlign.Center)
   }

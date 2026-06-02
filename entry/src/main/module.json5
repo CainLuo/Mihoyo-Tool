@@ -30,7 +30,7 @@
         icon: "$media:layered_image",
         label: "$string:EntryAbility_label",
         startWindowIcon: "$media:ic_app_logo",
-        startWindowBackground: "$color:start_window_background",
+        startWindowBackground: "$color:black",
         exported: true,
         skills: [
           {

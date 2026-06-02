@@ -36,18 +36,18 @@ export struct Widget4x4MultiGame {
         Text(this.displayName)
           .fontSize(theme.value12)
           .fontWeight(FontWeight.Medium)
-          .fontColor($r('app.color.text_on_dark_high'))
+          .fontColor($r('app.color.white'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
           .layoutWeight(1)
 
         Text(this.data.accountUid)
           .fontSize(theme.value10)
-          .fontColor($r('app.color.text_on_dark_muted'))
+          .fontColor($r('app.color.gray_500'))
       }
       .width(theme.full)
       .padding({ bottom: theme.value8 })
-      .border({ width: { bottom: 1 }, color: $r('app.color.surface_inactive_border') })
+      .border({ width: { bottom: 1 }, color: $r('app.color.white') })
       .flexShrink(0)
 
       // 游戏区块列表（均分剩余高度）
@@ -61,7 +61,7 @@ export struct Widget4x4MultiGame {
           Column()
             .width(theme.full)
             .height(theme.value1)
-            .backgroundColor($r('app.color.surface_inactive_border'))
+            .backgroundColor($r('app.color.white'))
             .opacity(0.5)
             .flexShrink(0)
 
@@ -75,7 +75,7 @@ export struct Widget4x4MultiGame {
           Column()
             .width(theme.full)
             .height(theme.value1)
-            .backgroundColor($r('app.color.surface_inactive_border'))
+            .backgroundColor($r('app.color.white'))
             .opacity(0.5)
             .flexShrink(0)
 
@@ -104,7 +104,7 @@ struct Widget4x4MultiGamePreview {
     .padding(12)
     .width(352)
     .height(352)
-    .backgroundColor('#181820')
+    .backgroundColor($r('app.color.widget_bg_default_1'))
     .borderRadius(16)
   }
 }

@@ -88,7 +88,7 @@ export struct Launch {
       .alignItems(HorizontalAlign.Center)
     }
     .hideTitleBar(true)
-    .backgroundColor($r('app.color.color_page_bg'))
+    .backgroundColor($r('app.color.dark_400'))
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
   }
 }

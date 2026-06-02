@@ -75,8 +75,8 @@ export struct Home {
       title: $r('app.string.home_refresh_cooldown_title'),
       message: $r('app.string.home_refresh_cooldown_msg'),
       buttons: [
-        { text: $r('app.string.dialog_cancel'), color: $r('app.color.color_text_secondary') },
-        { text: $r('app.string.dialog_sync'), color: $r('app.color.color_accent') }
+        { text: $r('app.string.dialog_cancel'), color: $r('app.color.gray_700') },
+        { text: $r('app.string.dialog_sync'), color: $r('app.color.color_warning') }
       ]
     }).then((result) => {
       if (result.index === 1) { this.vm.forceRefresh() }

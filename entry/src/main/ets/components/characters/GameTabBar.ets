@@ -52,7 +52,7 @@ export struct GameTabBar {
             .borderRadius(this.tm.current.radius8)
             .backgroundColor(idx === this.selectedIdx
               ? $r('app.color.color_primary_bg')
-              : this.tm.current.colorTransparent)
+              : Color.Transparent)
             .onClick(() => { this.onSelect(idx); })
         }, (tab: GameTabItem) => tab.gameId + tab.roleUid)
       }

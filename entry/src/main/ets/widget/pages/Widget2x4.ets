@@ -3,12 +3,16 @@
  *
  * v1.1 design:
  * - Use single @LocalStorageProp('payload') to receive complete JSON
- * - Parse payload to determine display content
+ * - Use ViewModel pattern for data transformation
  * - Dynamic gradient color based on game type
+ *
+ * 数据流：
+ *   payload JSON → parsePayload() → ParsedPayload (Model) → ViewModel.buildUIState() → UIState (View)
  */
 
 import { WidgetCardContent, WidgetCardSize } from '../components/WidgetCardContent';
 import { parsePayload, ParsedRole } from '../utils/WidgetPayloadParser';
+import { Widget2x4ViewModel } from '../viewmodel/Widget2x4ViewModel';
 import { widgetGradient } from '../utils/WidgetUtils';
 import { DefaultTheme } from '../../theme/DefaultTheme';
 

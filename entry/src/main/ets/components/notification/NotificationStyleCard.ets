@@ -30,7 +30,7 @@ export struct NotificationStyleCard {
         .borderRadius(this.tm.current.value10)
         .border({
           width: this.tm.current.value2,
-          color: this.vm.style === this.style ? $r('app.color.color_primary') : $r('app.color.color_divider'),
+          color: this.vm.style === this.style ? $r('app.color.color_primary') : $r('app.color.gray_100'),
         })
         .justifyContent(FlexAlign.Center)
 
@@ -58,11 +58,11 @@ export struct NotificationStyleCard {
     .borderRadius(this.tm.current.radius8)
     .border({
       width: this.tm.current.value1p5,
-      color: this.vm.style === this.style ? $r('app.color.color_primary') : $r('app.color.color_divider'),
+      color: this.vm.style === this.style ? $r('app.color.color_primary') : $r('app.color.gray_100'),
     })
     .backgroundColor(this.vm.style === this.style
-      ? $r('app.color.surface_active_primary')
-      : $r('app.color.color_transparent'))
+      ? $r('app.color.color_primary_bg')
+      : Color.Transparent)
     .alignItems(HorizontalAlign.Start)
     .onClick(() => {
       this.vm.onStyleChange(this.style).catch((_: Error | object) => {})

@@ -61,7 +61,7 @@ export struct WidgetCardContent {
         Column() {
           Text($r('app.string.widget_no_account'))
             .fontSize(13)
-            .fontColor($r('app.color.text_on_dark_secondary'))
+            .fontColor($r('app.color.gray_400'))
             .textAlign(TextAlign.Center)
             .maxLines(2)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -171,7 +171,13 @@ export struct WidgetCardContent {
     if (this.cardSize === WidgetCardSize.SIZE_4x4) {
       Widget4x4MultiGame({ data: this.buildMultiRoleData() })
     } else {
-      WidgetMultiGameCompact({ data: this.buildMultiRoleData(), ringSize: this.ringSize })
+      WidgetMultiGameCompact({ 
+        accountName: this.buildMultiRoleData().accountName,
+        accountUid: this.buildMultiRoleData().accountUid,
+        gameCount: this.buildMultiRoleData().gameCount,
+        games: this.buildMultiRoleData().games,
+        ringSize: this.ringSize 
+      })
     }
   }
 
@@ -230,17 +236,17 @@ struct WidgetCardContentPreview {
         .width(168)
         .height(168)
         .padding(12)
-        .backgroundColor($r('app.color.widget_card_bg'))
+        .backgroundColor($r('app.color.widget_bg'))
         .borderRadius(16)
 
       WidgetCardContent({ cardSize: WidgetCardSize.SIZE_2x4 })
         .width(352)
         .height(168)
         .padding(12)
-        .backgroundColor($r('app.color.widget_card_bg'))
+        .backgroundColor($r('app.color.widget_bg'))
         .borderRadius(16)
     }
     .padding(16)
-    .backgroundColor($r('app.color.widget_preview_bg'))
+    .backgroundColor($r('app.color.widget_bg'))
   }
 }

@@ -61,8 +61,12 @@ export struct StarRailCharDetailHero {
         .height(this.tm.current.full)
         .linearGradient({
           angle: this.tm.current.a90,
-          colors: [[this.tm.current.overlayPortraitBase, 0], [this.tm.current.overlayPortraitStrong, 0.32],
-            [this.tm.current.overlayPortraitMid, 0.55], [this.tm.current.colorTransparent, 1.0]]
+          colors: [
+            [this.tm.current.overlayPortraitBase, 0],
+            [this.tm.current.overlayPortraitStrong, 0.32],
+            [this.tm.current.overlayPortraitMid, 0.55],
+            [Color.Transparent, 1.0]
+          ]
         })
 
       // 底部渐变
@@ -71,7 +75,7 @@ export struct StarRailCharDetailHero {
         .height(this.tm.current.full)
         .linearGradient({
           angle: this.tm.current.a0,
-          colors: [[this.tm.current.overlayPortraitBot, 0], [this.tm.current.colorTransparent, 0.45]]
+          colors: [[this.tm.current.overlayPortraitBot, 0], [Color.Transparent, 0.45]]
         })
 
       // 左侧命座纵列（垂直居中）

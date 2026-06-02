@@ -54,7 +54,7 @@ export struct CharDetailHeroInfoOverlay {
         .fontSize(this.nameFontSize())
         .fontWeight(FontWeight.Bold)
         .fontColor(this.tm.current.textOnDarkHigh)
-        .textShadow({ radius: this.tm.current.value8, color: this.tm.current.overlayShadow, offsetY: 2 })
+        .textShadow({ radius: this.tm.current.value8, color: '#80000000', offsetY: 2 })
         .maxLines(1)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
       this.extraContent()

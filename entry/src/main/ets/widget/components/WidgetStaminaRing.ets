@@ -48,7 +48,8 @@ export struct WidgetStaminaRing {
         .width(this.ringSize)
         .height(this.ringSize)
         .color(this.displayColor)
-        .backgroundColor($r('app.color.surface_inactive_border'))
+        .backgroundColor(Color.White)
+        .opacity(0.2)
         .style({ strokeWidth: this.strokeWidth })
 
       if (this.showValue) {
@@ -61,7 +62,8 @@ export struct WidgetStaminaRing {
 
           Text('/' + String(parseMax(this.game.maxStr)))
             .fontSize(this.maxFontSize)
-            .fontColor($r('app.color.text_on_dark_muted'))
+            .fontColor(Color.White)
+            .opacity(0.5)
         }
         .alignItems(HorizontalAlign.Center)
       }
@@ -95,6 +97,6 @@ struct WidgetStaminaRingPreview {
       })
     }
     .padding(16)
-    .backgroundColor('#1a1a2e')
+    .backgroundColor($r('app.color.dark_400'))
   }
 }

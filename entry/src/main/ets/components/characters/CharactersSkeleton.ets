@@ -21,7 +21,7 @@ export struct CharactersSkeletonPreview {
 @ComponentV2
 export struct CharactersSkeleton {
   @Local private tm: ThemeManager = themeManager;
-  @Local private imgOpacity: number = themeManager.current.shimmerOpacityHigh;
+  @Local private imgOpacity: number = 1.0;
   private uiCtx: UIContext | null = null;
 
   aboutToAppear(): void {
@@ -36,7 +36,7 @@ export struct CharactersSkeleton {
         playMode: PlayMode.Alternate
       },
       () => {
-        this.imgOpacity = this.tm.current.shimmerOpacityLow;
+        this.imgOpacity = this.tm.current.opacity03;
       }
     );
   }

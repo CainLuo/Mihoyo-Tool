@@ -103,10 +103,19 @@ export class WidgetPayloadBuilder {
     // 确定要显示的 slot keys
     let slotKeys: string[] = [];
 
+    // 🔬 调试：打印 dataStore.widgets 内容
+    const widgetKeys = Object.keys(dataStore.widgets);
+    WidgetLog.info(`[WIDGET_DEBUG] buildPayload: dataStore.widgets keys=${widgetKeys.length}`);
+    for (let i = 0; i < widgetKeys.length; i++) {
+      const key = widgetKeys[i];
+      const slots = dataStore.widgets[key];
+      WidgetLog.info(`[WIDGET_DEBUG] buildPayload:   widgets[${key}]=${slots.join(',')}`);
+    }
+
     if (config !== null && config.slots.length > 0) {
       // 使用用户配置的 slots
       slotKeys = WidgetPayloadBuilder.extractSlotKeys(config.slots);
-      WidgetLog.info(`[WIDGET_DEBUG] buildPayload: ✅ USING USER SLOTS count=${slotKeys.length}`);
+      WidgetLog.info(`[WIDGET_DEBUG] buildPayload: ✅ USING USER SLOTS from config count=${slotKeys.length}`);
       for (let i = 0; i < slotKeys.length; i++) {
         WidgetLog.info(`[WIDGET_DEBUG] buildPayload:   userSlot[${i}]=${slotKeys[i]}`);
       }
@@ -115,9 +124,14 @@ export class WidgetPayloadBuilder {
       const formName = config?.formName ?? '';
       const presetKey = WidgetPayloadBuilder.formNameToPresetKey(formName);
       
+      WidgetLog.info(`[WIDGET_DEBUG] buildPayload: config is null or empty, trying preset formName=${formName} presetKey=${presetKey}`);
+      
       if (presetKey.length > 0) {
         slotKeys = dataStore.getPresetSlots(presetKey);
-        WidgetLog.info(`[WIDGET_DEBUG] buildPayload: using preset ${presetKey} slots=${slotKeys.length}`);
+        WidgetLog.info(`[WIDGET_DEBUG] buildPayload: getPresetSlots(${presetKey}) returned slots=${slotKeys.length}`);
+        for (let i = 0; i < slotKeys.length; i++) {
+          WidgetLog.info(`[WIDGET_DEBUG] buildPayload:   presetSlot[${i}]=${slotKeys[i]}`);
+        }
       }
       
       // 如果预配置也为空，使用 fallback
@@ -203,6 +217,7 @@ export class WidgetPayloadBuilder {
     const result: string[] = [];
     for (let i = 0; i < slots.length; i++) {
       result.push(slots[i].key);
+      WidgetLog.info(`[WIDGET_DEBUG] extractSlotKeys: slot[${i}] key=${slots[i].key} gameId=${slots[i].gameId} accountId=${slots[i].accountId} roleId=${slots[i].roleId}`);
     }
     return result;
   }

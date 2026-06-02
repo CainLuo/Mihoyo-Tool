@@ -51,7 +51,7 @@ export struct Widget2x4SingleGame {
 
         Text(this.isFull ? $r('app.string.widget_stamina_full') : formatRecoveryDesc(this.data.game.secondsStr))
           .fontSize(theme.value9)
-          .fontColor(this.isFull ? $r('app.color.color_danger') : $r('app.color.text_on_dark_muted'))
+          .fontColor(this.isFull ? $r('app.color.color_danger') : $r('app.color.gray_500'))
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
           .constraintSize({ maxWidth: theme.value90 })
@@ -75,11 +75,11 @@ export struct Widget2x4SingleGame {
           Text(gameNameRes(this.data.game.gameId))
             .fontSize(theme.value13)
             .fontWeight(FontWeight.Bold)
-            .fontColor($r('app.color.text_on_dark_high'))
+            .fontColor($r('app.color.white'))
 
           Text(this.displayName)
             .fontSize(theme.value10)
-            .fontColor($r('app.color.text_on_dark_muted'))
+            .fontColor($r('app.color.gray_500'))
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
             .layoutWeight(1)
@@ -93,7 +93,7 @@ export struct Widget2x4SingleGame {
           Row({ space: theme.value4 }) {
             Text($r('app.string.widget_reserve_stamina'))
               .fontSize(theme.value10)
-              .fontColor($r('app.color.text_on_dark_muted'))
+              .fontColor($r('app.color.gray_500'))
 
             Text(this.data.game.reserveStr)
               .fontSize(theme.value12)
@@ -135,7 +135,7 @@ struct Widget2x4SingleGamePreview {
     .padding(12)
     .width(352)
     .height(168)
-    .linearGradient({ angle: 135, colors: [['#152030', 0], ['#1c3350', 1]] })
+    .linearGradient({ angle: 135, colors: [[$r('app.color.widget_bg_genshin_1'), 0], [$r('app.color.widget_bg_genshin_3'), 1]] })
     .borderRadius(16)
   }
 }
