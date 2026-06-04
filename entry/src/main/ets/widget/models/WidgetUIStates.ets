@@ -15,7 +15,6 @@
  */
 
 import { WIDGET_GAME_ID } from '../utils/WidgetUtils';
-import { WidgetGameData } from './WidgetModels';
 
 /**
  * 体力颜色类型枚举
@@ -102,8 +101,15 @@ export class WidgetColors {
  * 额外数据行
  */
 export class WidgetExtraRow {
+  /** 标签 key（用于 ViewModel 转换为资源） */
   label: string = '';
+  /** 已转换的标签资源（组件直接使用） */
+  labelResource: ResourceStr = '';
+  /** 原始值（用于 ViewModel 转换） */
   value: string = '';
+  /** 已转换的显示值资源（组件直接使用） */
+  displayValue: ResourceStr = '';
+  /** 值颜色 */
   valueColor: Resource = $r('app.color.gray_600');
 }
 
@@ -118,6 +124,8 @@ export class WidgetExtraRow {
 export class Widget1x2RoleUIState {
   /** 游戏 ID（genshin/starrail/zzz） */
   gameId: string = WIDGET_GAME_ID.GENSHIN;
+  /** 游戏名称（已在 ViewModel 中转换） */
+  gameName: string = '';
   /** 游戏角色 UID */
   accountUid: string = '';
   /** 当前体力 */
@@ -149,9 +157,14 @@ export class Widget1x2UIState {
  */
 export class WidgetRoleUIState {
   gameId: string = WIDGET_GAME_ID.GENSHIN;
+  /** 游戏名称 key（用于转换） */
   gameName: string = '';
+  /** 已转换的游戏名称资源（组件直接使用） */
+  gameNameResource: ResourceStr = '';
   gameColor: ResourceColor = '';
   roleId: string = '';
+  /** 已转换的 UID 显示文字（含前缀，组件直接使用） */
+  roleIdWithPrefix: string = '';
   currentStamina: number = 0;
   maxStamina: number = 160;
   recoverySeconds: number = 0;
@@ -162,22 +175,6 @@ export class WidgetRoleUIState {
   staminaColorType: StaminaColorType = StaminaColorType.HIGH;
   reserveStamina: string = '0';
   extraRows: WidgetExtraRow[] = [];
-}
-
-/**
- * 多游戏 UIState
- *
- * 包含多游戏组件需要的所有字段：
- * - accountName: 账号名
- * - accountUid: 账号 UID
- * - gameCount: 游戏数量
- * - games: WidgetGameData 数组（兼容 WidgetMultiGameCompact 组件）
- */
-export class WidgetMultiGameUIState {
-  accountName: string = '';
-  accountUid: string = '';
-  gameCount: number = 0;
-  games: WidgetGameData[] = [];
 }
 
 /**

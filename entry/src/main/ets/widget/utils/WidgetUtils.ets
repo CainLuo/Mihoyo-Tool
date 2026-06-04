@@ -8,7 +8,7 @@
  * 因此这里直接定义游戏 ID 常量，不从 core 导入 GameId。
  */
 
-import { WidgetColors } from '../models/WidgetUIStates';
+import { WidgetColors, StaminaColorType, RecoveryTimeData } from '../models/WidgetUIStates';
 
 /** 卡片渲染进程内使用的游戏 ID 常量（与 core/GameId 枚举值保持一致） */
 export class WIDGET_GAME_ID {
@@ -37,6 +37,42 @@ export function getGameColor(gameId: string): Resource {
   if (gameId === WIDGET_GAME_ID.STARRAIL) { return WidgetColors.STARRAIL_PRIMARY; }
   if (gameId === WIDGET_GAME_ID.ZZZ) { return WidgetColors.ZZZ_PRIMARY; }
   return WidgetColors.GAME_DEFAULT;
+}
+
+/**
+ * 根据体力颜色类型和游戏 ID 获取显示颜色
+ * 用于 Widget 体力数值显示
+ */
+export function getStaminaColorByType(colorType: StaminaColorType, gameId: string): Resource {
+  if (colorType === StaminaColorType.LOW) {
+    return WidgetColors.STAMINA_LOW;
+  }
+  if (colorType === StaminaColorType.MEDIUM) {
+    return WidgetColors.STAMINA_MEDIUM;
+  }
+  // HIGH 状态使用游戏主色
+  return getGameColor(gameId);
+}
+
+/**
+ * 格式化恢复时间文字（使用 $r() 获取翻译）
+ * 根据 RecoveryTimeData 返回显示文字
+ */
+export function formatRecoveryTimeText(recoveryTime: RecoveryTimeData): ResourceStr {
+  if (recoveryTime.isFull) {
+    return $r('app.string.widget_stamina_full');
+  }
+
+  const hours = recoveryTime.hours;
+  const minutes = recoveryTime.minutes;
+
+  if (hours > 0 && minutes > 0) {
+    return $r('app.string.widget_recovery_hours_minutes', hours, minutes);
+  }
+  if (hours > 0) {
+    return $r('app.string.widget_recovery_hours', hours);
+  }
+  return $r('app.string.widget_recovery_minutes', minutes);
 }
 
 /**

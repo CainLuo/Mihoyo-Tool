@@ -17,6 +17,7 @@
 import { Widget1x2UIState, Widget1x2RoleUIState, StaminaColorType } from '../models/WidgetUIStates';
 import { ParsedPayload, ParsedRole } from '../utils/WidgetPayloadParser';
 import { WidgetDataHelper } from '../utils/WidgetDataHelper';
+import { getGameName } from '../utils/WidgetUtils';
 
 /**
  * 1x2 Widget ViewModel
@@ -65,6 +66,7 @@ export class Widget1x2ViewModel {
     const state = new Widget1x2RoleUIState();
 
     state.gameId = role.gameId;
+    state.gameName = getGameName(role.gameId);
     state.accountUid = role.roleId;
     state.currentStamina = role.currentStamina;
     state.maxStamina = role.maxStamina;

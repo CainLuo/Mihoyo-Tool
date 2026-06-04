@@ -132,23 +132,3 @@ export class WidgetGameData {
   }
 }
 
-/**
- * 账号信息 + 最多 3 款游戏数据
- * 用于多游戏卡片（2×2/2×4/4×4 多游戏模式）
- */
-export class WidgetAccountData {
-  accountName: string = '';
-  accountUid: string = '';
-  gameCount: number = 0;
-  games: WidgetGameData[] = [];
-}
-
-/**
- * 账号信息 + 单款游戏数据
- * 用于单游戏卡片（1×2 / 2×2 / 2×4 / 4×4 单游戏模式）
- */
-export class WidgetSingleGameData {
-  accountName: string = '';
-  accountUid: string = '';
-  game: WidgetGameData = new WidgetGameData();
-}

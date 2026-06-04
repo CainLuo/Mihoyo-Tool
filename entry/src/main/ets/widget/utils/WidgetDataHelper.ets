@@ -164,6 +164,47 @@ export class WidgetDataHelper {
     return rows.slice(0, 2);
   }
 
+  /**
+   * 将标签 key 转换为资源文字
+   * 在 ViewModel 中调用，组件直接使用返回值
+   */
+  static getExtraRowLabelResource(label: string): ResourceStr {
+    if (label === 'expedition') {
+      return $r('app.string.widget_expedition');
+    }
+    if (label === 'home_coin') {
+      return $r('app.string.widget_home_coin');
+    }
+    if (label === 'train_score') {
+      return $r('app.string.widget_train_score');
+    }
+    if (label === 'cocoon') {
+      return $r('app.string.widget_cocoon');
+    }
+    if (label === 'vitality') {
+      return $r('app.string.widget_vitality');
+    }
+    if (label === 'card_sign') {
+      return $r('app.string.widget_card_sign');
+    }
+    // 未知 key 直接返回
+    return label;
+  }
+
+  /**
+   * 将值 key 转换为显示文字资源
+   * 在 ViewModel 中调用，组件直接使用返回值
+   */
+  static getExtraRowValueDisplay(value: string): ResourceStr {
+    if (value === 'done') {
+      return $r('app.string.widget_card_done');
+    }
+    if (value === 'not_done') {
+      return $r('app.string.widget_card_not_done');
+    }
+    return value;
+  }
+
   // ── 私有辅助方法 ─────────────────────────────────────────────────────
 
   private static createExtraRow(label: string, value: string, color: Resource): ParsedExtraRow {

@@ -17,12 +17,11 @@ import {
   Widget2x2UIState,
   WidgetRoleUIState,
   Widget1x2RoleUIState,
-  WidgetExtraRow,
-  StaminaColorType
+  WidgetExtraRow
 } from '../models/WidgetUIStates';
 import { ParsedPayload, ParsedRole } from '../utils/WidgetPayloadParser';
 import { WidgetDataHelper, ParsedExtraRow } from '../utils/WidgetDataHelper';
-import { WIDGET_GAME_ID, getGameName, getGameColor } from '../utils/WidgetUtils';
+import { WIDGET_GAME_ID, getGameName, getGameColor, gameNameRes } from '../utils/WidgetUtils';
 
 /**
  * 2x2 Widget ViewModel
@@ -70,8 +69,10 @@ export class Widget2x2ViewModel {
 
     state.gameId = role.gameId;
     state.gameName = getGameName(role.gameId);
+    state.gameNameResource = gameNameRes(role.gameId);
     state.gameColor = getGameColor(role.gameId);
     state.roleId = role.roleId;
+    state.roleIdWithPrefix = 'UID ' + role.roleId;
     state.currentStamina = role.currentStamina;
     state.maxStamina = role.maxStamina;
     state.recoverySeconds = role.recoverySeconds;
@@ -134,6 +135,7 @@ export class Widget2x2ViewModel {
     const state = new Widget1x2RoleUIState();
 
     state.gameId = role.gameId;
+    state.gameName = getGameName(role.gameId);
     state.accountUid = role.roleId;
     state.currentStamina = role.currentStamina;
     state.maxStamina = role.maxStamina;
@@ -155,7 +157,9 @@ export class Widget2x2ViewModel {
     for (let i = 0; i < rows.length; i++) {
       const row = new WidgetExtraRow();
       row.label = rows[i].label;
+      row.labelResource = WidgetDataHelper.getExtraRowLabelResource(rows[i].label);
       row.value = rows[i].value;
+      row.displayValue = WidgetDataHelper.getExtraRowValueDisplay(rows[i].value);
       row.valueColor = rows[i].valueColor;
       result.push(row);
     }
