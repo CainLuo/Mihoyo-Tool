@@ -1,22 +1,23 @@
 /**
  * Widget4x4.ets — 4×4 大卡片入口
  *
- * v1.1 design:
- * - Use single @LocalStorageProp('payload') to receive complete JSON
+ * v1.2 design:
  * - Use ViewModel pattern for data transformation
- * - Dynamic gradient color based on game type
+ * - Single game: detailed layout with extra rows
+ * - Multi game (2): two Widget2x2SingleGame horizontally + Divider
  *
  * 数据流：
  *   payload JSON → parsePayload() → ParsedPayload (Model) → ViewModel.buildUIState() → UIState (View)
  */
 
-import { WidgetCardContent, WidgetCardSize } from '../components/WidgetCardContent';
-import { parsePayload, ParsedRole } from '../utils/WidgetPayloadParser';
-import { Widget4x4ViewModel } from '../viewmodel/Widget4x4ViewModel';
+import { Widget2x2SingleGame } from '../components/Widget2x2SingleGame';
+import { parsePayload, ParsedPayload } from '../utils/WidgetPayloadParser';
+import { Widget4x4UIState, WidgetColors } from '../models/WidgetUIStates';
 import { widgetGradient } from '../utils/WidgetUtils';
+import { Widget4x4ViewModel } from '../viewmodel/Widget4x4ViewModel';
 import { DefaultTheme } from '../../theme/DefaultTheme';
 
-/** 主题常量实例（Widget 直接使用，不依赖 @ObservedV2/@Trace） */
+/** 主题常量实例 */
 const theme = new DefaultTheme();
 
 let storage: LocalStorage = new LocalStorage();
@@ -26,16 +27,16 @@ let storage: LocalStorage = new LocalStorage();
 struct Widget4x4 {
   @LocalStorageProp('payload') payloadJson: string = '';
 
-  private getAllRoles(): ParsedRole[] {
-    return parsePayload(this.payloadJson).getAllRoles();
+  private getParsed(): ParsedPayload {
+    return parsePayload(this.payloadJson);
   }
 
   private getGameIds(): string[] {
-    return parsePayload(this.payloadJson).getUniqueGameIds();
+    return this.getParsed().getUniqueGameIds();
   }
 
-  private getIsSingleGame(): boolean {
-    return parsePayload(this.payloadJson).isSingleGame;
+  private getUIState(): Widget4x4UIState {
+    return Widget4x4ViewModel.buildUIState(this.getParsed());
   }
 
   build() {
@@ -49,12 +50,51 @@ struct Widget4x4 {
 
       // Content layer
       Column() {
-        WidgetCardContent({
-          cardSize: WidgetCardSize.SIZE_4x4,
-          allRoles: this.getAllRoles(),
-          gameIds: this.getGameIds(),
-          isSingleGame: this.getIsSingleGame(),
-        })
+        if (this.getUIState().isEmpty) {
+          // 空态
+          Column() {
+            Text($r('app.string.widget_no_account'))
+              .fontSize(theme.font13)
+              .fontColor(WidgetColors.WHITE)
+              .opacity(0.6)
+              .textAlign(TextAlign.Center)
+          }
+          .width(theme.full)
+          .height(theme.full)
+          .justifyContent(FlexAlign.Center)
+        } else if (this.getUIState().isSingleGame) {
+          // 单游戏模式：详细布局
+          Widget2x2SingleGame({ role: this.getUIState().singleGameState })
+        } else {
+          // 多游戏模式：两个 Widget2x2SingleGame + Divider 纵向排列
+          Column() {
+            // 第一个游戏
+            Widget2x2SingleGame(
+              { 
+                role: this.getUIState().multiGameStates[0], 
+                inNestedContainer: true 
+              })
+              .layoutWeight(1)
+
+            // 分隔线
+            if (this.getUIState().multiGameStates.length >= 2) {
+              Divider()
+                .color(WidgetColors.WHITE)
+                .opacity(0.2)
+                .strokeWidth(1)
+                .margin({ top: theme.value4, bottom: theme.value4 })
+
+              // 第二个游戏
+              Widget2x2SingleGame(
+                { role: this.getUIState().multiGameStates[1], 
+                  inNestedContainer: true 
+                })
+                .layoutWeight(1)
+            }
+          }
+          .width(theme.full)
+          .height(theme.full)
+        }
       }
       .width(theme.full)
       .height(theme.full)

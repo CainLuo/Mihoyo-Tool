@@ -182,30 +182,42 @@ export class WidgetMultiGameUIState {
 
 /**
  * 2x2 Widget UIState
+ *
+ * 单游戏：使用 singleGameState（详细布局）
+ * 多游戏：使用 multiGameStates（两个 1x2 内容纵向排列）
  */
 export class Widget2x2UIState {
   isEmpty: boolean = true;
   isSingleGame: boolean = true;
   singleGameState: WidgetRoleUIState = new WidgetRoleUIState();
-  multiGameState: WidgetMultiGameUIState = new WidgetMultiGameUIState();
+  /** 多游戏模式：最多 2 个 Widget1x2RoleUIState */
+  multiGameStates: Widget1x2RoleUIState[] = [];
 }
 
 /**
  * 2x4 Widget UIState
+ *
+ * 单游戏：使用 singleGameState（详细布局）
+ * 多游戏（2个）：使用 multiGameStates（两个 WidgetRoleUIState 横向排列 + Divider）
  */
 export class Widget2x4UIState {
   isEmpty: boolean = true;
   isSingleGame: boolean = true;
   singleGameState: WidgetRoleUIState = new WidgetRoleUIState();
-  multiGameState: WidgetMultiGameUIState = new WidgetMultiGameUIState();
+  /** 多游戏模式：最多 2 个 WidgetRoleUIState（横向排列） */
+  multiGameStates: WidgetRoleUIState[] = [];
 }
 
 /**
  * 4x4 Widget UIState
+ *
+ * 单游戏：使用 singleGameState（完整详细布局）
+ * 多游戏（2个）：使用 multiGameStates（两个 WidgetRoleUIState，2x2 网格排列）
  */
 export class Widget4x4UIState {
   isEmpty: boolean = true;
   isSingleGame: boolean = true;
   singleGameState: WidgetRoleUIState = new WidgetRoleUIState();
-  multiGameState: WidgetMultiGameUIState = new WidgetMultiGameUIState();
+  /** 多游戏模式：最多 2 个 WidgetRoleUIState */
+  multiGameStates: WidgetRoleUIState[] = [];
 }

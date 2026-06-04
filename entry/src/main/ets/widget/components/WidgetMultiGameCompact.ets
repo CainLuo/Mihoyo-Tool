@@ -31,7 +31,7 @@ export struct WidgetMultiGameCompact {
   /** 游戏数据数组（必须用 @Prop） */
   @Prop games: WidgetGameData[] = [];
   /** 0 = 2×2 竖线模式，>0 = 2×4 小环模式 */
-  ringSize: number = 0;
+  @Prop ringSize: number = 0;
 
   private get displayName(): string {
     return this.accountName.length > 0 ? this.accountName : this.accountUid;
@@ -57,14 +57,6 @@ export struct WidgetMultiGameCompact {
     return this.gameCount <= 2 ? theme.value4 : theme.value2;
   }
 
-  /** 2x2 最多显示 2 个游戏 */
-  private get displayGameCount(): number {
-    if (this.ringSize === 0) {
-      return Math.min(this.gameCount, 2);
-    }
-    return this.gameCount;
-  }
-
   build() {
     Column() {
       // ── 顶部账号名：11px Medium, rgba(255,255,255,.7) ──
@@ -83,11 +75,11 @@ export struct WidgetMultiGameCompact {
           game: this.gameAt(0),
           ringSize: this.dynamicRingSize,
           strokeWidth: this.dynamicStrokeWidth,
-          totalGameCount: this.displayGameCount
+          totalGameCount: this.games.length
         })
 
         // 第二个游戏
-        if (this.displayGameCount >= 2) {
+        if (this.games.length >= 2) {
           // 1px 分割线
           Column()
             .width(theme.full)
@@ -100,12 +92,12 @@ export struct WidgetMultiGameCompact {
             game: this.gameAt(1),
             ringSize: this.dynamicRingSize,
             strokeWidth: this.dynamicStrokeWidth,
-            totalGameCount: this.displayGameCount
+            totalGameCount: this.games.length
           })
         }
 
         // 第三个游戏（仅 2x4）
-        if (this.displayGameCount >= 3) {
+        if (this.games.length >= 3) {
           Column()
             .width(theme.full)
             .height(theme.value1)
@@ -117,7 +109,7 @@ export struct WidgetMultiGameCompact {
             game: this.gameAt(2),
             ringSize: this.dynamicRingSize,
             strokeWidth: this.dynamicStrokeWidth,
-            totalGameCount: this.displayGameCount
+            totalGameCount: this.games.length
           })
         }
       }

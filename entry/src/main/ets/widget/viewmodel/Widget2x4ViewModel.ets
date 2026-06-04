@@ -7,8 +7,7 @@
  *
  * 2x4 Widget 特性：
  * - 单游戏：详细布局（体力环 + 额外数据行）
- * - 多游戏：紧凑布局（最多 3 个游戏）
- * - 比 2x2 更宽，可显示更多信息
+ * - 多游戏（2个）：两个 Widget2x2SingleGame 横向排列 + Divider
  *
  * 数据流：
  *   EntryFormAbility → parsePayload() → ParsedPayload → ViewModel.buildUIState() → UIState
@@ -17,13 +16,10 @@
 import {
   Widget2x4UIState,
   WidgetRoleUIState,
-  WidgetMultiGameUIState,
   WidgetExtraRow,
-  StaminaColorType,
-  RecoveryTimeData
+  StaminaColorType
 } from '../models/WidgetUIStates';
-import { WidgetGameData } from '../models/WidgetModels';
-import { ParsedPayload, ParsedRole, ParsedAccount } from '../utils/WidgetPayloadParser';
+import { ParsedPayload, ParsedRole } from '../utils/WidgetPayloadParser';
 import { WidgetDataHelper, ParsedExtraRow } from '../utils/WidgetDataHelper';
 import { WIDGET_GAME_ID, getGameName, getGameColor } from '../utils/WidgetUtils';
 
@@ -32,7 +28,7 @@ import { WIDGET_GAME_ID, getGameName, getGameColor } from '../utils/WidgetUtils'
  */
 export class Widget2x4ViewModel {
   /** 2x4 多游戏模式最多显示的游戏数量 */
-  private static readonly MAX_GAMES_2x4: number = 3;
+  private static readonly MAX_GAMES_2x4: number = 2;
 
   /**
    * 构建 2x4 Widget UIState
@@ -54,10 +50,9 @@ export class Widget2x4ViewModel {
       result.isSingleGame = true;
       result.singleGameState = Widget2x4ViewModel.buildRoleUIState(roles[0]);
     } else {
-      // 多游戏模式：紧凑布局，最多 3 个游戏
+      // 多游戏模式：两个 WidgetRoleUIState 横向排列
       result.isSingleGame = false;
-      result.multiGameState = Widget2x4ViewModel.buildMultiGameUIState(
-        parsed.firstAccount,
+      result.multiGameStates = Widget2x4ViewModel.buildMultiGameStates(
         roles,
         Widget2x4ViewModel.MAX_GAMES_2x4
       );
@@ -98,20 +93,17 @@ export class Widget2x4ViewModel {
   }
 
   /**
-   * 构建多游戏 UIState（多游戏模式）
+   * 构建多游戏的 UIState 数组（2x4 多游戏模式）
+   *
+   * 按游戏 ID 去重，每个游戏只显示第一个角色，最多 2 个游戏。
    */
-  private static buildMultiGameUIState(
-    account: ParsedAccount,
+  private static buildMultiGameStates(
     roles: ParsedRole[],
     maxGames: number
-  ): WidgetMultiGameUIState {
-    const state = new WidgetMultiGameUIState();
-
-    state.accountName = account.accountName;
-    state.accountUid = roles.length > 0 ? roles[0].roleId : '';
-
-    // 按游戏 ID 去重，每个游戏只显示第一个角色
+  ): WidgetRoleUIState[] {
+    const result: WidgetRoleUIState[] = [];
     const addedGameIds: string[] = [];
+
     for (let i = 0; i < roles.length && addedGameIds.length < maxGames; i++) {
       const role = roles[i];
 
@@ -125,82 +117,12 @@ export class Widget2x4ViewModel {
       }
 
       if (!alreadyAdded) {
-        state.games.push(Widget2x4ViewModel.buildGameData(role));
+        result.push(Widget2x4ViewModel.buildRoleUIState(role));
         addedGameIds.push(role.gameId);
       }
     }
 
-    state.gameCount = addedGameIds.length;
-    return state;
-  }
-
-  /**
-   * 构建 WidgetGameData（从 ParsedRole 转换）
-   */
-  private static buildGameData(role: ParsedRole): WidgetGameData {
-    const gameData = new WidgetGameData();
-
-    gameData.gameId = role.gameId;
-    gameData.currentStr = String(role.currentStamina);
-    gameData.maxStr = String(role.maxStamina);
-    gameData.secondsStr = String(role.recoverySeconds);
-
-    // 解析额外数据行
-    const extraRows = WidgetDataHelper.parseExtraRows(role.rawJson, role.gameId);
-
-    for (let i = 0; i < extraRows.length; i++) {
-      const row = extraRows[i];
-
-      // 原神专属数据
-      if (role.gameId === WIDGET_GAME_ID.GENSHIN) {
-        if (row.label === 'expedition') {
-          const parts = row.value.split('/');
-          if (parts.length === 2) {
-            gameData.expeditionFinishedStr = parts[0];
-            gameData.expeditionMaxStr = parts[1];
-          }
-        } else if (row.label === 'home_coin') {
-          const parts = row.value.split('/');
-          if (parts.length === 2) {
-            gameData.coinStr = parts[0];
-            gameData.coinMaxStr = parts[1];
-          }
-        }
-      }
-
-      // 星铁专属数据
-      if (role.gameId === WIDGET_GAME_ID.STARRAIL) {
-        if (row.label === 'train_score') {
-          const parts = row.value.split('/');
-          if (parts.length === 2) {
-            gameData.trainStr = parts[0];
-            gameData.trainMaxStr = parts[1];
-          }
-        } else if (row.label === 'cocoon') {
-          const parts = row.value.split('/');
-          if (parts.length === 2) {
-            gameData.cocoonStr = parts[0];
-            gameData.cocoonLimitStr = parts[1];
-          }
-        }
-        gameData.reserveStr = WidgetDataHelper.parseReserveStamina(role.rawJson);
-      }
-
-      // 绝区零专属数据
-      if (role.gameId === WIDGET_GAME_ID.ZZZ) {
-        if (row.label === 'vitality') {
-          const parts = row.value.split('/');
-          if (parts.length === 2) {
-            gameData.vitalityStr = parts[0];
-            gameData.vitalityMaxStr = parts[1];
-          }
-        } else if (row.label === 'card_sign') {
-          gameData.cardSign = row.value === 'done' ? 'done' : 'not_done';
-        }
-      }
-    }
-
-    return gameData;
+    return result;
   }
 
   /**

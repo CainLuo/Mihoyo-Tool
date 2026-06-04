@@ -58,6 +58,9 @@ export struct Widget2x2SingleGame {
   /** 角色 UIState（已解析好的数据） */
   @Prop role: WidgetRoleUIState = new WidgetRoleUIState();
 
+  /** 是否在嵌套容器中使用（不使用 layoutWeight 和 100% 高度） */
+  inNestedContainer: boolean = false;
+
   /** 主题常量 */
   theme: DefaultTheme = new DefaultTheme();
 
@@ -241,11 +244,11 @@ export struct Widget2x2SingleGame {
         })
       }
       .width(this.theme.full)
-      .layoutWeight(1)
+      .layoutWeight(this.inNestedContainer ? 0 : 1)
       .justifyContent(FlexAlign.Center)
     }
     .width(this.theme.full)
-    .height(this.theme.full)
+    .height(this.inNestedContainer ? undefined : this.theme.full)
     .alignItems(HorizontalAlign.Start)
     .justifyContent(FlexAlign.Start)
   }
