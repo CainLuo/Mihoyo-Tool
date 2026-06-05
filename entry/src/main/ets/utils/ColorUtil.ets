@@ -81,25 +81,29 @@ export class TransparentColorCache {
   static init(context: common.UIAbilityContext): void {
     const resMgr = context.resourceManager;
 
-    // 获取基础颜色值（使用 getColorSync 返回数字，再转换为十六进制）
-    const blackColor = resMgr.getColorSync($r('app.color.black'));
-    const whiteColor = resMgr.getColorSync($r('app.color.white'));
-    const blue500Color = resMgr.getColorSync($r('app.color.color_primary'));
+    try {
+      // 获取基础颜色值（使用 getColorByNameSync 返回数字，再转换为十六进制）
+      const blackColor = resMgr.getColorByNameSync('black');
+      const whiteColor = resMgr.getColorByNameSync('white');
+      const blue500Color = resMgr.getColorByNameSync('color_primary');
 
-    // 将数字颜色值转换为十六进制字符串
-    const black = colorIntToHex(blackColor);
-    const white = colorIntToHex(whiteColor);
-    const blue500 = colorIntToHex(blue500Color);
+      // 将数字颜色值转换为十六进制字符串
+      const black = colorIntToHex(blackColor);
+      const white = colorIntToHex(whiteColor);
+      const blue500 = colorIntToHex(blue500Color);
 
-    // 计算透明色
-    TransparentColorCache.blackWith80 = colorWithAlpha(black, Alpha.P80);
-    TransparentColorCache.blackWith60 = colorWithAlpha(black, Alpha.P60);
-    TransparentColorCache.blackWith40 = colorWithAlpha(black, Alpha.P40);
-    TransparentColorCache.whiteWith10 = colorWithAlpha(white, Alpha.P10);
-    TransparentColorCache.whiteWith20 = colorWithAlpha(white, Alpha.P20);
-    TransparentColorCache.whiteWith35 = colorWithAlpha(white, Alpha.P35);
-    TransparentColorCache.whiteWith60 = colorWithAlpha(white, Alpha.P60);
-    TransparentColorCache.blue500With15 = colorWithAlpha(blue500, Alpha.P15);
-    TransparentColorCache.blue500With60 = colorWithAlpha(blue500, Alpha.P60);
+      // 计算透明色
+      TransparentColorCache.blackWith80 = colorWithAlpha(black, Alpha.P80);
+      TransparentColorCache.blackWith60 = colorWithAlpha(black, Alpha.P60);
+      TransparentColorCache.blackWith40 = colorWithAlpha(black, Alpha.P40);
+      TransparentColorCache.whiteWith10 = colorWithAlpha(white, Alpha.P10);
+      TransparentColorCache.whiteWith20 = colorWithAlpha(white, Alpha.P20);
+      TransparentColorCache.whiteWith35 = colorWithAlpha(white, Alpha.P35);
+      TransparentColorCache.whiteWith60 = colorWithAlpha(white, Alpha.P60);
+      TransparentColorCache.blue500With15 = colorWithAlpha(blue500, Alpha.P15);
+      TransparentColorCache.blue500With60 = colorWithAlpha(blue500, Alpha.P60);
+    } catch (e) {
+      // 获取颜色失败时使用默认值（已在静态字段中预设）
+    }
   }
 }
