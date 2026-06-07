@@ -7,38 +7,12 @@ import { BusinessError } from '@kit.BasicServicesKit';
 import { Logger } from 'core';
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { MyAccountVM } from '../../models/MyModels';
+import { gameIdToFormName, formNameToDimension, gameIdToLabel } from '../../widget/utils/WidgetFormUtils';
 
 const TAG = 'WIDGET';
 const BUNDLE_NAME = 'com.cainluo.miyoyo.tools';
 const ABILITY_NAME = 'EntryFormAbility';
 const MODULE_NAME = 'entry';
-
-function gameIdToFormName(gameId: string): string {
-  if (gameId === 'genshin') { return 'widget_1x2_genshin'; }
-  if (gameId === 'starrail') { return 'widget_1x2_starrail'; }
-  if (gameId === 'zzz') { return 'widget_1x2_zzz'; }
-  return 'widget_2x2';
-}
-
-/**
- * 根据 formName 返回对应的 FormDimension 数值
- * 参考 FormDimension 枚举：Dimension_1_2=1, Dimension_2_2=2, Dimension_2_4=3, Dimension_4_4=4
- */
-function formNameToDimension(formName: string): number {
-  if (formName === 'widget_1x2_genshin' || formName === 'widget_1x2_starrail' || formName === 'widget_1x2_zzz') {
-    return 1; // 1×2
-  }
-  if (formName === 'widget_2x4') { return 3; } // 2×4
-  if (formName === 'widget_4x4') { return 4; } // 4×4
-  return 2; // 2×2（默认）
-}
-
-function gameIdToLabel(gameId: string): ResourceStr {
-  if (gameId === 'genshin') { return $r('app.string.game_name_genshin'); }
-  if (gameId === 'starrail') { return $r('app.string.game_name_starrail'); }
-  if (gameId === 'zzz') { return $r('app.string.game_name_zzz'); }
-  return gameId;
-}
 
 @ComponentV2
 export struct WidgetSection {

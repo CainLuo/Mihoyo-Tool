@@ -1,26 +1,31 @@
 /**
- * WidgetConfigPreview — Widget 配置页卡片预览组件
+ * WidgetConfigPreview.ets — Widget 配置页卡片预览组件
  *
  * 根据选中的尺寸和 slots 渲染卡片预览。
  * 使用占位数据，仅用于配置页预览，不依赖真实 Widget 数据。
+ *
+ * 布局与真实 Widget 保持一致：
+ * - 1x2：左侧游戏色竖线 + 游戏名/UID/体力/恢复时间
+ * - 2x2 单游戏：头部 + 体力区块 + 额外数据行
+ * - 2x2 多游戏：两个 1x2 内容纵向排列
+ * - 2x4：与 2x2 相同（宽度翻倍）
+ * - 4x4：与 2x2 相同（宽高翻倍）
+ *
+ * 使用 @ComponentV2（配置页场景），复用 WidgetColors 颜色常量。
  */
+
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { WidgetSize } from '../../widget/models/WidgetConfig';
 import { WidgetSlotRef } from '../../widget/models/WidgetDataStore';
 import { GameId } from 'core';
-
-/** 占位数据：体力值 */
-class StaminaData {
-  cur: number = 0;
-  max: number = 0;
-  rec: string = '';
-
-  constructor(cur: number, max: number, rec: string) {
-    this.cur = cur;
-    this.max = max;
-    this.rec = rec;
-  }
-}
+import { DefaultTheme } from '../../theme/DefaultTheme';
+import { PreviewEmptyContent } from './preview/PreviewEmptyContent';
+import { Preview1x2Card } from './preview/Preview1x2Card';
+import { Preview2x2SingleGame } from './preview/Preview2x2SingleGame';
+import { Preview2x2MultiSlot } from './preview/Preview2x2MultiSlot';
+import { Preview2x4MultiSlot } from './preview/Preview2x4MultiSlot';
+import { Preview4x4MultiSlot } from './preview/Preview4x4MultiSlot';
+import { toGameId, isSingleGame, gameIdToBgColors } from './preview/WidgetPreviewUtils';
 
 /** 尺寸宽高配置 */
 class SizeDimension {
@@ -33,43 +38,6 @@ class SizeDimension {
   }
 }
 
-/** 游戏颜色 */
-function gameColor(gameId: string): string {
-  if (gameId === GameId.GENSHIN || gameId === 'genshin') return '#5ba3e8';
-  if (gameId === GameId.STARRAIL || gameId === 'starrail') return '#9b8eff';
-  if (gameId === GameId.ZZZ || gameId === 'zzz') return '#f7b84b';
-  return '#888888';
-}
-
-/** 游戏名称 */
-function gameName(gameId: string): string {
-  if (gameId === GameId.GENSHIN || gameId === 'genshin') return '原神';
-  if (gameId === GameId.STARRAIL || gameId === 'starrail') return '崩坏：星穹铁道';
-  if (gameId === GameId.ZZZ || gameId === 'zzz') return '绝区零';
-  return '未知游戏';
-}
-
-/** 获取占位体力数据 */
-function getStaminaData(gameId: string): StaminaData {
-  if (gameId === GameId.GENSHIN || gameId === 'genshin') {
-    return new StaminaData(140, 200, '4小时后回满');
-  }
-  if (gameId === GameId.STARRAIL || gameId === 'starrail') {
-    return new StaminaData(200, 300, '6小时后回满');
-  }
-  if (gameId === GameId.ZZZ || gameId === 'zzz') {
-    return new StaminaData(180, 240, '3小时后回满');
-  }
-  return new StaminaData(0, 0, '');
-}
-
-/** 体力颜色：0-30% 红色，30-70% 橙色，70-100% 游戏主题色 */
-function staminaColor(ratio: number, gameId: string): string {
-  if (ratio <= 0.3) return '#ef5350';
-  if (ratio <= 0.7) return '#ffca28';
-  return gameColor(gameId);
-}
-
 /** 尺寸配置 */
 const SIZE_DIMENSIONS: Record<string, SizeDimension> = {
   [WidgetSize.SIZE_1x2]: new SizeDimension(168, 80),
@@ -78,25 +46,12 @@ const SIZE_DIMENSIONS: Record<string, SizeDimension> = {
   [WidgetSize.SIZE_4x4]: new SizeDimension(336, 336),
 };
 
-/** 游戏背景色 */
-function cardBgColors(gameId: string): string[] {
-  if (gameId === GameId.GENSHIN || gameId === 'genshin') {
-    return ['#152030', '#1a2d42', '#1c3350'];
-  }
-  if (gameId === GameId.STARRAIL || gameId === 'starrail') {
-    return ['#181828', '#201830', '#261c40'];
-  }
-  if (gameId === GameId.ZZZ || gameId === 'zzz') {
-    return ['#1e1a0e', '#2a2010', '#342810'];
-  }
-  return ['#181820', '#1c1c2c', '#1c1c2c'];
-}
-
 /** 根据多个游戏 ID 生成混合渐变色 */
-function multiGameGradientColors(slots: WidgetSlotRef[]): Array<[string, number]> {
-  const gameIds: string[] = [];
+function multiGameGradientColors(slots: WidgetSlotRef[]): Array<[ResourceColor, number]> {
+  const gameIds: GameId[] = [];
+
   for (let i = 0; i < slots.length; i++) {
-    const gameId = slots[i].gameId;
+    const gameId = toGameId(slots[i].gameId);
     let found = false;
     for (let j = 0; j < gameIds.length; j++) {
       if (gameIds[j] === gameId) {
@@ -108,55 +63,41 @@ function multiGameGradientColors(slots: WidgetSlotRef[]): Array<[string, number]
       gameIds.push(gameId);
     }
   }
-  
+
   if (gameIds.length === 0) {
-    return [['#181820', 0], ['#1c1c2c', 1]];
+    return [[$r('app.color.widget_bg_default_1'), 0], [$r('app.color.widget_bg_default_2'), 1]];
   }
-  
+
   if (gameIds.length === 1) {
-    const colors = cardBgColors(gameIds[0]);
+    const colors = gameIdToBgColors(gameIds[0]);
     return [[colors[0], 0], [colors[1], 0.5], [colors[2], 1]];
   }
-  
+
   // 双游戏
   if (gameIds.length === 2) {
-    const c0 = cardBgColors(gameIds[0]);
-    const c1 = cardBgColors(gameIds[1]);
+    const c0 = gameIdToBgColors(gameIds[0]);
+    const c1 = gameIdToBgColors(gameIds[1]);
     return [[c0[0], 0], [c0[1], 0.4], [c1[1], 0.6], [c1[0], 1]];
   }
-  
+
   // 三游戏及以上
   const count = gameIds.length;
-  const colors: string[][] = [];
+  const colors: Resource[][] = [];
   for (let i = 0; i < count; i++) {
-    colors.push(cardBgColors(gameIds[i]));
+    colors.push(gameIdToBgColors(gameIds[i]));
   }
-  
-  const result: Array<[string, number]> = [];
+
+  const result: Array<[ResourceColor, number]> = [];
   result.push([colors[0][0], 0]);
-  
+
   for (let i = 0; i < count; i++) {
     const position = (i + 0.5) / count;
     result.push([colors[i][1], position]);
   }
-  
+
   result.push([colors[count - 1][0], 1]);
 
   return result;
-}
-
-/** 判断是否为单游戏 */
-function isSingleGame(slots: WidgetSlotRef[]): boolean {
-  if (slots.length <= 1) {
-    return true;
-  }
-  const firstGameId = slots[0].gameId;
-  for (let i = 1; i < slots.length; i++) {
-    if (slots[i].gameId !== firstGameId) {
-      return false;
-    }
-  }
-  return true;
 }
 
 @ComponentV2
@@ -170,23 +111,31 @@ export struct WidgetConfigPreview {
     return dim !== undefined ? dim : SIZE_DIMENSIONS[WidgetSize.SIZE_2x2];
   }
 
-  private get firstGameId(): string {
+  private get firstGameId(): GameId {
     if (this.selectedSlots.length === 0) {
-      return 'genshin';
+      return GameId.GENSHIN;
     }
-    return this.selectedSlots[0].gameId;
+    return toGameId(this.selectedSlots[0].gameId);
+  }
+
+  private get isSingleGameMode(): boolean {
+    const gameIds: string[] = [];
+    for (let i = 0; i < this.selectedSlots.length; i++) {
+      gameIds.push(this.selectedSlots[i].gameId);
+    }
+    return isSingleGame(gameIds);
   }
 
   private get cardGradient(): LinearGradient {
     // 多游戏时使用混合渐变色
-    if (!isSingleGame(this.selectedSlots)) {
+    if (!this.isSingleGameMode) {
       return {
         angle: this.tm.current.a135,
         colors: multiGameGradientColors(this.selectedSlots)
       };
     }
     // 单游戏时使用该游戏的渐变色
-    const colors = cardBgColors(this.firstGameId);
+    const colors = gameIdToBgColors(this.firstGameId);
     return {
       angle: this.tm.current.a135,
       colors: [[colors[0], 0], [colors[1], 0.5], [colors[2], 1]]
@@ -196,15 +145,44 @@ export struct WidgetConfigPreview {
   build() {
     Column() {
       if (this.selectedSlots.length === 0) {
-        this.EmptyPreview()
+        // 空态
+        PreviewEmptyContent()
       } else if (this.selectedSize === WidgetSize.SIZE_1x2) {
-        this.Preview1x2()
+        // 1x2 预览
+        Preview1x2Card({
+          gameId: this.firstGameId,
+          roleId: this.selectedSlots[0].roleId
+        })
       } else if (this.selectedSize === WidgetSize.SIZE_2x2) {
-        this.Preview2x2()
+        // 2x2 预览
+        if (this.isSingleGameMode) {
+          Preview2x2SingleGame({
+            gameId: this.firstGameId,
+            roleId: this.selectedSlots[0].roleId
+          })
+        } else {
+          Preview2x2MultiSlot({ slots: this.selectedSlots })
+        }
       } else if (this.selectedSize === WidgetSize.SIZE_2x4) {
-        this.Preview2x4()
+        // 2x4 预览
+        if (this.isSingleGameMode) {
+          Preview2x2SingleGame({
+            gameId: this.firstGameId,
+            roleId: this.selectedSlots[0].roleId
+          })
+        } else {
+          Preview2x4MultiSlot({ slots: this.selectedSlots })
+        }
       } else {
-        this.Preview4x4()
+        // 4x4 预览
+        if (this.isSingleGameMode) {
+          Preview2x2SingleGame({
+            gameId: this.firstGameId,
+            roleId: this.selectedSlots[0].roleId
+          })
+        } else {
+          Preview4x4MultiSlot({ slots: this.selectedSlots })
+        }
       }
     }
     .width(this.dimensions.width)
@@ -217,265 +195,5 @@ export struct WidgetConfigPreview {
       offsetY: 2,
       color: 'rgba(0,0,0,0.5)'
     })
-  }
-
-  // ─── 空态预览 ─────────────────────────────────────────────────────
-
-  @Builder
-  EmptyPreview() {
-    Column() {
-      Text('请选择要显示的角色')
-        .fontSize(this.tm.current.font13)
-        .fontColor('rgba(255,255,255,0.5)')
-    }
-    .width(this.tm.current.full)
-    .height(this.tm.current.full)
-    .justifyContent(FlexAlign.Center)
-  }
-
-  // ─── 1x2 预览 ─────────────────────────────────────────────────────
-
-  @Builder
-  Preview1x2() {
-    Row() {
-      // 左侧：游戏色竖线装饰条
-      Column()
-        .width(3)
-        .height(this.dimensions.height - this.tm.current.font24)
-        .borderRadius(2)
-        .backgroundColor(gameColor(this.firstGameId))
-
-      // 内容区
-      if (this.selectedSlots.length > 0) {
-        this.Preview1x2Content(this.selectedSlots[0])
-      }
-    }
-    .width(this.tm.current.full)
-    .height(this.tm.current.full)
-    .alignItems(VerticalAlign.Center)
-  }
-
-  @Builder
-  Preview1x2Content(slot: WidgetSlotRef) {
-    Column() {
-      // 第一行：游戏名 + UID
-      Row({ space: this.tm.current.value4 }) {
-        Text(gameName(slot.gameId))
-          .fontSize(10)
-          .fontWeight(500)
-          .fontColor('rgba(255,255,255,0.6)')
-
-        Text(`UID ${slot.roleId}`)
-          .fontSize(9)
-          .fontColor('rgba(255,255,255,0.35)')
-      }
-
-      // 第二行：当前体力/最大体力
-      Row({ space: 2 }) {
-        Text(String(getStaminaData(slot.gameId).cur))
-          .fontSize(18)
-          .fontWeight(FontWeight.Bold)
-          .fontColor(staminaColor(getStaminaData(slot.gameId).cur / getStaminaData(slot.gameId).max, slot.gameId))
-
-        Text('/' + String(getStaminaData(slot.gameId).max))
-          .fontSize(18)
-          .fontColor('rgba(255,255,255,0.4)')
-      }
-
-      // 第三行：恢复时间
-      Text(getStaminaData(slot.gameId).rec)
-        .fontSize(10)
-        .fontColor('rgba(255,255,255,0.4)')
-    }
-    .alignItems(HorizontalAlign.Start)
-    .layoutWeight(1)
-    .margin({ left: this.tm.current.value8 })
-    .justifyContent(FlexAlign.Center)
-  }
-
-  // ─── 2x2 预览 ─────────────────────────────────────────────────────
-
-  @Builder
-  Preview2x2() {
-    if (this.selectedSlots.length === 1) {
-      this.Preview2x2SingleSlot()
-    } else {
-      this.Preview2x2MultiSlot()
-    }
-  }
-
-  @Builder
-  Preview2x2SingleSlot() {
-    Column() {
-      // 头部：游戏名 + UID
-      Column({ space: 1 }) {
-        Text(gameName(this.firstGameId))
-          .fontSize(12)
-          .fontWeight(FontWeight.Bold)
-          .fontColor('rgba(255,255,255,0.8)')
-          .maxLines(1)
-
-        Text(`UID ${this.selectedSlots[0].roleId}`)
-          .fontSize(10)
-          .fontColor('rgba(255,255,255,0.35)')
-      }
-      .width(this.tm.current.full)
-      .alignItems(HorizontalAlign.Start)
-      .margin({ bottom: this.tm.current.value8 })
-
-      // 体力区块
-      this.StaminaBlock(this.firstGameId)
-
-      // 额外信息
-      Text(this.selectedSlots[0].nickname)
-        .fontSize(11)
-        .fontColor('rgba(255,255,255,0.45)')
-        .margin({ top: this.tm.current.value8 })
-    }
-    .width(this.tm.current.full)
-    .height(this.tm.current.full)
-    .alignItems(HorizontalAlign.Start)
-  }
-
-  @Builder
-  Preview2x2MultiSlot() {
-    Column() {
-      // 头部：账号名
-      if (this.selectedSlots.length > 0) {
-        Text(this.selectedSlots[0].accountName)
-          .fontSize(11)
-          .fontWeight(FontWeight.Bold)
-          .fontColor('rgba(255,255,255,0.7)')
-          .margin({ bottom: this.tm.current.value4 })
-      }
-
-      // 游戏行
-      ForEach(this.selectedSlots, (slot: WidgetSlotRef, idx: number) => {
-        this.GameRow(slot, idx)
-      })
-    }
-    .width(this.tm.current.full)
-    .height(this.tm.current.full)
-    .alignItems(HorizontalAlign.Start)
-  }
-
-  @Builder
-  GameRow(slot: WidgetSlotRef, idx: number) {
-    Column() {
-      Row() {
-        // 左侧：游戏色竖线
-        Column()
-          .width(3)
-          .height(30)
-          .borderRadius(2)
-          .backgroundColor(gameColor(slot.gameId))
-
-        // 中间：游戏名 + 体力 + 恢复时间
-        Column({ space: 1 }) {
-          Text(gameName(slot.gameId))
-            .fontSize(11)
-            .fontColor('rgba(255,255,255,0.5)')
-            .maxLines(1)
-
-          Row({ space: 2 }) {
-            Text(String(getStaminaData(slot.gameId).cur))
-              .fontSize(18)
-              .fontWeight(FontWeight.Bold)
-              .fontColor(staminaColor(getStaminaData(slot.gameId).cur / getStaminaData(slot.gameId).max, slot.gameId))
-
-            Text('/' + String(getStaminaData(slot.gameId).max))
-              .fontSize(11)
-              .fontColor('rgba(255,255,255,0.35)')
-          }
-
-          Text(getStaminaData(slot.gameId).rec)
-            .fontSize(9)
-            .fontColor('rgba(255,255,255,0.4)')
-        }
-        .alignItems(HorizontalAlign.Start)
-        .layoutWeight(1)
-        .margin({ left: this.tm.current.value8 })
-      }
-      .width(this.tm.current.full)
-
-      if (idx < this.selectedSlots.length - 1) {
-        Divider()
-          .width(this.tm.current.full)
-          .height(1)
-          .color('rgba(255,255,255,0.08)')
-          .margin({ top: this.tm.current.value4, bottom: this.tm.current.value4 })
-      }
-    }
-  }
-
-  @Builder
-  StaminaBlock(gameId: string) {
-    Column({ space: 2 }) {
-      Row({ space: 3 }) {
-        Text(String(getStaminaData(gameId).cur))
-          .fontSize(24)
-          .fontWeight(FontWeight.Bold)
-          .fontColor(staminaColor(getStaminaData(gameId).cur / getStaminaData(gameId).max, gameId))
-
-        Text('/' + String(getStaminaData(gameId).max))
-          .fontSize(14)
-          .fontColor('rgba(255,255,255,0.4)')
-      }
-
-      Text(getStaminaData(gameId).rec)
-        .fontSize(11)
-        .fontColor('rgba(255,255,255,0.5)')
-    }
-    .width(this.tm.current.full)
-    .alignItems(HorizontalAlign.Start)
-    .margin({ bottom: this.tm.current.value8 })
-  }
-
-  // ─── 2x4 预览（暂用 2x2 布局缩放）─────────────────────────────────
-
-  @Builder
-  Preview2x4() {
-    this.Preview2x2()
-  }
-
-  // ─── 4x4 预览（暂用 2x2 布局缩放）─────────────────────────────────
-
-  @Builder
-  Preview4x4() {
-    this.Preview2x2()
-  }
-}
-
-@Preview
-@ComponentV2
-struct WidgetConfigPreviewSample {
-  @Local private tm: ThemeManager = themeManager;
-  @Local private sampleSlots: WidgetSlotRef[] = [];
-
-  aboutToAppear(): void {
-    const slot = new WidgetSlotRef();
-    slot.accountId = '1';
-    slot.accountName = '旅行者A';
-    slot.gameId = 'genshin';
-    slot.roleId = '123';
-    slot.nickname = '荧';
-    slot.server = 'cn_gf01';
-    this.sampleSlots = [slot];
-  }
-
-  build() {
-    Column({ space: 16 }) {
-      WidgetConfigPreview({
-        selectedSize: WidgetSize.SIZE_2x2,
-        selectedSlots: []
-      })
-
-      WidgetConfigPreview({
-        selectedSize: WidgetSize.SIZE_2x2,
-        selectedSlots: this.sampleSlots
-      })
-    }
-    .padding(this.tm.current.font16)
-    .backgroundColor('#1a1a2e')
   }
 }
