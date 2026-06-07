@@ -1,10 +1,80 @@
 # 工作状态记录
 
-> 最后更新：2026-05-19
+> 最后更新：2026-06-07
 
 ---
 
 ## 已完成任务
+
+### 7. WidgetConfigPreview 组件重构 ✅
+
+**问题**：`WidgetConfigPreview.ets` 文件过大（约 1000 行），违反编码规范。
+
+**修复内容**：
+1. 将 `@Builder` 方法拆分为独立组件文件
+2. 创建 `WidgetPreviewUtils.ets` 统一工具函数
+3. 创建 `WidgetFormUtils.ets` 抽取 Form Manager 相关工具函数
+
+**涉及文件**：
+- `entry/src/main/ets/components/widgetconfig/WidgetConfigPreview.ets` — 主组件
+- `entry/src/main/ets/components/widgetconfig/preview/` — 预览组件目录
+  - `PreviewEmptyContent.ets`
+  - `Preview1x2Content.ets`
+  - `Preview1x2Card.ets`
+  - `PreviewExtraDataRow.ets`
+  - `Preview2x2SingleGame.ets`
+  - `Preview2x2MultiSlot.ets`
+  - `Preview2x4MultiSlot.ets`
+  - `Preview4x4MultiSlot.ets`
+  - `WidgetPreviewUtils.ets`
+- `entry/src/main/ets/widget/utils/WidgetFormUtils.ets`
+
+---
+
+### 8. Preview1x2Card 装饰条高度修复 ✅
+
+**问题**：装饰条高度超出容器。
+
+**修复内容**：
+- 与真实 Widget `Widget1x2ContentView` 保持一致
+- `Stack` 使用 `height: full` 充满父容器
+- 用 `padding({ top: 8, bottom: 8 })` 控制装饰条的实际高度
+- 移除不再需要的 `cardHeight` 参数
+
+**涉及文件**：
+- `entry/src/main/ets/components/widgetconfig/preview/Preview1x2Card.ets`
+- `entry/src/main/ets/components/widgetconfig/preview/Preview2x2MultiSlot.ets`
+- `entry/src/main/ets/components/widgetconfig/WidgetConfigPreview.ets`
+
+---
+
+### 9. WidgetPreviewUtils 硬编码颜色修复 ✅
+
+**问题**：`gameIdToBgColors` 函数返回硬编码的十六进制颜色字符串。
+
+**修复内容**：
+- 将返回类型改为 `Resource[]`
+- 使用 `$r('app.color.widget_bg_xxx')` 引用 `color.json` 中定义的颜色资源
+- 更新 `multiGameGradientColors` 函数返回类型为 `Array<[ResourceColor, number]>`
+
+**涉及文件**：
+- `entry/src/main/ets/components/widgetconfig/preview/WidgetPreviewUtils.ets`
+- `entry/src/main/ets/components/widgetconfig/WidgetConfigPreview.ets`
+
+---
+
+### 10. ColorUtil deprecated API 警告修复 ✅
+
+**问题**：`resMgr.getColorSync($r('app.color.xxx'))` 已废弃。
+
+**修复内容**：
+- 替换为 `resMgr.getColorByNameSync('xxx')`
+- 添加 try-catch 处理异常
+
+**涉及文件**：
+- `entry/src/main/ets/utils/ColorUtil.ets`
+
+---
 
 ### 1. Widget 2x2 白屏问题修复 ✅
 
