@@ -10,7 +10,7 @@
  *   payload JSON → parsePayload() → ParsedPayload (Model) → ViewModel.buildUIState() → UIState (View)
  */
 
-import { Widget2x2SingleGame } from '../components/Widget2x2SingleGame';
+import { Widget2x4SingleGame } from '../components/Widget2x4SingleGame';
 import { parsePayload, ParsedPayload } from '../utils/WidgetPayloadParser';
 import { Widget4x4UIState, WidgetColors } from '../models/WidgetUIStates';
 import { widgetGradient } from '../utils/WidgetUtils';
@@ -64,16 +64,15 @@ struct Widget4x4 {
           .justifyContent(FlexAlign.Center)
         } else if (this.getUIState().isSingleGame) {
           // 单游戏模式：详细布局
-          Widget2x2SingleGame({ role: this.getUIState().singleGameState })
+          Widget2x4SingleGame({ role: this.getUIState().singleGameState })
         } else {
-          // 多游戏模式：两个 Widget2x2SingleGame + Divider 纵向排列
+          // 多游戏模式：两个 Widget2x4SingleGame + Divider 纵向排列
           Column() {
             // 第一个游戏
-            Widget2x2SingleGame(
-              { 
-                role: this.getUIState().multiGameStates[0], 
-                inNestedContainer: true 
-              })
+            Widget2x4SingleGame({ 
+              role: this.getUIState().multiGameStates[0],
+              inNestedContainer: true 
+            })
               .layoutWeight(1)
 
             // 分隔线
@@ -85,10 +84,10 @@ struct Widget4x4 {
                 .margin({ top: theme.value4, bottom: theme.value4 })
 
               // 第二个游戏
-              Widget2x2SingleGame(
-                { role: this.getUIState().multiGameStates[1], 
-                  inNestedContainer: true 
-                })
+              Widget2x4SingleGame({ 
+                role: this.getUIState().multiGameStates[1],
+                inNestedContainer: true 
+              })
                 .layoutWeight(1)
             }
           }

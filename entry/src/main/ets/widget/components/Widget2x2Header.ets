@@ -37,7 +37,7 @@ export struct Widget2x2Header {
     }
     .width(this.theme.full)
     .alignItems(HorizontalAlign.Start)
-    .margin({ bottom: this.theme.value8 })
+    .margin({ bottom: this.theme.value6 })
   }
 }
 

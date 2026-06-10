@@ -118,6 +118,7 @@ export interface FontSize {
   font9: number           // 9vp
   font10: number          // 10vp
   font11: number          // 11vp
+  font12: number          // 12vp
   font13: number          // 13vp
   font14: number          // 14vp
   fontBold14: number      // 14vp Bold
@@ -144,6 +145,7 @@ export interface Spacing {
   value3: number    // 3vp
   value4: number    // 4vp
   value5: number    // 5vp
+  value6: number    // 6vp
   value8: number    // 8vp
   value9: number    // 9vp
   value10: number   // 10vp

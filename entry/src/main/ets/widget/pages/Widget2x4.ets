@@ -1,15 +1,16 @@
 /**
  * Widget2x4.ets — 2×4 宽幅卡片入口
  *
- * v1.2 design:
+ * v1.3 design:
  * - Use ViewModel pattern for data transformation
- * - Single game: detailed layout with extra rows
+ * - Single game: horizontal layout (ring + data rows) — Widget2x4SingleGame
  * - Multi game (2): two Widget2x2SingleGame horizontally + Divider
  *
  * 数据流：
  *   payload JSON → parsePayload() → ParsedPayload (Model) → ViewModel.buildUIState() → UIState (View)
  */
 
+import { Widget2x4SingleGame } from '../components/Widget2x4SingleGame';
 import { Widget2x2SingleGame } from '../components/Widget2x2SingleGame';
 import { parsePayload, ParsedPayload } from '../utils/WidgetPayloadParser';
 import { Widget2x4UIState, WidgetColors } from '../models/WidgetUIStates';
@@ -63,8 +64,8 @@ struct Widget2x4 {
           .height(theme.full)
           .justifyContent(FlexAlign.Center)
         } else if (this.getUIState().isSingleGame) {
-          // 单游戏模式：详细布局
-          Widget2x2SingleGame({ role: this.getUIState().singleGameState })
+          // 单游戏模式：水平布局（体力环 + 数据行）
+          Widget2x4SingleGame({ role: this.getUIState().singleGameState })
         } else {
           // 多游戏模式：两个 Widget2x2SingleGame + Divider 横向排列
           Row() {

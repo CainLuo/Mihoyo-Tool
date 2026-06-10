@@ -173,7 +173,26 @@
 
 ## 待处理任务
 
-### UI 相关 Bug（待修复）
+### TASK 7: 修复 2x4 单游戏 UI 与原型不一致问题 ✅
+
+**问题**：`Widget2x4.ets` 单游戏模式错误地使用 `Widget2x2SingleGame` 组件（垂直布局），与原型 `wr-2x4.js` 设计不符。
+
+**修复内容**：
+1. 创建 `Widget2x4SingleGame.ets` 组件，实现水平布局：
+   - 左侧：体力环（Progress Ring，80px，stroke=7）+ 恢复时间
+   - 右侧：游戏名+UID + 星铁后备开拓力 + 额外数据行（最多4条）
+2. 更新 `Widget2x4.ets` 使用新组件
+3. 补充 `DefaultTheme` 和 `AppTheme` 中缺失的 `font12` 和 `value6`
+
+**涉及文件**：
+- `entry/src/main/ets/widget/components/Widget2x4SingleGame.ets` — 新建
+- `entry/src/main/ets/widget/pages/Widget2x4.ets` — 更新引用
+- `entry/src/main/ets/theme/DefaultTheme.ets` — 添加 font12、value6
+- `entry/src/main/ets/theme/AppTheme.ets` — 更新接口定义
+
+---
+
+## 待处理任务
 
 **状态**：待在 Windows 电脑上继续处理
 

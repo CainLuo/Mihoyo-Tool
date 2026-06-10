@@ -89,6 +89,7 @@ export class DefaultTheme implements Theme {
   font9: number = 9
   font10: number = 10
   font11: number = 11
+  font12: number = 12
   font13: number = 13
   font14: number = 14
   fontBold14: number = 14
@@ -113,6 +114,7 @@ export class DefaultTheme implements Theme {
   value3: number = 3
   value4: number = 4
   value5: number = 5
+  value6: number = 6
   value8: number = 8
   value9: number = 9
   value10: number = 10

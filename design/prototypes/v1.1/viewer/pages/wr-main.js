@@ -33,6 +33,144 @@ var WR_GAME_MAP = {
   multi3: ["genshin", "starrail", "zzz"],
 };
 
+/**
+ * 渲染间距标注覆盖层
+ * 在卡片上方绘制标注线和数值
+ */
+function renderSpacingOverlay(size, game) {
+  // 1x2 标注
+  if (size === "1x2") {
+    return '<div style="position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none">' +
+      // padding 12vp 标注
+      '<div style="position:absolute;left:0;top:50%;transform:translateY(-50%);display:flex;align-items:center">' +
+        '<div style="width:12px;height:1px;background:#4fc3f7"></div>' +
+        '<div style="font-size:9px;color:#4fc3f7;margin-left:2px">12vp</div>' +
+      '</div>' +
+      // 竖线与内容间距 8vp
+      '<div style="position:absolute;left:12px;top:50%;transform:translateY(-50%);display:flex;align-items:center">' +
+        '<div style="width:8px;height:1px;background:#ffca28"></div>' +
+        '<div style="font-size:9px;color:#ffca28;margin-left:2px">8vp</div>' +
+      '</div>' +
+      // 游戏名与UID间距 4vp
+      '<div style="position:absolute;left:23px;top:10px;display:flex;align-items:center">' +
+        '<div style="width:4px;height:1px;background:#34d399"></div>' +
+        '<div style="font-size:9px;color:#34d399;margin-left:2px">4vp</div>' +
+      '</div>' +
+      // 体力数字与/max间距 2vp
+      '<div style="position:absolute;left:23px;top:28px;display:flex;align-items:center">' +
+        '<div style="width:2px;height:1px;background:#f7b84b"></div>' +
+        '<div style="font-size:9px;color:#f7b84b;margin-left:2px">2vp</div>' +
+      '</div>' +
+    '</div>';
+  }
+  
+  // 2x2 单游戏标注
+  if (size === "2x2" && (game === "genshin" || game === "starrail" || game === "zzz")) {
+    return '<div style="position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none">' +
+      // padding 12vp 标注
+      '<div style="position:absolute;left:0;top:12px;display:flex;align-items:center">' +
+        '<div style="width:12px;height:1px;background:#4fc3f7"></div>' +
+        '<div style="font-size:9px;color:#4fc3f7;margin-left:2px">12vp</div>' +
+      '</div>' +
+      // 游戏名与UID间距 1vp
+      '<div style="position:absolute;left:12px;top:14px;display:flex;align-items:center">' +
+        '<div style="width:8px;height:1px;background:#34d399"></div>' +
+        '<div style="font-size:9px;color:#34d399;margin-left:2px">1vp</div>' +
+      '</div>' +
+      // 头部与体力区块间距 6vp
+      '<div style="position:absolute;left:60px;top:35px;display:flex;align-items:center">' +
+        '<div style="width:6px;height:1px;background:#ffca28"></div>' +
+        '<div style="font-size:9px;color:#ffca28;margin-left:2px">6vp</div>' +
+      '</div>' +
+      // 体力数字与/max间距 3vp
+      '<div style="position:absolute;left:24px;top:48px;display:flex;align-items:center">' +
+        '<div style="width:3px;height:1px;background:#f7b84b"></div>' +
+        '<div style="font-size:9px;color:#f7b84b;margin-left:2px">3vp</div>' +
+      '</div>' +
+      // 体力行与恢复时间间距 2vp
+      '<div style="position:absolute;left:24px;top:72px;display:flex;align-items:center">' +
+        '<div style="width:2px;height:1px;background:#ef5350"></div>' +
+        '<div style="font-size:9px;color:#ef5350;margin-left:2px">2vp</div>' +
+      '</div>' +
+      // 体力区块与数据行间距 8vp
+      '<div style="position:absolute;left:60px;top:90px;display:flex;align-items:center">' +
+        '<div style="width:8px;height:1px;background:#9b8eff"></div>' +
+        '<div style="font-size:9px;color:#9b8eff;margin-left:2px">8vp</div>' +
+      '</div>' +
+      // 数据行之间间距 5vp
+      '<div style="position:absolute;left:24px;top:108px;display:flex;align-items:center">' +
+        '<div style="width:5px;height:1px;background:#4fc3f7"></div>' +
+        '<div style="font-size:9px;color:#4fc3f7;margin-left:2px">5vp</div>' +
+      '</div>' +
+    '</div>';
+  }
+  
+  // 2x2 多游戏标注
+  if (size === "2x2" && (game === "multi2" || game === "multi3")) {
+    return '<div style="position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none">' +
+      // padding 12vp
+      '<div style="position:absolute;left:0;top:12px;display:flex;align-items:center">' +
+        '<div style="width:12px;height:1px;background:#4fc3f7"></div>' +
+        '<div style="font-size:9px;color:#4fc3f7;margin-left:2px">12vp</div>' +
+      '</div>' +
+      // 竖线与内容间距 8vp
+      '<div style="position:absolute;left:12px;top:40px;display:flex;align-items:center">' +
+        '<div style="width:8px;height:1px;background:#ffca28"></div>' +
+        '<div style="font-size:9px;color:#ffca28;margin-left:2px">8vp</div>' +
+      '</div>' +
+      // 竖线宽度 3vp
+      '<div style="position:absolute;left:12px;top:55px;display:flex;flex-direction:column;align-items:center">' +
+        '<div style="width:1px;height:3px;background:#34d399"></div>' +
+        '<div style="font-size:9px;color:#34d399;margin-top:2px">3vp</div>' +
+      '</div>' +
+      // 分隔线margin 4vp
+      '<div style="position:absolute;right:12px;top:78px;display:flex;align-items:center">' +
+        '<div style="width:4px;height:1px;background:#ef5350"></div>' +
+        '<div style="font-size:9px;color:#ef5350;margin-left:2px">4vp</div>' +
+      '</div>' +
+    '</div>';
+  }
+  
+  // 2x4 标注
+  if (size === "2x4") {
+    return '<div style="position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none">' +
+      // padding 12vp
+      '<div style="position:absolute;left:0;top:12px;display:flex;align-items:center">' +
+        '<div style="width:12px;height:1px;background:#4fc3f7"></div>' +
+        '<div style="font-size:9px;color:#4fc3f7;margin-left:2px">12vp</div>' +
+      '</div>' +
+      // 左右区块间距 12vp
+      '<div style="position:absolute;left:90px;top:50%;transform:translateY(-50%);display:flex;align-items:center">' +
+        '<div style="width:12px;height:1px;background:#ffca28"></div>' +
+        '<div style="font-size:9px;color:#ffca28;margin-left:2px">12vp</div>' +
+      '</div>' +
+    '</div>';
+  }
+  
+  // 4x4 标注
+  if (size === "4x4") {
+    return '<div style="position:absolute;left:0;top:0;right:0;bottom:0;pointer-events:none">' +
+      // padding 12vp
+      '<div style="position:absolute;left:0;top:12px;display:flex;align-items:center">' +
+        '<div style="width:12px;height:1px;background:#4fc3f7"></div>' +
+        '<div style="font-size:9px;color:#4fc3f7;margin-left:2px">12vp</div>' +
+      '</div>' +
+      // 头部与体力区块间距 8vp
+      '<div style="position:absolute;left:60px;top:38px;display:flex;align-items:center">' +
+        '<div style="width:8px;height:1px;background:#ffca28"></div>' +
+        '<div style="font-size:9px;color:#ffca28;margin-left:2px">8vp</div>' +
+      '</div>' +
+      // 区块间距（border）
+      '<div style="position:absolute;right:12px;top:95px;display:flex;align-items:center">' +
+        '<div style="width:1px;height:1px;background:#ef5350"></div>' +
+        '<div style="font-size:9px;color:#ef5350;margin-left:2px">border</div>' +
+      '</div>' +
+    '</div>';
+  }
+  
+  return '';
+}
+
 function renderWidgetRedesign(w, h) {
   var c = T();
   var size = WR.state.size;
@@ -52,6 +190,10 @@ function renderWidgetRedesign(w, h) {
   } else if (size === "4x4") {
     cardHtml = wrRender4x4(sz.w, sz.h, games);
   }
+  
+  // 间距标注覆盖层
+  var spacingOverlay = renderSpacingOverlay(size, game);
+  cardHtml = '<div style="position:relative">' + cardHtml + spacingOverlay + '</div>';
 
   var sizeLabels = {
     "1x2": "1×2 迷你（X7实测 146×52vp）",
@@ -90,6 +232,24 @@ function renderWidgetRedesign(w, h) {
       notes[i] +
       "</div>";
   }
+  
+  // 间距标注图例
+  var spacingLegend = [
+    { color: "#4fc3f7", label: "PAD_CARD 12vp" },
+    { color: "#ffca28", label: "GAP_SECTION 6vp / 竖线间距 8vp" },
+    { color: "#34d399", label: "GAP_NORMAL 4vp / 游戏名↔UID 1vp" },
+    { color: "#f7b84b", label: "体力数字间距 2-3vp" },
+    { color: "#ef5350", label: "GAP_TIGHT 2vp / 分隔线margin 4vp" },
+    { color: "#9b8eff", label: "GAP_BLOCK 8vp" },
+  ];
+  var legendHtml = '<div style="font-size:11px;font-weight:600;color:' + c.txt + ';margin:16px 0 8px">间距标注图例</div>';
+  for (var j = 0; j < spacingLegend.length; j++) {
+    legendHtml +=
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">' +
+      '<div style="width:12px;height:2px;background:' + spacingLegend[j].color + ';border-radius:1px"></div>' +
+      '<span style="font-size:10px;color:' + c.txt2 + '">' + spacingLegend[j].label + '</span>' +
+      '</div>';
+  }
 
   return (
     baseCss(w, h) +
@@ -119,7 +279,7 @@ function renderWidgetRedesign(w, h) {
     cardHtml +
     "</div>" +
     // 设计说明侧边栏
-    '<div style="width:200px;flex-shrink:0;background:' +
+    '<div style="width:220px;flex-shrink:0;background:' +
     c.cardBg +
     ";border-left:1px solid " +
     c.border +
@@ -128,6 +288,7 @@ function renderWidgetRedesign(w, h) {
     c.txt +
     ';margin-bottom:10px">设计原则</div>' +
     notesHtml +
+    legendHtml +
     "</div>" +
     "</div></div>"
   );

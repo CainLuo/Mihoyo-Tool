@@ -126,6 +126,24 @@ export class WidgetDataHelper {
           rows.push(WidgetDataHelper.createExtraRow('home_coin', `${coin}/${coinMax}`, WidgetColors.STAMINA_MEDIUM));
         }
 
+        const totalTaskNum = WidgetDataHelper.parseIntSafe(data['total_task_num'], 4);
+        if (totalTaskNum > 0) {
+          const finishedTaskNum = WidgetDataHelper.parseIntSafe(data['finished_task_num'], 0);
+          const isExtraRewardReceived = data['is_extra_task_reward_received'] === true;
+          const taskStatus = isExtraRewardReceived ? 'received' : `${finishedTaskNum}/${totalTaskNum}`;
+          rows.push(WidgetDataHelper.createExtraRow('daily_task', taskStatus, WidgetColors.SUCCESS));
+        }
+
+        const transformer = data['transformer'];
+        if (transformer !== undefined && transformer !== null) {
+          const transformerObj = transformer as Record<string, Object>;
+          const obtained = transformerObj['obtained'] === true;
+          const reached = transformerObj['reached'] === true;
+          if (obtained) {
+            const transformerStatus = reached ? 'ready' : 'not_ready';
+            rows.push(WidgetDataHelper.createExtraRow('transformer', transformerStatus, reached ? WidgetColors.ZZZ_PRIMARY : WidgetColors.INCOMPLETE));
+          }
+        }
       } else if (gameId === WIDGET_GAME_ID.STARRAIL) {
         const trainMax = WidgetDataHelper.parseIntSafe(data['max_train_score'], 500);
         if (trainMax > 0) {
@@ -161,7 +179,7 @@ export class WidgetDataHelper {
       // 解析失败返回空数组
     }
 
-    return rows.slice(0, 2);
+    return rows.slice(0, 4);
   }
 
   /**
@@ -174,6 +192,12 @@ export class WidgetDataHelper {
     }
     if (label === 'home_coin') {
       return $r('app.string.widget_home_coin');
+    }
+    if (label === 'daily_task') {
+      return $r('app.string.widget_daily_task');
+    }
+    if (label === 'transformer') {
+      return $r('app.string.widget_transformer');
     }
     if (label === 'train_score') {
       return $r('app.string.widget_train_score');
@@ -201,6 +225,15 @@ export class WidgetDataHelper {
     }
     if (value === 'not_done') {
       return $r('app.string.widget_card_not_done');
+    }
+    if (value === 'received') {
+      return $r('app.string.widget_task_received');
+    }
+    if (value === 'ready') {
+      return $r('app.string.widget_transformer_ready');
+    }
+    if (value === 'not_ready') {
+      return $r('app.string.widget_transformer_cooling');
     }
     return value;
   }
