@@ -8,7 +8,7 @@
  */
 
 import { GameId } from 'core';
-import { WidgetColors, StaminaColorType } from '../../../widget/models/WidgetUIStates';
+import { WidgetColors } from '../../../widget/models/WidgetUIStates';
 import { PreviewStaminaData, getPreviewStaminaData } from '../../../models/WidgetPreviewModels';
 import { PreviewExtraDataRow } from './PreviewExtraDataRow';
 import { DefaultTheme } from '../../../theme/DefaultTheme';

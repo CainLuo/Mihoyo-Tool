@@ -34,9 +34,8 @@ export function getMaxSlots(size: WidgetSize): number {
       return 1;
     case WidgetSize.SIZE_2x2:
     case WidgetSize.SIZE_2x4:
-      return 2;
     case WidgetSize.SIZE_4x4:
-      return 3;
+      return 2;
     default:
       return 1;
   }

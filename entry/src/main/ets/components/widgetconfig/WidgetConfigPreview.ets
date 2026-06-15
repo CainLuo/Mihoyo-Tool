@@ -18,13 +18,14 @@ import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { WidgetSize } from '../../widget/models/WidgetConfig';
 import { WidgetSlotRef } from '../../widget/models/WidgetDataStore';
 import { GameId } from 'core';
-import { DefaultTheme } from '../../theme/DefaultTheme';
 import { PreviewEmptyContent } from './preview/PreviewEmptyContent';
 import { Preview1x2Card } from './preview/Preview1x2Card';
 import { Preview2x2SingleGame } from './preview/Preview2x2SingleGame';
 import { Preview2x2MultiSlot } from './preview/Preview2x2MultiSlot';
+import { Preview2x4SingleGame } from './preview/Preview2x4SingleGame';
 import { Preview2x4MultiSlot } from './preview/Preview2x4MultiSlot';
 import { Preview4x4MultiSlot } from './preview/Preview4x4MultiSlot';
+import { Preview4x4SingleGame } from './preview/Preview4x4SingleGame';
 import { toGameId, isSingleGame, gameIdToBgColors } from './preview/WidgetPreviewUtils';
 
 /** 尺寸宽高配置 */
@@ -166,7 +167,7 @@ export struct WidgetConfigPreview {
       } else if (this.selectedSize === WidgetSize.SIZE_2x4) {
         // 2x4 预览
         if (this.isSingleGameMode) {
-          Preview2x2SingleGame({
+          Preview2x4SingleGame({
             gameId: this.firstGameId,
             roleId: this.selectedSlots[0].roleId
           })
@@ -176,7 +177,7 @@ export struct WidgetConfigPreview {
       } else {
         // 4x4 预览
         if (this.isSingleGameMode) {
-          Preview2x2SingleGame({
+          Preview4x4SingleGame({
             gameId: this.firstGameId,
             roleId: this.selectedSlots[0].roleId
           })
