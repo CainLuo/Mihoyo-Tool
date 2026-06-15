@@ -29,11 +29,11 @@ export default class EntryAbility extends UIAbility {
         // 初始化 Widget 数据存储
         await WidgetDataStoreManager.init(this.context);
         // 立即构建并保存 Widget 数据（确保添加卡片时有数据可用）
-        await WidgetDataStoreBuilder.initAndSave();
+        await WidgetDataStoreBuilder.initAndSave(this.context);
         // 注册同步完成回调：同步完成后刷新 Widget 数据
         SyncQueueRunner.registerOnComplete(async () => {
           Logger.info(TAG, 'SyncQueueRunner.onComplete: refreshing Widget data');
-          await WidgetDataStoreBuilder.refreshAndSave();
+          await WidgetDataStoreBuilder.refreshAndSave(this.context);
         });
         // 核心库初始化完成后，初始化通知服务
         StaminaNotificationService.instance().init(this.context).catch((e: Error | object) => {

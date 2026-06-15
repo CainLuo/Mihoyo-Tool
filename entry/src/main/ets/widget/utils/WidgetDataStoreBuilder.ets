@@ -18,12 +18,14 @@
  * 2. 数据同步完成后调用 refreshAndSave() 更新数据
  */
 
+import { common } from '@kit.AbilityKit';
 import { Logger } from 'core';
 import { CoreInitializer } from 'core';
 import { GameRoleRow } from 'core';
 import { GameId } from 'core';
 import { WidgetDataStore, WidgetSlotData, WidgetAccountDataV2 } from '../models/WidgetDataStore';
 import { WidgetDataStoreManager } from './WidgetDataStoreManager';
+import { WidgetImageDownloader, ExpeditionAvatarParser } from './WidgetImageDownloader';
 
 const TAG = 'WIDGET';
 
@@ -152,8 +154,13 @@ export class WidgetDataStoreBuilder {
 
   /**
    * 刷新数据：重新构建并保存到 Preferences
+   * @param context UIAbilityContext（可选，用于下载派遣头像）
+   * @param formId 卡片 ID（可选，用于区分不同卡片的头像缓存）
    */
-  static async refreshAndSave(): Promise<boolean> {
+  static async refreshAndSave(
+    context?: common.UIAbilityContext,
+    formId?: string
+  ): Promise<boolean> {
     Logger.info(TAG, '[WIDGET_DEBUG] refreshAndSave: start');
     try {
       const store = await WidgetDataStoreBuilder.buildFromDB();
@@ -161,6 +168,12 @@ export class WidgetDataStoreBuilder {
       Logger.info(TAG, `[WIDGET_DEBUG] refreshAndSave: buildFromDB done, accounts=${accountCount}`);
       const success = await WidgetDataStoreManager.save(store);
       Logger.info(TAG, `[WIDGET_DEBUG] refreshAndSave: save done, success=${success}`);
+
+      // 下载原神派遣头像（如果有 context）
+      if (success && context !== undefined) {
+        await WidgetDataStoreBuilder.downloadExpeditionAvatars(context, store, formId ?? 'default');
+      }
+
       return success;
     } catch (e) {
       Logger.error(TAG, `[WIDGET_DEBUG] refreshAndSave failed: ${JSON.stringify(e)}`);
@@ -170,12 +183,59 @@ export class WidgetDataStoreBuilder {
 
   /**
    * 初始化：从 DB 构建数据并保存（首次启动时调用）
+   * @param context UIAbilityContext（可选，用于下载派遣头像）
    */
-  static async initAndSave(): Promise<boolean> {
+  static async initAndSave(context?: common.UIAbilityContext): Promise<boolean> {
     Logger.info(TAG, '[WIDGET_DEBUG] initAndSave: start - will always refresh from DB');
-    const success = await WidgetDataStoreBuilder.refreshAndSave();
+    const success = await WidgetDataStoreBuilder.refreshAndSave(context);
     Logger.info(TAG, `[WIDGET_DEBUG] initAndSave: refreshAndSave result=${success}`);
     return success;
+  }
+
+  /**
+   * 下载所有原神角色的派遣头像
+   */
+  private static async downloadExpeditionAvatars(
+    context: common.UIAbilityContext,
+    store: WidgetDataStore,
+    formId: string
+  ): Promise<void> {
+    const accountIds = Object.keys(store.data);
+    let downloadCount = 0;
+
+    for (let i = 0; i < accountIds.length; i++) {
+      const accountId = accountIds[i];
+      const account = store.data[accountId];
+      const roleIds = Object.keys(account.slots);
+
+      for (let j = 0; j < roleIds.length; j++) {
+        const roleId = roleIds[j];
+        const slot = account.slots[roleId];
+
+        // 只处理原神数据
+        if (slot.gameId === 'genshin' && slot.rawJson.length > 0) {
+          try {
+            // 解析派遣头像 URL 列表
+            const urls = ExpeditionAvatarParser.parseUrls(slot.rawJson);
+            if (urls.length > 0) {
+              // 使用通用下载器下载
+              const count = await WidgetImageDownloader.downloadAndSave(
+                context,
+                'exp_avatar',
+                urls
+              );
+              if (count > 0) {
+                downloadCount++;
+              }
+            }
+          } catch (e) {
+            Logger.error(TAG, `[WIDGET_DEBUG] downloadExpeditionAvatars failed for ${accountId}/${roleId}: ${JSON.stringify(e)}`);
+          }
+        }
+      }
+    }
+
+    Logger.info(TAG, `[WIDGET_DEBUG] downloadExpeditionAvatars: downloaded ${downloadCount} sets of avatars`);
   }
 
   /**

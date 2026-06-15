@@ -14,7 +14,12 @@
  */
 
 import { WIDGET_GAME_ID } from './WidgetUtils';
-import { StaminaColorType, RecoveryTimeData, WidgetColors } from '../models/WidgetUIStates';
+import {
+  StaminaColorType,
+  RecoveryTimeData,
+  WidgetColors,
+  ExpeditionAvatar
+} from '../models/WidgetUIStates';
 
 /**
  * 额外数据行（解析后的结果）
@@ -101,9 +106,52 @@ export class WidgetDataHelper {
   }
 
   /**
-   * 解析额外数据行
+   * 解析派遣角色头像列表（原神专用）
+   * 返回最多 5 个派遣角色的完成状态
+   * 
+   * @param rawJson 原始 JSON 字符串
+   * @param formImagesKeyPrefix formImages 中的 key 前缀（如 'exp_avatar'），用于生成 memory:// 路径
    */
-  static parseExtraRows(rawJson: string, gameId: string): ParsedExtraRow[] {
+  static parseExpeditions(rawJson: string, formImagesKeyPrefix: string = 'exp_avatar'): ExpeditionAvatar[] {
+    const result: ExpeditionAvatar[] = [];
+
+    if (rawJson.length === 0) {
+      return result;
+    }
+
+    try {
+      const data = JSON.parse(rawJson) as Record<string, Object>;
+      const expeditions = data['expeditions'];
+
+      if (!Array.isArray(expeditions)) {
+        return result;
+      }
+
+      for (let i = 0; i < Math.min(expeditions.length, 5); i++) {
+        const exp = expeditions[i] as Record<string, Object>;
+        const avatar = new ExpeditionAvatar();
+        avatar.avatarUrl = String(exp['avatar_side_icon'] ?? '');
+        avatar.finished = exp['status'] === 'Finished';
+        // 生成 memory:// 路径，与 formImages 中的 key 对应
+        avatar.memoryUrl = `memory://${formImagesKeyPrefix}_${i}`;
+        result.push(avatar);
+      }
+    } catch (_e) {
+      // 解析失败返回空数组
+    }
+
+    return result;
+  }
+
+  /**
+   * 解析额外数据行
+   * @param rawJson 原始 JSON 字符串
+   * @param gameId 游戏 ID
+   */
+  static parseExtraRows(
+    rawJson: string,
+    gameId: string
+  ): ParsedExtraRow[] {
     const rows: ParsedExtraRow[] = [];
 
     if (rawJson.length === 0) {
@@ -145,19 +193,47 @@ export class WidgetDataHelper {
           }
         }
       } else if (gameId === WIDGET_GAME_ID.STARRAIL) {
+        // 后备开拓力
+        const reserveStamina = WidgetDataHelper.parseIntSafe(data['current_reserve_stamina'], 0);
+        if (reserveStamina > 0) {
+          rows.push(WidgetDataHelper.createExtraRow('reserve_stamina', String(reserveStamina), WidgetColors.STARRAIL_PRIMARY));
+        }
+
+        // 委托派遣
+        const expeditionNum = WidgetDataHelper.parseIntSafe(data['accepted_epedition_num'], 0);
+        const expeditionTotal = WidgetDataHelper.parseIntSafe(data['total_expedition_num'], 4);
+        if (expeditionTotal > 0) {
+          rows.push(WidgetDataHelper.createExtraRow('starrail_expedition', `${expeditionNum}/${expeditionTotal}`, WidgetColors.STAMINA_MEDIUM));
+        }
+
+        // 每日实训（周期积分）
         const trainMax = WidgetDataHelper.parseIntSafe(data['max_train_score'], 500);
         if (trainMax > 0) {
           const train = WidgetDataHelper.parseIntSafe(data['current_train_score'], 0);
           rows.push(WidgetDataHelper.createExtraRow('train_score', `${train}/${trainMax}`, WidgetColors.STAMINA_MEDIUM));
         }
 
+        // 历战余响
         const cocoonLimit = WidgetDataHelper.parseIntSafe(data['weekly_cocoon_limit'], 3);
         if (cocoonLimit > 0) {
           const cocoon = WidgetDataHelper.parseIntSafe(data['weekly_cocoon_cnt'], 0);
           rows.push(WidgetDataHelper.createExtraRow('cocoon', `${cocoon}/${cocoonLimit}`, WidgetColors.STARRAIL_PRIMARY));
         }
 
+        // 模拟宇宙积分（rogue_tourn_weekly_cur / rogue_tourn_weekly_max）
+        // 始终显示，即使 max 为 0
+        const rogueTournMax = WidgetDataHelper.parseIntSafe(data['rogue_tourn_weekly_max'], 0);
+        const rogueTourn = WidgetDataHelper.parseIntSafe(data['rogue_tourn_weekly_cur'], 0);
+        rows.push(WidgetDataHelper.createExtraRow('rogue_tourn', `${rogueTourn}/${rogueTournMax}`, WidgetColors.SUCCESS));
+
+        // 货币战争积分（grid_fight_weekly_cur / grid_fight_weekly_max）
+        // 始终显示，即使 max 为 0
+        const gridFightMax = WidgetDataHelper.parseIntSafe(data['grid_fight_weekly_max'], 0);
+        const gridFight = WidgetDataHelper.parseIntSafe(data['grid_fight_weekly_cur'], 0);
+        rows.push(WidgetDataHelper.createExtraRow('grid_fight', `${gridFight}/${gridFightMax}`, WidgetColors.ZZZ_PRIMARY));
+
       } else if (gameId === WIDGET_GAME_ID.ZZZ) {
+        // 活跃度
         const vitalityData = data['vitality'];
         if (vitalityData !== undefined && vitalityData !== null) {
           const vitalityObj = vitalityData as Record<string, Object>;
@@ -168,18 +244,32 @@ export class WidgetDataHelper {
           }
         }
 
+        // 刮刮卡
         const cardSign = data['card_sign'];
         if (cardSign !== undefined && cardSign !== null) {
           const cardSignStr = String(cardSign);
           const isDone = cardSignStr === 'CardSignDone';
           rows.push(WidgetDataHelper.createExtraRow('card_sign', isDone ? 'done' : 'not_done', isDone ? WidgetColors.SUCCESS : WidgetColors.INCOMPLETE));
         }
+
+        // 录像店经营
+        const vhsSale = data['vhs_sale'];
+        if (vhsSale !== undefined && vhsSale !== null) {
+          const vhsSaleObj = vhsSale as Record<string, Object>;
+          const saleState = String(vhsSaleObj['sale_state'] ?? '');
+          if (saleState === 'SaleStateDoing') {
+            rows.push(WidgetDataHelper.createExtraRow('video_store', 'open', WidgetColors.SUCCESS));
+          } else if (saleState === 'SaleStateDone') {
+            rows.push(WidgetDataHelper.createExtraRow('video_store', 'done', WidgetColors.ZZZ_PRIMARY));
+          }
+        }
       }
     } catch (_e) {
       // 解析失败返回空数组
     }
 
-    return rows.slice(0, 4);
+    // 不在此处截断，由调用方（ViewModel/组件）决定显示多少条
+    return rows;
   }
 
   /**
@@ -199,17 +289,32 @@ export class WidgetDataHelper {
     if (label === 'transformer') {
       return $r('app.string.widget_transformer');
     }
+    if (label === 'reserve_stamina') {
+      return $r('app.string.widget_reserve_stamina');
+    }
+    if (label === 'starrail_expedition') {
+      return $r('app.string.widget_expedition');
+    }
     if (label === 'train_score') {
       return $r('app.string.widget_train_score');
     }
     if (label === 'cocoon') {
       return $r('app.string.widget_cocoon');
     }
+    if (label === 'rogue_tourn') {
+      return $r('app.string.widget_rogue_tourn');
+    }
+    if (label === 'grid_fight') {
+      return $r('app.string.widget_grid_fight');
+    }
     if (label === 'vitality') {
       return $r('app.string.widget_vitality');
     }
     if (label === 'card_sign') {
       return $r('app.string.widget_card_sign');
+    }
+    if (label === 'video_store') {
+      return $r('app.string.widget_video_store');
     }
     // 未知 key 直接返回
     return label;
@@ -234,6 +339,9 @@ export class WidgetDataHelper {
     }
     if (value === 'not_ready') {
       return $r('app.string.widget_transformer_cooling');
+    }
+    if (value === 'open') {
+      return $r('app.string.widget_store_open');
     }
     return value;
   }

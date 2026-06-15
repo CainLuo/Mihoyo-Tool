@@ -114,6 +114,18 @@ export class WidgetExtraRow {
 }
 
 /**
+ * 派遣角色头像数据（原神专用）
+ */
+export class ExpeditionAvatar {
+  /** 头像 URL（网络地址，用于下载） */
+  avatarUrl: string = '';
+  /** 是否已完成 */
+  finished: boolean = false;
+  /** memory:// 格式的图片路径（FormExtensionAbility 传递的 fd 映射） */
+  memoryUrl: string = '';
+}
+
+/**
  * 单个角色的 UIState（用于 1x2 单游戏模板）
  *
  * 包含 1x2 迷你卡片所需的所有字段：
@@ -165,6 +177,8 @@ export class WidgetRoleUIState {
   roleId: string = '';
   /** 已转换的 UID 显示文字（含前缀，组件直接使用） */
   roleIdWithPrefix: string = '';
+  /** 角色名称（如"旅行者 · Lv.60"） */
+  roleName: string = '';
   currentStamina: number = 0;
   maxStamina: number = 160;
   recoverySeconds: number = 0;
@@ -175,6 +189,8 @@ export class WidgetRoleUIState {
   staminaColorType: StaminaColorType = StaminaColorType.HIGH;
   reserveStamina: string = '0';
   extraRows: WidgetExtraRow[] = [];
+  /** 派遣角色头像列表（原神专用，2x4 单游戏底部显示） */
+  expeditions: ExpeditionAvatar[] = [];
 }
 
 /**

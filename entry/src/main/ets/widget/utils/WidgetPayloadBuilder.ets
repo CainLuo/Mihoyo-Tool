@@ -46,6 +46,10 @@ export class WidgetAccountPayloadItem {
 export class WidgetPayloadItem {
   version: number = 1;
   updatedAt: number = 0;
+  /** 卡片宽度（单位：vp，来自 FormParam.WIDTH_KEY） */
+  widgetWidth: number = 0;
+  /** 卡片高度（单位：vp，来自 FormParam.HEIGHT_KEY） */
+  widgetHeight: number = 0;
   accounts: WidgetAccountPayloadItem[] = [];
 }
 
@@ -55,6 +59,10 @@ export class WidgetPayloadItem {
 export class WidgetPayload {
   /** Widget 尺寸 */
   widgetSize: string = '';
+  /** 卡片宽度（vp） */
+  widgetWidth: number = 0;
+  /** 卡片高度（vp） */
+  widgetHeight: number = 0;
   /** 账号数据 */
   accounts: WidgetAccountPayloadItem[] = [];
 
@@ -65,13 +73,15 @@ export class WidgetPayload {
     const payloadItem = new WidgetPayloadItem();
     payloadItem.version = 1;
     payloadItem.updatedAt = Math.floor(Date.now() / 1000);
+    payloadItem.widgetWidth = this.widgetWidth;
+    payloadItem.widgetHeight = this.widgetHeight;
     payloadItem.accounts = this.accounts;
 
     const payloadJson = JSON.stringify(payloadItem);
     const record: Record<string, string> = {};
     record['payload'] = payloadJson;
     
-    WidgetLog.info(`[WIDGET_DEBUG] toLocalStorageRecord: payload json length=${payloadJson.length}`);
+    WidgetLog.info(`[WIDGET_DEBUG] toLocalStorageRecord: payload json length=${payloadJson.length} widgetWidth=${this.widgetWidth} widgetHeight=${this.widgetHeight}`);
     
     return record;
   }

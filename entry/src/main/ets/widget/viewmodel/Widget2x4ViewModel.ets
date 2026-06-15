@@ -72,6 +72,8 @@ export class Widget2x4ViewModel {
     state.gameColor = getGameColor(role.gameId);
     state.roleId = role.roleId;
     state.roleIdWithPrefix = 'UID ' + role.roleId;
+    // 角色名：使用角色昵称 + 等级（如果有）
+    state.roleName = Widget2x4ViewModel.buildRoleName(role);
     state.currentStamina = role.currentStamina;
     state.maxStamina = role.maxStamina;
     state.recoverySeconds = role.recoverySeconds;
@@ -88,9 +90,28 @@ export class Widget2x4ViewModel {
 
     // 解析额外数据行
     const extraRows = WidgetDataHelper.parseExtraRows(role.rawJson, role.gameId);
-    state.extraRows = Widget2x4ViewModel.convertExtraRows(extraRows);
+    // 原神：去掉第一条（探索派遣），因为改在底部显示
+    // 星铁：保留全部（后备开拓力、委托派遣、每日实训、历战余响、模拟宇宙、货币战争）
+    // 绝区零：保留全部
+    const filteredRows = role.gameId === WIDGET_GAME_ID.GENSHIN ? extraRows.slice(1) : extraRows;
+    // 2x4 右侧最多显示 3 条额外数据
+    state.extraRows = Widget2x4ViewModel.convertExtraRows(filteredRows.slice(0, 3));
+
+    // 原神专属：解析派遣角色头像
+    // formImagesKey 使用 'exp_avatar' 前缀，与 FormExtensionAbility 中的 key 对应
+    if (role.gameId === WIDGET_GAME_ID.GENSHIN) {
+      state.expeditions = WidgetDataHelper.parseExpeditions(role.rawJson, 'exp_avatar');
+    }
 
     return state;
+  }
+
+  /**
+   * 构建角色名显示文字
+   * 格式：昵称 或空
+   */
+  private static buildRoleName(role: ParsedRole): string {
+    return role.nickname;
   }
 
   /**

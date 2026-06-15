@@ -22,6 +22,7 @@ import { WidgetConfigStore } from '../widget/utils/WidgetConfigStore';
 import { WidgetDataStoreManager } from '../widget/utils/WidgetDataStoreManager';
 import { WidgetPayloadBuilder } from '../widget/utils/WidgetPayloadBuilder';
 import { WidgetConfig, WidgetSize, getMaxSlots } from '../widget/models/WidgetConfig';
+import { WidgetImageDownloader } from '../widget/utils/WidgetImageDownloader';
 
 const TAG = 'WIDGET';
 const DOMAIN = 0xFF00;
@@ -49,9 +50,13 @@ export default class EntryFormAbility extends FormExtensionAbility {
     const formId = want.parameters?.[formInfo.FormParam.IDENTITY_KEY] as string ?? '';
     const formName = want.parameters?.[formInfo.FormParam.NAME_KEY] as string ?? '';
     const dimension = want.parameters?.[formInfo.FormParam.DIMENSION_KEY] as number ?? 2;
+    
+    // 获取卡片实际尺寸（单位：vp）
+    const formWidth = want.parameters?.[formInfo.FormParam.WIDTH_KEY] as number ?? 0;
+    const formHeight = want.parameters?.[formInfo.FormParam.HEIGHT_KEY] as number ?? 0;
 
     hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG] ========== onAddForm START ==========');
-    hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG] onAddForm: formId=' + formId + ' formName=' + formName + ' dimension=' + dimension);
+    hilog.info(DOMAIN, TAG, '[WIDGET_DEBUG] onAddForm: formId=' + formId + ' formName=' + formName + ' dimension=' + dimension + ' width=' + formWidth + ' height=' + formHeight);
 
     // 同步初始化 Preferences（用于读取配置）
     if (this.prefs === null) {
@@ -159,17 +164,35 @@ export default class EntryFormAbility extends FormExtensionAbility {
 
     // 构建 payload
     const payload = WidgetPayloadBuilder.buildPayload(config, dataStore);
+    // 设置卡片实际尺寸
+    payload.widgetWidth = formWidth;
+    payload.widgetHeight = formHeight;
     const record = payload.toLocalStorageRecord();
     
     const payloadStr = record['payload'] ?? '';
     hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] returning real data, payload len=${payloadStr.length}`);
 
+    // ── 读取已下载的派遣头像图片，传递给 Widget ──
+    const formImages = WidgetImageDownloader.loadFormImagesSync(this.context, 'exp_avatar', 5);
+    const avatarCount = Object.keys(formImages).length;
+    hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] expedition avatars loaded: ${avatarCount}`);
+
     // 异步保存配置（用于后续刷新，不阻塞返回）
     hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] saveConfigAsync: calling with config.formId=` + config.formId + ` slots=` + config.slots.length);
     this.saveConfigAsync(formId, config);
 
-    // 立即返回真实数据
-    return formBindingData.createFormBindingData(record);
+    // 构建 FormData，包含 payload 和 formImages
+    // 注意：不能使用 spread 运算符，需要手动合并
+    const formDataObj: Record<string, Object> = {};
+    const recordKeys = Object.keys(record);
+    for (let i = 0; i < recordKeys.length; i++) {
+      const key = recordKeys[i];
+      formDataObj[key] = record[key] as Object;
+    }
+    formDataObj['formImages'] = formImages as Object;
+
+    // 立即返回真实数据（包含图片 fd）
+    return formBindingData.createFormBindingData(formDataObj);
   }
 
   /**
@@ -367,12 +390,12 @@ export default class EntryFormAbility extends FormExtensionAbility {
    */
   private buildMockPayload(): string {
     // 手动构建 JSON 字符串，避免 ArkTS 严格模式的对象字面量限制
-    // 包含完整的原神便笺数据（含派遣、洞天宝钱等字段）
-    const rawJson = '{"current_resin":152,"max_resin":200,"resin_recovery_time":"22825","finished_task_num":0,"total_task_num":4,"is_extra_task_reward_received":false,"remain_resin_discount_num":3,"resin_discount_num_limit":3,"current_expedition_num":5,"max_expedition_num":5,"expeditions":[{"status":"Finished","remained_time":"0"},{"status":"Finished","remained_time":"0"},{"status":"Ongoing","remained_time":"12345"}],"current_home_coin":1230,"max_home_coin":2400,"home_coin_recovery_time":"139968","transformer":{"obtained":true,"recovery_time":{"Day":6,"Hour":0,"Minute":0,"Second":0,"reached":false}}}';
+    // 包含完整的原神便笺数据（含派遣头像、洞天宝钱等字段）
+    const rawJson = '{"current_resin":152,"max_resin":200,"resin_recovery_time":"22825","finished_task_num":0,"total_task_num":4,"is_extra_task_reward_received":false,"remain_resin_discount_num":3,"resin_discount_num_limit":3,"current_expedition_num":5,"max_expedition_num":5,"expeditions":[{"avatar_side_icon":"https://fastcdn.mihoyo.com/static-resource-v2/2023/12/14/a273217a806ee130b0c0f51bc5542483_2404530785826539052.png","status":"Finished","remained_time":"0"},{"avatar_side_icon":"https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f727/db95c5527a3b0f1a59743180e531be63.png","status":"Finished","remained_time":"0"},{"avatar_side_icon":"https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f727/29021fd200fb4074bcb857668b406307.png","status":"Ongoing","remained_time":"12345"},{"avatar_side_icon":"https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f727/2ad457efe47f31a54bd683286fd03144.png","status":"Ongoing","remained_time":"23456"},{"avatar_side_icon":"https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f727/455ee1e4da29c15282faba8243bccdcc.png","status":"Ongoing","remained_time":"34567"}],"current_home_coin":1230,"max_home_coin":2400,"home_coin_recovery_time":"139968","transformer":{"obtained":true,"recovery_time":{"Day":6,"Hour":0,"Minute":0,"Second":0,"reached":false}}}';
     const rawJsonEscaped = rawJson.replace(/"/g, '\\\\"');
     const mockPayload = '{"version":1,"updatedAt":' + Math.floor(Date.now() / 1000) + ',"accounts":[{"accountId":"mock_account_1","accountName":"测试账号","games":[{"gameId":"genshin","roles":[{"roleId":"123456789","nickname":"旅行者","server":"cn_gf01","rawJson":"' + rawJsonEscaped + '"}]}]}]}';
     
-    hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] buildMockPayload: rawJson includes max_expedition_num=5, max_home_coin=2400`);
+    hilog.info(DOMAIN, TAG, `[WIDGET_DEBUG] buildMockPayload: rawJson includes expeditions with avatar_side_icon`);
     return mockPayload;
   }
 
@@ -432,3 +455,5 @@ export default class EntryFormAbility extends FormExtensionAbility {
     }
   }
 }
+
+

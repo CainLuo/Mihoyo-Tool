@@ -3,13 +3,14 @@
  *
  * v1.2 design:
  * - Use ViewModel pattern for data transformation
- * - Single game: detailed layout with extra rows
- * - Multi game (2): two Widget2x2SingleGame horizontally + Divider
+ * - Single game: Widget4x4SingleGame (详细布局，体力区块 + 数据行分组 + 派遣头像)
+ * - Multi game (2): two Widget2x4SingleGame vertically + Divider
  *
  * 数据流：
  *   payload JSON → parsePayload() → ParsedPayload (Model) → ViewModel.buildUIState() → UIState (View)
  */
 
+import { Widget4x4SingleGame } from '../components/Widget4x4SingleGame';
 import { Widget2x4SingleGame } from '../components/Widget2x4SingleGame';
 import { parsePayload, ParsedPayload } from '../utils/WidgetPayloadParser';
 import { Widget4x4UIState, WidgetColors } from '../models/WidgetUIStates';
@@ -63,10 +64,10 @@ struct Widget4x4 {
           .height(theme.full)
           .justifyContent(FlexAlign.Center)
         } else if (this.getUIState().isSingleGame) {
-          // 单游戏模式：详细布局
-          Widget2x4SingleGame({ role: this.getUIState().singleGameState })
+          // 单游戏模式：详细布局（使用 4x4 专用组件）
+          Widget4x4SingleGame({ role: this.getUIState().singleGameState })
         } else {
-          // 多游戏模式：两个 Widget2x4SingleGame + Divider 纵向排列
+          // 多游戏模式：两个 Widget2x4SingleGame + 分隔线 纵向排列
           Column() {
             // 第一个游戏
             Widget2x4SingleGame({ 
@@ -75,12 +76,13 @@ struct Widget4x4 {
             })
               .layoutWeight(1)
 
-            // 分隔线
+            // 分隔线（用 Row 替代 Divider，Widget 可能不支持 Divider）
             if (this.getUIState().multiGameStates.length >= 2) {
-              Divider()
-                .color(WidgetColors.WHITE)
-                .opacity(0.2)
-                .strokeWidth(1)
+              Row()
+                .width('100%')
+                .height(1)
+                .backgroundColor(WidgetColors.WHITE)
+                .opacity(0.1)
                 .margin({ top: theme.value4, bottom: theme.value4 })
 
               // 第二个游戏

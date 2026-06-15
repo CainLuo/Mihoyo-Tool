@@ -139,6 +139,10 @@ export class ParsedAccount {
 export class ParsedPayload {
   version: number = 1;
   updatedAt: number = 0;
+  /** 卡片宽度（单位：vp） */
+  widgetWidth: number = 0;
+  /** 卡片高度（单位：vp） */
+  widgetHeight: number = 0;
   accounts: ParsedAccount[] = [];
 
   /**
@@ -212,6 +216,8 @@ export class ParsedPayload {
 interface PayloadJson {
   version: number;
   updatedAt: number;
+  widgetWidth?: number;
+  widgetHeight?: number;
   accounts: AccountJson[];
 }
 
@@ -271,6 +277,8 @@ export function parsePayload(payloadJson: string): ParsedPayload {
     const obj: PayloadJson = JSON.parse(payloadJson) as PayloadJson;
     result.version = obj.version !== undefined ? obj.version : 1;
     result.updatedAt = obj.updatedAt !== undefined ? obj.updatedAt : 0;
+    result.widgetWidth = obj.widgetWidth !== undefined ? obj.widgetWidth : 0;
+    result.widgetHeight = obj.widgetHeight !== undefined ? obj.widgetHeight : 0;
 
     // 安全检查 accounts 字段
     if (obj.accounts === undefined || obj.accounts === null) {

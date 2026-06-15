@@ -23,10 +23,11 @@ var WR = {
     ],
     starrail: [
       { label: "后备开拓力", val: "2400", color: "rgba(155,142,255,.9)" },
+      { label: "委托派遣", val: "3/4", color: "rgba(255,202,40,.9)" },
       { label: "每日实训", val: "400/500", color: "rgba(255,202,40,.9)" },
       { label: "历战余响", val: "2/3", color: "rgba(79,195,247,.9)" },
-      { label: "货币战争", val: "800/1000", color: "rgba(247,184,75,.9)" },
       { label: "模拟宇宙", val: "900/1000", color: "rgba(52,211,153,.9)" },
+      { label: "货币战争", val: "1/3", color: "rgba(247,184,75,.9)" },
     ],
     zzz: [
       { label: "今日活跃度", val: "300/400", color: "rgba(247,184,75,.9)" },

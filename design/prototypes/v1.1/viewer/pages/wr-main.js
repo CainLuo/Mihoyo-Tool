@@ -16,13 +16,16 @@
 // 参考：https://developer.huawei.com/consumer/cn/doc/harmonyos-references/ts-container-formcomponent
 // ─────────────────────────────────────────────────────────────────
 
-// X7 模拟器实测尺寸（内容区域，不含外层 padding）
-// 测量方法：组件 onAreaChange 回调获取实际渲染区域
+// 华为 Mate 80 Pro Max 实测尺寸（已转换为 vp）
+// 设备参数：6.9" OLED，1320×2848 px，455 ppi
+// 密度系数：455/160 ≈ 2.84x（按 xxhdpi 3x 计算近似值）
+// 测量方法：FormParam.WIDTH_KEY/HEIGHT_KEY 返回 px，除以密度系数得到 vp
+// 注意：不同设备的实际尺寸可能不同，此处仅作参考
 var WR_SIZES = {
-  "1x2": { w: 146, h: 52 },   // 实测内容 121.9×27.8 + padding 12vp
-  "2x2": { w: 146, h: 146 },  // 实测内容 121.9×121.9 + padding 12vp
-  "2x4": { w: 315, h: 146 },  // 实测内容 290.6×121.9 + padding 12vp
-  "4x4": { w: 315, h: 334 },  // 实测内容 290.6×309.8 + padding 12vp
+  "1x2": { w: 146, h: 52 },      // 待实测
+  "2x2": { w: 146, h: 146 },     // 待实测
+  "2x4": { w: 387, h: 178 },     // Mate 80 Pro Max 实测 (1161px÷3 × 533px÷3)
+  "4x4": { w: 315, h: 334 },     // 待实测
 };
 
 var WR_GAME_MAP = {
@@ -196,10 +199,10 @@ function renderWidgetRedesign(w, h) {
   cardHtml = '<div style="position:relative">' + cardHtml + spacingOverlay + '</div>';
 
   var sizeLabels = {
-    "1x2": "1×2 迷你（X7实测 146×52vp）",
-    "2x2": "2×2 标准（X7实测 146×146vp）",
-    "2x4": "2×4 宽幅（X7实测 315×146vp）",
-    "4x4": "4×4 大卡片（X7实测 315×334vp）",
+    "1x2": "1×2 迷你（待实测）",
+    "2x2": "2×2 标准（待实测）",
+    "2x4": "2×4 宽幅（Mate 80 Pro Max 实测 387×178vp）",
+    "4x4": "4×4 大卡片（待实测）",
   };
   var gameLabels = {
     genshin: "原神（单游戏）",
@@ -217,8 +220,8 @@ function renderWidgetRedesign(w, h) {
 
   // 设计说明
   var notes = [
-    "✦ 体力环充满内容高度，成为视觉锚点",
-    "✦ 去掉 Divider，改用间距和颜色层级区分区域",
+    "✦ 2x4 单游戏：左侧游戏名+UID+体力+恢复时间，右侧额外数据行",
+    "✦ 体力数值用颜色区分状态（≤30%红、≤70%黄、>70%主题色）",
     "✦ 游戏主题色只用在体力数值和关键高亮上",
     "✦ 数据行标签 45% 透明度，数值 85% 透明度，形成层级",
     "✦ 四周严格保留 12vp 安全间距（官方规范）",

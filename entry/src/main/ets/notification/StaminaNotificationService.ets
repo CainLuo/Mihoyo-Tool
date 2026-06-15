@@ -80,7 +80,8 @@ export class StaminaNotificationService {
     try {
       // 先更新 Preferences 中的全局数据（供 EntryFormAbility 读取）
       Logger.info(TAG, '[WIDGET_DEBUG] onDailyNotesSynced: calling refreshAndSave');
-      const refreshSuccess = await WidgetDataStoreBuilder.refreshAndSave();
+      const ctx = this.context;
+      const refreshSuccess = await WidgetDataStoreBuilder.refreshAndSave(ctx !== null ? ctx : undefined);
       Logger.info(TAG, `[WIDGET_DEBUG] onDailyNotesSynced: refreshAndSave done, success=${refreshSuccess}`);
 
       const accounts = await CoreInitializer.bbsRepository.getAllAccounts();

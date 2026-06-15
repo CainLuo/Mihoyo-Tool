@@ -61,7 +61,10 @@ function wrRender4x4(cardW, cardH, games) {
       "</div>";
 
     // 数据行分组 - 副标题 12fp
-    var showExtras = gid === "starrail" ? extras.slice(1) : extras;
+    // 原神：保留全部（探索派遣也在内）
+    // 星铁：保留全部（后备开拓力、每日实训、历战余响、模拟宇宙、货币战争）
+    // 绝区零：保留全部
+    var showExtras = extras;
 
     function renderGroup(items, hasBorder) {
       var rows = "";

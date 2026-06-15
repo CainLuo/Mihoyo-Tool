@@ -61,11 +61,13 @@ struct Widget2x4 {
               .textAlign(TextAlign.Center)
           }
           .width(theme.full)
-          .height(theme.full)
+          .layoutWeight(1)
           .justifyContent(FlexAlign.Center)
         } else if (this.getUIState().isSingleGame) {
           // 单游戏模式：水平布局（体力环 + 数据行）
-          Widget2x4SingleGame({ role: this.getUIState().singleGameState })
+          Widget2x4SingleGame({
+            role: this.getUIState().singleGameState
+          })
         } else {
           // 多游戏模式：两个 Widget2x2SingleGame + Divider 横向排列
           Row() {
@@ -89,7 +91,7 @@ struct Widget2x4 {
             }
           }
           .width(theme.full)
-          .height(theme.full)
+          .layoutWeight(1)
         }
       }
       .width(theme.full)
