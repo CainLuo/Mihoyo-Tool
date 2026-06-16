@@ -24,11 +24,11 @@ export struct CharDetailSkillItem {
           .height(this.iconSize)
           .objectFit(ImageFit.Contain)
           .borderRadius(this.iconSize / 2)
-          .backgroundColor(this.tm.current.surfaceDarkLg)
-          .border({ width: this.tm.current.value1p5, color: this.tm.current.surfaceGlass })
+          .backgroundColor('#99000000')
+          .border({ width: this.tm.current.value1p5, color: '#1AFFFFFF' })
       }
       Text(`${this.skill.level}`)
-        .fontSize(this.tm.current.body12.size)
+        .fontSize(this.tm.current.font13)
         .fontWeight(FontWeight.Bold)
         .fontColor(elementColor(this.charElement))
     }

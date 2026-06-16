@@ -15,7 +15,7 @@ export struct SplitPlaceholder {
   build() {
     Column() {
       Text($r('app.string.split_placeholder_hint'))
-        .fontSize(this.tm.current.body16.size)
+        .fontSize(this.tm.current.font17)
         .fontColor(this.tm.current.colorTextSecondary)
         .fontWeight(FontWeight.Medium)
         .textAlign(TextAlign.Center)

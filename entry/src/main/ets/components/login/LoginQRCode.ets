@@ -19,7 +19,7 @@ export struct LoginQRCode {
   @Local private tm: ThemeManager = themeManager;
 
   build() {
-    Column({ space: this.tm.current.value16 }) {
+    Column({ space: this.tm.current.font16 }) {
       if (this.vm.qrCodeStat === QRCodeStat.LOADING) {
         LoginQRCodeLoading()
       } else if (this.vm.qrCodeStat === QRCodeStat.READY || this.vm.qrCodeStat === QRCodeStat.SCANNED) {
@@ -52,7 +52,7 @@ export struct LoginQRCodePreviewLoading {
 
   build() {
     LoginQRCode({ vm: this.vm })
-      .padding(this.tm.current.value24)
+      .padding(this.tm.current.font24)
       .backgroundColor(this.tm.current.colorPageBg)
       .width(this.tm.current.value360)
   }
@@ -71,7 +71,7 @@ export struct LoginQRCodePreviewReady {
 
   build() {
     LoginQRCode({ vm: this.vm })
-      .padding(this.tm.current.value24)
+      .padding(this.tm.current.font24)
       .backgroundColor(this.tm.current.colorPageBg)
       .width(this.tm.current.value360)
   }
@@ -89,7 +89,7 @@ export struct LoginQRCodePreviewExpired {
 
   build() {
     LoginQRCode({ vm: this.vm })
-      .padding(this.tm.current.value24)
+      .padding(this.tm.current.font24)
       .backgroundColor(this.tm.current.colorPageBg)
       .width(this.tm.current.value360)
   }

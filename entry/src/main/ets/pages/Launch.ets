@@ -10,6 +10,7 @@
  */
 
 import { CoreInitializer } from 'core';
+import { ThemeFonts } from '../theme/ThemeFonts'
 import { AppRoutes } from '../constants/AppRoutes';
 import { RouterUtil } from '../utils/RouterUtil';
 import { themeManager, ThemeManager } from '../theme/ThemeManager';
@@ -63,7 +64,7 @@ export struct Launch {
 
   build() {
     NavDestination() {
-      Column({ space: this.tm.current.value16 }) {
+      Column({ space: this.tm.current.font16 }) {
         Image($r('app.media.ic_app_logo'))
           .width(this.tm.current.value120)
           .height(this.tm.current.value120)
@@ -72,12 +73,12 @@ export struct Launch {
           .opacity(this.logoOpacity)
 
         Text($r('app.string.app_name'))
-          .font(this.tm.current.title26Bold)
+          .font(ThemeFonts.fontBold26)
           .fontColor(this.tm.current.colorTextPrimary)
           .opacity(this.logoOpacity)
 
         Text($r('app.string.launch_subtitle'))
-          .font(this.tm.current.body13)
+          .font(ThemeFonts.font14)
           .fontColor(this.tm.current.colorTextSecondary)
           .opacity(this.logoOpacity)
       }
@@ -87,7 +88,7 @@ export struct Launch {
       .alignItems(HorizontalAlign.Center)
     }
     .hideTitleBar(true)
-    .backgroundColor($r('app.color.color_page_bg'))
+    .backgroundColor($r('app.color.dark_400'))
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.TOP, SafeAreaEdge.BOTTOM])
   }
 }

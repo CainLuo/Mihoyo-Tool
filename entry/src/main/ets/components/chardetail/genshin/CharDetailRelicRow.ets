@@ -30,31 +30,31 @@ export struct CharDetailRelicRow {
           Column()
             .width(this.tm.current.value40)
             .height(this.tm.current.value40)
-            .backgroundColor(this.tm.current.surfaceGlass)
+            .backgroundColor('#1AFFFFFF')
             .borderRadius(this.tm.current.value4)
         }
         Text(this.relic.mainStatLabel ?? $r('app.string.char_detail_no_data'))
           .fontSize(this.tm.current.value9)
-          .fontColor(this.tm.current.textOnDarkMuted)
+          .fontColor('#59FFFFFF')
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
         Text(this.relic.mainStatValue)
-          .fontSize(this.tm.current.body16.size)
+          .fontSize(this.tm.current.font17)
           .fontWeight(FontWeight.Bold)
           .fontColor(this.tm.current.textOnDarkHigh)
           .maxLines(1)
         Text(this.starsText(this.relic.rarity))
-          .fontSize(this.tm.current.body10.size)
+          .fontSize(this.tm.current.font11)
           .fontColor(this.tm.current.accentRefine)
         Text($r('app.string.char_detail_relic_lv_prefix', this.relic.level))
           .fontSize(this.tm.current.value9)
-          .fontColor(this.tm.current.textOnDarkFaint)
+          .fontColor('#33FFFFFF')
       }
       .width(this.tm.current.value90)
       .alignItems(HorizontalAlign.Center)
       .justifyContent(FlexAlign.Center)
       .padding({ top: this.tm.current.value4, bottom: this.tm.current.value4 })
-      .border({ width: { right: this.tm.current.value1 }, color: this.tm.current.surfaceGlass })
+      .border({ width: { right: this.tm.current.value1 }, color: '#1AFFFFFF' })
 
       // 右侧：副词条网格
       Grid() {
@@ -62,13 +62,13 @@ export struct CharDetailRelicRow {
           GridItem() {
             Row() {
               Text(sub.label ?? $r('app.string.char_detail_no_data'))
-                .fontSize(this.tm.current.body10.size)
-                .fontColor(this.tm.current.textOnDarkTertiary)
+                .fontSize(this.tm.current.font11)
+                .fontColor('#80FFFFFF')
                 .layoutWeight(1)
                 .maxLines(1)
                 .textOverflow({ overflow: TextOverflow.Ellipsis })
               Text(sub.value)
-                .fontSize(this.tm.current.body12.size)
+                .fontSize(this.tm.current.font13)
                 .fontWeight(FontWeight.Bold)
                 .fontColor(this.tm.current.textOnDarkHigh)
             }
@@ -83,7 +83,7 @@ export struct CharDetailRelicRow {
     .width(this.tm.current.full)
     .layoutWeight(1)
     .alignItems(VerticalAlign.Center)
-    .backgroundColor(this.tm.current.surfaceDarkMd)
-    .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlass })
+    .backgroundColor('#66000000')
+    .border({ width: { bottom: this.tm.current.value1 }, color: '#1AFFFFFF' })
   }
 }

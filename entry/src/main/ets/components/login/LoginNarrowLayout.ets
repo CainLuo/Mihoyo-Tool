@@ -16,16 +16,16 @@ export struct LoginNarrowLayout {
 
   build() {
     Scroll() {
-      Column({ space: this.tm.current.value20 }) {
+      Column({ space: this.tm.current.font20 }) {
         LoginLogoSection({ logoSize: this.tm.current.value52 })
         LoginCard({ vm: this.vm })
         LoginAgreement({ onTapTerms: this.onTapTerms, onTapPrivacy: this.onTapPrivacy })
       }
       .width(this.tm.current.full)
       .padding({
-        left: this.tm.current.value20,
-        right: this.tm.current.value20,
-        top: this.tm.current.value20,
+        left: this.tm.current.font20,
+        right: this.tm.current.font20,
+        top: this.tm.current.font20,
         bottom: this.tm.current.value40
       })
     }

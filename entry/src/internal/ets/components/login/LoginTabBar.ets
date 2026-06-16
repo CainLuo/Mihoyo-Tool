@@ -20,10 +20,10 @@ export struct LoginTabBar {
       LoginTabItem({ vm: this.vm, tab: LoginTab.COOKIE, label: $r('app.string.login_tab_cookie') })
     }
     .width(this.tm.current.full)
-    .backgroundColor(this.tm.current.loginTabBarBg)
+    .backgroundColor(this.tm.current.colorSurfaceSubtle)
     .borderRadius(this.tm.current.radius8)
     .padding(this.tm.current.value4)
-    .margin({ bottom: this.tm.current.value18 })
+    .margin({ bottom: this.tm.current.font18 })
   }
 }
 
@@ -38,7 +38,7 @@ export struct LoginTabBarPreview {
     Column() {
       LoginTabBar({ vm: new LoginViewModel() })
     }
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 }

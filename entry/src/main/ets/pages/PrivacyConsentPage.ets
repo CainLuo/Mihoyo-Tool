@@ -6,6 +6,7 @@
  *   步骤二：隐私政策 → 滑到底部后「同意并继续」和「不同意，退出」Enable
  */
 import { common } from '@kit.AbilityKit';
+import { ThemeFonts } from '../theme/ThemeFonts'
 import { BusinessError } from '@kit.BasicServicesKit';
 import { themeManager, ThemeManager } from '../theme/ThemeManager';
 import { PrivacyConsentViewModel } from '../viewmodel/PrivacyConsentViewModel';
@@ -66,13 +67,11 @@ export struct PrivacyConsentPage {
       }
       .width(this.tm.current.full)
       .height(this.tm.current.full)
-      .backgroundColor(this.tm.current.colorPageBg)
     }
     .title(this.vm.step === 'terms'
       ? $r('app.string.privacy_consent_terms_title')
       : $r('app.string.privacy_consent_privacy_title'))
     .hideTitleBar(false)
-    .backgroundColor(this.tm.current.colorPageBg)
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
   }
 }
@@ -96,7 +95,7 @@ export struct PrivacyConsentPagePreview {
       // Web 内容区占位（Preview 不加载真实 Web）
       Column() {
         Text('（协议全文）')
-          .font(this.tm.current.body13)
+          .font(ThemeFonts.font14)
           .fontColor(this.tm.current.colorTextSecondary)
       }
       .width(this.tm.current.full)

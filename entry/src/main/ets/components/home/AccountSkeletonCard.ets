@@ -13,12 +13,12 @@ export struct AccountSkeletonCard {
   build() {
     Column({ space: this.tm.current.value12 }) {
       Row({ space: this.tm.current.value12 }) {
-        SkeletonBlock({ blockW: this.tm.current.value36, blockH: this.tm.current.value36, blockR: this.tm.current.value18 })
+        SkeletonBlock({ blockW: this.tm.current.value36, blockH: this.tm.current.value36, blockR: this.tm.current.font18 })
 
-        SkeletonBlock({ blockW: this.tm.current.value120, blockH: this.tm.current.value16, blockR: this.tm.current.radius8 })
+        SkeletonBlock({ blockW: this.tm.current.value120, blockH: this.tm.current.font16, blockR: this.tm.current.radius8 })
       }
       .width(this.tm.current.full)
-      .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
+      .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })
 
       Column({ space: this.tm.current.value12 }) {
         SkeletonBlock({ blockW: this.tm.current.full, blockH: this.tm.current.value100, blockR: this.tm.current.radius16 })
@@ -26,7 +26,7 @@ export struct AccountSkeletonCard {
         SkeletonBlock({ blockW: this.tm.current.full, blockH: this.tm.current.value100, blockR: this.tm.current.radius16 })
       }
       .width(this.tm.current.full)
-      .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
+      .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })
     }
     .width(this.tm.current.full)
   }

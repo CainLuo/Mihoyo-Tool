@@ -1,131 +1,648 @@
 {
   "color": [
-    { "name": "start_window_background", "value": "#000000" },
-    { "name": "color_primary", "value": "#007DFF" },
-    { "name": "color_text_primary", "value": "#333333" },
-    { "name": "color_text_secondary", "value": "#666666" },
-    { "name": "color_divider", "value": "#EEEEEE" },
-    { "name": "color_surface_card", "value": "#FFFFFF" },
-    { "name": "color_page_bg", "value": "#F2F2F7" },
-    { "name": "color_placeholder", "value": "#999999" },
-    { "name": "color_mask", "value": "#80000000" },
-    { "name": "color_shadow", "value": "#14000000" },
-    { "name": "color_danger", "value": "#E8534A" },
-    { "name": "color_danger_bg", "value": "#1AE8534A" },
-    { "name": "color_warning", "value": "#F0A030" },
-    { "name": "color_accent", "value": "#007DFF" },
-    { "name": "color_surface_subtle", "value": "#E0E0E0" },
-    { "name": "color_primary_bg", "value": "#1A007DFF" },
-    { "name": "color_transparent", "value": "#00000000" },
-    { "name": "login_tab_bar_bg", "value": "#0A000000" },
-    { "name": "login_input_bg", "value": "#F8F8F8" },
-    { "name": "role_card_server_bg", "value": "#66000000" },
-    { "name": "role_card_stat_bg", "value": "#73000000" },
-
-    { "name": "game_color_genshin", "value": "#4A90D9" },
-    { "name": "game_color_starrail", "value": "#7B68EE" },
-    { "name": "game_color_zzz", "value": "#F5A623" },
-    { "name": "game_color_honkai3", "value": "#E8534A" },
-
-    { "name": "element_pyro", "value": "#EF7A35" },
-    { "name": "element_hydro", "value": "#4BC3F1" },
-    { "name": "element_anemo", "value": "#74C2A8" },
-    { "name": "element_electro", "value": "#B08FC2" },
-    { "name": "element_dendro", "value": "#A5C83B" },
-    { "name": "element_cryo", "value": "#98D5E4" },
-    { "name": "element_geo", "value": "#CFA726" },
-    { "name": "element_physical", "value": "#9E9E9E" },
-    { "name": "element_quantum", "value": "#7C4DFF" },
-    { "name": "element_imaginary", "value": "#FFD54F" },
-    { "name": "element_ether", "value": "#E040FB" },
-
-    { "name": "rarity_5star", "value": "#C8922A" },
-    { "name": "rarity_5star_bg", "value": "#6B4C1E" },
-    { "name": "rarity_4star_bg", "value": "#4A3060" },
-
-    { "name": "weapon_overlay_bg", "value": "#8C000000" },
-
-    { "name": "surface_glass", "value": "#12FFFFFF" },
-    { "name": "surface_dark_sm", "value": "#1A000000" },
-    { "name": "surface_dark_md", "value": "#40000000" },
-    { "name": "surface_dark_lg", "value": "#80000000" },
-    { "name": "surface_active_primary", "value": "#404FC3F7" },
-    { "name": "surface_active_border", "value": "#CC4FC3F7" },
-    { "name": "surface_inactive_border", "value": "#33FFFFFF" },
-    { "name": "surface_skill_border_phone", "value": "#594FC3F7" },
-    { "name": "surface_fetter_bg", "value": "#1F4FC3F7" },
-    { "name": "surface_fetter_border", "value": "#334FC3F7" },
-
-    { "name": "text_on_dark_high", "value": "#DDDDDD" },
-    { "name": "text_on_dark_medium", "value": "#CCCCCC" },
-    { "name": "text_on_dark_secondary", "value": "#B3FFFFFF" },
-    { "name": "text_on_dark_tertiary", "value": "#8CFFFFFF" },
-    { "name": "text_on_dark_muted", "value": "#80FFFFFF" },
-    { "name": "text_on_dark_faint", "value": "#66FFFFFF" },
-    { "name": "text_on_dark_ghost", "value": "#99FFFFFF" },
-    { "name": "text_inactive", "value": "#444444" },
-    { "name": "text_lock_icon", "value": "#FFFFFFFF" },
-
-    { "name": "accent_refine", "value": "#FFCA28" },
-    { "name": "accent_refine_bg", "value": "#26FFCA28" },
-    { "name": "accent_primary_strong", "value": "#E64FC3F7" },
-
-    { "name": "overlay_gradient_end", "value": "#B3000000" },
-    { "name": "overlay_scrim_top", "value": "#BF000000" },
-    { "name": "overlay_shadow", "value": "#E6000000" },
-    { "name": "overlay_portrait_base", "value": "#0C1A30" },
-    { "name": "overlay_portrait_strong", "value": "#E00C1A30" },
-    { "name": "overlay_portrait_mid", "value": "#660C1A30" },
-    { "name": "overlay_portrait_bot", "value": "#E60A101E" },
-    { "name": "overlay_land_opaque", "value": "#FF0A101E" },
-    { "name": "overlay_land_strong", "value": "#B30A101E" },
-    { "name": "overlay_land_fade", "value": "#1A0A101E" },
-
-    { "name": "bg_element_hydro_1", "value": "#0A2A4A" },
-    { "name": "bg_element_hydro_2", "value": "#0D1E3A" },
-    { "name": "bg_element_hydro_3", "value": "#081428" },
-    { "name": "bg_element_pyro_1", "value": "#3A1008" },
-    { "name": "bg_element_pyro_2", "value": "#2A0E0A" },
-    { "name": "bg_element_pyro_3", "value": "#180808" },
-    { "name": "bg_element_electro_1", "value": "#2A1040" },
-    { "name": "bg_element_electro_2", "value": "#1E0A30" },
-    { "name": "bg_element_electro_3", "value": "#100818" },
-    { "name": "bg_element_anemo_1", "value": "#083A2A" },
-    { "name": "bg_element_anemo_2", "value": "#062A1E" },
-    { "name": "bg_element_anemo_3", "value": "#041810" },
-    { "name": "bg_element_geo_1", "value": "#2A1E04" },
-    { "name": "bg_element_geo_2", "value": "#1E1604" },
-    { "name": "bg_element_geo_3", "value": "#100E02" },
-    { "name": "bg_element_cryo_1", "value": "#0A1E3A" },
-    { "name": "bg_element_cryo_2", "value": "#081628" },
-    { "name": "bg_element_cryo_3", "value": "#040E18" },
-    { "name": "bg_element_dendro_1", "value": "#0A2A08" },
-    { "name": "bg_element_dendro_2", "value": "#081E06" },
-    { "name": "bg_element_dendro_3", "value": "#040E02" },
-    { "name": "bg_portrait_1", "value": "#0A1E38" },
-    { "name": "bg_portrait_2", "value": "#0E0E22" },
-    { "name": "bg_page_deep", "value": "#0D0D18" },
-
-    { "name": "zzz_element_physical", "value": "#9E9E9E" },
-    { "name": "zzz_element_fire", "value": "#EF7A35" },
-    { "name": "zzz_element_ice", "value": "#98D5E4" },
-    { "name": "zzz_element_electric", "value": "#B08FC2" },
-    { "name": "zzz_element_ether", "value": "#E040FB" },
-
-    { "name": "bg_element_physical_1", "value": "#1A1A1A" },
-    { "name": "bg_element_physical_2", "value": "#111111" },
-    { "name": "bg_element_physical_3", "value": "#080808" },
-    { "name": "bg_element_wind_1", "value": "#083A20" },
-    { "name": "bg_element_wind_2", "value": "#062A18" },
-    { "name": "bg_element_wind_3", "value": "#041810" },
-    { "name": "bg_element_quantum_1", "value": "#1A0A40" },
-    { "name": "bg_element_quantum_2", "value": "#120830" },
-    { "name": "bg_element_quantum_3", "value": "#080418" },
-    { "name": "bg_element_imaginary_1", "value": "#2A2004" },
-    { "name": "bg_element_imaginary_2", "value": "#1E1804" },
-    { "name": "bg_element_imaginary_3", "value": "#100E02" },
-    { "name": "bg_element_ether_1", "value": "#2A0A30" },
-    { "name": "bg_element_ether_2", "value": "#1E0820" },
-    { "name": "bg_element_ether_3", "value": "#100410" }
+    {
+      "name": "black",
+      "value": "#000000"
+    },
+    {
+      "name": "white",
+      "value": "#FFFFFF"
+    },
+    {
+      "name": "gray_100",
+      "value": "#EEEEEE"
+    },
+    {
+      "name": "gray_200",
+      "value": "#E0E0E0"
+    },
+    {
+      "name": "gray_300",
+      "value": "#CCCCCC"
+    },
+    {
+      "name": "gray_400",
+      "value": "#AAAAAA"
+    },
+    {
+      "name": "gray_500",
+      "value": "#999999"
+    },
+    {
+      "name": "gray_600",
+      "value": "#888888"
+    },
+    {
+      "name": "gray_700",
+      "value": "#666666"
+    },
+    {
+      "name": "gray_800",
+      "value": "#444444"
+    },
+    {
+      "name": "gray_900",
+      "value": "#333333"
+    },
+    {
+      "name": "dark_400",
+      "value": "#1A1A2E"
+    },
+    {
+      "name": "gold",
+      "value": "#FFD700"
+    },
+    {
+      "name": "widget_bg_genshin_1",
+      "value": "#152030"
+    },
+    {
+      "name": "widget_bg_genshin_2",
+      "value": "#1a2d42"
+    },
+    {
+      "name": "widget_bg_genshin_3",
+      "value": "#1c3350"
+    },
+    {
+      "name": "widget_bg_starrail_1",
+      "value": "#181828"
+    },
+    {
+      "name": "widget_bg_starrail_2",
+      "value": "#201830"
+    },
+    {
+      "name": "widget_bg_starrail_3",
+      "value": "#261c40"
+    },
+    {
+      "name": "widget_bg_zzz_1",
+      "value": "#1e1a0e"
+    },
+    {
+      "name": "widget_bg_zzz_2",
+      "value": "#2a2010"
+    },
+    {
+      "name": "widget_bg_zzz_3",
+      "value": "#342810"
+    },
+    {
+      "name": "widget_bg_default_1",
+      "value": "#181820"
+    },
+    {
+      "name": "widget_bg_default_2",
+      "value": "#1c1c2c"
+    },
+    {
+      "name": "widget_gradient_1",
+      "value": "#1a1a2e"
+    },
+    {
+      "name": "widget_gradient_2",
+      "value": "#0d0d18"
+    },
+    {
+      "name": "widget_bg",
+      "value": "#2E3033"
+    },
+    {
+      "name": "dark_500",
+      "value": "#0D0D18"
+    },
+    {
+      "name": "start_window_background",
+      "value": "#000000"
+    },
+    {
+      "name": "color_primary",
+      "value": "#007DFF"
+    },
+    {
+      "name": "color_text_primary",
+      "value": "#333333"
+    },
+    {
+      "name": "color_text_secondary",
+      "value": "#666666"
+    },
+    {
+      "name": "color_divider",
+      "value": "#EEEEEE"
+    },
+    {
+      "name": "color_surface_card",
+      "value": "#FFFFFF"
+    },
+    {
+      "name": "color_page_bg",
+      "value": "#F2F2F7"
+    },
+    {
+      "name": "color_placeholder",
+      "value": "#999999"
+    },
+    {
+      "name": "color_mask",
+      "value": "#80000000"
+    },
+    {
+      "name": "color_shadow",
+      "value": "#14000000"
+    },
+    {
+      "name": "color_danger",
+      "value": "#E8534A"
+    },
+    {
+      "name": "color_danger_bg",
+      "value": "#1AE8534A"
+    },
+    {
+      "name": "color_success",
+      "value": "#4CAF50"
+    },
+    {
+      "name": "color_success_bg",
+      "value": "#1A4CAF50"
+    },
+    {
+      "name": "color_warning",
+      "value": "#F0A030"
+    },
+    {
+      "name": "color_accent",
+      "value": "#007DFF"
+    },
+    {
+      "name": "color_surface_subtle",
+      "value": "#E0E0E0"
+    },
+    {
+      "name": "color_primary_bg",
+      "value": "#1A007DFF"
+    },
+    {
+      "name": "color_transparent",
+      "value": "#00000000"
+    },
+    {
+      "name": "login_tab_bar_bg",
+      "value": "#0A000000"
+    },
+    {
+      "name": "login_input_bg",
+      "value": "#F8F8F8"
+    },
+    {
+      "name": "role_card_server_bg",
+      "value": "#66000000"
+    },
+    {
+      "name": "role_card_stat_bg",
+      "value": "#73000000"
+    },
+    {
+      "name": "widget_card_bg",
+      "value": "#2E3033"
+    },
+    {
+      "name": "widget_preview_bg",
+      "value": "#1a1a2e"
+    },
+    {
+      "name": "widget_bg_genshin_dark",
+      "value": "#152030"
+    },
+    {
+      "name": "widget_bg_genshin_mid",
+      "value": "#1a2d42"
+    },
+    {
+      "name": "widget_bg_genshin_light",
+      "value": "#1c3350"
+    },
+    {
+      "name": "widget_bg_starrail_dark",
+      "value": "#181828"
+    },
+    {
+      "name": "widget_bg_starrail_mid",
+      "value": "#201830"
+    },
+    {
+      "name": "widget_bg_starrail_light",
+      "value": "#261c40"
+    },
+    {
+      "name": "widget_bg_zzz_dark",
+      "value": "#1e1a0e"
+    },
+    {
+      "name": "widget_bg_zzz_mid",
+      "value": "#2a2010"
+    },
+    {
+      "name": "widget_bg_zzz_light",
+      "value": "#342810"
+    },
+    {
+      "name": "widget_bg_default_dark",
+      "value": "#181820"
+    },
+    {
+      "name": "widget_bg_default_mid",
+      "value": "#1c1c2c"
+    },
+    {
+      "name": "widget_bg_default_light",
+      "value": "#1c1c2c"
+    },
+    {
+      "name": "game_color_genshin",
+      "value": "#4A90D9"
+    },
+    {
+      "name": "game_color_starrail",
+      "value": "#7B68EE"
+    },
+    {
+      "name": "game_color_zzz",
+      "value": "#F5A623"
+    },
+    {
+      "name": "game_color_honkai3",
+      "value": "#E8534A"
+    },
+    {
+      "name": "element_pyro",
+      "value": "#EF7A35"
+    },
+    {
+      "name": "element_hydro",
+      "value": "#4BC3F1"
+    },
+    {
+      "name": "element_anemo",
+      "value": "#74C2A8"
+    },
+    {
+      "name": "element_electro",
+      "value": "#B08FC2"
+    },
+    {
+      "name": "element_dendro",
+      "value": "#A5C83B"
+    },
+    {
+      "name": "element_cryo",
+      "value": "#98D5E4"
+    },
+    {
+      "name": "element_geo",
+      "value": "#CFA726"
+    },
+    {
+      "name": "element_physical",
+      "value": "#9E9E9E"
+    },
+    {
+      "name": "element_quantum",
+      "value": "#7C4DFF"
+    },
+    {
+      "name": "element_imaginary",
+      "value": "#FFD54F"
+    },
+    {
+      "name": "element_ether",
+      "value": "#E040FB"
+    },
+    {
+      "name": "rarity_5star",
+      "value": "#C8922A"
+    },
+    {
+      "name": "rarity_5star_bg",
+      "value": "#6B4C1E"
+    },
+    {
+      "name": "rarity_4star_bg",
+      "value": "#4A3060"
+    },
+    {
+      "name": "weapon_overlay_bg",
+      "value": "#8C000000"
+    },
+    {
+      "name": "surface_glass",
+      "value": "#12FFFFFF"
+    },
+    {
+      "name": "surface_dark_sm",
+      "value": "#1A000000"
+    },
+    {
+      "name": "surface_dark_md",
+      "value": "#40000000"
+    },
+    {
+      "name": "surface_dark_lg",
+      "value": "#80000000"
+    },
+    {
+      "name": "surface_active_primary",
+      "value": "#404FC3F7"
+    },
+    {
+      "name": "surface_active_border",
+      "value": "#CC4FC3F7"
+    },
+    {
+      "name": "surface_inactive_border",
+      "value": "#33FFFFFF"
+    },
+    {
+      "name": "surface_skill_border_phone",
+      "value": "#594FC3F7"
+    },
+    {
+      "name": "surface_fetter_bg",
+      "value": "#1F4FC3F7"
+    },
+    {
+      "name": "surface_fetter_border",
+      "value": "#334FC3F7"
+    },
+    {
+      "name": "text_on_dark_high",
+      "value": "#DDDDDD"
+    },
+    {
+      "name": "text_on_dark_medium",
+      "value": "#CCCCCC"
+    },
+    {
+      "name": "text_on_dark_secondary",
+      "value": "#B3FFFFFF"
+    },
+    {
+      "name": "text_on_dark_tertiary",
+      "value": "#8CFFFFFF"
+    },
+    {
+      "name": "text_on_dark_muted",
+      "value": "#80FFFFFF"
+    },
+    {
+      "name": "text_on_dark_faint",
+      "value": "#66FFFFFF"
+    },
+    {
+      "name": "text_on_dark_ghost",
+      "value": "#99FFFFFF"
+    },
+    {
+      "name": "text_inactive",
+      "value": "#444444"
+    },
+    {
+      "name": "text_lock_icon",
+      "value": "#FFFFFFFF"
+    },
+    {
+      "name": "accent_refine",
+      "value": "#FFCA28"
+    },
+    {
+      "name": "accent_refine_bg",
+      "value": "#26FFCA28"
+    },
+    {
+      "name": "accent_primary_strong",
+      "value": "#E64FC3F7"
+    },
+    {
+      "name": "overlay_gradient_end",
+      "value": "#B3000000"
+    },
+    {
+      "name": "overlay_scrim_top",
+      "value": "#BF000000"
+    },
+    {
+      "name": "overlay_shadow",
+      "value": "#E6000000"
+    },
+    {
+      "name": "overlay_portrait_base",
+      "value": "#0C1A30"
+    },
+    {
+      "name": "overlay_portrait_strong",
+      "value": "#E00C1A30"
+    },
+    {
+      "name": "overlay_portrait_mid",
+      "value": "#660C1A30"
+    },
+    {
+      "name": "overlay_portrait_bot",
+      "value": "#E60A101E"
+    },
+    {
+      "name": "overlay_land_opaque",
+      "value": "#FF0A101E"
+    },
+    {
+      "name": "overlay_land_strong",
+      "value": "#B30A101E"
+    },
+    {
+      "name": "overlay_land_fade",
+      "value": "#1A0A101E"
+    },
+    {
+      "name": "bg_element_hydro_1",
+      "value": "#0A2A4A"
+    },
+    {
+      "name": "bg_element_hydro_2",
+      "value": "#0D1E3A"
+    },
+    {
+      "name": "bg_element_hydro_3",
+      "value": "#081428"
+    },
+    {
+      "name": "bg_element_pyro_1",
+      "value": "#3A1008"
+    },
+    {
+      "name": "bg_element_pyro_2",
+      "value": "#2A0E0A"
+    },
+    {
+      "name": "bg_element_pyro_3",
+      "value": "#180808"
+    },
+    {
+      "name": "bg_element_electro_1",
+      "value": "#2A1040"
+    },
+    {
+      "name": "bg_element_electro_2",
+      "value": "#1E0A30"
+    },
+    {
+      "name": "bg_element_electro_3",
+      "value": "#100818"
+    },
+    {
+      "name": "bg_element_anemo_1",
+      "value": "#083A2A"
+    },
+    {
+      "name": "bg_element_anemo_2",
+      "value": "#062A1E"
+    },
+    {
+      "name": "bg_element_anemo_3",
+      "value": "#041810"
+    },
+    {
+      "name": "bg_element_geo_1",
+      "value": "#2A1E04"
+    },
+    {
+      "name": "bg_element_geo_2",
+      "value": "#1E1604"
+    },
+    {
+      "name": "bg_element_geo_3",
+      "value": "#100E02"
+    },
+    {
+      "name": "bg_element_cryo_1",
+      "value": "#0A1E3A"
+    },
+    {
+      "name": "bg_element_cryo_2",
+      "value": "#081628"
+    },
+    {
+      "name": "bg_element_cryo_3",
+      "value": "#040E18"
+    },
+    {
+      "name": "bg_element_dendro_1",
+      "value": "#0A2A08"
+    },
+    {
+      "name": "bg_element_dendro_2",
+      "value": "#081E06"
+    },
+    {
+      "name": "bg_element_dendro_3",
+      "value": "#040E02"
+    },
+    {
+      "name": "bg_portrait_1",
+      "value": "#0A1E38"
+    },
+    {
+      "name": "bg_portrait_2",
+      "value": "#0E0E22"
+    },
+    {
+      "name": "bg_page_deep",
+      "value": "#0D0D18"
+    },
+    {
+      "name": "zzz_element_physical",
+      "value": "#9E9E9E"
+    },
+    {
+      "name": "zzz_element_fire",
+      "value": "#EF7A35"
+    },
+    {
+      "name": "zzz_element_ice",
+      "value": "#98D5E4"
+    },
+    {
+      "name": "zzz_element_electric",
+      "value": "#B08FC2"
+    },
+    {
+      "name": "zzz_element_ether",
+      "value": "#E040FB"
+    },
+    {
+      "name": "bg_element_physical_1",
+      "value": "#1A1A1A"
+    },
+    {
+      "name": "bg_element_physical_2",
+      "value": "#111111"
+    },
+    {
+      "name": "bg_element_physical_3",
+      "value": "#080808"
+    },
+    {
+      "name": "bg_element_wind_1",
+      "value": "#083A20"
+    },
+    {
+      "name": "bg_element_wind_2",
+      "value": "#062A18"
+    },
+    {
+      "name": "bg_element_wind_3",
+      "value": "#041810"
+    },
+    {
+      "name": "bg_element_quantum_1",
+      "value": "#1A0A40"
+    },
+    {
+      "name": "bg_element_quantum_2",
+      "value": "#120830"
+    },
+    {
+      "name": "bg_element_quantum_3",
+      "value": "#080418"
+    },
+    {
+      "name": "bg_element_imaginary_1",
+      "value": "#2A2004"
+    },
+    {
+      "name": "bg_element_imaginary_2",
+      "value": "#1E1804"
+    },
+    {
+      "name": "bg_element_imaginary_3",
+      "value": "#100E02"
+    },
+    {
+      "name": "bg_element_ether_1",
+      "value": "#2A0A30"
+    },
+    {
+      "name": "bg_element_ether_2",
+      "value": "#1E0820"
+    },
+    {
+      "name": "bg_element_ether_3",
+      "value": "#100410"
+    },
+    {
+      "name": "item_title_font",
+      "value": "#E6000000"
+    }
   ]
 }

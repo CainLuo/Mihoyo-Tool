@@ -6,6 +6,7 @@
  * 背景色和圆角由父容器负责。
  */
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
+import { ThemeFonts } from '../theme/ThemeFonts'
 
 @ComponentV2
 export struct SettingRow {
@@ -17,12 +18,12 @@ export struct SettingRow {
   build() {
     Row() {
       Text(this.label)
-        .font(this.tm.current.body16)
+        .font(ThemeFonts.font17)
         .fontColor(this.tm.current.colorTextPrimary)
         .layoutWeight(1)
       if (this.value !== '') {
         Text(this.value)
-          .font(this.tm.current.body16)
+          .font(ThemeFonts.font17)
           .fontColor(this.tm.current.colorTextSecondary)
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
@@ -30,13 +31,13 @@ export struct SettingRow {
       }
       if (this.onTap !== null) {
         Text($r('app.string.common_arrow_right'))
-          .font(this.tm.current.body16)
+          .font(ThemeFonts.font17)
           .fontColor(this.tm.current.colorTextSecondary)
       }
     }
     .width(this.tm.current.full)
     .height(this.tm.current.value50)
-    .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
+    .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })
     .alignItems(VerticalAlign.Center)
     .onClick(this.onTap !== null ? this.onTap : () => {})
   }
@@ -53,7 +54,7 @@ export struct SettingRowPreview {
     Column() {
       SettingRow({ label: $r('app.string.my_export_logs'), onTap: () => {} })
 
-      Divider().color(this.tm.current.colorDivider).margin({ left: this.tm.current.value16 })
+      Divider().color(this.tm.current.colorDivider).margin({ left: this.tm.current.font16 })
 
       SettingRow({ label: $r('app.string.my_about_version'), value: '1.0.0' })
     }
@@ -61,7 +62,7 @@ export struct SettingRowPreview {
     .backgroundColor(this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
     .clip(true)
-    .padding({ top: this.tm.current.value16, bottom: this.tm.current.value16 })
+    .padding({ top: this.tm.current.font16, bottom: this.tm.current.font16 })
     .backgroundColor('#1a1a2e')
   }
 }

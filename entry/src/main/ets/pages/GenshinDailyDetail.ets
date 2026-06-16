@@ -6,6 +6,7 @@
  */
 
 import display from '@ohos.display'
+import { ThemeFonts } from '../theme/ThemeFonts'
 import { window } from '@kit.ArkUI'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { DailyNoteGenshin } from '../components/dailynote/genshin/DailyNoteGenshin'
@@ -80,17 +81,17 @@ export struct GenshinDailyDetail {
           Scroll() {
             Column({ space: this.tm.current.value8 }) {
               Text($r('app.string.genshin_daily_data_delay_hint'))
-                .font(this.tm.current.body13)
+                .font(ThemeFonts.font14)
                 .fontColor(this.tm.current.colorTextSecondary)
                 .width(this.tm.current.full)
                 .padding({
-                  left: this.tm.current.value16,
-                  right: this.tm.current.value16,
+                  left: this.tm.current.font16,
+                  right: this.tm.current.font16,
                   top: this.tm.current.value12
                 })
 
               DailyNoteGenshin({ data: this.vm.note })
-                .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
+                .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })
             }
             .width(this.tm.current.full)
             .constraintSize({ maxWidth: this.tm.current.value600 })

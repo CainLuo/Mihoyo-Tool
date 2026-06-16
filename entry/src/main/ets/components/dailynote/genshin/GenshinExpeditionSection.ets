@@ -4,6 +4,7 @@
  * 仅在 DailyNoteGenshin 中使用。
  */
 import { themeManager, ThemeManager } from '../../../theme/ThemeManager';
+import { ThemeFonts } from '../../../theme/ThemeFonts'
 import { ExpeditionVM } from '../../../models/DailyNoteModels';
 import { ExpeditionItem } from '../common/ExpeditionItem';
 
@@ -17,18 +18,18 @@ export struct GenshinExpeditionSection {
     Column() {
       Row() {
         Text($r('app.string.daily_note_expedition_title'))
-          .font(this.tm.current.body16)
+          .font(ThemeFonts.font17)
           .fontColor(this.tm.current.colorTextPrimary)
 
         Text(' (' + this.expeditions.length.toString() +
           '/' + this.maxExpeditionNum.toString() + ')')
-          .font(this.tm.current.body13)
+          .font(ThemeFonts.font14)
           .fontColor(this.tm.current.colorTextSecondary)
       }
       .width(this.tm.current.full)
       .padding({
-        left: this.tm.current.value16,
-        right: this.tm.current.value16,
+        left: this.tm.current.font16,
+        right: this.tm.current.font16,
         top: this.tm.current.value12,
         bottom: this.tm.current.value8
       })

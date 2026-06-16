@@ -18,7 +18,7 @@ export class GameDataRowVM {
   /** 值文字（ResourceStr 支持 Resource 或 string） */
   value: ResourceStr = '';
   /** 值颜色（由 VM 根据业务规则算好） */
-  valueColor: ResourceColor = $r('app.color.color_text_primary');
+  valueColor: ResourceColor = $r('app.color.gray_900');
 
   constructor(label: Resource, value: ResourceStr, valueColor: ResourceColor) {
     this.label = label;

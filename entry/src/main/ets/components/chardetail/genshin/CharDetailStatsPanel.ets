@@ -89,7 +89,7 @@ export struct CharDetailStatsPanel {
       ForEach(this.vm.stats, (stat: CharDetailStat) => {
         CharDetailStatRow({ stat: stat, charElement: this.vm.charElement })
           .padding({
-            left: this.tm.current.value16, right: this.tm.current.value16,
+            left: this.tm.current.font16, right: this.tm.current.font16,
             top: this.tm.current.value8, bottom: this.tm.current.value8
           })
           .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlass })

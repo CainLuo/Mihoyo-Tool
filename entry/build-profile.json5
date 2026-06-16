@@ -27,7 +27,7 @@
     {
       name: "mock",
       source: {
-        sourceRoots: ["./src/internal"],
+        sourceRoots: ["./src/main", "./src/internal"],
         abilities: [
           {
             name: "EntryAbility",

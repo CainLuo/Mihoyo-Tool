@@ -3,6 +3,7 @@
  */
 import { CoreInitializer } from 'core';
 import { Logger } from 'core';
+import { WidgetFormIdStore } from '../widget/utils/WidgetFormIdStore';
 
 const TAG: string = 'AccountDetailViewModel';
 
@@ -24,6 +25,14 @@ export class AccountDetailViewModel {
     try {
       await CoreInitializer.bbsRepository.deleteAccount(accountId);
       Logger.info(TAG, `account deleted: ${accountId}`);
+      // 清理该账号关联的所有 Widget formId（Preferences 中的配置记录）
+      const formIds = WidgetFormIdStore.getFormIdsByAccount(accountId);
+      for (let i = 0; i < formIds.length; i++) {
+        await WidgetFormIdStore.remove(formIds[i]);
+      }
+      if (formIds.length > 0) {
+        Logger.info(TAG, `cleaned ${formIds.length} widget formIds for account ${accountId}`);
+      }
       this.deleted = true;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;

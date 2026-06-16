@@ -41,7 +41,7 @@ export struct DailyNoteZZZPreview {
   build() {
     Scroll() {
       DailyNoteZZZ({ data: makeMockZzzNote() })
-        .padding(this.tm.current.value16)
+        .padding(this.tm.current.font16)
     }
     .height(this.tm.current.value600)
     .backgroundColor(this.tm.current.colorPageBg)

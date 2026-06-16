@@ -8,6 +8,7 @@
  *   - @Monitor('game') 监听外部 game 引用变化（如 onFullValueShortcut 后），同步 displayThreshold
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { ThemeFonts } from '../../theme/ThemeFonts'
 import { GameNotificationConfig } from '../../notification/NotificationModels';
 import { NotificationSettingsViewModel } from '../../viewmodel/NotificationSettingsViewModel';
 import { gameIdToColor } from '../../utils/GameIdUtil';
@@ -51,13 +52,13 @@ export struct NotificationGameRow {
 
       Column({ space: this.tm.current.value4 }) {
         Text($r('app.string.notification_game_stamina_label', this.game.gameName, this.game.staminaName))
-          .font(this.tm.current.body13)
+          .font(ThemeFonts.font14)
           .fontColor(this.tm.current.colorTextPrimary)
 
         Text(this.game.maxStamina > 0
           ? $r('app.string.notification_max_from_api', this.game.maxStamina, this.game.secondsPerUnit / 60)
           : $r('app.string.notification_max_pending', this.game.secondsPerUnit / 60))
-          .font(this.tm.current.body10)
+          .font(ThemeFonts.font11)
           .fontColor(this.tm.current.colorTextSecondary)
       }
       .alignItems(HorizontalAlign.Start)
@@ -65,8 +66,8 @@ export struct NotificationGameRow {
 
       TextInput({ text: this.displayThreshold })
         .type(InputType.Number)
-        .fontSize(this.tm.current.body13.size)
-        .fontWeight(this.tm.current.body13.weight)
+        .fontSize(this.tm.current.font14)
+        .fontWeight(FontWeight.Normal)
         .fontColor(this.tm.current.colorTextPrimary)
         .textAlign(TextAlign.Center)
         .width(this.tm.current.value52)
@@ -91,7 +92,7 @@ export struct NotificationGameRow {
       Text(this.game.maxStamina > 0
         ? $r('app.string.notification_stamina_max_suffix', this.game.maxStamina)
         : $r('app.string.notification_stamina_max_unknown'))
-        .font(this.tm.current.body12)
+        .font(ThemeFonts.font13)
         .fontColor(this.tm.current.colorTextSecondary)
 
       Toggle({ type: ToggleType.Switch, isOn: this.game.enabled })
@@ -102,7 +103,7 @@ export struct NotificationGameRow {
     }
     .width(this.tm.current.full)
     .height(this.tm.current.value56)
-    .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
+    .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })
     .opacity(this.game.enabled ? 1.0 : 0.4)
   }
 }

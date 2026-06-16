@@ -1559,6 +1559,342 @@
     {
       "name": "privacy_consent_scroll_hint",
       "value": "请滑动阅读全部内容后继续"
+    },
+    {
+      "name": "EntryFormAbility_label",
+      "value": "米悠悠卡片"
+    },
+    {
+      "name": "EntryFormAbility_desc",
+      "value": "米悠悠游戏体力卡片"
+    },
+    {
+      "name": "widget_1x2_genshin_name",
+      "value": "原神体力"
+    },
+    {
+      "name": "widget_1x2_genshin_desc",
+      "value": "显示原神原粹树脂和回满时间"
+    },
+    {
+      "name": "widget_1x2_starrail_name",
+      "value": "星铁开拓力"
+    },
+    {
+      "name": "widget_1x2_starrail_desc",
+      "value": "显示崩坏：星穹铁道开拓力和回满时间"
+    },
+    {
+      "name": "widget_1x2_zzz_name",
+      "value": "绝区零电量"
+    },
+    {
+      "name": "widget_1x2_zzz_desc",
+      "value": "显示绝区零电量和回满时间"
+    },
+    {
+      "name": "widget_2x2_name",
+      "value": "游戏体力总览"
+    },
+    {
+      "name": "widget_2x2_desc",
+      "value": "显示多款游戏的体力数据"
+    },
+    {
+      "name": "widget_2x4_name",
+      "value": "游戏体力详情"
+    },
+    {
+      "name": "widget_2x4_desc",
+      "value": "显示游戏体力及详细数据"
+    },
+    {
+      "name": "widget_4x4_name",
+      "value": "游戏体力完整版"
+    },
+    {
+      "name": "widget_4x4_desc",
+      "value": "显示游戏体力完整数据"
+    },
+    {
+      "name": "my_section_widget",
+      "value": "Widget 卡片"
+    },
+    {
+      "name": "widget_add_all_games",
+      "value": "全部游戏"
+    },
+    {
+      "name": "widget_game_genshin",
+      "value": "原神"
+    },
+    {
+      "name": "widget_game_starrail",
+      "value": "崩坏：星穹铁道"
+    },
+    {
+      "name": "widget_game_zzz",
+      "value": "绝区零"
+    },
+    {
+      "name": "widget_stamina_full",
+      "value": "已回满"
+    },
+    {
+      "name": "widget_no_account",
+      "value": "请在应用内添加账号"
+    },
+    {
+      "name": "widget_recovery_hours",
+      "value": "%d小时后回满"
+    },
+    {
+      "name": "widget_recovery_hours_minutes",
+      "value": "%d小时%d分钟后回满"
+    },
+    {
+      "name": "widget_recovery_minutes",
+      "value": "%d分钟后回满"
+    },
+    {
+      "name": "widget_resin_label",
+      "value": "原粹树脂"
+    },
+    {
+      "name": "widget_stamina_label",
+      "value": "开拓力"
+    },
+    {
+      "name": "widget_energy_label",
+      "value": "电量"
+    },
+    {
+      "name": "widget_expedition",
+      "value": "探索派遣"
+    },
+    {
+      "name": "widget_expedition_finished",
+      "value": "已完成"
+    },
+    {
+      "name": "widget_expedition_ongoing",
+      "value": "进行中"
+    },
+    {
+      "name": "widget_expedition_done",
+      "value": "已完成"
+    },
+    {
+      "name": "widget_home_coin",
+      "value": "洞天财瓮"
+    },
+    {
+      "name": "widget_daily_task",
+      "value": "每日委托"
+    },
+    {
+      "name": "widget_task_received",
+      "value": "已全部领取"
+    },
+    {
+      "name": "widget_task_received_suffix",
+      "value": " 已领取"
+    },
+    {
+      "name": "widget_transformer",
+      "value": "参量质变仪"
+    },
+    {
+      "name": "widget_transformer_ready",
+      "value": "可使用"
+    },
+    {
+      "name": "widget_transformer_cooling",
+      "value": "冷却中"
+    },
+    {
+      "name": "widget_reserve_stamina",
+      "value": "后备开拓力"
+    },
+    {
+      "name": "widget_train_score",
+      "value": "每日实训"
+    },
+    {
+      "name": "widget_cocoon",
+      "value": "历战余响"
+    },
+    {
+      "name": "widget_rogue_tourn",
+      "value": "模拟宇宙"
+    },
+    {
+      "name": "widget_grid_fight",
+      "value": "货币战争"
+    },
+    {
+      "name": "widget_rogue_weekly",
+      "value": "货币战争本周"
+    },
+    {
+      "name": "widget_vitality",
+      "value": "今日活跃度"
+    },
+    {
+      "name": "widget_card_sign",
+      "value": "刮刮卡/占卜"
+    },
+    {
+      "name": "widget_uid_prefix",
+      "value": "UID "
+    },
+    {
+      "name": "widget_card_done",
+      "value": "已完成"
+    },
+    {
+      "name": "widget_card_not_done",
+      "value": "未完成"
+    },
+    {
+      "name": "widget_video_store",
+      "value": "录像店经营"
+    },
+    {
+      "name": "widget_store_open",
+      "value": "营业中"
+    },
+    {
+      "name": "widget_store_closed",
+      "value": "未营业"
+    },
+    {
+      "name": "widget_just_now",
+      "value": "刚刚"
+    },
+    {
+      "name": "widget_reserve_prefix",
+      "value": "后备 "
+    },
+    {
+      "name": "widget_config_title",
+      "value": "配置卡片"
+    },
+    {
+      "name": "widget_size_1x2",
+      "value": "1×2 迷你"
+    },
+    {
+      "name": "widget_size_2x2",
+      "value": "2×2 标准"
+    },
+    {
+      "name": "widget_size_2x4",
+      "value": "2×4 宽幅"
+    },
+    {
+      "name": "widget_size_4x4",
+      "value": "4×4 大卡片"
+    },
+    {
+      "name": "widget_size_1x2_desc",
+      "value": "1个账号 · 1款游戏 · 仅体力"
+    },
+    {
+      "name": "widget_size_2x2_desc",
+      "value": "1个账号 · 最多3款游戏 · 详细模式"
+    },
+    {
+      "name": "widget_size_2x4_desc",
+      "value": "详细：1账号完整数据 / 精简：2账号体力概览"
+    },
+    {
+      "name": "widget_size_4x4_desc",
+      "value": "详细：1账号完整数据 / 精简：3账号体力概览"
+    },
+    {
+      "name": "widget_select_account_hint",
+      "value": "选择要绑定的账号（单选）"
+    },
+    {
+      "name": "widget_select_games_hint",
+      "value": "选择要在卡片上显示的游戏（多选）"
+    },
+    {
+      "name": "widget_select_game_hint",
+      "value": "选择卡片要显示的游戏类型"
+    },
+    {
+      "name": "widget_selected_count",
+      "value": "已选 %1$d/%2$d 个角色"
+    },
+    {
+      "name": "widget_game_account_count",
+      "value": "%d 个账号"
+    },
+    {
+      "name": "widget_step_size",
+      "value": "尺寸"
+    },
+    {
+      "name": "widget_step_account",
+      "value": "账号"
+    },
+    {
+      "name": "widget_step_game",
+      "value": "游戏"
+    },
+    {
+      "name": "widget_step_done",
+      "value": "完成"
+    },
+    {
+      "name": "widget_btn_prev",
+      "value": "上一步"
+    },
+    {
+      "name": "widget_btn_next",
+      "value": "下一步"
+    },
+    {
+      "name": "widget_btn_add",
+      "value": "添加到桌面"
+    },
+    {
+      "name": "widget_config_done_title",
+      "value": "配置完成！"
+    },
+    {
+      "name": "widget_config_done_desc",
+      "value": "卡片已准备好添加到桌面"
+    },
+    {
+      "name": "widget_summary_size",
+      "value": "尺寸"
+    },
+    {
+      "name": "widget_summary_roles",
+      "value": "已选角色"
+    },
+    {
+      "name": "widget_config_size",
+      "value": "卡片尺寸"
+    },
+    {
+      "name": "widget_config_account",
+      "value": "显示账号"
+    },
+    {
+      "name": "widget_config_games",
+      "value": "显示游戏"
+    },
+    {
+      "name": "widget1_desc",
+      "value": "This is a service widget."
+    },
+    {
+      "name": "widget1_display_name",
+      "value": "widget1"
     }
   ]
 }

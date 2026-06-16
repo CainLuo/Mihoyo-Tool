@@ -19,8 +19,6 @@ import { ConfigurationConstant } from '@kit.AbilityKit';
 export class ThemeModeItem {
   /** 对应 ConfigurationConstant.ColorMode 枚举值 */
   mode: number = 0;
-  /** emoji 图标字符串（☀️ / 🌙 / ⚙️） */
-  icon: string = '';
   /** 本地化标签，如 $r('app.string.my_theme_light') */
   label: Resource = $r('app.string.my_theme_system');
   /** 本地化描述，如 $r('app.string.appearance_theme_system_desc') */
@@ -62,21 +60,18 @@ export class AppearanceSettingsViewModel {
 
     const light = new ThemeModeItem();
     light.mode = ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT;
-    light.icon = '☀️';
     light.label = $r('app.string.my_theme_light');
     light.desc = $r('app.string.appearance_theme_light_desc');
     items[items.length] = light;
 
     const dark = new ThemeModeItem();
     dark.mode = ConfigurationConstant.ColorMode.COLOR_MODE_DARK;
-    dark.icon = '🌙';
     dark.label = $r('app.string.my_theme_dark');
     dark.desc = $r('app.string.appearance_theme_dark_desc');
     items[items.length] = dark;
 
     const system = new ThemeModeItem();
     system.mode = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET;
-    system.icon = '⚙️';
     system.label = $r('app.string.my_theme_system');
     system.desc = $r('app.string.appearance_theme_system_desc');
     items[items.length] = system;

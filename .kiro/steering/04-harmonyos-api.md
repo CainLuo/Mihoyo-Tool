@@ -81,16 +81,35 @@
 
 **第三步：用 `webFetch` 抓取页面**
 
-华为官方文档页面是 JavaScript 渲染的，**必须使用 `mode="rendered"`**，其他模式（`truncated`、`full`）只能拿到 53 字节的空内容：
+华为官方文档页面是 JavaScript 渲染的，**必须使用 `mode="rendered"`**，其他模式（`truncated`、`full`）可能只能拿到空内容：
 
 ```
-# ❌ 无效 — 只返回 53 字节空内容
+# ❌ 可能无效 — 可能只返回空内容
 webFetch(url, mode="truncated")
 webFetch(url, mode="full")
 
 # ✅ 有效 — 能拿到完整页面正文
 webFetch(url, mode="rendered")
 ```
+
+**重要：如果一种模式查不到内容，必须换另一种模式重试，直到查到为止**：
+
+| 重试顺序 | 模式           | 说明                                     |
+| -------- | -------------- | ---------------------------------------- |
+| 1        | `rendered`     | 首选，JavaScript 渲染的页面              |
+| 2        | `full`         | 备选，获取完整 HTML                      |
+| 3        | `truncated`    | 最后备选，获取前 8KB                     |
+
+如果 `webFetch` 所有模式都失败，改用 `remote_web_search` 搜索：
+
+```
+remote_web_search("HarmonyOS <组件名或功能名> developer.huawei.com")
+# 注意：不要加 site: 限定符，它在此工具中不生效
+```
+
+从搜索结果中找 `developer.huawei.com` 域名的链接，再用 `webFetch` 访问。
+
+如果官方文档仍然查不到，尝试第三方技术社区（cnblogs、CSDN、Gitee 等）的示例代码，但**必须验证来源可靠性**。
 
 **已验证可用的文档 URL 列表（直接用 rendered 模式访问）**：
 

@@ -15,7 +15,7 @@ export class RdbManager {
    * 初始化数据库，使用 SecurityLevel.S1 加密
    * 初始化后执行 PRAGMA foreign_keys = ON 并运行迁移
    */
-  public static async init(context: common.UIAbilityContext): Promise<void> {
+  public static async init(context: common.Context): Promise<void> {
     if (RdbManager.rdbStore !== null) {
       return;
     }

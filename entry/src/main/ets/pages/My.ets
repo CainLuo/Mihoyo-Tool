@@ -56,7 +56,7 @@ export struct My {
 
   build() {
     Scroll() {
-      Column({ space: this.tm.current.value20 }) {
+      Column({ space: this.tm.current.font20 }) {
         SectionHeader({ title: $r('app.string.my_section_account') })
         AccountListSection({
           accounts: this.vm.accounts,
@@ -91,6 +91,25 @@ export struct My {
           }
         })
 
+        SectionHeader({ title: $r('app.string.my_section_widget') })
+        Column() {
+          SettingRow({
+            label: $r('app.string.my_section_widget'),
+            onTap: () => {
+              const accounts = this.vm.accounts;
+              if (this.isSplit) {
+                this.detailStack.replacePath({ name: AppRoutes.WIDGET_SETTINGS, param: accounts })
+              } else {
+                this.detailStack.pushPathByName(AppRoutes.WIDGET_SETTINGS, accounts)
+              }
+            }
+          })
+        }
+        .width(this.tm.current.full)
+        .backgroundColor(this.tm.current.colorSurfaceCard)
+        .borderRadius(this.tm.current.radius12)
+        .clip(true)
+
         SectionHeader({ title: $r('app.string.my_section_notification') })
         Column() {
           SettingRow({
@@ -116,9 +135,9 @@ export struct My {
       }
       .width(this.tm.current.full)
       .padding({
-        top: this.tm.current.value16,
-        left: this.tm.current.value20,
-        right: this.tm.current.value20
+        top: this.tm.current.font16,
+        left: this.tm.current.font20,
+        right: this.tm.current.font20
       })
     }
     .scrollBar(BarState.Off)

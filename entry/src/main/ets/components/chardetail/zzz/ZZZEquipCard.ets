@@ -19,29 +19,29 @@ export struct ZZZEquipCard {
 
       Row() {
         Text(this.equip.mainStatName)
-          .fontSize(this.tm.current.body10.size)
-          .fontColor(this.tm.current.accentPrimaryStrong)
+          .fontSize(this.tm.current.font11)
+          .fontColor(this.tm.current.accentRefine)
           .layoutWeight(1)
 
         Text(this.equip.mainStatValue)
-          .fontSize(this.tm.current.body13Bold.size)
+          .fontSize(this.tm.current.fontBold14)
           .fontWeight(FontWeight.Bold)
           .fontColor(this.tm.current.textOnDarkHigh)
       }
       .width(this.tm.current.full)
       .padding({ top: this.tm.current.value2, bottom: this.tm.current.value2 })
-      .border({ width: { bottom: this.tm.current.value1 }, color: this.tm.current.surfaceGlass })
+      .border({ width: { bottom: this.tm.current.value1 }, color: '#1AFFFFFF' })
 
       Column() {
         ForEach(this.equip.subStats, (sub: ZZZSubStat) => {
           Row() {
             Text(sub.name)
-              .fontSize(this.tm.current.body10.size)
-              .fontColor(sub.valid ? this.tm.current.accentRefine : this.tm.current.textOnDarkGhost)
+              .fontSize(this.tm.current.font11)
+              .fontColor(sub.valid ? this.tm.current.accentRefine : '#33FFFFFF')
               .layoutWeight(1)
 
             Text(sub.value)
-              .fontSize(this.tm.current.body10.size)
+              .fontSize(this.tm.current.font11)
               .fontColor(sub.valid ? this.tm.current.accentRefine : this.tm.current.textOnDarkHigh)
           }
           .width(this.tm.current.full)
@@ -52,8 +52,8 @@ export struct ZZZEquipCard {
     }
     .layoutWeight(1)
     .padding(this.tm.current.value8)
-    .backgroundColor(this.tm.current.surfaceGlass)
-    .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
+    .backgroundColor('#1AFFFFFF')
+    .border({ width: this.tm.current.value1, color: '#1AFFFFFF' })
     .borderRadius(this.tm.current.radius8)
   }
 }

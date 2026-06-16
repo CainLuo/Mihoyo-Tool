@@ -4,6 +4,7 @@
  * 卡片头部 + 分割线 + 游戏专属内容区（原神/星铁/绝区零/通用）。
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { ThemeFonts } from '../../theme/ThemeFonts'
 import { GameRoleCardVM } from '../../models/HomeModels';
 import { GameId } from 'core';
 import { GameToolCardContent } from './GameToolCardContent';
@@ -39,12 +40,12 @@ export struct GameToolCard {
       } else {
         Row() {
           Text($r('app.string.home_no_data_hint'))
-            .font(this.tm.current.body13)
+            .font(ThemeFonts.font14)
             .fontColor(this.tm.current.colorTextSecondary)
         }
         .width(this.tm.current.full)
         .justifyContent(FlexAlign.Center)
-        .padding({ top: this.tm.current.value16, bottom: this.tm.current.value16 })
+        .padding({ top: this.tm.current.font16, bottom: this.tm.current.font16 })
       }
     }
     .backgroundColor(this.tm.current.colorSurfaceCard)

@@ -85,9 +85,9 @@ export struct NotificationSection {
       }
       .width(this.tm.current.full)
       .padding({
-        top: this.tm.current.value16,
-        left: this.tm.current.value20,
-        right: this.tm.current.value20,
+        top: this.tm.current.font16,
+        left: this.tm.current.font20,
+        right: this.tm.current.font20,
       })
     }
     .scrollBar(BarState.Off)

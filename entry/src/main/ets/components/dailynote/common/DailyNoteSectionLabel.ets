@@ -5,6 +5,7 @@
  * 使用方：DailyNoteStarRail、DailyNoteZZZ
  */
 import { themeManager, ThemeManager } from '../../../theme/ThemeManager';
+import { ThemeFonts } from '../../../theme/ThemeFonts'
 
 @ComponentV2
 export struct DailyNoteSectionLabel {
@@ -13,12 +14,12 @@ export struct DailyNoteSectionLabel {
 
   build() {
     Text(this.label)
-      .font(this.tm.current.body12)
+      .font(ThemeFonts.font13)
       .fontColor(this.tm.current.colorTextSecondary)
       .width(this.tm.current.full)
       .padding({
         left: this.tm.current.value4,
-        top: this.tm.current.value16,
+        top: this.tm.current.font16,
         bottom: this.tm.current.value8
       })
   }

@@ -2,6 +2,7 @@
  * LoginQRCodeReady — 二维码就绪/已扫码状态
  */
 import { QRCodeStat } from '../../constants/LoginTabEnum';
+import { ThemeFonts } from '../../theme/ThemeFonts'
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 
 @ComponentV2
@@ -11,7 +12,7 @@ export struct LoginQRCodeReady {
   @Local private tm: ThemeManager = themeManager;
 
   build() {
-    Column({ space: this.tm.current.value16 }) {
+    Column({ space: this.tm.current.font16 }) {
       QRCode(this.qrCodeUrl)
         .width(this.tm.current.value200)
         .height(this.tm.current.value200)
@@ -20,11 +21,11 @@ export struct LoginQRCodeReady {
 
       if (this.qrCodeStat === QRCodeStat.SCANNED) {
         Text($r('app.string.login_qrcode_scanned'))
-          .font(this.tm.current.body13)
+          .font(ThemeFonts.font14)
           .fontColor(this.tm.current.colorPrimary)
       } else {
         Text($r('app.string.login_qrcode_hint'))
-          .font(this.tm.current.body13)
+          .font(ThemeFonts.font14)
           .fontColor(this.tm.current.colorTextSecondary)
           .textAlign(TextAlign.Center)
       }

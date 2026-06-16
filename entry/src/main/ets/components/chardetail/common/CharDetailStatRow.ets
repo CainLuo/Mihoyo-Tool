@@ -19,11 +19,11 @@ export struct CharDetailStatRow {
   build() {
     Row() {
       Text(this.stat.labelKey)
-        .fontSize(this.isCompact ? this.tm.current.body12.size : this.tm.current.body13.size)
+        .fontSize(this.isCompact ? this.tm.current.font13 : this.tm.current.font14)
         .fontColor(this.tm.current.textOnDarkSecondary)
         .layoutWeight(1)
       Text(this.stat.value)
-        .fontSize(this.isCompact ? this.tm.current.body12.size : this.tm.current.body13Bold.size)
+        .fontSize(this.isCompact ? this.tm.current.font13 : this.tm.current.fontBold14)
         .fontWeight(FontWeight.Bold)
         .fontColor(this.stat.isHighlight ? elementColor(this.charElement) : this.tm.current.textOnDarkHigh)
     }

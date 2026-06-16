@@ -16,28 +16,28 @@ export struct ZZZCharDetailHeroInfo {
     Column({ space: this.tm.current.value4 }) {
       if (this.vm.charFullName !== '' && this.vm.charFullName !== this.vm.charName) {
         Text(this.vm.charFullName)
-          .fontSize(this.tm.current.body12.size)
+          .fontSize(this.tm.current.font13)
           .fontColor(this.tm.current.textOnDarkMedium)
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
       }
       Row({ space: this.tm.current.value8 }) {
         Text(`Lv.${this.vm.charLevel}`)
-          .fontSize(this.tm.current.body12.size)
+          .fontSize(this.tm.current.font13)
           .fontColor(this.tm.current.textOnDarkMedium)
         Text(this.vm.charRarity)
-          .fontSize(this.tm.current.body10.size)
+          .fontSize(this.tm.current.font11)
           .fontWeight(FontWeight.Bold)
           .fontColor(this.tm.current.accentRefine)
-          .backgroundColor(this.tm.current.accentRefineBg)
+          .backgroundColor('#33FFCA28')
           .borderRadius(this.tm.current.value4)
           .padding({
             left: this.tm.current.value4, right: this.tm.current.value4,
             top: this.tm.current.value1, bottom: this.tm.current.value1
           })
         Text($r('app.string.zzz_char_detail_rank_prefix', this.vm.charRank))
-          .fontSize(this.tm.current.body10.size)
-          .fontColor(this.tm.current.textOnDarkMuted)
+          .fontSize(this.tm.current.font11)
+          .fontColor('#59FFFFFF')
       }
     }
   }

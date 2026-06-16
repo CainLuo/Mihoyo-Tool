@@ -59,6 +59,11 @@
       "name": "AppearanceSettings",
       "pageSourceFile": "src/main/ets/pages/AppearanceSettingsPage.ets",
       "buildFunction": "AppearanceSettingsBuilder"
+    },
+    {
+      "name": "WidgetSettings",
+      "pageSourceFile": "src/main/ets/pages/WidgetSettings.ets",
+      "buildFunction": "WidgetSettingsBuilder"
     }
   ]
 }

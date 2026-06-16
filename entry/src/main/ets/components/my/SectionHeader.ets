@@ -2,6 +2,7 @@
  * SectionHeader — 分区标题组件（My 页面通用）
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
+import { ThemeFonts } from '../../theme/ThemeFonts'
 
 @ComponentV2
 export struct SectionHeader {
@@ -10,7 +11,7 @@ export struct SectionHeader {
 
   build() {
     Text(this.title)
-      .font(this.tm.current.body13)
+      .font(ThemeFonts.font14)
       .fontColor(this.tm.current.colorTextSecondary)
       .width(this.tm.current.full)
       .padding({ bottom: this.tm.current.value8 })
@@ -30,7 +31,7 @@ export struct SectionHeaderPreview {
 
       SectionHeader({ title: $r('app.string.my_section_about') })
     }
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 }

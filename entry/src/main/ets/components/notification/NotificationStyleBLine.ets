@@ -2,6 +2,7 @@
  * NotificationStyleBLine — 样式 B 展开状态中的单游戏行
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
+import { ThemeFonts } from '../../theme/ThemeFonts'
 
 @ComponentV2
 export struct NotificationStyleBLine {
@@ -15,7 +16,7 @@ export struct NotificationStyleBLine {
         .fill(this.dotColor)
 
       Text(this.content)
-        .font(this.tm.current.body12)
+        .font(ThemeFonts.font13)
         .fontColor(this.tm.current.colorTextSecondary)
     }
   }

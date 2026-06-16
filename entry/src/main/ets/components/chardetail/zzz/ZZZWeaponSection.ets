@@ -7,6 +7,7 @@ import { themeManager, ThemeManager } from '../../../theme/ThemeManager';
 import { ZZZCharacterDetailViewModel } from '../../../viewmodel/ZZZCharacterDetailViewModel';
 import { CharDetailSectionLabel } from '../common/CharDetailSectionLabel';
 import { ZZZWeaponCard } from './ZZZWeaponCard';
+import { TransparentColorCache } from '../../../utils/ColorUtil';
 
 @ComponentV2
 export struct ZZZWeaponSection {
@@ -25,12 +26,12 @@ export struct ZZZWeaponSection {
               .width(this.tm.current.value44)
               .height(this.tm.current.value44)
               .borderRadius(this.tm.current.value8)
-              .backgroundColor(this.tm.current.surfaceDarkLg)
-              .border({ width: this.tm.current.value1, color: this.tm.current.surfaceInactiveBorder, style: BorderStyle.Dashed })
+              .backgroundColor(TransparentColorCache.blackWith60)
+              .border({ width: this.tm.current.value1, color: TransparentColorCache.whiteWith10, style: BorderStyle.Dashed })
 
             Text($r('app.string.zzz_char_detail_no_weapon'))
-              .fontSize(this.tm.current.body13.size)
-              .fontColor(this.tm.current.textOnDarkMuted)
+              .fontSize(this.tm.current.font14)
+              .fontColor(TransparentColorCache.whiteWith35)
           }
           .width(this.tm.current.full)
           .padding(this.tm.current.value12)
@@ -38,8 +39,8 @@ export struct ZZZWeaponSection {
         }
       }
       .width(this.tm.current.full)
-      .backgroundColor(this.tm.current.surfaceDarkLg)
-      .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
+      .backgroundColor(TransparentColorCache.blackWith60)
+      .border({ width: this.tm.current.value1, color: TransparentColorCache.whiteWith10 })
       .borderRadius(this.tm.current.radius12)
       .alignItems(HorizontalAlign.Start)
     }

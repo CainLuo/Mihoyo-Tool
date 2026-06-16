@@ -5,6 +5,7 @@
  * logo 资源由 ViewModel 通过 MyGameRoleVM.logoResource 提供，Component 不做业务判断。
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
+import { ThemeFonts } from '../../theme/ThemeFonts'
 import { MyGameRoleVM } from '../../models/MyModels'
 import { GameId } from 'core'
 
@@ -30,12 +31,12 @@ export struct AccountRoleCardHeader {
 
       Column({ space: this.tm.current.value2 }) {
         Text(this.role.gameName)
-          .font(this.tm.current.body16Medium)
+          .font(ThemeFonts.fontMedium17)
           .fontColor(this.tm.current.colorTextPrimary)
           .maxLines(1)
           .textOverflow({ overflow: TextOverflow.Ellipsis })
         Text(this.role.nickname)
-          .font(this.tm.current.body13)
+          .font(ThemeFonts.font14)
           .fontColor(this.tm.current.colorTextSecondary)
           .maxLines(1)
       }
@@ -44,7 +45,7 @@ export struct AccountRoleCardHeader {
 
       if (this.role.level > 0) {
         Text($r('app.string.character_level_value', this.role.level))
-          .font(this.tm.current.body13Bold)
+          .font(ThemeFonts.fontBold14)
           .fontColor(this.role.gameColor)
           .padding({
             left: this.tm.current.value8,
@@ -59,8 +60,8 @@ export struct AccountRoleCardHeader {
     }
     .width(this.tm.current.full)
     .padding({
-      left: this.tm.current.value16,
-      right: this.tm.current.value16,
+      left: this.tm.current.font16,
+      right: this.tm.current.font16,
       top: this.tm.current.value12,
       bottom: this.tm.current.value10
     })

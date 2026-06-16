@@ -58,43 +58,42 @@ export struct CharDetailConsColumn {
               .width(this.tm.current.value28)
               .height(this.tm.current.value28)
               .objectFit(ImageFit.Contain)
-              .opacity(c.isActived ? 1.0 : this.tm.current.charDetailConsInactiveOpacity)
+              .opacity(c.isActived ? 1.0 : this.tm.current.opacity03)
             if (!c.isActived) {
               SymbolGlyph($r('sys.symbol.lock'))
-                .fontSize(this.tm.current.value28 * this.tm.current.charDetailLockIconRatio)
-                .fontColor([this.tm.current.textLockIcon])
-                
+                .fontSize(this.tm.current.value28 * this.tm.current.opacity06)
+                .fontColor(['#59FFFFFF'])
             }
           }
           .width(this.tm.current.value36)
           .height(this.tm.current.value36)
           .borderRadius(this.tm.current.value8)
-          .backgroundColor(c.isActived ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDarkLg)
+          .backgroundColor(c.isActived ? '#263A6FD8' : '#99000000')
           .border({
             width: this.tm.current.value1,
-            color: c.isActived ? this.tm.current.surfaceActiveBorder : this.tm.current.surfaceInactiveBorder
+            color: c.isActived ? '#993A6FD8' : '#1AFFFFFF'
           })
         } else {
           // 无图标兜底：激活时显示序号，未激活时显示锁图标
           Stack() {
             Text(c.isActived ? `${c.pos}` : '')
-              .fontSize(this.tm.current.body13Bold.size)
+              .fontSize(this.tm.current.fontBold14)
               .fontWeight(FontWeight.Bold)
-              .fontColor(c.isActived ? this.tm.current.accentPrimaryStrong : this.tm.current.textInactive)
+              .fontColor(c.isActived ? this.tm.current.accentRefine : this.tm.current.textInactive)
               .textAlign(TextAlign.Center)
             if (!c.isActived) {
               SymbolGlyph($r('sys.symbol.lock'))
-                .fontSize(this.tm.current.value28 * this.tm.current.charDetailLockIconRatio)
-                .fontColor([this.tm.current.textLockIcon])
+                .fontSize(this.tm.current.value28 * this.tm.current.opacity06)
+                .fontColor(['#59FFFFFF'])
             }
           }
           .width(this.tm.current.value36)
           .height(this.tm.current.value36)
           .borderRadius(this.tm.current.value8)
-          .backgroundColor(c.isActived ? this.tm.current.surfaceActivePrimary : this.tm.current.surfaceDarkLg)
+          .backgroundColor(c.isActived ? '#263A6FD8' : '#99000000')
           .border({
             width: this.tm.current.value1p5,
-            color: c.isActived ? this.tm.current.surfaceActiveBorder : this.tm.current.surfaceInactiveBorder
+            color: c.isActived ? '#993A6FD8' : '#1AFFFFFF'
           })
         }
       }, (c: CharDetailRankItem) => `cons_${c.pos}`)

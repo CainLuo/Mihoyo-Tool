@@ -6,6 +6,7 @@
  */
 
 import { themeManager, ThemeManager } from '../../../theme/ThemeManager'
+import { ThemeFonts } from '../../../theme/ThemeFonts'
 import { ExpeditionVM } from '../../../models/DailyNoteModels'
 import { TimeFormatUtil } from '../../../utils/TimeFormatUtil'
 
@@ -39,36 +40,36 @@ export struct ExpeditionItem {
         Image(this.expedition.avatarUrl)
           .width(this.tm.current.value40)
           .height(this.tm.current.value40)
-          .borderRadius(this.tm.current.value20)
+          .borderRadius(this.tm.current.font20)
           .backgroundColor(this.tm.current.colorDivider)
       } else {
         // 占位圆
         Row()
           .width(this.tm.current.value40)
           .height(this.tm.current.value40)
-          .borderRadius(this.tm.current.value20)
+          .borderRadius(this.tm.current.font20)
           .backgroundColor(this.tm.current.colorDivider)
       }
 
       // 剩余时间
       if (this.expedition.finished) {
         Text($r('app.string.daily_note_expedition_finished'))
-          .font(this.tm.current.body16Medium)
+          .font(ThemeFonts.fontMedium17)
           .fontColor(this.tm.current.colorPrimary)
           .layoutWeight(1)
       } else if (this.expedition.remainSeconds === 0) {
         // remainSeconds=0 且未完成：来自 Widget 接口，无剩余时间信息，只显示"探索中"
         Text($r('app.string.daily_note_expedition_ongoing'))
-          .font(this.tm.current.body16)
+          .font(ThemeFonts.font17)
           .fontColor(this.tm.current.colorDanger)
           .layoutWeight(1)
       } else {
         Row({ space: this.tm.current.value2 }) {
           Text($r('app.string.daily_note_expedition_remain_prefix'))
-            .font(this.tm.current.body16)
+            .font(ThemeFonts.font17)
             .fontColor(this.tm.current.colorDanger)
           Text(TimeFormatUtil.formatSeconds(this.expedition.remainSeconds, this.getUIContext()))
-            .font(this.tm.current.body16)
+            .font(ThemeFonts.font17)
             .fontColor(this.tm.current.colorDanger)
         }
         .layoutWeight(1)
@@ -76,8 +77,8 @@ export struct ExpeditionItem {
     }
     .width(this.tm.current.full)
     .padding({
-      left: this.tm.current.value16,
-      right: this.tm.current.value16,
+      left: this.tm.current.font16,
+      right: this.tm.current.font16,
       top: this.tm.current.value8,
       bottom: this.tm.current.value8
     })

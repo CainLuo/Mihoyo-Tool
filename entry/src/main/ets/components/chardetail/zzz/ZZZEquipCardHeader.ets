@@ -5,6 +5,7 @@
  */
 import { themeManager, ThemeManager } from '../../../theme/ThemeManager';
 import { ZZZCharDetailEquip } from '../../../models/CharDetailModels';
+import { TransparentColorCache } from '../../../utils/ColorUtil';
 
 @ComponentV2
 export struct ZZZEquipCardHeader {
@@ -21,7 +22,7 @@ export struct ZZZEquipCardHeader {
       }
 
       Text(this.equip.suitName)
-        .fontSize(this.tm.current.body12.size)
+        .fontSize(this.tm.current.font13)
         .fontWeight(FontWeight.Bold)
         .fontColor(this.tm.current.textOnDarkHigh)
         .maxLines(1)
@@ -30,8 +31,8 @@ export struct ZZZEquipCardHeader {
 
       Text(`+${this.equip.level}`)
         .fontSize(this.tm.current.value9)
-        .fontColor(this.tm.current.textOnDarkGhost)
-        .backgroundColor(this.tm.current.surfaceGlass)
+        .fontColor(TransparentColorCache.whiteWith20)
+        .backgroundColor(TransparentColorCache.whiteWith10)
         .borderRadius(this.tm.current.value4)
         .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.value1, bottom: this.tm.current.value1 })
     }

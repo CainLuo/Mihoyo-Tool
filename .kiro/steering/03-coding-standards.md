@@ -136,7 +136,13 @@ Logger.error("TagName", "message");
 
 ## 五、UI 组件文件拆分规范
 
-**禁止**在 page 或 component 文件中用 `@Builder` 函数替代独立组件。`@Builder` 只允许用于极简的布局片段（无状态、无逻辑、3 行以内），凡是有独立语义的 UI 块必须拆成独立的 `@ComponentV2` struct 文件：
+**禁止**在 page 或 component 文件中用 `@Builder` 函数替代独立组件。`@Builder` 只允许用于极简的布局片段（无状态、无逻辑、3 行以内），凡是有独立语义的 UI 块必须拆成独立的组件文件。
+
+**组件装饰器选择规则：**
+
+- 普通 entry 页面和组件 → 使用 `@ComponentV2`（V2 体系，支持 `@Param`、`@Local`、`@ObservedV2`）
+- 卡片（Widget）UI 组件 → 使用 `@Component`（V1 体系，卡片渲染引擎限制）
+- 不得在同一文件中混用 V1 和 V2 体系
 
 ```typescript
 // 错误 — 用 @Builder 承载有语义的 UI 块
@@ -145,15 +151,24 @@ private renderSkillItem(skill: SkillItem) {
   Row() { ... }  // 10+ 行逻辑
 }
 
-// 正确 — 独立文件 components/chardetail/SkillItem.ets
+// 正确（普通组件）— 独立文件 components/chardetail/SkillItem.ets
 @ComponentV2
 export struct SkillItem {
   @Param skill: SkillItem = new SkillItem()
   build() { Row() { ... } }
 }
+
+// 正确（Widget 组件）— 独立文件 widget/components/WidgetDataRow.ets
+@Component
+export struct WidgetDataRow {
+  label: ResourceStr = '';
+  value: ResourceStr = '';
+  valueColor: ResourceColor = Color.White;
+  build() { Row() { ... } }
+}
 ```
 
-**每个 `.ets` 文件只允许有一个业务 `@ComponentV2` struct**，`@Preview` struct 不计入此限制。
+**每个 `.ets` 文件只允许有一个业务组件 struct**，`@Preview` struct 不计入此限制。
 
 ```typescript
 // 错误 — 一个文件两个业务组件
@@ -169,7 +184,7 @@ export struct SkillItem {
 @ComponentV2 export struct NotificationAccountBlock { ... }
 ```
 
-**禁止**在 page 文件中内联定义 `@ComponentV2` struct，每个组件必须有独立的 `.ets` 文件：
+**禁止**在 page 文件中内联定义组件 struct，每个组件必须有独立的 `.ets` 文件：
 
 - 只在一个页面使用的组件 → 放在 `components/<页面名>/` 子目录
 - 跨多个页面复用的组件 → 放在 `components/` 根目录（如 `SettingRow`、`SnackbarContent`、`GeetestDialog`、`SplitPlaceholder`）

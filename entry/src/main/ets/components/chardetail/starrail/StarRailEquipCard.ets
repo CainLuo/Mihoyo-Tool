@@ -24,7 +24,7 @@ export struct StarRailEquipCard {
       }
       Column({ space: this.tm.current.value4 }) {
         Text(this.equip.name)
-          .fontSize(this.tm.current.body13Bold.size)
+          .fontSize(this.tm.current.fontBold14)
           .fontWeight(FontWeight.Bold)
           .fontColor(this.tm.current.textOnDarkHigh)
           .maxLines(1)
@@ -32,11 +32,11 @@ export struct StarRailEquipCard {
 
         Row({ space: this.tm.current.value8 }) {
           Text(`Lv.${this.equip.level}`)
-            .fontSize(this.tm.current.body10.size)
+            .fontSize(this.tm.current.font11)
             .fontColor(this.tm.current.textOnDarkMuted)
 
           Text(`S${this.equip.rank}`)
-            .fontSize(this.tm.current.body10.size)
+            .fontSize(this.tm.current.font11)
             .fontWeight(FontWeight.Bold)
             .fontColor(this.tm.current.accentRefine)
             .backgroundColor(this.tm.current.accentRefineBg)

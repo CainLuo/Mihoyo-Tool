@@ -3,6 +3,7 @@
  * 点击"用户协议"或"隐私政策"触发对应回调，由父组件负责跳转
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { ThemeFonts } from '../../theme/ThemeFonts'
 
 @ComponentV2
 export struct LoginAgreement {
@@ -13,23 +14,23 @@ export struct LoginAgreement {
   build() {
     Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.Center }) {
       Text($r('app.string.login_agreement_prefix'))
-        .font(this.tm.current.body12)
+        .font(ThemeFonts.font13)
         .fontColor(this.tm.current.colorTextSecondary)
         .margin({ right: this.tm.current.value4 })
 
       Text($r('app.string.login_agreement_terms'))
-        .font(this.tm.current.body12)
+        .font(ThemeFonts.font13)
         .fontColor(this.tm.current.colorPrimary)
         .margin({ right: this.tm.current.value4 })
         .onClick(() => { this.onTapTerms() })
 
       Text($r('app.string.login_agreement_and'))
-        .font(this.tm.current.body12)
+        .font(ThemeFonts.font13)
         .fontColor(this.tm.current.colorTextSecondary)
         .margin({ right: this.tm.current.value4 })
 
       Text($r('app.string.login_agreement_privacy'))
-        .font(this.tm.current.body12)
+        .font(ThemeFonts.font13)
         .fontColor(this.tm.current.colorPrimary)
         .onClick(() => { this.onTapPrivacy() })
     }

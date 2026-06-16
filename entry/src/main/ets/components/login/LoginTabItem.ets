@@ -2,6 +2,7 @@
  * LoginTabItem — 登录 Tab 切换项
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { ThemeFonts } from '../../theme/ThemeFonts'
 import { LoginTab } from '../../constants/LoginTabEnum';
 import { LoginViewModel } from 'entry/ets/viewmodel/LoginViewModel';
 
@@ -14,14 +15,14 @@ export struct LoginTabItem {
 
   build() {
     Text(this.label)
-      .font(this.tm.current.body13)
+      .font(ThemeFonts.font14)
       .fontColor(this.vm.activeTab === this.tab
         ? this.tm.current.textOnDarkHigh
         : this.tm.current.colorTextSecondary)
       .fontWeight(this.vm.activeTab === this.tab ? FontWeight.Bold : FontWeight.Normal)
       .backgroundColor(this.vm.activeTab === this.tab
         ? this.tm.current.colorPrimary
-        : this.tm.current.colorTransparent)
+        : Color.Transparent)
       .borderRadius(this.tm.current.radius8)
       .padding({
         left: this.tm.current.value12,

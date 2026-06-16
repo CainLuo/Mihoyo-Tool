@@ -2,6 +2,7 @@
  * TestRow — 测试页操作行（仅 Mock/Debug 环境使用）
  */
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
+import { ThemeFonts } from '../theme/ThemeFonts'
 
 @ComponentV2
 export struct TestRow {
@@ -14,12 +15,12 @@ export struct TestRow {
     Row() {
       Column({ space: this.tm.current.value4 }) {
         Text(this.title)
-          .font(this.tm.current.body16)
+          .font(ThemeFonts.font17)
           .fontColor(this.tm.current.colorTextPrimary)
           .width(this.tm.current.full)
 
         Text(this.desc)
-          .font(this.tm.current.body13)
+          .font(ThemeFonts.font14)
           .fontColor(this.tm.current.colorTextSecondary)
           .width(this.tm.current.full)
       }
@@ -27,15 +28,15 @@ export struct TestRow {
       .alignItems(HorizontalAlign.Start)
 
       Text($r('app.string.common_arrow_right'))
-        .font(this.tm.current.body16)
+        .font(ThemeFonts.font17)
         .fontColor(this.tm.current.colorTextSecondary)
     }
     .width(this.tm.current.full)
     .padding({
       top: this.tm.current.value12,
       bottom: this.tm.current.value12,
-      left: this.tm.current.value16,
-      right: this.tm.current.value16,
+      left: this.tm.current.font16,
+      right: this.tm.current.font16,
     })
     .alignItems(VerticalAlign.Center)
     .backgroundColor(this.tm.current.colorSurfaceCard)

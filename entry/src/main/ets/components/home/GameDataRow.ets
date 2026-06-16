@@ -4,23 +4,24 @@
  * 供 GameToolCardContent 渲染 dataRows 列表使用。
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { ThemeFonts } from '../../theme/ThemeFonts'
 
 @ComponentV2
 export struct GameDataRow {
   @Param label: Resource = $r('app.string.app_name');
   @Param value: ResourceStr = '';
-  @Param valueColor: ResourceColor = $r('app.color.color_text_primary');
+  @Param valueColor: ResourceColor = $r('app.color.gray_900');
   @Local private tm: ThemeManager = themeManager;
 
   build() {
     Row({ space: this.tm.current.value8 }) {
       Text(this.label)
-        .font(this.tm.current.body13)
+        .font(ThemeFonts.font14)
         .fontColor(this.tm.current.colorTextSecondary)
         .layoutWeight(1)
 
       Text(this.value)
-        .font(this.tm.current.body13Bold)
+        .font(ThemeFonts.fontBold14)
         .fontColor(this.valueColor)
     }
     .width(this.tm.current.full)
@@ -41,7 +42,7 @@ export struct GameDataRowPreview {
 
       GameDataRow({ label: $r('app.string.daily_note_daily_task_title'), value: '4/4', valueColor: $r('app.color.color_primary') })
     }
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 

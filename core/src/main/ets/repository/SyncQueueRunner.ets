@@ -26,10 +26,30 @@ import { SyncTask } from '../models/SyncTask';
 
 export { SyncTask } from '../models/SyncTask';
 
+/** 同步完成回调类型 */
+export type SyncCompleteCallback = () => Promise<void>;
+
 export class SyncQueueRunner {
   private static syncMetaDao: SyncMetaDao = new SyncMetaDao();
   /** 防止并发执行 */
   private static isRunning: boolean = false;
+  /** 同步完成回调列表（用于 Widget 数据刷新等） */
+  private static onCompleteCallbacks: SyncCompleteCallback[] = [];
+
+  /**
+   * 注册同步完成回调
+   * 回调会在所有任务执行完毕后按注册顺序依次调用
+   */
+  static registerOnComplete(callback: SyncCompleteCallback): void {
+    SyncQueueRunner.onCompleteCallbacks.push(callback);
+  }
+
+  /**
+   * 清除所有同步完成回调
+   */
+  static clearOnCompleteCallbacks(): void {
+    SyncQueueRunner.onCompleteCallbacks = [];
+  }
 
   /**
    * 把一批任务写入队列（status='pending'）
@@ -66,8 +86,12 @@ export class SyncQueueRunner {
         const t2 = new SyncTask();
         t2.accountId = accountId; t2.roleUid = role.roleId; t2.server = role.server; t2.cookie = cookie;
         t2.dataType = SyncDataType.GENSHIN_CHARACTER_DETAIL;
+        const t3 = new SyncTask();
+        t3.accountId = accountId; t3.roleUid = role.roleId; t3.server = role.server; t3.cookie = cookie;
+        t3.dataType = SyncDataType.GENSHIN_DAILY_NOTE;
         tasks[tasks.length] = t1;
         tasks[tasks.length] = t2;
+        tasks[tasks.length] = t3;
       } else if (role.gameId === GameId.STARRAIL) {
         const t1 = new SyncTask();
         t1.accountId = accountId; t1.roleUid = role.roleId; t1.server = role.server; t1.cookie = cookie;
@@ -75,8 +99,12 @@ export class SyncQueueRunner {
         const t2 = new SyncTask();
         t2.accountId = accountId; t2.roleUid = role.roleId; t2.server = role.server; t2.cookie = cookie;
         t2.dataType = SyncDataType.STARRAIL_AVATAR_INFO;
+        const t3 = new SyncTask();
+        t3.accountId = accountId; t3.roleUid = role.roleId; t3.server = role.server; t3.cookie = cookie;
+        t3.dataType = SyncDataType.STARRAIL_DAILY_NOTE;
         tasks[tasks.length] = t1;
         tasks[tasks.length] = t2;
+        tasks[tasks.length] = t3;
       } else if (role.gameId === GameId.ZZZ) {
         const t1 = new SyncTask();
         t1.accountId = accountId; t1.roleUid = role.roleId; t1.server = role.server; t1.cookie = cookie;
@@ -87,9 +115,13 @@ export class SyncQueueRunner {
         const t3 = new SyncTask();
         t3.accountId = accountId; t3.roleUid = role.roleId; t3.server = role.server; t3.cookie = cookie;
         t3.dataType = SyncDataType.ZZZ_BUDDY;
+        const t4 = new SyncTask();
+        t4.accountId = accountId; t4.roleUid = role.roleId; t4.server = role.server; t4.cookie = cookie;
+        t4.dataType = SyncDataType.ZZZ_DAILY_NOTE;
         tasks[tasks.length] = t1;
         tasks[tasks.length] = t2;
         tasks[tasks.length] = t3;
+        tasks[tasks.length] = t4;
       }
     }
     return tasks;
@@ -147,6 +179,15 @@ export class SyncQueueRunner {
           // 单个任务失败不影响其他任务，状态已在 executeTask 里标记为 failed
         }
       }
+
+      // 所有任务执行完毕后，调用注册的回调
+      for (let i = 0; i < SyncQueueRunner.onCompleteCallbacks.length; i++) {
+        try {
+          await SyncQueueRunner.onCompleteCallbacks[i]();
+        } catch (_) {
+          // 回调失败不影响其他回调
+        }
+      }
     } finally {
       SyncQueueRunner.isRunning = false;
     }
@@ -165,10 +206,14 @@ export class SyncQueueRunner {
       await CoreInitializer.genshinRepository.syncAvatarList(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.GENSHIN_CHARACTER_DETAIL) {
       await CoreInitializer.genshinRepository.syncAvatarDetail(accountId, roleUid, server, cookie);
+    } else if (dataType === SyncDataType.GENSHIN_DAILY_NOTE) {
+      await CoreInitializer.genshinRepository.syncDailyNote(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.STARRAIL_AVATAR_BASIC) {
       await CoreInitializer.starRailRepository.syncAvatarList(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.STARRAIL_AVATAR_INFO) {
       await CoreInitializer.starRailRepository.syncAvatarInfo(accountId, roleUid, server, cookie);
+    } else if (dataType === SyncDataType.STARRAIL_DAILY_NOTE) {
+      await CoreInitializer.starRailRepository.syncDailyNote(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.ZZZ_AVATAR_BASIC) {
       await CoreInitializer.zzzRepository.syncAvatarList(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.ZZZ_AVATAR_INFO) {
@@ -181,6 +226,8 @@ export class SyncQueueRunner {
       }
     } else if (dataType === SyncDataType.ZZZ_BUDDY) {
       await CoreInitializer.zzzRepository.syncBuddyList(accountId, roleUid, server, cookie);
+    } else if (dataType === SyncDataType.ZZZ_DAILY_NOTE) {
+      await CoreInitializer.zzzRepository.syncDailyNote(accountId, roleUid, server, cookie);
     }
   }
 }

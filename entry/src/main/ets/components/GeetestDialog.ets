@@ -117,7 +117,7 @@ export struct GeetestDialog {
       .clip(true)
     }
     .width(this.tm.current.full)
-    .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
+    .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })
   }
 }
 
@@ -132,7 +132,7 @@ export struct GeetestDialogPreview {
     Column() {
       GeetestDialog({ createResult: new GeetestCreateResult() })
     }
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 }

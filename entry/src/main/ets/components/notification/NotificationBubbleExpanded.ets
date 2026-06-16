@@ -2,6 +2,7 @@
  * NotificationBubbleExpanded — 样式 B 展开状态气泡
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
+import { ThemeFonts } from '../../theme/ThemeFonts'
 import { NotificationBubbleHeader } from './NotificationBubbleHeader'
 import { NotificationStyleBLine } from './NotificationStyleBLine'
 
@@ -14,7 +15,7 @@ export struct NotificationBubbleExpanded {
       NotificationBubbleHeader()
 
       Text($r('app.string.notification_content_title_style_b_expanded'))
-        .font(this.tm.current.body13Bold)
+        .font(ThemeFonts.fontBold14)
         .fontColor(this.tm.current.colorTextPrimary)
 
       Divider()

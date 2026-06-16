@@ -1455,6 +1455,334 @@
     {
       "name": "privacy_consent_scroll_hint",
       "value": "請滑動閱讀全部內容後繼續"
+    },
+    {
+      "name": "widget_1x2_genshin_name",
+      "value": "原神體力"
+    },
+    {
+      "name": "widget_1x2_genshin_desc",
+      "value": "顯示原神原粹樹脂和回滿時間"
+    },
+    {
+      "name": "widget_1x2_starrail_name",
+      "value": "星鐵開拓力"
+    },
+    {
+      "name": "widget_1x2_starrail_desc",
+      "value": "顯示崩壞：星穹鐵道開拓力和回滿時間"
+    },
+    {
+      "name": "widget_1x2_zzz_name",
+      "value": "絕區零電量"
+    },
+    {
+      "name": "widget_1x2_zzz_desc",
+      "value": "顯示絕區零電量和回滿時間"
+    },
+    {
+      "name": "widget_2x2_name",
+      "value": "遊戲體力總覽"
+    },
+    {
+      "name": "widget_2x2_desc",
+      "value": "顯示多款遊戲的體力數據"
+    },
+    {
+      "name": "widget_2x4_name",
+      "value": "遊戲體力詳情"
+    },
+    {
+      "name": "widget_2x4_desc",
+      "value": "顯示遊戲體力及詳細數據"
+    },
+    {
+      "name": "widget_4x4_name",
+      "value": "遊戲體力完整版"
+    },
+    {
+      "name": "widget_4x4_desc",
+      "value": "顯示遊戲體力完整數據"
+    },
+    {
+      "name": "my_section_widget",
+      "value": "Widget 卡片"
+    },
+    {
+      "name": "widget_add_all_games",
+      "value": "全部遊戲"
+    },
+    {
+      "name": "widget_game_genshin",
+      "value": "原神"
+    },
+    {
+      "name": "widget_game_starrail",
+      "value": "崩壞：星穹鐵道"
+    },
+    {
+      "name": "widget_game_zzz",
+      "value": "絕區零"
+    },
+    {
+      "name": "widget_stamina_full",
+      "value": "已回滿"
+    },
+    {
+      "name": "widget_no_account",
+      "value": "請在應用內新增帳號"
+    },
+    {
+      "name": "widget_recovery_hours",
+      "value": "%d小時後回滿"
+    },
+    {
+      "name": "widget_recovery_hours_minutes",
+      "value": "%d小時%d分鐘後回滿"
+    },
+    {
+      "name": "widget_recovery_minutes",
+      "value": "%d分鐘後回滿"
+    },
+    {
+      "name": "widget_resin_label",
+      "value": "原粹樹脂"
+    },
+    {
+      "name": "widget_stamina_label",
+      "value": "開拓力"
+    },
+    {
+      "name": "widget_energy_label",
+      "value": "電量"
+    },
+    {
+      "name": "widget_expedition",
+      "value": "探索派遣"
+    },
+    {
+      "name": "widget_expedition_finished",
+      "value": "已完成"
+    },
+    {
+      "name": "widget_expedition_ongoing",
+      "value": "進行中"
+    },
+    {
+      "name": "widget_expedition_done",
+      "value": "已完成"
+    },
+    {
+      "name": "widget_home_coin",
+      "value": "洞天財甕"
+    },
+    {
+      "name": "widget_daily_task",
+      "value": "每日委託"
+    },
+    {
+      "name": "widget_task_received",
+      "value": "已全部領取"
+    },
+    {
+      "name": "widget_task_received_suffix",
+      "value": " 已領取"
+    },
+    {
+      "name": "widget_transformer",
+      "value": "參量質變儀"
+    },
+    {
+      "name": "widget_transformer_ready",
+      "value": "可使用"
+    },
+    {
+      "name": "widget_transformer_cooling",
+      "value": "冷卻中"
+    },
+    {
+      "name": "widget_reserve_stamina",
+      "value": "後備開拓力"
+    },
+    {
+      "name": "widget_train_score",
+      "value": "每日實訓"
+    },
+    {
+      "name": "widget_cocoon",
+      "value": "歷戰餘響"
+    },
+    {
+      "name": "widget_rogue_tourn",
+      "value": "模擬宇宙"
+    },
+    {
+      "name": "widget_grid_fight",
+      "value": "貨幣戰爭"
+    },
+    {
+      "name": "widget_rogue_weekly",
+      "value": "貨幣戰爭本週"
+    },
+    {
+      "name": "widget_vitality",
+      "value": "今日活躍度"
+    },
+    {
+      "name": "widget_card_sign",
+      "value": "刮刮卡/占卜"
+    },
+    {
+      "name": "widget_uid_prefix",
+      "value": "UID "
+    },
+    {
+      "name": "widget_card_done",
+      "value": "已完成"
+    },
+    {
+      "name": "widget_card_not_done",
+      "value": "未完成"
+    },
+    {
+      "name": "widget_video_store",
+      "value": "錄像店經營"
+    },
+    {
+      "name": "widget_store_open",
+      "value": "營業中"
+    },
+    {
+      "name": "widget_store_closed",
+      "value": "未營業"
+    },
+    {
+      "name": "widget_just_now",
+      "value": "剛剛"
+    },
+    {
+      "name": "widget_reserve_prefix",
+      "value": "後備 "
+    },
+    {
+      "name": "widget_config_title",
+      "value": "配置卡片"
+    },
+    {
+      "name": "widget_size_1x2",
+      "value": "1×2 迷你"
+    },
+    {
+      "name": "widget_size_2x2",
+      "value": "2×2 標準"
+    },
+    {
+      "name": "widget_size_2x4",
+      "value": "2×4 寬幅"
+    },
+    {
+      "name": "widget_size_4x4",
+      "value": "4×4 大卡片"
+    },
+    {
+      "name": "widget_size_1x2_desc",
+      "value": "1個帳號 · 1款遊戲 · 僅體力"
+    },
+    {
+      "name": "widget_size_2x2_desc",
+      "value": "1個帳號 · 最多3款遊戲 · 詳細模式"
+    },
+    {
+      "name": "widget_size_2x4_desc",
+      "value": "詳細：1帳號完整數據 / 精簡：2帳號體力概覽"
+    },
+    {
+      "name": "widget_size_4x4_desc",
+      "value": "詳細：1帳號完整數據 / 精簡：3帳號體力概覽"
+    },
+    {
+      "name": "widget_select_account_hint",
+      "value": "選擇要綁定的帳號（單選）"
+    },
+    {
+      "name": "widget_select_games_hint",
+      "value": "選擇要在卡片上顯示的遊戲（多選）"
+    },
+    {
+      "name": "widget_select_game_hint",
+      "value": "選擇卡片要顯示的遊戲類型"
+    },
+    {
+      "name": "widget_selected_count",
+      "value": "已選 %1$d/%2$d 個角色"
+    },
+    {
+      "name": "widget_game_account_count",
+      "value": "%d 個帳號"
+    },
+    {
+      "name": "widget_step_size",
+      "value": "尺寸"
+    },
+    {
+      "name": "widget_step_account",
+      "value": "帳號"
+    },
+    {
+      "name": "widget_step_game",
+      "value": "遊戲"
+    },
+    {
+      "name": "widget_step_done",
+      "value": "完成"
+    },
+    {
+      "name": "widget_btn_prev",
+      "value": "上一步"
+    },
+    {
+      "name": "widget_btn_next",
+      "value": "下一步"
+    },
+    {
+      "name": "widget_btn_add",
+      "value": "新增到桌面"
+    },
+    {
+      "name": "widget_config_done_title",
+      "value": "配置完成！"
+    },
+    {
+      "name": "widget_config_done_desc",
+      "value": "卡片已準備好新增到桌面"
+    },
+    {
+      "name": "widget_summary_size",
+      "value": "尺寸"
+    },
+    {
+      "name": "widget_summary_roles",
+      "value": "已選角色"
+    },
+    {
+      "name": "widget_config_size",
+      "value": "卡片尺寸"
+    },
+    {
+      "name": "widget_config_account",
+      "value": "顯示帳號"
+    },
+    {
+      "name": "widget_config_games",
+      "value": "顯示遊戲"
+    },
+    {
+      "name": "widget1_desc",
+      "value": "This is a service widget."
+    },
+    {
+      "name": "widget1_display_name",
+      "value": "widget1"
     }
   ]
 }

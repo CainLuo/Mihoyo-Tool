@@ -2,6 +2,7 @@
  * NotificationBubbleHeader — 通知气泡顶部（App 图标 + 名称 + 时间）
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
+import { ThemeFonts } from '../../theme/ThemeFonts'
 
 @ComponentV2
 export struct NotificationBubbleHeader {
@@ -15,11 +16,11 @@ export struct NotificationBubbleHeader {
         .borderRadius(this.tm.current.value4)
 
       Text($r('app.string.app_name'))
-        .font(this.tm.current.body10)
+        .font(ThemeFonts.font11)
         .fontColor(this.tm.current.colorTextSecondary)
 
       Text($r('app.string.sync_just_now'))
-        .font(this.tm.current.body10)
+        .font(ThemeFonts.font11)
         .fontColor(this.tm.current.colorTextSecondary)
         .layoutWeight(1)
         .textAlign(TextAlign.End)

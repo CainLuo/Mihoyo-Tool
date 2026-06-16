@@ -39,30 +39,30 @@ export struct CharDetailWeaponCard {
         }
         Column({ space: this.tm.current.value4 }) {
           Text(this.weapon.name)
-            .fontSize(this.tm.current.body13Bold.size)
+            .fontSize(this.tm.current.fontBold14)
             .fontWeight(FontWeight.Bold)
             .fontColor(this.tm.current.textOnDarkHigh)
             .maxLines(1)
             .textOverflow({ overflow: TextOverflow.Ellipsis })
           Row({ space: this.tm.current.value8 }) {
             Text($r('app.string.char_detail_weapon_refine_prefix', this.weapon.affix))
-              .fontSize(this.tm.current.body10.size)
+              .fontSize(this.tm.current.font11)
               .fontWeight(FontWeight.Bold)
               .fontColor(this.tm.current.accentRefine)
               .backgroundColor(this.tm.current.accentRefineBg)
               .borderRadius(this.tm.current.value4)
               .padding({ left: this.tm.current.value4, right: this.tm.current.value4, top: this.tm.current.value1, bottom: this.tm.current.value1 })
             Text($r('app.string.char_detail_weapon_lv_prefix', this.weapon.level))
-              .fontSize(this.tm.current.body10.size)
+              .fontSize(this.tm.current.font11)
               .fontColor(this.tm.current.textOnDarkMuted)
           }
           if (this.weapon.subLabel !== null) {
             Row({ space: this.tm.current.value4 }) {
               Text(this.weapon.subLabel)
-                .fontSize(this.tm.current.body12.size)
+                .fontSize(this.tm.current.font13)
                 .fontColor(this.tm.current.textOnDarkMuted)
               Text(this.weapon.subVal)
-                .fontSize(this.tm.current.body12.size)
+                .fontSize(this.tm.current.font13)
                 .fontColor(elementColor(this.charElement))
             }
           }
@@ -77,7 +77,7 @@ export struct CharDetailWeaponCard {
       Row({ space: 1 }) {
         ForEach(this.buildStarArray(this.weapon.rarity), (_: number, idx: number) => {
           Text('★')
-            .fontSize(this.tm.current.body12.size)
+            .fontSize(this.tm.current.font13)
             .fontColor(this.tm.current.accentRefine)
         }, (_: number, idx: number) => `star_${idx}`)
       }

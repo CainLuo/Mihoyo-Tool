@@ -5,6 +5,7 @@
  * 图标和颜色由 SnackbarParams 携带，组件只负责展示。
  */
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
+import { ThemeFonts } from '../theme/ThemeFonts'
 import { SnackbarParams } from '../models/SnackbarParams'
 import { FeedbackType } from '../constants/FeedbackType'
 
@@ -31,31 +32,31 @@ export struct SnackbarContent {
   build() {
     Row({ space: this.tm.current.value8 }) {
       SymbolGlyph(this.params.icon())
-        .fontSize(this.tm.current.value20)
+        .fontSize(this.tm.current.font20)
         .fontColor([this.params.color()])
 
       Text(this.params.text)
-        .font(this.tm.current.body13)
+        .font(ThemeFonts.font14)
         .fontColor(this.tm.current.colorTextPrimary)
         .maxLines(1)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
         .layoutWeight(1)
     }
     .padding({
-      left: this.tm.current.value16,
-      right: this.tm.current.value16,
+      left: this.tm.current.font16,
+      right: this.tm.current.font16,
       top: this.tm.current.value12,
       bottom: this.tm.current.value12,
     })
     .margin({
-      left: this.tm.current.value16,
-      right: this.tm.current.value16,
-      bottom: this.tm.current.value16,
+      left: this.tm.current.font16,
+      right: this.tm.current.font16,
+      bottom: this.tm.current.font16,
     })
     .backgroundColor(this.tm.current.colorSurfaceCard)
     .border({ width: this.tm.current.value1, color: this.tm.current.colorDivider })
     .borderRadius(this.tm.current.radius12)
-    .shadow({ radius: this.tm.current.radius12, color: this.tm.current.colorMask, offsetX: 0, offsetY: 4 })
+    .shadow({ radius: this.tm.current.radius12, color: '#28000000', offsetX: 0, offsetY: 4 })
   }
 }
 
@@ -86,7 +87,7 @@ struct SnackbarContentPreview {
 
       SnackbarContent({ params: this.pInfo })
     }
-    .padding(this.tm.current.value16)
+    .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')
   }
 }

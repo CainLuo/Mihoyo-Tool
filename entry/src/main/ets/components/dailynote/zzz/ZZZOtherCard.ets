@@ -4,6 +4,7 @@
  * 仅在 DailyNoteZZZ 中使用。
  */
 import { themeManager, ThemeManager } from '../../../theme/ThemeManager';
+import { ThemeFonts } from '../../../theme/ThemeFonts'
 import { ZZZDailyNoteVM } from '../../../models/DailyNoteModels';
 import { DailyNoteDataRow } from '../common/DailyNoteDataRow';
 
@@ -54,18 +55,18 @@ export struct ZZZOtherCard {
       // 式舆防卫战（首行，含货币数量副标题）
       Row() {
         Text($r('app.string.daily_note_temple'))
-          .font(this.tm.current.body13)
+          .font(ThemeFonts.font14)
           .fontColor(this.tm.current.colorTextSecondary)
           .layoutWeight(1)
 
         Column({ space: this.tm.current.value2 }) {
           Text(this.templeLabel())
-            .font(this.tm.current.body16Medium)
+            .font(ThemeFonts.fontMedium17)
             .fontColor(this.templeColor())
 
           if (this.data.templeCurrentCurrency > 0) {
             Text($r('app.string.daily_note_temple_currency', this.data.templeCurrentCurrency))
-              .font(this.tm.current.body12)
+              .font(ThemeFonts.font13)
               .fontColor(this.tm.current.colorTextSecondary)
           }
         }
@@ -73,8 +74,8 @@ export struct ZZZOtherCard {
       }
       .width(this.tm.current.full)
       .padding({
-        left: this.tm.current.value16,
-        right: this.tm.current.value16,
+        left: this.tm.current.font16,
+        right: this.tm.current.font16,
         top: this.tm.current.value12,
         bottom: this.tm.current.value8
       })

@@ -107,21 +107,33 @@ export interface AppColor {
   // ---- 角色卡片叠加色 ----
   roleCardServerBg: Resource
   roleCardStatBg: Resource
+
+  // ---- Widget 卡片背景色 ----
+  /** Widget 卡片固定背景色（#2E3033），遵循鸿蒙卡片官方规范 */
+  widgetCardBg: Resource
 }
 
-// ---- 字体 Token ----
-export interface AppFont {
-  body10: Font
-  body12: Font
-  body13: Font
-  body13Bold: Font
-  body15Bold: Font
-  body16: Font
-  body16Medium: Font
-  title18Bold: Font
-  title20Bold: Font
-  title24Bold: Font
-  title26Bold: Font
+// ---- 字体大小 Token（纯数字，兼容 Widget 等受限环境）----
+export interface FontSize {
+  font9: number           // 9vp
+  font10: number          // 10vp
+  font11: number          // 11vp
+  font12: number          // 12vp
+  font13: number          // 13vp
+  font14: number          // 14vp
+  fontBold14: number      // 14vp Bold
+  font16: number          // 16vp
+  fontBold16: number      // 16vp Bold
+  font17: number          // 17vp
+  fontMedium17: number    // 17vp Medium
+  font18: number          // 18vp
+  fontBold18: number      // 18vp Bold
+  font20: number          // 20vp
+  fontBold20: number      // 20vp Bold
+  font24: number          // 24vp
+  fontBold24: number      // 24vp Bold
+  font26: number          // 26vp
+  fontBold26: number      // 26vp Bold
 }
 
 // ---- 间距/尺寸 Token（纯数值，命名即数值）----
@@ -130,13 +142,16 @@ export interface Spacing {
   value1: number    // 1vp
   value1p5: number  // 1.5vp
   value2: number    // 2vp
+  value3: number    // 3vp
   value4: number    // 4vp
   value5: number    // 5vp
+  value6: number    // 6vp
   value8: number    // 8vp
   value9: number    // 9vp
   value10: number   // 10vp
   value11: number   // 11vp
   value12: number   // 12vp
+  value13: number   // 13vp
   value14: number   // 14vp
   value15: number   // 15vp
   value16: number   // 16vp
@@ -218,9 +233,11 @@ export interface Opacity {
   shimmerOpacityLow: number    // 0.3
   charDetailConsInactiveOpacity: number  // 0.3
   charDetailLockIconRatio: number        // 0.6
+  opacity03: number            // 0.3
+  opacity06: number            // 0.6
 }
 
-export interface Theme extends AppColor, AppFont, Spacing, Percent, Radius, Shadow, Angle, Opacity, Duration {}
+export interface Theme extends AppColor, FontSize, Spacing, Percent, Radius, Shadow, Angle, Opacity, Duration {}
 
 // ---- 辅助函数 ----
 export function makeFont(size: number, weight: FontWeight, family: string = ''): Font {

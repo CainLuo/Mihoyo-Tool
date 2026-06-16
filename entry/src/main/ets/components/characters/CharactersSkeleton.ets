@@ -21,7 +21,7 @@ export struct CharactersSkeletonPreview {
 @ComponentV2
 export struct CharactersSkeleton {
   @Local private tm: ThemeManager = themeManager;
-  @Local private imgOpacity: number = themeManager.current.shimmerOpacityHigh;
+  @Local private imgOpacity: number = 1.0;
   private uiCtx: UIContext | null = null;
 
   aboutToAppear(): void {
@@ -36,7 +36,7 @@ export struct CharactersSkeleton {
         playMode: PlayMode.Alternate
       },
       () => {
-        this.imgOpacity = this.tm.current.shimmerOpacityLow;
+        this.imgOpacity = this.tm.current.opacity03;
       }
     );
   }
@@ -63,7 +63,7 @@ export struct CharactersSkeleton {
             // 模拟等级 + 好感度信息行
             Row()
               .width(this.tm.current.value120)
-              .height(this.tm.current.value16)
+              .height(this.tm.current.font16)
               .borderRadius(this.tm.current.value4)
               .backgroundColor(this.tm.current.colorSurfaceSubtle)
               .opacity(this.imgOpacity)
@@ -78,6 +78,6 @@ export struct CharactersSkeleton {
       }, (skIdx: number) => `sk_${skIdx}`)
     }
     .width(this.tm.current.full)
-    .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
+    .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })
   }
 }

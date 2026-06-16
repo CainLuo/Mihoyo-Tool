@@ -23,7 +23,7 @@ export struct HomeRefreshButton {
       }
       .width(this.tm.current.value56)
       .height(this.tm.current.value56)
-      .backgroundColor(this.tm.current.colorTransparent)
+      .backgroundColor(Color.Transparent)
       .enabled(!this.isRefreshing)
       .onClick(() => { this.onRefresh() })
     }

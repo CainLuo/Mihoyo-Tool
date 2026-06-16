@@ -33,7 +33,7 @@ export struct StarRailCharDetailContent {
       StarRailEquipSection({ vm: this.vm })
       StarRailPropsSection({ vm: this.vm })
       StarRailRelicsSection({ vm: this.vm })
-      Row().height(this.tm.current.value16)
+      Row().height(this.tm.current.font16)
     }
     .width(this.tm.current.full)
     .padding({ left: this.tm.current.value12, right: this.tm.current.value12, top: this.tm.current.value8 })

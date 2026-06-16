@@ -10,6 +10,7 @@ import { CharDetailRelicPlaceholder } from '../common/CharDetailRelicPlaceholder
 import { ZZZEquipCard } from './ZZZEquipCard';
 import { ZZZSuitSummaryRow } from './ZZZSuitSummaryRow';
 import { ZZZSuitSummary } from '../../../models/CharDetailModels';
+import { TransparentColorCache } from '../../../utils/ColorUtil';
 
 @ComponentV2
 export struct ZZZEquipSection {
@@ -24,12 +25,12 @@ export struct ZZZEquipSection {
         Column() {
           ForEach(this.vm.suitSummaries, (suit: ZZZSuitSummary, idx: number) => {
             ZZZSuitSummaryRow({ suit: suit })
-              .border({ width: { bottom: idx < this.vm.suitSummaries.length - 1 ? this.tm.current.value1 : 0 }, color: this.tm.current.surfaceGlass })
+              .border({ width: { bottom: idx < this.vm.suitSummaries.length - 1 ? this.tm.current.value1 : 0 }, color: TransparentColorCache.whiteWith10 })
           }, (suit: ZZZSuitSummary, idx: number) => `suit_${suit.suitId}`)
         }
         .width(this.tm.current.full)
-        .backgroundColor(this.tm.current.surfaceDarkLg)
-        .border({ width: this.tm.current.value1, color: this.tm.current.surfaceGlass })
+        .backgroundColor(TransparentColorCache.blackWith60)
+        .border({ width: this.tm.current.value1, color: TransparentColorCache.whiteWith10 })
         .borderRadius(this.tm.current.radius12)
         .alignItems(HorizontalAlign.Start)
       }

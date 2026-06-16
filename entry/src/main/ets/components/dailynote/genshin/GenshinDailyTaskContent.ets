@@ -4,6 +4,7 @@
  * 仅在 DailyNoteGenshin 的 DailyNoteCard customBottom 插槽中使用。
  */
 import { themeManager, ThemeManager } from '../../../theme/ThemeManager';
+import { ThemeFonts } from '../../../theme/ThemeFonts'
 import { GenshinDailyTaskVM } from '../../../models/DailyNoteModels';
 
 @ComponentV2
@@ -15,13 +16,13 @@ export struct GenshinDailyTaskContent {
     Column({ space: this.tm.current.value4 }) {
       Row({ space: this.tm.current.value8 }) {
         Text($r('app.string.daily_note_task_label'))
-          .font(this.tm.current.body13)
+          .font(ThemeFonts.font14)
           .fontColor(this.tm.current.colorTextSecondary)
           .width(this.tm.current.value56)
 
         ForEach([0, 1, 2, 3] as number[], (i: number) => {
           Text(i < this.task.finishedNum ? '✓' : '◇')
-            .font(this.tm.current.body13)
+            .font(ThemeFonts.font14)
             .fontColor(i < this.task.finishedNum
               ? this.tm.current.colorPrimary : this.tm.current.colorPlaceholder)
         })
@@ -31,7 +32,7 @@ export struct GenshinDailyTaskContent {
         Text(this.task.isExtraTaskRewardReceived
           ? $r('app.string.daily_note_task_all_received')
           : $r('app.string.daily_note_task_not_received'))
-          .font(this.tm.current.body13)
+          .font(ThemeFonts.font14)
           .fontColor(this.task.isExtraTaskRewardReceived
             ? this.tm.current.colorTextSecondary : this.tm.current.colorPrimary)
       }
@@ -39,13 +40,13 @@ export struct GenshinDailyTaskContent {
 
       Row({ space: this.tm.current.value8 }) {
         Text($r('app.string.daily_note_adventure_label'))
-          .font(this.tm.current.body13)
+          .font(ThemeFonts.font14)
           .fontColor(this.tm.current.colorTextSecondary)
           .width(this.tm.current.value56)
 
         ForEach([0, 1, 2, 3] as number[], (i: number) => {
           Text(i < this.task.finishedNum ? '✓' : '◇')
-            .font(this.tm.current.body13)
+            .font(ThemeFonts.font14)
             .fontColor(i < this.task.finishedNum
               ? this.tm.current.colorPrimary : this.tm.current.colorPlaceholder)
         })
@@ -55,11 +56,11 @@ export struct GenshinDailyTaskContent {
       if (this.task.storedAdventure >= 0) {
         Row({ space: this.tm.current.value4 }) {
           Text($r('app.string.daily_note_stored_adventure_label'))
-            .font(this.tm.current.body13)
+            .font(ThemeFonts.font14)
             .fontColor(this.tm.current.colorTextSecondary)
 
           Text('×' + this.task.storedAdventure.toString())
-            .font(this.tm.current.body16Medium)
+            .font(ThemeFonts.fontMedium17)
             .fontColor(this.tm.current.colorPrimary)
         }
         .width(this.tm.current.full)
@@ -68,8 +69,8 @@ export struct GenshinDailyTaskContent {
     }
     .width(this.tm.current.full)
     .padding({
-      left: this.tm.current.value16,
-      right: this.tm.current.value16,
+      left: this.tm.current.font16,
+      right: this.tm.current.font16,
       bottom: this.tm.current.value12
     })
     .alignItems(HorizontalAlign.Start)

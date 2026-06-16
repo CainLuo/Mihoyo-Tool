@@ -13,8 +13,8 @@ export struct AccountActionsSection {
   build() {
     Column() {
       Button($r('app.string.account_detail_delete'), { type: ButtonType.Normal })
-        .fontSize(this.tm.current.body16.size)
-        .fontWeight(this.tm.current.body16.weight)
+        .fontSize(this.tm.current.font17)
+        .fontWeight(FontWeight.Normal)
         .fontColor(this.tm.current.colorDanger)
         .width(this.tm.current.full)
         .height(this.tm.current.value50)

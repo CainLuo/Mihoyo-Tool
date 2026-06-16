@@ -79,7 +79,7 @@ export function showGeetestDialog(
     const dialogOptions: promptAction.BaseDialogOptions = {
       autoCancel: false,
       alignment: DialogAlignment.Center,
-      maskColor: themeManager.current.colorMask,
+      maskColor: '#80000000',
     };
 
     uiContext.getPromptAction().openCustomDialog(contentNode, dialogOptions)

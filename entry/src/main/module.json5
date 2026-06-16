@@ -30,7 +30,7 @@
         icon: "$media:layered_image",
         label: "$string:EntryAbility_label",
         startWindowIcon: "$media:ic_app_logo",
-        startWindowBackground: "$color:start_window_background",
+        startWindowBackground: "$color:black",
         exported: true,
         skills: [
           {
@@ -50,6 +50,19 @@
           {
             name: "ohos.extension.backup",
             resource: "$profile:backup_config",
+          },
+        ],
+      },
+      {
+        name: "EntryFormAbility",
+        srcEntry: "./ets/entryformability/EntryFormAbility.ets",
+        label: "$string:EntryFormAbility_label",
+        description: "$string:EntryFormAbility_desc",
+        type: "form",
+        metadata: [
+          {
+            name: "ohos.extension.form",
+            resource: "$profile:form_config",
           },
         ],
       },

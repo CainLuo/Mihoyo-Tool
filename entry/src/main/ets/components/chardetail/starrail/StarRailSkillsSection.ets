@@ -30,7 +30,7 @@ export struct StarRailSkillsSection {
         if (this.vm.skillsExtra.length > 0) {
           Column({ space: this.tm.current.value4 }) {
             Text($r('app.string.starrail_char_detail_skills_extra'))
-              .fontSize(this.tm.current.body12.size)
+              .fontSize(this.tm.current.font13)
               .fontColor(this.tm.current.textOnDarkSecondary)
             Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(this.tm.current.value8), cross: LengthMetrics.vp(this.tm.current.value8) } }) {
               ForEach(this.vm.skillsExtra, (skill: StarRailCharDetailSkillNode) => {
@@ -44,7 +44,7 @@ export struct StarRailSkillsSection {
         if (this.vm.skillsAttr.length > 0) {
           Column({ space: this.tm.current.value4 }) {
             Text($r('app.string.starrail_char_detail_skills_attr'))
-              .fontSize(this.tm.current.body12.size)
+              .fontSize(this.tm.current.font13)
               .fontColor(this.tm.current.textOnDarkSecondary)
             Flex({ wrap: FlexWrap.Wrap, space: { main: LengthMetrics.vp(this.tm.current.value8), cross: LengthMetrics.vp(this.tm.current.value8) } }) {
               ForEach(this.vm.skillsAttr, (skill: StarRailCharDetailSkillNode) => {

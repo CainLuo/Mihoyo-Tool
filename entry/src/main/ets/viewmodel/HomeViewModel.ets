@@ -197,6 +197,9 @@ export class HomeViewModel {
     }
     this.startAutoRefresh();
 
+    // 冷启动后推送 Widget 数据（无论是否同步，都推送最新数据）
+    StaminaNotificationService.instance().onDailyNotesSynced().catch((_: Error | object) => {});
+
     // 冷启动 Cookie 检查：首屏渲染完成后异步触发，不阻塞 UI
     ColdStartCookieChecker.checkAndRefreshAll(CoreInitializer.bbsRepository)
       .then((result: ColdStartRefreshResult) => {
@@ -443,6 +446,8 @@ export class HomeViewModel {
         await this.syncDailyNote(account, role);
       }
     }
+    // 同步完成后触发通知阈值检查和 Widget 数据推送
+    StaminaNotificationService.instance().onDailyNotesSynced().catch((_: Error | object) => {});
   }
 
   /**
@@ -663,7 +668,7 @@ export class HomeViewModel {
           srRows[srRows.length] = new GameDataRowVM(
             $r('app.string.starrail_reserve_stamina_title'),
             `${data.currentReserveStamina}`,
-            $r('app.color.color_text_secondary')
+            $r('app.color.gray_700')
           );
         }
         if (data.currentTrainScore >= 0) {
@@ -750,7 +755,7 @@ export class HomeViewModel {
         );
         if (data.videoStoreState !== '' && data.videoStoreState !== 'SaleStateUnknown') {
           let vhsValue: ResourceStr = $r('app.string.zzz_video_store_closed');
-          let vhsColor: ResourceColor = $r('app.color.color_text_secondary');
+          let vhsColor: ResourceColor = $r('app.color.gray_700');
           if (data.videoStoreState === 'SaleStateDone') {
             vhsValue = $r('app.string.zzz_video_store_done');
             vhsColor = $r('app.color.color_primary');
