@@ -51,6 +51,17 @@ export default class EntryAbility extends UIAbility {
     Logger.info(TAG, 'onDestroy');
   }
 
+  /**
+   * UIAbility 已在后台运行时，收到新的 Want 时触发
+   *
+   * 处理场景：
+   * - 其他应用拉起本应用
+   */
+  onNewWant(want: Want, _launchParam: AbilityConstant.LaunchParam): void {
+    Logger.info(TAG, `onNewWant: action=${want.action} parameters=${JSON.stringify(want.parameters)}`);
+    // 当前无特殊处理，保留方法供后续扩展
+  }
+
   onWindowStageCreate(windowStage: window.WindowStage) {
     Logger.info(TAG, 'onWindowStageCreate');
     windowStage.getMainWindow().then((win) => {

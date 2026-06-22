@@ -26,6 +26,7 @@ import { GameId } from 'core';
 import { WidgetDataStore, WidgetSlotData, WidgetAccountDataV2 } from '../models/WidgetDataStore';
 import { WidgetDataStoreManager } from './WidgetDataStoreManager';
 import { WidgetImageDownloader, ExpeditionAvatarParser } from './WidgetImageDownloader';
+import { WidgetUpdateNotifier } from './WidgetUpdateNotifier';
 
 const TAG = 'WIDGET';
 
@@ -154,12 +155,14 @@ export class WidgetDataStoreBuilder {
 
   /**
    * 刷新数据：重新构建并保存到 Preferences
-   * @param context UIAbilityContext（可选，用于下载派遣头像）
+   * @param context UIAbilityContext（可选，用于下载派遣头像和推送 Widget 更新）
    * @param formId 卡片 ID（可选，用于区分不同卡片的头像缓存）
+   * @param pushUpdate 是否推送更新到 Widget（默认 true）
    */
   static async refreshAndSave(
     context?: common.UIAbilityContext,
-    formId?: string
+    formId?: string,
+    pushUpdate: boolean = true
   ): Promise<boolean> {
     Logger.info(TAG, '[WIDGET_DEBUG] refreshAndSave: start');
     try {
@@ -172,6 +175,12 @@ export class WidgetDataStoreBuilder {
       // 下载原神派遣头像（如果有 context）
       if (success && context !== undefined) {
         await WidgetDataStoreBuilder.downloadExpeditionAvatars(context, store, formId ?? 'default');
+      }
+
+      // 推送更新到所有 Widget
+      if (success && pushUpdate && context !== undefined) {
+        Logger.info(TAG, '[WIDGET_DEBUG] refreshAndSave: pushing update to all widgets');
+        await WidgetUpdateNotifier.notifyAllWidgets(context);
       }
 
       return success;
