@@ -1361,6 +1361,18 @@
       "value": "用于在游戏体力值达到设定值时推送本地提醒通知"
     },
     {
+      "name": "permission_reason_keep_background",
+      "value": "用于在后台同步卡片数据"
+    },
+    {
+      "name": "WidgetSyncAbility_desc",
+      "value": "Widget数据同步服务"
+    },
+    {
+      "name": "WidgetSyncAbility_label",
+      "value": "WidgetSyncAbility"
+    },
+    {
       "name": "my_section_notification",
       "value": "通知设置"
     },

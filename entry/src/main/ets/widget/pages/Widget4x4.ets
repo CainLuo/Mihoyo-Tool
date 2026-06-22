@@ -105,9 +105,11 @@ struct Widget4x4 {
     .height(theme.full)
     .onClick(() => {
       postCardAction(this, {
-        action: 'router',
-        abilityName: 'EntryAbility',
-        params: { page: 'Main' }
+        action: 'call',
+        abilityName: 'WidgetSyncAbility',
+        params: {
+          method: 'sync'
+        }
       });
     })
   }
