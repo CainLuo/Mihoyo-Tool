@@ -159,7 +159,8 @@ export class Widget2x2ViewModel {
       row.label = rows[i].label;
       row.labelResource = WidgetDataHelper.getExtraRowLabelResource(rows[i].label);
       row.value = rows[i].value;
-      row.displayValue = WidgetDataHelper.getExtraRowValueDisplay(rows[i].value);
+      // 如果 value 已经是最终格式（如绝区零 note_list），直接使用，不再转换
+      row.displayValue = rows[i].isRawValue ? rows[i].value : WidgetDataHelper.getExtraRowValueDisplay(rows[i].value);
       row.valueColor = rows[i].valueColor;
       result.push(row);
     }

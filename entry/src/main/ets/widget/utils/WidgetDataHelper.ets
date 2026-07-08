@@ -30,6 +30,8 @@ export class ParsedExtraRow {
   label: string = '';
   value: string = '';
   valueColor: Resource = $r('app.color.gray_600');
+  /** value 是否已经是最终显示格式，不需要再通过 getExtraRowValueDisplay() 转换 */
+  isRawValue: boolean = false;
 }
 
 /**
@@ -322,7 +324,8 @@ export class WidgetDataHelper {
             }
 
             const color = valueHighlight ? WidgetColors.ZZZ_PRIMARY : WidgetColors.STAMINA_MEDIUM;
-            rows.push(WidgetDataHelper.createExtraRow(name, value, color));
+            // 绝区零 note_list 的 value 已经是最终显示格式，标记为 "raw" 避免后续转换
+            rows.push(WidgetDataHelper.createExtraRow(name, value, color, true));
           }
           Logger.info('WIDGET', `[parseZZZNoteList] parsed ${rows.length} rows from note_list`);
           return; // note_list 解析成功，直接返回
@@ -355,7 +358,7 @@ export class WidgetDataHelper {
       if (saleState.length > 0) {
         const displayValue = saleState === 'SaleStateDoing' ? '正在营业' : 
                              saleState === 'SaleStateDone' ? '已结算' : '未营业';
-        rows.push(WidgetDataHelper.createExtraRow('录像店经营', displayValue, WidgetColors.STAMINA_MEDIUM));
+        rows.push(WidgetDataHelper.createExtraRow('录像店经营', displayValue, WidgetColors.STAMINA_MEDIUM, true));
       }
     }
 
@@ -363,7 +366,7 @@ export class WidgetDataHelper {
     const cardSign = String(data['card_sign'] ?? '');
     if (cardSign.length > 0) {
       const displayValue = cardSign === 'CardSignDone' ? '已完成' : '未完成';
-      rows.push(WidgetDataHelper.createExtraRow('饼铺盲盒/刮刮卡', displayValue, WidgetColors.STAMINA_MEDIUM));
+      rows.push(WidgetDataHelper.createExtraRow('饼铺盲盒/刮刮卡', displayValue, WidgetColors.STAMINA_MEDIUM, true));
     }
 
     // 周常积分
@@ -372,7 +375,7 @@ export class WidgetDataHelper {
       const curPoint = WidgetDataHelper.parseIntSafe(weeklyTask['cur_point'], 0);
       const maxPoint = WidgetDataHelper.parseIntSafe(weeklyTask['max_point'], 0);
       if (maxPoint > 0) {
-        rows.push(WidgetDataHelper.createExtraRow('丽都周纪积分', `${curPoint}/${maxPoint}`, WidgetColors.ZZZ_PRIMARY));
+        rows.push(WidgetDataHelper.createExtraRow('丽都周纪积分', `${curPoint}/${maxPoint}`, WidgetColors.ZZZ_PRIMARY, true));
       }
     }
 
@@ -382,7 +385,7 @@ export class WidgetDataHelper {
       const num = WidgetDataHelper.parseIntSafe(bountyCommission['num'], 0);
       const total = WidgetDataHelper.parseIntSafe(bountyCommission['total'], 0);
       if (total > 0) {
-        rows.push(WidgetDataHelper.createExtraRow('悬赏委托', `${num}/${total}`, WidgetColors.ZZZ_PRIMARY));
+        rows.push(WidgetDataHelper.createExtraRow('悬赏委托', `${num}/${total}`, WidgetColors.ZZZ_PRIMARY, true));
       }
     }
   }
@@ -456,11 +459,12 @@ export class WidgetDataHelper {
 
   // ── 私有辅助方法 ─────────────────────────────────────────────────────
 
-  private static createExtraRow(label: string, value: string, color: Resource): ParsedExtraRow {
+  private static createExtraRow(label: string, value: string, color: Resource, isRawValue: boolean = false): ParsedExtraRow {
     const row = new ParsedExtraRow();
     row.label = label;
     row.value = value;
     row.valueColor = color;
+    row.isRawValue = isRawValue;
     return row;
   }
 
