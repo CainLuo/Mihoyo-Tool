@@ -31,7 +31,7 @@ function renderMy(w, h) {
     c.div +
     "}" +
     ".myrow:last-child{border-bottom:none}" +
-    ".chip{padding:4px 10px;border-radius:8px;font-size:13px;cursor:pointer;background:" +
+    ".chip{padding:4px 10px;border-radius:8px;font-size:" + FONT.sm + "px;cursor:pointer;background:" +
     (G.theme === "dark" ? "#2C2C2E" : "#E5E5EA") +
     ";color:" +
     c.txt2 +
@@ -47,9 +47,9 @@ function renderMy(w, h) {
     maxW +
     'px;margin:0 auto">' +
     // 账号管理
-    '<div style="font-size:12px;color:' +
+    '<div style="font-size:' + FONT.xs + 'px;color:' +
     c.txt2 +
-    ';padding:0 4px 6px;margin-top:4px">账号管理</div>' +
+    ';padding:0 4px 6px;margin-top:4px;opacity:' + TXT_ALPHA.secondary + '" role="heading" aria-level="2">账号管理</div>' +
     '<div class="mycard">' +
     '<div class="myrow">' +
     // 真实头像
@@ -59,25 +59,25 @@ function renderMy(w, h) {
     c.border +
     '" onerror="this.style.background=\'' +
     c.primary +
-    "';this.src=''\"/>" +
+    "';this.src=''" alt="' + bbsUser.nickname + ' 头像"/>" +
     '<div style="flex:1">' +
-    '<div style="font-size:15px;color:' +
+    '<div style="font-size:' + FONT.md + 'px;color:' +
     c.txt +
     '">' +
     bbsUser.nickname +
     "</div>" +
-    '<div style="font-size:12px;color:' +
+    '<div style="font-size:' + FONT.xs + 'px;color:' +
     c.txt2 +
-    ';margin-top:2px">UID ' +
+    ';margin-top:2px;opacity:' + TXT_ALPHA.secondary + '">UID ' +
     bbsUser.uid +
     " · 4 个游戏角色</div>" +
     "</div>" +
     '<span style="color:' +
     c.txt2 +
-    ';font-size:14px">›</span>' +
+    ';font-size:' + FONT.base + 'px" aria-hidden="true">›</span>' +
     "</div>" +
     "</div>" +
-    '<div style="display:flex;align-items:center;justify-content:center;height:50px;font-size:15px;color:' +
+    '<div style="display:flex;align-items:center;justify-content:center;height:50px;font-size:' + FONT.md + 'px;color:' +
     c.primary +
     ";background:" +
     c.surfCard +
@@ -85,13 +85,13 @@ function renderMy(w, h) {
     c.border +
     ";border-radius:12px;cursor:pointer;margin-top:4px;box-shadow:0 2px 6px " +
     c.shadow +
-    '">+ 添加账号</div>' +
+    '" role="button" aria-label="添加账号">+ 添加账号</div>' +
     // 外观设置
-    '<div style="font-size:12px;color:' +
+    '<div style="font-size:' + FONT.xs + 'px;color:' +
     c.txt2 +
-    ';padding:0 4px 6px;margin-top:16px">外观设置</div>' +
+    ';padding:0 4px 6px;margin-top:16px;opacity:' + TXT_ALPHA.secondary + '" role="heading" aria-level="2">外观设置</div>' +
     '<div class="mycard">' +
-    '<div class="myrow"><span style="font-size:15px;color:' +
+    '<div class="myrow"><span style="font-size:' + FONT.md + 'px;color:' +
     c.txt +
     ';flex:1">主题</span>' +
     '<div style="display:flex;gap:6px">' +
@@ -101,23 +101,23 @@ function renderMy(w, h) {
     "</div></div>" +
     "</div>" +
     // 关于
-    '<div style="font-size:12px;color:' +
+    '<div style="font-size:' + FONT.xs + 'px;color:' +
     c.txt2 +
-    ';padding:0 4px 6px;margin-top:16px">关于</div>' +
+    ';padding:0 4px 6px;margin-top:16px;opacity:' + TXT_ALPHA.secondary + '" role="heading" aria-level="2">关于</div>' +
     '<div class="mycard">' +
-    '<div class="myrow"><span style="font-size:15px;color:' +
+    '<div class="myrow"><span style="font-size:' + FONT.md + 'px;color:' +
     c.txt +
-    ';flex:1">版本</span><span style="font-size:15px;color:' +
+    ';flex:1">版本</span><span style="font-size:' + FONT.md + 'px;color:' +
     c.txt2 +
     '">1.0.0</span></div>' +
-    '<div class="myrow"><span style="font-size:15px;color:' +
+    '<div class="myrow"><span style="font-size:' + FONT.md + 'px;color:' +
     c.txt +
-    ';flex:1">GitHub</span><span style="font-size:12px;color:' +
+    ';flex:1">GitHub</span><span style="font-size:' + FONT.xs + 'px;color:' +
     c.primary +
     '">github.com/cainluo/Mihoyo-Tool</span></div>' +
-    '<div class="myrow"><span style="font-size:15px;color:' +
+    '<div class="myrow"><span style="font-size:' + FONT.md + 'px;color:' +
     c.txt +
-    ';flex:1">许可证</span><span style="font-size:15px;color:' +
+    ';flex:1">许可证</span><span style="font-size:' + FONT.md + 'px;color:' +
     c.txt2 +
     '">MIT License</span></div>' +
     "</div>" +

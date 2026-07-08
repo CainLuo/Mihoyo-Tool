@@ -2,9 +2,9 @@
   "retcode": 0,
   "message": "OK",
   "data": {
-    "current_resin": 36,
+    "current_resin": 38,
     "max_resin": 200,
-    "resin_recovery_time": "78642",
+    "resin_recovery_time": "77450",
     "finished_task_num": 4,
     "total_task_num": 4,
     "is_extra_task_reward_received": true,
@@ -32,7 +32,7 @@
         "status": "Ongoing"
       }
     ],
-    "current_home_coin": 540,
+    "current_home_coin": 60,
     "max_home_coin": 2400,
     "has_signed": true,
     "sign_url": "https://act.mihoyo.com/bbs/event/signin/hk4e/index.html?act_id=e202311201442471&bbs_auth_required=true&bbs_presentation_style=fullscreen&mhy_presentation_style=fullscreen&utm_source=bbs&utm_medium=ys&utm_campaign=widget",
@@ -40,6 +40,18 @@
     "home_url": "https://webstatic.mihoyo.com/app/community-game-records/?bbs_presentation_style=fullscreen&mhypresentationstyle=fullscreen&bbs_auth_required=true&gid=2",
     "note_url": "https://webstatic.mihoyo.com/app/community-game-records/?bbs_presentation_style=fullscreen&bbs_auth_required=true#/ys/daily",
     "act_list": [],
-    "avatar_background": ""
+    "avatar_background": "",
+    "week_active_progress": {
+      "progress_current": 1,
+      "progress_total": 5,
+      "period_progress_current": 7,
+      "period_progress_total": 8,
+      "unlock": true,
+      "progress_current_arr": [
+        1
+      ],
+      "is_active_period": true,
+      "current_weekday": 1
+    }
   }
 }

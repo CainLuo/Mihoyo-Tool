@@ -68,18 +68,18 @@ function renderHome(w, h) {
 
   function dataRow(icon, iconBg, label, val, valColor) {
     return (
-      '<div style="display:flex;align-items:center;gap:8px">' +
+      '<div style="display:flex;align-items:center;gap:8px" role="listitem">' +
       '<div style="width:28px;height:28px;border-radius:8px;background:' +
       iconBg +
-      ';display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">' +
+      ';display:flex;align-items:center;justify-content:center;font-size:' + FONT.sm + 'px;flex-shrink:0" aria-hidden="true">' +
       icon +
       "</div>" +
-      '<span style="font-size:12px;color:' +
+      '<span style="font-size:' + FONT.xs + 'px;color:' +
       c.txt2 +
-      ';flex:1">' +
+      ';flex:1;opacity:' + TXT_ALPHA.secondary + '">' +
       label +
       "</span>" +
-      '<span style="font-size:13px;font-weight:600;color:' +
+      '<span style="font-size:' + FONT.sm + 'px;font-weight:600;color:' +
       valColor +
       '">' +
       val +
@@ -112,40 +112,40 @@ function renderHome(w, h) {
       '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px">' +
       '<img src="../assets/logo_genshin.png" style="width:32px;height:32px;border-radius:7px;object-fit:cover;flex-shrink:0;border:1px solid ' +
       c.border +
-      '"/>' +
-      '<div style="flex:1"><div style="font-size:15px;font-weight:500;color:' +
+      '" alt="原神 Logo"/>' +
+      '<div style="flex:1"><div style="font-size:' + FONT.md + 'px;font-weight:500;color:' +
       c.txt +
       '">原神</div>' +
-      '<div style="font-size:12px;color:' +
+      '<div style="font-size:' + FONT.xs + 'px;color:' +
       c.txt2 +
-      '">' +
+      ';opacity:' + TXT_ALPHA.secondary + '">' +
       nick +
       " · " +
       server +
       "</div></div>" +
-      '<span style="font-size:11px;color:' +
+      '<span style="font-size:' + FONT.xs + 'px;color:' +
       c.txt2 +
-      '">刚刚</span></div>' +
+      ';opacity:' + TXT_ALPHA.muted + '">刚刚</span></div>' +
       cardHeaderDivider() +
       '<div style="padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px">' +
       '<div style="display:flex;align-items:center;gap:10px">' +
-      '<div style="width:28px;height:28px;border-radius:8px;background:rgba(77,163,255,.12);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">🌙</div>' +
-      '<div style="flex:1"><div style="font-size:11px;color:' +
+      '<div style="width:28px;height:28px;border-radius:8px;background:rgba(77,163,255,.12);display:flex;align-items:center;justify-content:center;font-size:' + FONT.sm + 'px;flex-shrink:0" aria-hidden="true">🌙</div>' +
+      '<div style="flex:1"><div style="font-size:' + FONT.xs + 'px;color:' +
       c.txt2 +
-      ';margin-bottom:2px">原粹树脂</div>' +
-      '<div style="display:flex;align-items:baseline;gap:3px"><span style="font-size:24px;font-weight:700;line-height:1;color:' +
+      ';margin-bottom:2px;opacity:' + TXT_ALPHA.secondary + '">原粹树脂</div>' +
+      '<div style="display:flex;align-items:baseline;gap:3px"><span style="font-size:' + FONT.xl + 'px;font-weight:700;line-height:1;color:' +
       resinColor +
       '">' +
       resin +
       "</span>" +
-      '<span style="font-size:13px;color:' +
+      '<span style="font-size:' + FONT.sm + 'px;color:' +
       c.txt2 +
-      '">/' +
+      ';opacity:' + TXT_ALPHA.secondary + '">/' +
       resinMax +
       "</span></div>" +
-      '<div style="font-size:11px;color:' +
+      '<div style="font-size:' + FONT.xs + 'px;color:' +
       (isFull ? c.danger : c.txt2) +
-      ';margin-top:2px">' +
+      ';margin-top:2px;opacity:' + (isFull ? '1' : TXT_ALPHA.secondary) + '">' +
       (isFull ? "已全部恢复" : "将于 4 小时后全部恢复") +
       "</div></div>" +
       ring(Math.min(resin / resinMax, 1), resinColor) +
@@ -204,40 +204,40 @@ function renderHome(w, h) {
       '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px">' +
       '<img src="../assets/logo_starrail.png" style="width:32px;height:32px;border-radius:7px;object-fit:cover;flex-shrink:0;border:1px solid ' +
       c.border +
-      '"/>' +
-      '<div style="flex:1"><div style="font-size:15px;font-weight:500;color:' +
+      '" alt="星穹铁道 Logo"/>' +
+      '<div style="flex:1"><div style="font-size:' + FONT.md + 'px;font-weight:500;color:' +
       c.txt +
       '">崩坏：星穹铁道</div>' +
-      '<div style="font-size:12px;color:' +
+      '<div style="font-size:' + FONT.xs + 'px;color:' +
       c.txt2 +
-      '">' +
+      ';opacity:' + TXT_ALPHA.secondary + '">' +
       nick +
       " · " +
       server +
       "</div></div>" +
-      '<span style="font-size:11px;color:' +
+      '<span style="font-size:' + FONT.xs + 'px;color:' +
       c.txt2 +
-      '">刚刚</span></div>' +
+      ';opacity:' + TXT_ALPHA.muted + '">刚刚</span></div>' +
       cardHeaderDivider() +
       '<div style="padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px">' +
       '<div style="display:flex;align-items:center;gap:10px">' +
-      '<div style="width:28px;height:28px;border-radius:8px;background:rgba(155,142,255,.12);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">⚡</div>' +
-      '<div style="flex:1"><div style="font-size:11px;color:' +
+      '<div style="width:28px;height:28px;border-radius:8px;background:rgba(155,142,255,.12);display:flex;align-items:center;justify-content:center;font-size:' + FONT.sm + 'px;flex-shrink:0" aria-hidden="true">⚡</div>' +
+      '<div style="flex:1"><div style="font-size:' + FONT.xs + 'px;color:' +
       c.txt2 +
-      ';margin-bottom:2px">开拓力</div>' +
-      '<div style="display:flex;align-items:baseline;gap:3px"><span style="font-size:24px;font-weight:700;line-height:1;color:' +
+      ';margin-bottom:2px;opacity:' + TXT_ALPHA.secondary + '">开拓力</div>' +
+      '<div style="display:flex;align-items:baseline;gap:3px"><span style="font-size:' + FONT.xl + 'px;font-weight:700;line-height:1;color:' +
       staminaColor +
       '">' +
       stamina +
       "</span>" +
-      '<span style="font-size:13px;color:' +
+      '<span style="font-size:' + FONT.sm + 'px;color:' +
       c.txt2 +
-      '">/' +
+      ';opacity:' + TXT_ALPHA.secondary + '">/' +
       staminaMax +
       "</span></div>" +
-      '<div style="font-size:11px;color:' +
+      '<div style="font-size:' + FONT.xs + 'px;color:' +
       (isFull ? c.danger : c.txt2) +
-      ';margin-top:2px">' +
+      ';margin-top:2px;opacity:' + (isFull ? '1' : TXT_ALPHA.secondary) + '">' +
       (isFull ? "已全部恢复" : "将于 4 小时后全部恢复") +
       "</div></div>" +
       ring(Math.min(stamina / staminaMax, 1), staminaColor) +
@@ -319,40 +319,40 @@ function renderHome(w, h) {
       '<div style="display:flex;align-items:center;gap:8px;padding:10px 12px 8px">' +
       '<img src="../assets/logo_zzz.png" style="width:32px;height:32px;border-radius:7px;object-fit:cover;flex-shrink:0;border:1px solid ' +
       c.border +
-      '"/>' +
-      '<div style="flex:1"><div style="font-size:15px;font-weight:500;color:' +
+      '" alt="绝区零 Logo"/>' +
+      '<div style="flex:1"><div style="font-size:' + FONT.md + 'px;font-weight:500;color:' +
       c.txt +
       '">绝区零</div>' +
-      '<div style="font-size:12px;color:' +
+      '<div style="font-size:' + FONT.xs + 'px;color:' +
       c.txt2 +
-      '">' +
+      ';opacity:' + TXT_ALPHA.secondary + '">' +
       nick +
       " · " +
       server +
       "</div></div>" +
-      '<span style="font-size:11px;color:' +
+      '<span style="font-size:' + FONT.xs + 'px;color:' +
       c.txt2 +
-      '">刚刚</span></div>' +
+      ';opacity:' + TXT_ALPHA.muted + '">刚刚</span></div>' +
       cardHeaderDivider() +
       '<div style="padding:10px 12px 12px;display:flex;flex-direction:column;gap:6px">' +
       '<div style="display:flex;align-items:center;gap:10px">' +
-      '<div style="width:28px;height:28px;border-radius:8px;background:rgba(247,184,75,.12);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0">⚡</div>' +
-      '<div style="flex:1"><div style="font-size:11px;color:' +
+      '<div style="width:28px;height:28px;border-radius:8px;background:rgba(247,184,75,.12);display:flex;align-items:center;justify-content:center;font-size:' + FONT.sm + 'px;flex-shrink:0" aria-hidden="true">⚡</div>' +
+      '<div style="flex:1"><div style="font-size:' + FONT.xs + 'px;color:' +
       c.txt2 +
-      ';margin-bottom:2px">电量</div>' +
-      '<div style="display:flex;align-items:baseline;gap:3px"><span style="font-size:24px;font-weight:700;line-height:1;color:' +
+      ';margin-bottom:2px;opacity:' + TXT_ALPHA.secondary + '">电量</div>' +
+      '<div style="display:flex;align-items:baseline;gap:3px"><span style="font-size:' + FONT.xl + 'px;font-weight:700;line-height:1;color:' +
       energyColor +
       '">' +
       energy +
       "</span>" +
-      '<span style="font-size:13px;color:' +
+      '<span style="font-size:' + FONT.sm + 'px;color:' +
       c.txt2 +
-      '">/' +
+      ';opacity:' + TXT_ALPHA.secondary + '">/' +
       energyMax +
       "</span></div>" +
-      '<div style="font-size:11px;color:' +
+      '<div style="font-size:' + FONT.xs + 'px;color:' +
       (isFull ? c.danger : c.txt2) +
-      ';margin-top:2px">' +
+      ';margin-top:2px;opacity:' + (isFull ? '1' : TXT_ALPHA.secondary) + '">' +
       (isFull ? "已全部恢复" : "将于 4 小时后全部恢复") +
       "</div></div>" +
       ring(Math.min(energy / energyMax, 1), energyColor) +

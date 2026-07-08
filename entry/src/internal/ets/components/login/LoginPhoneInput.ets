@@ -2,7 +2,7 @@
  * LoginPhoneInput — 手机号输入步骤 UI（仅 internal）
  */
 import { themeManager, ThemeManager } from 'entry/ets/theme/ThemeManager';
-import { ThemeFonts } from '../../../../../main/ets/theme/ThemeFonts'
+import { ThemeFonts } from 'entry/ets/theme/ThemeFonts'
 import { LoginViewModel } from 'entry/ets/viewmodel/LoginViewModel';
 
 @ComponentV2

@@ -5,6 +5,7 @@
  */
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { WidgetSize } from '../../widget/models/WidgetConfig';
+import { WidgetThumb1x2, WidgetThumb2x2, WidgetThumb2x4, WidgetThumb4x4 } from './WidgetSizeThumbs';
 
 /** 尺寸配置 */
 export interface SizeConfig {
@@ -23,9 +24,26 @@ export struct WidgetSizeOption {
   /** 点击回调 */
   @Param onTap: () => void = () => {};
 
+  private get thumbColor(): ResourceColor {
+    return this.isSelected ? this.tm.current.colorPrimary : this.tm.current.colorTextSecondary;
+  }
+
   build() {
     Row() {
-      this.SizeThumb()
+      Column() {
+        if (this.config.size === WidgetSize.SIZE_1x2) {
+          WidgetThumb1x2({ thumbColor: this.thumbColor })
+        } else if (this.config.size === WidgetSize.SIZE_2x2) {
+          WidgetThumb2x2({ thumbColor: this.thumbColor })
+        } else if (this.config.size === WidgetSize.SIZE_2x4) {
+          WidgetThumb2x4({ thumbColor: this.thumbColor })
+        } else {
+          WidgetThumb4x4({ thumbColor: this.thumbColor })
+        }
+      }
+      .width(this.tm.current.value40)
+      .height(this.tm.current.value40)
+      .justifyContent(FlexAlign.Center)
 
       Column() {
         Text(this.config.label)
@@ -64,98 +82,6 @@ export struct WidgetSizeOption {
       color: this.isSelected ? this.tm.current.colorPrimary : this.tm.current.colorDivider
     })
     .onClick(() => { this.onTap(); })
-  }
-
-  @Builder
-  SizeThumb() {
-    Column() {
-      if (this.config.size === WidgetSize.SIZE_1x2) {
-        this.Thumb1x2()
-      } else if (this.config.size === WidgetSize.SIZE_2x2) {
-        this.Thumb2x2()
-      } else if (this.config.size === WidgetSize.SIZE_2x4) {
-        this.Thumb2x4()
-      } else {
-        this.Thumb4x4()
-      }
-    }
-    .width(this.tm.current.value40)
-    .height(this.tm.current.value40)
-    .justifyContent(FlexAlign.Center)
-  }
-
-  @Builder
-  Thumb1x2() {
-    Row({ space: this.tm.current.value2 }) {
-      Column().width(this.tm.current.value10).height(this.tm.current.value10).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-      Column().width(this.tm.current.value10).height(this.tm.current.value10).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-    }
-  }
-
-  @Builder
-  Thumb2x2() {
-    Column({ space: this.tm.current.value2 }) {
-      Row({ space: this.tm.current.value2 }) {
-        Column().width(this.tm.current.value10).height(this.tm.current.value10).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value10).height(this.tm.current.value10).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-      }
-      Row({ space: this.tm.current.value2 }) {
-        Column().width(this.tm.current.value10).height(this.tm.current.value10).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value10).height(this.tm.current.value10).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-      }
-    }
-  }
-
-  @Builder
-  Thumb2x4() {
-    Column({ space: this.tm.current.value2 }) {
-      Row({ space: this.tm.current.value2 }) {
-        Column().width(this.tm.current.value8).height(this.tm.current.value10).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value8).height(this.tm.current.value10).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value8).height(this.tm.current.value10).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value8).height(this.tm.current.value10).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-      }
-      Row({ space: this.tm.current.value2 }) {
-        Column().width(this.tm.current.value8).height(this.tm.current.value10).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value8).height(this.tm.current.value10).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value8).height(this.tm.current.value10).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value8).height(this.tm.current.value10).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-      }
-    }
-  }
-
-  @Builder
-  Thumb4x4() {
-    Column({ space: this.tm.current.value2 }) {
-      Row({ space: this.tm.current.value2 }) {
-        Column().width(this.tm.current.value8).height(this.tm.current.value8).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value8).height(this.tm.current.value8).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value8).height(this.tm.current.value8).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value8).height(this.tm.current.value8).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-      }
-      Row({ space: this.tm.current.value2 }) {
-        Column().width(this.tm.current.value8).height(this.tm.current.value8).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value8).height(this.tm.current.value8).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value8).height(this.tm.current.value8).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value8).height(this.tm.current.value8).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-      }
-      Row({ space: this.tm.current.value2 }) {
-        Column().width(this.tm.current.value8).height(this.tm.current.value8).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value8).height(this.tm.current.value8).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value8).height(this.tm.current.value8).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value8).height(this.tm.current.value8).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-      }
-      Row({ space: this.tm.current.value2 }) {
-        Column().width(this.tm.current.value8).height(this.tm.current.value8).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value8).height(this.tm.current.value8).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value8).height(this.tm.current.value8).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-        Column().width(this.tm.current.value8).height(this.tm.current.value8).backgroundColor(this.thumbColor).borderRadius(this.tm.current.radius8)
-      }
-    }
-  }
-
-  private get thumbColor(): ResourceColor {
-    return this.isSelected ? this.tm.current.colorPrimary : this.tm.current.colorTextSecondary;
   }
 }
 

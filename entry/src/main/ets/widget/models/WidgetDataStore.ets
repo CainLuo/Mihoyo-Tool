@@ -41,6 +41,8 @@ interface WidgetSlotDataJson {
   serverName: string;
   level: number;
   rawJson: string;
+  /** Widget API 原始响应 JSON（绝区零专用，用于 note_list 等额外数据） */
+  widgetRawJson: string;
 }
 
 /** Account JSON 结构 */
@@ -86,6 +88,8 @@ export class WidgetSlotData {
   level: number = 0;
   /** DailyNote API 原始响应 JSON */
   rawJson: string = '';
+  /** Widget API 原始响应 JSON（绝区零专用，用于 note_list 等额外数据） */
+  widgetRawJson: string = '';
 
   toJson(): WidgetSlotDataJson {
     const obj: WidgetSlotDataJson = {
@@ -95,6 +99,7 @@ export class WidgetSlotData {
       serverName: this.serverName,
       level: this.level,
       rawJson: this.rawJson,
+      widgetRawJson: this.widgetRawJson,
     };
     return obj;
   }
@@ -107,6 +112,7 @@ export class WidgetSlotData {
     d.serverName = obj.serverName;
     d.level = obj.level;
     d.rawJson = obj.rawJson;
+    d.widgetRawJson = obj.widgetRawJson ?? '';
     return d;
   }
 }

@@ -58,6 +58,7 @@ export struct GameToolCard {
       offsetY: this.tm.current.shadowOffsetY
     })
     .clip(true)
+    .accessibilityText($r('app.string.a11y_game_card', this.card.gameName))
     .onClick(() => { this.onTap(this.card) })
   }
 }

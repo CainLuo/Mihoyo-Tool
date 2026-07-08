@@ -1725,6 +1725,10 @@
       "value": "冷却中"
     },
     {
+      "name": "widget_week_active",
+      "value": "周活跃进度"
+    },
+    {
       "name": "widget_reserve_stamina",
       "value": "后备开拓力"
     },
@@ -1907,6 +1911,54 @@
     {
       "name": "widget1_display_name",
       "value": "widget1"
+    },
+    {
+      "name": "a11y_character_card",
+      "value": "%s 角色卡片，点击查看详情"
+    },
+    {
+      "name": "a11y_game_card",
+      "value": "%s 游戏卡片，点击查看详情"
+    },
+    {
+      "name": "a11y_widget_card",
+      "value": "Widget 卡片，点击同步数据"
+    },
+    {
+      "name": "a11y_character_avatar",
+      "value": "%s 头像"
+    },
+    {
+      "name": "a11y_character_portrait",
+      "value": "%s 立绘"
+    },
+    {
+      "name": "a11y_character_weapon",
+      "value": "%s 武器"
+    },
+    {
+      "name": "a11y_element_icon",
+      "value": "%s 元素"
+    },
+    {
+      "name": "a11y_path_icon",
+      "value": "命途图标"
+    },
+    {
+      "name": "a11y_rarity_icon",
+      "value": "%s 稀有度"
+    },
+    {
+      "name": "a11y_element_icon_generic",
+      "value": "元素图标"
+    },
+    {
+      "name": "a11y_profession_icon",
+      "value": "特性图标"
+    },
+    {
+      "name": "a11y_faction_icon",
+      "value": "阵营图标"
     }
   ]
 }

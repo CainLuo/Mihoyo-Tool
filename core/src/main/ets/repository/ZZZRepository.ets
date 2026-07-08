@@ -153,12 +153,33 @@ export class ZZZRepository extends GameRepository {
       throw new Error(`retcode=${retcodeStr}: ${respData['message'] ?? 'no data'}`);
     }
     const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
-    const row = this.parseZZZDailyNoteData(accountId, roleUid, dataObj);
+    // Note API 数据存储到 rawJson
+    const row = this.parseZZZDailyNoteData(accountId, roleUid, dataObj, false);
     await this.upsertDailyNote(accountId, roleUid, row);
   }
 
   /**
-   * Widget API 降级同步便笺（绝区零 /api/zzz/widget）
+   * Widget API 同步便笺（绝区零 /api/zzz/widget）
+   * 
+   * 特点：
+   * - 无风控，可高频调用
+   * - 含 note_list 字段（预格式化的额外信息）
+   * - 只更新 widgetRawJson 和基础字段，不影响 rawJson
+   */
+  async syncDailyNoteWidget(accountId: string, roleUid: string, widgetCookie: string): Promise<void> {
+    await this.markSyncing(accountId, roleUid, SyncDataType.ZZZ_DAILY_NOTE);
+    try {
+      await this.doSyncDailyNoteWidget(accountId, roleUid, widgetCookie);
+      await this.markSuccess(accountId, roleUid, SyncDataType.ZZZ_DAILY_NOTE);
+    } catch (error) {
+      const msg = this.toErrorMessage(error);
+      await this.markFailed(accountId, roleUid, SyncDataType.ZZZ_DAILY_NOTE, msg);
+      throw new Error(msg);
+    }
+  }
+
+  /**
+   * Widget API 内部同步逻辑（降级和公开方法共用）
    * Widget 返回字段是普通便笺的子集，只更新有对应字段的数据
    */
   private async doSyncDailyNoteWidget(accountId: string, roleUid: string, widgetCookie: string): Promise<void> {
@@ -172,16 +193,22 @@ export class ZZZRepository extends GameRepository {
       throw new Error(`Widget API: no data`);
     }
     const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
-    const row = this.parseZZZDailyNoteData(accountId, roleUid, dataObj);
+    // Widget API 数据存储到 widgetRawJson
+    const row = this.parseZZZDailyNoteData(accountId, roleUid, dataObj, true);
     await this.upsertDailyNote(accountId, roleUid, row);
   }
 
-  private parseZZZDailyNoteData(accountId: string, roleUid: string, dataObj: object): ZZZDailyNoteRow {
+  private parseZZZDailyNoteData(accountId: string, roleUid: string, dataObj: object, isWidget: boolean = false): ZZZDailyNoteRow {
     const d = dataObj as Record<string, object>;
     const row = new ZZZDailyNoteRow();
     row.accountId = accountId;
     row.roleUid = roleUid;
-    row.rawJson = JSON.stringify(dataObj);
+    // isWidget=true 时存储到 widgetRawJson，否则存储到 rawJson
+    if (isWidget) {
+      row.widgetRawJson = JSON.stringify(dataObj);
+    } else {
+      row.rawJson = JSON.stringify(dataObj);
+    }
     row.updateTime = Math.floor(Date.now() / 1000);
     const energy = d['energy'] as Record<string, object> | null;
     if (energy) {

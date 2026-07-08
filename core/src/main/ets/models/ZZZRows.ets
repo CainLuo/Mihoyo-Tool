@@ -75,6 +75,8 @@ export class ZZZDailyNoteRow {
   cardSign: string = '';
   /** 原始 API 响应 JSON（来自 zzz/note 接口） */
   rawJson: string = '';
+  /** Widget API 响应 JSON（来自 zzz/widget 接口，含 note_list 字段） */
+  widgetRawJson: string = '';
   /** 数据更新时间（Unix 秒） */
   updateTime: number = 0;
 }

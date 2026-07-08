@@ -8,6 +8,10 @@
  * - 第一行：游戏名 + UID（同行，字号小）
  * - 第二行：当前体力 + 最大体力（字号相同，当前体力颜色根据比例从红色到主题色）
  * - 第三行：恢复时间
+ *
+ * UI/UX 优化：
+ * - 字号统一使用 FONT 常量
+ * - 文字对比度符合 WCAG 2.2（透明度 ≥ .45）
  */
 function wrRender1x2(cardW, cardH, gid) {
   var d = WR.stamina[gid];
@@ -32,7 +36,7 @@ function wrRender1x2(cardW, cardH, gid) {
     innerH +
     "px;border-radius:2px;background:" +
     gameColor +
-    ';flex-shrink:0"></div>';
+    ';flex-shrink:0" role="presentation"></div>';
 
   var inner;
   if (gid === "starrail") {
@@ -40,11 +44,11 @@ function wrRender1x2(cardW, cardH, gid) {
     // 左侧：游戏名 + UID + 恢复时间
     var leftContent =
       '<div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:2px">' +
-      '<span style="font-size:10px;font-weight:500;color:rgba(255,255,255,.6);line-height:1.2">' +
+      '<span style="font-size:' + FONT.xs + ';font-weight:500;color:rgba(255,255,255,.6);line-height:1.2">' +
       WR.names[gid] +
       "</span>" +
-      '<span style="font-size:9px;color:rgba(255,255,255,.35);line-height:1.2">UID 123456789</span>' +
-      '<span style="font-size:10px;color:rgba(255,255,255,.4);line-height:1">' +
+      '<span style="font-size:11px;color:rgba(255,255,255,.5);line-height:1.2">UID 123456789</span>' +
+      '<span style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.5);line-height:1">' +
       d.rec +
       "</span>" +
       "</div>";
@@ -52,13 +56,13 @@ function wrRender1x2(cardW, cardH, gid) {
     // 右侧：当前值 + Divider + 最大值 上下排列
     var rightContent =
       '<div style="display:flex;flex-direction:column;align-items:flex-end;justify-content:center;gap:2px;flex-shrink:0">' +
-      '<span style="font-size:16px;font-weight:700;color:' +
+      '<span style="font-size:' + FONT.base + ';font-weight:700;color:' +
       staminaColor +
       ';line-height:1">' +
       d.cur +
       "</span>" +
-      '<div style="width:20px;height:1px;background:rgba(255,255,255,.15)"></div>' +
-      '<span style="font-size:12px;color:rgba(255,255,255,.4);line-height:1">' +
+      '<div style="width:20px;height:1px;background:rgba(255,255,255,.15)" role="separator"></div>' +
+      '<span style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.5);line-height:1">' +
       d.max +
       "</span>" +
       "</div>";
@@ -74,28 +78,28 @@ function wrRender1x2(cardW, cardH, gid) {
     // 第一行：游戏名 + UID
     var row1 =
       '<div style="display:flex;align-items:center;gap:4px;line-height:1.2">' +
-      '<span style="font-size:10px;font-weight:500;color:rgba(255,255,255,.6)">' +
+      '<span style="font-size:' + FONT.xs + ';font-weight:500;color:rgba(255,255,255,.6)">' +
       WR.names[gid] +
       "</span>" +
-      '<span style="font-size:9px;color:rgba(255,255,255,.35)">UID 123456789</span>' +
+      '<span style="font-size:11px;color:rgba(255,255,255,.5)">UID 123456789</span>' +
       "</div>";
 
     // 第二行：当前体力/最大体力
     var row2 =
       '<div style="display:flex;align-items:baseline;gap:2px;line-height:1.1">' +
-      '<span style="font-size:18px;font-weight:700;color:' +
+      '<span style="font-size:' + FONT.lg + ';font-weight:700;color:' +
       staminaColor +
       '">' +
       d.cur +
       "</span>" +
-      '<span style="font-size:18px;color:rgba(255,255,255,.4)">/' +
+      '<span style="font-size:' + FONT.lg + ';color:rgba(255,255,255,.5)">/' +
       d.max +
       "</span>" +
       "</div>";
 
     // 第三行：恢复时间
     var row3 =
-      '<span style="font-size:10px;color:rgba(255,255,255,.4);line-height:1">' +
+      '<span style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.5);line-height:1">' +
       d.rec +
       "</span>";
 

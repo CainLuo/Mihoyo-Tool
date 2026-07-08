@@ -9,7 +9,7 @@ import { ALL_TABLES, ALL_INDEXES, TableName } from './TableSchema';
 export class RdbManager {
   private static rdbStore: relationalStore.RdbStore | null = null;
   private static readonly DB_NAME: string = 'mihoyo_tool_v2.db';
-  private static readonly DB_VERSION: number = 1;
+  private static readonly DB_VERSION: number = 2;
 
   /**
    * 初始化数据库，使用 SecurityLevel.S1 加密
@@ -103,6 +103,10 @@ export class RdbManager {
       // 首次安装：建全部表
       await RdbManager.createTables();
       await RdbManager.executeSqlInternal(`PRAGMA user_version = ${RdbManager.DB_VERSION}`, []);
+    } else if (currentVersion < RdbManager.DB_VERSION) {
+      // 版本升级：执行迁移
+      await RdbManager.runVersionMigrations(currentVersion);
+      await RdbManager.executeSqlInternal(`PRAGMA user_version = ${RdbManager.DB_VERSION}`, []);
     }
     // currentVersion === DB_VERSION 时跳过，无迁移逻辑
   }
@@ -117,6 +121,20 @@ export class RdbManager {
     }
     for (let i = 0; i < ALL_INDEXES.length; i++) {
       await RdbManager.executeSqlInternal(ALL_INDEXES[i].buildCreateSql(), []);
+    }
+  }
+
+  /**
+   * 执行版本迁移
+   * 从 oldVersion 逐步迁移到最新版本
+   */
+  private static async runVersionMigrations(oldVersion: number): Promise<void> {
+    // 版本 1 → 2：为 zzz_daily_note 添加 widget_raw_json 列
+    if (oldVersion < 2) {
+      await RdbManager.executeSqlInternal(
+        'ALTER TABLE zzz_daily_note ADD COLUMN widget_raw_json TEXT DEFAULT \'\'',
+        []
+      );
     }
   }
 

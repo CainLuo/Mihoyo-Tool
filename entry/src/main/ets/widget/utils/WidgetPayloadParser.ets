@@ -15,6 +15,8 @@ export class ParsedRole {
   nickname: string = '';
   server: string = '';
   rawJson: string = '';
+  /** Widget API 原始响应 JSON（绝区零专用，用于 note_list 等额外数据） */
+  widgetRawJson: string = '';
 
   // 当前体力（三游戏通用）
   currentStamina: number = 0;
@@ -237,6 +239,8 @@ interface RoleJson {
   nickname: string;
   server: string;
   rawJson: string;
+  /** Widget API 原始响应 JSON（绝区零专用，用于 note_list 等额外数据） */
+  widgetRawJson?: string;
 }
 
 /**
@@ -311,6 +315,7 @@ export function parsePayload(payloadJson: string): ParsedPayload {
                 parsedRole.nickname = roleObj.nickname !== undefined ? roleObj.nickname : '';
                 parsedRole.server = roleObj.server !== undefined ? roleObj.server : '';
                 parsedRole.rawJson = roleObj.rawJson !== undefined ? roleObj.rawJson : '';
+                parsedRole.widgetRawJson = roleObj.widgetRawJson !== undefined ? roleObj.widgetRawJson : '';
                 
                 // 关键：设置父级的 gameId，确保 gameId 始终正确
                 parsedRole.setGameId(parsedGame.gameId);

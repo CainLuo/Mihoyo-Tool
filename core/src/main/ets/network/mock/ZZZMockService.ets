@@ -20,6 +20,11 @@ export class ZZZMockService extends MockServiceBase {
     return this.readMockFile(ZZZApiPath.DAILY_NOTE, cookie, roleId);
   }
 
+  async getDailyNoteWidget(cookie: string): Promise<object> {
+    // Widget API 是账号级的，Mock 文件放在 {accountId}/ 目录下
+    return this.readMockFile(ZZZApiPath.DAILY_NOTE_WIDGET, cookie);
+  }
+
   async getAvatarBasic(roleId: string, server: string, cookie: string): Promise<object> {
     return this.readMockFile(ZZZApiPath.AVATAR_BASIC, cookie, roleId);
   }

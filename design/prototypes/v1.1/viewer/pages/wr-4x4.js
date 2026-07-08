@@ -7,6 +7,11 @@
  * 原神：4条数据行分两组 + 派遣格子（共4个区块）
  * 星铁/绝区零：数据行分两组（共3个区块）
  * 每个区块 flex:1 均分高度，不空旷
+ *
+ * UI/UX 优化：
+ * - 字号统一使用 FONT 常量
+ * - 文字对比度符合 WCAG 2.2（透明度 ≥ .45）
+ * - 图片添加 alt 属性
  */
 function wrRender4x4(cardW, cardH, games) {
   var pad = 12;
@@ -24,35 +29,35 @@ function wrRender4x4(cardW, cardH, games) {
       '<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;padding-bottom:8px;border-bottom:1px solid rgba(255,255,255,.1)">' +
       '<div style="width:8px;height:8px;border-radius:50%;background:' +
       color +
-      ';flex-shrink:0"></div>' +
-      '<span style="font-size:14px;font-weight:700;color:rgba(255,255,255,.95);flex:1">' +
+      ';flex-shrink:0" role="presentation"></div>' +
+      '<span style="font-size:' + FONT.sm + ';font-weight:700;color:rgba(255,255,255,.95);flex:1">' +
       WR.names[gid] +
       "</span>" +
-      '<span style="font-size:10px;color:rgba(255,255,255,.35)">UID 123456789</span>' +
+      '<span style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.5)">UID 123456789</span>' +
       "</div>";
 
     // 区块1：体力 - 数字 40fp
     var block1 =
       '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.1)">' +
-      '<div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:4px;letter-spacing:0.8px;text-transform:uppercase">' +
+      '<div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:4px;letter-spacing:0.8px;text-transform:uppercase">' +
       staminaLabel +
       "</div>" +
       '<div style="display:flex;align-items:baseline;gap:4px;margin-bottom:3px">' +
-      '<span style="font-size:40px;font-weight:700;color:' +
+      '<span style="font-size:' + FONT["5xl"] + ';font-weight:700;color:' +
       color +
       ';line-height:1">' +
       d.cur +
       "</span>" +
-      '<span style="font-size:14px;color:rgba(255,255,255,.3)">/ ' +
+      '<span style="font-size:' + FONT.sm + ';color:rgba(255,255,255,.45)">/ ' +
       d.max +
       "</span>" +
       "</div>" +
-      '<div style="font-size:12px;color:rgba(255,255,255,.5)">' +
+      '<div style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.6)">' +
       d.rec +
       "</div>" +
       (gid === "starrail"
         ? '<div style="display:flex;align-items:center;gap:6px;margin-top:3px">' +
-          '<span style="font-size:11px;color:rgba(255,255,255,.35)">后备开拓力</span>' +
+          '<span style="font-size:11px;color:rgba(255,255,255,.5)">后备开拓力</span>' +
           '<span style="font-size:13px;font-weight:600;color:' +
           color +
           '">2400</span>' +
@@ -71,10 +76,10 @@ function wrRender4x4(cardW, cardH, games) {
       for (var i = 0; i < items.length; i++) {
         rows +=
           '<div style="display:flex;align-items:center;justify-content:space-between;flex:1">' +
-          '<span style="font-size:12px;color:rgba(255,255,255,.45)">' +
+          '<span style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.55)">' +
           items[i].label +
           "</span>" +
-          '<span style="font-size:12px;font-weight:600;color:' +
+          '<span style="font-size:' + FONT.xs + ';font-weight:600;color:' +
           items[i].color +
           '">' +
           items[i].val +
@@ -97,15 +102,15 @@ function wrRender4x4(cardW, cardH, games) {
       for (var ei = 0; ei < expData.length; ei++) {
         avatars +=
           '<div style="position:relative;flex:1;display:flex;justify-content:center">' +
-          '<img src="' + expData[ei].avatar + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover" />' +
+          '<img src="' + expData[ei].avatar + '" style="width:32px;height:32px;border-radius:50%;object-fit:cover" alt="派遣角色" />' +
           (expData[ei].finished
-            ? '<div style="position:absolute;bottom:-2px;right:calc(50% - 18px);width:12px;height:12px;border-radius:50%;background:#34d399;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000;font-weight:700;box-shadow:0 0 0 2px #111118">✓</div>'
+            ? '<div style="position:absolute;bottom:-2px;right:calc(50% - 18px);width:12px;height:12px;border-radius:50%;background:#34d399;display:flex;align-items:center;justify-content:center;font-size:8px;color:#000;font-weight:700;box-shadow:0 0 0 2px #111118" aria-label="已完成">✓</div>'
             : "") +
           "</div>";
       }
       return (
         '<div style="flex:1;display:flex;flex-direction:column;justify-content:center;padding:6px 0">' +
-        '<div style="font-size:10px;color:rgba(255,255,255,.3);margin-bottom:6px;letter-spacing:0.8px;text-transform:uppercase">探索派遣</div>' +
+        '<div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:6px;letter-spacing:0.8px;text-transform:uppercase">探索派遣</div>' +
         '<div style="display:flex">' +
         avatars +
         "</div>" +
@@ -156,9 +161,9 @@ function wrRender4x4(cardW, cardH, games) {
     for (var ei = 0; ei < expData.length; ei++) {
       avatars +=
         '<div style="position:relative;flex-shrink:0">' +
-        '<img src="' + expData[ei].avatar + '" style="width:24px;height:24px;border-radius:50%;object-fit:cover" />' +
+        '<img src="' + expData[ei].avatar + '" style="width:24px;height:24px;border-radius:50%;object-fit:cover" alt="派遣角色" />' +
         (expData[ei].finished
-          ? '<div style="position:absolute;bottom:-2px;right:-2px;width:10px;height:10px;border-radius:50%;background:#34d399;display:flex;align-items:center;justify-content:center;font-size:7px;color:#000;font-weight:700;box-shadow:0 0 0 1.5px #111118">✓</div>'
+          ? '<div style="position:absolute;bottom:-2px;right:-2px;width:10px;height:10px;border-radius:50%;background:#34d399;display:flex;align-items:center;justify-content:center;font-size:7px;color:#000;font-weight:700;box-shadow:0 0 0 1.5px #111118" aria-label="已完成">✓</div>'
           : "") +
         "</div>";
     }
@@ -195,7 +200,7 @@ function wrRender4x4(cardW, cardH, games) {
           WR.row(extras2[2].label, extras2[2].val, extras2[2].color, 11) +
           WR.row(extras2[3].label, extras2[3].val, extras2[3].color, 11) +
           '<div style="display:flex;align-items:center;gap:4px;margin-top:2px">' +
-          '<span style="font-size:10px;color:rgba(255,255,255,.4)">探索派遣</span>' +
+          '<span style="font-size:11px;color:rgba(255,255,255,.5)">探索派遣</span>' +
           '<span style="font-size:11px;font-weight:600;color:rgba(155,142,255,.9)">4/5</span>' +
           "</div>" +
           '<div style="display:flex;align-items:center;gap:4px">' +
@@ -221,7 +226,7 @@ function wrRender4x4(cardW, cardH, games) {
 
       blocks +=
         (gi > 0
-          ? '<div style="height:1px;background:rgba(255,255,255,.08);margin:4px 0;flex-shrink:0"></div>'
+          ? '<div style="height:1px;background:rgba(255,255,255,.08);margin:4px 0;flex-shrink:0" role="separator"></div>'
           : "") +
         '<div style="height:' +
         rowH +
@@ -232,7 +237,7 @@ function wrRender4x4(cardW, cardH, games) {
         '<span style="font-size:13px;font-weight:500;color:rgba(255,255,255,.7)">' +
         WR.names[gid2] +
         "</span>" +
-        '<span style="font-size:10px;color:rgba(255,255,255,.35)">UID ' +
+        '<span style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.5)">UID ' +
         (123456789 + gi) +
         "</span>" +
         "</div>" +
@@ -242,11 +247,11 @@ function wrRender4x4(cardW, cardH, games) {
         ';line-height:1">' +
         d2.cur +
         "</span>" +
-        '<span style="font-size:13px;color:rgba(255,255,255,.4)">/' +
+        '<span style="font-size:13px;color:rgba(255,255,255,.5)">/' +
         d2.max +
         "</span>" +
         "</div>" +
-        '<span style="font-size:11px;color:rgba(255,255,255,.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
+        '<span style="font-size:11px;color:rgba(255,255,255,.55);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
         d2.rec +
         "</span>" +
         "</div>" +
@@ -258,7 +263,7 @@ function wrRender4x4(cardW, cardH, games) {
       for (var yi = 0; yi < Math.min(extras2.length, 4); yi++) {
         exHtml3 +=
           '<div style="display:flex;align-items:center;justify-content:space-between">' +
-          '<span style="font-size:10px;color:rgba(255,255,255,.4)">' +
+          '<span style="font-size:11px;color:rgba(255,255,255,.5)">' +
           extras2[yi].label +
           "</span>" +
           '<span style="font-size:11px;font-weight:600;color:' +
@@ -271,7 +276,7 @@ function wrRender4x4(cardW, cardH, games) {
 
       blocks +=
         (gi > 0
-          ? '<div style="height:1px;background:rgba(255,255,255,.08);margin:3px 0;flex-shrink:0"></div>'
+          ? '<div style="height:1px;background:rgba(255,255,255,.08);margin:3px 0;flex-shrink:0" role="separator"></div>'
           : "") +
         '<div style="height:' +
         rowH +
@@ -282,21 +287,21 @@ function wrRender4x4(cardW, cardH, games) {
         '<span style="font-size:11px;font-weight:500;color:rgba(255,255,255,.65)">' +
         WR.names[gid2] +
         "</span>" +
-        '<span style="font-size:9px;color:rgba(255,255,255,.35)">UID ' +
+        '<span style="font-size:11px;color:rgba(255,255,255,.5)">UID ' +
         (123456789 + gi) +
         "</span>" +
         "</div>" +
         '<div style="display:flex;align-items:baseline;gap:2px">' +
-        '<span style="font-size:20px;font-weight:700;color:' +
+        '<span style="font-size:' + FONT.xl + ';font-weight:700;color:' +
         curColor2 +
         ';line-height:1">' +
         d2.cur +
         "</span>" +
-        '<span style="font-size:11px;color:rgba(255,255,255,.4)">/' +
+        '<span style="font-size:11px;color:rgba(255,255,255,.5)">/' +
         d2.max +
         "</span>" +
         "</div>" +
-        '<span style="font-size:10px;color:rgba(255,255,255,.45);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
+        '<span style="font-size:11px;color:rgba(255,255,255,.55);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
         d2.rec +
         "</span>" +
         "</div>" +

@@ -89,12 +89,12 @@ export class Widget2x4ViewModel {
     }
 
     // 解析额外数据行
-    const extraRows = WidgetDataHelper.parseExtraRows(role.rawJson, role.gameId);
     // 原神：去掉第一条（探索派遣），因为改在底部显示
-    // 星铁：保留全部（后备开拓力、委托派遣、每日实训、历战余响、模拟宇宙、货币战争）
-    // 绝区零：保留全部
-    const filteredRows = role.gameId === WIDGET_GAME_ID.GENSHIN ? extraRows.slice(1) : extraRows;
+    // 星铁/绝区零：保留全部
     // 2x4 右侧最多显示 3 条额外数据
+    const maxRows = role.gameId === WIDGET_GAME_ID.GENSHIN ? 4 : 3; // 原神多解析一条用于去掉
+    const extraRows = WidgetDataHelper.parseExtraRows(role.rawJson, role.widgetRawJson, role.gameId, maxRows);
+    const filteredRows = role.gameId === WIDGET_GAME_ID.GENSHIN ? extraRows.slice(1) : extraRows;
     state.extraRows = Widget2x4ViewModel.convertExtraRows(filteredRows.slice(0, 3));
 
     // 原神专属：解析派遣角色头像

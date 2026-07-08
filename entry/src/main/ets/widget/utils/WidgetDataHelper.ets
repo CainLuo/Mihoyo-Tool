@@ -13,7 +13,9 @@
  * - 颜色判断由组件负责，这里只返回枚举类型
  */
 
+import { Logger } from 'core';
 import { WIDGET_GAME_ID } from './WidgetUtils';
+import { WidgetExtraRowConfig } from './WidgetExtraRowConfig';
 import {
   StaminaColorType,
   RecoveryTimeData,
@@ -145,138 +147,254 @@ export class WidgetDataHelper {
 
   /**
    * 解析额外数据行
-   * @param rawJson 原始 JSON 字符串
+   *
+   * @param rawJson Note API 原始 JSON 字符串
+   * @param widgetRawJson Widget API 原始 JSON 字符串（绝区零含 note_list 字段）
    * @param gameId 游戏 ID
+   * @param maxRows 最多返回几行（0 = 不限制，默认 0）
+   * @returns 额外数据行数组，已按优先级排序并截断
+   *
+   * 解析规则：
+   * - 原神：解析原始字段，按优先级排序后截断
+   * - 星铁：解析原始字段，按优先级排序后截断
+   * - 绝区零：优先从 widgetRawJson 解析 note_list，降级从原始字段构建
    */
   static parseExtraRows(
     rawJson: string,
-    gameId: string
+    widgetRawJson: string,
+    gameId: string,
+    maxRows: number = 0
   ): ParsedExtraRow[] {
     const rows: ParsedExtraRow[] = [];
 
-    if (rawJson.length === 0) {
+    // DEBUG: 打印参数
+    Logger.info('WIDGET', `[parseExtraRows] gameId=${gameId} rawJson.len=${rawJson.length} widgetRawJson.len=${widgetRawJson.length}`);
+
+    if (rawJson.length === 0 && widgetRawJson.length === 0) {
+      Logger.warn('WIDGET', `[parseExtraRows] both empty, returning empty array`);
       return rows;
     }
 
     try {
-      const data = JSON.parse(rawJson) as Record<string, Object>;
-
       if (gameId === WIDGET_GAME_ID.GENSHIN) {
-        const expeditionMax = WidgetDataHelper.parseIntSafe(data['max_expedition_num'], 5);
-        if (expeditionMax > 0) {
-          const finished = WidgetDataHelper.calcFinishedExpeditions(data['expeditions']);
-          rows.push(WidgetDataHelper.createExtraRow('expedition', `${finished}/${expeditionMax}`, WidgetColors.STARRAIL_PRIMARY));
-        }
-
-        const coinMax = WidgetDataHelper.parseIntSafe(data['max_home_coin'], 2400);
-        if (coinMax > 0) {
-          const coin = WidgetDataHelper.parseIntSafe(data['current_home_coin'], 0);
-          rows.push(WidgetDataHelper.createExtraRow('home_coin', `${coin}/${coinMax}`, WidgetColors.STAMINA_MEDIUM));
-        }
-
-        const totalTaskNum = WidgetDataHelper.parseIntSafe(data['total_task_num'], 4);
-        if (totalTaskNum > 0) {
-          const finishedTaskNum = WidgetDataHelper.parseIntSafe(data['finished_task_num'], 0);
-          const isExtraRewardReceived = data['is_extra_task_reward_received'] === true;
-          const taskStatus = isExtraRewardReceived ? 'received' : `${finishedTaskNum}/${totalTaskNum}`;
-          rows.push(WidgetDataHelper.createExtraRow('daily_task', taskStatus, WidgetColors.SUCCESS));
-        }
-
-        const transformer = data['transformer'];
-        if (transformer !== undefined && transformer !== null) {
-          const transformerObj = transformer as Record<string, Object>;
-          const obtained = transformerObj['obtained'] === true;
-          const reached = transformerObj['reached'] === true;
-          if (obtained) {
-            const transformerStatus = reached ? 'ready' : 'not_ready';
-            rows.push(WidgetDataHelper.createExtraRow('transformer', transformerStatus, reached ? WidgetColors.ZZZ_PRIMARY : WidgetColors.INCOMPLETE));
-          }
-        }
+        Logger.info('WIDGET', `[parseExtraRows] parsing genshin`);
+        const emptyObj: Record<string, Object> = {};
+        const data = rawJson.length > 0 ? JSON.parse(rawJson) as Record<string, Object> : emptyObj;
+        WidgetDataHelper.parseGenshinExtraRows(data, rows);
       } else if (gameId === WIDGET_GAME_ID.STARRAIL) {
-        // 后备开拓力
-        const reserveStamina = WidgetDataHelper.parseIntSafe(data['current_reserve_stamina'], 0);
-        if (reserveStamina > 0) {
-          rows.push(WidgetDataHelper.createExtraRow('reserve_stamina', String(reserveStamina), WidgetColors.STARRAIL_PRIMARY));
-        }
-
-        // 委托派遣
-        const expeditionNum = WidgetDataHelper.parseIntSafe(data['accepted_epedition_num'], 0);
-        const expeditionTotal = WidgetDataHelper.parseIntSafe(data['total_expedition_num'], 4);
-        if (expeditionTotal > 0) {
-          rows.push(WidgetDataHelper.createExtraRow('starrail_expedition', `${expeditionNum}/${expeditionTotal}`, WidgetColors.STAMINA_MEDIUM));
-        }
-
-        // 每日实训（周期积分）
-        const trainMax = WidgetDataHelper.parseIntSafe(data['max_train_score'], 500);
-        if (trainMax > 0) {
-          const train = WidgetDataHelper.parseIntSafe(data['current_train_score'], 0);
-          rows.push(WidgetDataHelper.createExtraRow('train_score', `${train}/${trainMax}`, WidgetColors.STAMINA_MEDIUM));
-        }
-
-        // 历战余响
-        const cocoonLimit = WidgetDataHelper.parseIntSafe(data['weekly_cocoon_limit'], 3);
-        if (cocoonLimit > 0) {
-          const cocoon = WidgetDataHelper.parseIntSafe(data['weekly_cocoon_cnt'], 0);
-          rows.push(WidgetDataHelper.createExtraRow('cocoon', `${cocoon}/${cocoonLimit}`, WidgetColors.STARRAIL_PRIMARY));
-        }
-
-        // 模拟宇宙积分（rogue_tourn_weekly_cur / rogue_tourn_weekly_max）
-        // 始终显示，即使 max 为 0
-        const rogueTournMax = WidgetDataHelper.parseIntSafe(data['rogue_tourn_weekly_max'], 0);
-        const rogueTourn = WidgetDataHelper.parseIntSafe(data['rogue_tourn_weekly_cur'], 0);
-        rows.push(WidgetDataHelper.createExtraRow('rogue_tourn', `${rogueTourn}/${rogueTournMax}`, WidgetColors.SUCCESS));
-
-        // 货币战争积分（grid_fight_weekly_cur / grid_fight_weekly_max）
-        // 始终显示，即使 max 为 0
-        const gridFightMax = WidgetDataHelper.parseIntSafe(data['grid_fight_weekly_max'], 0);
-        const gridFight = WidgetDataHelper.parseIntSafe(data['grid_fight_weekly_cur'], 0);
-        rows.push(WidgetDataHelper.createExtraRow('grid_fight', `${gridFight}/${gridFightMax}`, WidgetColors.ZZZ_PRIMARY));
-
+        Logger.info('WIDGET', `[parseExtraRows] parsing starrail`);
+        const emptyObj: Record<string, Object> = {};
+        const data = rawJson.length > 0 ? JSON.parse(rawJson) as Record<string, Object> : emptyObj;
+        WidgetDataHelper.parseStarRailExtraRows(data, rows);
       } else if (gameId === WIDGET_GAME_ID.ZZZ) {
-        // 活跃度
-        const vitalityData = data['vitality'];
-        if (vitalityData !== undefined && vitalityData !== null) {
-          const vitalityObj = vitalityData as Record<string, Object>;
-          const vitalityMax = WidgetDataHelper.parseIntSafe(vitalityObj['max'], 400);
-          if (vitalityMax > 0) {
-            const vitality = WidgetDataHelper.parseIntSafe(vitalityObj['current'], 0);
-            rows.push(WidgetDataHelper.createExtraRow('vitality', `${vitality}/${vitalityMax}`, WidgetColors.ZZZ_PRIMARY));
-          }
-        }
-
-        // 刮刮卡
-        const cardSign = data['card_sign'];
-        if (cardSign !== undefined && cardSign !== null) {
-          const cardSignStr = String(cardSign);
-          const isDone = cardSignStr === 'CardSignDone';
-          rows.push(WidgetDataHelper.createExtraRow('card_sign', isDone ? 'done' : 'not_done', isDone ? WidgetColors.SUCCESS : WidgetColors.INCOMPLETE));
-        }
-
-        // 录像店经营
-        const vhsSale = data['vhs_sale'];
-        if (vhsSale !== undefined && vhsSale !== null) {
-          const vhsSaleObj = vhsSale as Record<string, Object>;
-          const saleState = String(vhsSaleObj['sale_state'] ?? '');
-          if (saleState === 'SaleStateDoing') {
-            rows.push(WidgetDataHelper.createExtraRow('video_store', 'open', WidgetColors.SUCCESS));
-          } else if (saleState === 'SaleStateDone') {
-            rows.push(WidgetDataHelper.createExtraRow('video_store', 'done', WidgetColors.ZZZ_PRIMARY));
-          }
-        }
+        Logger.info('WIDGET', `[parseExtraRows] parsing zzz`);
+        WidgetDataHelper.parseZZZNoteList(rawJson, widgetRawJson, rows);
       }
-    } catch (_e) {
-      // 解析失败返回空数组
+      Logger.info('WIDGET', `[parseExtraRows] parsed ${rows.length} rows`);
+    } catch (e) {
+      Logger.error('WIDGET', `[parseExtraRows] failed: ${JSON.stringify(e)}`);
     }
 
-    // 不在此处截断，由调用方（ViewModel/组件）决定显示多少条
+    // 绝区零使用 note_list，已按米游社顺序排列，不需要排序
+    if (gameId !== WIDGET_GAME_ID.ZZZ && rows.length > 0) {
+      // 按优先级排序（原神/星铁）
+      const priority = WidgetExtraRowConfig.getPriority(gameId);
+      rows.sort((a, b) => {
+        const pa = priority[a.label] ?? 99;
+        const pb = priority[b.label] ?? 99;
+        return pa - pb;
+      });
+    }
+
+    // 截断到指定数量
+    if (maxRows > 0 && rows.length > maxRows) {
+      return rows.slice(0, maxRows);
+    }
+
     return rows;
+  }
+
+  // ── 游戏特定的额外信息解析方法 ────────────────────────────────────────
+
+  /**
+   * 解析原神额外信息
+   */
+  private static parseGenshinExtraRows(data: Record<string, Object>, rows: ParsedExtraRow[]): void {
+    // 探索派遣
+    const expeditionMax = WidgetDataHelper.parseIntSafe(data['max_expedition_num'], 5);
+    if (expeditionMax > 0) {
+      const finished = WidgetDataHelper.calcFinishedExpeditions(data['expeditions']);
+      rows.push(WidgetDataHelper.createExtraRow('expedition', `${finished}/${expeditionMax}`, WidgetColors.STARRAIL_PRIMARY));
+    }
+
+    // 洞天宝钱
+    const coinMax = WidgetDataHelper.parseIntSafe(data['max_home_coin'], 2400);
+    if (coinMax > 0) {
+      const coin = WidgetDataHelper.parseIntSafe(data['current_home_coin'], 0);
+      rows.push(WidgetDataHelper.createExtraRow('home_coin', `${coin}/${coinMax}`, WidgetColors.STAMINA_MEDIUM));
+    }
+
+    // 每日委托
+    const totalTaskNum = WidgetDataHelper.parseIntSafe(data['total_task_num'], 4);
+    if (totalTaskNum > 0) {
+      const finishedTaskNum = WidgetDataHelper.parseIntSafe(data['finished_task_num'], 0);
+      const isExtraRewardReceived = data['is_extra_task_reward_received'] === true;
+      const taskStatus = isExtraRewardReceived ? 'received' : `${finishedTaskNum}/${totalTaskNum}`;
+      rows.push(WidgetDataHelper.createExtraRow('daily_task', taskStatus, WidgetColors.SUCCESS));
+    }
+
+    // 参量质变仪
+    const transformer = data['transformer'];
+    if (transformer !== undefined && transformer !== null) {
+      const transformerObj = transformer as Record<string, Object>;
+      const obtained = transformerObj['obtained'] === true;
+      const reached = transformerObj['reached'] === true;
+      if (obtained) {
+        const transformerStatus = reached ? 'ready' : 'not_ready';
+        rows.push(WidgetDataHelper.createExtraRow('transformer', transformerStatus, reached ? WidgetColors.ZZZ_PRIMARY : WidgetColors.INCOMPLETE));
+      }
+    }
+
+    // 周活跃进度
+    const weekActiveProgress = data['week_active_progress'];
+    if (weekActiveProgress !== undefined && weekActiveProgress !== null) {
+      const progressObj = weekActiveProgress as Record<string, Object>;
+      const progressCurrent = WidgetDataHelper.parseIntSafe(progressObj['progress_current'], 0);
+      const progressTotal = WidgetDataHelper.parseIntSafe(progressObj['progress_total'], 5);
+      if (progressTotal > 0) {
+        rows.push(WidgetDataHelper.createExtraRow('week_active', `${progressCurrent}/${progressTotal}`, WidgetColors.STAMINA_MEDIUM));
+      }
+    }
+  }
+
+  /**
+   * 解析星铁额外信息
+   */
+  private static parseStarRailExtraRows(data: Record<string, Object>, rows: ParsedExtraRow[]): void {
+    // 委托派遣
+    const expeditionNum = WidgetDataHelper.parseIntSafe(data['accepted_epedition_num'], 0);
+    const expeditionTotal = WidgetDataHelper.parseIntSafe(data['total_expedition_num'], 4);
+    if (expeditionTotal > 0) {
+      rows.push(WidgetDataHelper.createExtraRow('starrail_expedition', `${expeditionNum}/${expeditionTotal}`, WidgetColors.STAMINA_MEDIUM));
+    }
+
+    // 每日实训（周期积分）
+    const trainMax = WidgetDataHelper.parseIntSafe(data['max_train_score'], 500);
+    if (trainMax > 0) {
+      const train = WidgetDataHelper.parseIntSafe(data['current_train_score'], 0);
+      rows.push(WidgetDataHelper.createExtraRow('train_score', `${train}/${trainMax}`, WidgetColors.STAMINA_MEDIUM));
+    }
+
+    // 模拟宇宙积分
+    const rogueTournMax = WidgetDataHelper.parseIntSafe(data['rogue_tourn_weekly_max'], 0);
+    const rogueTourn = WidgetDataHelper.parseIntSafe(data['rogue_tourn_weekly_cur'], 0);
+    rows.push(WidgetDataHelper.createExtraRow('rogue_tourn', `${rogueTourn}/${rogueTournMax}`, WidgetColors.SUCCESS));
+  }
+
+  /**
+   * 解析绝区零额外信息
+   * 
+   * 数据来源优先级：
+   * 1. widgetRawJson 的 note_list 字段（Widget API 返回）
+   * 2. 从 widgetRawJson 或 rawJson 的原始字段手动构建
+   */
+  private static parseZZZNoteList(rawJson: string, widgetRawJson: string, rows: ParsedExtraRow[]): void {
+    Logger.info('WIDGET', `[parseZZZNoteList] rawJson.len=${rawJson.length} widgetRawJson.len=${widgetRawJson.length}`);
+    
+    // 优先使用 widgetRawJson 的 note_list（Widget API）
+    if (widgetRawJson.length > 0) {
+      try {
+        const data = JSON.parse(widgetRawJson) as Record<string, Object>;
+        const noteList = data['note_list'];
+        
+        Logger.info('WIDGET', `[parseZZZNoteList] noteList exists=${noteList !== undefined && noteList !== null}`);
+        
+        if (noteList !== undefined && noteList !== null && Array.isArray(noteList)) {
+          Logger.info('WIDGET', `[parseZZZNoteList] noteList.length=${(noteList as Object[]).length}`);
+          for (let i = 0; i < noteList.length; i++) {
+            const item = noteList[i] as Record<string, Object>;
+            const name = String(item['name'] ?? '');
+            const value = String(item['value'] ?? '');
+            const valueHighlight = item['value_highlight'] === true;
+
+            if (name.length === 0 || value.length === 0) {
+              continue;
+            }
+
+            const color = valueHighlight ? WidgetColors.ZZZ_PRIMARY : WidgetColors.STAMINA_MEDIUM;
+            rows.push(WidgetDataHelper.createExtraRow(name, value, color));
+          }
+          Logger.info('WIDGET', `[parseZZZNoteList] parsed ${rows.length} rows from note_list`);
+          return; // note_list 解析成功，直接返回
+        }
+      } catch (e) {
+        Logger.error('WIDGET', `[parseZZZNoteList] widgetRawJson parse failed: ${JSON.stringify(e)}`);
+      }
+    }
+
+    // 降级：从原始字段构建（优先用 widgetRawJson，其次用 rawJson）
+    Logger.info('WIDGET', `[parseZZZNoteList] falling back to raw fields`);
+    let data: Record<string, Object> = {};
+    try {
+      if (widgetRawJson.length > 0) {
+        data = JSON.parse(widgetRawJson) as Record<string, Object>;
+        Logger.info('WIDGET', `[parseZZZNoteList] using widgetRawJson for fallback`);
+      } else if (rawJson.length > 0) {
+        data = JSON.parse(rawJson) as Record<string, Object>;
+        Logger.info('WIDGET', `[parseZZZNoteList] using rawJson for fallback`);
+      }
+    } catch (e) {
+      Logger.error('WIDGET', `[parseZZZNoteList] fallback parse failed: ${JSON.stringify(e)}`);
+      return;
+    }
+
+    // 录像店经营
+    const vhsSale = data['vhs_sale'] as Record<string, Object> | null;
+    if (vhsSale !== null && vhsSale !== undefined) {
+      const saleState = String(vhsSale['sale_state'] ?? '');
+      if (saleState.length > 0) {
+        const displayValue = saleState === 'SaleStateDoing' ? '正在营业' : 
+                             saleState === 'SaleStateDone' ? '已结算' : '未营业';
+        rows.push(WidgetDataHelper.createExtraRow('录像店经营', displayValue, WidgetColors.STAMINA_MEDIUM));
+      }
+    }
+
+    // 刮刮卡/签到
+    const cardSign = String(data['card_sign'] ?? '');
+    if (cardSign.length > 0) {
+      const displayValue = cardSign === 'CardSignDone' ? '已完成' : '未完成';
+      rows.push(WidgetDataHelper.createExtraRow('饼铺盲盒/刮刮卡', displayValue, WidgetColors.STAMINA_MEDIUM));
+    }
+
+    // 周常积分
+    const weeklyTask = data['weekly_task'] as Record<string, Object> | null;
+    if (weeklyTask !== null && weeklyTask !== undefined) {
+      const curPoint = WidgetDataHelper.parseIntSafe(weeklyTask['cur_point'], 0);
+      const maxPoint = WidgetDataHelper.parseIntSafe(weeklyTask['max_point'], 0);
+      if (maxPoint > 0) {
+        rows.push(WidgetDataHelper.createExtraRow('丽都周纪积分', `${curPoint}/${maxPoint}`, WidgetColors.ZZZ_PRIMARY));
+      }
+    }
+
+    // 悬赏委托
+    const bountyCommission = data['bounty_commission'] as Record<string, Object> | null;
+    if (bountyCommission !== null && bountyCommission !== undefined) {
+      const num = WidgetDataHelper.parseIntSafe(bountyCommission['num'], 0);
+      const total = WidgetDataHelper.parseIntSafe(bountyCommission['total'], 0);
+      if (total > 0) {
+        rows.push(WidgetDataHelper.createExtraRow('悬赏委托', `${num}/${total}`, WidgetColors.ZZZ_PRIMARY));
+      }
+    }
   }
 
   /**
    * 将标签 key 转换为资源文字
    * 在 ViewModel 中调用，组件直接使用返回值
+   *
+   * 绝区零使用 note_list 中的中文名称，直接返回原值
    */
   static getExtraRowLabelResource(label: string): ResourceStr {
+    // ── 原神 ──
     if (label === 'expedition') {
       return $r('app.string.widget_expedition');
     }
@@ -289,34 +407,24 @@ export class WidgetDataHelper {
     if (label === 'transformer') {
       return $r('app.string.widget_transformer');
     }
-    if (label === 'reserve_stamina') {
-      return $r('app.string.widget_reserve_stamina');
+    if (label === 'week_active') {
+      return $r('app.string.widget_week_active');
     }
+
+    // ── 星铁 ──
     if (label === 'starrail_expedition') {
       return $r('app.string.widget_expedition');
     }
     if (label === 'train_score') {
       return $r('app.string.widget_train_score');
     }
-    if (label === 'cocoon') {
-      return $r('app.string.widget_cocoon');
-    }
     if (label === 'rogue_tourn') {
       return $r('app.string.widget_rogue_tourn');
     }
-    if (label === 'grid_fight') {
-      return $r('app.string.widget_grid_fight');
-    }
-    if (label === 'vitality') {
-      return $r('app.string.widget_vitality');
-    }
-    if (label === 'card_sign') {
-      return $r('app.string.widget_card_sign');
-    }
-    if (label === 'video_store') {
-      return $r('app.string.widget_video_store');
-    }
-    // 未知 key 直接返回
+
+    // ── 绝区零 ──
+    // 绝区零使用 note_list 中的中文名称，直接返回
+    // 如：'饼铺盲盒/刮刮卡/占卜'、'录像店经营'、'悬赏委托'、'丽都周纪积分'
     return label;
   }
 

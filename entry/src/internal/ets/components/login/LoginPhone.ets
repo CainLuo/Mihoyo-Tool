@@ -2,7 +2,7 @@
  * LoginPhone.ets — 手机号 + 短信验证码登录组件（仅 internal）
  */
 import { LoginViewModel } from 'entry/ets/viewmodel/LoginViewModel';
-import { ThemeFonts } from '../../../../../main/ets/theme/ThemeFonts'
+import { ThemeFonts } from 'entry/ets/theme/ThemeFonts'
 import { PhoneStep } from 'entry/ets/constants/LoginTabEnum';
 import { themeManager, ThemeManager } from 'entry/ets/theme/ThemeManager';
 import { LoginPhoneInput } from 'entry/ets/components/login/LoginPhoneInput';

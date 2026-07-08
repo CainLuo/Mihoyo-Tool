@@ -8,6 +8,11 @@
  * - 单游戏：左侧（游戏名、角色名、UID、体力、恢复时间）+ 右侧（额外数据行）
  * - 原神特殊：右侧去掉探索派遣，底部显示派遣角色头像（已完成加 mask+勾）
  * - 多游戏：每个游戏一行，左侧游戏色竖线 + 游戏名、角色名、UID、体力、恢复时间
+ *
+ * UI/UX 优化：
+ * - 字号统一使用 FONT 常量
+ * - 文字对比度符合 WCAG 2.2（透明度 ≥ .45）
+ * - 图片添加 alt 属性
  */
 function wrRender2x4(cardW, cardH, games) {
   var pad = 12;
@@ -33,13 +38,13 @@ function wrRender2x4(cardW, cardH, games) {
     var leftCol =
       '<div style="display:flex;flex-direction:column;justify-content:center;gap:2px;flex-shrink:0">' +
       // 游戏名 14fp
-      '<span style="font-size:14px;font-weight:500;color:rgba(255,255,255,.7)">' +
+      '<span style="font-size:' + FONT.sm + ';font-weight:500;color:rgba(255,255,255,.7)">' +
       WR.names[gid] +
       "</span>" +
       // 角色名 12fp
-      '<span style="font-size:12px;color:rgba(255,255,255,.5)">旅行者 · Lv.60</span>' +
+      '<span style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.55)">旅行者 · Lv.60</span>' +
       // UID 12fp
-      '<span style="font-size:12px;color:rgba(255,255,255,.35)">UID 123456789</span>' +
+      '<span style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.5)">UID 123456789</span>' +
       // 体力数值 22fp
       '<div style="display:flex;align-items:baseline;gap:2px;margin-top:4px">' +
       '<span style="font-size:22px;font-weight:700;color:' +
@@ -47,12 +52,12 @@ function wrRender2x4(cardW, cardH, games) {
       ';line-height:1">' +
       d.cur +
       "</span>" +
-      '<span style="font-size:14px;color:rgba(255,255,255,.35)">/' +
+      '<span style="font-size:' + FONT.sm + ';color:rgba(255,255,255,.5)">/' +
       d.max +
       "</span>" +
       "</div>" +
       // 恢复时间 12fp
-      '<span style="font-size:12px;color:rgba(255,255,255,.4)">' +
+      '<span style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.55)">' +
       d.rec +
       "</span>" +
       "</div>";
@@ -86,7 +91,7 @@ function wrRender2x4(cardW, cardH, games) {
     var divider =
       '<div style="width:1px;height:' +
       Math.round(cardH * 0.5) +
-      'px;background:rgba(255,255,255,.08);flex-shrink:0"></div>';
+      'px;background:rgba(255,255,255,.08);flex-shrink:0" role="separator"></div>';
 
     // 原神：底部派遣角色头像
     var bottomExpeditions = "";
@@ -108,10 +113,10 @@ function wrRender2x4(cardW, cardH, games) {
           exp.avatar +
           '" style="width:100%;height:100%;border-radius:50%;object-fit:cover' +
           (finished ? ";filter:grayscale(0.3)" : "") +
-          '">' +
+          '" alt="派遣角色" />' +
           // 已完成：mask + 勾
           (finished
-            ? '<div style="position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center">' +
+            ? '<div style="position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center" aria-label="已完成">' +
               '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ade80" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' +
               "</div>"
             : "") +
@@ -119,7 +124,7 @@ function wrRender2x4(cardW, cardH, games) {
       }
       bottomExpeditions =
         '<div style="display:flex;align-items:center;gap:4px;margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,.06)">' +
-        '<span style="font-size:10px;color:rgba(255,255,255,.35);margin-right:2px">探索派遣</span>' +
+        '<span style="font-size:11px;color:rgba(255,255,255,.5);margin-right:2px">探索派遣</span>' +
         avatarHtml +
         "</div>";
     }
@@ -164,7 +169,7 @@ function wrRender2x4(cardW, cardH, games) {
       Math.round(rowH * 0.5) +
       "px;border-radius:2px;background:" +
       color2 +
-      ';flex-shrink:0"></div>';
+      ';flex-shrink:0" role="presentation"></div>';
 
     if (gameCount === 2) {
       // ── 2 个游戏：空间充裕，显示角色名 + UID + 体力 + 恢复时间 + 2 条额外数据 ─────────
@@ -175,10 +180,10 @@ function wrRender2x4(cardW, cardH, games) {
       for (var ei = 0; ei < Math.min(showExtras2.length, 2); ei++) {
         exHtml2 +=
           '<div style="display:flex;align-items:center;justify-content:space-between">' +
-          '<span style="font-size:12px;color:rgba(255,255,255,.4)">' +
+          '<span style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.5)">' +
           showExtras2[ei].label +
           "</span>" +
-          '<span style="font-size:12px;font-weight:600;color:' +
+          '<span style="font-size:' + FONT.xs + ';font-weight:600;color:' +
           showExtras2[ei].color +
           '">' +
           showExtras2[ei].val +
@@ -191,26 +196,26 @@ function wrRender2x4(cardW, cardH, games) {
         // 左侧：游戏名 + 角色名 + UID + 体力 + 恢复时间
         '<div style="display:flex;flex-direction:column;justify-content:center;gap:2px;flex-shrink:0">' +
         // 游戏名 14fp
-        '<span style="font-size:14px;font-weight:500;color:rgba(255,255,255,.7)">' +
+        '<span style="font-size:' + FONT.sm + ';font-weight:500;color:rgba(255,255,255,.7)">' +
         WR.names[gid2] +
         "</span>" +
         // 角色名 10fp
-        '<span style="font-size:10px;color:rgba(255,255,255,.5)">旅行者 · Lv.60</span>' +
+        '<span style="font-size:11px;color:rgba(255,255,255,.55)">旅行者 · Lv.60</span>' +
         // UID
-        '<span style="font-size:10px;color:rgba(255,255,255,.3)">UID ' +
+        '<span style="font-size:11px;color:rgba(255,255,255,.5)">UID ' +
         (123456789 + gi) +
         "</span>" +
         // 体力 + 恢复时间
         '<div style="display:flex;align-items:baseline;gap:2px;margin-top:2px">' +
-        '<span style="font-size:20px;font-weight:700;color:' +
+        '<span style="font-size:' + FONT.xl + ';font-weight:700;color:' +
         curColor2 +
         ';line-height:1">' +
         d2.cur +
         "</span>" +
-        '<span style="font-size:12px;color:rgba(255,255,255,.35)">/' +
+        '<span style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.5)">/' +
         d2.max +
         "</span>" +
-        '<span style="font-size:12px;color:rgba(255,255,255,.4);margin-left:6px">' +
+        '<span style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.55);margin-left:6px">' +
         d2.rec +
         "</span>" +
         "</div>" +
@@ -235,27 +240,27 @@ function wrRender2x4(cardW, cardH, games) {
         // 左侧：游戏名 + 角色名 + UID
         '<div style="display:flex;flex-direction:column;gap:0;flex-shrink:0">' +
         // 游戏名 12fp
-        '<span style="font-size:12px;font-weight:500;color:rgba(255,255,255,.5)">' +
+        '<span style="font-size:' + FONT.xs + ';font-weight:500;color:rgba(255,255,255,.55)">' +
         WR.names[gid2] +
         "</span>" +
         // 角色名 10fp
-        '<span style="font-size:10px;color:rgba(255,255,255,.4)">旅行者 · Lv.60</span>' +
+        '<span style="font-size:11px;color:rgba(255,255,255,.5)">旅行者 · Lv.60</span>' +
         // UID
-        '<span style="font-size:10px;color:rgba(255,255,255,.3)">UID ' +
+        '<span style="font-size:11px;color:rgba(255,255,255,.5)">UID ' +
         (123456789 + gi) +
         "</span>" +
         "</div>" +
         // 右侧：体力 + 恢复时间
         '<div style="display:flex;align-items:baseline;gap:2px">' +
-        '<span style="font-size:18px;font-weight:700;color:' +
+        '<span style="font-size:' + FONT.lg + ';font-weight:700;color:' +
         curColor2 +
         ';line-height:1.1">' +
         d2.cur +
         "</span>" +
-        '<span style="font-size:12px;color:rgba(255,255,255,.35)">/' +
+        '<span style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.5)">/' +
         d2.max +
         "</span>" +
-        '<span style="font-size:12px;color:rgba(255,255,255,.4);margin-left:6px">' +
+        '<span style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.55);margin-left:6px">' +
         d2.rec +
         "</span>" +
         "</div>" +
@@ -272,7 +277,7 @@ function wrRender2x4(cardW, cardH, games) {
 
     if (gi < gameCount - 1) {
       rows +=
-        '<div style="height:1px;background:rgba(255,255,255,.08);flex-shrink:0"></div>';
+        '<div style="height:1px;background:rgba(255,255,255,.08);flex-shrink:0" role="separator"></div>';
     }
   }
 
