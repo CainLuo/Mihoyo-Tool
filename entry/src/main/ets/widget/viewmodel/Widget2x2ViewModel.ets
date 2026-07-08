@@ -21,7 +21,7 @@ import {
 } from '../models/WidgetUIStates';
 import { ParsedPayload, ParsedRole } from '../utils/WidgetPayloadParser';
 import { WidgetDataHelper, ParsedExtraRow } from '../utils/WidgetDataHelper';
-import { WIDGET_GAME_ID, getGameName, getGameColor, gameNameRes } from '../utils/WidgetUtils';
+import { getGameName, getGameColor, gameNameRes } from '../utils/WidgetUtils';
 
 /**
  * 2x2 Widget ViewModel
@@ -87,8 +87,8 @@ export class Widget2x2ViewModel {
       state.reserveStamina = WidgetDataHelper.parseReserveStamina(role.rawJson);
     }
 
-    // 解析额外数据行
-    const extraRows = WidgetDataHelper.parseExtraRows(role.rawJson, role.gameId);
+    // 解析额外数据行（2x2 Widget 最多显示 2 行）
+    const extraRows = WidgetDataHelper.parseExtraRows(role.rawJson, role.widgetRawJson, role.gameId, 3);
     state.extraRows = Widget2x2ViewModel.convertExtraRows(extraRows);
 
     return state;
@@ -159,7 +159,8 @@ export class Widget2x2ViewModel {
       row.label = rows[i].label;
       row.labelResource = WidgetDataHelper.getExtraRowLabelResource(rows[i].label);
       row.value = rows[i].value;
-      row.displayValue = WidgetDataHelper.getExtraRowValueDisplay(rows[i].value);
+      // 如果 value 已经是最终格式（如绝区零 note_list），直接使用，不再转换
+      row.displayValue = rows[i].isRawValue ? rows[i].value : WidgetDataHelper.getExtraRowValueDisplay(rows[i].value);
       row.valueColor = rows[i].valueColor;
       result.push(row);
     }

@@ -76,7 +76,7 @@ struct Widget2x2 {
               // 分隔线
               Divider()
                 .color(WidgetColors.WHITE)
-                .opacity(0.2)
+                .opacity(0.3)
                 .strokeWidth(1)
                 .margin({ top: theme.value4, bottom: theme.value4 })
 
@@ -98,6 +98,7 @@ struct Widget2x2 {
     }
     .width(theme.full)
     .height(theme.full)
+    .accessibilityText($r('app.string.a11y_widget_card'))
     .onClick(() => {
       postCardAction(this, {
         action: 'call',

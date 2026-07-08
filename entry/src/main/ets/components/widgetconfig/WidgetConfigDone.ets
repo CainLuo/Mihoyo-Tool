@@ -43,8 +43,14 @@ export struct WidgetConfigDone {
 
       // 配置摘要
       Column({ space: this.tm.current.value10 }) {
-        this.SummaryRow($r('app.string.widget_summary_size'), this.sizeLabel)
-        this.SummaryRow($r('app.string.widget_summary_roles'), this.selectedSummary)
+        WidgetConfigSummaryRow({
+          label: $r('app.string.widget_summary_size'),
+          value: this.sizeLabel
+        })
+        WidgetConfigSummaryRow({
+          label: $r('app.string.widget_summary_roles'),
+          value: this.selectedSummary
+        })
       }
       .width(this.tm.current.full)
       .padding(this.tm.current.font14)
@@ -55,19 +61,28 @@ export struct WidgetConfigDone {
     .alignItems(HorizontalAlign.Center)
     .padding({ top: this.tm.current.value8, bottom: this.tm.current.font20 })
   }
+}
 
-  @Builder
-  SummaryRow(label: ResourceStr, value: string | ResourceStr) {
+/**
+ * WidgetConfigSummaryRow — 配置摘要行
+ */
+@ComponentV2
+struct WidgetConfigSummaryRow {
+  @Param label: ResourceStr = '';
+  @Param value: string | ResourceStr = '';
+  @Local private tm: ThemeManager = themeManager;
+
+  build() {
     Row() {
       // 左侧标签：固定宽度
-      Text(label)
+      Text(this.label)
         .fontSize(this.tm.current.font14)
         .fontColor(this.tm.current.colorTextSecondary)
         .width(this.tm.current.value80)
         .flexShrink(0)
 
       // 右侧值：可换行、可滚动
-      Text(value)
+      Text(this.value)
         .fontSize(this.tm.current.font14)
         .fontWeight(FontWeight.Medium)
         .fontColor(this.tm.current.colorTextPrimary)

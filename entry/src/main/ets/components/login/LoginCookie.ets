@@ -26,7 +26,7 @@ export struct LoginCookie {
           .fontColor(this.tm.current.colorPlaceholder)
           .width(this.tm.current.full)
 
-        TextArea({ placeholder: $r('app.string.login_cookie_placeholder'), text: this.vm.cookieInput })
+        TextArea({ placeholder: $r('app.string.login_cookie_placeholder'), text: $$this.vm.cookieInput })
           .width(this.tm.current.full)
           .height(this.tm.current.value108)
           .borderRadius(this.tm.current.radius8)
@@ -34,9 +34,6 @@ export struct LoginCookie {
           .borderColor(this.tm.current.colorDivider)
           .backgroundColor(this.tm.current.loginInputBg)
           .placeholderColor(this.tm.current.colorPlaceholder)
-          .onChange((val: string) => {
-            this.vm.cookieInput = val;
-          })
       }
       .alignItems(HorizontalAlign.Start)
 

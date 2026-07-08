@@ -10,6 +10,7 @@ import { CharDetailRelic } from '../../../models/CharDetailModels';
 import { GenshinElement } from '../../../constants/GenshinElement';
 import { CharDetailRelicRow } from './CharDetailRelicRow';
 import { CharDetailRelicCard } from './CharDetailRelicCard';
+import { CharDetailRelicPair } from './CharDetailRelicPair';
 import { CharDetailRelicPlaceholder } from '../common/CharDetailRelicPlaceholder';
 import { ViewState } from '../../../constants/ViewStates';
 
@@ -74,41 +75,27 @@ export struct CharDetailRelicsPanel {
     return 0;
   }
 
-  @Builder
-  RelicPlaceholder(pos: number) {
-    CharDetailRelicPlaceholder({ posName: this.relicPosName(pos) })
-  }
-
-  @Builder
-  RelicPair(pos1: number, pos2: number) {
-    Row({ space: this.tm.current.value8 }) {
-      if (this.findRelicByPos(pos1) !== null) {
-        Column() { CharDetailRelicCard({ relic: this.vm.relics[this.relicIdx(pos1)] }) }.layoutWeight(1)
-      } else {
-        Column() { this.RelicPlaceholder(pos1) }.layoutWeight(1)
-      }
-      if (this.findRelicByPos(pos2) !== null) {
-        Column() { CharDetailRelicCard({ relic: this.vm.relics[this.relicIdx(pos2)] }) }.layoutWeight(1)
-      } else {
-        Column() { this.RelicPlaceholder(pos2) }.layoutWeight(1)
-      }
-    }
-    .width(this.tm.current.full)
-    .alignItems(VerticalAlign.Top)
-  }
-
   build() {
     if (this.isPhone) {
       Column({ space: this.tm.current.value8 }) {
-        this.RelicPair(1, 2)
-        this.RelicPair(3, 4)
+        CharDetailRelicPair({ vm: this.vm, pos1: 1, pos2: 2 })
+
+        CharDetailRelicPair({ vm: this.vm, pos1: 3, pos2: 4 })
+
         // pos5 单独一行（居左，右侧空白）
         Row({ space: this.tm.current.value8 }) {
           if (this.findRelicByPos(5) !== null) {
-            Column() { CharDetailRelicCard({ relic: this.vm.relics[this.relicIdx(5)] }) }.layoutWeight(1)
+            Column() {
+              CharDetailRelicCard({ relic: this.vm.relics[this.relicIdx(5)] })
+            }
+            .layoutWeight(1)
           } else {
-            Column() { this.RelicPlaceholder(5) }.layoutWeight(1)
+            Column() {
+              CharDetailRelicPlaceholder({ posName: this.relicPosName(5) })
+            }
+            .layoutWeight(1)
           }
+
           Column().layoutWeight(1)
         }
         .width(this.tm.current.full)

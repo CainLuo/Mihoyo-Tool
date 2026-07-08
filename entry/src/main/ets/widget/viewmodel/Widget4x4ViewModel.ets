@@ -90,12 +90,11 @@ export class Widget4x4ViewModel {
     }
 
     // 解析额外数据行
-    const extraRows = WidgetDataHelper.parseExtraRows(role.rawJson, role.gameId);
     // 原神：去掉第一条（探索派遣），因为改在底部显示
-    // 星铁：保留全部（后备开拓力、委托派遣、每日实训、历战余响、模拟宇宙、货币战争）
-    // 绝区零：保留全部
-    const filteredRows = role.gameId === WIDGET_GAME_ID.GENSHIN ? extraRows.slice(1) : extraRows;
+    // 星铁/绝区零：保留全部
     // 4x4 有更多空间，最多显示 6 条额外数据
+    const extraRows = WidgetDataHelper.parseExtraRows(role.rawJson, role.widgetRawJson, role.gameId, 0); // 不限制数量
+    const filteredRows = role.gameId === WIDGET_GAME_ID.GENSHIN ? extraRows.slice(1) : extraRows;
     state.extraRows = Widget4x4ViewModel.convertExtraRows(filteredRows.slice(0, 6));
 
     // 原神专属：解析派遣角色头像
@@ -158,7 +157,8 @@ export class Widget4x4ViewModel {
       row.label = rows[i].label;
       row.labelResource = WidgetDataHelper.getExtraRowLabelResource(rows[i].label);
       row.value = rows[i].value;
-      row.displayValue = WidgetDataHelper.getExtraRowValueDisplay(rows[i].value);
+      // 如果 value 已经是最终格式（如绝区零 note_list），直接使用，不再转换
+      row.displayValue = rows[i].isRawValue ? rows[i].value : WidgetDataHelper.getExtraRowValueDisplay(rows[i].value);
       row.valueColor = rows[i].valueColor;
       result.push(row);
     }

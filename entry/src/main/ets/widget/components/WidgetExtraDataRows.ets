@@ -75,3 +75,42 @@ struct WidgetExtraDataRowsPreview {
     .backgroundColor($r('app.color.dark_400'))
   }
 }
+
+/** 多行数据预览（4 行，模拟绝区零 note_list） */
+@Preview
+@Component
+struct WidgetExtraDataRowsMultiLinePreview {
+  private rows: WidgetExtraRow[] = [];
+
+  aboutToAppear(): void {
+    const row1 = new WidgetExtraRow();
+    row1.labelResource = '饼铺盲盒/刮刮卡/占卜';
+    row1.displayValue = '已完成';
+    row1.valueColor = WidgetColors.STAMINA_MEDIUM;
+
+    const row2 = new WidgetExtraRow();
+    row2.labelResource = '录像店经营';
+    row2.displayValue = '正在营业';
+    row2.valueColor = WidgetColors.SUCCESS;
+
+    const row3 = new WidgetExtraRow();
+    row3.labelResource = '悬赏委托';
+    row3.displayValue = '0/8000';
+    row3.valueColor = WidgetColors.ZZZ_PRIMARY;
+
+    const row4 = new WidgetExtraRow();
+    row4.labelResource = '丽都周纪积分';
+    row4.displayValue = '100/2100';
+    row4.valueColor = WidgetColors.ZZZ_PRIMARY;
+
+    this.rows = [row1, row2, row3, row4];
+  }
+
+  build() {
+    Column({ space: 12 }) {
+      WidgetExtraDataRows({ extraRows: this.rows })
+    }
+    .padding(16)
+    .backgroundColor($r('app.color.dark_400'))
+  }
+}

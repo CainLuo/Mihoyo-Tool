@@ -21,13 +21,12 @@ import { WidgetLogger } from '../widget/utils/WidgetLogger';
 import { WidgetConfigStore } from '../widget/utils/WidgetConfigStore';
 import { WidgetDataStoreManager } from '../widget/utils/WidgetDataStoreManager';
 import { WidgetPayloadBuilder } from '../widget/utils/WidgetPayloadBuilder';
-import { WidgetConfig, WidgetSize, getMaxSlots } from '../widget/models/WidgetConfig';
+import { WidgetConfig, WidgetSize } from '../widget/models/WidgetConfig';
 import { WidgetImageDownloader } from '../widget/utils/WidgetImageDownloader';
+import { WidgetMockData } from '../widget/utils/WidgetMockData';
+import { WidgetDataStore } from '../widget/models/WidgetDataStore';
 
 const TAG = 'WIDGET';
-
-/** Preferences 文件名 */
-const PREFS_NAME = 'widget_prefs';
 
 export default class EntryFormAbility extends FormExtensionAbility {
   private prefs: preferences.Preferences | null = null;
@@ -36,162 +35,34 @@ export default class EntryFormAbility extends FormExtensionAbility {
    * 卡片被添加到桌面时触发
    *
    * 流程：
-   * 1. 从 want.parameters 获取 formName（标准参数，可传递）
-   * 2. 直接使用 formName 作为 key 读取配置（不依赖自定义参数）
-   * 3. 使用同步 API 从 Preferences 读取 WidgetDataStore
-   * 4. 构建并返回 payload（必须在方法返回前完成）
-   * 5. 异步保存配置（用于后续刷新）
+   * 1. 解析 want.parameters 获取卡片信息
+   * 2. 同步读取 Preferences 中的配置和数据
+   * 3. 构建 payload 并返回
    *
    * 重要：FormExtension 进程在 onAddForm() 返回后只有 10 秒存活时间，
    * 因此必须使用同步 API 读取数据并立即返回，不能依赖异步更新。
    */
   onAddForm(want: Want): formBindingData.FormBindingData {
-    const formId = want.parameters?.[formInfo.FormParam.IDENTITY_KEY] as string ?? '';
-    const formName = want.parameters?.[formInfo.FormParam.NAME_KEY] as string ?? '';
-    const dimension = want.parameters?.[formInfo.FormParam.DIMENSION_KEY] as number ?? 2;
-    
-    // 获取卡片实际尺寸（单位：vp）
-    const formWidth = want.parameters?.[formInfo.FormParam.WIDTH_KEY] as number ?? 0;
-    const formHeight = want.parameters?.[formInfo.FormParam.HEIGHT_KEY] as number ?? 0;
+    // 1. 解析 want 参数
+    const formInfo = this.parseWantParameters(want);
+    WidgetLogger.info(TAG, `onAddForm: formId=${formInfo.formId} formName=${formInfo.formName} size=${formInfo.width}x${formInfo.height}`);
 
-    WidgetLogger.debug(TAG, '========== onAddForm START ==========');
-    WidgetLogger.debug(TAG, 'onAddForm: formId=' + formId + ' formName=' + formName + ' dimension=' + dimension + ' width=' + formWidth + ' height=' + formHeight);
+    // 2. 初始化 Preferences（同步）
+    this.initPreferencesSync();
 
-    // 同步初始化 Preferences（用于读取配置）
-    if (this.prefs === null) {
-      try {
-        // 关键：先清除缓存，确保读取到主应用进程写入的最新数据
-        // Preferences 在多进程间共享，但可能有缓存，需要清除缓存后重新读取
-        preferences.removePreferencesFromCacheSync(this.context, { name: 'widget_configs' });
-        WidgetLogger.debug(TAG, 'onAddForm: cache cleared');
-        
-        // 注意：getPreferencesSync 的参数格式是 { name: string }
-        // 与 getPreferences(context, name) 不同
-        this.prefs = preferences.getPreferencesSync(this.context, { name: 'widget_configs' });
-        WidgetLogger.debug(TAG, 'onAddForm: prefs initialized');
-        
-        // 验证：列出 Preferences 中所有的 key
-        const all = this.prefs.getAll();
-        const keys = Object.keys(all);
-        WidgetLogger.debug(TAG, 'onAddForm: prefs keys count=' + keys.length);
-        for (let i = 0; i < keys.length; i++) {
-          WidgetLogger.debug(TAG, 'onAddForm: prefs key[' + i + ']=' + keys[i]);
-        }
-      } catch (e) {
-        WidgetLogger.warn(TAG, 'onAddForm: failed to init prefs: ' + JSON.stringify(e));
-      }
-    }
+    // 3. 加载配置
+    const config = this.loadOrCreateConfig(formInfo);
 
-    // 解析配置
-    let config: WidgetConfig | null = null;
-    
-    // 关键修复：直接使用 formName 作为配置 key（与 complete() 保持一致）
-    // formName 是标准参数，可以正确传递
-    if (formName.length > 0) {
-      WidgetLogger.debug(TAG, 'trying to load config with key=' + formName);
-      config = this.loadPendingConfig(formName);
-      if (config !== null) {
-        config.formId = formId;
-        config.formName = formName;
-        WidgetLogger.debug(TAG, '✅ config loaded: size=' + config.size + ' slots=' + config.slots.length);
-        // 打印每个 slot 的详细信息
-        for (let i = 0; i < config.slots.length; i++) {
-          const slot = config.slots[i];
-          WidgetLogger.debug(TAG, '  slot[' + i + ']: accountId=' + slot.accountId + ' gameId=' + slot.gameId + ' roleId=' + slot.roleId);
-        }
-        // 注意：不要在这里删除临时配置，因为后续刷新还需要使用
-        // 配置会在 saveConfigAsync 中被保存到 formId 对应的 key 下
-      } else {
-        WidgetLogger.warn(TAG, '⚠️ config NOT FOUND for key=' + formName);
-      }
-    } else {
-      WidgetLogger.warn(TAG, '⚠️ formName is EMPTY, cannot load config');
-    }
-
-    // 如果没有配置，使用默认行为
-    if (config === null) {
-      config = new WidgetConfig();
-      config.formId = formId;
-      config.formName = formName;
-      config.size = this.dimensionToSize(dimension);
-      config.slots = [];
-      WidgetLogger.debug(TAG, 'using default config: size=' + config.size + ' formName=' + formName);
-    }
-
-    // ✅ 使用同步 API 读取 Preferences 中的数据
-    // 注意：必须在 onAddForm() 返回前完成，不能依赖异步更新
+    // 4. 加载数据
     const dataStore = WidgetDataStoreManager.loadSync(this.context);
-    const accountIds = Object.keys(dataStore.data);
-    WidgetLogger.debug(TAG, 'loadSync: accounts=' + accountIds.length + ' version=' + dataStore.version);
-    
-    // 🔬 调试：打印 dataStore 的详细结构
-    for (let i = 0; i < accountIds.length; i++) {
-      const accountId = accountIds[i];
-      const acc = dataStore.data[accountId];
-      const roleIds = Object.keys(acc.slots);
-      WidgetLogger.debug(TAG, 'dataStore.account[' + i + ']: accountId=' + accountId + ' roles=' + roleIds.length);
-      for (let j = 0; j < roleIds.length; j++) {
-        const roleId = roleIds[j];
-        const slot = acc.slots[roleId];
-        WidgetLogger.debug(TAG, '  role[' + j + ']: roleId=' + roleId + ' gameId=' + slot.gameId + ' rawJsonLen=' + slot.rawJson.length);
-      }
-    }
 
-    // 🔬 实验：如果数据为空，使用硬编码 mock 数据
-    if (!dataStore.hasData) {
-      WidgetLogger.warn(TAG, '⚠️ EXPERIMENT: dataStore is empty, using MOCK data');
-      const mockPayload = this.buildMockPayload();
-      WidgetLogger.debug(TAG, 'mockPayload len=' + mockPayload.length);
-      // 打印 mock payload 的前 500 字符
-      WidgetLogger.debug(TAG, 'mockPayload preview=' + mockPayload.substring(0, Math.min(500, mockPayload.length)));
-      
-      // 验证 JSON 是否能正确解析
-      try {
-        interface MockPayloadVerify {
-          version?: number;
-          accounts?: Object[];
-        }
-        const verifyObj: MockPayloadVerify = JSON.parse(mockPayload);
-        WidgetLogger.debug(TAG, 'mockPayload verify: version=' + verifyObj.version + ' accounts=' + (verifyObj.accounts?.length ?? 0));
-      } catch (e) {
-        WidgetLogger.error(TAG, 'mockPayload JSON parse FAILED: ' + JSON.stringify(e));
-      }
-      
-      const mockRecord: Record<string, string> = { 'payload': mockPayload };
-      return formBindingData.createFormBindingData(mockRecord);
-    }
+    // 5. 构建并返回表单数据
+    const formData = this.buildFormData(config, dataStore, formInfo);
 
-    // 构建 payload
-    const payload = WidgetPayloadBuilder.buildPayload(config, dataStore);
-    // 设置卡片实际尺寸
-    payload.widgetWidth = formWidth;
-    payload.widgetHeight = formHeight;
-    const record = payload.toLocalStorageRecord();
-    
-    const payloadStr = record['payload'] ?? '';
-    WidgetLogger.debug(TAG, 'returning real data, payload len=' + payloadStr.length);
+    // 6. 异步保存配置（不阻塞返回）
+    this.saveConfigAsync(formInfo.formId, config);
 
-    // ── 读取已下载的派遣头像图片，传递给 Widget ──
-    const formImages = WidgetImageDownloader.loadFormImagesSync(this.context, 'exp_avatar', 5);
-    const avatarCount = Object.keys(formImages).length;
-    WidgetLogger.debug(TAG, 'expedition avatars loaded: ' + avatarCount);
-
-    // 异步保存配置（用于后续刷新，不阻塞返回）
-    WidgetLogger.debug(TAG, 'saveConfigAsync: calling with config.formId=' + config.formId + ' slots=' + config.slots.length);
-    this.saveConfigAsync(formId, config);
-
-    // 构建 FormData，包含 payload 和 formImages
-    // 注意：不能使用 spread 运算符，需要手动合并
-    const formDataObj: Record<string, Object> = {};
-    const recordKeys = Object.keys(record);
-    for (let i = 0; i < recordKeys.length; i++) {
-      const key = recordKeys[i];
-      formDataObj[key] = record[key] as Object;
-    }
-    formDataObj['formImages'] = formImages as Object;
-
-    // 立即返回真实数据（包含图片 fd）
-    return formBindingData.createFormBindingData(formDataObj);
+    return formData;
   }
 
   /**
@@ -205,7 +76,7 @@ export default class EntryFormAbility extends FormExtensionAbility {
    * 卡片被移除时触发
    */
   onRemoveForm(formId: string): void {
-    WidgetConfigStore.deleteConfig(formId).catch((e: BusinessError) => {
+    WidgetConfigStore.deleteConfig(formId).catch((_e: BusinessError) => {
       // 静默处理错误
     });
   }
@@ -213,28 +84,138 @@ export default class EntryFormAbility extends FormExtensionAbility {
   /**
    * 卡片内点击刷新按钮触发
    */
-  onFormEvent(formId: string, message: string): void {
+  onFormEvent(formId: string, _message: string): void {
     this.pushUpdate(formId);
   }
 
-  // ── 私有方法 ──────────────────────────────────────────────────────
+  // ── 私有方法：参数解析 ──────────────────────────────────────────────────────
 
   /**
-   * 初始化 Preferences
-   * 注意：不能调用 CoreInitializer，不能导入 core 模块
+   * 解析 want.parameters 获取卡片信息
    */
-  private async initPreferences(): Promise<void> {
+  private parseWantParameters(want: Want): FormInfo {
+    return {
+      formId: want.parameters?.[formInfo.FormParam.IDENTITY_KEY] as string ?? '',
+      formName: want.parameters?.[formInfo.FormParam.NAME_KEY] as string ?? '',
+      dimension: want.parameters?.[formInfo.FormParam.DIMENSION_KEY] as number ?? 2,
+      width: want.parameters?.[formInfo.FormParam.WIDTH_KEY] as number ?? 0,
+      height: want.parameters?.[formInfo.FormParam.HEIGHT_KEY] as number ?? 0,
+    };
+  }
+
+  // ── 私有方法：Preferences 初始化 ──────────────────────────────────────────────
+
+  /**
+   * 同步初始化 Preferences
+   *
+   * 关键：先清除缓存，确保读取到主应用进程写入的最新数据
+   */
+  private initPreferencesSync(): void {
     if (this.prefs !== null) {
       return;
     }
+
     try {
-      this.prefs = await preferences.getPreferences(this.context, PREFS_NAME);
+      preferences.removePreferencesFromCacheSync(this.context, { name: 'widget_configs' });
+      this.prefs = preferences.getPreferencesSync(this.context, { name: 'widget_configs' });
     } catch (e) {
-      // 静默处理错误
-      const err = e as BusinessError;
-      WidgetLogger.debug(TAG, 'initPreferences error: code=' + err.code + ' msg=' + err.message);
+      WidgetLogger.warn(TAG, 'initPreferencesSync failed: ' + JSON.stringify(e));
     }
   }
+
+  // ── 私有方法：配置加载 ────────────────────────────────────────────────────────
+
+  /**
+   * 加载或创建配置
+   */
+  private loadOrCreateConfig(formInfo: FormInfo): WidgetConfig {
+    // 尝试加载用户配置
+    if (formInfo.formName.length > 0) {
+      const config = this.loadPendingConfig(formInfo.formName);
+      if (config !== null) {
+        config.formId = formInfo.formId;
+        config.formName = formInfo.formName;
+        return config;
+      }
+    }
+
+    // 创建默认配置
+    const config = new WidgetConfig();
+    config.formId = formInfo.formId;
+    config.formName = formInfo.formName;
+    config.size = this.dimensionToSize(formInfo.dimension);
+    config.slots = [];
+
+    return config;
+  }
+
+  /**
+   * 从 Preferences 加载 pending config
+   */
+  private loadPendingConfig(key: string): WidgetConfig | null {
+    if (this.prefs === null) {
+      return null;
+    }
+
+    try {
+      const json = this.prefs.getSync(key, '') as string;
+      if (json.length === 0) {
+        return null;
+      }
+      return WidgetConfig.fromJson(json);
+    } catch (e) {
+      WidgetLogger.error(TAG, 'loadPendingConfig error: ' + JSON.stringify(e));
+      return null;
+    }
+  }
+
+  // ── 私有方法：表单数据构建 ────────────────────────────────────────────────────
+
+  /**
+   * 构建表单数据
+   */
+  private buildFormData(
+    config: WidgetConfig,
+    dataStore: WidgetDataStore,
+    formInfo: FormInfo
+  ): formBindingData.FormBindingData {
+    // 数据为空时返回 Mock 数据
+    if (!dataStore.hasData) {
+      WidgetLogger.warn(TAG, 'dataStore is empty, using mock data');
+      return this.buildMockFormData();
+    }
+
+    // 构建 payload
+    const payload = WidgetPayloadBuilder.buildPayload(config, dataStore);
+    payload.widgetWidth = formInfo.width;
+    payload.widgetHeight = formInfo.height;
+
+    // 读取派遣头像图片
+    const formImages = WidgetImageDownloader.loadFormImagesSync(this.context, 'exp_avatar', 5);
+
+    // 构建 FormData（手动合并，不能使用 spread 运算符）
+    const record = payload.toLocalStorageRecord();
+    const formDataObj: Record<string, Object> = {};
+    const recordKeys = Object.keys(record);
+    for (let i = 0; i < recordKeys.length; i++) {
+      const key = recordKeys[i];
+      formDataObj[key] = record[key] as Object;
+    }
+    formDataObj['formImages'] = formImages as Object;
+
+    return formBindingData.createFormBindingData(formDataObj);
+  }
+
+  /**
+   * 构建 Mock 表单数据（用于调试）
+   */
+  private buildMockFormData(): formBindingData.FormBindingData {
+    const mockPayload = WidgetMockData.buildPayload();
+    const mockRecord: Record<string, string> = { 'payload': mockPayload };
+    return formBindingData.createFormBindingData(mockRecord);
+  }
+
+  // ── 私有方法：配置保存 ────────────────────────────────────────────────────────
 
   /**
    * 异步保存配置（不更新卡片，用于后续刷新）
@@ -243,160 +224,40 @@ export default class EntryFormAbility extends FormExtensionAbility {
     try {
       await WidgetConfigStore.init(this.context);
       await WidgetConfigStore.saveConfig(config);
-      WidgetLogger.info(TAG, 'saveConfigAsync: config saved for formId=' + formId);
     } catch (e) {
       const err = e as BusinessError;
-      WidgetLogger.error(TAG, 'saveConfigAsync error: code=' + err.code + ' msg=' + err.message);
+      WidgetLogger.error(TAG, `saveConfigAsync error: code=${err.code} msg=${err.message}`);
     }
   }
 
-  /**
-   * 异步保存配置并更新卡片
-   */
-  private async saveConfigAndUpdate(formId: string, config: WidgetConfig): Promise<void> {
-    WidgetLogger.info(TAG, 'saveConfigAndUpdate start: formId=' + formId);
-    try {
-      // 初始化存储
-      await this.initPreferences();
-      await WidgetConfigStore.init(this.context);
-      await WidgetDataStoreManager.init(this.context);
-      WidgetLogger.info(TAG, 'storage initialized');
-
-      // 保存配置
-      await WidgetConfigStore.saveConfig(config);
-      WidgetLogger.info(TAG, 'config saved');
-
-      // 从 Preferences 读取已保存的数据（由主应用构建）
-      const dataStore = await WidgetDataStoreManager.load();
-      const accountIds = Object.keys(dataStore.data);
-      WidgetLogger.info(TAG, 'dataStore loaded: accounts=' + accountIds.length + ' version=' + dataStore.version);
-      
-      // 打印每个账号的角色信息
-      for (let i = 0; i < accountIds.length; i++) {
-        const accountId = accountIds[i];
-        const acc = dataStore.data[accountId];
-        const roleIds = Object.keys(acc.slots);
-        WidgetLogger.info(TAG, 'account[' + i + ']: id=' + accountId + ' roles=' + roleIds.length);
-        for (let j = 0; j < roleIds.length; j++) {
-          const roleId = roleIds[j];
-          const slot = acc.slots[roleId];
-          WidgetLogger.info(TAG, '  role[' + j + ']: roleId=' + roleId + ' gameId=' + slot.gameId + ' rawJsonLen=' + slot.rawJson.length);
-        }
-      }
-
-      // 构建 payload
-      const payload = WidgetPayloadBuilder.buildPayload(config, dataStore);
-      const record = payload.toLocalStorageRecord();
-      WidgetLogger.info(TAG, 'payload built, record keys=' + Object.keys(record).length);
-      
-      // 打印 payload 内容
-      const payloadStr = record['payload'] ?? '';
-      WidgetLogger.info(TAG, 'payload len=' + payloadStr.length);
-      // 打印 payload 的 JSON 结构
-      try {
-        // 定义 payload 对象的类型
-        interface PayloadRole {
-          roleId: string;
-          rawJson?: string;
-        }
-        
-        interface PayloadGame {
-          gameId: string;
-          roles?: PayloadRole[];
-        }
-        
-        interface PayloadAccount {
-          accountId: string;
-          games?: PayloadGame[];
-        }
-        
-        interface PayloadObject {
-          version?: number;
-          updatedAt?: number;
-          accounts?: PayloadAccount[];
-        }
-        
-        const payloadObj: PayloadObject = JSON.parse(payloadStr);
-        const accounts = payloadObj.accounts || [];
-        WidgetLogger.info(TAG, 'payload structure: version=' + (payloadObj.version || 0) + ' updatedAt=' + (payloadObj.updatedAt || 0) + ' accounts=' + accounts.length);
-        for (let i = 0; i < accounts.length; i++) {
-          const acc = accounts[i];
-          const games = acc.games || [];
-          WidgetLogger.info(TAG, '  payload account[' + i + ']: id=' + acc.accountId + ' games=' + games.length);
-          for (let j = 0; j < games.length; j++) {
-            const game = games[j];
-            const roles = game.roles || [];
-            WidgetLogger.info(TAG, '    payload game[' + j + ']: id=' + game.gameId + ' roles=' + roles.length);
-            for (let k = 0; k < roles.length; k++) {
-              const role = roles[k];
-              WidgetLogger.info(TAG, '      payload role[' + k + ']: roleId=' + role.roleId + ' rawJsonLen=' + (role.rawJson?.length || 0));
-            }
-          }
-        }
-      } catch (e) {
-        const err = e as BusinessError;
-        WidgetLogger.warn(TAG, 'payload JSON parse failed: code=' + err.code + ' msg=' + err.message);
-      }
-
-      // 推送更新
-      const formBinding = formBindingData.createFormBindingData(record);
-      await formProvider.updateForm(formId, formBinding);
-      WidgetLogger.info(TAG, 'formProvider.updateForm done');
-    } catch (e) {
-      const err = e as BusinessError;
-      WidgetLogger.error(TAG, 'saveConfigAndUpdate error: code=' + err.code + ' msg=' + err.message);
-    }
-  }
+  // ── 私有方法：更新推送 ────────────────────────────────────────────────────────
 
   /**
    * 推送指定 formId 的最新数据
    */
   private async pushUpdate(formId: string): Promise<void> {
     try {
-      // 初始化存储
-      await this.initPreferences();
       await WidgetConfigStore.init(this.context);
       await WidgetDataStoreManager.init(this.context);
 
-      // 读取配置
       const config = await WidgetConfigStore.loadConfig(formId);
       if (config === null) {
         return;
       }
 
-      // 从 Preferences 读取已保存的数据
       const dataStore = await WidgetDataStoreManager.load();
-
-      // 构建 payload
       const payload = WidgetPayloadBuilder.buildPayload(config, dataStore);
       const record = payload.toLocalStorageRecord();
 
-      // 推送更新
       const formBinding = formBindingData.createFormBindingData(record);
       await formProvider.updateForm(formId, formBinding);
     } catch (e) {
-      // 静默处理错误
       const err = e as BusinessError;
-      WidgetLogger.debug(TAG, 'pushUpdate error: code=' + err.code + ' msg=' + err.message);
+      WidgetLogger.warn(TAG, `pushUpdate error: code=${err.code} msg=${err.message}`);
     }
   }
 
-  /**
-   * 🔬 实验：构建硬编码 mock payload
-   * 
-   * 用于验证：如果 Widget 能正常显示 mock 数据，说明问题在数据链路（loadSync 返回空）
-   * 如果 Widget 仍然白屏，说明问题在 @LocalStorageProp 或 Widget 组件本身
-   */
-  private buildMockPayload(): string {
-    // 手动构建 JSON 字符串，避免 ArkTS 严格模式的对象字面量限制
-    // 包含完整的原神便笺数据（含派遣头像、洞天宝钱等字段）
-    const rawJson = '{"current_resin":152,"max_resin":200,"resin_recovery_time":"22825","finished_task_num":0,"total_task_num":4,"is_extra_task_reward_received":false,"remain_resin_discount_num":3,"resin_discount_num_limit":3,"current_expedition_num":5,"max_expedition_num":5,"expeditions":[{"avatar_side_icon":"https://fastcdn.mihoyo.com/static-resource-v2/2023/12/14/a273217a806ee130b0c0f51bc5542483_2404530785826539052.png","status":"Finished","remained_time":"0"},{"avatar_side_icon":"https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f727/db95c5527a3b0f1a59743180e531be63.png","status":"Finished","remained_time":"0"},{"avatar_side_icon":"https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f727/29021fd200fb4074bcb857668b406307.png","status":"Ongoing","remained_time":"12345"},{"avatar_side_icon":"https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f727/2ad457efe47f31a54bd683286fd03144.png","status":"Ongoing","remained_time":"23456"},{"avatar_side_icon":"https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f727/455ee1e4da29c15282faba8243bccdcc.png","status":"Ongoing","remained_time":"34567"}],"current_home_coin":1230,"max_home_coin":2400,"home_coin_recovery_time":"139968","transformer":{"obtained":true,"recovery_time":{"Day":6,"Hour":0,"Minute":0,"Second":0,"reached":false}}}';
-    const rawJsonEscaped = rawJson.replace(/"/g, '\\\\"');
-    const mockPayload = '{"version":1,"updatedAt":' + Math.floor(Date.now() / 1000) + ',"accounts":[{"accountId":"mock_account_1","accountName":"测试账号","games":[{"gameId":"genshin","roles":[{"roleId":"123456789","nickname":"旅行者","server":"cn_gf01","rawJson":"' + rawJsonEscaped + '"}]}]}]}';
-    
-    WidgetLogger.debug(TAG, 'buildMockPayload: rawJson includes expeditions with avatar_side_icon');
-    return mockPayload;
-  }
+  // ── 私有方法：工具函数 ────────────────────────────────────────────────────────
 
   /**
    * dimension 转 WidgetSize
@@ -411,48 +272,15 @@ export default class EntryFormAbility extends FormExtensionAbility {
     }
     return WidgetSize.SIZE_2x2;
   }
-
-  /**
-   * 从 Preferences 加载 pending config
-   */
-  private loadPendingConfig(key: string): WidgetConfig | null {
-    if (this.prefs === null) {
-      WidgetLogger.warn(TAG, 'loadPendingConfig: prefs is null');
-      return null;
-    }
-    try {
-      WidgetLogger.debug(TAG, 'loadPendingConfig: reading key=' + key);
-      const json = this.prefs.getSync(key, '') as string;
-      WidgetLogger.debug(TAG, 'loadPendingConfig: json.length=' + json.length);
-      if (json.length === 0) {
-        WidgetLogger.warn(TAG, 'loadPendingConfig: json is empty');
-        return null;
-      }
-      // 打印 json 内容前 200 字符
-      WidgetLogger.debug(TAG, 'loadPendingConfig: json preview=' + json.substring(0, 200));
-      const config = WidgetConfig.fromJson(json);
-      WidgetLogger.debug(TAG, 'loadPendingConfig: parsed slots=' + config.slots.length);
-      return config;
-    } catch (e) {
-      WidgetLogger.error(TAG, 'loadPendingConfig error: ' + JSON.stringify(e));
-      return null;
-    }
-  }
-
-  /**
-   * 删除 pending config
-   */
-  private deletePendingConfig(key: string): void {
-    if (this.prefs === null) {
-      return;
-    }
-    try {
-      this.prefs.deleteSync(key);
-      this.prefs.flush();
-    } catch (e) {
-      // 静默处理错误
-    }
-  }
 }
 
-
+/**
+ * 表单信息结构
+ */
+interface FormInfo {
+  formId: string;
+  formName: string;
+  dimension: number;
+  width: number;
+  height: number;
+}

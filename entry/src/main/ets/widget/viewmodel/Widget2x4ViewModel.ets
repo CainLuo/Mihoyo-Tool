@@ -89,13 +89,15 @@ export class Widget2x4ViewModel {
     }
 
     // 解析额外数据行
-    const extraRows = WidgetDataHelper.parseExtraRows(role.rawJson, role.gameId);
     // 原神：去掉第一条（探索派遣），因为改在底部显示
-    // 星铁：保留全部（后备开拓力、委托派遣、每日实训、历战余响、模拟宇宙、货币战争）
-    // 绝区零：保留全部
+    // 星铁：保留全部（最多 3 条）
+    // 绝区零：保留全部（最多 4 条，note_list 有 4 条）
+    const maxRows = role.gameId === WIDGET_GAME_ID.GENSHIN ? 4 : 
+                    role.gameId === WIDGET_GAME_ID.ZZZ ? 4 : 3;
+    const extraRows = WidgetDataHelper.parseExtraRows(role.rawJson, role.widgetRawJson, role.gameId, maxRows);
     const filteredRows = role.gameId === WIDGET_GAME_ID.GENSHIN ? extraRows.slice(1) : extraRows;
-    // 2x4 右侧最多显示 3 条额外数据
-    state.extraRows = Widget2x4ViewModel.convertExtraRows(filteredRows.slice(0, 3));
+    const finalMaxRows = role.gameId === WIDGET_GAME_ID.ZZZ ? 4 : 3;
+    state.extraRows = Widget2x4ViewModel.convertExtraRows(filteredRows.slice(0, finalMaxRows));
 
     // 原神专属：解析派遣角色头像
     // formImagesKey 使用 'exp_avatar' 前缀，与 FormExtensionAbility 中的 key 对应
@@ -157,7 +159,8 @@ export class Widget2x4ViewModel {
       row.label = rows[i].label;
       row.labelResource = WidgetDataHelper.getExtraRowLabelResource(rows[i].label);
       row.value = rows[i].value;
-      row.displayValue = WidgetDataHelper.getExtraRowValueDisplay(rows[i].value);
+      // 如果 value 已经是最终格式（如绝区零 note_list），直接使用，不再转换
+      row.displayValue = rows[i].isRawValue ? rows[i].value : WidgetDataHelper.getExtraRowValueDisplay(rows[i].value);
       row.valueColor = rows[i].valueColor;
       result.push(row);
     }

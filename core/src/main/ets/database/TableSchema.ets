@@ -776,6 +776,7 @@ export const ZZZ_DAILY_NOTE_TABLE = new TableDef(TableName.ZZZ_DAILY_NOTE, [
   new ColumnDef('vhs_sale_state',   'TEXT'),
   new ColumnDef('card_sign',        'TEXT'),
   new ColumnDef(CommonCol.RAW_JSON,    'TEXT',    'NOT NULL'),
+  new ColumnDef('widget_raw_json',     'TEXT',    "DEFAULT ''"),
   new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
 ], FK_ACCOUNT);
 

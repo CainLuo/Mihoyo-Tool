@@ -283,6 +283,68 @@ export class WidgetImageDownloader {
   }
 
   /**
+   * 清除过期的缓存图片
+   *
+   * @param context UIAbilityContext
+   * @param maxAgeMs 最大存活时间（毫秒），超过此时间的图片会被删除
+   */
+  static async cleanExpiredCache(context: common.UIAbilityContext, maxAgeMs: number): Promise<number> {
+    let cleanedCount = 0;
+
+    try {
+      const prefs = await preferences.getPreferences(context, 'widget_images');
+      const all = await prefs.getAll();
+      const keys = Object.keys(all);
+      const filesDir = context.filesDir;
+      const now = Date.now();
+
+      for (let i = 0; i < keys.length; i++) {
+        const key = keys[i];
+        const fileName = await prefs.get(key, '') as string;
+        if (fileName.length === 0) {
+          continue;
+        }
+
+        try {
+          const filePath = `${filesDir}/${fileName}`;
+          const stat = fileIo.statSync(filePath);
+
+          // 检查文件修改时间是否超过阈值
+          const fileAge = now - (stat.mtime * 1000);
+          if (fileAge > maxAgeMs) {
+            fileIo.unlinkSync(filePath);
+            await prefs.delete(key);
+            cleanedCount++;
+            Logger.info(TAG, `[WidgetImage] cleaned expired image: ${key} (age=${Math.floor(fileAge / 1000 / 60 / 60 / 24)}d)`);
+          }
+        } catch (_e) {
+          // 文件不存在或删除失败，忽略
+        }
+      }
+
+      if (cleanedCount > 0) {
+        await prefs.flush();
+        Logger.info(TAG, `[WidgetImage] cleaned ${cleanedCount} expired images`);
+      }
+    } catch (e) {
+      Logger.error(TAG, `[WidgetImage] cleanExpiredCache error: ${JSON.stringify(e)}`);
+    }
+
+    return cleanedCount;
+  }
+
+  /**
+   * 获取默认头像占位图资源
+   * 当图片下载失败时使用此占位图
+   *
+   * @returns 占位图资源
+   */
+  static getDefaultAvatarResource(): Resource {
+    // 使用应用 Logo 作为占位图（可替换为专门的占位图）
+    return $r('app.media.ic_app_logo');
+  }
+
+  /**
    * 检查图片是否存在
    *
    * @param context FormExtensionContext 或 UIAbilityContext

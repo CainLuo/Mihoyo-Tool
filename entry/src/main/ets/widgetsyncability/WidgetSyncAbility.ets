@@ -58,15 +58,25 @@ class SyncParcelable implements rpc.Parcelable {
   }
 
   marshalling(messageSequence: rpc.MessageSequence): boolean {
-    messageSequence.writeInt(this.success ? 1 : 0);
-    messageSequence.writeString(this.message);
-    return true;
+    try {
+      messageSequence.writeInt(this.success ? 1 : 0);
+      messageSequence.writeString(this.message);
+      return true;
+    } catch (e) {
+      Logger.error(TAG, `marshalling failed: ${e}`);
+      return false;
+    }
   }
 
   unmarshalling(messageSequence: rpc.MessageSequence): boolean {
-    this.success = messageSequence.readInt() === 1;
-    this.message = messageSequence.readString();
-    return true;
+    try {
+      this.success = messageSequence.readInt() === 1;
+      this.message = messageSequence.readString();
+      return true;
+    } catch (e) {
+      Logger.error(TAG, `unmarshalling failed: ${e}`);
+      return false;
+    }
   }
 }
 

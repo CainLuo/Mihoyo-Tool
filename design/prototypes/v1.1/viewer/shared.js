@@ -1,6 +1,11 @@
 /**
  * shared.js — Widget 原型共享主题和工具函数
  * V1.1 版本
+ * 
+ * UI/UX 优化：
+ * - Typography Scale 统一为 6 级（12/14/16/20/24/40px）
+ * - 文字对比度符合 WCAG 2.2（≥ 4.5:1）
+ * - 文字透明度从 .35/.3 提升到 .5/.45
  */
 
 var DEVS = {
@@ -8,6 +13,38 @@ var DEVS = {
   pl: { w: 780, h: 360, label: "Phone 横屏\n780×360" },
   fd: { w: 932, h: 600, label: "Foldable\n932×600" },
   tb: { w: 1024, h: 768, label: "Tablet\n1024×768" },
+};
+
+/**
+ * Typography Scale（8px 基准）
+ * - text-xs:  12px - 辅助信息、标签
+ * - text-sm:  14px - 副标题、游戏名
+ * - text-base: 16px - 数据行
+ * - text-lg:  18px - 小数字
+ * - text-xl:  20px - 体力数字（1x2）
+ * - text-2xl: 24px - 体力数字（2x2）
+ * - text-5xl: 40px - 体力数字（4x4）
+ */
+var FONT = {
+  xs: "12px",    // 辅助信息
+  sm: "14px",    // 副标题
+  base: "16px",  // 数据行
+  lg: "18px",    // 小数字
+  xl: "20px",    // 体力数字（1x2）
+  "2xl": "24px", // 体力数字（2x2）
+  "5xl": "40px", // 体力数字（4x4）
+};
+
+/**
+ * 文字颜色透明度（WCAG 2.2 对比度合规）
+ * - txtHigh: 高对比度文字（标题、数字）
+ * - txtMid: 中对比度文字（副标题、数据标签）
+ * - txtLow: 低对比度文字（辅助信息）- 已从 .35 提升到 .45 确保 ≥ 4.5:1
+ */
+var TXT_ALPHA = {
+  high: 0.95,  // 主标题、数字
+  mid: 0.6,    // 副标题、标签
+  low: 0.5,    // 辅助信息（原 .35，提升至 .5 满足 WCAG）
 };
 
 var THEMES = {
@@ -43,9 +80,9 @@ var THEMES = {
     // Widget 专用
     widgetBg: "#2E3033",
     widgetBorder: "rgba(255,255,255,0.08)",
-    widgetTxt: "rgba(255,255,255,0.95)",
-    widgetTxt2: "rgba(255,255,255,0.6)",
-    widgetTxt3: "rgba(255,255,255,0.35)",
+    widgetTxt: "rgba(255,255,255," + TXT_ALPHA.high + ")",
+    widgetTxt2: "rgba(255,255,255," + TXT_ALPHA.mid + ")",
+    widgetTxt3: "rgba(255,255,255," + TXT_ALPHA.low + ")",
     widgetDivider: "rgba(255,255,255,0.12)",
     // 半模态
     sheetBg: "#1a1a28",
@@ -83,9 +120,9 @@ var THEMES = {
     // Widget 专用（浅色模式下 Widget 背景也是深色）
     widgetBg: "#2E3033",
     widgetBorder: "rgba(255,255,255,0.08)",
-    widgetTxt: "rgba(255,255,255,0.95)",
-    widgetTxt2: "rgba(255,255,255,0.6)",
-    widgetTxt3: "rgba(255,255,255,0.35)",
+    widgetTxt: "rgba(255,255,255," + TXT_ALPHA.high + ")",
+    widgetTxt2: "rgba(255,255,255," + TXT_ALPHA.mid + ")",
+    widgetTxt3: "rgba(255,255,255," + TXT_ALPHA.low + ")",
     widgetDivider: "rgba(255,255,255,0.12)",
     // 半模态
     sheetBg: "#ffffff",
@@ -129,7 +166,7 @@ function baseCss(w, h) {
 
 function cardDivider() {
   var color = G.theme === "dark" ? "rgba(255,255,255,.12)" : "#eeeeee";
-  return '<div style="height:1px;background:' + color + ';margin:6px 0"></div>';
+  return '<div style="height:1px;background:' + color + ';margin:6px 0" role="separator"></div>';
 }
 
 function ringProgress(ratio, color, size) {
@@ -148,7 +185,7 @@ function ringProgress(ratio, color, size) {
     size +
     " " +
     size +
-    '">' +
+    '" role="img" aria-label="进度 ' + Math.round(ratio * 100) + '%">' +
     '<circle cx="' +
     cx +
     '" cy="' +

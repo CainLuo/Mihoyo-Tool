@@ -1605,6 +1605,10 @@
       "value": "Cooling"
     },
     {
+      "name": "widget_week_active",
+      "value": "Weekly Activity"
+    },
+    {
       "name": "widget_reserve_stamina",
       "value": "Reserved Power"
     },
@@ -1787,6 +1791,54 @@
     {
       "name": "widget1_display_name",
       "value": "widget1"
+    },
+    {
+      "name": "a11y_character_card",
+      "value": "%s character card, tap to view details"
+    },
+    {
+      "name": "a11y_game_card",
+      "value": "%s game card, tap to view details"
+    },
+    {
+      "name": "a11y_widget_card",
+      "value": "Widget card, tap to sync data"
+    },
+    {
+      "name": "a11y_character_avatar",
+      "value": "%s avatar"
+    },
+    {
+      "name": "a11y_character_portrait",
+      "value": "%s portrait"
+    },
+    {
+      "name": "a11y_character_weapon",
+      "value": "%s weapon"
+    },
+    {
+      "name": "a11y_element_icon",
+      "value": "%s element"
+    },
+    {
+      "name": "a11y_path_icon",
+      "value": "Path icon"
+    },
+    {
+      "name": "a11y_rarity_icon",
+      "value": "%s rarity"
+    },
+    {
+      "name": "a11y_element_icon_generic",
+      "value": "Element icon"
+    },
+    {
+      "name": "a11y_profession_icon",
+      "value": "Profession icon"
+    },
+    {
+      "name": "a11y_faction_icon",
+      "value": "Faction icon"
     }
   ]
 }

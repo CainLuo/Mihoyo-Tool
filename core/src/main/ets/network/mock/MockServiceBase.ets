@@ -215,7 +215,7 @@ export abstract class MockServiceBase extends MihoyoApiService {
     // Widget API 映射到与普通便笺相同的 Mock 文件（Widget 返回字段是便笺的子集）
     specialMap.set('/game_record/app/genshin/aapi/widget/v2', 'game_record_app_genshin_api_dailyNote.json');
     specialMap.set('/game_record/app/hkrpg/aapi/widget', 'game_record_app_hkrpg_api_note.json');
-    specialMap.set('/event/game_record_zzz/api/zzz/widget', 'event_game_record_zzz_api_zzz_note.json');
+    specialMap.set('/event/game_record_zzz/api/zzz/widget', 'event_record_app_zzz_widget.json');
 
     const special = specialMap.get(cleanPath);
     if (special !== undefined) {

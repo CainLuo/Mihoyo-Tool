@@ -59,6 +59,13 @@ export class LoginViewModel {
 
   // ─── 通用 ────────────────────────────────────────────────────
 
+  /** 初始化登录流程（页面 aboutToAppear 时调用） */
+  init(): void {
+    if (this.activeTab === LoginTab.QRCODE) {
+      this.startQRCodeLogin();
+    }
+  }
+
   switchTab(tab: LoginTab): void {
     this.activeTab = tab;
     this.errorMsg = '';

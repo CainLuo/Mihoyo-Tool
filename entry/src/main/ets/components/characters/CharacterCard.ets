@@ -9,9 +9,14 @@
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { ThemeFonts } from '../../theme/ThemeFonts'
 import { GameDataSummary, GameId } from 'core';
-import { genshinElementFromString, elementIcon } from '../../constants/GenshinElement';
-import { starRailElementIcon, starRailPathIcon } from '../../constants/StarRailElement';
-import { zzzElementIcon, zzzProfessionIcon } from '../../constants/ZZZElement';
+
+// 子组件导入
+import { GenshinTopLeftBadge } from './genshin/GenshinTopLeftBadge';
+import { GenshinBottomBar } from './genshin/GenshinBottomBar';
+import { StarRailTopLeftBadge } from './starrail/StarRailTopLeftBadge';
+import { StarRailBottomBar } from './starrail/StarRailBottomBar';
+import { ZZZTopLeftBadge } from './zzz/ZZZTopLeftBadge';
+import { ZZZBottomBar } from './zzz/ZZZBottomBar';
 
 @ComponentV2
 export struct CharacterCard {
@@ -41,6 +46,7 @@ export struct CharacterCard {
                 .width(this.tm.current.full)
                 .aspectRatio(1)
                 .objectFit(ImageFit.Cover)
+                .alt($r('app.string.a11y_character_avatar', this.character.name))
             }
           } else {
             if (this.character.squareIconUrl) {
@@ -48,6 +54,7 @@ export struct CharacterCard {
                 .width(this.tm.current.full)
                 .aspectRatio(1)
                 .objectFit(ImageFit.Cover)
+                .alt($r('app.string.a11y_character_portrait', this.character.name))
             }
           }
 
@@ -78,11 +85,18 @@ export struct CharacterCard {
 
           // 左上角标签区（根据游戏不同）
           if (this.gameId === GameId.GENSHIN) {
-            this.genshinTopLeft()
+            GenshinTopLeftBadge({ element: this.character.extraText1 })
           } else if (this.gameId === GameId.STARRAIL) {
-            this.starrailTopLeft()
+            StarRailTopLeftBadge({
+              element: this.character.extraText1,
+              path: parseInt(this.character.extraText2)
+            })
           } else if (this.gameId === GameId.ZZZ) {
-            this.zzzTopLeft()
+            ZZZTopLeftBadge({
+              rarity: this.character.rarity,
+              element: parseInt(this.character.extraText1),
+              profession: parseInt(this.character.extraText2)
+            })
           }
 
           // 右上角：命座/星魂/影画数字
@@ -115,6 +129,7 @@ export struct CharacterCard {
                     .width(this.tm.current.full)
                     .height(this.tm.current.full)
                     .objectFit(ImageFit.Contain)
+                    .alt($r('app.string.a11y_character_weapon', this.character.name))
                 } else {
                   Column()
                     .width(this.tm.current.full)
@@ -155,9 +170,9 @@ export struct CharacterCard {
                     .width(this.tm.current.value22)
                     .height(this.tm.current.value22)
                     .borderRadius(this.tm.current.value22 / 2)
-                    .border({ width: 2, color: $r('app.color.gray_700') })
+                    .border({ width: this.tm.current.value2, color: $r('app.color.gray_700') })
                   Column()
-                    .width(2)
+                    .width(this.tm.current.value2)
                     .height(this.tm.current.font24)
                     .backgroundColor($r('app.color.gray_700'))
                     .rotate({ angle: 45 })
@@ -167,9 +182,9 @@ export struct CharacterCard {
                 .opacity(0.4)
 
                 Text($r('app.string.character_weapon_none'))
-                  .fontSize(this.tm.current.font11)
+                  .fontSize(this.tm.current.font12)
                   .fontColor(this.tm.current.colorTextSecondary)
-                  .opacity(0.5)
+                  .opacity(0.7)
               }
               .width(this.tm.current.full)
               .layoutWeight(1)
@@ -192,11 +207,17 @@ export struct CharacterCard {
 
       // 底部信息栏（根据游戏不同）
       if (this.gameId === GameId.GENSHIN) {
-        this.genshinBottomBar()
+        GenshinBottomBar({
+          level: this.character.level,
+          fetter: this.character.extraInt2
+        })
       } else if (this.gameId === GameId.STARRAIL) {
-        this.starrailBottomBar()
+        StarRailBottomBar({ level: this.character.level })
       } else {
-        this.zzzBottomBar()
+        ZZZBottomBar({
+          level: this.character.level,
+          groupIconUrl: this.character.groupIconUrl ?? ''
+        })
       }
     }
     .width(this.tm.current.full)
@@ -209,149 +230,8 @@ export struct CharacterCard {
       color: this.tm.current.shadowColor,
       offsetY: this.tm.current.shadowOffsetY
     })
+    .accessibilityText($r('app.string.a11y_character_card', this.character.name))
     .onClick(() => { this.onTap(this.character) })
-  }
-
-  // ── 原神：左上元素图标 ──────────────────────────────────────
-  @Builder
-  private genshinTopLeft() {
-    if (elementIcon(genshinElementFromString(this.character.extraText1)) !== null) {
-      Image(elementIcon(genshinElementFromString(this.character.extraText1)) as Resource)
-        .width(this.tm.current.font24)
-        .height(this.tm.current.font24)
-        .objectFit(ImageFit.Contain)
-        .position({ x: this.tm.current.value8, y: this.tm.current.value8 })
-        .zIndex(3)
-    }
-  }
-
-  // ── 星穹铁道：属性 + 命途，纵向图标 ───────────────────────
-  @Builder
-  private starrailTopLeft() {
-    Column({ space: this.tm.current.value4 }) {
-      // 属性图标
-      if (starRailElementIcon(this.character.extraText1) !== null) {
-        Image(starRailElementIcon(this.character.extraText1) as Resource)
-          .width(this.tm.current.value22)
-          .height(this.tm.current.value22)
-          .objectFit(ImageFit.Contain)
-      }
-      // 命途图标
-      if (starRailPathIcon(parseInt(this.character.extraText2)) !== null) {
-        Image(starRailPathIcon(parseInt(this.character.extraText2)) as Resource)
-          .width(this.tm.current.value22)
-          .height(this.tm.current.value22)
-          .objectFit(ImageFit.Contain)
-      }
-    }
-    .alignItems(HorizontalAlign.Start)
-    .position({ x: this.tm.current.value8, y: this.tm.current.value8 })
-    .zIndex(3)
-  }
-
-  // ── 绝区零：稀有度 + 属性 + 特性，纵向图标 ─────────────────
-  @Builder
-  private zzzTopLeft() {
-    Column({ space: this.tm.current.value4 }) {
-      // 稀有度图标（S/A）
-      Image(this.character.rarity >= 5
-        ? $r('app.media.zzz_rarity_s')
-        : $r('app.media.zzz_rarity_a'))
-        .width(this.tm.current.value22)
-        .height(this.tm.current.value22)
-        .objectFit(ImageFit.Contain)
-      // 属性图标
-      if (zzzElementIcon(parseInt(this.character.extraText1)) !== null) {
-        Image(zzzElementIcon(parseInt(this.character.extraText1)) as Resource)
-          .width(this.tm.current.value22)
-          .height(this.tm.current.value22)
-          .objectFit(ImageFit.Contain)
-      }
-      // 特性图标
-      if (zzzProfessionIcon(parseInt(this.character.extraText2)) !== null) {
-        Image(zzzProfessionIcon(parseInt(this.character.extraText2)) as Resource)
-          .width(this.tm.current.value22)
-          .height(this.tm.current.value22)
-          .objectFit(ImageFit.Contain)
-      }
-    }
-    .alignItems(HorizontalAlign.Start)
-    .position({ x: this.tm.current.value8, y: this.tm.current.value8 })
-    .zIndex(3)
-  }
-
-  // ── 原神底部：等级 | 好感度 ─────────────────────────────────
-  @Builder
-  private genshinBottomBar() {
-    Row({ space: this.tm.current.value8 }) {
-      Text($r('app.string.character_level_value', this.character.level))
-        .font(ThemeFonts.font14)
-        .fontColor(this.tm.current.colorTextSecondary)
-      Column()
-        .width(1)
-        .height(this.tm.current.value10)
-        .backgroundColor(this.tm.current.colorDivider)
-      Text($r('app.string.character_fetter_value', this.character.extraInt2))
-        .font(ThemeFonts.font14)
-        .fontColor(this.tm.current.colorTextSecondary)
-    }
-    .width(this.tm.current.full)
-    .alignItems(VerticalAlign.Center)
-    .padding({
-      top: this.tm.current.value8,
-      bottom: this.tm.current.value8,
-      left: this.tm.current.value10,
-      right: this.tm.current.value10
-    })
-  }
-
-  // ── 星穹铁道底部：等级 ──────────────────────────────────────
-  @Builder
-  private starrailBottomBar() {
-    Row() {
-      Text($r('app.string.character_level_value', this.character.level))
-        .font(ThemeFonts.font14)
-        .fontColor(this.tm.current.colorTextSecondary)
-    }
-    .width(this.tm.current.full)
-    .alignItems(VerticalAlign.Center)
-    .padding({
-      top: this.tm.current.value8,
-      bottom: this.tm.current.value8,
-      left: this.tm.current.value10,
-      right: this.tm.current.value10
-    })
-  }
-
-  // ── 绝区零底部：等级 | 阵营 icon ────────────────────────────
-  @Builder
-  private zzzBottomBar() {
-    Row({ space: this.tm.current.value8 }) {
-      Text($r('app.string.character_level_value', this.character.level))
-        .font(ThemeFonts.font14)
-        .fontColor(this.tm.current.colorTextSecondary)
-        .flexShrink(0)
-      if (this.character.groupIconUrl) {
-        Column()
-          .width(1)
-          .height(this.tm.current.value10)
-          .backgroundColor(this.tm.current.colorDivider)
-          .flexShrink(0)
-        Image(this.character.groupIconUrl)
-          .width(this.tm.current.font20)
-          .height(this.tm.current.font20)
-          .objectFit(ImageFit.Contain)
-          .flexShrink(0)
-      }
-    }
-    .width(this.tm.current.full)
-    .alignItems(VerticalAlign.Center)
-    .padding({
-      top: this.tm.current.value8,
-      bottom: this.tm.current.value8,
-      left: this.tm.current.value10,
-      right: this.tm.current.value10
-    })
   }
 }
 

@@ -162,7 +162,7 @@ export class ZZZDailyNoteDao {
       await RdbManager.upsertRow(TableName.ZZZ_DAILY_NOTE, ZZZ_DAILY_NOTE_TABLE.columnNames(), [
         idVal, row.accountId, row.roleUid, row.energyCurrent, row.energyMax, row.energyRestore,
         row.vitalityCurrent, row.vitalityMax, row.vhsSaleState, row.cardSign,
-        row.rawJson, row.updateTime
+        row.rawJson, row.widgetRawJson, row.updateTime
       ]);
     } catch (e) {
       throw new Error(`ZZZDailyNoteDao.upsert failed: ${e instanceof Error ? e.message : e}`);
@@ -214,6 +214,7 @@ export class ZZZDailyNoteDao {
       row.vhsSaleState    = r.str(ZZZDailyNoteCol.VHS_SALE_STATE);
       row.cardSign        = r.str(ZZZDailyNoteCol.CARD_SIGN);
       row.rawJson         = r.str(CommonCol.RAW_JSON);
+      row.widgetRawJson   = r.str('widget_raw_json');
       row.updateTime      = r.num(CommonCol.UPDATE_TIME);
       return row;
     } catch (e) {

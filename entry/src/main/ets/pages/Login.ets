@@ -20,6 +20,10 @@ export struct Login {
   @Local private windowWidth: number = 360
   private localStack: NavPathStack | null = null
 
+  aboutToAppear(): void {
+    this.vm.init()
+  }
+
   aboutToDisappear(): void {
     this.vm.dispose()
   }

@@ -131,7 +131,10 @@ export class WidgetDataStoreBuilder {
         Logger.info(TAG, `[WIDGET_DEBUG] buildSlotData: reading zzz dailyNote for ${accountId}/${role.roleId}`);
         const dailyNote = await CoreInitializer.zzzRepository.getDailyNote(accountId, role.roleId);
         rawJson = dailyNote?.rawJson ?? '';
-        Logger.info(TAG, `[WIDGET_DEBUG] buildSlotData:   zzz dailyNote found=${dailyNote !== null} rawJson.length=${rawJson.length}`);
+        // 读取 widgetRawJson（绝区零专用，包含 note_list 等额外数据）
+        const widgetRawJson = dailyNote?.widgetRawJson ?? '';
+        slotData.widgetRawJson = widgetRawJson;
+        Logger.info(TAG, `[WIDGET_DEBUG] buildSlotData:   zzz dailyNote found=${dailyNote !== null} rawJson.length=${rawJson.length} widgetRawJson.length=${widgetRawJson.length}`);
       } else {
         Logger.warn(TAG, `[WIDGET_DEBUG] buildSlotData: unsupported gameId=${role.gameId}`);
       }
@@ -282,7 +285,10 @@ export class WidgetDataStoreBuilder {
         Logger.info(TAG, `[WIDGET_DEBUG] updateRoleRawJson: reading zzz dailyNote for ${accountId}/${roleId}`);
         const dailyNote = await CoreInitializer.zzzRepository.getDailyNote(accountId, roleId);
         rawJson = dailyNote?.rawJson ?? '';
-        Logger.info(TAG, `[WIDGET_DEBUG] updateRoleRawJson:   zzz dailyNote found=${dailyNote !== null} rawJson.length=${rawJson.length}`);
+        // 同时更新 widgetRawJson
+        const widgetRawJson = dailyNote?.widgetRawJson ?? '';
+        slot.widgetRawJson = widgetRawJson;
+        Logger.info(TAG, `[WIDGET_DEBUG] updateRoleRawJson:   zzz dailyNote found=${dailyNote !== null} rawJson.length=${rawJson.length} widgetRawJson.length=${widgetRawJson.length}`);
       } else {
         Logger.warn(TAG, `[WIDGET_DEBUG] updateRoleRawJson: unsupported gameId=${gameId}`);
       }

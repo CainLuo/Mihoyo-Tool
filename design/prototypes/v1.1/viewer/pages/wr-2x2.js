@@ -9,10 +9,9 @@
  * - 星铁特殊：后备开拓力放在体力行右侧，避免内容过多
  * - 体力数字 24px（保证上下 padding 一致）
  *
- * 字号适配：
- * - 游戏名 12px，UID 10px
- * - 体力数字 24px，/max 14px
- * - 恢复时间 11px，数据行 11px
+ * UI/UX 优化：
+ * - 字号统一使用 FONT 常量
+ * - 文字对比度符合 WCAG 2.2（透明度 ≥ .45）
  */
 function wrRender2x2(cardW, cardH, games) {
   var pad = 12;
@@ -37,10 +36,10 @@ function wrRender2x2(cardW, cardH, games) {
     // 头部：游戏名（不换行）+ UID（换行显示）
     var header =
       '<div style="margin-bottom:6px;flex-shrink:0">' +
-      '<div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
+      '<div style="font-size:' + FONT.xs + ';font-weight:600;color:rgba(255,255,255,.8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
       WR.names[gid] +
       "</div>" +
-      '<div style="font-size:10px;color:rgba(255,255,255,.35);margin-top:1px">UID 123456789</div>' +
+      '<div style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.5);margin-top:1px">UID 123456789</div>' +
       "</div>";
 
     // 体力区块：当前/最大 + 恢复时间
@@ -51,22 +50,22 @@ function wrRender2x2(cardW, cardH, games) {
         '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;flex-shrink:0">' +
         '<div style="display:flex;flex-direction:column;gap:2px">' +
         '<div style="display:flex;align-items:baseline;gap:3px">' +
-        '<span style="font-size:24px;font-weight:700;color:' +
+        '<span style="font-size:' + FONT["2xl"] + ';font-weight:700;color:' +
         staminaColor +
         ';line-height:1">' +
         d.cur +
         "</span>" +
-        '<span style="font-size:14px;color:rgba(255,255,255,.4)">/' +
+        '<span style="font-size:' + FONT.sm + ';color:rgba(255,255,255,.5)">/' +
         d.max +
         "</span>" +
         "</div>" +
-        '<span style="font-size:11px;color:rgba(255,255,255,.5)">' +
+        '<span style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.6)">' +
         d.rec +
         "</span>" +
         "</div>" +
         '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:1px">' +
-        '<span style="font-size:9px;color:rgba(255,255,255,.4)">后备</span>' +
-        '<span style="font-size:12px;font-weight:600;color:' +
+        '<span style="font-size:11px;color:rgba(255,255,255,.5)">后备</span>' +
+        '<span style="font-size:' + FONT.xs + ';font-weight:600;color:' +
         color +
         '">2400</span>' +
         "</div>" +
@@ -75,16 +74,16 @@ function wrRender2x2(cardW, cardH, games) {
       staminaBlock =
         '<div style="display:flex;flex-direction:column;gap:2px;margin-bottom:8px;flex-shrink:0">' +
         '<div style="display:flex;align-items:baseline;gap:3px">' +
-        '<span style="font-size:24px;font-weight:700;color:' +
+        '<span style="font-size:' + FONT["2xl"] + ';font-weight:700;color:' +
         staminaColor +
         ';line-height:1">' +
         d.cur +
         "</span>" +
-        '<span style="font-size:14px;color:rgba(255,255,255,.4)">/' +
+        '<span style="font-size:' + FONT.sm + ';color:rgba(255,255,255,.5)">/' +
         d.max +
         "</span>" +
         "</div>" +
-        '<span style="font-size:11px;color:rgba(255,255,255,.5)">' +
+        '<span style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.6)">' +
         d.rec +
         "</span>" +
         "</div>";
@@ -116,7 +115,7 @@ function wrRender2x2(cardW, cardH, games) {
   var rowH = Math.floor(availH / gameCount);
 
   var header =
-    '<div style="font-size:11px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px;flex-shrink:0">旅行者</div>';
+    '<div style="font-size:' + FONT.xs + ';font-weight:600;color:rgba(255,255,255,.7);margin-bottom:4px;flex-shrink:0">旅行者</div>';
   var rows = "";
 
   for (var gi = 0; gi < gameCount; gi++) {
@@ -141,25 +140,25 @@ function wrRender2x2(cardW, cardH, games) {
       Math.round(rowH * 0.5) +
       "px;border-radius:2px;background:" +
       color2 +
-      ';flex-shrink:0"></div>';
+      ';flex-shrink:0" role="presentation"></div>';
 
     // 中间：游戏名 + 体力 + 恢复时间
     var mid =
       '<div style="flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:1px">' +
-      '<span style="font-size:11px;color:rgba(255,255,255,.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
+      '<span style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.6);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' +
       WR.names[gid2] +
       "</span>" +
       '<div style="display:flex;align-items:baseline;gap:2px">' +
-      '<span style="font-size:18px;font-weight:700;color:' +
+      '<span style="font-size:' + FONT.lg + ';font-weight:700;color:' +
       curColor2 +
       ';line-height:1.1">' +
       d2.cur +
       "</span>" +
-      '<span style="font-size:11px;color:rgba(255,255,255,.35)">/' +
+      '<span style="font-size:' + FONT.xs + ';color:rgba(255,255,255,.5)">/' +
       d2.max +
       "</span>" +
       "</div>" +
-      '<span style="font-size:9px;color:rgba(255,255,255,.4)">' +
+      '<span style="font-size:11px;color:rgba(255,255,255,.5)">' +
       d2.rec +
       "</span>" +
       "</div>";
@@ -174,7 +173,7 @@ function wrRender2x2(cardW, cardH, games) {
 
     if (gi < gameCount - 1) {
       rows +=
-        '<div style="height:1px;background:rgba(255,255,255,.08);flex-shrink:0"></div>';
+        '<div style="height:1px;background:rgba(255,255,255,.08);flex-shrink:0" role="separator"></div>';
     }
   }
 

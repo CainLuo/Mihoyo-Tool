@@ -5,26 +5,37 @@
     "energy": {
       "progress": {
         "max": 240,
-        "current": 240
+        "current": 101
       },
-      "restore": 0,
-      "day_type": 0,
-      "hour": 0,
-      "minute": 0
+      "restore": 49951,
+      "day_type": 2,
+      "hour": 5,
+      "minute": 15
     },
     "vitality": {
       "max": 400,
-      "current": 0
+      "current": 400
     },
     "vhs_sale": {
-      "sale_state": "SaleStateDone"
+      "sale_state": "SaleStateDoing"
     },
-    "card_sign": "CardSignNo",
-    "bounty_commission": null,
+    "card_sign": "CardSignDone",
+    "bounty_commission": {
+      "num": 8000,
+      "total": 8000,
+      "refresh_time": 477398,
+      "unlock": true,
+      "hide": false
+    },
     "survey_points": null,
-    "abyss_refresh": 0,
+    "abyss_refresh": 477398,
     "coffee": null,
-    "weekly_task": null,
+    "weekly_task": {
+      "refresh_time": 477398,
+      "cur_point": 750,
+      "max_point": 2100,
+      "unlock": true
+    },
     "member_card": {
       "is_open": false,
       "member_card_state": "MemberCardStateNo",
@@ -33,15 +44,15 @@
     "is_sub": false,
     "is_other_sub": false,
     "temple_running": {
-      "expedition_state": "ExpeditionStateUnknown",
-      "bench_state": "BenchStateUnknown",
-      "shelve_state": "ShelveStateUnknown",
-      "level": 0,
+      "expedition_state": "ExpeditionStateInCanSend",
+      "bench_state": "BenchStateCanProduce",
+      "shelve_state": "ShelveStateCanSell",
+      "level": 1,
       "weekly_currency_max": "0",
       "currency_next_refresh_ts": "0",
       "current_currency": "0",
       "auto_work": null
     },
-    "cafe_state": "CafeStateNo"
+    "cafe_state": "CafeStateDone"
   }
 }
