@@ -146,11 +146,11 @@ export class LoginViewModel {
   private async handleQRCodeConfirmed(confirmed: QRCodeConfirmedData): Promise<void> {
     this.isLoading = true;
     try {
-      const tokenResult = await AuthRepository.getTokenByGameToken(confirmed.uid, confirmed.token);
-      const stoken = tokenResult.stoken;
-      const userInfo = tokenResult.userInfo;
-      const mid = userInfo.mid.length > 0 ? userInfo.mid : confirmed.uid;
-      const ltoken = await AuthRepository.getLTokenBySToken(stoken, mid);
+      // 新版 passport API 直接返回 stoken、ltoken、mid，无需 getTokenByGameToken 转换
+      const stoken = confirmed.stoken;
+      const ltoken = confirmed.ltoken;
+      const mid = confirmed.mid.length > 0 ? confirmed.mid : confirmed.uid;
+      // cookie_token 仍需通过 stoken 换取
       const cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
       const fields = new LoginCookieFields();
       fields.accountId = confirmed.uid;

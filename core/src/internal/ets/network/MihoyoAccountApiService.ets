@@ -171,28 +171,30 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     return HttpClient.post(MihoyoDomain.BBS + MihoyoAccountApiPath.VERIFY_VERIFICATION, bodyStr, opts);
   }
 
-  // ── 二维码登录 ────────────────────────────────────────────────
+  // ── 二维码登录（新版 passport API）────────────────────────────────
 
   async fetchQRCode(deviceId: string): Promise<object> {
-    const bodyStr = JSON.stringify({ app_id: 7, device: deviceId });
     const opts = new RequestOptions();
-    opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.TEXT_PLAIN);
-    return HttpClient.post(MihoyoDomain.HK4E_SDK + QRCodeApiPath.FETCH, bodyStr, opts);
+    const h = opts.extraHeaders;
+    h.set(HKey.CONTENT_TYPE, HVal.JSON);
+    h.set('x-rpc-app_id', 'ddxf5dufpuyo');
+    h.set('x-rpc-client_type', '3');
+    h.set('x-rpc-device_id', deviceId);
+    h.set(HKey.USER_AGENT, 'HYPContainer/1.3.3.182');
+    // 新版 passport API 空请求体，设备 ID 通过 header 传递
+    return HttpClient.post(MihoyoDomain.PASSPORT + QRCodeApiPath.FETCH, '{}', opts);
   }
 
   async queryQRCode(deviceId: string, ticket: string): Promise<object> {
-    const bodyStr = JSON.stringify({ app_id: 7, device: deviceId, ticket: ticket });
+    const bodyStr = JSON.stringify({ ticket: ticket });
     const opts = new RequestOptions();
-    opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.TEXT_PLAIN);
-    return HttpClient.post(MihoyoDomain.HK4E_SDK + QRCodeApiPath.QUERY, bodyStr, opts);
-  }
-
-  async getTokenByGameToken(accountId: string, gameToken: string): Promise<object> {
-    const bodyStr = JSON.stringify({ account_id: parseInt(accountId, 10), game_token: gameToken });
-    const opts = new RequestOptions();
-    opts.extraHeaders.set(HKey.APP_ID, ApiConfig.BBS_APP_ID);
-    opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.JSON);
-    return HttpClient.post(MihoyoDomain.TAKUMI + PassportApiPath.GET_TOKEN_BY_GAME_TOKEN, bodyStr, opts);
+    const h = opts.extraHeaders;
+    h.set(HKey.CONTENT_TYPE, HVal.JSON);
+    h.set('x-rpc-app_id', 'ddxf5dufpuyo');
+    h.set('x-rpc-client_type', '3');
+    h.set('x-rpc-device_id', deviceId);
+    h.set(HKey.USER_AGENT, 'HYPContainer/1.3.3.182');
+    return HttpClient.post(MihoyoDomain.PASSPORT + QRCodeApiPath.QUERY, bodyStr, opts);
   }
 
   // ── Cookie 刷新 ───────────────────────────────────────────────

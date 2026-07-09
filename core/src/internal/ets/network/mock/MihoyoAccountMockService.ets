@@ -104,39 +104,30 @@ export class MihoyoAccountMockService extends MihoyoAccountApiService {
     return this.okResp(d);
   }
 
-  // ── 二维码登录 ────────────────────────────────────────────────
+  // ── 二维码登录（新版 passport API）────────────────────────────────
 
   async fetchQRCode(_deviceId: string): Promise<object> {
     await MockServiceBase.delayStatic();
     const d = new Object() as Record<string, Object>;
+    d['ticket'] = `mock_ticket_${MOCK_AID_182}`;
     d['url'] = `https://user.mihoyo.com/qr_code_in_game.html?ticket=mock_ticket_${MOCK_AID_182}`;
     return this.okResp(d);
   }
 
   async queryQRCode(_deviceId: string, _ticket: string): Promise<object> {
     await MockServiceBase.delayStatic();
-    const raw = JSON.stringify({ uid: MOCK_AID_182, token: `mock_game_token_${MOCK_AID_182}` });
-    const payloadObj = new Object() as Record<string, Object>;
-    payloadObj['proto'] = 'Account';
-    payloadObj['raw'] = raw;
-    payloadObj['ext'] = '';
-    const d = new Object() as Record<string, Object>;
-    d['stat'] = 'Confirmed';
-    d['payload'] = payloadObj;
-    return this.okResp(d);
-  }
-
-  async getTokenByGameToken(accountId: string, _gameToken: string): Promise<object> {
-    await MockServiceBase.delayStatic();
-    const mid = `mock_mid_${accountId}`;
-    const tokenObj = new Object() as Record<string, Object>;
-    tokenObj['token_type'] = 1;
-    tokenObj['token'] = `${MOCK_STOKEN_PREFIX}${accountId}`;
+    // 新版 passport API 直接返回 stoken/ltoken/mid
+    const tokensArr: Object[] = [
+      { token: `${MOCK_STOKEN_PREFIX}${MOCK_AID_182}`, token_type: 1 },
+      { token: `mock_ltoken_${MOCK_AID_182}`, token_type: 2 },
+    ];
     const userInfoObj = new Object() as Record<string, Object>;
-    userInfoObj['aid'] = accountId;
-    userInfoObj['mid'] = mid;
+    userInfoObj['aid'] = MOCK_AID_182;
+    userInfoObj['mid'] = `mock_mid_${MOCK_AID_182}`;
+    userInfoObj['account_name'] = 'mock_user';
     const d = new Object() as Record<string, Object>;
-    d['token'] = tokenObj;
+    d['status'] = 'Confirmed';
+    d['tokens'] = tokensArr;
     d['user_info'] = userInfoObj;
     return this.okResp(d);
   }
