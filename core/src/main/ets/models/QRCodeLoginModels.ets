@@ -3,13 +3,15 @@
  *
  * 二维码登录流程相关的数据模型。
  * 对应接口：
- *   POST /hk4e_cn/combo/panda/qrcode/fetch  — 获取二维码 URL
- *   POST /hk4e_cn/combo/panda/qrcode/query  — 轮询扫码状态
+ *   POST /account/ma-cn-passport/app/createQRLogin  — 获取二维码 URL
+ *   POST /account/ma-cn-passport/app/queryQRLoginStatus  — 轮询扫码状态
+ *
+ * 新版 passport API 直接返回 stoken，无需 gameToken 转换链。
  */
 
 // ─── 获取二维码 ───────────────────────────────────────────────────
 
-/** fetchQRCode 接口响应 */
+/** createQRLogin 接口响应 */
 export interface QRCodeFetchResponse {
   retcode: number;
   message: string;
@@ -17,21 +19,23 @@ export interface QRCodeFetchResponse {
 }
 
 interface QRCodeFetchData {
+  /** 二维码 ticket，用于后续轮询 */
+  ticket: string;
   /** 二维码指向的 URL，传给 ArkUI QRCode 组件展示 */
   url: string;
 }
 
-/** fetchQRCode 业务结果 */
+/** createQRLogin 业务结果 */
 export class QRCodeFetchResult {
   /** 二维码完整 URL */
   url: string = '';
-  /** 从 URL 中提取的 ticket，用于后续轮询 */
+  /** ticket，用于后续轮询 */
   ticket: string = '';
 }
 
 // ─── 轮询扫码状态 ─────────────────────────────────────────────────
 
-/** queryQRCode 接口响应 */
+/** queryQRLoginStatus 接口响应 */
 export interface QRCodeQueryResponse {
   retcode: number;
   message: string;
@@ -39,31 +43,47 @@ export interface QRCodeQueryResponse {
 }
 
 interface QRCodeQueryData {
-  /** 扫码状态：Init / Scanned / Confirmed */
-  stat: string;
-  payload: QRCodePayload;
+  /** 扫码状态：Created / Scanned / Confirmed */
+  status: string;
+  /** 登录凭证，仅 Confirmed 时存在 */
+  tokens?: QRCodeToken[];
+  /** 用户信息，仅 Confirmed 时存在 */
+  user_info?: QRCodeUserInfo;
 }
 
-interface QRCodePayload {
-  /** 数据协议类型：Raw / Account */
-  proto: string;
-  /** Confirmed 后为 JSON 字符串：{"uid":"xxx","token":"xxx"} */
-  raw: string;
-  /** 扩展字段（通常为空） */
-  ext: string;
-}
-
-/** 二维码扫描确认后从 payload.raw 解析出的数据 */
-export interface QRCodeConfirmedData {
-  /** 米游社账号 UID */
-  uid: string;
-  /** game_token，用于换取 SToken */
+/** Token 信息 */
+interface QRCodeToken {
+  /** token 值 */
   token: string;
+  /** token 类型：1=stoken, 2=ltoken, 4=cookie_token */
+  token_type: number;
 }
 
-/** queryQRCode 业务结果 */
+/** 用户信息 */
+interface QRCodeUserInfo {
+  /** 账号 ID */
+  aid: string;
+  /** mid */
+  mid: string;
+  /** 账号名称 */
+  account_name: string;
+}
+
+/** 二维码扫描确认后的数据（新版 passport API 直接返回 token） */
+export class QRCodeConfirmedData {
+  /** 米游社账号 UID（aid） */
+  uid: string = '';
+  /** stoken */
+  stoken: string = '';
+  /** ltoken */
+  ltoken: string = '';
+  /** mid */
+  mid: string = '';
+}
+
+/** queryQRLoginStatus 业务结果 */
 export class QRCodeQueryResult {
-  /** 扫码状态（小写）：init / scanned / confirmed / expired */
+  /** 扫码状态（小写）：created / scanned / confirmed / expired */
   stat: string = '';
   /** 扫码确认后的数据，仅 stat=confirmed 时非 null */
   confirmed: QRCodeConfirmedData | null = null;

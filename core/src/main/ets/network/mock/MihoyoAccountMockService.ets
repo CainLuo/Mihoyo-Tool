@@ -109,35 +109,35 @@ export class MihoyoAccountMockService extends MihoyoAccountApiService {
   async fetchQRCode(_deviceId: string): Promise<object> {
     await MockServiceBase.delayStatic();
     const d = new Object() as Record<string, Object>;
+    d['ticket'] = `mock_ticket_${MOCK_AID_182}`;
     d['url'] = `https://user.mihoyo.com/qr_code_in_game.html?ticket=mock_ticket_${MOCK_AID_182}`;
     return this.okResp(d);
   }
 
   async queryQRCode(_deviceId: string, _ticket: string): Promise<object> {
     await MockServiceBase.delayStatic();
-    const raw = JSON.stringify({ uid: MOCK_AID_182, token: `mock_game_token_${MOCK_AID_182}` });
-    const payloadObj = new Object() as Record<string, Object>;
-    payloadObj['proto'] = 'Account';
-    payloadObj['raw'] = raw;
-    payloadObj['ext'] = '';
+    // 新版 passport API 直接返回 tokens 和 user_info
+    const tokens: Object[] = [];
+    const t1 = new Object() as Record<string, Object>;
+    t1['token'] = `${MOCK_STOKEN_PREFIX}${MOCK_AID_182}`;
+    t1['token_type'] = 1;
+    tokens.push(t1);
+    const t2 = new Object() as Record<string, Object>;
+    t2['token'] = `mock_ltoken_${MOCK_AID_182}`;
+    t2['token_type'] = 2;
+    tokens.push(t2);
+    const t3 = new Object() as Record<string, Object>;
+    t3['token'] = `mock_cookie_token_${MOCK_AID_182}`;
+    t3['token_type'] = 4;
+    tokens.push(t3);
+    const userInfo = new Object() as Record<string, Object>;
+    userInfo['aid'] = MOCK_AID_182;
+    userInfo['mid'] = `mock_mid_${MOCK_AID_182}`;
+    userInfo['account_name'] = 'MockAccount';
     const d = new Object() as Record<string, Object>;
-    d['stat'] = 'Confirmed';
-    d['payload'] = payloadObj;
-    return this.okResp(d);
-  }
-
-  async getTokenByGameToken(accountId: string, _gameToken: string): Promise<object> {
-    await MockServiceBase.delayStatic();
-    const mid = `mock_mid_${accountId}`;
-    const tokenObj = new Object() as Record<string, Object>;
-    tokenObj['token_type'] = 1;
-    tokenObj['token'] = `${MOCK_STOKEN_PREFIX}${accountId}`;
-    const userInfoObj = new Object() as Record<string, Object>;
-    userInfoObj['aid'] = accountId;
-    userInfoObj['mid'] = mid;
-    const d = new Object() as Record<string, Object>;
-    d['token'] = tokenObj;
-    d['user_info'] = userInfoObj;
+    d['status'] = 'Confirmed';
+    d['tokens'] = tokens;
+    d['user_info'] = userInfo;
     return this.okResp(d);
   }
 

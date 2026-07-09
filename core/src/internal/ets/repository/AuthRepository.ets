@@ -18,7 +18,6 @@ import {
   RETCODE_QR_EXPIRED,
   QR_STAT_EXPIRED,
   QR_STAT_CONFIRMED,
-  QR_PROTO_ACCOUNT,
   RESP_FIELD_TOKEN,
   RESP_FIELD_USER_INFO,
   RESP_FIELD_AID,
@@ -37,8 +36,6 @@ import {
   QRCodeConfirmedData,
 } from '../models/QRCodeLoginModels';
 import {
-  GameTokenResult,
-  GetTokenByGameTokenResponse,
   GetLTokenBySTokenResponse,
   GetCookieBySTokenResponse,
   LoginCookieFields,
@@ -59,11 +56,9 @@ export {
 } from '../models/QRCodeLoginModels';
 export {
   LoginCookieFields,
-  GameTokenResult,
   UserInfo,
   GetLTokenBySTokenResponse,
   GetCookieBySTokenResponse,
-  GetTokenByGameTokenResponse,
 } from '../models/TokenModels';
 
 export class AuthRepository {
@@ -236,20 +231,20 @@ export class AuthRepository {
       if (svc !== null) {
         resp = await svc.fetchQRCode(deviceId) as QRCodeFetchResponse;
       } else {
-        const bodyStr = JSON.stringify({ app_id: 7, device: deviceId });
         const opts = new RequestOptions();
-        opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.TEXT_PLAIN);
-        resp = await HttpClient.post(MihoyoDomain.HK4E_SDK + QRCodeApiPath.FETCH, bodyStr, opts) as QRCodeFetchResponse;
+        opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.JSON);
+        opts.extraHeaders.set('x-rpc-app_id', 'ddxf5dufpuyo');
+        opts.extraHeaders.set('x-rpc-client_type', '3');
+        opts.extraHeaders.set('x-rpc-device_id', deviceId);
+        opts.extraHeaders.set(HKey.USER_AGENT, 'HYPContainer/1.3.3.182');
+        resp = await HttpClient.post(MihoyoDomain.PASSPORT + QRCodeApiPath.FETCH, '{}', opts) as QRCodeFetchResponse;
       }
       if (resp.retcode !== 0) {
         throw new Error(`fetchQRCode failed: [${resp.retcode}] ${resp.message}`);
       }
-      const url = resp.data.url;
-      const ticketMatch = url.split('ticket=');
-      const ticket = ticketMatch.length > 1 ? ticketMatch[1].split('&')[0] : '';
       const result = new QRCodeFetchResult();
-      result.url = url;
-      result.ticket = ticket;
+      result.url = resp.data.url;
+      result.ticket = resp.data.ticket;
       return result;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -264,10 +259,14 @@ export class AuthRepository {
       if (svc !== null) {
         resp = await svc.queryQRCode(deviceId, ticket) as QRCodeQueryResponse;
       } else {
-        const bodyStr = JSON.stringify({ app_id: 7, device: deviceId, ticket: ticket });
+        const bodyStr = JSON.stringify({ ticket: ticket });
         const opts = new RequestOptions();
-        opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.TEXT_PLAIN);
-        resp = await HttpClient.post(MihoyoDomain.HK4E_SDK + QRCodeApiPath.QUERY, bodyStr, opts) as QRCodeQueryResponse;
+        opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.JSON);
+        opts.extraHeaders.set('x-rpc-app_id', 'ddxf5dufpuyo');
+        opts.extraHeaders.set('x-rpc-client_type', '3');
+        opts.extraHeaders.set('x-rpc-device_id', deviceId);
+        opts.extraHeaders.set(HKey.USER_AGENT, 'HYPContainer/1.3.3.182');
+        resp = await HttpClient.post(MihoyoDomain.PASSPORT + QRCodeApiPath.QUERY, bodyStr, opts) as QRCodeQueryResponse;
       }
       const queryResult = new QRCodeQueryResult();
       if (resp.retcode === RETCODE_QR_EXPIRED) {
@@ -277,44 +276,34 @@ export class AuthRepository {
       if (resp.retcode !== 0 || resp.data === null) {
         throw new Error(`queryQRCode failed: [${resp.retcode}] ${resp.message}`);
       }
-      queryResult.stat = resp.data.stat.toLowerCase();
-      if (queryResult.stat === QR_STAT_CONFIRMED && resp.data.payload.proto === QR_PROTO_ACCOUNT) {
-        queryResult.confirmed = JSON.parse(resp.data.payload.raw) as QRCodeConfirmedData;
+      // 新版 API 使用 status 字段，转换为小写
+      const status = resp.data.status as string;
+      queryResult.stat = status.toLowerCase();
+      // Confirmed 状态时解析 tokens 和 user_info
+      if (queryResult.stat === QR_STAT_CONFIRMED && resp.data.tokens !== undefined && resp.data.user_info !== undefined) {
+        const tokens = resp.data.tokens;
+        const userInfo = resp.data.user_info;
+        // token_type: 1=stoken, 2=ltoken, 4=cookie_token
+        let stoken = '';
+        let ltoken = '';
+        for (const t of tokens) {
+          if (t.token_type === 1) {
+            stoken = t.token;
+          } else if (t.token_type === 2) {
+            ltoken = t.token;
+          }
+        }
+        const confirmed = new QRCodeConfirmedData();
+        confirmed.uid = userInfo.aid;
+        confirmed.stoken = stoken;
+        confirmed.ltoken = ltoken;
+        confirmed.mid = userInfo.mid;
+        queryResult.confirmed = confirmed;
       }
       return queryResult;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       throw new Error(`AuthRepository.queryQRCode failed: ${msg}`);
-    }
-  }
-
-  static async getTokenByGameToken(accountId: string, gameToken: string): Promise<GameTokenResult> {
-    try {
-      let resp: GetTokenByGameTokenResponse;
-      const svc = AuthRepository.accountService;
-      if (svc !== null) {
-        resp = await svc.getTokenByGameToken(accountId, gameToken) as GetTokenByGameTokenResponse;
-      } else {
-        const bodyStr = JSON.stringify({ account_id: parseInt(accountId, 10), game_token: gameToken });
-        const opts = new RequestOptions();
-        opts.extraHeaders.set(HKey.APP_ID, ApiConfig.BBS_APP_ID);
-        opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.JSON);
-        resp = await HttpClient.post(
-          MihoyoDomain.TAKUMI + PassportApiPath.GET_TOKEN_BY_GAME_TOKEN,
-          bodyStr,
-          opts
-        ) as GetTokenByGameTokenResponse;
-      }
-      if (resp.retcode !== 0) {
-        throw new Error(`getTokenByGameToken failed: [${resp.retcode}] ${resp.message}`);
-      }
-      const tokenResult = new GameTokenResult();
-      tokenResult.stoken = resp.data.token.token;
-      tokenResult.userInfo = resp.data.user_info;
-      return tokenResult;
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      throw new Error(`AuthRepository.getTokenByGameToken failed: ${msg}`);
     }
   }
 
