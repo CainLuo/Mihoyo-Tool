@@ -1,6 +1,19 @@
 # 工作状态记录
 
-> 最后更新：2026-06-16
+> 最后更新：2026-07-04
+
+---
+
+## v1.2.0 开发中 🚧
+
+### 已完成任务清单
+
+**代码架构优化**（2026-07-04 完成）
+1. **Home 模块** — 删除冗余组件 `HomeContent.ets`
+2. **Characters 模块** — 重构 `CharacterCard.ets`，删除 6 个 `@Builder` 内联方法，拆分为 6 个独立子组件
+3. **My 模块** — 重构 `WidgetSection.ets`，删除 `@Builder` 内联方法，新增 `AccountWidgetBlock.ets`
+4. **chardetail 模块** — 重构多个组件，删除 11 个 `@Builder` 内联方法，新增 10 个独立子组件
+5. **widgetconfig 模块** — 重构 `WidgetSizeOption.ets` 和 `WidgetConfigDone.ets`
 
 ---
 
