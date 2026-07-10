@@ -93,7 +93,7 @@ URL 路径去掉 query 参数后，将 `/` 替换为 `_`，去掉开头的 `_`�
 | `/event/game_record_zzz/api/zzz/buddy/info`     | `event_game_record_zzz_api_zzz_buddy_list.json`                     |
 | `/game_record/app/genshin/aapi/widget/v2`       | `game_record_app_genshin_api_dailyNote.json`（Widget 复用便笺文件） |
 | `/game_record/app/hkrpg/aapi/widget`            | `game_record_app_hkrpg_api_note.json`                               |
-| `/event/game_record_zzz/api/zzz/widget`         | `event_game_record_zzz_api_zzz_note.json`                           |
+| `/event/game_record_zzz/api/zzz/widget`         | `event_record_app_zzz_widget.json`                           |
 
 ### 绝区零单角色详情的特殊规则
 
