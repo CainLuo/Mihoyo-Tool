@@ -22,6 +22,10 @@ var PAGES = {
     render: renderMaterialCalc,
     controls: materialCalcControls,
   },
+  "material-target-config": {
+    render: renderMaterialTargetConfig,
+    controls: materialTargetConfigControls,
+  },
   "material-list": {
     render: renderMaterialList,
     controls: materialListControls,
