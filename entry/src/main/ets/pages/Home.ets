@@ -9,7 +9,7 @@ import { HomeViewModel } from '../viewmodel/HomeViewModel'
 import { MihoyoAccountVM, GameRoleCardVM } from '../models/HomeModels'
 import { UserGameSection } from '../components/home/UserGameSection'
 import { HomeSkeletonView } from '../components/home/HomeSkeletonView'
-import { HomePlaceholderView } from '../components/home/HomePlaceholderView'
+import { PlaceholderView, PlaceholderState } from '../components/common/PlaceholderView'
 import { showGeetestDialog } from '../components/GeetestDialogHelper'
 import { Logger } from 'core'
 import { BusinessError } from '@kit.BasicServicesKit'
@@ -117,14 +117,21 @@ export struct Home {
     if (this.vm.viewState === ViewState.LOADING) {
       HomeSkeletonView()
     } else if (this.vm.viewState === ViewState.EMPTY) {
-      HomePlaceholderView({
-        onTap: () => {
-          if (this.isSplit) {
-            this.detailStack.replacePath({ name: AppRoutes.LOGIN, param: null })
-          } else {
-            this.detailStack.pushPathByName(AppRoutes.LOGIN, null)
+      // 无账号：显示登录占位
+      PlaceholderView({
+        state: {
+          icon: '🎮',
+          title: $r('app.string.home_placeholder_title'),
+          description: $r('app.string.home_placeholder_desc'),
+          buttonText: $r('app.string.home_placeholder_button'),
+          onButtonTap: () => {
+            if (this.isSplit) {
+              this.detailStack.replacePath({ name: AppRoutes.LOGIN, param: null })
+            } else {
+              this.detailStack.pushPathByName(AppRoutes.LOGIN, null)
+            }
           }
-        }
+        } as PlaceholderState
       })
     } else {
       Scroll(this.scroller) {

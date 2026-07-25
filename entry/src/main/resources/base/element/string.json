@@ -5,10 +5,6 @@
       "value": "›"
     },
     {
-      "name": "app_name",
-      "value": "米悠悠"
-    },
-    {
       "name": "launch_subtitle",
       "value": "游戏数据助手"
     },
@@ -1959,6 +1955,302 @@
     {
       "name": "a11y_faction_icon",
       "value": "阵营图标"
+    },
+    {
+      "name": "tools_title",
+      "value": "工具"
+    },
+    {
+      "name": "tools_empty_title",
+      "value": "请先添加账号"
+    },
+    {
+      "name": "tools_empty_desc",
+      "value": "登录米游社账号后，即可使用工具功能"
+    },
+    {
+      "name": "tools_empty_login_button",
+      "value": "去登录"
+    },
+    {
+      "name": "tools_game_no_data",
+      "value": "暂无角色数据"
+    },
+    {
+      "name": "tools_game_status_not_computed",
+      "value": "%d 个角色 · 未计算"
+    },
+    {
+      "name": "tools_game_status_partial",
+      "value": "%d 个角色 · 已计算 %d 个"
+    },
+    {
+      "name": "tools_game_status_done",
+      "value": "%d 个角色 · 已全部计算"
+    },
+    {
+      "name": "material_list_title",
+      "value": "材料汇总"
+    },
+    {
+      "name": "material_list_empty_title",
+      "value": "暂无材料数据"
+    },
+    {
+      "name": "material_list_empty_desc",
+      "value": "请先在角色详情页计算材料需求"
+    },
+    {
+      "name": "material_list_empty_button",
+      "value": "去同步"
+    },
+    {
+      "name": "material_list_syncing",
+      "value": "同步中..."
+    },
+    {
+      "name": "material_view_by_character",
+      "value": "按角色"
+    },
+    {
+      "name": "material_view_by_material",
+      "value": "按材料"
+    },
+    {
+      "name": "material_view_character",
+      "value": "按角色"
+    },
+    {
+      "name": "material_view_material",
+      "value": "按材料"
+    },
+    {
+      "name": "material_section_avatar",
+      "value": "角色材料"
+    },
+    {
+      "name": "material_section_skill",
+      "value": "技能材料"
+    },
+    {
+      "name": "material_section_weapon",
+      "value": "武器材料"
+    },
+    {
+      "name": "material_card_weapon",
+      "value": "武器"
+    },
+    {
+      "name": "material_card_skill",
+      "value": "技能"
+    },
+    {
+      "name": "material_section_light_cone",
+      "value": "光锥材料"
+    },
+    {
+      "name": "material_section_weapon_info",
+      "value": "武器信息"
+    },
+    {
+      "name": "material_section_light_cone_info",
+      "value": "光锥信息"
+    },
+    {
+      "name": "material_calc_title",
+      "value": "材料计算"
+    },
+    {
+      "name": "material_calc_empty_title",
+      "value": "暂无计算数据"
+    },
+    {
+      "name": "material_calc_empty_desc",
+      "value": "请先同步角色数据"
+    },
+    {
+      "name": "material_calc_refresh_hint",
+      "value": "↓ 下拉刷新材料数据"
+    },
+    {
+      "name": "skill_target_title",
+      "value": "技能目标"
+    },
+    {
+      "name": "skill_normal",
+      "value": "普攻"
+    },
+    {
+      "name": "skill_skill",
+      "value": "战技"
+    },
+    {
+      "name": "skill_burst",
+      "value": "爆发"
+    },
+    {
+      "name": "skill_basic",
+      "value": "普攻"
+    },
+    {
+      "name": "skill_ultimate",
+      "value": "终结技"
+    },
+    {
+      "name": "skill_talent",
+      "value": "天赋"
+    },
+    {
+      "name": "skill_special",
+      "value": "特殊技"
+    },
+    {
+      "name": "skill_chain",
+      "value": "连携技"
+    },
+    {
+      "name": "skill_dodge",
+      "value": "闪避"
+    },
+    {
+      "name": "skill_assist",
+      "value": "支援"
+    },
+    {
+      "name": "skill_core",
+      "value": "核心技"
+    },
+    {
+      "name": "level_picker_title",
+      "value": "选择目标等级"
+    },
+    {
+      "name": "game_name_genshin_material",
+      "value": "原神材料总汇"
+    },
+    {
+      "name": "game_name_starrail_material",
+      "value": "崩坏：星穹铁道材料总汇"
+    },
+    {
+      "name": "game_name_zzz_material",
+      "value": "绝区零材料总汇"
+    },
+    {
+      "name": "char_detail_material_calc_title",
+      "value": "养成计算"
+    },
+    {
+      "name": "char_detail_material_calc_desc",
+      "value": "查看角色升级所需材料"
+    },
+    {
+      "name": "material_list_view_mode_character",
+      "value": "按角色"
+    },
+    {
+      "name": "material_list_view_mode_material",
+      "value": "按材料"
+    },
+    {
+      "name": "material_section_currency",
+      "value": "经验书与摩拉"
+    },
+    {
+      "name": "material_section_materials",
+      "value": "其他材料"
+    },
+    {
+      "name": "material_deficit_format",
+      "value": "-%d"
+    },
+    {
+      "name": "material_enough_mark",
+      "value": "✓"
+    },
+    {
+      "name": "material_target_config_title",
+      "value": "养成目标配置"
+    },
+    {
+      "name": "material_target_config_select_game",
+      "value": "选择游戏"
+    },
+    {
+      "name": "material_target_config_genshin_tip",
+      "value": "点击等级行设置当前等级和目标等级，系统将计算升级所需的材料。"
+    },
+    {
+      "name": "material_target_config_starrail_tip",
+      "value": "星穹铁道角色满级为 80 级，光锥满级为 80 级。\n注：技能等级为统一设置，实际计算时会应用到所有行迹。"
+    },
+    {
+      "name": "material_target_config_zzz_tip",
+      "value": "绝区零角色满级为 60 级，技能满级为 12 级，音擎满级为 60 级。\n注：绝区零有 6 个技能需要逐个配置。"
+    },
+    {
+      "name": "material_target_config_avatar_level",
+      "value": "角色等级"
+    },
+    {
+      "name": "material_target_config_skill_level",
+      "value": "技能等级"
+    },
+    {
+      "name": "material_target_config_weapon_level",
+      "value": "武器等级"
+    },
+    {
+      "name": "material_target_config_trace_level",
+      "value": "行迹等级"
+    },
+    {
+      "name": "material_target_config_light_cone_level",
+      "value": "光锥等级"
+    },
+    {
+      "name": "material_target_config_start_calc",
+      "value": "开始计算材料"
+    },
+    {
+      "name": "material_target_config_level_range",
+      "value": "可选范围：1 ~ %d 级"
+    },
+    {
+      "name": "material_target_config_level",
+      "value": "选择等级"
+    },
+    {
+      "name": "common_cancel",
+      "value": "取消"
+    },
+    {
+      "name": "common_confirm",
+      "value": "确定"
+    },
+    {
+      "name": "zzz_skill_normal_attack",
+      "value": "普通攻击"
+    },
+    {
+      "name": "zzz_skill_dodge",
+      "value": "闪避"
+    },
+    {
+      "name": "zzz_skill_assist",
+      "value": "支援技"
+    },
+    {
+      "name": "zzz_skill_special",
+      "value": "特殊技"
+    },
+    {
+      "name": "zzz_skill_chain",
+      "value": "连携技"
+    },
+    {
+      "name": "zzz_skill_core",
+      "value": "核心技"
     }
   ]
 }

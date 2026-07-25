@@ -52,6 +52,12 @@ export enum TableName {
   ZZZ_BUDDY                 = 'zzz_buddy',
   /** 同步状态元数据，记录每个角色每种数据类型的最后同步时间和状态 */
   SYNC_META                 = 'sync_meta',
+  /** 原神材料背包，存储原神玩家拥有的材料数据 */
+  GENSHIN_MATERIAL_BAG      = 'genshin_material_bag',
+  /** 星穹铁道材料背包，存储星铁玩家拥有的材料数据 */
+  STARRAIL_MATERIAL_BAG     = 'starrail_material_bag',
+  /** 绝区零材料背包，存储绝区零玩家拥有的材料数据 */
+  ZZZ_MATERIAL_BAG          = 'zzz_material_bag',
 }
 
 /**
@@ -466,6 +472,38 @@ export enum ZZZBuddyCol {
 }
 
 /**
+ * 材料背包通用列名（适用于三个游戏的材料背包表）。
+ * 存储玩家背包中的材料数据，用于材料计算功能。
+ * 
+ * 注意：三个游戏有独立的材料背包表，不再需要 game_id 字段：
+ * - genshin_material_bag（原神）
+ * - starrail_material_bag（星穹铁道）
+ * - zzz_material_bag（绝区零）
+ * 
+ * 唯一键：(account_id, role_uid, material_id)
+ * 同一个米游社账号下，不同游戏角色的背包是独立的。
+ * 
+ * 公共字段使用 CommonCol：
+ * - account_id（米游社账号 UID）
+ * - role_uid（游戏角色 UID，与 game_role_table.role_id 对应）
+ * - update_time（更新时间戳）
+ */
+export enum MaterialBagCol {
+  /** 材料 ID（统一 TEXT 类型，兼容星铁 item_id/绝区零 id/原神 id） */
+  MATERIAL_ID    = 'material_id',
+  /** 材料名称 */
+  MATERIAL_NAME  = 'material_name',
+  /** 材料图标 URL */
+  MATERIAL_ICON  = 'material_icon',
+  /** 稀有度（星铁/绝区零返回 string 的 S/A/B/C，原神返回 number 的 1-5，统一存 string） */
+  RARITY         = 'rarity',
+  /** 拥有数量（星铁/绝区零来自 API，原神为用户手动输入或从 lack_num 反推） */
+  COUNT          = 'count',
+  /** 数据来源：api（API 返回）或 manual（手动输入）或 computed（从 lack_num 反推） */
+  SOURCE         = 'source',
+}
+
+/**
  * 单列定义，描述一张表中某一列的名称、SQLite 类型和约束。
  * 由 TableDef 持有，通过 buildCreateSql() 拼入 DDL。
  */
@@ -657,6 +695,7 @@ export const GENSHIN_CHARACTER_COMPUTE_TABLE = new TableDef(TableName.GENSHIN_CH
   new ColumnDef('avatar_consume_json', 'TEXT'),
   new ColumnDef('skill_consume_json',  'TEXT'),
   new ColumnDef('weapon_consume_json', 'TEXT'),
+  new ColumnDef(CommonCol.RAW_JSON,    'TEXT',    "DEFAULT ''"),
   new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
 ], FK_ACCOUNT);
 
@@ -736,6 +775,7 @@ export const STARRAIL_AVATAR_COMPUTE_TABLE = new TableDef(TableName.STARRAIL_AVA
   new ColumnDef('avatar_consume_json',    'TEXT'),
   new ColumnDef('skill_consume_json',     'TEXT'),
   new ColumnDef('equipment_consume_json', 'TEXT'),
+  new ColumnDef(CommonCol.RAW_JSON,       'TEXT',    "DEFAULT ''"),
   new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
 ], FK_ACCOUNT);
 
@@ -805,6 +845,7 @@ export const ZZZ_AVATAR_COMPUTE_TABLE = new TableDef(TableName.ZZZ_AVATAR_COMPUT
   new ColumnDef('avatar_consume_json', 'TEXT'),
   new ColumnDef('weapon_consume_json', 'TEXT'),
   new ColumnDef('skill_consume_json',  'TEXT'),
+  new ColumnDef(CommonCol.RAW_JSON,    'TEXT',    "DEFAULT ''"),
   new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
 ], FK_ACCOUNT);
 
@@ -834,8 +875,50 @@ export const SYNC_META_TABLE = new TableDef(TableName.SYNC_META, [
   new ColumnDef('error_msg',      'TEXT'),
 ], FK_ACCOUNT);
 
+// ── 表 17：genshin_material_bag（原神材料背包）──────────────────
+export const GENSHIN_MATERIAL_BAG_TABLE = new TableDef(TableName.GENSHIN_MATERIAL_BAG, [
+  new ColumnDef(CommonCol.ID,              'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
+  new ColumnDef(CommonCol.ACCOUNT_ID,      'TEXT',    'NOT NULL'),
+  new ColumnDef(CommonCol.ROLE_UID,        'TEXT',    'NOT NULL'),
+  new ColumnDef(MaterialBagCol.MATERIAL_ID,   'TEXT',    'NOT NULL'),
+  new ColumnDef(MaterialBagCol.MATERIAL_NAME, 'TEXT',    'NOT NULL'),
+  new ColumnDef(MaterialBagCol.MATERIAL_ICON, 'TEXT',    "DEFAULT ''"),
+  new ColumnDef(MaterialBagCol.RARITY,        'TEXT',    "DEFAULT ''"),
+  new ColumnDef(MaterialBagCol.COUNT,         'INTEGER', 'DEFAULT 0'),
+  new ColumnDef(MaterialBagCol.SOURCE,        'TEXT',    "DEFAULT 'api'"),
+  new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
+], FK_ACCOUNT);
+
+// ── 表 18：starrail_material_bag（星穹铁道材料背包）──────────────
+export const STARRAIL_MATERIAL_BAG_TABLE = new TableDef(TableName.STARRAIL_MATERIAL_BAG, [
+  new ColumnDef(CommonCol.ID,              'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
+  new ColumnDef(CommonCol.ACCOUNT_ID,      'TEXT',    'NOT NULL'),
+  new ColumnDef(CommonCol.ROLE_UID,        'TEXT',    'NOT NULL'),
+  new ColumnDef(MaterialBagCol.MATERIAL_ID,   'TEXT',    'NOT NULL'),
+  new ColumnDef(MaterialBagCol.MATERIAL_NAME, 'TEXT',    'NOT NULL'),
+  new ColumnDef(MaterialBagCol.MATERIAL_ICON, 'TEXT',    "DEFAULT ''"),
+  new ColumnDef(MaterialBagCol.RARITY,        'TEXT',    "DEFAULT ''"),
+  new ColumnDef(MaterialBagCol.COUNT,         'INTEGER', 'DEFAULT 0'),
+  new ColumnDef(MaterialBagCol.SOURCE,        'TEXT',    "DEFAULT 'api'"),
+  new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
+], FK_ACCOUNT);
+
+// ── 表 19：zzz_material_bag（绝区零材料背包）─────────────────────
+export const ZZZ_MATERIAL_BAG_TABLE = new TableDef(TableName.ZZZ_MATERIAL_BAG, [
+  new ColumnDef(CommonCol.ID,              'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
+  new ColumnDef(CommonCol.ACCOUNT_ID,      'TEXT',    'NOT NULL'),
+  new ColumnDef(CommonCol.ROLE_UID,        'TEXT',    'NOT NULL'),
+  new ColumnDef(MaterialBagCol.MATERIAL_ID,   'TEXT',    'NOT NULL'),
+  new ColumnDef(MaterialBagCol.MATERIAL_NAME, 'TEXT',    'NOT NULL'),
+  new ColumnDef(MaterialBagCol.MATERIAL_ICON, 'TEXT',    "DEFAULT ''"),
+  new ColumnDef(MaterialBagCol.RARITY,        'TEXT',    "DEFAULT ''"),
+  new ColumnDef(MaterialBagCol.COUNT,         'INTEGER', 'DEFAULT 0'),
+  new ColumnDef(MaterialBagCol.SOURCE,        'TEXT',    "DEFAULT 'api'"),
+  new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
+], FK_ACCOUNT);
+
 /**
- * 所有 16 张表的有序列表，供 RdbManager.createTables() 循环建表使用。
+ * 所有 19 张表的有序列表，供 RdbManager.createTables() 循环建表使用。
  * 顺序很重要：account_table 必须在所有有外键的子表之前创建。
  */
 export const ALL_TABLES: TableDef[] = [
@@ -855,6 +938,9 @@ export const ALL_TABLES: TableDef[] = [
   ZZZ_AVATAR_COMPUTE_TABLE,
   ZZZ_BUDDY_TABLE,
   SYNC_META_TABLE,
+  GENSHIN_MATERIAL_BAG_TABLE,
+  STARRAIL_MATERIAL_BAG_TABLE,
+  ZZZ_MATERIAL_BAG_TABLE,
 ];
 
 // ── 索引定义 ─────────────────────────────────────────────────
@@ -942,4 +1028,10 @@ export const ALL_INDEXES: IndexDef[] = [
   new IndexDef('idx_zzz_buddy_unique', TableName.ZZZ_BUDDY, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, 'buddy_id'], true),
   // sync_meta
   new IndexDef('idx_sync_meta_unique', TableName.SYNC_META, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, CommonCol.DATA_TYPE], true),
+  // genshin_material_bag
+  new IndexDef('idx_genshin_material_bag_unique', TableName.GENSHIN_MATERIAL_BAG, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, MaterialBagCol.MATERIAL_ID], true),
+  // starrail_material_bag
+  new IndexDef('idx_starrail_material_bag_unique', TableName.STARRAIL_MATERIAL_BAG, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, MaterialBagCol.MATERIAL_ID], true),
+  // zzz_material_bag
+  new IndexDef('idx_zzz_material_bag_unique', TableName.ZZZ_MATERIAL_BAG, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, MaterialBagCol.MATERIAL_ID], true),
 ];

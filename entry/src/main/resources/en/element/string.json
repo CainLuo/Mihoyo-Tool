@@ -1839,6 +1839,278 @@
     {
       "name": "a11y_faction_icon",
       "value": "Faction icon"
+    },
+    {
+      "name": "tools_title",
+      "value": "Tools"
+    },
+    {
+      "name": "tools_empty_title",
+      "value": "Please add an account first"
+    },
+    {
+      "name": "tools_empty_desc",
+      "value": "Login to your HoYoLAB account to use tools"
+    },
+    {
+      "name": "tools_empty_login_button",
+      "value": "Login"
+    },
+    {
+      "name": "tools_game_no_data",
+      "value": "No character data"
+    },
+    {
+      "name": "tools_game_status_not_computed",
+      "value": "%d characters · Not calculated"
+    },
+    {
+      "name": "tools_game_status_partial",
+      "value": "%d characters · %d calculated"
+    },
+    {
+      "name": "tools_game_status_done",
+      "value": "%d characters · All calculated"
+    },
+    {
+      "name": "material_list_title",
+      "value": "Material Summary"
+    },
+    {
+      "name": "material_list_empty_title",
+      "value": "No material data"
+    },
+    {
+      "name": "material_list_empty_desc",
+      "value": "Please calculate material requirements from character details"
+    },
+    {
+      "name": "material_list_empty_button",
+      "value": "Sync Now"
+    },
+    {
+      "name": "material_list_syncing",
+      "value": "Syncing..."
+    },
+    {
+      "name": "material_view_by_character",
+      "value": "By Character"
+    },
+    {
+      "name": "material_view_by_material",
+      "value": "By Material"
+    },
+    {
+      "name": "material_view_character",
+      "value": "By Character"
+    },
+    {
+      "name": "material_view_material",
+      "value": "By Material"
+    },
+    {
+      "name": "material_section_avatar",
+      "value": "Character Materials"
+    },
+    {
+      "name": "material_section_skill",
+      "value": "Skill Materials"
+    },
+    {
+      "name": "material_section_weapon",
+      "value": "Weapon Materials"
+    },
+    {
+      "name": "material_card_weapon",
+      "value": "Weapon"
+    },
+    {
+      "name": "material_card_skill",
+      "value": "Skills"
+    },
+    {
+      "name": "material_section_light_cone",
+      "value": "Light Cone Materials"
+    },
+    {
+      "name": "material_section_weapon_info",
+      "value": "Weapon Info"
+    },
+    {
+      "name": "material_section_light_cone_info",
+      "value": "Light Cone Info"
+    },
+    {
+      "name": "material_calc_title",
+      "value": "Material Calculator"
+    },
+    {
+      "name": "material_calc_empty_title",
+      "value": "No calculation data"
+    },
+    {
+      "name": "material_calc_empty_desc",
+      "value": "Please sync character data first"
+    },
+    {
+      "name": "material_calc_refresh_hint",
+      "value": "↓ Pull down to refresh"
+    },
+    {
+      "name": "skill_target_title",
+      "value": "Skill Targets"
+    },
+    {
+      "name": "skill_normal",
+      "value": "Normal"
+    },
+    {
+      "name": "skill_skill",
+      "value": "Skill"
+    },
+    {
+      "name": "skill_burst",
+      "value": "Burst"
+    },
+    {
+      "name": "skill_basic",
+      "value": "Basic"
+    },
+    {
+      "name": "skill_ultimate",
+      "value": "Ultimate"
+    },
+    {
+      "name": "skill_talent",
+      "value": "Talent"
+    },
+    {
+      "name": "skill_special",
+      "value": "Special"
+    },
+    {
+      "name": "skill_chain",
+      "value": "Chain"
+    },
+    {
+      "name": "skill_dodge",
+      "value": "Dodge"
+    },
+    {
+      "name": "skill_assist",
+      "value": "Assist"
+    },
+    {
+      "name": "skill_core",
+      "value": "Core"
+    },
+    {
+      "name": "level_picker_title",
+      "value": "Select Target Level"
+    },
+    {
+      "name": "game_name_genshin_material",
+      "value": "Genshin Impact Materials"
+    },
+    {
+      "name": "game_name_starrail_material",
+      "value": "Honkai: Star Rail Materials"
+    },
+    {
+      "name": "game_name_zzz_material",
+      "value": "Zenless Zone Zero Materials"
+    },
+    {
+      "name": "char_detail_material_calc_title",
+      "value": "Upgrade Calculator"
+    },
+    {
+      "name": "char_detail_material_calc_desc",
+      "value": "Check materials needed for character upgrade"
+    },
+    {
+      "name": "material_target_config_title",
+      "value": "Upgrade Target Config"
+    },
+    {
+      "name": "material_target_config_select_game",
+      "value": "Select Game"
+    },
+    {
+      "name": "material_target_config_genshin_tip",
+      "value": "💡 Tap level rows to set current and target levels. The system will calculate required materials."
+    },
+    {
+      "name": "material_target_config_starrail_tip",
+      "value": "Star Rail characters max at Lv.80, Light Cones max at Lv.80.\nNote: Skill level is unified and applies to all Traces."
+    },
+    {
+      "name": "material_target_config_zzz_tip",
+      "value": "ZZZ characters max at Lv.60, skills max at Lv.12, W-Engines max at Lv.60.\nNote: ZZZ has 6 independent skills to configure."
+    },
+    {
+      "name": "material_target_config_avatar_level",
+      "value": "Character Level"
+    },
+    {
+      "name": "material_target_config_skill_level",
+      "value": "Skill Level"
+    },
+    {
+      "name": "material_target_config_weapon_level",
+      "value": "Weapon Level"
+    },
+    {
+      "name": "material_target_config_trace_level",
+      "value": "Trace Level"
+    },
+    {
+      "name": "material_target_config_light_cone_level",
+      "value": "Light Cone Level"
+    },
+    {
+      "name": "material_target_config_start_calc",
+      "value": "Calculate Materials"
+    },
+    {
+      "name": "material_target_config_level_range",
+      "value": "Range: 1 ~ Lv.%d"
+    },
+    {
+      "name": "material_target_config_level",
+      "value": "Select Level"
+    },
+    {
+      "name": "common_cancel",
+      "value": "Cancel"
+    },
+    {
+      "name": "common_confirm",
+      "value": "Confirm"
+    },
+    {
+      "name": "zzz_skill_normal_attack",
+      "value": "Normal Attack"
+    },
+    {
+      "name": "zzz_skill_dodge",
+      "value": "Dodge"
+    },
+    {
+      "name": "zzz_skill_assist",
+      "value": "Assist"
+    },
+    {
+      "name": "zzz_skill_special",
+      "value": "Special"
+    },
+    {
+      "name": "zzz_skill_chain",
+      "value": "Chain"
+    },
+    {
+      "name": "zzz_skill_core",
+      "value": "Core"
     }
   ]
 }

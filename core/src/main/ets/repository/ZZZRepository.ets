@@ -21,6 +21,11 @@ import { AuthExpiredError } from '../errors/ApiErrors';
 import { CookieRefreshCoordinator } from '../cookie/CookieRefreshCoordinator';
 import { CoreInitializer } from '../CoreInitializer';
 import { BBSRepository } from './BBSRepository';
+import { MaterialBagRepository } from './MaterialBagRepository';
+import { MaterialBagRow } from '../models/MaterialBagRow';
+import { ZZZComputeParser, ZZZMaterialItem } from '../parsers/zzz/ZZZComputeParser';
+import { GameId } from '../constants/GameId';
+import { Logger } from '../utils/Logger';
 
 export class ZZZRepository extends GameRepository {
   private avatarBasicDao: ZZZAvatarBasicDao = new ZZZAvatarBasicDao();
@@ -28,6 +33,7 @@ export class ZZZRepository extends GameRepository {
   private avatarInfoDao: ZZZAvatarInfoDao = new ZZZAvatarInfoDao();
   private avatarComputeDao: ZZZAvatarComputeDao = new ZZZAvatarComputeDao();
   private buddyDao: ZZZBuddyDao = new ZZZBuddyDao();
+  private materialBagRepo: MaterialBagRepository = new MaterialBagRepository();
 
   // ── 角色基础列表 ──────────────────────────────────────────────
 
@@ -315,6 +321,174 @@ export class ZZZRepository extends GameRepository {
 
   async markAvatarComputeFailed(accountId: string, roleUid: string, errorMsg: string): Promise<void> {
     await this.markFailed(accountId, roleUid, SyncDataType.ZZZ_AVATAR_COMPUTE, errorMsg);
+  }
+
+  /**
+   * 拉取单角色养成计算 → 解析 → 写 DB
+   * 同时写入材料背包数据（从 user_owns_materials）
+   * @param avatarId 角色 ID
+   * @param avatarLevel 目标等级
+   * @param avatarCurrentLevel 当前等级
+   * @param avatarCurrentPromotes 当前突破阶段
+   * @param skills 技能参数数组
+   * @param uid 游戏 UID
+   * @param region 服务器（如 'prod_gf_cn'）
+   * @param cookie 登录 Cookie
+   */
+  async syncAvatarCompute(
+    accountId: string,
+    roleUid: string,
+    avatarId: string,
+    avatarLevel: number,
+    avatarCurrentLevel: number,
+    avatarCurrentPromotes: number,
+    skills: object[],
+    uid: string,
+    region: string,
+    cookie: string
+  ): Promise<ZZZAvatarComputeRow> {
+    await this.markSyncing(accountId, roleUid, SyncDataType.ZZZ_AVATAR_COMPUTE);
+    try {
+      const resp = await (this.getService() as ZZZApiService).compute(
+        avatarId, avatarLevel, avatarCurrentLevel, avatarCurrentPromotes, skills, uid, region, cookie
+      );
+      const row = ZZZRepository.parseComputeResult(accountId, roleUid, avatarId, resp);
+
+      // 解析材料背包数据
+      const dataObj = (resp as Record<string, object>)['data'] ?? resp;
+      const rawJson = JSON.stringify(dataObj);
+      const computeData = ZZZComputeParser.parse(rawJson);
+
+      // 合并 consume 数据中的材料信息
+      const materialRows = this.buildMaterialRows(
+        accountId,
+        roleUid,
+        computeData.avatarConsume,
+        computeData.skillConsume,
+        computeData.weaponConsume,
+        computeData.userOwnsMaterials
+      );
+
+      await this.runInTransaction(async () => {
+        await this.avatarComputeDao.upsert(row);
+        // 写入材料背包
+        if (materialRows.length > 0) {
+          await this.materialBagRepo.upsertMaterials(accountId, roleUid, materialRows, GameId.ZZZ);
+        }
+        await this.markSuccess(accountId, roleUid, SyncDataType.ZZZ_AVATAR_COMPUTE);
+      });
+      return row;
+    } catch (error) {
+      const msg = this.toErrorMessage(error);
+      await this.markFailed(accountId, roleUid, SyncDataType.ZZZ_AVATAR_COMPUTE, msg);
+      throw new Error(msg);
+    }
+  }
+
+  /**
+   * 从 consume 数据和 userOwnsMaterials 构建材料背包行
+   */
+  private buildMaterialRows(
+    accountId: string,
+    roleUid: string,
+    avatarConsume: ZZZMaterialItem[],
+    skillConsume: ZZZMaterialItem[],
+    weaponConsume: ZZZMaterialItem[],
+    userOwnsMaterials: Map<string, number>
+  ): MaterialBagRow[] {
+    const rows: MaterialBagRow[] = [];
+    const materialInfoMap = new Map<string, ZZZMaterialItem>();
+
+    // 收集所有材料信息（去重）
+    for (let i = 0; i < avatarConsume.length; i++) {
+      const item = avatarConsume[i];
+      if (!materialInfoMap.has(item.id)) {
+        materialInfoMap.set(item.id, item);
+      }
+    }
+    for (let i = 0; i < skillConsume.length; i++) {
+      const item = skillConsume[i];
+      if (!materialInfoMap.has(item.id)) {
+        materialInfoMap.set(item.id, item);
+      }
+    }
+    for (let i = 0; i < weaponConsume.length; i++) {
+      const item = weaponConsume[i];
+      if (!materialInfoMap.has(item.id)) {
+        materialInfoMap.set(item.id, item);
+      }
+    }
+
+    // 从 userOwnsMaterials 构建背包数据
+    const materialIds = Array.from(userOwnsMaterials.keys());
+    for (let i = 0; i < materialIds.length; i++) {
+      const materialId = materialIds[i];
+      const count = userOwnsMaterials.get(materialId) ?? 0;
+      const info = materialInfoMap.get(materialId);
+
+      const row = new MaterialBagRow();
+      row.accountId = accountId;
+      row.roleUid = roleUid;
+      row.materialId = materialId;
+      row.count = count;
+      row.source = 'api';
+      row.updateTime = Math.floor(Date.now() / 1000);
+
+      // 如果有材料详情，填充名称/图标/稀有度
+      if (info) {
+        row.materialName = info.name;
+        row.materialIcon = info.iconUrl;
+        row.rarity = info.rarity;
+      } else {
+        // 没有详情时，用 ID 作为名称兜底
+        row.materialName = materialId;
+        row.materialIcon = '';
+        row.rarity = '';
+      }
+
+      rows.push(row);
+    }
+
+    return rows;
+  }
+
+  /**
+   * 解析单角色计算 API 响应为 ZZZAvatarComputeRow
+   */
+  static parseComputeResult(accountId: string, roleUid: string, avatarId: string, resp: object): ZZZAvatarComputeRow {
+    const row = new ZZZAvatarComputeRow();
+    row.accountId = accountId;
+    row.roleUid = roleUid;
+    row.avatarId = avatarId;
+    row.rawJson = JSON.stringify(resp);
+    row.updateTime = Math.floor(Date.now() / 1000);
+
+    try {
+      const respRecord = resp as Record<string, object>;
+      const dataObj = respRecord['data'] !== undefined ? respRecord['data'] : resp;
+      const data = dataObj as Record<string, object>;
+
+      // 提取各部分的 consume JSON
+      const avatarConsume = data['avatar_consume'] as Record<string, object>[] | null;
+      row.avatarConsumeJson = avatarConsume ? JSON.stringify(avatarConsume) : '';
+
+      const weaponConsume = data['weapon_consume'] as Record<string, object>[] | null;
+      row.weaponConsumeJson = weaponConsume ? JSON.stringify(weaponConsume) : '';
+
+      const skillConsume = data['skill_consume'] as Record<string, object>[] | null;
+      row.skillConsumeJson = skillConsume ? JSON.stringify(skillConsume) : '';
+    } catch (_) {}
+
+    return row;
+  }
+
+  // ── 批量读取计算数据 ────────────────────────────────────────
+
+  /**
+   * 读取所有角色的养成计算数据
+   */
+  async getAllComputeData(accountId: string, roleUid: string): Promise<ZZZAvatarComputeRow[]> {
+    return this.avatarComputeDao.findAll(accountId, roleUid);
   }
 
   // ── 解析方法 ─────────────────────────────────────────────────

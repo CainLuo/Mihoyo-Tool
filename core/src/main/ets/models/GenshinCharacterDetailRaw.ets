@@ -56,6 +56,8 @@ export interface GenshinRawSkill {
   name: string;
   icon: string;
   level: number;
+  /** 技能类型：1=可升级技能（普攻、E、Q），2=固有天赋/被动 */
+  skill_type?: number;
 }
 
 export interface GenshinRawConstellation {

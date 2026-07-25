@@ -78,7 +78,7 @@ export struct Characters {
     );
   }
 
-  @Monitor(CharactersViewModel.KEYS.networkErrorMsg)
+  @Monitor('vm.networkErrorMsg')
   onNetworkError(_monitor: IMonitor): void {
     const msg = this.vm.networkErrorMsg;
     if (msg === '') { return; }
@@ -88,7 +88,7 @@ export struct Characters {
     showFeedback(ctx, FeedbackType.ERROR, msg);
   }
 
-  @Monitor(CharactersViewModel.KEYS.refreshCoolingDown)
+  @Monitor('vm.refreshCoolingDown')
   onRefreshCoolingDown(_monitor: IMonitor): void {
     const ctx = this.uiCtx;
     if (ctx === null) { return; }
@@ -106,7 +106,7 @@ export struct Characters {
     });
   }
 
-  @Monitor(CharactersViewModel.KEYS.refreshResult)
+  @Monitor('vm.refreshResult')
   onRefreshResultChanged(_monitor: IMonitor): void {
     const result = this.vm.refreshResult;
     if (result === '') { return; }

@@ -83,7 +83,7 @@ export struct PrivacyConsentWebView {
     });
   }
 
-  @Monitor('tm.current.colorPageBg')
+  @Monitor('tm')
   onThemeChanged(_m: IMonitor): void {
     if (this.pageLoaded) { this.injectAll(); }
   }

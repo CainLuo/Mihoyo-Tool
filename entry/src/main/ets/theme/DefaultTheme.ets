@@ -20,6 +20,14 @@ export class DefaultTheme implements Theme {
   colorDangerBg: Resource = $r('app.color.color_danger_bg')
   colorWarning: Resource = $r('app.color.color_warning')
   colorSurfaceSubtle: Resource = $r('app.color.color_surface_subtle')
+
+  // ---- 成功状态 ----
+  colorSuccess: Resource = $r('app.color.color_success')
+  colorSuccessBg: Resource = $r('app.color.color_success_bg')
+
+  // ---- 文本 ----
+  colorTextMuted: Resource = $r('app.color.text_on_dark_muted')
+
   surfaceActivePrimary: Resource = $r('app.color.surface_active_primary')
   surfaceDarkLg: Resource = $r('app.color.surface_dark_lg')
   surfaceActiveBorder: Resource = $r('app.color.surface_active_border')

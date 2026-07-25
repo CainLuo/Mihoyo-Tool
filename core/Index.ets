@@ -19,8 +19,11 @@ export * from './src/main/ets/constants/GenshinPropertyType';
 
 // Parsers
 export * from './src/main/ets/parsers/genshin/GenshinDailyNoteParser';
+export * from './src/main/ets/parsers/genshin/GenshinComputeParser';
 export * from './src/main/ets/parsers/starrail/StarRailDailyNoteParser';
+export * from './src/main/ets/parsers/starrail/StarRailComputeParser';
 export * from './src/main/ets/parsers/zzz/ZZZDailyNoteParser';
+export * from './src/main/ets/parsers/zzz/ZZZComputeParser';
 
 // ── 核心导出 ──────────────────────────────────────────────────
 
@@ -34,6 +37,7 @@ export * from './src/main/ets/database/GenshinDao';
 export * from './src/main/ets/database/StarRailDao';
 export * from './src/main/ets/database/ZZZDao';
 export * from './src/main/ets/database/SyncMetaDao';
+export * from './src/main/ets/database/MaterialBagDao';
 // 数据模型
 export * from './src/main/ets/models/AccountRow';
 export * from './src/main/ets/models/GameRoleRow';
@@ -46,6 +50,7 @@ export * from './src/main/ets/models/SyncTask';
 export * from './src/main/ets/models/GenshinCharacterDetailRaw';
 export * from './src/main/ets/models/StarRailAvatarDetailRaw';
 export * from './src/main/ets/models/ZZZAvatarDetailRaw';
+export * from './src/main/ets/models/MaterialBagRow';
 // Repository 层
 export * from './src/main/ets/repository/GameRepository';
 export * from './src/main/ets/repository/BBSRepository';
@@ -54,6 +59,7 @@ export * from './src/main/ets/repository/StarRailRepository';
 export * from './src/main/ets/repository/ZZZRepository';
 export * from './src/main/ets/repository/SignRepository';
 export * from './src/main/ets/repository/SyncQueueRunner';
+export * from './src/main/ets/repository/MaterialBagRepository';
 
 // 网络层（抽象基类）
 export * from './src/main/ets/network/MihoyoApiService';

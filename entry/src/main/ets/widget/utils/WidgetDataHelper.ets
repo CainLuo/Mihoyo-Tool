@@ -13,7 +13,7 @@
  * - 颜色判断由组件负责，这里只返回枚举类型
  */
 
-import { Logger } from 'core';
+import { WidgetLogger as Logger } from './WidgetLogger';
 import { WIDGET_GAME_ID } from './WidgetUtils';
 import { WidgetExtraRowConfig } from './WidgetExtraRowConfig';
 import {

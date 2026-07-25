@@ -8,6 +8,9 @@ import starRailAvatarBasicParserTest from './core/StarRailAvatarBasicParser.test
 import genshinDailyNoteParserTest from './core/GenshinDailyNoteParser.test';
 import starRailDailyNoteParserTest from './core/StarRailDailyNoteParser.test';
 import zzzDailyNoteParserTest from './core/ZZZDailyNoteParser.test';
+import genshinComputeParserTest from './core/GenshinComputeParser.test';
+import starRailComputeParserTest from './core/StarRailComputeParser.test';
+import zzzComputeParserTest from './core/ZZZComputeParser.test';
 
 export default function testsuite() {
   abilityTest();
@@ -19,4 +22,7 @@ export default function testsuite() {
   genshinDailyNoteParserTest();
   starRailDailyNoteParserTest();
   zzzDailyNoteParserTest();
+  genshinComputeParserTest();
+  starRailComputeParserTest();
+  zzzComputeParserTest();
 }

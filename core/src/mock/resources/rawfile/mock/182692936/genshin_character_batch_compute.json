@@ -1,0 +1,112 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "list": [
+      {
+        "avatar_id": 10000025,
+        "avatar_consume": [
+          {
+            "id": 104161,
+            "name": "哀叙冰玉",
+            "icon": "https://upload-os-bbs.mihoyo.com/game_record/genshin/recipe/item/UI_ItemIcon_104161.png",
+            "num": 46,
+            "level": 90,
+            "rarity": 5
+          },
+          {
+            "id": 113021,
+            "name": "排异之露",
+            "icon": "https://upload-os-bbs.mihoyo.com/game_record/genshin/recipe/item/UI_ItemIcon_113021.png",
+            "num": 18,
+            "level": 90,
+            "rarity": 5
+          },
+          {
+            "id": 112026,
+            "name": "原海麟角",
+            "icon": "https://upload-os-bbs.mihoyo.com/game_record/genshin/recipe/item/UI_ItemIcon_112026.png",
+            "num": 18,
+            "level": 90,
+            "rarity": 5
+          },
+          {
+            "id": 100031,
+            "name": "久雨莲",
+            "icon": "https://upload-os-bbs.mihoyo.com/game_record/genshin/recipe/item/UI_ItemIcon_100031.png",
+            "num": 168,
+            "level": 90,
+            "rarity": 1
+          }
+        ],
+        "skill_consume": [
+          {
+            "id": 104321,
+            "name": "「正义」的教导",
+            "icon": "https://upload-os-bbs.mihoyo.com/game_record/genshin/recipe/item/UI_ItemIcon_104321.png",
+            "num": 9,
+            "rarity": 2
+          },
+          {
+            "id": 104322,
+            "name": "「正义」的指引",
+            "icon": "https://upload-os-bbs.mihoyo.com/game_record/genshin/recipe/item/UI_ItemIcon_104322.png",
+            "num": 63,
+            "rarity": 3
+          },
+          {
+            "id": 104323,
+            "name": "「正义」的哲学",
+            "icon": "https://upload-os-bbs.mihoyo.com/game_record/genshin/recipe/item/UI_ItemIcon_104323.png",
+            "num": 114,
+            "rarity": 4
+          },
+          {
+            "id": 113021,
+            "name": "排异之露",
+            "icon": "https://upload-os-bbs.mihoyo.com/game_record/genshin/recipe/item/UI_ItemIcon_113021.png",
+            "num": 18,
+            "rarity": 5
+          },
+          {
+            "id": 104301,
+            "name": "智识之冕",
+            "icon": "https://upload-os-bbs.mihoyo.com/game_record/genshin/recipe/item/UI_ItemIcon_104301.png",
+            "num": 1,
+            "rarity": 5
+          }
+        ],
+        "weapon_consume": [
+          {
+            "id": 114025,
+            "name": "悠古的脉动",
+            "icon": "https://upload-os-bbs.mihoyo.com/game_record/genshin/recipe/item/UI_ItemIcon_114025.png",
+            "num": 6,
+            "rarity": 5
+          },
+          {
+            "id": 114024,
+            "name": "悠古的回响",
+            "icon": "https://upload-os-bbs.mihoyo.com/game_record/genshin/recipe/item/UI_ItemIcon_114024.png",
+            "num": 14,
+            "rarity": 4
+          },
+          {
+            "id": 114023,
+            "name": "悠古的低语",
+            "icon": "https://upload-os-bbs.mihoyo.com/game_record/genshin/recipe/item/UI_ItemIcon_114023.png",
+            "num": 23,
+            "rarity": 3
+          },
+          {
+            "id": 113021,
+            "name": "排异之露",
+            "icon": "https://upload-os-bbs.mihoyo.com/game_record/genshin/recipe/item/UI_ItemIcon_113021.png",
+            "num": 6,
+            "rarity": 5
+          }
+        ]
+      }
+    ]
+  }
+}

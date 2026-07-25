@@ -323,7 +323,7 @@ export class ZZZAvatarComputeDao {
     try {
       await RdbManager.upsertRow(TableName.ZZZ_AVATAR_COMPUTE, ZZZ_AVATAR_COMPUTE_TABLE.columnNames(), [
         idVal, row.accountId, row.roleUid, row.avatarId,
-        row.avatarConsumeJson, row.weaponConsumeJson, row.skillConsumeJson, row.updateTime
+        row.avatarConsumeJson, row.weaponConsumeJson, row.skillConsumeJson, row.rawJson, row.updateTime
       ]);
     } catch (e) {
       throw new Error(`ZZZAvatarComputeDao.upsert failed: ${e instanceof Error ? e.message : e}`);
@@ -361,6 +361,22 @@ export class ZZZAvatarComputeDao {
     }
   }
 
+  /**
+   * 查询指定账号和角色的所有绝区零养成计算记录。
+   * @returns 计算行数组，无数据时返回空数组
+   */
+  async findAll(accountId: string, roleUid: string): Promise<ZZZAvatarComputeRow[]> {
+    const predicates = new relationalStore.RdbPredicates(TableName.ZZZ_AVATAR_COMPUTE);
+    predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
+    predicates.and();
+    predicates.equalTo(CommonCol.ROLE_UID, roleUid);
+    try {
+      return await RdbManager.queryAll(predicates, ZZZ_AVATAR_COMPUTE_TABLE.columnNames(), (rs) => ZZZAvatarComputeDao.mapRow(rs));
+    } catch (e) {
+      throw new Error(`ZZZAvatarComputeDao.findAll failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
   /** 将 ResultSet 当前行映射为 ZZZAvatarComputeRow */
   private static mapRow(rs: relationalStore.ResultSet): ZZZAvatarComputeRow {
     try {
@@ -373,6 +389,7 @@ export class ZZZAvatarComputeDao {
       row.avatarConsumeJson = r.str(ZZZAvatarComputeCol.AVATAR_CONSUME_JSON);
       row.weaponConsumeJson = r.str(ZZZAvatarComputeCol.WEAPON_CONSUME_JSON);
       row.skillConsumeJson  = r.str(ZZZAvatarComputeCol.SKILL_CONSUME_JSON);
+      row.rawJson           = r.str(CommonCol.RAW_JSON);
       row.updateTime        = r.num(CommonCol.UPDATE_TIME);
       return row;
     } catch (e) {

@@ -24,7 +24,7 @@ export struct NotificationSection {
     this.vm.loadSettings().catch((_: Error | object) => {})
   }
 
-  @Monitor(NotificationSettingsViewModel.KEYS.showLimitDialog)
+  @Monitor('vm.showLimitDialog')
   onLimitDialogChanged(_monitor: IMonitor): void {
     if (this.vm.showLimitDialog) {
       this.showLimitDialog()

@@ -2,14 +2,15 @@
  * GameTabBar — 游戏横向 Tab 选择器
  *
  * 展示当前账号下有角色数据的游戏列表，支持横向滚动切换。
- * 仅在 Characters 页面使用。
+ * 基于 SegmentedTabBar 实现，仅传入游戏特定的数据模型。
  */
+
 import { GameId } from 'core';
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
-import { ThemeFonts } from '../../theme/ThemeFonts';
 import { GameTabItem } from '../../models/GameTabItem';
+import { SegmentedTabBar, SegmentedTabItem } from '../common/SegmentedTabBar';
 
-// ── Preview：多游戏 Tab，第一个选中 ──
+// ─── Preview：多游戏 Tab，第一个选中 ──
 @Preview
 @ComponentV2
 export struct GameTabBarPreview {
@@ -34,33 +35,26 @@ export struct GameTabBar {
   @Param onSelect: (idx: number) => void = (_i: number) => {};
   @Local private tm: ThemeManager = themeManager;
 
-  build() {
-    Scroll() {
-      Row({ space: this.tm.current.value8 }) {
-        ForEach(this.tabs, (tab: GameTabItem, idx: number) => {
-          Text(tab.gameName)
-            .font(idx === this.selectedIdx ? ThemeFonts.fontMedium17 : ThemeFonts.font17)
-            .fontColor(idx === this.selectedIdx
-              ? this.tm.current.colorPrimary
-              : this.tm.current.colorTextSecondary)
-            .padding({
-              left: this.tm.current.font16,
-              right: this.tm.current.font16,
-              top: this.tm.current.value8,
-              bottom: this.tm.current.value8
-            })
-            .borderRadius(this.tm.current.radius8)
-            .backgroundColor(idx === this.selectedIdx
-              ? $r('app.color.color_primary_bg')
-              : Color.Transparent)
-            .onClick(() => { this.onSelect(idx); })
-        }, (tab: GameTabItem) => tab.gameId + tab.roleUid)
-      }
-      .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })
+  /**
+   * 将 GameTabItem 数组转换为 SegmentedTabItem 数组
+   */
+  private toSegmentedItems(): SegmentedTabItem[] {
+    const result: SegmentedTabItem[] = [];
+    for (let i = 0; i < this.tabs.length; i++) {
+      const tab = this.tabs[i];
+      result[result.length] = new SegmentedTabItem(
+        tab.gameId + '_' + tab.roleUid,
+        tab.gameName
+      );
     }
-    .scrollable(ScrollDirection.Horizontal)
-    .scrollBar(BarState.Off)
-    .width(this.tm.current.full)
-    .height(this.tm.current.value40)
+    return result;
+  }
+
+  build() {
+    SegmentedTabBar({
+      tabs: this.toSegmentedItems(),
+      selectedIdx: this.selectedIdx,
+      onSelect: this.onSelect
+    })
   }
 }

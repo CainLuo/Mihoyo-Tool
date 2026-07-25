@@ -64,6 +64,21 @@
       "name": "WidgetSettings",
       "pageSourceFile": "src/main/ets/pages/WidgetSettings.ets",
       "buildFunction": "WidgetSettingsBuilder"
+    },
+    {
+      "name": "MaterialTargetConfig",
+      "pageSourceFile": "src/main/ets/pages/MaterialTargetConfig.ets",
+      "buildFunction": "MaterialTargetConfigBuilder"
+    },
+    {
+      "name": "MaterialList",
+      "pageSourceFile": "src/main/ets/pages/MaterialList.ets",
+      "buildFunction": "MaterialListBuilder"
+    },
+    {
+      "name": "MaterialCalc",
+      "pageSourceFile": "src/main/ets/pages/MaterialCalc.ets",
+      "buildFunction": "MaterialCalcBuilder"
     }
   ]
 }

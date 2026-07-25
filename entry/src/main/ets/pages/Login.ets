@@ -49,7 +49,7 @@ export struct Login {
     stack.pushPathByName(AppRoutes.WEB_VIEW, param)
   }
 
-  @Monitor(LoginViewModel.KEYS.loginSuccess)
+  @Monitor('vm.loginSuccess')
   onLoginSuccess(_monitor: IMonitor): void {    if (!this.vm.loginSuccess) { return }
     const stack = this.localStack
     if (stack === null) { return }
@@ -63,7 +63,7 @@ export struct Login {
     stack.replacePath({ name: AppRoutes.ACCOUNT_DETAIL, param: accountVM })
   }
 
-  @Monitor(LoginViewModel.KEYS.showNoStokenDialog)
+  @Monitor('vm.showNoStokenDialog')
   onShowNoStokenDialog(_monitor: IMonitor): void {
     if (!this.vm.showNoStokenDialog) { return }
     this.vm.showNoStokenDialog = false

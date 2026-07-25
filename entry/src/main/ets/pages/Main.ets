@@ -15,6 +15,7 @@ import { AccountSwitchDialog, AccountSwitchDialogParams } from '../components/ch
 import { Home } from './Home'
 import { Characters } from './Characters'
 import { My } from './My'
+import { Tools } from './Tools'
 import { AppRoutes } from '../constants/AppRoutes'
 import { splitPlaceholderBuilder } from '../components/SplitPlaceholder'
 import { CookieExpiredSignal } from '../utils/CookieExpiredSignal'
@@ -28,7 +29,8 @@ function accountSwitchDialogBuilder(params: AccountSwitchDialogParams) {
 
 const TAB_HOME = 0
 const TAB_CHARACTERS = 1
-const TAB_MY = 2
+const TAB_TOOLS = 2
+const TAB_MY = 3
 
 @ComponentV2
 export struct Main {
@@ -232,6 +234,7 @@ export struct Main {
   private tabTitle(): Resource {
     if (this.selectedTab === TAB_HOME) { return $r('app.string.main_tab_home') }
     if (this.selectedTab === TAB_CHARACTERS) { return $r('app.string.characters_tab_title') }
+    if (this.selectedTab === TAB_TOOLS) { return $r('app.string.tools_title') }
     return $r('app.string.main_tab_my')
   }
 
@@ -273,6 +276,8 @@ export struct Main {
             }
           })
           .visibility(this.selectedTab === TAB_CHARACTERS ? Visibility.Visible : Visibility.None)
+          Tools({ detailStack: this.stack })
+            .visibility(this.selectedTab === TAB_TOOLS ? Visibility.Visible : Visibility.None)
           My({ detailStack: this.stack, isSplit: this.isSplit })
             .visibility(this.selectedTab === TAB_MY ? Visibility.Visible : Visibility.None)
         }
@@ -301,6 +306,16 @@ export struct Main {
           status: (this.selectedTab === TAB_CHARACTERS && this.tabVersion >= 0)
             ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
           action: () => { this.selectedTab = TAB_CHARACTERS; this.tabVersion++; if (this.isSplit) { this.stack.clear() } }
+        },
+        {
+          value: $r('app.string.tools_title'),
+          symbolIcon: new SymbolGlyphModifier($r('sys.symbol.wrench_and_screwdriver'))
+            .fontColor([this.tm.current.colorTextSecondary]),
+          activeSymbolIcon: new SymbolGlyphModifier($r('sys.symbol.wrench_and_screwdriver'))
+            .fontColor([this.tm.current.colorPrimary]),
+          status: (this.selectedTab === TAB_TOOLS && this.tabVersion >= 0)
+            ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
+          action: () => { this.selectedTab = TAB_TOOLS; this.tabVersion++; if (this.isSplit) { this.stack.clear() } }
         },
         {
           value: $r('app.string.main_tab_my'),

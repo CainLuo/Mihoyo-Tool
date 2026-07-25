@@ -184,16 +184,20 @@ export class GenshinCharacterDetailViewModel {
       }
       this.relics = relics;
 
-      // 技能（取前3个）
+      // 技能（只取 skill_type=1 的可升级技能）
       const skills: CharDetailSkill[] = [];
       if (parsed.skills) {
-        const count = Math.min(3, parsed.skills.length);
-        for (let i = 0; i < count; i++) {
-          const sk = new CharDetailSkill();
-          sk.iconUrl = parsed.skills[i].icon ?? '';
-          sk.level = parsed.skills[i].level ?? 0;
-          sk.name = parsed.skills[i].name ?? '';
-          skills[skills.length] = sk;
+        for (let i = 0; i < parsed.skills.length; i++) {
+          const sk = parsed.skills[i];
+          // skill_type=1 是可升级技能（普攻、E、Q），skill_type=2 是固有天赋/被动
+          // 如果没有 skill_type 字段，兼容旧数据：取前3个
+          if (sk.skill_type === 1 || sk.skill_type === undefined) {
+            const skill = new CharDetailSkill();
+            skill.iconUrl = sk.icon ?? '';
+            skill.level = sk.level ?? 0;
+            skill.name = sk.name ?? '';
+            skills[skills.length] = skill;
+          }
         }
       }
       this.skills = skills;

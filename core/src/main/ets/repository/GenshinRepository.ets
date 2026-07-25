@@ -18,6 +18,7 @@ import {
 import { GenshinApiService } from '../network/GenshinApiService';
 import { AuthExpiredError } from '../errors/ApiErrors';
 import { CookieRefreshCoordinator } from '../cookie/CookieRefreshCoordinator';
+import { Logger } from '../utils/Logger';
 import { CoreInitializer } from '../CoreInitializer';
 import { BBSRepository } from './BBSRepository';
 
@@ -217,6 +218,10 @@ export class GenshinRepository extends GameRepository {
     return this.characterDetailDao.findByAvatarId(accountId, roleUid, avatarId);
   }
 
+  async getAllAvatarDetails(accountId: string, roleUid: string): Promise<GenshinCharacterDetailRow[]> {
+    return this.characterDetailDao.findAll(accountId, roleUid);
+  }
+
   async upsertAvatarDetails(accountId: string, roleUid: string, rows: GenshinCharacterDetailRow[]): Promise<void> {
     await this.runInTransaction(async () => {
       await this.characterDetailDao.upsertAll(rows);
@@ -301,12 +306,18 @@ export class GenshinRepository extends GameRepository {
           row.relicIds = ids.join(',');
         }
 
-        // 提取技能等级列表（逗号分隔）
+        // 提取技能等级列表（逗号分隔，只取 skill_type=1 的可升级技能）
         const skills = item['skills'] as Record<string, object>[];
         if (skills && skills.length > 0) {
           const levels: string[] = [];
           for (let j = 0; j < skills.length; j++) {
-            levels[levels.length] = `${skills[j]['level_current'] ?? skills[j]['level'] ?? 0}`;
+            const skillTypeRaw = skills[j]['skill_type'];
+            const skillType = typeof skillTypeRaw === 'number' ? skillTypeRaw : parseInt(`${skillTypeRaw ?? 0}`, 10);
+            // skill_type=1 是可升级技能（普攻、E、Q），skill_type=2 是固有天赋/被动
+            // 如果没有 skill_type 字段（旧数据），默认为可升级技能
+            if (skillType === 1 || skillType === 0) {
+              levels[levels.length] = `${skills[j]['level_current'] ?? skills[j]['level'] ?? 0}`;
+            }
           }
           row.skillLevels = levels.join(',');
         }
@@ -328,6 +339,125 @@ export class GenshinRepository extends GameRepository {
       await this.characterComputeDao.upsert(row);
       await this.markSuccess(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_COMPUTE);
     });
+  }
+
+  /**
+   * 批量计算角色养成材料 → 解析 → 写 DB
+   * @param items 计算项数组（每项包含 avatar_id、等级、技能等级等）
+   * @param uid 游戏 UID
+   * @param region 服务器（如 'cn_gf01'）
+   * @param cookie 登录 Cookie
+   */
+  async syncAvatarCompute(
+    accountId: string,
+    roleUid: string,
+    items: object[],
+    uid: string,
+    region: string,
+    cookie: string
+  ): Promise<void> {
+    await this.markSyncing(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_COMPUTE);
+    try {
+      const resp = await (this.getService() as GenshinApiService).batchCompute(items, uid, region, cookie);
+      // 传入请求参数 items，用于按索引提取 avatar_id
+      const rows = GenshinRepository.parseComputeResult(accountId, roleUid, resp, items);
+      await this.runInTransaction(async () => {
+        for (let i = 0; i < rows.length; i++) {
+          await this.characterComputeDao.upsert(rows[i]);
+        }
+        await this.markSuccess(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_COMPUTE);
+      });
+    } catch (error) {
+      const msg = this.toErrorMessage(error);
+      await this.markFailed(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_COMPUTE, msg);
+      throw new Error(msg);
+    }
+  }
+
+  /**
+   * 读取所有角色的养成计算数据
+   */
+  async getAllComputeData(accountId: string, roleUid: string): Promise<GenshinCharacterComputeRow[]> {
+    return this.characterComputeDao.findAll(accountId, roleUid);
+  }
+
+  /**
+   * 解析批量计算 API 响应为 GenshinCharacterComputeRow 数组
+   * 
+   * 注意：API 响应中的 items 数组顺序与请求参数中的 items 数组顺序是一一对应的，
+   * 但响应本身不包含 avatar_id，需要从请求参数中提取。
+   * 
+   * @param accountId 米游社账号 UID
+   * @param roleUid 游戏角色 UID
+   * @param resp API 响应对象
+   * @param requestItems 请求参数中的 items 数组（可选，用于提取 avatar_id）
+   */
+  static parseComputeResult(accountId: string, roleUid: string, resp: object, requestItems?: object[]): GenshinCharacterComputeRow[] {
+    const result: GenshinCharacterComputeRow[] = [];
+    try {
+      const respRecord = resp as Record<string, object>;
+      const dataObj = respRecord['data'] !== undefined ? respRecord['data'] : resp;
+      const data = dataObj as Record<string, object>;
+      // API 返回 items 字段（v3 API）或 list 字段（旧版）
+      const list = (data['items'] ?? data['list']) as Record<string, object>[];
+      
+      // 日志：响应数据结构
+      Logger.info('GenshinRepository', `parseComputeResult: data keys=${Object.keys(data).join(',')}`);
+      Logger.info('GenshinRepository', `parseComputeResult: list=${list !== undefined && list !== null ? 'exists' : 'null'}, length=${list?.length ?? 0}`);
+      
+      if (!list || list.length === 0) { return result; }
+
+      const now = Math.floor(Date.now() / 1000);
+      for (let i = 0; i < list.length; i++) {
+        const item = list[i];
+        
+        // 优先从响应中读取 avatar_id（部分 API 版本会返回）
+        let avatarId = `${item['avatar_id'] ?? ''}`;
+        
+        // 如果响应中没有 avatar_id，尝试从请求参数中按索引获取
+        if ((avatarId.length === 0 || avatarId === '0' || avatarId === 'undefined') && requestItems && i < requestItems.length) {
+          const requestItem = requestItems[i] as Record<string, object>;
+          const reqAvatarId = requestItem['avatar_id'];
+          if (typeof reqAvatarId === 'number') {
+            avatarId = `${reqAvatarId}`;
+          } else if (typeof reqAvatarId === 'string') {
+            avatarId = reqAvatarId;
+          }
+        }
+        
+        // 日志：每个 item 的 avatar_id
+        if (i < 3) {
+          Logger.info('GenshinRepository', `parseComputeResult: item[${i}] avatar_id=${avatarId}`);
+        }
+        
+        // 如果没有 avatar_id，跳过此条（无法关联到角色）
+        if (avatarId.length === 0 || avatarId === '0' || avatarId === 'undefined') { continue; }
+
+        const row = new GenshinCharacterComputeRow();
+        row.accountId = accountId;
+        row.roleUid = roleUid;
+        row.avatarId = avatarId;
+        row.rawJson = JSON.stringify(item);
+        row.updateTime = now;
+
+        // 提取各部分的 consume JSON
+        const avatarConsume = item['avatar_consume'] as Record<string, object>[] | null;
+        row.avatarConsumeJson = avatarConsume ? JSON.stringify(avatarConsume) : '';
+
+        const skillConsume = item['skill_consume'] as Record<string, object>[] | null;
+        row.skillConsumeJson = skillConsume ? JSON.stringify(skillConsume) : '';
+
+        const weaponConsume = item['weapon_consume'] as Record<string, object>[] | null;
+        row.weaponConsumeJson = weaponConsume ? JSON.stringify(weaponConsume) : '';
+
+        result[result.length] = row;
+      }
+      
+      Logger.info('GenshinRepository', `parseComputeResult: result.length=${result.length}`);
+    } catch (e) {
+      Logger.error('GenshinRepository', `parseComputeResult error: ${e}`);
+    }
+    return result;
   }
 
   // ── 解析方法 ─────────────────────────────────────────────────

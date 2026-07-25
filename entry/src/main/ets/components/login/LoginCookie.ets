@@ -3,13 +3,15 @@
  */
 
 import { LoginViewModel } from 'entry/ets/viewmodel/LoginViewModel';
-import { ThemeFonts } from '../../theme/ThemeFonts'
+import { ThemeFonts } from '../../theme/ThemeFonts';
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { PrimaryButtonModifier } from '../../styles/ButtonModifier';
 
 @ComponentV2
 export struct LoginCookie {
   @Param vm: LoginViewModel = new LoginViewModel();
   @Local private tm: ThemeManager = themeManager;
+  @Local private buttonModifier: PrimaryButtonModifier = new PrimaryButtonModifier(true);
 
   build() {
     Column({ space: this.tm.current.font16 }) {
@@ -39,13 +41,8 @@ export struct LoginCookie {
 
       // 确认登录按钮
       Button($r('app.string.login_button'), { type: ButtonType.Normal })
+        .attributeModifier(this.buttonModifier)
         .width(this.tm.current.full)
-        .height(this.tm.current.value46)
-        .borderRadius(this.tm.current.radius8)
-        .backgroundColor(this.tm.current.colorPrimary)
-        .fontSize(this.tm.current.value15)
-        .fontWeight(FontWeight.Bold)
-        .fontColor(this.tm.current.textOnDarkHigh)
         .enabled(!this.vm.isLoading && this.vm.cookieInput.trim().length > 0)
         .onClick(() => {
           this.vm.loginByCookie();

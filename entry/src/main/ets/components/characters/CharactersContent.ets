@@ -7,10 +7,9 @@
 import { ThemeManager, themeManager } from '../../theme/ThemeManager';
 import { CharactersViewModel } from '../../viewmodel/CharactersViewModel';
 import { GameDataSummary } from 'core';
-import { HomePlaceholderView } from '../home/HomePlaceholderView';
+import { PlaceholderView, PlaceholderState } from '../common/PlaceholderView';
 import { CharacterCard } from './CharacterCard';
 import { CharactersSkeleton } from './CharactersSkeleton';
-import { CharactersEmptyView } from './CharactersEmptyView';
 import { GameTabBar } from './GameTabBar';
 import { ViewState } from '../../constants/ViewStates';
 import { AppRoutes } from '../../constants/AppRoutes';
@@ -45,22 +44,38 @@ export struct CharactersContent {
           .padding({ top: this.tm.current.font16 })
         }
         .scrollBar(BarState.Off)
-        .layoutWeight(1)
+        .width(this.tm.current.full)
+        .height(this.tm.current.full)
         .align(Alignment.Top)
+        .layoutWeight(1)
       } else if (this.vm.viewState === ViewState.EMPTY) {
         // 无账号：显示登录占位；有账号但无数据：显示刷新提示
         if (this.vm.accountOptions.length === 0) {
-          HomePlaceholderView({
-            onTap: () => {
-              if (this.isSplit) {
-                this.detailStack.replacePath({ name: AppRoutes.LOGIN, param: null })
-              } else {
-                this.detailStack.pushPathByName(AppRoutes.LOGIN, null)
+          PlaceholderView({
+            state: {
+              icon: '📋',
+              title: $r('app.string.home_placeholder_title'),
+              description: $r('app.string.home_placeholder_desc'),
+              buttonText: $r('app.string.home_placeholder_button'),
+              onButtonTap: () => {
+                if (this.isSplit) {
+                  this.detailStack.replacePath({ name: AppRoutes.LOGIN, param: null })
+                } else {
+                  this.detailStack.pushPathByName(AppRoutes.LOGIN, null)
+                }
               }
-            }
+            } as PlaceholderState
           })
         } else {
-          CharactersEmptyView({ onRefresh: () => { this.vm.refresh() } })
+          PlaceholderView({
+            state: {
+              icon: '📋',
+              title: $r('app.string.characters_placeholder_title'),
+              description: $r('app.string.characters_placeholder_desc'),
+              buttonText: $r('app.string.characters_no_data_hint'),
+              onButtonTap: () => { this.vm.refresh() }
+            } as PlaceholderState
+          })
         }
       } else {
         // DATA 状态：LazyForEach + Grid 懒加载

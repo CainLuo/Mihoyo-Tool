@@ -7,6 +7,9 @@ import genshinDailyNoteParserTest from './GenshinDailyNoteParser.test';
 import starRailDailyNoteParserTest from './StarRailDailyNoteParser.test';
 import zzzDailyNoteParserTest from './ZZZDailyNoteParser.test';
 import coldStartCookieCheckerTest from './ColdStartCookieChecker.test';
+import genshinComputeParserTest from './GenshinComputeParser.test';
+import starRailComputeParserTest from './StarRailComputeParser.test';
+import zzzComputeParserTest from './ZZZComputeParser.test';
 
 export default function testsuite() {
   dsUtilTest();
@@ -18,4 +21,7 @@ export default function testsuite() {
   starRailDailyNoteParserTest();
   zzzDailyNoteParserTest();
   coldStartCookieCheckerTest();
+  genshinComputeParserTest();
+  starRailComputeParserTest();
+  zzzComputeParserTest();
 }

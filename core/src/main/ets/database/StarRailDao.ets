@@ -328,7 +328,7 @@ export class StarRailAvatarComputeDao {
     try {
       await RdbManager.upsertRow(TableName.STARRAIL_AVATAR_COMPUTE, STARRAIL_AVATAR_COMPUTE_TABLE.columnNames(), [
         idVal, row.accountId, row.roleUid, row.avatarId,
-        row.avatarConsumeJson, row.skillConsumeJson, row.equipmentConsumeJson, row.updateTime
+        row.avatarConsumeJson, row.skillConsumeJson, row.equipmentConsumeJson, row.rawJson, row.updateTime
       ]);
     } catch (e) {
       throw new Error(`StarRailAvatarComputeDao.upsert failed: ${e instanceof Error ? e.message : e}`);
@@ -366,6 +366,22 @@ export class StarRailAvatarComputeDao {
     }
   }
 
+  /**
+   * 查询指定账号和角色的所有星穹铁道养成计算记录。
+   * @returns 计算行数组，无数据时返回空数组
+   */
+  async findAll(accountId: string, roleUid: string): Promise<StarRailAvatarComputeRow[]> {
+    const predicates = new relationalStore.RdbPredicates(TableName.STARRAIL_AVATAR_COMPUTE);
+    predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
+    predicates.and();
+    predicates.equalTo(CommonCol.ROLE_UID, roleUid);
+    try {
+      return await RdbManager.queryAll(predicates, STARRAIL_AVATAR_COMPUTE_TABLE.columnNames(), (rs) => StarRailAvatarComputeDao.mapRow(rs));
+    } catch (e) {
+      throw new Error(`StarRailAvatarComputeDao.findAll failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
   /** 将 ResultSet 当前行映射为 StarRailAvatarComputeRow */
   private static mapRow(rs: relationalStore.ResultSet): StarRailAvatarComputeRow {
     try {
@@ -378,6 +394,7 @@ export class StarRailAvatarComputeDao {
       row.avatarConsumeJson    = r.str(StarRailAvatarComputeCol.AVATAR_CONSUME_JSON);
       row.skillConsumeJson     = r.str(StarRailAvatarComputeCol.SKILL_CONSUME_JSON);
       row.equipmentConsumeJson = r.str(StarRailAvatarComputeCol.EQUIPMENT_CONSUME_JSON);
+      row.rawJson              = r.str(CommonCol.RAW_JSON);
       row.updateTime           = r.num(CommonCol.UPDATE_TIME);
       return row;
     } catch (e) {

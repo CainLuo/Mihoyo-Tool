@@ -9,7 +9,7 @@ import { ALL_TABLES, ALL_INDEXES, TableName } from './TableSchema';
 export class RdbManager {
   private static rdbStore: relationalStore.RdbStore | null = null;
   private static readonly DB_NAME: string = 'mihoyo_tool_v2.db';
-  private static readonly DB_VERSION: number = 2;
+  private static readonly DB_VERSION: number = 3;
 
   /**
    * 初始化数据库，使用 SecurityLevel.S1 加密
@@ -133,6 +133,44 @@ export class RdbManager {
     if (oldVersion < 2) {
       await RdbManager.executeSqlInternal(
         'ALTER TABLE zzz_daily_note ADD COLUMN widget_raw_json TEXT DEFAULT \'\'',
+        []
+      );
+    }
+    // 版本 2 → 3：新增 material_bag 表 + 为 Compute 表添加 raw_json 列
+    if (oldVersion < 3) {
+      // 创建 material_bag 表（使用正确的字段类型：material_id TEXT, rarity TEXT, 新增 source）
+      await RdbManager.executeSqlInternal(
+        `CREATE TABLE IF NOT EXISTS material_bag (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          account_id TEXT NOT NULL,
+          material_id TEXT NOT NULL,
+          material_name TEXT NOT NULL,
+          material_icon TEXT DEFAULT '',
+          rarity TEXT DEFAULT '',
+          count INTEGER DEFAULT 0,
+          source TEXT DEFAULT 'api',
+          game_id TEXT NOT NULL,
+          update_time INTEGER,
+          FOREIGN KEY (account_id) REFERENCES account_table(uid) ON DELETE CASCADE
+        )`,
+        []
+      );
+      // 创建 material_bag 唯一索引
+      await RdbManager.executeSqlInternal(
+        'CREATE UNIQUE INDEX IF NOT EXISTS idx_material_bag_unique ON material_bag(account_id, material_id, game_id)',
+        []
+      );
+      // 为三张 Compute 表添加 raw_json 列
+      await RdbManager.executeSqlInternal(
+        'ALTER TABLE genshin_character_compute ADD COLUMN raw_json TEXT DEFAULT \'\'',
+        []
+      );
+      await RdbManager.executeSqlInternal(
+        'ALTER TABLE starrail_avatar_compute ADD COLUMN raw_json TEXT DEFAULT \'\'',
+        []
+      );
+      await RdbManager.executeSqlInternal(
+        'ALTER TABLE zzz_avatar_compute ADD COLUMN raw_json TEXT DEFAULT \'\'',
         []
       );
     }

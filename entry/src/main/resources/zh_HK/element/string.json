@@ -1835,6 +1835,278 @@
     {
       "name": "a11y_faction_icon",
       "value": "陣營圖標"
+    },
+    {
+      "name": "tools_title",
+      "value": "工具"
+    },
+    {
+      "name": "tools_empty_title",
+      "value": "請先添加帳號"
+    },
+    {
+      "name": "tools_empty_desc",
+      "value": "登錄米遊社帳號後，即可使用工具功能"
+    },
+    {
+      "name": "tools_empty_login_button",
+      "value": "去登錄"
+    },
+    {
+      "name": "tools_game_no_data",
+      "value": "暫無角色數據"
+    },
+    {
+      "name": "tools_game_status_not_computed",
+      "value": "%d 個角色 · 未計算"
+    },
+    {
+      "name": "tools_game_status_partial",
+      "value": "%d 個角色 · 已計算 %d 個"
+    },
+    {
+      "name": "tools_game_status_done",
+      "value": "%d 個角色 · 已全部計算"
+    },
+    {
+      "name": "material_list_title",
+      "value": "材料匯總"
+    },
+    {
+      "name": "material_list_empty_title",
+      "value": "暫無材料數據"
+    },
+    {
+      "name": "material_list_empty_desc",
+      "value": "請先在角色詳情頁計算材料需求"
+    },
+    {
+      "name": "material_list_empty_button",
+      "value": "去同步"
+    },
+    {
+      "name": "material_list_syncing",
+      "value": "同步中..."
+    },
+    {
+      "name": "material_view_by_character",
+      "value": "按角色"
+    },
+    {
+      "name": "material_view_by_material",
+      "value": "按材料"
+    },
+    {
+      "name": "material_view_character",
+      "value": "按角色"
+    },
+    {
+      "name": "material_view_material",
+      "value": "按材料"
+    },
+    {
+      "name": "material_section_avatar",
+      "value": "角色材料"
+    },
+    {
+      "name": "material_section_skill",
+      "value": "技能材料"
+    },
+    {
+      "name": "material_section_weapon",
+      "value": "武器材料"
+    },
+    {
+      "name": "material_card_weapon",
+      "value": "武器"
+    },
+    {
+      "name": "material_card_skill",
+      "value": "技能"
+    },
+    {
+      "name": "material_section_light_cone",
+      "value": "光錐材料"
+    },
+    {
+      "name": "material_section_weapon_info",
+      "value": "武器信息"
+    },
+    {
+      "name": "material_section_light_cone_info",
+      "value": "光錐信息"
+    },
+    {
+      "name": "material_calc_title",
+      "value": "材料計算"
+    },
+    {
+      "name": "material_calc_empty_title",
+      "value": "暫無計算數據"
+    },
+    {
+      "name": "material_calc_empty_desc",
+      "value": "請先同步角色數據"
+    },
+    {
+      "name": "material_calc_refresh_hint",
+      "value": "↓ 下拉刷新材料數據"
+    },
+    {
+      "name": "skill_target_title",
+      "value": "技能目標"
+    },
+    {
+      "name": "skill_normal",
+      "value": "普攻"
+    },
+    {
+      "name": "skill_skill",
+      "value": "戰技"
+    },
+    {
+      "name": "skill_burst",
+      "value": "爆發"
+    },
+    {
+      "name": "skill_basic",
+      "value": "普攻"
+    },
+    {
+      "name": "skill_ultimate",
+      "value": "終結技"
+    },
+    {
+      "name": "skill_talent",
+      "value": "天賦"
+    },
+    {
+      "name": "skill_special",
+      "value": "特殊技"
+    },
+    {
+      "name": "skill_chain",
+      "value": "連攜技"
+    },
+    {
+      "name": "skill_dodge",
+      "value": "閃避"
+    },
+    {
+      "name": "skill_assist",
+      "value": "支援"
+    },
+    {
+      "name": "skill_core",
+      "value": "核心技"
+    },
+    {
+      "name": "level_picker_title",
+      "value": "選擇目標等級"
+    },
+    {
+      "name": "game_name_genshin_material",
+      "value": "原神材料匯總"
+    },
+    {
+      "name": "game_name_starrail_material",
+      "value": "崩壞：星穹鐵道材料匯總"
+    },
+    {
+      "name": "game_name_zzz_material",
+      "value": "絕區零材料匯總"
+    },
+    {
+      "name": "char_detail_material_calc_title",
+      "value": "養成計算"
+    },
+    {
+      "name": "char_detail_material_calc_desc",
+      "value": "查看角色升級所需材料"
+    },
+    {
+      "name": "material_target_config_title",
+      "value": "養成目標配置"
+    },
+    {
+      "name": "material_target_config_select_game",
+      "value": "選擇遊戲"
+    },
+    {
+      "name": "material_target_config_genshin_tip",
+      "value": "點擊等級行設置當前等級和目標等級，系統將計算升級所需的材料。"
+    },
+    {
+      "name": "material_target_config_starrail_tip",
+      "value": "星穹鐵道角色滿級為 80 級，光錐滿級為 80 級。\n注：技能等級為統一設置，實際計算時會應用到所有行跡。"
+    },
+    {
+      "name": "material_target_config_zzz_tip",
+      "value": "絕區零角色滿級為 60 級，技能滿級為 12 級，音擎滿級為 60 級。\n注：絕區零有 6 個技能需要逐個配置。"
+    },
+    {
+      "name": "material_target_config_avatar_level",
+      "value": "角色等級"
+    },
+    {
+      "name": "material_target_config_skill_level",
+      "value": "技能等級"
+    },
+    {
+      "name": "material_target_config_weapon_level",
+      "value": "武器等級"
+    },
+    {
+      "name": "material_target_config_trace_level",
+      "value": "行跡等級"
+    },
+    {
+      "name": "material_target_config_light_cone_level",
+      "value": "光錐等級"
+    },
+    {
+      "name": "material_target_config_start_calc",
+      "value": "開始計算材料"
+    },
+    {
+      "name": "material_target_config_level_range",
+      "value": "可選範圍：1 ~ %d 級"
+    },
+    {
+      "name": "material_target_config_level",
+      "value": "選擇等級"
+    },
+    {
+      "name": "common_cancel",
+      "value": "取消"
+    },
+    {
+      "name": "common_confirm",
+      "value": "確定"
+    },
+    {
+      "name": "zzz_skill_normal_attack",
+      "value": "普通攻擊"
+    },
+    {
+      "name": "zzz_skill_dodge",
+      "value": "閃避"
+    },
+    {
+      "name": "zzz_skill_assist",
+      "value": "支援技"
+    },
+    {
+      "name": "zzz_skill_special",
+      "value": "特殊技"
+    },
+    {
+      "name": "zzz_skill_chain",
+      "value": "連攜技"
+    },
+    {
+      "name": "zzz_skill_core",
+      "value": "核心技"
     }
   ]
 }

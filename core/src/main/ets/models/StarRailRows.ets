@@ -142,6 +142,8 @@ export class StarRailAvatarComputeRow {
   skillConsumeJson: string = '';
   /** 光锥养成消耗 JSON */
   equipmentConsumeJson: string = '';
+  /** 完整 API 响应 JSON（v2.0.0 新增） */
+  rawJson: string = '';
   /** 数据更新时间（Unix 秒） */
   updateTime: number = 0;
 }

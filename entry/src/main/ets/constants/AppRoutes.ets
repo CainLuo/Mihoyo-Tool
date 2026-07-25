@@ -37,4 +37,12 @@ export class AppRoutes {
   static readonly WIDGET_SETTINGS = 'WidgetSettings'
   /** 隐私合规流程页（首次启动强制阅读协议） */
   static readonly PRIVACY_CONSENT = 'PrivacyConsent'
+  /** 工具页（Tab 内嵌页，无需 Builder） */
+  static readonly TOOLS = 'Tools'
+  /** 养成目标配置页 */
+  static readonly MATERIAL_TARGET_CONFIG = 'MaterialTargetConfig'
+  /** 材料汇总页 */
+  static readonly MATERIAL_LIST = 'MaterialList'
+  /** 材料计算页 */
+  static readonly MATERIAL_CALC = 'MaterialCalc'
 }

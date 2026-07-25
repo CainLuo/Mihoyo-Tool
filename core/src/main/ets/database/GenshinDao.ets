@@ -279,6 +279,22 @@ export class GenshinCharacterDetailDao {
     }
   }
 
+  /**
+   * 查询指定账号和角色的所有原神角色详情。
+   * @returns 角色详情行数组
+   */
+  async findAll(accountId: string, roleUid: string): Promise<GenshinCharacterDetailRow[]> {
+    const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_CHARACTER_DETAIL);
+    predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
+    predicates.and();
+    predicates.equalTo(CommonCol.ROLE_UID, roleUid);
+    try {
+      return await RdbManager.queryAll(predicates, GENSHIN_CHARACTER_DETAIL_TABLE.columnNames(), (rs) => GenshinCharacterDetailDao.mapRow(rs));
+    } catch (e) {
+      throw new Error(`GenshinCharacterDetailDao.findAll failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
   /** 删除指定账号和角色的所有原神角色详情记录 */
   async deleteAll(accountId: string, roleUid: string): Promise<void> {
     const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_CHARACTER_DETAIL);
@@ -330,10 +346,27 @@ export class GenshinCharacterComputeDao {
     try {
       await RdbManager.upsertRow(TableName.GENSHIN_CHARACTER_COMPUTE, GENSHIN_CHARACTER_COMPUTE_TABLE.columnNames(), [
         idVal, row.accountId, row.roleUid, row.avatarId,
-        row.avatarConsumeJson, row.skillConsumeJson, row.weaponConsumeJson, row.updateTime
+        row.avatarConsumeJson, row.skillConsumeJson, row.weaponConsumeJson, row.rawJson, row.updateTime
       ]);
     } catch (e) {
       throw new Error(`GenshinCharacterComputeDao.upsert failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /**
+   * 查询指定账号和角色的所有养成计算数据。
+   * @param accountId 米游社账号 ID
+   * @param roleUid   游戏角色 UID
+   */
+  async findAll(accountId: string, roleUid: string): Promise<GenshinCharacterComputeRow[]> {
+    const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_CHARACTER_COMPUTE);
+    predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
+    predicates.and();
+    predicates.equalTo(CommonCol.ROLE_UID, roleUid);
+    try {
+      return await RdbManager.queryAll(predicates, GENSHIN_CHARACTER_COMPUTE_TABLE.columnNames(), (rs) => GenshinCharacterComputeDao.mapRow(rs));
+    } catch (e) {
+      throw new Error(`GenshinCharacterComputeDao.findAll failed: ${e instanceof Error ? e.message : e}`);
     }
   }
 
@@ -380,6 +413,7 @@ export class GenshinCharacterComputeDao {
       row.avatarConsumeJson = r.str(GenshinCharComputeCol.AVATAR_CONSUME_JSON);
       row.skillConsumeJson  = r.str(GenshinCharComputeCol.SKILL_CONSUME_JSON);
       row.weaponConsumeJson = r.str(GenshinCharComputeCol.WEAPON_CONSUME_JSON);
+      row.rawJson           = r.str(CommonCol.RAW_JSON);
       row.updateTime        = r.num(CommonCol.UPDATE_TIME);
       return row;
     } catch (e) {
