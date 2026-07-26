@@ -1,0 +1,3205 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "items": [
+      {
+        "avatar_consume": [
+          {
+            "id": 104003,
+            "name": "大英雄的经验",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/83c367f4bc16c7b4f1d93a25fd828cd6.png",
+            "num": 419,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1025/detail?bbs_presentation_style=no_header",
+            "level": 4,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/83c367f4bc16c7b4f1d93a25fd828cd6.png",
+            "lack_num": 0
+          },
+          {
+            "id": 104141,
+            "name": "最胜紫晶碎屑",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3eeb1b7c24f3bcb4a9c09ed32fe39dfc.png",
+            "num": 1,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/869/detail?bbs_presentation_style=no_header",
+            "level": 2,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3eeb1b7c24f3bcb4a9c09ed32fe39dfc.png",
+            "lack_num": 0
+          },
+          {
+            "id": 104142,
+            "name": "最胜紫晶断片",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/aed02c6795884973a597c86d2507f5b2.png",
+            "num": 9,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/870/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/aed02c6795884973a597c86d2507f5b2.png",
+            "lack_num": 0
+          },
+          {
+            "id": 104143,
+            "name": "最胜紫晶块",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/a82b9f7c193857f563655f8fe3d4039d.png",
+            "num": 9,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/871/detail?bbs_presentation_style=no_header",
+            "level": 4,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/a82b9f7c193857f563655f8fe3d4039d.png",
+            "lack_num": 0
+          },
+          {
+            "id": 104144,
+            "name": "最胜紫晶",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8d88501f89ed6719d3b8a7ac61ff5dd7.png",
+            "num": 6,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/872/detail?bbs_presentation_style=no_header",
+            "level": 5,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8d88501f89ed6719d3b8a7ac61ff5dd7.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112044,
+            "name": "破旧的刀镡",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+            "num": 18,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2324/detail?bbs_presentation_style=no_header",
+            "level": 1,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112045,
+            "name": "影打刀镡",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+            "num": 30,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2345/detail?bbs_presentation_style=no_header",
+            "level": 2,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112046,
+            "name": "名刀镡",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+            "num": 36,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2344/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+            "lack_num": 0
+          },
+          {
+            "id": 113031,
+            "name": "龙嗣伪鳍",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8e20ea06d6247f0acab5b66e3956a756.png",
+            "num": 46,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/3392/detail?bbs_presentation_style=no_header",
+            "level": 4,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8e20ea06d6247f0acab5b66e3956a756.png",
+            "lack_num": 0
+          },
+          {
+            "id": 101206,
+            "name": "海灵芝",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/f0e9bf7d3fadf148a700997c5c5c637f.png",
+            "num": 168,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2169/detail?bbs_presentation_style=no_header",
+            "level": 0,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/f0e9bf7d3fadf148a700997c5c5c637f.png",
+            "lack_num": 0
+          },
+          {
+            "id": 202,
+            "name": "摩拉",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+            "num": 2092530,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+            "lack_num": 0
+          }
+        ],
+        "avatar_skill_consume": [
+          {
+            "id": 104319,
+            "name": "智识之冕",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+            "num": 3,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1218/detail?bbs_presentation_style=no_header",
+            "level": 5,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+            "lack_num": 0
+          },
+          {
+            "id": 104326,
+            "name": "「天光」的教导",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+            "num": 9,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2320/detail?bbs_presentation_style=no_header",
+            "level": 2,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+            "lack_num": 0
+          },
+          {
+            "id": 104327,
+            "name": "「天光」的指引",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+            "num": 63,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2312/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+            "lack_num": 0
+          },
+          {
+            "id": 104328,
+            "name": "「天光」的哲学",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+            "num": 114,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2313/detail?bbs_presentation_style=no_header",
+            "level": 4,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112044,
+            "name": "破旧的刀镡",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+            "num": 18,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2324/detail?bbs_presentation_style=no_header",
+            "level": 1,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112045,
+            "name": "影打刀镡",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+            "num": 66,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2345/detail?bbs_presentation_style=no_header",
+            "level": 2,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112046,
+            "name": "名刀镡",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+            "num": 93,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2344/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+            "lack_num": 0
+          },
+          {
+            "id": 113034,
+            "name": "万劫之真意",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+            "num": 18,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/3572/detail?bbs_presentation_style=no_header",
+            "level": 5,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+            "lack_num": 0
+          },
+          {
+            "id": 202,
+            "name": "摩拉",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+            "num": 4957500,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+            "lack_num": 0
+          }
+        ],
+        "weapon_consume": [
+          {
+            "id": 112053,
+            "name": "浮游干核",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/6aa0c0517d688991aeed48740cd808f1.png",
+            "num": 15,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2609/detail?bbs_presentation_style=no_header",
+            "level": 1,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/6aa0c0517d688991aeed48740cd808f1.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112054,
+            "name": "浮游幽核",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/572d358045088ebd21c3fbe10f207a76.png",
+            "num": 23,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2610/detail?bbs_presentation_style=no_header",
+            "level": 2,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/572d358045088ebd21c3fbe10f207a76.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112055,
+            "name": "浮游晶化核",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/0813907d64a4771acab347d53f2cb28d.png",
+            "num": 27,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2611/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/0813907d64a4771acab347d53f2cb28d.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112056,
+            "name": "隐兽指爪",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3fc7d9202e73f616486e1b76cfd7704b.png",
+            "num": 23,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2879/detail?bbs_presentation_style=no_header",
+            "level": 2,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3fc7d9202e73f616486e1b76cfd7704b.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112057,
+            "name": "隐兽利爪",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/58d3c5a19b96bf0bf1bd6e9938eef6c0.png",
+            "num": 27,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2880/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/58d3c5a19b96bf0bf1bd6e9938eef6c0.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112058,
+            "name": "隐兽鬼爪",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b5d7ca90a064f924204149d3fa58538d.png",
+            "num": 41,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2881/detail?bbs_presentation_style=no_header",
+            "level": 4,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b5d7ca90a064f924204149d3fa58538d.png",
+            "lack_num": 0
+          },
+          {
+            "id": 114033,
+            "name": "今昔剧画之恶尉",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/efd6c3a7a16329ccbe16f4444b965bfa.png",
+            "num": 5,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2371/detail?bbs_presentation_style=no_header",
+            "level": 2,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/efd6c3a7a16329ccbe16f4444b965bfa.png",
+            "lack_num": 0
+          },
+          {
+            "id": 114034,
+            "name": "今昔剧画之虎啮",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/38efd098e791a4795cb14bb076fac5b0.png",
+            "num": 14,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2372/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/38efd098e791a4795cb14bb076fac5b0.png",
+            "lack_num": 0
+          },
+          {
+            "id": 114035,
+            "name": "今昔剧画之一角",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8092eabced7e3864aa00854dae7f5c57.png",
+            "num": 14,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2373/detail?bbs_presentation_style=no_header",
+            "level": 4,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8092eabced7e3864aa00854dae7f5c57.png",
+            "lack_num": 0
+          },
+          {
+            "id": 114036,
+            "name": "今昔剧画之鬼人",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dff116a499bd854c38db91040366e173.png",
+            "num": 6,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2374/detail?bbs_presentation_style=no_header",
+            "level": 5,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dff116a499bd854c38db91040366e173.png",
+            "lack_num": 0
+          },
+          {
+            "id": 104013,
+            "name": "精锻用魔矿",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8f5a55008fb5b959c359563220890b6f.png",
+            "num": 907,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1030/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8f5a55008fb5b959c359563220890b6f.png",
+            "lack_num": 0
+          },
+          {
+            "id": 202,
+            "name": "摩拉",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+            "num": 1131445,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+            "lack_num": 0
+          }
+        ],
+        "reliquary_consume": [],
+        "skills_consume": [
+          {
+            "consume_list": [
+              {
+                "id": 104319,
+                "name": "智识之冕",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+                "num": 1,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1218/detail?bbs_presentation_style=no_header",
+                "level": 5,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+                "lack_num": 0
+              },
+              {
+                "id": 104326,
+                "name": "「天光」的教导",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+                "num": 3,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2320/detail?bbs_presentation_style=no_header",
+                "level": 2,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+                "lack_num": 0
+              },
+              {
+                "id": 104327,
+                "name": "「天光」的指引",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+                "num": 21,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2312/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+                "lack_num": 0
+              },
+              {
+                "id": 104328,
+                "name": "「天光」的哲学",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+                "num": 38,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2313/detail?bbs_presentation_style=no_header",
+                "level": 4,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112044,
+                "name": "破旧的刀镡",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                "num": 6,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2324/detail?bbs_presentation_style=no_header",
+                "level": 1,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112045,
+                "name": "影打刀镡",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                "num": 22,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2345/detail?bbs_presentation_style=no_header",
+                "level": 2,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112046,
+                "name": "名刀镡",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                "num": 31,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2344/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                "lack_num": 0
+              },
+              {
+                "id": 113034,
+                "name": "万劫之真意",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+                "num": 6,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/3572/detail?bbs_presentation_style=no_header",
+                "level": 5,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+                "lack_num": 0
+              },
+              {
+                "id": 202,
+                "name": "摩拉",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                "num": 1652500,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                "lack_num": 0
+              }
+            ],
+            "skill_info": {
+              "id": "5831",
+              "level_current": "1",
+              "level_target": "10"
+            }
+          },
+          {
+            "consume_list": [
+              {
+                "id": 104319,
+                "name": "智识之冕",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+                "num": 1,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1218/detail?bbs_presentation_style=no_header",
+                "level": 5,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+                "lack_num": 0
+              },
+              {
+                "id": 104326,
+                "name": "「天光」的教导",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+                "num": 3,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2320/detail?bbs_presentation_style=no_header",
+                "level": 2,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+                "lack_num": 0
+              },
+              {
+                "id": 104327,
+                "name": "「天光」的指引",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+                "num": 21,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2312/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+                "lack_num": 0
+              },
+              {
+                "id": 104328,
+                "name": "「天光」的哲学",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+                "num": 38,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2313/detail?bbs_presentation_style=no_header",
+                "level": 4,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112044,
+                "name": "破旧的刀镡",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                "num": 6,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2324/detail?bbs_presentation_style=no_header",
+                "level": 1,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112045,
+                "name": "影打刀镡",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                "num": 22,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2345/detail?bbs_presentation_style=no_header",
+                "level": 2,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112046,
+                "name": "名刀镡",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                "num": 31,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2344/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                "lack_num": 0
+              },
+              {
+                "id": 113034,
+                "name": "万劫之真意",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+                "num": 6,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/3572/detail?bbs_presentation_style=no_header",
+                "level": 5,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+                "lack_num": 0
+              },
+              {
+                "id": 202,
+                "name": "摩拉",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                "num": 1652500,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                "lack_num": 0
+              }
+            ],
+            "skill_info": {
+              "id": "5832",
+              "level_current": "1",
+              "level_target": "10"
+            }
+          },
+          {
+            "consume_list": [
+              {
+                "id": 104319,
+                "name": "智识之冕",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+                "num": 1,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1218/detail?bbs_presentation_style=no_header",
+                "level": 5,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+                "lack_num": 0
+              },
+              {
+                "id": 104326,
+                "name": "「天光」的教导",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+                "num": 3,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2320/detail?bbs_presentation_style=no_header",
+                "level": 2,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+                "lack_num": 0
+              },
+              {
+                "id": 104327,
+                "name": "「天光」的指引",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+                "num": 21,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2312/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+                "lack_num": 0
+              },
+              {
+                "id": 104328,
+                "name": "「天光」的哲学",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+                "num": 38,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2313/detail?bbs_presentation_style=no_header",
+                "level": 4,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112044,
+                "name": "破旧的刀镡",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                "num": 6,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2324/detail?bbs_presentation_style=no_header",
+                "level": 1,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112045,
+                "name": "影打刀镡",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                "num": 22,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2345/detail?bbs_presentation_style=no_header",
+                "level": 2,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112046,
+                "name": "名刀镡",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                "num": 31,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2344/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                "lack_num": 0
+              },
+              {
+                "id": 113034,
+                "name": "万劫之真意",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+                "num": 6,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/3572/detail?bbs_presentation_style=no_header",
+                "level": 5,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+                "lack_num": 0
+              },
+              {
+                "id": 202,
+                "name": "摩拉",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                "num": 1652500,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                "lack_num": 0
+              }
+            ],
+            "skill_info": {
+              "id": "5839",
+              "level_current": "1",
+              "level_target": "10"
+            }
+          }
+        ],
+        "calendar": {
+          "dungeon_name": "菫色之庭",
+          "drop_day": [
+            "6",
+            "7",
+            "3"
+          ],
+          "calendar_link": "https://baike.mihoyo.com/ys/obc/channel/map/193?bbs_presentation_style=no_header",
+          "has_data": true
+        },
+        "lineup_recommend": "https://webstatic.mihoyo.com/ys/event/lineup-fe/index.html#/m?aid=10000058"
+      }
+    ],
+    "available_material": [
+      {
+        "id": 104141,
+        "name": "最胜紫晶碎屑",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3eeb1b7c24f3bcb4a9c09ed32fe39dfc.png",
+        "num": 256,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/869/detail?bbs_presentation_style=no_header",
+        "level": 2,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3eeb1b7c24f3bcb4a9c09ed32fe39dfc.png",
+        "lack_num": 0
+      },
+      {
+        "id": 104142,
+        "name": "最胜紫晶断片",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/aed02c6795884973a597c86d2507f5b2.png",
+        "num": 64,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/870/detail?bbs_presentation_style=no_header",
+        "level": 3,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/aed02c6795884973a597c86d2507f5b2.png",
+        "lack_num": 0
+      },
+      {
+        "id": 112044,
+        "name": "破旧的刀镡",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+        "num": 985,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2324/detail?bbs_presentation_style=no_header",
+        "level": 1,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+        "lack_num": 0
+      },
+      {
+        "id": 112045,
+        "name": "影打刀镡",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+        "num": 101,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2345/detail?bbs_presentation_style=no_header",
+        "level": 2,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+        "lack_num": 0
+      },
+      {
+        "id": 112053,
+        "name": "浮游干核",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/6aa0c0517d688991aeed48740cd808f1.png",
+        "num": 52,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2609/detail?bbs_presentation_style=no_header",
+        "level": 1,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/6aa0c0517d688991aeed48740cd808f1.png",
+        "lack_num": 0
+      },
+      {
+        "id": 112056,
+        "name": "隐兽指爪",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3fc7d9202e73f616486e1b76cfd7704b.png",
+        "num": 422,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2879/detail?bbs_presentation_style=no_header",
+        "level": 2,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3fc7d9202e73f616486e1b76cfd7704b.png",
+        "lack_num": 0
+      },
+      {
+        "id": 112057,
+        "name": "隐兽利爪",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/58d3c5a19b96bf0bf1bd6e9938eef6c0.png",
+        "num": 90,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2880/detail?bbs_presentation_style=no_header",
+        "level": 3,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/58d3c5a19b96bf0bf1bd6e9938eef6c0.png",
+        "lack_num": 0
+      },
+      {
+        "id": 114033,
+        "name": "今昔剧画之恶尉",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/efd6c3a7a16329ccbe16f4444b965bfa.png",
+        "num": 6,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2371/detail?bbs_presentation_style=no_header",
+        "level": 2,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/efd6c3a7a16329ccbe16f4444b965bfa.png",
+        "lack_num": 0
+      }
+    ],
+    "overall_consume": [
+      {
+        "id": 202,
+        "name": "摩拉",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+        "num": 8181475,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+        "level": 3,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+        "lack_num": 7876844
+      },
+      {
+        "id": 104003,
+        "name": "大英雄的经验",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/83c367f4bc16c7b4f1d93a25fd828cd6.png",
+        "num": 419,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1025/detail?bbs_presentation_style=no_header",
+        "level": 4,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/83c367f4bc16c7b4f1d93a25fd828cd6.png",
+        "lack_num": 137
+      },
+      {
+        "id": 104013,
+        "name": "精锻用魔矿",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8f5a55008fb5b959c359563220890b6f.png",
+        "num": 907,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1030/detail?bbs_presentation_style=no_header",
+        "level": 3,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8f5a55008fb5b959c359563220890b6f.png",
+        "lack_num": 0
+      },
+      {
+        "id": 104319,
+        "name": "智识之冕",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+        "num": 3,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1218/detail?bbs_presentation_style=no_header",
+        "level": 5,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+        "lack_num": 0
+      },
+      {
+        "id": 104144,
+        "name": "最胜紫晶",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8d88501f89ed6719d3b8a7ac61ff5dd7.png",
+        "num": 6,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/872/detail?bbs_presentation_style=no_header",
+        "level": 5,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8d88501f89ed6719d3b8a7ac61ff5dd7.png",
+        "lack_num": 0
+      },
+      {
+        "id": 113034,
+        "name": "万劫之真意",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+        "num": 18,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/3572/detail?bbs_presentation_style=no_header",
+        "level": 5,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+        "lack_num": 12
+      },
+      {
+        "id": 114036,
+        "name": "今昔剧画之鬼人",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dff116a499bd854c38db91040366e173.png",
+        "num": 6,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2374/detail?bbs_presentation_style=no_header",
+        "level": 5,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dff116a499bd854c38db91040366e173.png",
+        "lack_num": 6
+      },
+      {
+        "id": 104143,
+        "name": "最胜紫晶块",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/a82b9f7c193857f563655f8fe3d4039d.png",
+        "num": 9,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/871/detail?bbs_presentation_style=no_header",
+        "level": 4,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/a82b9f7c193857f563655f8fe3d4039d.png",
+        "lack_num": 0
+      },
+      {
+        "id": 114035,
+        "name": "今昔剧画之一角",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8092eabced7e3864aa00854dae7f5c57.png",
+        "num": 14,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2373/detail?bbs_presentation_style=no_header",
+        "level": 4,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8092eabced7e3864aa00854dae7f5c57.png",
+        "lack_num": 13
+      },
+      {
+        "id": 104328,
+        "name": "「天光」的哲学",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+        "num": 114,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2313/detail?bbs_presentation_style=no_header",
+        "level": 4,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+        "lack_num": 105
+      },
+      {
+        "id": 113031,
+        "name": "龙嗣伪鳍",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8e20ea06d6247f0acab5b66e3956a756.png",
+        "num": 46,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/3392/detail?bbs_presentation_style=no_header",
+        "level": 4,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8e20ea06d6247f0acab5b66e3956a756.png",
+        "lack_num": 44
+      },
+      {
+        "id": 112058,
+        "name": "隐兽鬼爪",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b5d7ca90a064f924204149d3fa58538d.png",
+        "num": 41,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2881/detail?bbs_presentation_style=no_header",
+        "level": 4,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b5d7ca90a064f924204149d3fa58538d.png",
+        "lack_num": 0
+      },
+      {
+        "id": 104142,
+        "name": "最胜紫晶断片",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/aed02c6795884973a597c86d2507f5b2.png",
+        "num": 9,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/870/detail?bbs_presentation_style=no_header",
+        "level": 3,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/aed02c6795884973a597c86d2507f5b2.png",
+        "lack_num": 0
+      },
+      {
+        "id": 114034,
+        "name": "今昔剧画之虎啮",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/38efd098e791a4795cb14bb076fac5b0.png",
+        "num": 14,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2372/detail?bbs_presentation_style=no_header",
+        "level": 3,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/38efd098e791a4795cb14bb076fac5b0.png",
+        "lack_num": 7
+      },
+      {
+        "id": 104327,
+        "name": "「天光」的指引",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+        "num": 63,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2312/detail?bbs_presentation_style=no_header",
+        "level": 3,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+        "lack_num": 40
+      },
+      {
+        "id": 112057,
+        "name": "隐兽利爪",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/58d3c5a19b96bf0bf1bd6e9938eef6c0.png",
+        "num": 27,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2880/detail?bbs_presentation_style=no_header",
+        "level": 3,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/58d3c5a19b96bf0bf1bd6e9938eef6c0.png",
+        "lack_num": 0
+      },
+      {
+        "id": 112055,
+        "name": "浮游晶化核",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/0813907d64a4771acab347d53f2cb28d.png",
+        "num": 27,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2611/detail?bbs_presentation_style=no_header",
+        "level": 3,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/0813907d64a4771acab347d53f2cb28d.png",
+        "lack_num": 26
+      },
+      {
+        "id": 112046,
+        "name": "名刀镡",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+        "num": 129,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2344/detail?bbs_presentation_style=no_header",
+        "level": 3,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+        "lack_num": 0
+      },
+      {
+        "id": 104141,
+        "name": "最胜紫晶碎屑",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3eeb1b7c24f3bcb4a9c09ed32fe39dfc.png",
+        "num": 1,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/869/detail?bbs_presentation_style=no_header",
+        "level": 2,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3eeb1b7c24f3bcb4a9c09ed32fe39dfc.png",
+        "lack_num": 0
+      },
+      {
+        "id": 114033,
+        "name": "今昔剧画之恶尉",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/efd6c3a7a16329ccbe16f4444b965bfa.png",
+        "num": 5,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2371/detail?bbs_presentation_style=no_header",
+        "level": 2,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/efd6c3a7a16329ccbe16f4444b965bfa.png",
+        "lack_num": 0
+      },
+      {
+        "id": 104326,
+        "name": "「天光」的教导",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+        "num": 9,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2320/detail?bbs_presentation_style=no_header",
+        "level": 2,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+        "lack_num": 4
+      },
+      {
+        "id": 112056,
+        "name": "隐兽指爪",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3fc7d9202e73f616486e1b76cfd7704b.png",
+        "num": 23,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2879/detail?bbs_presentation_style=no_header",
+        "level": 2,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3fc7d9202e73f616486e1b76cfd7704b.png",
+        "lack_num": 0
+      },
+      {
+        "id": 112054,
+        "name": "浮游幽核",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/572d358045088ebd21c3fbe10f207a76.png",
+        "num": 23,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2610/detail?bbs_presentation_style=no_header",
+        "level": 2,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/572d358045088ebd21c3fbe10f207a76.png",
+        "lack_num": 2
+      },
+      {
+        "id": 112045,
+        "name": "影打刀镡",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+        "num": 96,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2345/detail?bbs_presentation_style=no_header",
+        "level": 2,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+        "lack_num": 0
+      },
+      {
+        "id": 112053,
+        "name": "浮游干核",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/6aa0c0517d688991aeed48740cd808f1.png",
+        "num": 15,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2609/detail?bbs_presentation_style=no_header",
+        "level": 1,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/6aa0c0517d688991aeed48740cd808f1.png",
+        "lack_num": 0
+      },
+      {
+        "id": 112044,
+        "name": "破旧的刀镡",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+        "num": 36,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2324/detail?bbs_presentation_style=no_header",
+        "level": 1,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+        "lack_num": 0
+      },
+      {
+        "id": 101206,
+        "name": "海灵芝",
+        "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/f0e9bf7d3fadf148a700997c5c5c637f.png",
+        "num": 168,
+        "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2169/detail?bbs_presentation_style=no_header",
+        "level": 0,
+        "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/f0e9bf7d3fadf148a700997c5c5c637f.png",
+        "lack_num": 0
+      }
+    ],
+    "overall_material_consume": {
+      "avatar_consume": [
+        {
+          "consume": [
+            {
+              "id": 104003,
+              "name": "大英雄的经验",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/83c367f4bc16c7b4f1d93a25fd828cd6.png",
+              "num": 419,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1025/detail?bbs_presentation_style=no_header",
+              "level": 4,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/83c367f4bc16c7b4f1d93a25fd828cd6.png",
+              "lack_num": 137
+            }
+          ],
+          "avatars": [
+            {
+              "id": 10000058,
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+              "avatar_level": 5
+            }
+          ],
+          "weapons": [],
+          "material_source": "MT_SPECIAL"
+        },
+        {
+          "consume": [
+            {
+              "id": 104141,
+              "name": "最胜紫晶碎屑",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3eeb1b7c24f3bcb4a9c09ed32fe39dfc.png",
+              "num": 1,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/869/detail?bbs_presentation_style=no_header",
+              "level": 2,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3eeb1b7c24f3bcb4a9c09ed32fe39dfc.png",
+              "lack_num": 0
+            },
+            {
+              "id": 104142,
+              "name": "最胜紫晶断片",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/aed02c6795884973a597c86d2507f5b2.png",
+              "num": 9,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/870/detail?bbs_presentation_style=no_header",
+              "level": 3,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/aed02c6795884973a597c86d2507f5b2.png",
+              "lack_num": 0
+            },
+            {
+              "id": 104143,
+              "name": "最胜紫晶块",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/a82b9f7c193857f563655f8fe3d4039d.png",
+              "num": 9,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/871/detail?bbs_presentation_style=no_header",
+              "level": 4,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/a82b9f7c193857f563655f8fe3d4039d.png",
+              "lack_num": 0
+            },
+            {
+              "id": 104144,
+              "name": "最胜紫晶",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8d88501f89ed6719d3b8a7ac61ff5dd7.png",
+              "num": 6,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/872/detail?bbs_presentation_style=no_header",
+              "level": 5,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8d88501f89ed6719d3b8a7ac61ff5dd7.png",
+              "lack_num": 0
+            }
+          ],
+          "avatars": [
+            {
+              "id": 10000058,
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+              "avatar_level": 5
+            }
+          ],
+          "weapons": [],
+          "material_source": "MT_MONSTER",
+          "monster": {
+            "monster_id": "00401",
+            "monster_name": "无相之雷",
+            "monster_icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f76f/1c8ff4462801006aa1953e65e52a03bc.png",
+            "monster_map_url": "https://act.mihoyo.com/ys/app/interactive-map/index.html?bbs_presentation_style=no_header&lang=zh-cn#/map/2?shown_types=135,157,263,390,455,540,608,629,743,769"
+          }
+        },
+        {
+          "consume": [
+            {
+              "id": 112044,
+              "name": "破旧的刀镡",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+              "num": 18,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2324/detail?bbs_presentation_style=no_header",
+              "level": 1,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+              "lack_num": 0
+            },
+            {
+              "id": 112045,
+              "name": "影打刀镡",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+              "num": 30,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2345/detail?bbs_presentation_style=no_header",
+              "level": 2,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+              "lack_num": 0
+            },
+            {
+              "id": 112046,
+              "name": "名刀镡",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+              "num": 36,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2344/detail?bbs_presentation_style=no_header",
+              "level": 3,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+              "lack_num": 0
+            }
+          ],
+          "avatars": [
+            {
+              "id": 10000058,
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+              "avatar_level": 5
+            }
+          ],
+          "weapons": [],
+          "material_source": "MT_MONSTER",
+          "monster": {
+            "monster_id": "50801",
+            "monster_name": "野伏众",
+            "monster_icon": "",
+            "monster_map_url": "https://act.mihoyo.com/ys/app/interactive-map/index.html?bbs_presentation_style=no_header&lang=zh-cn#/map/2?shown_types=209"
+          }
+        },
+        {
+          "consume": [
+            {
+              "id": 113031,
+              "name": "龙嗣伪鳍",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8e20ea06d6247f0acab5b66e3956a756.png",
+              "num": 46,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/3392/detail?bbs_presentation_style=no_header",
+              "level": 4,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8e20ea06d6247f0acab5b66e3956a756.png",
+              "lack_num": 44
+            }
+          ],
+          "avatars": [
+            {
+              "id": 10000058,
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+              "avatar_level": 5
+            }
+          ],
+          "weapons": [],
+          "material_source": "MT_MONSTER",
+          "monster": {
+            "monster_id": "60507",
+            "monster_name": "深海龙蜥之群",
+            "monster_icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f76f/8216f1b328ee3a243c8fca17a69c3a57.png",
+            "monster_map_url": "https://act.mihoyo.com/ys/app/interactive-map/index.html?bbs_presentation_style=no_header&lang=zh-cn#/map/2?shown_types="
+          }
+        },
+        {
+          "consume": [
+            {
+              "id": 101206,
+              "name": "海灵芝",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/f0e9bf7d3fadf148a700997c5c5c637f.png",
+              "num": 168,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2169/detail?bbs_presentation_style=no_header",
+              "level": 0,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/f0e9bf7d3fadf148a700997c5c5c637f.png",
+              "lack_num": 0
+            }
+          ],
+          "avatars": [
+            {
+              "id": 10000058,
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+              "avatar_level": 5
+            }
+          ],
+          "weapons": [],
+          "material_source": "MT_WORLD",
+          "map_url": "https://act.mihoyo.com/ys/app/interactive-map/index.html?bbs_presentation_style=no_header&lang=zh-cn#/map/2?shown_types=185"
+        },
+        {
+          "consume": [
+            {
+              "id": 202,
+              "name": "摩拉",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+              "num": 2092530,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+              "level": 3,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+              "lack_num": 1787899
+            }
+          ],
+          "avatars": [
+            {
+              "id": 10000058,
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+              "avatar_level": 5
+            }
+          ],
+          "weapons": [],
+          "material_source": "MT_SPECIAL"
+        }
+      ],
+      "avatar_skill_consume": [
+        {
+          "consume": [
+            {
+              "id": 104319,
+              "name": "智识之冕",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+              "num": 3,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1218/detail?bbs_presentation_style=no_header",
+              "level": 5,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+              "lack_num": 0
+            }
+          ],
+          "avatars": [
+            {
+              "id": 10000058,
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+              "avatar_level": 5
+            }
+          ],
+          "weapons": [],
+          "material_source": "MT_WORLD",
+          "map_url": "https://act.mihoyo.com/ys/app/interactive-map/index.html?bbs_presentation_style=no_header&lang=zh-cn#/map/2?shown_types="
+        },
+        {
+          "consume": [
+            {
+              "id": 104326,
+              "name": "「天光」的教导",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+              "num": 9,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2320/detail?bbs_presentation_style=no_header",
+              "level": 2,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+              "lack_num": 4
+            },
+            {
+              "id": 104327,
+              "name": "「天光」的指引",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+              "num": 63,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2312/detail?bbs_presentation_style=no_header",
+              "level": 3,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+              "lack_num": 40
+            },
+            {
+              "id": 104328,
+              "name": "「天光」的哲学",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+              "num": 114,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2313/detail?bbs_presentation_style=no_header",
+              "level": 4,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+              "lack_num": 105
+            }
+          ],
+          "avatars": [
+            {
+              "id": 10000058,
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+              "avatar_level": 5
+            }
+          ],
+          "weapons": [],
+          "material_source": "MT_DUNGEON",
+          "dungeon_calendar": {
+            "dungeon_name": "菫色之庭",
+            "drop_day": [
+              "6",
+              "7",
+              "3"
+            ],
+            "calendar_link": "https://baike.mihoyo.com/ys/obc/content/2291/detail?bbs_presentation_style=no_header",
+            "has_data": true
+          }
+        },
+        {
+          "consume": [
+            {
+              "id": 112044,
+              "name": "破旧的刀镡",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+              "num": 18,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2324/detail?bbs_presentation_style=no_header",
+              "level": 1,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+              "lack_num": 0
+            },
+            {
+              "id": 112045,
+              "name": "影打刀镡",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+              "num": 66,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2345/detail?bbs_presentation_style=no_header",
+              "level": 2,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+              "lack_num": 0
+            },
+            {
+              "id": 112046,
+              "name": "名刀镡",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+              "num": 93,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2344/detail?bbs_presentation_style=no_header",
+              "level": 3,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+              "lack_num": 0
+            }
+          ],
+          "avatars": [
+            {
+              "id": 10000058,
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+              "avatar_level": 5
+            }
+          ],
+          "weapons": [],
+          "material_source": "MT_MONSTER",
+          "monster": {
+            "monster_id": "50801",
+            "monster_name": "野伏众",
+            "monster_icon": "",
+            "monster_map_url": "https://act.mihoyo.com/ys/app/interactive-map/index.html?bbs_presentation_style=no_header&lang=zh-cn#/map/2?shown_types=209"
+          }
+        },
+        {
+          "consume": [
+            {
+              "id": 113034,
+              "name": "万劫之真意",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+              "num": 18,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/3572/detail?bbs_presentation_style=no_header",
+              "level": 5,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+              "lack_num": 12
+            }
+          ],
+          "avatars": [
+            {
+              "id": 10000058,
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+              "avatar_level": 5
+            }
+          ],
+          "weapons": [],
+          "material_source": "MT_WEEKLY_DUNGEON",
+          "monster": {
+            "monster_id": "90602",
+            "monster_name": "祸津御建鸣神命",
+            "monster_icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f76f/bf78e37c7dc2e588f0c0c95e6af2ef00.png",
+            "monster_map_url": "https://baike.mihoyo.com/ys/obc/content/3573/detail?bbs_presentation_style=no_header"
+          }
+        },
+        {
+          "consume": [
+            {
+              "id": 202,
+              "name": "摩拉",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+              "num": 4957500,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+              "level": 3,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+              "lack_num": 4957500
+            }
+          ],
+          "avatars": [
+            {
+              "id": 10000058,
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+              "avatar_level": 5
+            }
+          ],
+          "weapons": [],
+          "material_source": "MT_SPECIAL"
+        }
+      ],
+      "weapon_consume": [
+        {
+          "consume": [
+            {
+              "id": 112053,
+              "name": "浮游干核",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/6aa0c0517d688991aeed48740cd808f1.png",
+              "num": 15,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2609/detail?bbs_presentation_style=no_header",
+              "level": 1,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/6aa0c0517d688991aeed48740cd808f1.png",
+              "lack_num": 0
+            },
+            {
+              "id": 112054,
+              "name": "浮游幽核",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/572d358045088ebd21c3fbe10f207a76.png",
+              "num": 23,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2610/detail?bbs_presentation_style=no_header",
+              "level": 2,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/572d358045088ebd21c3fbe10f207a76.png",
+              "lack_num": 2
+            },
+            {
+              "id": 112055,
+              "name": "浮游晶化核",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/0813907d64a4771acab347d53f2cb28d.png",
+              "num": 27,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2611/detail?bbs_presentation_style=no_header",
+              "level": 3,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/0813907d64a4771acab347d53f2cb28d.png",
+              "lack_num": 26
+            }
+          ],
+          "avatars": [],
+          "weapons": [
+            {
+              "id": 14509,
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/5df4b80100a07922792ac85362ee6af8.png",
+              "weapon_level": 5
+            }
+          ],
+          "material_source": "MT_MONSTER",
+          "monster": {
+            "monster_id": "00601",
+            "monster_name": "飘浮灵",
+            "monster_icon": "",
+            "monster_map_url": "https://act.mihoyo.com/ys/app/interactive-map/index.html?bbs_presentation_style=no_header&lang=zh-cn#/map/2?shown_types=229"
+          }
+        },
+        {
+          "consume": [
+            {
+              "id": 112056,
+              "name": "隐兽指爪",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3fc7d9202e73f616486e1b76cfd7704b.png",
+              "num": 23,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2879/detail?bbs_presentation_style=no_header",
+              "level": 2,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3fc7d9202e73f616486e1b76cfd7704b.png",
+              "lack_num": 0
+            },
+            {
+              "id": 112057,
+              "name": "隐兽利爪",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/58d3c5a19b96bf0bf1bd6e9938eef6c0.png",
+              "num": 27,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2880/detail?bbs_presentation_style=no_header",
+              "level": 3,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/58d3c5a19b96bf0bf1bd6e9938eef6c0.png",
+              "lack_num": 0
+            },
+            {
+              "id": 112058,
+              "name": "隐兽鬼爪",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b5d7ca90a064f924204149d3fa58538d.png",
+              "num": 41,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2881/detail?bbs_presentation_style=no_header",
+              "level": 4,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b5d7ca90a064f924204149d3fa58538d.png",
+              "lack_num": 0
+            }
+          ],
+          "avatars": [],
+          "weapons": [
+            {
+              "id": 14509,
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/5df4b80100a07922792ac85362ee6af8.png",
+              "weapon_level": 5
+            }
+          ],
+          "material_source": "MT_MONSTER",
+          "monster": {
+            "monster_id": "20501",
+            "monster_name": "兽境之狼",
+            "monster_icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f76f/762415ea26fa742d6c99fb018fc28e75.png",
+            "monster_map_url": "https://act.mihoyo.com/ys/app/interactive-map/index.html?bbs_presentation_style=no_header&lang=zh-cn#/map/2?shown_types=265"
+          }
+        },
+        {
+          "consume": [
+            {
+              "id": 114033,
+              "name": "今昔剧画之恶尉",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/efd6c3a7a16329ccbe16f4444b965bfa.png",
+              "num": 5,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2371/detail?bbs_presentation_style=no_header",
+              "level": 2,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/efd6c3a7a16329ccbe16f4444b965bfa.png",
+              "lack_num": 0
+            },
+            {
+              "id": 114034,
+              "name": "今昔剧画之虎啮",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/38efd098e791a4795cb14bb076fac5b0.png",
+              "num": 14,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2372/detail?bbs_presentation_style=no_header",
+              "level": 3,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/38efd098e791a4795cb14bb076fac5b0.png",
+              "lack_num": 7
+            },
+            {
+              "id": 114035,
+              "name": "今昔剧画之一角",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8092eabced7e3864aa00854dae7f5c57.png",
+              "num": 14,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2373/detail?bbs_presentation_style=no_header",
+              "level": 4,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8092eabced7e3864aa00854dae7f5c57.png",
+              "lack_num": 13
+            },
+            {
+              "id": 114036,
+              "name": "今昔剧画之鬼人",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dff116a499bd854c38db91040366e173.png",
+              "num": 6,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2374/detail?bbs_presentation_style=no_header",
+              "level": 5,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dff116a499bd854c38db91040366e173.png",
+              "lack_num": 6
+            }
+          ],
+          "avatars": [],
+          "weapons": [
+            {
+              "id": 14509,
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/5df4b80100a07922792ac85362ee6af8.png",
+              "weapon_level": 5
+            }
+          ],
+          "material_source": "MT_DUNGEON",
+          "dungeon_calendar": {
+            "dungeon_name": "砂流之庭",
+            "drop_day": [
+              "6",
+              "7",
+              "3"
+            ],
+            "calendar_link": "https://baike.mihoyo.com/ys/obc/content/2293/detail?bbs_presentation_style=no_header",
+            "has_data": true
+          }
+        },
+        {
+          "consume": [
+            {
+              "id": 104013,
+              "name": "精锻用魔矿",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8f5a55008fb5b959c359563220890b6f.png",
+              "num": 907,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1030/detail?bbs_presentation_style=no_header",
+              "level": 3,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8f5a55008fb5b959c359563220890b6f.png",
+              "lack_num": 0
+            }
+          ],
+          "avatars": [],
+          "weapons": [
+            {
+              "id": 14509,
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/5df4b80100a07922792ac85362ee6af8.png",
+              "weapon_level": 5
+            }
+          ],
+          "material_source": "MT_DUNGEON"
+        },
+        {
+          "consume": [
+            {
+              "id": 202,
+              "name": "摩拉",
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+              "num": 1131445,
+              "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+              "level": 3,
+              "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+              "lack_num": 1131445
+            }
+          ],
+          "avatars": [],
+          "weapons": [
+            {
+              "id": 14509,
+              "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/5df4b80100a07922792ac85362ee6af8.png",
+              "weapon_level": 5
+            }
+          ],
+          "material_source": "MT_SPECIAL"
+        }
+      ]
+    },
+    "jump_url": "https://act.mihoyo.com/ys/app/interactive-map/index.html?bbs_presentation_style=no_header&lang=zh-cn#/map/2?shown_types=229",
+    "single_role_result": [
+      {
+        "items": [
+          {
+            "avatar_consume": [
+              {
+                "id": 104003,
+                "name": "大英雄的经验",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/83c367f4bc16c7b4f1d93a25fd828cd6.png",
+                "num": 419,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1025/detail?bbs_presentation_style=no_header",
+                "level": 4,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/83c367f4bc16c7b4f1d93a25fd828cd6.png",
+                "lack_num": 0
+              },
+              {
+                "id": 104141,
+                "name": "最胜紫晶碎屑",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3eeb1b7c24f3bcb4a9c09ed32fe39dfc.png",
+                "num": 1,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/869/detail?bbs_presentation_style=no_header",
+                "level": 2,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3eeb1b7c24f3bcb4a9c09ed32fe39dfc.png",
+                "lack_num": 0
+              },
+              {
+                "id": 104142,
+                "name": "最胜紫晶断片",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/aed02c6795884973a597c86d2507f5b2.png",
+                "num": 9,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/870/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/aed02c6795884973a597c86d2507f5b2.png",
+                "lack_num": 0
+              },
+              {
+                "id": 104143,
+                "name": "最胜紫晶块",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/a82b9f7c193857f563655f8fe3d4039d.png",
+                "num": 9,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/871/detail?bbs_presentation_style=no_header",
+                "level": 4,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/a82b9f7c193857f563655f8fe3d4039d.png",
+                "lack_num": 0
+              },
+              {
+                "id": 104144,
+                "name": "最胜紫晶",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8d88501f89ed6719d3b8a7ac61ff5dd7.png",
+                "num": 6,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/872/detail?bbs_presentation_style=no_header",
+                "level": 5,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8d88501f89ed6719d3b8a7ac61ff5dd7.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112044,
+                "name": "破旧的刀镡",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                "num": 18,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2324/detail?bbs_presentation_style=no_header",
+                "level": 1,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112045,
+                "name": "影打刀镡",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                "num": 30,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2345/detail?bbs_presentation_style=no_header",
+                "level": 2,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112046,
+                "name": "名刀镡",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                "num": 36,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2344/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                "lack_num": 0
+              },
+              {
+                "id": 113031,
+                "name": "龙嗣伪鳍",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8e20ea06d6247f0acab5b66e3956a756.png",
+                "num": 46,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/3392/detail?bbs_presentation_style=no_header",
+                "level": 4,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8e20ea06d6247f0acab5b66e3956a756.png",
+                "lack_num": 0
+              },
+              {
+                "id": 101206,
+                "name": "海灵芝",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/f0e9bf7d3fadf148a700997c5c5c637f.png",
+                "num": 168,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2169/detail?bbs_presentation_style=no_header",
+                "level": 0,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/f0e9bf7d3fadf148a700997c5c5c637f.png",
+                "lack_num": 0
+              },
+              {
+                "id": 202,
+                "name": "摩拉",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                "num": 2092530,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                "lack_num": 0
+              }
+            ],
+            "avatar_skill_consume": [
+              {
+                "id": 104319,
+                "name": "智识之冕",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+                "num": 3,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1218/detail?bbs_presentation_style=no_header",
+                "level": 5,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+                "lack_num": 0
+              },
+              {
+                "id": 104326,
+                "name": "「天光」的教导",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+                "num": 9,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2320/detail?bbs_presentation_style=no_header",
+                "level": 2,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+                "lack_num": 0
+              },
+              {
+                "id": 104327,
+                "name": "「天光」的指引",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+                "num": 63,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2312/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+                "lack_num": 0
+              },
+              {
+                "id": 104328,
+                "name": "「天光」的哲学",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+                "num": 114,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2313/detail?bbs_presentation_style=no_header",
+                "level": 4,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112044,
+                "name": "破旧的刀镡",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                "num": 18,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2324/detail?bbs_presentation_style=no_header",
+                "level": 1,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112045,
+                "name": "影打刀镡",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                "num": 66,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2345/detail?bbs_presentation_style=no_header",
+                "level": 2,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112046,
+                "name": "名刀镡",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                "num": 93,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2344/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                "lack_num": 0
+              },
+              {
+                "id": 113034,
+                "name": "万劫之真意",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+                "num": 18,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/3572/detail?bbs_presentation_style=no_header",
+                "level": 5,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+                "lack_num": 0
+              },
+              {
+                "id": 202,
+                "name": "摩拉",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                "num": 4957500,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                "lack_num": 0
+              }
+            ],
+            "weapon_consume": [
+              {
+                "id": 112053,
+                "name": "浮游干核",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/6aa0c0517d688991aeed48740cd808f1.png",
+                "num": 15,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2609/detail?bbs_presentation_style=no_header",
+                "level": 1,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/6aa0c0517d688991aeed48740cd808f1.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112054,
+                "name": "浮游幽核",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/572d358045088ebd21c3fbe10f207a76.png",
+                "num": 23,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2610/detail?bbs_presentation_style=no_header",
+                "level": 2,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/572d358045088ebd21c3fbe10f207a76.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112055,
+                "name": "浮游晶化核",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/0813907d64a4771acab347d53f2cb28d.png",
+                "num": 27,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2611/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/0813907d64a4771acab347d53f2cb28d.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112056,
+                "name": "隐兽指爪",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3fc7d9202e73f616486e1b76cfd7704b.png",
+                "num": 23,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2879/detail?bbs_presentation_style=no_header",
+                "level": 2,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3fc7d9202e73f616486e1b76cfd7704b.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112057,
+                "name": "隐兽利爪",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/58d3c5a19b96bf0bf1bd6e9938eef6c0.png",
+                "num": 27,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2880/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/58d3c5a19b96bf0bf1bd6e9938eef6c0.png",
+                "lack_num": 0
+              },
+              {
+                "id": 112058,
+                "name": "隐兽鬼爪",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b5d7ca90a064f924204149d3fa58538d.png",
+                "num": 41,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2881/detail?bbs_presentation_style=no_header",
+                "level": 4,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b5d7ca90a064f924204149d3fa58538d.png",
+                "lack_num": 0
+              },
+              {
+                "id": 114033,
+                "name": "今昔剧画之恶尉",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/efd6c3a7a16329ccbe16f4444b965bfa.png",
+                "num": 5,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2371/detail?bbs_presentation_style=no_header",
+                "level": 2,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/efd6c3a7a16329ccbe16f4444b965bfa.png",
+                "lack_num": 0
+              },
+              {
+                "id": 114034,
+                "name": "今昔剧画之虎啮",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/38efd098e791a4795cb14bb076fac5b0.png",
+                "num": 14,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2372/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/38efd098e791a4795cb14bb076fac5b0.png",
+                "lack_num": 0
+              },
+              {
+                "id": 114035,
+                "name": "今昔剧画之一角",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8092eabced7e3864aa00854dae7f5c57.png",
+                "num": 14,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2373/detail?bbs_presentation_style=no_header",
+                "level": 4,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8092eabced7e3864aa00854dae7f5c57.png",
+                "lack_num": 0
+              },
+              {
+                "id": 114036,
+                "name": "今昔剧画之鬼人",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dff116a499bd854c38db91040366e173.png",
+                "num": 6,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2374/detail?bbs_presentation_style=no_header",
+                "level": 5,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dff116a499bd854c38db91040366e173.png",
+                "lack_num": 0
+              },
+              {
+                "id": 104013,
+                "name": "精锻用魔矿",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8f5a55008fb5b959c359563220890b6f.png",
+                "num": 907,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1030/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8f5a55008fb5b959c359563220890b6f.png",
+                "lack_num": 0
+              },
+              {
+                "id": 202,
+                "name": "摩拉",
+                "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                "num": 1131445,
+                "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+                "level": 3,
+                "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                "lack_num": 0
+              }
+            ],
+            "reliquary_consume": [],
+            "skills_consume": [
+              {
+                "consume_list": [
+                  {
+                    "id": 104319,
+                    "name": "智识之冕",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+                    "num": 1,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1218/detail?bbs_presentation_style=no_header",
+                    "level": 5,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 104326,
+                    "name": "「天光」的教导",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+                    "num": 3,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2320/detail?bbs_presentation_style=no_header",
+                    "level": 2,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 104327,
+                    "name": "「天光」的指引",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+                    "num": 21,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2312/detail?bbs_presentation_style=no_header",
+                    "level": 3,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 104328,
+                    "name": "「天光」的哲学",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+                    "num": 38,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2313/detail?bbs_presentation_style=no_header",
+                    "level": 4,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 112044,
+                    "name": "破旧的刀镡",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                    "num": 6,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2324/detail?bbs_presentation_style=no_header",
+                    "level": 1,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 112045,
+                    "name": "影打刀镡",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                    "num": 22,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2345/detail?bbs_presentation_style=no_header",
+                    "level": 2,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 112046,
+                    "name": "名刀镡",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                    "num": 31,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2344/detail?bbs_presentation_style=no_header",
+                    "level": 3,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 113034,
+                    "name": "万劫之真意",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+                    "num": 6,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/3572/detail?bbs_presentation_style=no_header",
+                    "level": 5,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 202,
+                    "name": "摩拉",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                    "num": 1652500,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+                    "level": 3,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                    "lack_num": 0
+                  }
+                ],
+                "skill_info": {
+                  "id": "5831",
+                  "level_current": "1",
+                  "level_target": "10"
+                }
+              },
+              {
+                "consume_list": [
+                  {
+                    "id": 104319,
+                    "name": "智识之冕",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+                    "num": 1,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1218/detail?bbs_presentation_style=no_header",
+                    "level": 5,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 104326,
+                    "name": "「天光」的教导",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+                    "num": 3,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2320/detail?bbs_presentation_style=no_header",
+                    "level": 2,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 104327,
+                    "name": "「天光」的指引",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+                    "num": 21,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2312/detail?bbs_presentation_style=no_header",
+                    "level": 3,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 104328,
+                    "name": "「天光」的哲学",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+                    "num": 38,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2313/detail?bbs_presentation_style=no_header",
+                    "level": 4,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 112044,
+                    "name": "破旧的刀镡",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                    "num": 6,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2324/detail?bbs_presentation_style=no_header",
+                    "level": 1,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 112045,
+                    "name": "影打刀镡",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                    "num": 22,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2345/detail?bbs_presentation_style=no_header",
+                    "level": 2,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 112046,
+                    "name": "名刀镡",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                    "num": 31,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2344/detail?bbs_presentation_style=no_header",
+                    "level": 3,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 113034,
+                    "name": "万劫之真意",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+                    "num": 6,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/3572/detail?bbs_presentation_style=no_header",
+                    "level": 5,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 202,
+                    "name": "摩拉",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                    "num": 1652500,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+                    "level": 3,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                    "lack_num": 0
+                  }
+                ],
+                "skill_info": {
+                  "id": "5832",
+                  "level_current": "1",
+                  "level_target": "10"
+                }
+              },
+              {
+                "consume_list": [
+                  {
+                    "id": 104319,
+                    "name": "智识之冕",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+                    "num": 1,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1218/detail?bbs_presentation_style=no_header",
+                    "level": 5,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 104326,
+                    "name": "「天光」的教导",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+                    "num": 3,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2320/detail?bbs_presentation_style=no_header",
+                    "level": 2,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 104327,
+                    "name": "「天光」的指引",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+                    "num": 21,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2312/detail?bbs_presentation_style=no_header",
+                    "level": 3,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 104328,
+                    "name": "「天光」的哲学",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+                    "num": 38,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2313/detail?bbs_presentation_style=no_header",
+                    "level": 4,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 112044,
+                    "name": "破旧的刀镡",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                    "num": 6,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2324/detail?bbs_presentation_style=no_header",
+                    "level": 1,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 112045,
+                    "name": "影打刀镡",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                    "num": 22,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2345/detail?bbs_presentation_style=no_header",
+                    "level": 2,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 112046,
+                    "name": "名刀镡",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                    "num": 31,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2344/detail?bbs_presentation_style=no_header",
+                    "level": 3,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 113034,
+                    "name": "万劫之真意",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+                    "num": 6,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/3572/detail?bbs_presentation_style=no_header",
+                    "level": 5,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+                    "lack_num": 0
+                  },
+                  {
+                    "id": 202,
+                    "name": "摩拉",
+                    "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                    "num": 1652500,
+                    "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+                    "level": 3,
+                    "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                    "lack_num": 0
+                  }
+                ],
+                "skill_info": {
+                  "id": "5839",
+                  "level_current": "1",
+                  "level_target": "10"
+                }
+              }
+            ],
+            "calendar": {
+              "dungeon_name": "菫色之庭",
+              "drop_day": [
+                "6",
+                "7",
+                "3"
+              ],
+              "calendar_link": "https://baike.mihoyo.com/ys/obc/channel/map/193?bbs_presentation_style=no_header",
+              "has_data": true
+            },
+            "lineup_recommend": "https://webstatic.mihoyo.com/ys/event/lineup-fe/index.html#/m?aid=10000058"
+          }
+        ],
+        "available_material": [
+          {
+            "id": 104141,
+            "name": "最胜紫晶碎屑",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3eeb1b7c24f3bcb4a9c09ed32fe39dfc.png",
+            "num": 256,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/869/detail?bbs_presentation_style=no_header",
+            "level": 2,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3eeb1b7c24f3bcb4a9c09ed32fe39dfc.png",
+            "lack_num": 0
+          },
+          {
+            "id": 104142,
+            "name": "最胜紫晶断片",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/aed02c6795884973a597c86d2507f5b2.png",
+            "num": 64,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/870/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/aed02c6795884973a597c86d2507f5b2.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112044,
+            "name": "破旧的刀镡",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+            "num": 985,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2324/detail?bbs_presentation_style=no_header",
+            "level": 1,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112045,
+            "name": "影打刀镡",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+            "num": 101,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2345/detail?bbs_presentation_style=no_header",
+            "level": 2,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112053,
+            "name": "浮游干核",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/6aa0c0517d688991aeed48740cd808f1.png",
+            "num": 52,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2609/detail?bbs_presentation_style=no_header",
+            "level": 1,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/6aa0c0517d688991aeed48740cd808f1.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112056,
+            "name": "隐兽指爪",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3fc7d9202e73f616486e1b76cfd7704b.png",
+            "num": 422,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2879/detail?bbs_presentation_style=no_header",
+            "level": 2,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3fc7d9202e73f616486e1b76cfd7704b.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112057,
+            "name": "隐兽利爪",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/58d3c5a19b96bf0bf1bd6e9938eef6c0.png",
+            "num": 90,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2880/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/58d3c5a19b96bf0bf1bd6e9938eef6c0.png",
+            "lack_num": 0
+          },
+          {
+            "id": 114033,
+            "name": "今昔剧画之恶尉",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/efd6c3a7a16329ccbe16f4444b965bfa.png",
+            "num": 6,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2371/detail?bbs_presentation_style=no_header",
+            "level": 2,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/efd6c3a7a16329ccbe16f4444b965bfa.png",
+            "lack_num": 0
+          }
+        ],
+        "overall_consume": [
+          {
+            "id": 202,
+            "name": "摩拉",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+            "num": 8181475,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+            "lack_num": 7876844
+          },
+          {
+            "id": 104003,
+            "name": "大英雄的经验",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/83c367f4bc16c7b4f1d93a25fd828cd6.png",
+            "num": 419,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1025/detail?bbs_presentation_style=no_header",
+            "level": 4,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/83c367f4bc16c7b4f1d93a25fd828cd6.png",
+            "lack_num": 137
+          },
+          {
+            "id": 104013,
+            "name": "精锻用魔矿",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8f5a55008fb5b959c359563220890b6f.png",
+            "num": 907,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1030/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8f5a55008fb5b959c359563220890b6f.png",
+            "lack_num": 0
+          },
+          {
+            "id": 104319,
+            "name": "智识之冕",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+            "num": 3,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1218/detail?bbs_presentation_style=no_header",
+            "level": 5,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+            "lack_num": 0
+          },
+          {
+            "id": 104144,
+            "name": "最胜紫晶",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8d88501f89ed6719d3b8a7ac61ff5dd7.png",
+            "num": 6,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/872/detail?bbs_presentation_style=no_header",
+            "level": 5,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8d88501f89ed6719d3b8a7ac61ff5dd7.png",
+            "lack_num": 0
+          },
+          {
+            "id": 113034,
+            "name": "万劫之真意",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+            "num": 18,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/3572/detail?bbs_presentation_style=no_header",
+            "level": 5,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+            "lack_num": 12
+          },
+          {
+            "id": 114036,
+            "name": "今昔剧画之鬼人",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dff116a499bd854c38db91040366e173.png",
+            "num": 6,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2374/detail?bbs_presentation_style=no_header",
+            "level": 5,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dff116a499bd854c38db91040366e173.png",
+            "lack_num": 6
+          },
+          {
+            "id": 104143,
+            "name": "最胜紫晶块",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/a82b9f7c193857f563655f8fe3d4039d.png",
+            "num": 9,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/871/detail?bbs_presentation_style=no_header",
+            "level": 4,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/a82b9f7c193857f563655f8fe3d4039d.png",
+            "lack_num": 0
+          },
+          {
+            "id": 114035,
+            "name": "今昔剧画之一角",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8092eabced7e3864aa00854dae7f5c57.png",
+            "num": 14,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2373/detail?bbs_presentation_style=no_header",
+            "level": 4,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8092eabced7e3864aa00854dae7f5c57.png",
+            "lack_num": 13
+          },
+          {
+            "id": 104328,
+            "name": "「天光」的哲学",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+            "num": 114,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2313/detail?bbs_presentation_style=no_header",
+            "level": 4,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+            "lack_num": 105
+          },
+          {
+            "id": 113031,
+            "name": "龙嗣伪鳍",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8e20ea06d6247f0acab5b66e3956a756.png",
+            "num": 46,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/3392/detail?bbs_presentation_style=no_header",
+            "level": 4,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8e20ea06d6247f0acab5b66e3956a756.png",
+            "lack_num": 44
+          },
+          {
+            "id": 112058,
+            "name": "隐兽鬼爪",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b5d7ca90a064f924204149d3fa58538d.png",
+            "num": 41,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2881/detail?bbs_presentation_style=no_header",
+            "level": 4,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b5d7ca90a064f924204149d3fa58538d.png",
+            "lack_num": 0
+          },
+          {
+            "id": 104142,
+            "name": "最胜紫晶断片",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/aed02c6795884973a597c86d2507f5b2.png",
+            "num": 9,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/870/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/aed02c6795884973a597c86d2507f5b2.png",
+            "lack_num": 0
+          },
+          {
+            "id": 114034,
+            "name": "今昔剧画之虎啮",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/38efd098e791a4795cb14bb076fac5b0.png",
+            "num": 14,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2372/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/38efd098e791a4795cb14bb076fac5b0.png",
+            "lack_num": 7
+          },
+          {
+            "id": 104327,
+            "name": "「天光」的指引",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+            "num": 63,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2312/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+            "lack_num": 40
+          },
+          {
+            "id": 112057,
+            "name": "隐兽利爪",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/58d3c5a19b96bf0bf1bd6e9938eef6c0.png",
+            "num": 27,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2880/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/58d3c5a19b96bf0bf1bd6e9938eef6c0.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112055,
+            "name": "浮游晶化核",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/0813907d64a4771acab347d53f2cb28d.png",
+            "num": 27,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2611/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/0813907d64a4771acab347d53f2cb28d.png",
+            "lack_num": 26
+          },
+          {
+            "id": 112046,
+            "name": "名刀镡",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+            "num": 129,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2344/detail?bbs_presentation_style=no_header",
+            "level": 3,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+            "lack_num": 0
+          },
+          {
+            "id": 104141,
+            "name": "最胜紫晶碎屑",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3eeb1b7c24f3bcb4a9c09ed32fe39dfc.png",
+            "num": 1,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/869/detail?bbs_presentation_style=no_header",
+            "level": 2,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3eeb1b7c24f3bcb4a9c09ed32fe39dfc.png",
+            "lack_num": 0
+          },
+          {
+            "id": 114033,
+            "name": "今昔剧画之恶尉",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/efd6c3a7a16329ccbe16f4444b965bfa.png",
+            "num": 5,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2371/detail?bbs_presentation_style=no_header",
+            "level": 2,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/efd6c3a7a16329ccbe16f4444b965bfa.png",
+            "lack_num": 0
+          },
+          {
+            "id": 104326,
+            "name": "「天光」的教导",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+            "num": 9,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2320/detail?bbs_presentation_style=no_header",
+            "level": 2,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+            "lack_num": 4
+          },
+          {
+            "id": 112056,
+            "name": "隐兽指爪",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3fc7d9202e73f616486e1b76cfd7704b.png",
+            "num": 23,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2879/detail?bbs_presentation_style=no_header",
+            "level": 2,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3fc7d9202e73f616486e1b76cfd7704b.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112054,
+            "name": "浮游幽核",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/572d358045088ebd21c3fbe10f207a76.png",
+            "num": 23,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2610/detail?bbs_presentation_style=no_header",
+            "level": 2,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/572d358045088ebd21c3fbe10f207a76.png",
+            "lack_num": 2
+          },
+          {
+            "id": 112045,
+            "name": "影打刀镡",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+            "num": 96,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2345/detail?bbs_presentation_style=no_header",
+            "level": 2,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112053,
+            "name": "浮游干核",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/6aa0c0517d688991aeed48740cd808f1.png",
+            "num": 15,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2609/detail?bbs_presentation_style=no_header",
+            "level": 1,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/6aa0c0517d688991aeed48740cd808f1.png",
+            "lack_num": 0
+          },
+          {
+            "id": 112044,
+            "name": "破旧的刀镡",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+            "num": 36,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2324/detail?bbs_presentation_style=no_header",
+            "level": 1,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+            "lack_num": 0
+          },
+          {
+            "id": 101206,
+            "name": "海灵芝",
+            "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/f0e9bf7d3fadf148a700997c5c5c637f.png",
+            "num": 168,
+            "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2169/detail?bbs_presentation_style=no_header",
+            "level": 0,
+            "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/f0e9bf7d3fadf148a700997c5c5c637f.png",
+            "lack_num": 0
+          }
+        ],
+        "overall_material_consume": {
+          "avatar_consume": [
+            {
+              "consume": [
+                {
+                  "id": 104003,
+                  "name": "大英雄的经验",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/83c367f4bc16c7b4f1d93a25fd828cd6.png",
+                  "num": 419,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1025/detail?bbs_presentation_style=no_header",
+                  "level": 4,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/83c367f4bc16c7b4f1d93a25fd828cd6.png",
+                  "lack_num": 137
+                }
+              ],
+              "avatars": [
+                {
+                  "id": 10000058,
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+                  "avatar_level": 5
+                }
+              ],
+              "weapons": [],
+              "material_source": "MT_SPECIAL"
+            },
+            {
+              "consume": [
+                {
+                  "id": 104141,
+                  "name": "最胜紫晶碎屑",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3eeb1b7c24f3bcb4a9c09ed32fe39dfc.png",
+                  "num": 1,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/869/detail?bbs_presentation_style=no_header",
+                  "level": 2,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3eeb1b7c24f3bcb4a9c09ed32fe39dfc.png",
+                  "lack_num": 0
+                },
+                {
+                  "id": 104142,
+                  "name": "最胜紫晶断片",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/aed02c6795884973a597c86d2507f5b2.png",
+                  "num": 9,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/870/detail?bbs_presentation_style=no_header",
+                  "level": 3,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/aed02c6795884973a597c86d2507f5b2.png",
+                  "lack_num": 0
+                },
+                {
+                  "id": 104143,
+                  "name": "最胜紫晶块",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/a82b9f7c193857f563655f8fe3d4039d.png",
+                  "num": 9,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/871/detail?bbs_presentation_style=no_header",
+                  "level": 4,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/a82b9f7c193857f563655f8fe3d4039d.png",
+                  "lack_num": 0
+                },
+                {
+                  "id": 104144,
+                  "name": "最胜紫晶",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8d88501f89ed6719d3b8a7ac61ff5dd7.png",
+                  "num": 6,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/872/detail?bbs_presentation_style=no_header",
+                  "level": 5,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8d88501f89ed6719d3b8a7ac61ff5dd7.png",
+                  "lack_num": 0
+                }
+              ],
+              "avatars": [
+                {
+                  "id": 10000058,
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+                  "avatar_level": 5
+                }
+              ],
+              "weapons": [],
+              "material_source": "MT_MONSTER",
+              "monster": {
+                "monster_id": "00401",
+                "monster_name": "无相之雷",
+                "monster_icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f76f/1c8ff4462801006aa1953e65e52a03bc.png",
+                "monster_map_url": "https://act.mihoyo.com/ys/app/interactive-map/index.html?bbs_presentation_style=no_header&lang=zh-cn#/map/2?shown_types=135,157,263,390,455,540,608,629,743,769"
+              }
+            },
+            {
+              "consume": [
+                {
+                  "id": 112044,
+                  "name": "破旧的刀镡",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                  "num": 18,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2324/detail?bbs_presentation_style=no_header",
+                  "level": 1,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                  "lack_num": 0
+                },
+                {
+                  "id": 112045,
+                  "name": "影打刀镡",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                  "num": 30,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2345/detail?bbs_presentation_style=no_header",
+                  "level": 2,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                  "lack_num": 0
+                },
+                {
+                  "id": 112046,
+                  "name": "名刀镡",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                  "num": 36,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2344/detail?bbs_presentation_style=no_header",
+                  "level": 3,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                  "lack_num": 0
+                }
+              ],
+              "avatars": [
+                {
+                  "id": 10000058,
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+                  "avatar_level": 5
+                }
+              ],
+              "weapons": [],
+              "material_source": "MT_MONSTER",
+              "monster": {
+                "monster_id": "50801",
+                "monster_name": "野伏众",
+                "monster_icon": "",
+                "monster_map_url": "https://act.mihoyo.com/ys/app/interactive-map/index.html?bbs_presentation_style=no_header&lang=zh-cn#/map/2?shown_types=209"
+              }
+            },
+            {
+              "consume": [
+                {
+                  "id": 113031,
+                  "name": "龙嗣伪鳍",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8e20ea06d6247f0acab5b66e3956a756.png",
+                  "num": 46,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/3392/detail?bbs_presentation_style=no_header",
+                  "level": 4,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8e20ea06d6247f0acab5b66e3956a756.png",
+                  "lack_num": 44
+                }
+              ],
+              "avatars": [
+                {
+                  "id": 10000058,
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+                  "avatar_level": 5
+                }
+              ],
+              "weapons": [],
+              "material_source": "MT_MONSTER",
+              "monster": {
+                "monster_id": "60507",
+                "monster_name": "深海龙蜥之群",
+                "monster_icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f76f/8216f1b328ee3a243c8fca17a69c3a57.png",
+                "monster_map_url": "https://act.mihoyo.com/ys/app/interactive-map/index.html?bbs_presentation_style=no_header&lang=zh-cn#/map/2?shown_types="
+              }
+            },
+            {
+              "consume": [
+                {
+                  "id": 101206,
+                  "name": "海灵芝",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/f0e9bf7d3fadf148a700997c5c5c637f.png",
+                  "num": 168,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2169/detail?bbs_presentation_style=no_header",
+                  "level": 0,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/f0e9bf7d3fadf148a700997c5c5c637f.png",
+                  "lack_num": 0
+                }
+              ],
+              "avatars": [
+                {
+                  "id": 10000058,
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+                  "avatar_level": 5
+                }
+              ],
+              "weapons": [],
+              "material_source": "MT_WORLD",
+              "map_url": "https://act.mihoyo.com/ys/app/interactive-map/index.html?bbs_presentation_style=no_header&lang=zh-cn#/map/2?shown_types=185"
+            },
+            {
+              "consume": [
+                {
+                  "id": 202,
+                  "name": "摩拉",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                  "num": 2092530,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+                  "level": 3,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                  "lack_num": 1787899
+                }
+              ],
+              "avatars": [
+                {
+                  "id": 10000058,
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+                  "avatar_level": 5
+                }
+              ],
+              "weapons": [],
+              "material_source": "MT_SPECIAL"
+            }
+          ],
+          "avatar_skill_consume": [
+            {
+              "consume": [
+                {
+                  "id": 104319,
+                  "name": "智识之冕",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+                  "num": 3,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1218/detail?bbs_presentation_style=no_header",
+                  "level": 5,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/bf059be872ce72f035e3df38da065e89.png",
+                  "lack_num": 0
+                }
+              ],
+              "avatars": [
+                {
+                  "id": 10000058,
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+                  "avatar_level": 5
+                }
+              ],
+              "weapons": [],
+              "material_source": "MT_WORLD",
+              "map_url": "https://act.mihoyo.com/ys/app/interactive-map/index.html?bbs_presentation_style=no_header&lang=zh-cn#/map/2?shown_types="
+            },
+            {
+              "consume": [
+                {
+                  "id": 104326,
+                  "name": "「天光」的教导",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+                  "num": 9,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2320/detail?bbs_presentation_style=no_header",
+                  "level": 2,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/e889de47214835f4f7267c2f2ffa912a.png",
+                  "lack_num": 4
+                },
+                {
+                  "id": 104327,
+                  "name": "「天光」的指引",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+                  "num": 63,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2312/detail?bbs_presentation_style=no_header",
+                  "level": 3,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/63ea68cedc49998266009ae04a82dd79.png",
+                  "lack_num": 40
+                },
+                {
+                  "id": 104328,
+                  "name": "「天光」的哲学",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+                  "num": 114,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2313/detail?bbs_presentation_style=no_header",
+                  "level": 4,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dc131c3a7867de313214aaa07a2b117e.png",
+                  "lack_num": 105
+                }
+              ],
+              "avatars": [
+                {
+                  "id": 10000058,
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+                  "avatar_level": 5
+                }
+              ],
+              "weapons": [],
+              "material_source": "MT_DUNGEON",
+              "dungeon_calendar": {
+                "dungeon_name": "菫色之庭",
+                "drop_day": [
+                  "6",
+                  "7",
+                  "3"
+                ],
+                "calendar_link": "https://baike.mihoyo.com/ys/obc/content/2291/detail?bbs_presentation_style=no_header",
+                "has_data": true
+              }
+            },
+            {
+              "consume": [
+                {
+                  "id": 112044,
+                  "name": "破旧的刀镡",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                  "num": 18,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2324/detail?bbs_presentation_style=no_header",
+                  "level": 1,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/69963e27cefc5d635e6723fab8237b47.png",
+                  "lack_num": 0
+                },
+                {
+                  "id": 112045,
+                  "name": "影打刀镡",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                  "num": 66,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2345/detail?bbs_presentation_style=no_header",
+                  "level": 2,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/1cac13ced2585146b7762faeb6b44dc3.png",
+                  "lack_num": 0
+                },
+                {
+                  "id": 112046,
+                  "name": "名刀镡",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                  "num": 93,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2344/detail?bbs_presentation_style=no_header",
+                  "level": 3,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/cc7569ba182624df9d4ebbcc0db11eb6.png",
+                  "lack_num": 0
+                }
+              ],
+              "avatars": [
+                {
+                  "id": 10000058,
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+                  "avatar_level": 5
+                }
+              ],
+              "weapons": [],
+              "material_source": "MT_MONSTER",
+              "monster": {
+                "monster_id": "50801",
+                "monster_name": "野伏众",
+                "monster_icon": "",
+                "monster_map_url": "https://act.mihoyo.com/ys/app/interactive-map/index.html?bbs_presentation_style=no_header&lang=zh-cn#/map/2?shown_types=209"
+              }
+            },
+            {
+              "consume": [
+                {
+                  "id": 113034,
+                  "name": "万劫之真意",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+                  "num": 18,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/3572/detail?bbs_presentation_style=no_header",
+                  "level": 5,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b2b7be91a4489d008302b3c6287f5a8d.png",
+                  "lack_num": 12
+                }
+              ],
+              "avatars": [
+                {
+                  "id": 10000058,
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+                  "avatar_level": 5
+                }
+              ],
+              "weapons": [],
+              "material_source": "MT_WEEKLY_DUNGEON",
+              "monster": {
+                "monster_id": "90602",
+                "monster_name": "祸津御建鸣神命",
+                "monster_icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f76f/bf78e37c7dc2e588f0c0c95e6af2ef00.png",
+                "monster_map_url": "https://baike.mihoyo.com/ys/obc/content/3573/detail?bbs_presentation_style=no_header"
+              }
+            },
+            {
+              "consume": [
+                {
+                  "id": 202,
+                  "name": "摩拉",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                  "num": 4957500,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+                  "level": 3,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                  "lack_num": 4957500
+                }
+              ],
+              "avatars": [
+                {
+                  "id": 10000058,
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/54f9f46e282f81dc06c45d2783e0206a.png",
+                  "avatar_level": 5
+                }
+              ],
+              "weapons": [],
+              "material_source": "MT_SPECIAL"
+            }
+          ],
+          "weapon_consume": [
+            {
+              "consume": [
+                {
+                  "id": 112053,
+                  "name": "浮游干核",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/6aa0c0517d688991aeed48740cd808f1.png",
+                  "num": 15,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2609/detail?bbs_presentation_style=no_header",
+                  "level": 1,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/6aa0c0517d688991aeed48740cd808f1.png",
+                  "lack_num": 0
+                },
+                {
+                  "id": 112054,
+                  "name": "浮游幽核",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/572d358045088ebd21c3fbe10f207a76.png",
+                  "num": 23,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2610/detail?bbs_presentation_style=no_header",
+                  "level": 2,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/572d358045088ebd21c3fbe10f207a76.png",
+                  "lack_num": 2
+                },
+                {
+                  "id": 112055,
+                  "name": "浮游晶化核",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/0813907d64a4771acab347d53f2cb28d.png",
+                  "num": 27,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2611/detail?bbs_presentation_style=no_header",
+                  "level": 3,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/0813907d64a4771acab347d53f2cb28d.png",
+                  "lack_num": 26
+                }
+              ],
+              "avatars": [],
+              "weapons": [
+                {
+                  "id": 14509,
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/5df4b80100a07922792ac85362ee6af8.png",
+                  "weapon_level": 5
+                }
+              ],
+              "material_source": "MT_MONSTER",
+              "monster": {
+                "monster_id": "00601",
+                "monster_name": "飘浮灵",
+                "monster_icon": "",
+                "monster_map_url": "https://act.mihoyo.com/ys/app/interactive-map/index.html?bbs_presentation_style=no_header&lang=zh-cn#/map/2?shown_types=229"
+              }
+            },
+            {
+              "consume": [
+                {
+                  "id": 112056,
+                  "name": "隐兽指爪",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3fc7d9202e73f616486e1b76cfd7704b.png",
+                  "num": 23,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2879/detail?bbs_presentation_style=no_header",
+                  "level": 2,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/3fc7d9202e73f616486e1b76cfd7704b.png",
+                  "lack_num": 0
+                },
+                {
+                  "id": 112057,
+                  "name": "隐兽利爪",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/58d3c5a19b96bf0bf1bd6e9938eef6c0.png",
+                  "num": 27,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2880/detail?bbs_presentation_style=no_header",
+                  "level": 3,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/58d3c5a19b96bf0bf1bd6e9938eef6c0.png",
+                  "lack_num": 0
+                },
+                {
+                  "id": 112058,
+                  "name": "隐兽鬼爪",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b5d7ca90a064f924204149d3fa58538d.png",
+                  "num": 41,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2881/detail?bbs_presentation_style=no_header",
+                  "level": 4,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/b5d7ca90a064f924204149d3fa58538d.png",
+                  "lack_num": 0
+                }
+              ],
+              "avatars": [],
+              "weapons": [
+                {
+                  "id": 14509,
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/5df4b80100a07922792ac85362ee6af8.png",
+                  "weapon_level": 5
+                }
+              ],
+              "material_source": "MT_MONSTER",
+              "monster": {
+                "monster_id": "20501",
+                "monster_name": "兽境之狼",
+                "monster_icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f76f/762415ea26fa742d6c99fb018fc28e75.png",
+                "monster_map_url": "https://act.mihoyo.com/ys/app/interactive-map/index.html?bbs_presentation_style=no_header&lang=zh-cn#/map/2?shown_types=265"
+              }
+            },
+            {
+              "consume": [
+                {
+                  "id": 114033,
+                  "name": "今昔剧画之恶尉",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/efd6c3a7a16329ccbe16f4444b965bfa.png",
+                  "num": 5,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2371/detail?bbs_presentation_style=no_header",
+                  "level": 2,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/efd6c3a7a16329ccbe16f4444b965bfa.png",
+                  "lack_num": 0
+                },
+                {
+                  "id": 114034,
+                  "name": "今昔剧画之虎啮",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/38efd098e791a4795cb14bb076fac5b0.png",
+                  "num": 14,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2372/detail?bbs_presentation_style=no_header",
+                  "level": 3,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/38efd098e791a4795cb14bb076fac5b0.png",
+                  "lack_num": 7
+                },
+                {
+                  "id": 114035,
+                  "name": "今昔剧画之一角",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8092eabced7e3864aa00854dae7f5c57.png",
+                  "num": 14,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2373/detail?bbs_presentation_style=no_header",
+                  "level": 4,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8092eabced7e3864aa00854dae7f5c57.png",
+                  "lack_num": 13
+                },
+                {
+                  "id": 114036,
+                  "name": "今昔剧画之鬼人",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dff116a499bd854c38db91040366e173.png",
+                  "num": 6,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/2374/detail?bbs_presentation_style=no_header",
+                  "level": 5,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/dff116a499bd854c38db91040366e173.png",
+                  "lack_num": 6
+                }
+              ],
+              "avatars": [],
+              "weapons": [
+                {
+                  "id": 14509,
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/5df4b80100a07922792ac85362ee6af8.png",
+                  "weapon_level": 5
+                }
+              ],
+              "material_source": "MT_DUNGEON",
+              "dungeon_calendar": {
+                "dungeon_name": "砂流之庭",
+                "drop_day": [
+                  "6",
+                  "7",
+                  "3"
+                ],
+                "calendar_link": "https://baike.mihoyo.com/ys/obc/content/2293/detail?bbs_presentation_style=no_header",
+                "has_data": true
+              }
+            },
+            {
+              "consume": [
+                {
+                  "id": 104013,
+                  "name": "精锻用魔矿",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8f5a55008fb5b959c359563220890b6f.png",
+                  "num": 907,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/1030/detail?bbs_presentation_style=no_header",
+                  "level": 3,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/8f5a55008fb5b959c359563220890b6f.png",
+                  "lack_num": 0
+                }
+              ],
+              "avatars": [],
+              "weapons": [
+                {
+                  "id": 14509,
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/5df4b80100a07922792ac85362ee6af8.png",
+                  "weapon_level": 5
+                }
+              ],
+              "material_source": "MT_DUNGEON"
+            },
+            {
+              "consume": [
+                {
+                  "id": 202,
+                  "name": "摩拉",
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                  "num": 1131445,
+                  "wiki_url": "https://baike.mihoyo.com/ys/obc/content/5565/detail?bbs_presentation_style=no_header",
+                  "level": 3,
+                  "icon_url": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/fb7fc53d0cdd0ddeefda020fb16f92e7.png",
+                  "lack_num": 1131445
+                }
+              ],
+              "avatars": [],
+              "weapons": [
+                {
+                  "id": 14509,
+                  "icon": "https://act-webstatic.mihoyo.com/hk4e/e20200928calculate/item_icon/67c7f6c8/5df4b80100a07922792ac85362ee6af8.png",
+                  "weapon_level": 5
+                }
+              ],
+              "material_source": "MT_SPECIAL"
+            }
+          ]
+        },
+        "jump_url": "https://act.mihoyo.com/ys/app/interactive-map/index.html?bbs_presentation_style=no_header&lang=zh-cn#/map/2?shown_types=229",
+        "single_role_result": [],
+        "has_user_info": true
+      }
+    ],
+    "has_user_info": true
+  }
+}
