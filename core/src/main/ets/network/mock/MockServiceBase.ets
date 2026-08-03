@@ -175,7 +175,7 @@ export abstract class MockServiceBase extends MihoyoApiService {
     return empty;
   }
 
-  private static parseAndCheck(fileContent: Uint8Array): object {
+  public static parseAndCheck(fileContent: Uint8Array): object {
     const decoder = new util.TextDecoder('utf-8');
     const jsonStr = decoder.decodeToString(new Uint8Array(fileContent.buffer));
     let raw: Record<string, Object>;
@@ -199,28 +199,12 @@ export abstract class MockServiceBase extends MihoyoApiService {
   /**
    * URL 路径 → 文件名
    * 先去掉 query 参数，再检查特殊映射表，最后走通用规则
-   * 
-   * 特殊：batch_compute 接口支持轮询多个 Mock 文件
-   * 每次调用会读取下一个文件（compute → compute2 → compute3 → compute → ...）
    */
-  private static batchComputeIndex: number = 0;
-
   static pathToFileName(path: string): string {
     const cleanPath = path.split('?')[0];
 
     // 特殊映射表
     const specialMap = new Map<string, string>();
-    // batch_compute 支持轮询多个文件
-    if (cleanPath === '/event/e20200928calculate/v3/batch_compute') {
-      const files = [
-        'genshin_character_batch_compute.json',
-        'genshin_character_batch_compute2.json',
-        'genshin_character_batch_compute3.json',
-      ];
-      const idx = MockServiceBase.batchComputeIndex % files.length;
-      MockServiceBase.batchComputeIndex++;
-      return files[idx];
-    }
     specialMap.set('/event/rpgcalc/compute', 'hkrpg_character_compute.json');
     specialMap.set('/event/nap_cultivate_tool/avatar_calc', 'zzz_character_compute.json');
     specialMap.set('/app/api/signIn', 'apihub_app_api_signIn.json');

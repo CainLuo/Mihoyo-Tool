@@ -31,36 +31,11 @@ export default function toolsViewModelTest() {
       expect(vm.gameEntries.length).assertEqual(0);
     });
 
-    // ── buildEntryRoute 逻辑 ─────────────────────────────────────
-
-    it('buildEntryRoute_hasData_returnsParams', 0, () => {
-      const vm = new ToolsViewModel();
-      const entry = new GameEntryVM();
-      entry.gameId = GameId.GENSHIN;
-      entry.hasData = true;
-
-      const params = vm.buildEntryRoute(entry);
-      expect(params).not.assertNull();
-      if (params !== null) {
-        expect(params.gameId).assertEqual(GameId.GENSHIN);
-      }
-    });
-
-    it('buildEntryRoute_noData_returnsNull', 0, () => {
-      const vm = new ToolsViewModel();
-      const entry = new GameEntryVM();
-      entry.gameId = GameId.GENSHIN;
-      entry.hasData = false;
-
-      const params = vm.buildEntryRoute(entry);
-      expect(params).assertNull();
-    });
-
     // ── GameEntryVM 初始值 ───────────────────────────────────────
 
     it('gameEntryVM_initialValues', 0, () => {
       const entry = new GameEntryVM();
-      expect(entry.accountId).assertEqual(0);
+      expect(entry.accountId).assertEqual('');
       expect(entry.gameId).assertEqual(GameId.GENSHIN);
       expect(entry.gameName).not.assertNull();
       expect(entry.characterCount).assertEqual(0);

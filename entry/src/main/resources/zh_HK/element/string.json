@@ -2069,12 +2069,32 @@
       "value": "開始計算材料"
     },
     {
+      "name": "material_target_config_syncing",
+      "value": "同步數據中..."
+    },
+    {
       "name": "material_target_config_level_range",
       "value": "可選範圍：1 ~ %d 級"
     },
     {
       "name": "material_target_config_level",
       "value": "選擇等級"
+    },
+    {
+      "name": "tool_sync_required_title",
+      "value": "請先配置養成目標"
+    },
+    {
+      "name": "tool_sync_required_desc",
+      "value": "您還沒有計算過材料，請先在配置頁設置角色的目標等級。"
+    },
+    {
+      "name": "tool_sync_required_button",
+      "value": "去配置"
+    },
+    {
+      "name": "material_list_change_config",
+      "value": "更改配置"
     },
     {
       "name": "common_cancel",

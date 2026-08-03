@@ -15,6 +15,8 @@ import { SegmentedTabBar, SegmentedTabItem } from '../components/common/Segmente
 import { GameId, Logger } from 'core'
 import { ThemeFonts } from '../theme/ThemeFonts'
 import { PrimaryButtonModifier } from '../styles/ButtonModifier'
+import { AppRoutes } from '../constants/AppRoutes'
+import { MaterialTargetConfigParam } from '../models/ToolsModels'
 
 /** 页面参数 */
 export class MaterialListParam {
@@ -27,25 +29,42 @@ export struct MaterialList {
   @Local private vm: MaterialListViewModel = new MaterialListViewModel()
   @Local private tm: ThemeManager = themeManager
   @Local private buttonModifier: PrimaryButtonModifier = new PrimaryButtonModifier(true)
+  private localStack: NavPathStack | null = null
 
   aboutToAppear(): void {
     this.vm.init(this.param.gameId)
   }
 
   private get menuItems(): NavigationMenuItem[] {
-    // 只有有数据时才显示刷新按钮
-    if (this.vm.viewState !== ViewState.DATA) {
-      return []
+    const items: NavigationMenuItem[] = []
+
+    // 有数据时显示刷新按钮
+    if (this.vm.viewState === ViewState.DATA) {
+      items.push({
+        value: 'sync',
+        symbolIcon: new SymbolGlyphModifier($r('sys.symbol.arrow_clockwise')),
+        isEnabled: !this.vm.isSyncing,
+        action: () => {
+          Logger.info('MaterialList', 'Sync menu item clicked')
+          this.vm.syncComputeData()
+        }
+      })
     }
-    return [{
-      value: 'sync',
-      symbolIcon: new SymbolGlyphModifier($r('sys.symbol.arrow_clockwise')),
-      isEnabled: !this.vm.isSyncing,
+
+    // 始终显示更改配置按钮
+    items.push({
+      value: 'config',
+      symbolIcon: new SymbolGlyphModifier($r('sys.symbol.gearshape')),
+      isEnabled: true,
       action: () => {
-        Logger.info('MaterialList', 'Sync menu item clicked')
-        this.vm.syncComputeData()
+        Logger.info('MaterialList', 'Config menu item clicked')
+        const configParam = new MaterialTargetConfigParam()
+        configParam.gameId = this.param.gameId
+        this.localStack?.pushPathByName(AppRoutes.MATERIAL_TARGET_CONFIG, configParam)
       }
-    }]
+    })
+
+    return items
   }
 
   /**
@@ -145,6 +164,9 @@ export struct MaterialList {
     .title($r('app.string.material_list_title'))
     .hideTitleBar(false)
     .menus(this.menuItems)
+    .onReady((ctx: NavDestinationContext) => {
+      this.localStack = ctx.pathStack
+    })
   }
 }
 

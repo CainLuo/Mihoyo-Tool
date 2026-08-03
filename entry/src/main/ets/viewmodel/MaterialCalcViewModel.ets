@@ -274,12 +274,14 @@ export class MaterialCalcViewModel {
 
       this.avatarSection = this.buildSection(
         $r('app.string.material_section_avatar'),
-        parsed.avatarConsume
+        parsed.avatarConsume,
+        parsed.userOwnsMaterials
       );
 
       this.weaponSection = this.buildSection(
         $r('app.string.material_section_light_cone'),
-        parsed.equipmentConsume
+        parsed.equipmentConsume,
+        parsed.userOwnsMaterials
       );
     }
   }
@@ -313,12 +315,14 @@ export class MaterialCalcViewModel {
 
       this.avatarSection = this.buildSection(
         $r('app.string.material_section_avatar'),
-        parsed.avatarConsume
+        parsed.avatarConsume,
+        parsed.userOwnsMaterials
       );
 
       this.weaponSection = this.buildSection(
         $r('app.string.material_section_weapon'),
-        parsed.weaponConsume
+        parsed.weaponConsume,
+        parsed.userOwnsMaterials
       );
     }
   }
@@ -415,14 +419,21 @@ export class MaterialCalcViewModel {
 
   /**
    * 构建材料 Section。
+   * 
+   * 原神 API：返回 lack_num（缺少数量），have = num - lackNum
+   * 星铁/绝区零 API：返回 user_owns_materials（背包数据），have 从 Map 查询
+   * 
+   * 过滤规则：已满足或已超过的材料（have >= need）不显示
+   * 
+   * @param userOwnsMaterials 可选的背包数据 Map（星铁/绝区零专用）
    */
   private buildSection(
     title: ResourceStr,
-    items: MaterialItemRaw[]
+    items: MaterialItemRaw[],
+    userOwnsMaterials?: Map<string, number>
   ): MaterialSectionVM {
     const section = new MaterialSectionVM();
     section.title = title;
-    section.hasData = items.length > 0;
 
     let totalHave = 0;
     let totalNeed = 0;
@@ -430,19 +441,41 @@ export class MaterialCalcViewModel {
 
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
+      const materialId = `${item.id}`;
+      
+      // 计算拥有量
+      let have = 0;
+      if (userOwnsMaterials !== undefined && userOwnsMaterials !== null) {
+        // 星铁/绝区零：从背包数据查询
+        have = userOwnsMaterials.get(materialId) ?? 0;
+      } else {
+        // 原神：使用 lackNum 计算
+        const lackNum = item.lackNum ?? 0;
+        have = item.num - lackNum;
+      }
+
+      const need = item.num;
+      
+      // 过滤：已满足或已超过的材料不显示
+      if (have >= need) {
+        continue;
+      }
+
       const vm = new MaterialCalcItemVM();
-      vm.materialId = `${item.id}`;
+      vm.materialId = materialId;
       vm.name = item.name;
       vm.iconUrl = item.iconUrl;
       vm.rarity = typeof item.rarity === 'string' ? parseInt(item.rarity, 10) || 0 : item.rarity;
-      vm.have = 0;
-      vm.need = item.num;
+      vm.need = need;
+      vm.have = have;
 
-      totalNeed += item.num;
+      totalHave += have;
+      totalNeed += need;
       materialItems[materialItems.length] = vm;
     }
 
     section.items = materialItems;
+    section.hasData = materialItems.length > 0;
     section.progressPercent = totalNeed > 0 ? Math.round((totalHave / totalNeed) * 100) : 0;
     section.deficitCount = totalNeed - totalHave;
 

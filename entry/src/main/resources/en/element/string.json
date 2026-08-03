@@ -2073,12 +2073,32 @@
       "value": "Calculate Materials"
     },
     {
+      "name": "material_target_config_syncing",
+      "value": "Syncing data..."
+    },
+    {
       "name": "material_target_config_level_range",
       "value": "Range: 1 ~ Lv.%d"
     },
     {
       "name": "material_target_config_level",
       "value": "Select Level"
+    },
+    {
+      "name": "tool_sync_required_title",
+      "value": "Configure Upgrade Target First"
+    },
+    {
+      "name": "tool_sync_required_desc",
+      "value": "You haven't calculated materials yet. Please set target levels in the config page."
+    },
+    {
+      "name": "tool_sync_required_button",
+      "value": "Configure"
+    },
+    {
+      "name": "material_list_change_config",
+      "value": "Change Config"
     },
     {
       "name": "common_cancel",

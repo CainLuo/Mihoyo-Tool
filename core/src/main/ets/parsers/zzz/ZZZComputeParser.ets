@@ -99,13 +99,7 @@ export class ZZZComputeParser {
   private static fromRaw(raw: RawComputeData): ZZZComputeData {
     const data = new ZZZComputeData();
 
-    data.avatarConsume = ZZZComputeParser.parseMaterials(raw.avatar_consume);
-    data.skillConsume = ZZZComputeParser.parseMaterials(raw.skill_consume);
-    data.weaponConsume = ZZZComputeParser.parseMaterials(raw.weapon_consume);
-    data.skillsConsume = ZZZComputeParser.parseSkillsConsume(raw.skills_consume);
-    data.coinId = raw.coin_id ?? 10;
-
-    // 解析 user_owns_materials
+    // 先解析 user_owns_materials（背包数据）
     if (raw.user_owns_materials) {
       const keys = Object.keys(raw.user_owns_materials);
       for (let i = 0; i < keys.length; i++) {
@@ -114,9 +108,22 @@ export class ZZZComputeParser {
       }
     }
 
+    // 解析材料
+    data.avatarConsume = ZZZComputeParser.parseMaterials(raw.avatar_consume);
+    data.skillConsume = ZZZComputeParser.parseMaterials(raw.skill_consume);
+    data.weaponConsume = ZZZComputeParser.parseMaterials(raw.weapon_consume);
+    data.skillsConsume = ZZZComputeParser.parseSkillsConsume(raw.skills_consume);
+    data.coinId = raw.coin_id ?? 10;
+
     return data;
   }
 
+  /**
+   * 解析材料列表。
+   * 
+   * 注意：绝区零 API 不返回 lack_num，只返回 num（需求量）。
+   * 缺少数量在汇总时计算：总缺口 = Σ(num) - userOwnsMaterials[id]
+   */
   private static parseMaterials(raws: RawMaterialItem[]): ZZZMaterialItem[] {
     const result: ZZZMaterialItem[] = [];
     if (!raws || raws.length === 0) {

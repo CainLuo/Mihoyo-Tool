@@ -2073,6 +2073,22 @@
       "value": "↓ 下拉刷新材料数据"
     },
     {
+      "name": "tool_sync_required_title",
+      "value": "请先配置养成目标"
+    },
+    {
+      "name": "tool_sync_required_desc",
+      "value": "您还没有计算过材料，请先在配置页设置角色的目标等级。"
+    },
+    {
+      "name": "tool_sync_required_button",
+      "value": "去配置"
+    },
+    {
+      "name": "material_list_change_config",
+      "value": "更改配置"
+    },
+    {
       "name": "skill_target_title",
       "value": "技能目标"
     },
@@ -2211,6 +2227,10 @@
     {
       "name": "material_target_config_start_calc",
       "value": "开始计算材料"
+    },
+    {
+      "name": "material_target_config_syncing",
+      "value": "同步数据中..."
     },
     {
       "name": "material_target_config_level_range",

@@ -11,13 +11,20 @@ import { GameId } from 'core';
 /**
  * 材料项原始数据接口
  * 用于 parseMaterialItems 方法的参数类型
+ * 
+ * 注意：字段名使用驼峰命名，与 Parser 返回的字段名一致。
+ * 
+ * 原神 API 返回 lack_num 字段，星铁/绝区零 API 不返回。
  */
 export interface MaterialItemRaw {
   id: number | string;
   name: string;
   iconUrl: string;
   rarity: number | string;
+  /** 从当前等级升到目标等级需要的总数量 */
   num: number;
+  /** 缺少数量（原神专用，星铁/绝区零不使用此字段） */
+  lackNum?: number;
 }
 
 /**

@@ -5,6 +5,7 @@
  * 作为 Tab 子页面嵌入 Main。
  */
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
+import { UIContext } from '@kit.ArkUI'
 import { ViewState } from '../constants/ViewStates'
 import { ToolsViewModel } from '../viewmodel/ToolsViewModel'
 import { PlaceholderView, PlaceholderState } from '../components/common/PlaceholderView'
@@ -13,6 +14,7 @@ import { AppRoutes } from '../constants/AppRoutes'
 import { AccountSignal } from '../utils/AccountSignal'
 import { GameId } from 'core'
 import { GameEntryVM, MaterialTargetConfigParam } from '../models/ToolsModels'
+import { MaterialListParam } from './MaterialList'
 
 @ComponentV2
 export struct Tools {
@@ -21,8 +23,10 @@ export struct Tools {
   @Local private signal: AccountSignal = AccountSignal.instance()
   /** Navigation stack from Main */
   @Param detailStack: NavPathStack | null = null
+  private uiContext: UIContext | null = null
 
   aboutToAppear(): void {
+    this.uiContext = this.getUIContext()
     this.vm.loadData()
   }
 
@@ -93,15 +97,43 @@ export struct Tools {
 
   /**
    * 游戏入口点击处理
+   * - 如果已计算角色数 > 0：直接跳转到材料汇总页
+   * - 如果已计算角色数 = 0：弹出 Alert，提示用户先去配置
    */
   private onEntryTap(entry: GameEntryVM): void {
     if (!entry.hasData) {
       return
     }
-    if (this.detailStack !== null) {
-      const params: MaterialTargetConfigParam = { gameId: entry.gameId }
-      this.detailStack.pushPathByName(AppRoutes.MATERIAL_TARGET_CONFIG, params)
+
+    if (this.detailStack === null) {
+      return
     }
+
+    // 已有计算数据 → 直接跳转到材料汇总页
+    if (entry.computedCount > 0) {
+      const params = new MaterialListParam()
+      params.gameId = entry.gameId
+      this.detailStack.pushPathByName(AppRoutes.MATERIAL_LIST, params)
+      return
+    }
+
+    // 无计算数据 → 弹出 Alert 提示用户先配置
+    this.uiContext?.showAlertDialog({
+      title: $r('app.string.tool_sync_required_title'),
+      message: $r('app.string.tool_sync_required_desc'),
+      primaryButton: {
+        value: $r('app.string.tool_sync_required_button'),
+        action: () => {
+          const params = new MaterialTargetConfigParam()
+          params.gameId = entry.gameId
+          this.detailStack!.pushPathByName(AppRoutes.MATERIAL_TARGET_CONFIG, params)
+        }
+      },
+      secondaryButton: {
+        value: $r('app.string.dialog_cancel'),
+        action: () => {}
+      }
+    })
   }
 }
 

@@ -384,8 +384,16 @@ export class GenshinRepository extends GameRepository {
   /**
    * 解析批量计算 API 响应为 GenshinCharacterComputeRow 数组
    * 
-   * 注意：API 响应中的 items 数组顺序与请求参数中的 items 数组顺序是一一对应的，
-   * 但响应本身不包含 avatar_id，需要从请求参数中提取。
+   * API 响应结构：
+   * - data.items[]: 所有角色的材料模板（lack_num 全是 0，无用）
+   * - data.overall_consume: 所有角色的汇总缺口（批量请求时）
+   * - data.single_role_result[i].items[]: 单个角色的材料模板
+   * - data.single_role_result[i].overall_consume: 单个角色的真实缺口（lack_num 有值）
+   * 
+   * 正确做法：
+   * 1. 批量请求时，从 single_role_result[i].overall_consume 提取真实 lack_num
+   * 2. 单角色请求时，从 data.overall_consume 提取真实 lack_num
+   * 3. 用真实 lack_num 覆盖 items 中的 0 值
    * 
    * @param accountId 米游社账号 UID
    * @param roleUid 游戏角色 UID
@@ -395,28 +403,56 @@ export class GenshinRepository extends GameRepository {
   static parseComputeResult(accountId: string, roleUid: string, resp: object, requestItems?: object[]): GenshinCharacterComputeRow[] {
     const result: GenshinCharacterComputeRow[] = [];
     try {
-      const respRecord = resp as Record<string, object>;
+      const respRecord = resp as Record<string, Object>;
       const dataObj = respRecord['data'] !== undefined ? respRecord['data'] : resp;
-      const data = dataObj as Record<string, object>;
-      // API 返回 items 字段（v3 API）或 list 字段（旧版）
-      const list = (data['items'] ?? data['list']) as Record<string, object>[];
+      const data = dataObj as Record<string, Object>;
       
       // 日志：响应数据结构
       Logger.info('GenshinRepository', `parseComputeResult: data keys=${Object.keys(data).join(',')}`);
-      Logger.info('GenshinRepository', `parseComputeResult: list=${list !== undefined && list !== null ? 'exists' : 'null'}, length=${list?.length ?? 0}`);
       
-      if (!list || list.length === 0) { return result; }
-
-      const now = Math.floor(Date.now() / 1000);
-      for (let i = 0; i < list.length; i++) {
-        const item = list[i];
+      // 检查是否有 single_role_result（批量请求返回此字段）
+      const singleRoleResult = data['single_role_result'] as Record<string, Object>[] | null;
+      
+      if (singleRoleResult !== null && singleRoleResult !== undefined && singleRoleResult.length > 0) {
+        // 批量请求模式：从 single_role_result 提取数据
+        Logger.info('GenshinRepository', `parseComputeResult: single_role_result mode, length=${singleRoleResult.length}`);
         
-        // 优先从响应中读取 avatar_id（部分 API 版本会返回）
-        let avatarId = `${item['avatar_id'] ?? ''}`;
+        for (let i = 0; i < singleRoleResult.length; i++) {
+          const roleResult = singleRoleResult[i];
+          const roleItems = roleResult['items'] as Record<string, Object>[] | null;
+          
+          if (roleItems === null || roleItems === undefined || roleItems.length === 0) {
+            continue;
+          }
+          
+          // 获取该角色的真实缺口数据
+          const overallConsume = roleResult['overall_consume'] as Record<string, Object>[] | null;
+          const lackNumMap = GenshinRepository.buildLackNumMap(overallConsume);
+          
+          // 处理该角色的 items（通常只有一个 item）
+          for (let j = 0; j < roleItems.length; j++) {
+            const item = roleItems[j];
+            const row = GenshinRepository.buildComputeRow(accountId, roleUid, item, requestItems, i, lackNumMap);
+            if (row !== null) {
+              result[result.length] = row;
+            }
+          }
+        }
+      } else {
+        // 单角色请求模式：overall_consume 包含真实缺口数据
+        // items[0] 是模板数据（lack_num 全是 0，且没有 avatar_id）
+        const overallConsume = data['overall_consume'] as Record<string, Object>[] | null;
+        Logger.info('GenshinRepository', `parseComputeResult: single role mode, overallConsume length=${overallConsume?.length ?? 0}`);
         
-        // 如果响应中没有 avatar_id，尝试从请求参数中按索引获取
-        if ((avatarId.length === 0 || avatarId === '0' || avatarId === 'undefined') && requestItems && i < requestItems.length) {
-          const requestItem = requestItems[i] as Record<string, object>;
+        if (overallConsume === null || overallConsume === undefined || overallConsume.length === 0) {
+          Logger.warn('GenshinRepository', `parseComputeResult: single role mode - no overallConsume`);
+          return result;
+        }
+        
+        // 从请求参数中获取 avatar_id
+        let avatarId = '';
+        if (requestItems !== undefined && requestItems.length > 0) {
+          const requestItem = requestItems[0] as Record<string, Object>;
           const reqAvatarId = requestItem['avatar_id'];
           if (typeof reqAvatarId === 'number') {
             avatarId = `${reqAvatarId}`;
@@ -425,37 +461,180 @@ export class GenshinRepository extends GameRepository {
           }
         }
         
-        // 日志：每个 item 的 avatar_id
-        if (i < 3) {
-          Logger.info('GenshinRepository', `parseComputeResult: item[${i}] avatar_id=${avatarId}`);
+        if (avatarId.length === 0 || avatarId === '0') {
+          Logger.warn('GenshinRepository', `parseComputeResult: single role mode - no avatarId from requestItems`);
+          return result;
         }
         
-        // 如果没有 avatar_id，跳过此条（无法关联到角色）
-        if (avatarId.length === 0 || avatarId === '0' || avatarId === 'undefined') { continue; }
-
+        // 直接从 overall_consume 构建数据，不使用 items 模板
+        const now = Math.floor(Date.now() / 1000);
         const row = new GenshinCharacterComputeRow();
         row.accountId = accountId;
         row.roleUid = roleUid;
         row.avatarId = avatarId;
-        row.rawJson = JSON.stringify(item);
         row.updateTime = now;
-
-        // 提取各部分的 consume JSON
-        const avatarConsume = item['avatar_consume'] as Record<string, object>[] | null;
-        row.avatarConsumeJson = avatarConsume ? JSON.stringify(avatarConsume) : '';
-
-        const skillConsume = item['skill_consume'] as Record<string, object>[] | null;
-        row.skillConsumeJson = skillConsume ? JSON.stringify(skillConsume) : '';
-
-        const weaponConsume = item['weapon_consume'] as Record<string, object>[] | null;
-        row.weaponConsumeJson = weaponConsume ? JSON.stringify(weaponConsume) : '';
-
+        
+        // overall_consume 已经是汇总后的真实缺口数据
+        // 将它存储为 avatarConsumeJson（角色突破材料）
+        // 注意：单角色请求时 overall_consume 包含所有类型的材料（角色、技能、武器）
+        // 我们需要按材料类型分类存储
+        
+        const avatarMaterials: Record<string, Object>[] = [];
+        const skillMaterials: Record<string, Object>[] = [];
+        const weaponMaterials: Record<string, Object>[] = [];
+        
+        for (let i = 0; i < overallConsume.length; i++) {
+          const mat = overallConsume[i];
+          const matCopy: Record<string, Object> = {};
+          const keys = Object.keys(mat);
+          for (let j = 0; j < keys.length; j++) {
+            matCopy[keys[j]] = mat[keys[j]];
+          }
+          
+          // 简单分类：根据材料 ID 范围判断
+          // 但实际上 API 返回的 overall_consume 不区分类型，全部放在一起
+          // 暂时全部放到 avatarConsumeJson
+          avatarMaterials[avatarMaterials.length] = matCopy;
+        }
+        
+        row.avatarConsumeJson = JSON.stringify(avatarMaterials);
+        row.skillConsumeJson = '';
+        row.weaponConsumeJson = '';
+        
+        // rawJson 存储整体数据
+        const rawData: Record<string, Object> = {
+          'avatar_id': avatarId,
+          'avatar_consume': avatarMaterials,
+          'overall_consume': overallConsume
+        };
+        row.rawJson = JSON.stringify(rawData);
+        
         result[result.length] = row;
+        Logger.info('GenshinRepository', `parseComputeResult: single role mode - created row for avatarId=${avatarId}`);
       }
       
       Logger.info('GenshinRepository', `parseComputeResult: result.length=${result.length}`);
     } catch (e) {
       Logger.error('GenshinRepository', `parseComputeResult error: ${e}`);
+    }
+    return result;
+  }
+  
+  /**
+   * 构建 materialId -> lackNum 的映射表
+   */
+  private static buildLackNumMap(overallConsume: Record<string, Object>[] | null): Map<number, number> {
+    const map: Map<number, number> = new Map();
+    if (overallConsume === null || overallConsume === undefined) {
+      return map;
+    }
+    
+    for (let i = 0; i < overallConsume.length; i++) {
+      const mat = overallConsume[i];
+      const id = mat['id'];
+      const lackNum = mat['lack_num'];
+      if (typeof id === 'number' && typeof lackNum === 'number') {
+        map.set(id, lackNum);
+      }
+    }
+    return map;
+  }
+  
+  /**
+   * 构建单个 GenshinCharacterComputeRow
+   * 使用 lackNumMap 覆盖材料数据中的 lack_num
+   */
+  private static buildComputeRow(
+    accountId: string,
+    roleUid: string,
+    item: Record<string, Object>,
+    requestItems: object[] | undefined,
+    index: number,
+    lackNumMap: Map<number, number>
+  ): GenshinCharacterComputeRow | null {
+    // 优先从响应中读取 avatar_id
+    let avatarId = `${item['avatar_id'] ?? ''}`;
+    
+    // 如果响应中没有 avatar_id，尝试从请求参数中按索引获取
+    if ((avatarId.length === 0 || avatarId === '0' || avatarId === 'undefined') && requestItems !== undefined && index < requestItems.length) {
+      const requestItem = requestItems[index] as Record<string, Object>;
+      const reqAvatarId = requestItem['avatar_id'];
+      if (typeof reqAvatarId === 'number') {
+        avatarId = `${reqAvatarId}`;
+      } else if (typeof reqAvatarId === 'string') {
+        avatarId = reqAvatarId;
+      }
+    }
+    
+    // 如果没有 avatar_id，跳过此条
+    if (avatarId.length === 0 || avatarId === '0' || avatarId === 'undefined') {
+      return null;
+    }
+    
+    const now = Math.floor(Date.now() / 1000);
+    const row = new GenshinCharacterComputeRow();
+    row.accountId = accountId;
+    row.roleUid = roleUid;
+    row.avatarId = avatarId;
+    row.updateTime = now;
+    
+    // 提取各部分的 consume JSON，并用 lackNumMap 覆盖 lack_num
+    const avatarConsume = item['avatar_consume'] as Record<string, Object>[] | null;
+    row.avatarConsumeJson = avatarConsume !== null ? JSON.stringify(GenshinRepository.mergeLackNum(avatarConsume, lackNumMap)) : '';
+    
+    const skillConsume = (item['skill_consume'] ?? item['avatar_skill_consume']) as Record<string, Object>[] | null;
+    row.skillConsumeJson = skillConsume !== null ? JSON.stringify(GenshinRepository.mergeLackNum(skillConsume, lackNumMap)) : '';
+    
+    const weaponConsume = item['weapon_consume'] as Record<string, Object>[] | null;
+    row.weaponConsumeJson = weaponConsume !== null ? JSON.stringify(GenshinRepository.mergeLackNum(weaponConsume, lackNumMap)) : '';
+    
+    // rawJson 存储合并后的完整 item
+    const mergedItem = GenshinRepository.mergeItemLackNum(item, lackNumMap);
+    row.rawJson = JSON.stringify(mergedItem);
+    
+    return row;
+  }
+  
+  /**
+   * 合并 lack_num 到材料数组
+   */
+  private static mergeLackNum(materials: Record<string, Object>[] | null, lackNumMap: Map<number, number>): Record<string, Object>[] {
+    if (materials === null || materials === undefined) {
+      return [];
+    }
+    
+    const result: Record<string, Object>[] = [];
+    for (let i = 0; i < materials.length; i++) {
+      const mat: Record<string, Object> = {};
+      const keys = Object.keys(materials[i]);
+      for (let j = 0; j < keys.length; j++) {
+        mat[keys[j]] = materials[i][keys[j]];
+      }
+      
+      // 用 lackNumMap 覆盖 lack_num
+      const id = mat['id'];
+      if (typeof id === 'number' && lackNumMap.has(id)) {
+        mat['lack_num'] = lackNumMap.get(id) as Object;
+      }
+      result[result.length] = mat;
+    }
+    return result;
+  }
+  
+  /**
+   * 合并 lack_num 到整个 item（包括 avatar_consume、skill_consume、weapon_consume）
+   */
+  private static mergeItemLackNum(item: Record<string, Object>, lackNumMap: Map<number, number>): Record<string, Object> {
+    const result: Record<string, Object> = {};
+    const keys = Object.keys(item);
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      if (key === 'avatar_consume' || key === 'skill_consume' || key === 'avatar_skill_consume' || key === 'weapon_consume') {
+        const materials = item[key] as Record<string, Object>[] | null;
+        result[key] = GenshinRepository.mergeLackNum(materials, lackNumMap);
+      } else {
+        result[key] = item[key];
+      }
     }
     return result;
   }

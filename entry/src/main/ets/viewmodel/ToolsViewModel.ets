@@ -21,7 +21,7 @@ import {
   Logger,
 } from 'core';
 import { ViewState } from '../constants/ViewStates';
-import { GameEntryVM, MaterialTargetConfigParam } from '../models/ToolsModels';
+import { GameEntryVM } from '../models/ToolsModels';
 import { gameIdToColor, gameIdToLogo, gameIdToName } from '../utils/GameIdUtil';
 
 const TAG: string = 'ToolsViewModel';
@@ -68,18 +68,6 @@ export class ToolsViewModel {
       Logger.error(TAG, `loadData failed: ${msg}`);
       this.viewState = ViewState.EMPTY;
     }
-  }
-
-  /**
-   * 根据游戏入口构建路由参数。
-   * 返回 null 表示该游戏无数据，不应跳转。
-   */
-  buildEntryRoute(entry: GameEntryVM): MaterialTargetConfigParam | null {
-    if (!entry.hasData) {
-      return null;
-    }
-    const params: MaterialTargetConfigParam = { gameId: entry.gameId };
-    return params;
   }
 
   // ─── 私有方法 ────────────────────────────────────────────────

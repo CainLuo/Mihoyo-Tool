@@ -10,6 +10,7 @@ import { SymbolGlyphModifier } from '@kit.ArkUI'
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { CharacterMaterialVM, MaterialItemVM, WeaponMaterialVM, SkillItemVM } from '../../models/MaterialListModels';
 import { ThemeFonts } from '../../theme/ThemeFonts';
+import { CharacterMaterialSections } from './CharacterMaterialSections';
 
 @ComponentV2
 export struct CharacterMaterialCard {
@@ -160,7 +161,11 @@ export struct CharacterMaterialCard {
             .margin({ left: this.tm.current.value16, right: this.tm.current.value16 })
 
           // 材料列表
-          this.MaterialSections()
+          CharacterMaterialSections({
+            avatarMaterials: this.data.avatarMaterials,
+            skillMaterials: this.data.skillMaterials,
+            weaponMaterials: this.data.weaponMaterials
+          })
         }
         .width(this.tm.current.full)
         .padding({ bottom: this.tm.current.value16 })
@@ -170,107 +175,6 @@ export struct CharacterMaterialCard {
     .backgroundColor(this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
     .border({ width: 1, color: this.tm.current.colorDivider })
-  }
-
-  // ─── 材料列表区 ─────────────────────────────────────────────────
-
-  @Builder
-  MaterialSections(): void {
-    Column({ space: this.tm.current.value12 }) {
-      // 角色突破材料
-      if (this.data.avatarMaterials.length > 0) {
-        Column({ space: this.tm.current.value8 }) {
-          Text($r('app.string.material_section_avatar'))
-            .font(ThemeFonts.fontBold14)
-            .fontColor(this.tm.current.colorTextPrimary)
-            .width(this.tm.current.full)
-            .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
-
-          ForEach(this.data.avatarMaterials, (item: MaterialItemVM) => {
-            this.MaterialItemRow(item)
-          }, (item: MaterialItemVM) => item.materialId)
-        }
-        .width(this.tm.current.full)
-      }
-
-      // 天赋材料
-      if (this.data.skillMaterials.length > 0) {
-        Column({ space: this.tm.current.value8 }) {
-          Text($r('app.string.material_section_skill'))
-            .font(ThemeFonts.fontBold14)
-            .fontColor(this.tm.current.colorTextPrimary)
-            .width(this.tm.current.full)
-            .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
-
-          ForEach(this.data.skillMaterials, (item: MaterialItemVM) => {
-            this.MaterialItemRow(item)
-          }, (item: MaterialItemVM) => item.materialId)
-        }
-        .width(this.tm.current.full)
-      }
-
-      // 武器/光锥材料
-      if (this.data.weaponMaterials.length > 0) {
-        Column({ space: this.tm.current.value8 }) {
-          Row({ space: this.tm.current.value8 }) {
-            Text($r('app.string.material_section_weapon'))
-              .font(ThemeFonts.fontBold14)
-              .fontColor(this.tm.current.colorTextPrimary)
-
-            Text(this.getWeaponName())
-              .font(ThemeFonts.font13)
-              .fontColor(this.tm.current.colorTextSecondary)
-          }
-          .width(this.tm.current.full)
-          .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
-
-          ForEach(this.data.weaponMaterials, (item: MaterialItemVM) => {
-            this.MaterialItemRow(item)
-          }, (item: MaterialItemVM) => item.materialId)
-        }
-        .width(this.tm.current.full)
-      }
-    }
-    .width(this.tm.current.full)
-  }
-
-  // ─── 材料行组件 ─────────────────────────────────────────────────────
-
-  @Builder
-  MaterialItemRow(item: MaterialItemVM): void {
-    Row({ space: this.tm.current.value12 }) {
-      // 材料图标（带稀有度背景）
-      Stack() {
-        Column()
-          .width(this.tm.current.value32)
-          .height(this.tm.current.value32)
-          .borderRadius(this.tm.current.radius8)
-          .backgroundColor(this.getMaterialRarityBg(item.rarity))
-
-        if (item.iconUrl.length > 0) {
-          Image(item.iconUrl)
-            .width(this.tm.current.value32)
-            .height(this.tm.current.value32)
-            .borderRadius(this.tm.current.radius8)
-            .objectFit(ImageFit.Cover)
-        }
-      }
-      .width(this.tm.current.value32)
-      .height(this.tm.current.value32)
-
-      // 材料名称
-      Text(item.name)
-        .font(ThemeFonts.font14)
-        .fontColor(this.tm.current.colorTextPrimary)
-        .layoutWeight(1)
-
-      // 需求数量
-      Text(`${item.need}`)
-        .font(ThemeFonts.font14)
-        .fontColor(item.isEnough ? this.tm.current.colorSuccess : this.tm.current.colorDanger)
-    }
-    .width(this.tm.current.full)
-    .padding({ left: this.tm.current.value16, right: this.tm.current.value16 })
   }
 
   // ─── 辅助方法 ─────────────────────────────────────────────────────
@@ -314,22 +218,6 @@ export struct CharacterMaterialCard {
     }
     return 1
   }
-
-  private getMaterialRarityBg(rarity: number): ResourceColor {
-    if (rarity >= 5) {
-      return $r('app.color.rarity_5star_bg')
-    }
-    if (rarity >= 4) {
-      return $r('app.color.rarity_4star_bg')
-    }
-    if (rarity >= 3) {
-      return $r('app.color.rarity_3star_bg')
-    }
-    if (rarity >= 2) {
-      return $r('app.color.rarity_2star_bg')
-    }
-    return $r('app.color.rarity_1star_bg')
-  }
 }
 
 // ─── Preview ─────────────────────────────────────────────────────
@@ -360,17 +248,54 @@ export struct CharacterMaterialCardPreview {
       { iconUrl: '', level: 10 } as SkillItemVM,
     ];
     
-    this.data.avatarMaterials = [
-      { materialId: '1', name: '哀叙冰玉', iconUrl: '', rarity: 5, have: 12, need: 46, deficit: 34, isEnough: false } as MaterialItemVM,
-      { materialId: '2', name: '极寒之核', iconUrl: '', rarity: 4, have: 8, need: 46, deficit: 38, isEnough: false } as MaterialItemVM,
-    ];
-    this.data.skillMaterials = [
-      { materialId: '3', name: '「勤劳」的教导', iconUrl: '', rarity: 2, have: 24, need: 9, deficit: 0, isEnough: true } as MaterialItemVM,
-      { materialId: '4', name: '「勤劳」的指引', iconUrl: '', rarity: 3, have: 63, need: 63, deficit: 0, isEnough: true } as MaterialItemVM,
-    ];
-    this.data.weaponMaterials = [
-      { materialId: '5', name: '孤云寒林的神体', iconUrl: '', rarity: 5, have: 3, need: 3, deficit: 0, isEnough: true } as MaterialItemVM,
-    ];
+    // 角色突破材料（缺口数据）
+    const mat1 = new MaterialItemVM();
+    mat1.materialId = '1';
+    mat1.name = '哀叙冰玉';
+    mat1.iconUrl = '';
+    mat1.rarity = 5;
+    mat1.have = 12;
+    mat1.need = 46;
+    
+    const mat2 = new MaterialItemVM();
+    mat2.materialId = '2';
+    mat2.name = '极寒之核';
+    mat2.iconUrl = '';
+    mat2.rarity = 4;
+    mat2.have = 8;
+    mat2.need = 46;
+    
+    this.data.avatarMaterials = [mat1, mat2];
+    
+    // 天赋材料（充足数据）
+    const mat3 = new MaterialItemVM();
+    mat3.materialId = '3';
+    mat3.name = '「勤劳」的教导';
+    mat3.iconUrl = '';
+    mat3.rarity = 2;
+    mat3.have = 24;
+    mat3.need = 9;
+    
+    const mat4 = new MaterialItemVM();
+    mat4.materialId = '4';
+    mat4.name = '「勤劳」的指引';
+    mat4.iconUrl = '';
+    mat4.rarity = 3;
+    mat4.have = 63;
+    mat4.need = 63;
+    
+    this.data.skillMaterials = [mat3, mat4];
+    
+    // 武器材料（充足数据）
+    const mat5 = new MaterialItemVM();
+    mat5.materialId = '5';
+    mat5.name = '孤云寒林的神体';
+    mat5.iconUrl = '';
+    mat5.rarity = 5;
+    mat5.have = 3;
+    mat5.need = 3;
+    
+    this.data.weaponMaterials = [mat5];
   }
 
   build() {

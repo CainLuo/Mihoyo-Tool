@@ -6,7 +6,7 @@
  */
 
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
-import { GameId } from 'core'
+import { GameId, Logger } from 'core'
 import { ThemeFonts } from '../theme/ThemeFonts'
 import { PrimaryButtonModifier } from '../styles/ButtonModifier'
 import { AppRoutes } from '../constants/AppRoutes'
@@ -17,6 +17,7 @@ import {
   SkillLevelConfigVM,
   LevelLabelKeys
 } from '../models/MaterialTargetConfigModels'
+import { MaterialListParam } from './MaterialList'
 
 type PickerStep = 'current' | 'target'
 
@@ -26,6 +27,7 @@ export struct MaterialTargetConfig {
   @Local private vm: MaterialTargetConfigVM = new MaterialTargetConfigVM()
   @Local private tm: ThemeManager = themeManager
   @Local private buttonModifier: PrimaryButtonModifier = new PrimaryButtonModifier(true)
+  @Local private isSyncing: boolean = false
   private localStack: NavPathStack | null = null
 
   /** Picker 状态 */
@@ -93,12 +95,25 @@ export struct MaterialTargetConfig {
 
   /**
    * 开始计算材料
+   * 先在当前页面同步数据，完成后再跳转到材料总汇页。
    */
-  private startCalculation(): void {
-    const param: MaterialTargetConfigParam = new MaterialTargetConfigParam()
+  private async startCalculation(): Promise<void> {
+    Logger.info('MaterialTargetConfig', `startCalculation called, isSyncing=${this.vm.isSyncing}`)
+    
+    // 先同步数据
+    const success = await this.vm.syncComputeData(this.vm.selectedGame)
+    Logger.info('MaterialTargetConfig', `syncComputeData result=${success}`)
+    
+    // 同步完成后跳转到材料总汇页，并清空中间页面（配置页）
+    const param: MaterialListParam = new MaterialListParam()
     param.gameId = this.vm.selectedGame
     
-    this.localStack?.pushPathByName(AppRoutes.MATERIAL_LIST, param)
+    // 先移除当前页面（配置页），再 push 材料总汇页
+    // 这样从材料总汇返回时会直接回到 Tools 页面
+    if (this.localStack !== null) {
+      this.localStack.pop()
+      this.localStack.pushPathByName(AppRoutes.MATERIAL_LIST, param)
+    }
   }
 
   build() {
@@ -151,10 +166,15 @@ export struct MaterialTargetConfig {
 
         // 底部按钮
         Column() {
-          Button($r('app.string.material_target_config_start_calc'))
+          Button(
+            this.vm.isSyncing 
+              ? $r('app.string.material_target_config_syncing')
+              : $r('app.string.material_target_config_start_calc')
+          )
             .attributeModifier(this.buttonModifier)
             .width(this.tm.current.full)
             .height(this.tm.current.value48)
+            .enabled(!this.vm.isSyncing)
             .onClick(() => {
               this.startCalculation()
             })

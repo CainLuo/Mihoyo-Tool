@@ -76,11 +76,7 @@ export class StarRailComputeParser {
   private static fromRaw(raw: RawComputeData): StarRailComputeData {
     const data = new StarRailComputeData();
 
-    data.avatarConsume = StarRailComputeParser.parseMaterials(raw.avatar_consume);
-    data.skillConsume = StarRailComputeParser.parseMaterials(raw.skill_consume);
-    data.equipmentConsume = StarRailComputeParser.parseMaterials(raw.equipment_consume);
-
-    // 解析 user_owns_materials
+    // 先解析 user_owns_materials（背包数据）
     if (raw.user_owns_materials) {
       const keys = Object.keys(raw.user_owns_materials);
       for (let i = 0; i < keys.length; i++) {
@@ -89,9 +85,20 @@ export class StarRailComputeParser {
       }
     }
 
+    // 解析材料
+    data.avatarConsume = StarRailComputeParser.parseMaterials(raw.avatar_consume);
+    data.skillConsume = StarRailComputeParser.parseMaterials(raw.skill_consume);
+    data.equipmentConsume = StarRailComputeParser.parseMaterials(raw.equipment_consume);
+
     return data;
   }
 
+  /**
+   * 解析材料列表。
+   * 
+   * 注意：星铁 API 不返回 lack_num，只返回 num（需求量）。
+   * 缺少数量在汇总时计算：总缺口 = Σ(num) - userOwnsMaterials[id]
+   */
   private static parseMaterials(raws: RawMaterialItem[]): StarRailMaterialItem[] {
     const result: StarRailMaterialItem[] = [];
     if (!raws || raws.length === 0) {

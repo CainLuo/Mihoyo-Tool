@@ -8,11 +8,9 @@
  */
 
 import { themeManager, ThemeManager } from '../../theme/ThemeManager'
-import { MaterialListViewMode, CharacterMaterialVM, MaterialSummaryVM, MaterialSectionVM, MaterialSectionType } from '../../models/MaterialListModels'
-import { MaterialListViewModel } from '../../viewmodel/MaterialListViewModel'
+import { MaterialListViewMode, CharacterMaterialVM, MaterialSummaryVM, MaterialSectionVM } from '../../models/MaterialListModels'
 import { CharacterMaterialCard } from './CharacterMaterialCard'
-import { MaterialGridCard } from './MaterialGridCard'
-import { ThemeFonts } from '../../theme/ThemeFonts'
+import { MaterialSectionView } from './MaterialSectionView'
 
 @ComponentV2
 export struct MaterialListContentView {
@@ -46,7 +44,12 @@ export struct MaterialListContentView {
       Scroll() {
         Column({ space: this.tm.current.value20 }) {
           ForEach(this.materialSections, (section: MaterialSectionVM) => {
-            this.MaterialSectionView(section)
+            MaterialSectionView({
+              section: section,
+              onMaterialTap: (mat: MaterialSummaryVM) => {
+                // TODO: 显示关联角色详情
+              }
+            })
           }, (section: MaterialSectionVM) => section.type)
         }
         .width(this.tm.current.full)
@@ -58,39 +61,6 @@ export struct MaterialListContentView {
       .edgeEffect(EdgeEffect.Spring)
       .align(Alignment.Top)
     }
-  }
-
-  /**
-   * 渲染单个 section。
-   */
-  @Builder
-  MaterialSectionView(section: MaterialSectionVM) {
-    Column({ space: this.tm.current.value12 }) {
-      // section 标题
-      Text(section.title)
-        .font(ThemeFonts.font13)
-        .fontColor(this.tm.current.colorTextSecondary)
-
-      // 材料网格
-      GridRow({
-        columns: 5,
-        gutter: { x: this.tm.current.value8, y: this.tm.current.value8 }
-      }) {
-        ForEach(section.materials, (mat: MaterialSummaryVM) => {
-          GridCol() {
-            MaterialGridCard({
-              data: mat,
-              isCurrency: section.type === MaterialSectionType.CURRENCY,
-              onTap: () => {
-                // TODO: 显示关联角色详情
-              }
-            })
-          }
-        }, (mat: MaterialSummaryVM) => mat.materialId)
-      }
-    }
-    .width(this.tm.current.full)
-    .alignItems(HorizontalAlign.Start)
   }
 }
 

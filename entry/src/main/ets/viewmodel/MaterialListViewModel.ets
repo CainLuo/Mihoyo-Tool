@@ -711,13 +711,13 @@ export class MaterialListViewModel {
     const parsed = StarRailComputeParser.parse(computeRow.rawJson);
 
     if (parsed.avatarConsume.length > 0) {
-      vm.avatarMaterials = this.parseMaterialItems(parsed.avatarConsume);
+      vm.avatarMaterials = this.parseMaterialItems(parsed.avatarConsume, parsed.userOwnsMaterials);
     }
     if (parsed.skillConsume.length > 0) {
-      vm.skillMaterials = this.parseMaterialItems(parsed.skillConsume);
+      vm.skillMaterials = this.parseMaterialItems(parsed.skillConsume, parsed.userOwnsMaterials);
     }
     if (parsed.equipmentConsume.length > 0) {
-      vm.weaponMaterials = this.parseMaterialItems(parsed.equipmentConsume);
+      vm.weaponMaterials = this.parseMaterialItems(parsed.equipmentConsume, parsed.userOwnsMaterials);
     }
 
     // 光锥信息
@@ -761,13 +761,13 @@ export class MaterialListViewModel {
     const parsed = ZZZComputeParser.parse(computeRow.rawJson);
 
     if (parsed.avatarConsume.length > 0) {
-      vm.avatarMaterials = this.parseMaterialItems(parsed.avatarConsume);
+      vm.avatarMaterials = this.parseMaterialItems(parsed.avatarConsume, parsed.userOwnsMaterials);
     }
     if (parsed.skillConsume.length > 0) {
-      vm.skillMaterials = this.parseMaterialItems(parsed.skillConsume);
+      vm.skillMaterials = this.parseMaterialItems(parsed.skillConsume, parsed.userOwnsMaterials);
     }
     if (parsed.weaponConsume.length > 0) {
-      vm.weaponMaterials = this.parseMaterialItems(parsed.weaponConsume);
+      vm.weaponMaterials = this.parseMaterialItems(parsed.weaponConsume, parsed.userOwnsMaterials);
     }
 
     vm.isExpanded = true;
@@ -776,18 +776,49 @@ export class MaterialListViewModel {
 
   /**
    * 将解析后的材料数据转换为 MaterialItemVM 数组。
+   * 
+   * 原神 API：返回 lack_num（缺少数量），have = num - lackNum
+   * 星铁/绝区零 API：返回 user_owns_materials（背包数据），have 从 Map 查询
+   * 
+   * 过滤规则：已满足或已超过的材料（have >= need）不显示
+   * 
+   * @param userOwnsMaterials 可选的背包数据 Map（星铁/绝区零专用）
    */
-  private parseMaterialItems(items: MaterialItemRaw[]): MaterialItemVM[] {
+  private parseMaterialItems(
+    items: MaterialItemRaw[],
+    userOwnsMaterials?: Map<string, number>
+  ): MaterialItemVM[] {
     const result: MaterialItemVM[] = [];
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
+      const materialId = `${item.id}`;
+      
+      // 计算拥有量
+      let have = 0;
+      if (userOwnsMaterials !== undefined && userOwnsMaterials !== null) {
+        // 星铁/绝区零：从背包数据查询
+        have = userOwnsMaterials.get(materialId) ?? 0;
+      } else {
+        // 原神：使用 lackNum 计算
+        const lackNum = item.lackNum ?? 0;
+        have = item.num - lackNum;
+      }
+
+      const need = item.num;
+      
+      // 过滤：已满足或已超过的材料不显示
+      if (have >= need) {
+        continue;
+      }
+
       const vm = new MaterialItemVM();
-      vm.materialId = `${item.id}`;
+      vm.materialId = materialId;
       vm.name = item.name;
       vm.iconUrl = item.iconUrl;
       vm.rarity = typeof item.rarity === 'string' ? parseInt(item.rarity, 10) || 0 : item.rarity;
-      vm.have = 0; // 暂不读取背包数据
-      vm.need = item.num;
+      vm.need = need;
+      vm.have = have;
+      
       result[result.length] = vm;
     }
     return result;
