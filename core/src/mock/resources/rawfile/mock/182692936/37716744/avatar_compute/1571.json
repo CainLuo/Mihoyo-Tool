@@ -1,0 +1,125 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "avatar_consume": [],
+    "weapon_consume": [
+      {
+        "id": 10,
+        "cnt": 400000,
+        "name": "丁尼",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/af812943378ddbdd625987dc390121bb.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 101011,
+        "cnt": 4,
+        "name": "击破组件",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/b3f1707b7e9939e600bf203c7552e2ed.png",
+        "rarity": "C",
+        "not_opened": false
+      },
+      {
+        "id": 101021,
+        "cnt": 32,
+        "name": "增强型击破组件",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/3a8440989bcaa093382f2ae247471eae.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 101031,
+        "cnt": 30,
+        "name": "特化型击破组件",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/c40b0d7af0a76ed9784f21c94f42eda9.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 301003,
+        "cnt": 200,
+        "name": "音擎能源模块",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/5dbfea633f5522c9730763c35c85854c.png",
+        "rarity": "A",
+        "not_opened": false
+      }
+    ],
+    "skill_consume": [
+      {
+        "id": 10,
+        "cnt": 540000,
+        "name": "丁尼",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/af812943378ddbdd625987dc390121bb.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 100131,
+        "cnt": 60,
+        "name": "特化引燃芯片",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/bf5fa60d539bb56bada4c259e83ccb8b.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 100941,
+        "cnt": 4,
+        "name": "「仓鼠笼」访问器",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/6e12155fdbb8289b2570c408d48d893e.png",
+        "rarity": "S",
+        "not_opened": false
+      }
+    ],
+    "coin_id": 10,
+    "user_owns_materials": {
+      "10": 93386,
+      "101021": 15,
+      "301003": 219,
+      "300003": 192
+    },
+    "need_get": [
+      {
+        "id": 10,
+        "cnt": 846614,
+        "name": "丁尼",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/af812943378ddbdd625987dc390121bb.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 100131,
+        "cnt": 56,
+        "name": "特化引燃芯片",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/bf5fa60d539bb56bada4c259e83ccb8b.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 100941,
+        "cnt": 4,
+        "name": "「仓鼠笼」访问器",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/6e12155fdbb8289b2570c408d48d893e.png",
+        "rarity": "S",
+        "not_opened": false
+      },
+      {
+        "id": 101031,
+        "cnt": 37,
+        "name": "特化型击破组件",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/c40b0d7af0a76ed9784f21c94f42eda9.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 301003,
+        "cnt": 0,
+        "name": "音擎能源模块",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/5dbfea633f5522c9730763c35c85854c.png",
+        "rarity": "A",
+        "not_opened": false
+      }
+    ],
+    "coin_icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/af812943378ddbdd625987dc390121bb.png"
+  }
+}

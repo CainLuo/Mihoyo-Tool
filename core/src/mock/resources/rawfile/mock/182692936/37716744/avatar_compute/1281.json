@@ -1,0 +1,67 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "avatar_consume": [],
+    "weapon_consume": [],
+    "skill_consume": [
+      {
+        "id": 10,
+        "cnt": 675000,
+        "name": "丁尼",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/af812943378ddbdd625987dc390121bb.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 100130,
+        "cnt": 75,
+        "name": "特化物理芯片",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/b00d11dc543c633ce50092de903f285f.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 100941,
+        "cnt": 5,
+        "name": "「仓鼠笼」访问器",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/6e12155fdbb8289b2570c408d48d893e.png",
+        "rarity": "S",
+        "not_opened": false
+      }
+    ],
+    "coin_id": 10,
+    "user_owns_materials": {
+      "300003": 192,
+      "301003": 219,
+      "10": 93386
+    },
+    "need_get": [
+      {
+        "id": 10,
+        "cnt": 581614,
+        "name": "丁尼",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/af812943378ddbdd625987dc390121bb.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 100130,
+        "cnt": 61,
+        "name": "特化物理芯片",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/b00d11dc543c633ce50092de903f285f.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 100941,
+        "cnt": 5,
+        "name": "「仓鼠笼」访问器",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/6e12155fdbb8289b2570c408d48d893e.png",
+        "rarity": "S",
+        "not_opened": false
+      }
+    ],
+    "coin_icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/af812943378ddbdd625987dc390121bb.png"
+  }
+}

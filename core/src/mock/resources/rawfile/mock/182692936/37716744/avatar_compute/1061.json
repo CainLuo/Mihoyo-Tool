@@ -1,0 +1,210 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "avatar_consume": [
+      {
+        "id": 10,
+        "cnt": 600000,
+        "name": "丁尼",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/af812943378ddbdd625987dc390121bb.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 100231,
+        "cnt": 30,
+        "name": "先行者认证章",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/5f579edc3879cedbf6c0996f2417b977.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 300003,
+        "cnt": 225,
+        "name": "资深调查员记录",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/163f2270545dc694697ff65a61502daa.png",
+        "rarity": "A",
+        "not_opened": false
+      }
+    ],
+    "weapon_consume": [
+      {
+        "id": 10,
+        "cnt": 320000,
+        "name": "丁尼",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/af812943378ddbdd625987dc390121bb.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 101010,
+        "cnt": 3,
+        "name": "强攻组件",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/22c311ce99450de0fa66a6c294148c89.png",
+        "rarity": "C",
+        "not_opened": false
+      },
+      {
+        "id": 101020,
+        "cnt": 26,
+        "name": "增强型强攻组件",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/41039305cb8528ab54848bf2e6392de1.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 101030,
+        "cnt": 24,
+        "name": "特化型强攻组件",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/a5776923179f56217ffc611a598ffc6b.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 301003,
+        "cnt": 159,
+        "name": "音擎能源模块",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/5dbfea633f5522c9730763c35c85854c.png",
+        "rarity": "A",
+        "not_opened": false
+      }
+    ],
+    "skill_consume": [
+      {
+        "id": 10,
+        "cnt": 2646000,
+        "name": "丁尼",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/af812943378ddbdd625987dc390121bb.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 100120,
+        "cnt": 12,
+        "name": "进阶物理芯片",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/3fdbf32c8b8416c0d409943ec88c4543.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 100130,
+        "cnt": 250,
+        "name": "特化物理芯片",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/b00d11dc543c633ce50092de903f285f.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 100941,
+        "cnt": 5,
+        "name": "「仓鼠笼」访问器",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/6e12155fdbb8289b2570c408d48d893e.png",
+        "rarity": "S",
+        "not_opened": false
+      },
+      {
+        "id": 110003,
+        "cnt": 9,
+        "name": "终幕舞鞋",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/zzzv2/material_icon/material_icon_110003.png",
+        "rarity": "S",
+        "not_opened": false
+      },
+      {
+        "id": 110502,
+        "cnt": 54,
+        "name": "高维数据：殷红震慑",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/zzzv2/material_icon/material_icon_110502.png",
+        "rarity": "A",
+        "not_opened": false
+      }
+    ],
+    "coin_id": 10,
+    "user_owns_materials": {
+      "10": 93386,
+      "101010": 2,
+      "301003": 219,
+      "100120": 21,
+      "110502": 30,
+      "300003": 192,
+      "101020": 6,
+      "110003": 2
+    },
+    "need_get": [
+      {
+        "id": 10,
+        "cnt": 3472614,
+        "name": "丁尼",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/af812943378ddbdd625987dc390121bb.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 100130,
+        "cnt": 240,
+        "name": "特化物理芯片",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/b00d11dc543c633ce50092de903f285f.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 100231,
+        "cnt": 29,
+        "name": "先行者认证章",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/5f579edc3879cedbf6c0996f2417b977.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 100941,
+        "cnt": 5,
+        "name": "「仓鼠笼」访问器",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/6e12155fdbb8289b2570c408d48d893e.png",
+        "rarity": "S",
+        "not_opened": false
+      },
+      {
+        "id": 101030,
+        "cnt": 31,
+        "name": "特化型强攻组件",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/a5776923179f56217ffc611a598ffc6b.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 110003,
+        "cnt": 7,
+        "name": "终幕舞鞋",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/zzzv2/material_icon/material_icon_110003.png",
+        "rarity": "S",
+        "not_opened": false
+      },
+      {
+        "id": 110502,
+        "cnt": 24,
+        "name": "高维数据：殷红震慑",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/zzzv2/material_icon/material_icon_110502.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 300003,
+        "cnt": 30,
+        "name": "资深调查员记录",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/163f2270545dc694697ff65a61502daa.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 301003,
+        "cnt": 0,
+        "name": "音擎能源模块",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/5dbfea633f5522c9730763c35c85854c.png",
+        "rarity": "A",
+        "not_opened": false
+      }
+    ],
+    "coin_icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/af812943378ddbdd625987dc390121bb.png"
+  }
+}
