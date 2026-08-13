@@ -299,6 +299,7 @@ export class StarRailRepository extends GameRepository {
   /**
    * 拉取单角色养成计算 → 解析 → 写 DB
    * 同时写入材料背包数据（从 user_owns_materials）
+   * @param avatarId 角色 ID（字符串，如 '1001'）
    * @param avatar 角色计算参数（id, level_current, level_target）
    * @param skillList 技能计算参数数组
    * @param uid 游戏 UID
@@ -308,6 +309,7 @@ export class StarRailRepository extends GameRepository {
   async syncAvatarCompute(
     accountId: string,
     roleUid: string,
+    avatarId: string,
     avatar: object,
     skillList: object[],
     uid: string,
@@ -317,7 +319,7 @@ export class StarRailRepository extends GameRepository {
     await this.markSyncing(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_COMPUTE);
     try {
       const resp = await (this.getService() as StarRailApiService).compute(avatar, skillList, uid, region, cookie);
-      const row = StarRailRepository.parseComputeResult(accountId, roleUid, resp);
+      const row = StarRailRepository.parseComputeResult(accountId, roleUid, avatarId, resp);
 
       // 解析材料背包数据
       const dataObj = (resp as Record<string, object>)['data'] ?? resp;
@@ -419,11 +421,13 @@ export class StarRailRepository extends GameRepository {
 
   /**
    * 解析单角色计算 API 响应为 StarRailAvatarComputeRow
+   * @param avatarId 角色 ID（从调用方传入，因为 API 响应中不包含 avatar.id）
    */
-  static parseComputeResult(accountId: string, roleUid: string, resp: object): StarRailAvatarComputeRow {
+  static parseComputeResult(accountId: string, roleUid: string, avatarId: string, resp: object): StarRailAvatarComputeRow {
     const row = new StarRailAvatarComputeRow();
     row.accountId = accountId;
     row.roleUid = roleUid;
+    row.avatarId = avatarId;
     row.rawJson = JSON.stringify(resp);
     row.updateTime = Math.floor(Date.now() / 1000);
 
@@ -431,12 +435,6 @@ export class StarRailRepository extends GameRepository {
       const respRecord = resp as Record<string, object>;
       const dataObj = respRecord['data'] !== undefined ? respRecord['data'] : resp;
       const data = dataObj as Record<string, object>;
-
-      // 提取 avatar_id
-      const avatar = data['avatar'] as Record<string, object> | null;
-      if (avatar) {
-        row.avatarId = `${avatar['id'] ?? ''}`;
-      }
 
       // 提取各部分的 consume JSON
       const avatarConsume = data['avatar_consume'] as Record<string, object>[] | null;

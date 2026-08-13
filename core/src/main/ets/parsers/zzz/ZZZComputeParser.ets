@@ -5,6 +5,8 @@
  * 绝区零 API 特有：返回 user_owns_materials 字段，包含玩家真实背包数据。
  */
 
+import { Logger } from '../../utils/Logger';
+
 // ─── 纯数据模型（core 对外暴露）────────────────────────────────
 
 /** 单个材料项 */
@@ -43,6 +45,9 @@ export class ZZZComputeData {
   /** 玩家拥有的材料（背包数据） */
   userOwnsMaterials: Map<string, number> = new Map();
 
+  /** 缺口汇总（API 直接计算好的缺口列表） */
+  needGet: ZZZMaterialItem[] = [];
+
   /** 货币 ID（丁尼的 ID） */
   coinId: number = 10;
 }
@@ -53,9 +58,12 @@ interface RawMaterialItem {
   id: string | number;
   name: string;
   icon: string;
-  num: number;
+  num?: number;
   rarity: string;
-  type: number;
+  type?: number;
+  /** 绝区零 API 使用 cnt 字段表示数量 */
+  cnt?: number;
+  not_opened?: boolean;
 }
 
 interface RawSkillInfo {
@@ -75,6 +83,7 @@ interface RawComputeData {
   weapon_consume: RawMaterialItem[];
   skills_consume: RawSkillConsume[];
   user_owns_materials: Record<string, number>;
+  need_get: RawMaterialItem[];
   coin_id: number;
 }
 
@@ -84,14 +93,32 @@ export class ZZZComputeParser {
 
   /**
    * 解析单角色计算 API 响应
-   * @param rawJson API 返回的 data 部分 JSON 字符串
+   * @param rawJson API 返回的完整 JSON 字符串（可能包含 retcode/message/data 结构）
    * @returns 角色计算结果
    */
   static parse(rawJson: string): ZZZComputeData {
     try {
-      const raw = JSON.parse(rawJson) as RawComputeData;
-      return ZZZComputeParser.fromRaw(raw);
+      Logger.info('ZZZComputeParser', `💥💥💥 parse: rawJson.length=${rawJson.length}`);
+      const parsed: Object = JSON.parse(rawJson) as Object;
+      
+      // 检查是否是完整的 API 响应结构（包含 retcode/message/data）
+      let raw: RawComputeData;
+      const parsedRecord: Record<string, Object> = parsed as Record<string, Object>;
+      if (parsedRecord !== null && parsedRecord['data'] !== undefined) {
+        // 完整 API 响应，从 data 字段获取材料数据
+        raw = parsedRecord['data'] as RawComputeData;
+        Logger.info('ZZZComputeParser', `💥💥💥 parse: detected full API response, extracting data field`);
+      } else {
+        // 直接是材料数据
+        raw = parsed as RawComputeData;
+        Logger.info('ZZZComputeParser', `💥💥💥 parse: direct material data`);
+      }
+      
+      const result = ZZZComputeParser.fromRaw(raw);
+      Logger.info('ZZZComputeParser', `💥💥💥 parse: needGet=${result.needGet.length}, avatarConsume=${result.avatarConsume.length}, skillConsume=${result.skillConsume.length}, weaponConsume=${result.weaponConsume.length}`);
+      return result;
     } catch (_e) {
+      Logger.error('ZZZComputeParser', `💥💥💥 parse failed: ${_e}`);
       return new ZZZComputeData();
     }
   }
@@ -115,14 +142,19 @@ export class ZZZComputeParser {
     data.skillsConsume = ZZZComputeParser.parseSkillsConsume(raw.skills_consume);
     data.coinId = raw.coin_id ?? 10;
 
+    // 解析 need_get（缺口汇总）
+    if (raw.need_get && raw.need_get.length > 0) {
+      data.needGet = ZZZComputeParser.parseMaterialsWithCnt(raw.need_get);
+    }
+
     return data;
   }
 
   /**
    * 解析材料列表。
    * 
-   * 注意：绝区零 API 不返回 lack_num，只返回 num（需求量）。
-   * 缺少数量在汇总时计算：总缺口 = Σ(num) - userOwnsMaterials[id]
+   * 绝区零 API 的 avatar_consume/weapon_consume/skill_consume 使用 cnt 字段，
+   * need_get 也使用 cnt 字段。统一优先读取 cnt，fallback 到 num。
    */
   private static parseMaterials(raws: RawMaterialItem[]): ZZZMaterialItem[] {
     const result: ZZZMaterialItem[] = [];
@@ -138,7 +170,35 @@ export class ZZZComputeParser {
       item.name = r.name;
       item.icon = r.icon;
       item.iconUrl = r.icon;  // 兼容字段
-      item.num = r.num;
+      // 绝区零 API 使用 cnt 字段，部分 API 可能也返回 num，优先用 cnt
+      item.num = (r.cnt !== undefined && r.cnt !== null) ? r.cnt : (r.num ?? 0);
+      item.rarity = r.rarity;
+      item.type = r.type ?? 0;
+      result[result.length] = item;
+    }
+
+    return result;
+  }
+
+  /**
+   * 解析 need_get 材料列表（使用 cnt 字段而非 num）。
+   * need_get 是 API 计算好的缺口列表，cnt 字段表示缺少数量。
+   */
+  private static parseMaterialsWithCnt(raws: RawMaterialItem[]): ZZZMaterialItem[] {
+    const result: ZZZMaterialItem[] = [];
+    if (!raws || raws.length === 0) {
+      return result;
+    }
+
+    for (let i = 0; i < raws.length; i++) {
+      const r = raws[i];
+      const item = new ZZZMaterialItem();
+      item.id = typeof r.id === 'number' ? String(r.id) : r.id;
+      item.name = r.name;
+      item.icon = r.icon;
+      item.iconUrl = r.icon;
+      // need_get 使用 cnt 字段，映射到 num
+      item.num = (r.cnt !== undefined && r.cnt !== null) ? r.cnt : 0;
       item.rarity = r.rarity;
       item.type = r.type ?? 0;
       result[result.length] = item;

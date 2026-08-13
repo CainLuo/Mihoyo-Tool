@@ -1,10 +1,12 @@
 import { relationalStore } from '@kit.ArkData';
 import { common } from '@kit.AbilityKit';
 import { ALL_TABLES, ALL_INDEXES, TableName } from './TableSchema';
+import { RdbMigrationV2 } from './RdbMigrationV2';
+import { RdbMigrationV3 } from './RdbMigrationV3';
 
 /**
  * 数据库管理器
- * 全新 V1.0 架构，16 张专用表，SecurityLevel.S1 加密
+ * 全新 V1.0 架构，22 张专用表，SecurityLevel.S1 加密
  */
 export class RdbManager {
   private static rdbStore: relationalStore.RdbStore | null = null;
@@ -112,7 +114,7 @@ export class RdbManager {
   }
 
   /**
-   * 创建全部 15 张表（含索引）
+   * 创建全部表（含索引）
    * 表结构定义在 TableSchema.ets 中，通过 buildCreateSql() 生成 DDL
    */
   private static async createTables(): Promise<void> {
@@ -131,48 +133,11 @@ export class RdbManager {
   private static async runVersionMigrations(oldVersion: number): Promise<void> {
     // 版本 1 → 2：为 zzz_daily_note 添加 widget_raw_json 列
     if (oldVersion < 2) {
-      await RdbManager.executeSqlInternal(
-        'ALTER TABLE zzz_daily_note ADD COLUMN widget_raw_json TEXT DEFAULT \'\'',
-        []
-      );
+      await RdbMigrationV2.run();
     }
-    // 版本 2 → 3：新增 material_bag 表 + 为 Compute 表添加 raw_json 列
+    // 版本 2 → 3：新增 Compute 表 raw_json 列 + material_bag 分表 + material_target_config 表
     if (oldVersion < 3) {
-      // 创建 material_bag 表（使用正确的字段类型：material_id TEXT, rarity TEXT, 新增 source）
-      await RdbManager.executeSqlInternal(
-        `CREATE TABLE IF NOT EXISTS material_bag (
-          id INTEGER PRIMARY KEY AUTOINCREMENT,
-          account_id TEXT NOT NULL,
-          material_id TEXT NOT NULL,
-          material_name TEXT NOT NULL,
-          material_icon TEXT DEFAULT '',
-          rarity TEXT DEFAULT '',
-          count INTEGER DEFAULT 0,
-          source TEXT DEFAULT 'api',
-          game_id TEXT NOT NULL,
-          update_time INTEGER,
-          FOREIGN KEY (account_id) REFERENCES account_table(uid) ON DELETE CASCADE
-        )`,
-        []
-      );
-      // 创建 material_bag 唯一索引
-      await RdbManager.executeSqlInternal(
-        'CREATE UNIQUE INDEX IF NOT EXISTS idx_material_bag_unique ON material_bag(account_id, material_id, game_id)',
-        []
-      );
-      // 为三张 Compute 表添加 raw_json 列
-      await RdbManager.executeSqlInternal(
-        'ALTER TABLE genshin_character_compute ADD COLUMN raw_json TEXT DEFAULT \'\'',
-        []
-      );
-      await RdbManager.executeSqlInternal(
-        'ALTER TABLE starrail_avatar_compute ADD COLUMN raw_json TEXT DEFAULT \'\'',
-        []
-      );
-      await RdbManager.executeSqlInternal(
-        'ALTER TABLE zzz_avatar_compute ADD COLUMN raw_json TEXT DEFAULT \'\'',
-        []
-      );
+      await RdbMigrationV3.run();
     }
   }
 

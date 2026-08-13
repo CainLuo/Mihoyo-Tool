@@ -38,6 +38,7 @@ export * from './src/main/ets/database/StarRailDao';
 export * from './src/main/ets/database/ZZZDao';
 export * from './src/main/ets/database/SyncMetaDao';
 export * from './src/main/ets/database/MaterialBagDao';
+export * from './src/main/ets/database/MaterialTargetConfigDao';
 // 数据模型
 export * from './src/main/ets/models/AccountRow';
 export * from './src/main/ets/models/GameRoleRow';
@@ -51,6 +52,7 @@ export * from './src/main/ets/models/GenshinCharacterDetailRaw';
 export * from './src/main/ets/models/StarRailAvatarDetailRaw';
 export * from './src/main/ets/models/ZZZAvatarDetailRaw';
 export * from './src/main/ets/models/MaterialBagRow';
+export * from './src/main/ets/models/MaterialTargetConfigRow';
 // Repository 层
 export * from './src/main/ets/repository/GameRepository';
 export * from './src/main/ets/repository/BBSRepository';
@@ -60,6 +62,7 @@ export * from './src/main/ets/repository/ZZZRepository';
 export * from './src/main/ets/repository/SignRepository';
 export * from './src/main/ets/repository/SyncQueueRunner';
 export * from './src/main/ets/repository/MaterialBagRepository';
+export * from './src/main/ets/repository/MaterialTargetConfigRepository';
 
 // 网络层（抽象基类）
 export * from './src/main/ets/network/MihoyoApiService';

@@ -58,6 +58,12 @@ export enum TableName {
   STARRAIL_MATERIAL_BAG     = 'starrail_material_bag',
   /** 绝区零材料背包，存储绝区零玩家拥有的材料数据 */
   ZZZ_MATERIAL_BAG          = 'zzz_material_bag',
+  /** 原神养成目标配置，存储角色/技能/武器的目标等级配置 */
+  GENSHIN_MATERIAL_TARGET_CONFIG = 'genshin_material_target_config',
+  /** 星穹铁道养成目标配置，存储角色/命途/光锥的目标等级配置 */
+  STARRAIL_MATERIAL_TARGET_CONFIG = 'starrail_material_target_config',
+  /** 绝区零养成目标配置，存储代理人/武器/技能的目标等级配置 */
+  ZZZ_MATERIAL_TARGET_CONFIG = 'zzz_material_target_config',
 }
 
 /**
@@ -504,6 +510,28 @@ export enum MaterialBagCol {
 }
 
 /**
+ * 养成目标配置通用列名（适用于三个游戏的养成目标配置表）。
+ * 存储用户设置的角色/技能/武器目标等级配置。
+ * 
+ * 注意：三个游戏有独立的配置表，不再需要 game_id 字段：
+ * - genshin_material_target_config（原神）
+ * - starrail_material_target_config（星穹铁道）
+ * - zzz_material_target_config（绝区零）
+ * 
+ * 唯一键：(account_id, role_uid)
+ * 同一个米游社账号下，不同游戏角色的配置是独立的。
+ * 
+ * 配置数据以 JSON 形式存储在 config_json 字段中，不同游戏的 JSON 结构不同：
+ * - 原神：avatar (current/target), skill (current/target), weapon (current/target)
+ * - 星铁：avatar (current/target), skill (current/target), light_cone (current/target)
+ * - 绝区零：avatar (current/target), weapon (current/target), skills (数组，每个含 skill_type/current/target)
+ */
+export enum MaterialTargetConfigCol {
+  /** 配置 JSON（包含角色/技能/武器的当前等级和目标等级） */
+  CONFIG_JSON    = 'config_json',
+}
+
+/**
  * 单列定义，描述一张表中某一列的名称、SQLite 类型和约束。
  * 由 TableDef 持有，通过 buildCreateSql() 拼入 DDL。
  */
@@ -917,8 +945,35 @@ export const ZZZ_MATERIAL_BAG_TABLE = new TableDef(TableName.ZZZ_MATERIAL_BAG, [
   new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
 ], FK_ACCOUNT);
 
+// ── 表 20：genshin_material_target_config（原神养成目标配置）────────────────
+export const GENSHIN_MATERIAL_TARGET_CONFIG_TABLE = new TableDef(TableName.GENSHIN_MATERIAL_TARGET_CONFIG, [
+  new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
+  new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT',    'NOT NULL'),
+  new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
+  new ColumnDef(MaterialTargetConfigCol.CONFIG_JSON, 'TEXT', "DEFAULT ''"),
+  new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
+], FK_ACCOUNT);
+
+// ── 表 21：starrail_material_target_config（星穹铁道养成目标配置）────────────
+export const STARRAIL_MATERIAL_TARGET_CONFIG_TABLE = new TableDef(TableName.STARRAIL_MATERIAL_TARGET_CONFIG, [
+  new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
+  new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT',    'NOT NULL'),
+  new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
+  new ColumnDef(MaterialTargetConfigCol.CONFIG_JSON, 'TEXT', "DEFAULT ''"),
+  new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
+], FK_ACCOUNT);
+
+// ── 表 22：zzz_material_target_config（绝区零养成目标配置）──────────────────
+export const ZZZ_MATERIAL_TARGET_CONFIG_TABLE = new TableDef(TableName.ZZZ_MATERIAL_TARGET_CONFIG, [
+  new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
+  new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT',    'NOT NULL'),
+  new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
+  new ColumnDef(MaterialTargetConfigCol.CONFIG_JSON, 'TEXT', "DEFAULT ''"),
+  new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
+], FK_ACCOUNT);
+
 /**
- * 所有 19 张表的有序列表，供 RdbManager.createTables() 循环建表使用。
+ * 所有 22 张表的有序列表，供 RdbManager.createTables() 循环建表使用。
  * 顺序很重要：account_table 必须在所有有外键的子表之前创建。
  */
 export const ALL_TABLES: TableDef[] = [
@@ -941,6 +996,9 @@ export const ALL_TABLES: TableDef[] = [
   GENSHIN_MATERIAL_BAG_TABLE,
   STARRAIL_MATERIAL_BAG_TABLE,
   ZZZ_MATERIAL_BAG_TABLE,
+  GENSHIN_MATERIAL_TARGET_CONFIG_TABLE,
+  STARRAIL_MATERIAL_TARGET_CONFIG_TABLE,
+  ZZZ_MATERIAL_TARGET_CONFIG_TABLE,
 ];
 
 // ── 索引定义 ─────────────────────────────────────────────────
@@ -1034,4 +1092,10 @@ export const ALL_INDEXES: IndexDef[] = [
   new IndexDef('idx_starrail_material_bag_unique', TableName.STARRAIL_MATERIAL_BAG, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, MaterialBagCol.MATERIAL_ID], true),
   // zzz_material_bag
   new IndexDef('idx_zzz_material_bag_unique', TableName.ZZZ_MATERIAL_BAG, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, MaterialBagCol.MATERIAL_ID], true),
+  // genshin_material_target_config
+  new IndexDef('idx_genshin_material_target_config_unique', TableName.GENSHIN_MATERIAL_TARGET_CONFIG, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID], true),
+  // starrail_material_target_config
+  new IndexDef('idx_starrail_material_target_config_unique', TableName.STARRAIL_MATERIAL_TARGET_CONFIG, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID], true),
+  // zzz_material_target_config
+  new IndexDef('idx_zzz_material_target_config_unique', TableName.ZZZ_MATERIAL_TARGET_CONFIG, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID], true),
 ];
