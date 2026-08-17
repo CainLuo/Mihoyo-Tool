@@ -1,38 +1,35 @@
 /**
- * MaterialList.ets — 材料汇总页主页面
+ * StarRailMaterialList.ets — 星穹铁道材料汇总页
  *
+ * 展示星穹铁道角色的材料需求汇总。
  * 支持两种视图：按角色分组 / 按材料汇总。
- * 刷新按钮通过 NavDestination.menus() 显示在标题栏右侧。
  */
 
 import { SymbolGlyphModifier } from '@kit.ArkUI'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { ViewState } from '../constants/ViewStates'
 import { MaterialListViewMode } from '../models/MaterialListModels'
-import { MaterialListViewModel } from '../viewmodel/MaterialListViewModel'
+import { StarRailMaterialListViewModel } from '../viewmodel/StarRailMaterialListViewModel'
 import { MaterialListContentView } from '../components/material-list/MaterialListContentView'
 import { SegmentedTabBar, SegmentedTabItem } from '../components/common/SegmentedTabBar'
-import { GameId, Logger } from 'core'
+import { Logger, GameId } from 'core'
 import { ThemeFonts } from '../theme/ThemeFonts'
 import { PrimaryButtonModifier } from '../styles/ButtonModifier'
 import { AppRoutes } from '../constants/AppRoutes'
 import { MaterialTargetConfigParam } from '../models/ToolsModels'
 
-/** 页面参数 */
-export class MaterialListParam {
-  gameId: GameId = GameId.GENSHIN
-}
+const TAG: string = 'StarRailMaterialList'
 
 @ComponentV2
-export struct MaterialList {
-  @Param param: MaterialListParam = new MaterialListParam()
-  @Local private vm: MaterialListViewModel = new MaterialListViewModel()
+export struct StarRailMaterialList {
+  @Local private vm: StarRailMaterialListViewModel = new StarRailMaterialListViewModel()
   @Local private tm: ThemeManager = themeManager
   @Local private buttonModifier: PrimaryButtonModifier = new PrimaryButtonModifier(true)
   private localStack: NavPathStack | null = null
 
   aboutToAppear(): void {
-    this.vm.init(this.param.gameId)
+    Logger.info(TAG, 'aboutToAppear')
+    this.vm.init()
   }
 
   private get menuItems(): NavigationMenuItem[] {
@@ -45,7 +42,7 @@ export struct MaterialList {
         symbolIcon: new SymbolGlyphModifier($r('sys.symbol.arrow_clockwise')),
         isEnabled: !this.vm.isSyncing,
         action: () => {
-          Logger.info('MaterialList', 'Sync menu item clicked')
+          Logger.info(TAG, 'Sync menu item clicked')
           this.vm.syncComputeData()
         }
       })
@@ -57,10 +54,8 @@ export struct MaterialList {
       symbolIcon: new SymbolGlyphModifier($r('sys.symbol.gearshape')),
       isEnabled: true,
       action: () => {
-        Logger.info('MaterialList', 'Config menu item clicked')
-        const configParam = new MaterialTargetConfigParam()
-        configParam.gameId = this.param.gameId
-        this.localStack?.pushPathByName(AppRoutes.MATERIAL_TARGET_CONFIG, configParam)
+        Logger.info(TAG, 'Config menu item clicked')
+        this.localStack?.pushPathByName(AppRoutes.STARRAIL_MATERIAL_TARGET_CONFIG, null)
       }
     })
 
@@ -87,7 +82,7 @@ export struct MaterialList {
   build() {
     NavDestination() {
       Column() {
-        // 视图切换 Tab（与 Characters 页面的游戏切换样式一致）
+        // 视图切换 Tab
         SegmentedTabBar({
           tabs: this.getViewModeTabs(),
           selectedIdx: this.getViewModeIndex(),
@@ -109,7 +104,7 @@ export struct MaterialList {
           .layoutWeight(1)
           .justifyContent(FlexAlign.Center)
         } else if (this.vm.viewState === ViewState.EMPTY) {
-          // 空态视图 — 提示用户去同步材料计算
+          // 空态视图
           Column({ space: this.tm.current.font20 }) {
             Text('📦')
               .fontSize(this.tm.current.value64)
@@ -135,7 +130,7 @@ export struct MaterialList {
               .width(this.tm.current.pct90)
               .enabled(!this.vm.isSyncing)
               .onClick(() => {
-                Logger.info('MaterialList', 'Button onClick triggered')
+                Logger.info(TAG, 'Button onClick triggered')
                 this.vm.syncComputeData()
               })
           }
@@ -161,7 +156,7 @@ export struct MaterialList {
       .backgroundColor(this.tm.current.colorPageBg)
       .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
     }
-    .title($r('app.string.material_list_title'))
+    .title($r('app.string.starrail_material_list_title'))
     .hideTitleBar(false)
     .menus(this.menuItems)
     .onReady((ctx: NavDestinationContext) => {
@@ -174,15 +169,15 @@ export struct MaterialList {
 
 @Preview
 @ComponentV2
-export struct MaterialListPreview {
+export struct StarRailMaterialListPreview {
   build() {
-    MaterialList()
+    StarRailMaterialList()
   }
 }
 
 // ─── Router Builder ───────────────────────────────────────────────
 
 @Builder
-export function MaterialListBuilder(_name: string, param: Object) {
-  MaterialList({ param: param as MaterialListParam })
+export function StarRailMaterialListBuilder(_name: string, _param: Object) {
+  StarRailMaterialList()
 }

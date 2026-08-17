@@ -8,10 +8,18 @@
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { MaterialItemVM } from '../../models/MaterialListModels';
 import { ThemeFonts } from '../../theme/ThemeFonts';
-import { MaterialListViewModel } from '../../viewmodel/MaterialListViewModel';
 
-/** 货币材料 ID 列表（摩拉、经验书、魔矿） */
-const CURRENCY_MATERIAL_IDS: Set<string> = new Set<string>(['202', '104003', '104013']);
+/**
+ * 货币材料 ID 列表
+ * - 原神：摩拉(202)、大英雄的经验(104003)、精锻用魔矿(104013)
+ * - 绝区零：丁尼(10)
+ * - 星铁：信用点(2)
+ */
+const CURRENCY_MATERIAL_IDS: Set<string> = new Set<string>([
+  '202', '104003', '104013',  // 原神
+  '10',                        // 绝区零：丁尼
+  '2',                         // 星铁：信用点
+]);
 
 @ComponentV2
 export struct MaterialGridItem {
@@ -70,9 +78,51 @@ export struct MaterialGridItem {
   private formatDeficit(item: MaterialItemVM): string {
     const isCurrency = CURRENCY_MATERIAL_IDS.has(item.materialId);
     if (isCurrency) {
-      return '-' + MaterialListViewModel.formatCurrencyAmount(item.deficit);
+      return '-' + this.formatCurrencyAmount(item.deficit);
     }
     return `-${item.deficit}`;
+  }
+
+  /**
+   * 格式化摩拉/经验书/魔矿的数量显示。
+   * 单位转换规则：
+   * - < 1万：显示具体数字（如 5000）
+   * - >= 1万 且 < 1亿：显示"万"单位，< 10万保留一位小数，>= 10万显示整数
+   * - >= 1亿：显示"亿"单位，保留一位小数
+   */
+  private formatCurrencyAmount(amount: number): string {
+    if (amount < 10000) {
+      // < 1万：显示具体数字
+      return `${amount}`;
+    }
+    
+    const YI = 100000000; // 1亿
+    const WAN = 10000;    // 1万
+    
+    if (amount >= YI) {
+      // >= 1亿：显示 X.X亿
+      const yiValue = amount / YI;
+      const formatted = yiValue.toFixed(1);
+      if (formatted.endsWith('.0')) {
+        return formatted.substring(0, formatted.length - 2) + '亿';
+      }
+      return formatted + '亿';
+    }
+    
+    // >= 1万 且 < 1亿：显示万单位
+    const wanValue = amount / WAN;
+    
+    if (wanValue < 10) {
+      // < 10万：保留一位小数（如 1.5万）
+      const formatted = wanValue.toFixed(1);
+      if (formatted.endsWith('.0')) {
+        return formatted.substring(0, formatted.length - 2) + '万';
+      }
+      return formatted + '万';
+    }
+    
+    // >= 10万：显示整数万（如 15万、5932万）
+    return Math.floor(wanValue) + '万';
   }
 
   /**

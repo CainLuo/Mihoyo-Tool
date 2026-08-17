@@ -14,7 +14,6 @@ import { AppRoutes } from '../constants/AppRoutes'
 import { AccountSignal } from '../utils/AccountSignal'
 import { GameId } from 'core'
 import { GameEntryVM, MaterialTargetConfigParam } from '../models/ToolsModels'
-import { MaterialListParam } from './MaterialList'
 
 @ComponentV2
 export struct Tools {
@@ -30,8 +29,12 @@ export struct Tools {
     this.vm.loadData()
   }
 
+  /**
+   * 监听 AccountSignal.version 变化
+   * 当账号登录成功或计算数据同步完成后刷新 Tools 页面
+   */
   @Monitor('signal.version')
-  onAccountDataChanged(_monitor: IMonitor): void {
+  onSignalChanged(_monitor: IMonitor): void {
     this.vm.loadData()
   }
 
@@ -97,7 +100,7 @@ export struct Tools {
 
   /**
    * 游戏入口点击处理
-   * - 如果已计算角色数 > 0：直接跳转到材料汇总页
+   * - 如果已计算角色数 > 0：直接跳转到对应游戏的材料汇总页
    * - 如果已计算角色数 = 0：弹出 Alert，提示用户先去配置
    */
   private onEntryTap(entry: GameEntryVM): void {
@@ -109,11 +112,22 @@ export struct Tools {
       return
     }
 
+    // 构建路由参数（accountId + roleUid + gameId）
+    const param: MaterialTargetConfigParam = {
+      accountId: entry.accountId,
+      roleUid: entry.roleUid,
+      gameId: entry.gameId
+    }
+
     // 已有计算数据 → 直接跳转到材料汇总页
     if (entry.computedCount > 0) {
-      const params = new MaterialListParam()
-      params.gameId = entry.gameId
-      this.detailStack.pushPathByName(AppRoutes.MATERIAL_LIST, params)
+      if (entry.gameId === GameId.GENSHIN) {
+        this.detailStack.pushPathByName(AppRoutes.GENSHIN_MATERIAL_LIST, null)
+      } else if (entry.gameId === GameId.STARRAIL) {
+        this.detailStack.pushPathByName(AppRoutes.STARRAIL_MATERIAL_LIST, null)
+      } else if (entry.gameId === GameId.ZZZ) {
+        this.detailStack.pushPathByName(AppRoutes.ZZZ_MATERIAL_LIST, null)
+      }
       return
     }
 
@@ -124,9 +138,14 @@ export struct Tools {
       primaryButton: {
         value: $r('app.string.tool_sync_required_button'),
         action: () => {
-          const params = new MaterialTargetConfigParam()
-          params.gameId = entry.gameId
-          this.detailStack!.pushPathByName(AppRoutes.MATERIAL_TARGET_CONFIG, params)
+          // 根据游戏类型跳转到对应的配置页，传递参数
+          if (entry.gameId === GameId.GENSHIN) {
+            this.detailStack!.pushPathByName(AppRoutes.GENSHIN_MATERIAL_TARGET_CONFIG, param)
+          } else if (entry.gameId === GameId.STARRAIL) {
+            this.detailStack!.pushPathByName(AppRoutes.STARRAIL_MATERIAL_TARGET_CONFIG, param)
+          } else if (entry.gameId === GameId.ZZZ) {
+            this.detailStack!.pushPathByName(AppRoutes.ZZZ_MATERIAL_TARGET_CONFIG, param)
+          }
         }
       },
       secondaryButton: {

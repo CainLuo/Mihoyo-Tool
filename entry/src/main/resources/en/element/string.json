@@ -1921,6 +1921,22 @@
       "value": "Weapon Materials"
     },
     {
+      "name": "material_section_all",
+      "value": "All Materials"
+    },
+    {
+      "name": "genshin_material_list_title",
+      "value": "Genshin Material Summary"
+    },
+    {
+      "name": "starrail_material_list_title",
+      "value": "Star Rail Material Summary"
+    },
+    {
+      "name": "zzz_material_list_title",
+      "value": "ZZZ Material Summary"
+    },
+    {
       "name": "material_card_weapon",
       "value": "Weapon"
     },
@@ -2083,6 +2099,18 @@
     {
       "name": "material_target_config_level",
       "value": "Select Level"
+    },
+    {
+      "name": "material_target_config_current",
+      "value": "Current"
+    },
+    {
+      "name": "material_target_config_target",
+      "value": "Target"
+    },
+    {
+      "name": "material_target_config_level_suffix",
+      "value": "Lv.%d"
     },
     {
       "name": "tool_sync_required_title",

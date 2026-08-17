@@ -74,6 +74,7 @@ export class ToolsViewModel {
 
   /**
    * 构建游戏入口列表，每个游戏统计角色数量和计算数量。
+   * 同时记录每个游戏的第一个角色 UID，用于跳转配置页时传递参数。
    */
   private async buildGameEntries(accounts: AccountRow[]): Promise<GameEntryVM[]> {
     const gameIds: GameId[] = [GameId.GENSHIN, GameId.STARRAIL, GameId.ZZZ];
@@ -85,6 +86,8 @@ export class ToolsViewModel {
     const computedCounts: Map<GameId, number> = new Map();
     // 首个账号 UID（用于填充 entry.accountId）
     let firstAccountUid: string = '';
+    // 各游戏的第一个角色 UID（用于跳转配置页）
+    const firstRoleUids: Map<GameId, string> = new Map();
 
     for (let i = 0; i < accounts.length; i++) {
       const account = accounts[i];
@@ -98,6 +101,11 @@ export class ToolsViewModel {
         const gameId = role.gameId;
         const current = roleCounts.get(gameId) ?? 0;
         roleCounts.set(gameId, current + 1);
+
+        // 记录该游戏的第一个角色 UID
+        if (!firstRoleUids.has(gameId)) {
+          firstRoleUids.set(gameId, role.roleId);
+        }
 
         // 统计已计算的角色数量（通过查询对应的 compute 表）
         const hasComputeData = await this.hasComputeData(gameId, account.uid, role.roleId);
@@ -116,6 +124,7 @@ export class ToolsViewModel {
 
       const entry = new GameEntryVM();
       entry.accountId = firstAccountUid;
+      entry.roleUid = firstRoleUids.get(gameId) ?? '';
       entry.gameId = gameId;
       entry.gameName = gameIdToName(gameId);
       entry.gameIcon = gameIdToLogo(gameId);

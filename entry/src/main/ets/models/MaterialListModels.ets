@@ -157,6 +157,8 @@ export enum MaterialSectionType {
   CURRENCY = 'currency',
   /** 其他材料 */
   MATERIALS = 'materials',
+  /** 全部材料（绝区零使用） */
+  ALL = 'all',
 }
 
 /**

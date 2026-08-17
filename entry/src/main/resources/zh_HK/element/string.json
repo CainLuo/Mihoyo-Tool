@@ -1917,6 +1917,22 @@
       "value": "武器材料"
     },
     {
+      "name": "material_section_all",
+      "value": "全部材料"
+    },
+    {
+      "name": "genshin_material_list_title",
+      "value": "原神材料匯總"
+    },
+    {
+      "name": "starrail_material_list_title",
+      "value": "星穹鐵道材料匯總"
+    },
+    {
+      "name": "zzz_material_list_title",
+      "value": "絕區零材料匯總"
+    },
+    {
       "name": "material_card_weapon",
       "value": "武器"
     },
@@ -2079,6 +2095,18 @@
     {
       "name": "material_target_config_level",
       "value": "選擇等級"
+    },
+    {
+      "name": "material_target_config_current",
+      "value": "當前"
+    },
+    {
+      "name": "material_target_config_target",
+      "value": "目標"
+    },
+    {
+      "name": "material_target_config_level_suffix",
+      "value": "%d 級"
     },
     {
       "name": "tool_sync_required_title",

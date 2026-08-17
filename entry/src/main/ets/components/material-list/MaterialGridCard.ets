@@ -9,7 +9,6 @@
 import { themeManager, ThemeManager } from '../../theme/ThemeManager';
 import { MaterialSummaryVM } from '../../models/MaterialListModels';
 import { ThemeFonts } from '../../theme/ThemeFonts';
-import { MaterialListViewModel } from '../../viewmodel/MaterialListViewModel';
 
 @ComponentV2
 export struct MaterialGridCard {
@@ -73,9 +72,51 @@ export struct MaterialGridCard {
    */
   private formatAmount(amount: number): string {
     if (this.isCurrency) {
-      return '-' + MaterialListViewModel.formatCurrencyAmount(amount);
+      return '-' + this.formatCurrencyAmount(amount);
     }
     return `-${amount}`;
+  }
+
+  /**
+   * 格式化摩拉/经验书/魔矿的数量显示。
+   * 单位转换规则：
+   * - < 1万：显示具体数字（如 5000）
+   * - >= 1万 且 < 1亿：显示"万"单位，< 10万保留一位小数，>= 10万显示整数
+   * - >= 1亿：显示"亿"单位，保留一位小数
+   */
+  private formatCurrencyAmount(amount: number): string {
+    if (amount < 10000) {
+      // < 1万：显示具体数字
+      return `${amount}`;
+    }
+    
+    const YI = 100000000; // 1亿
+    const WAN = 10000;    // 1万
+    
+    if (amount >= YI) {
+      // >= 1亿：显示 X.X亿
+      const yiValue = amount / YI;
+      const formatted = yiValue.toFixed(1);
+      if (formatted.endsWith('.0')) {
+        return formatted.substring(0, formatted.length - 2) + '亿';
+      }
+      return formatted + '亿';
+    }
+    
+    // >= 1万 且 < 1亿：显示万单位
+    const wanValue = amount / WAN;
+    
+    if (wanValue < 10) {
+      // < 10万：保留一位小数（如 1.5万）
+      const formatted = wanValue.toFixed(1);
+      if (formatted.endsWith('.0')) {
+        return formatted.substring(0, formatted.length - 2) + '万';
+      }
+      return formatted + '万';
+    }
+    
+    // >= 10万：显示整数万（如 15万、5932万）
+    return Math.floor(wanValue) + '万';
   }
 
   /**

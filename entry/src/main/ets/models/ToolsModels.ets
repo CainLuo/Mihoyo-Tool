@@ -10,6 +10,11 @@ import { GameId } from 'core';
  * 养成目标配置页路由参数
  */
 export class MaterialTargetConfigParam {
+  /** 米游社账号 UID */
+  accountId: string = '';
+  /** 游戏角色 UID */
+  roleUid: string = '';
+  /** 游戏标识 */
   gameId: GameId = GameId.GENSHIN;
 }
 
@@ -19,6 +24,8 @@ export class MaterialTargetConfigParam {
 export class GameEntryVM {
   /** 账号 UID（米游社 UID） */
   accountId: string = '';
+  /** 游戏角色 UID（第一个角色的 UID，用于跳转配置页） */
+  roleUid: string = '';
   /** 游戏标识 */
   gameId: GameId = GameId.GENSHIN;
   /** 游戏名称 */

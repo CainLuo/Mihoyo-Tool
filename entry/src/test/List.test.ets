@@ -16,7 +16,6 @@ import widgetExtraRowTypeTest from './WidgetExtraRowType.test';
 import widgetExtraRowConfigTest from './WidgetExtraRowConfig.test';
 import widgetDataHelperExtraRowsTest from './WidgetDataHelperExtraRows.test';
 import toolsViewModelTest from './ToolsViewModel.test';
-import materialListViewModelTest from './MaterialListViewModel.test';
 import materialCalcViewModelTest from './MaterialCalcViewModel.test';
 
 export default function testsuite() {
@@ -38,6 +37,5 @@ export default function testsuite() {
   widgetExtraRowConfigTest();
   widgetDataHelperExtraRowsTest();
   toolsViewModelTest();
-  materialListViewModelTest();
   materialCalcViewModelTest();
 }

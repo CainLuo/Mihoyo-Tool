@@ -39,10 +39,18 @@ export class AppRoutes {
   static readonly PRIVACY_CONSENT = 'PrivacyConsent'
   /** 工具页（Tab 内嵌页，无需 Builder） */
   static readonly TOOLS = 'Tools'
-  /** 养成目标配置页 */
-  static readonly MATERIAL_TARGET_CONFIG = 'MaterialTargetConfig'
-  /** 材料汇总页 */
-  static readonly MATERIAL_LIST = 'MaterialList'
-  /** 材料计算页 */
+  /** 材料计算页（单个角色） */
   static readonly MATERIAL_CALC = 'MaterialCalc'
+  /** 原神材料目标配置页 */
+  static readonly GENSHIN_MATERIAL_TARGET_CONFIG = 'GenshinMaterialTargetConfig'
+  /** 星铁材料目标配置页 */
+  static readonly STARRAIL_MATERIAL_TARGET_CONFIG = 'StarRailMaterialTargetConfig'
+  /** 绝区零材料目标配置页 */
+  static readonly ZZZ_MATERIAL_TARGET_CONFIG = 'ZZZMaterialTargetConfig'
+  /** 原神材料汇总页 */
+  static readonly GENSHIN_MATERIAL_LIST = 'GenshinMaterialList'
+  /** 星铁材料汇总页 */
+  static readonly STARRAIL_MATERIAL_LIST = 'StarRailMaterialList'
+  /** 绝区零材料汇总页 */
+  static readonly ZZZ_MATERIAL_LIST = 'ZZZMaterialList'
 }
