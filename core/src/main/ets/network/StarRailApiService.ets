@@ -101,8 +101,10 @@ export class StarRailApiService extends MihoyoApiService {
   /**
    * 养成材料计算 — POST，Domain=TAKUMI，Profile=CALCULATE
    * URL 追加 ?game=hkrpg，Referer/Origin 覆盖为 webstatic.mihoyo.com
+   * 星铁 API 只支持逐角色请求，avatarId 用于 Mock 文件路由
    */
   async compute(
+    avatarId: string,
     avatar: object,
     skillList: object[],
     uid: string,

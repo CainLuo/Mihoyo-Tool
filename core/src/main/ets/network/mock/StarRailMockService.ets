@@ -28,8 +28,8 @@ export class StarRailMockService extends MockServiceBase {
     return this.readMockFile(StarRailApiPath.AVATAR_INFO, cookie, roleId);
   }
 
-  async compute(avatar: object, skillList: object[], uid: string, region: string, cookie: string): Promise<object> {
-    return this.readMockFile(StarRailApiPath.COMPUTE, cookie, uid);
+  async compute(avatarId: string, avatar: object, skillList: object[], uid: string, region: string, cookie: string): Promise<object> {
+    return this.readMockFile(StarRailApiPath.COMPUTE, cookie, uid, avatarId);
   }
 
   private extractCookie(options?: RequestOptions): string {

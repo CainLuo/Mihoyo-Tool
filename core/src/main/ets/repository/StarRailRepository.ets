@@ -299,7 +299,7 @@ export class StarRailRepository extends GameRepository {
   /**
    * 拉取单角色养成计算 → 解析 → 写 DB
    * 同时写入材料背包数据（从 user_owns_materials）
-   * @param avatarId 角色 ID（字符串，如 '1001'）
+   * @param avatarId 角色 ID（字符串，如 '1001'）—— 用于 Mock 文件路由
    * @param avatar 角色计算参数（id, level_current, level_target）
    * @param skillList 技能计算参数数组
    * @param uid 游戏 UID
@@ -318,7 +318,7 @@ export class StarRailRepository extends GameRepository {
   ): Promise<StarRailAvatarComputeRow> {
     await this.markSyncing(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_COMPUTE);
     try {
-      const resp = await (this.getService() as StarRailApiService).compute(avatar, skillList, uid, region, cookie);
+      const resp = await (this.getService() as StarRailApiService).compute(avatarId, avatar, skillList, uid, region, cookie);
       const row = StarRailRepository.parseComputeResult(accountId, roleUid, avatarId, resp);
 
       // 解析材料背包数据
@@ -428,13 +428,16 @@ export class StarRailRepository extends GameRepository {
     row.accountId = accountId;
     row.roleUid = roleUid;
     row.avatarId = avatarId;
-    row.rawJson = JSON.stringify(resp);
     row.updateTime = Math.floor(Date.now() / 1000);
 
     try {
       const respRecord = resp as Record<string, object>;
       const dataObj = respRecord['data'] !== undefined ? respRecord['data'] : resp;
       const data = dataObj as Record<string, object>;
+
+      // rawJson 只存储 data 部分，与 Parser 期望一致
+      row.rawJson = JSON.stringify(dataObj);
+      Logger.info('StarRailRepository', `💥💥💥 parseComputeResult: avatarId=${avatarId}, rawJson.length=${row.rawJson.length}, hasRetcode=${respRecord['retcode'] !== undefined}`);
 
       // 提取各部分的 consume JSON
       const avatarConsume = data['avatar_consume'] as Record<string, object>[] | null;

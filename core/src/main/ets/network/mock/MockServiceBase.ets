@@ -110,9 +110,12 @@ export abstract class MockServiceBase extends MihoyoApiService {
     await this.delay();
     const accountId = MockServiceBase.extractAccountId(cookie);
 
-    // 绝区零养成计算使用 avatar_compute/{avatarId}.json 路径
+    // 养成计算使用 avatar_compute/{avatarId}.json 路径
+    // 原神: /event/e20200928calculate/v3/batch_compute
+    // 星铁: /event/rpgcalc/compute
+    // 绝区零: /event/nap_cultivate_tool/avatar_calc
     let fileName: string;
-    if (avatarId && path.includes('avatar_calc')) {
+    if (avatarId && (path.includes('compute') || path.includes('avatar_calc'))) {
       fileName = `avatar_compute/${avatarId}.json`;
     } else {
       fileName = avatarId ? `${avatarId}.json` : MockServiceBase.pathToFileName(path);
@@ -213,8 +216,7 @@ export abstract class MockServiceBase extends MihoyoApiService {
 
     // 特殊映射表
     const specialMap = new Map<string, string>();
-    specialMap.set('/event/rpgcalc/compute', 'hkrpg_character_compute.json');
-    // 绝区零养成计算使用 avatarId 作为文件名，在 readMockFile 中通过 avatarId 参数传入
+    // 星铁养成计算使用 avatarId 作为文件名，在 readMockFile 中通过 avatarId 参数传入
     // 此处不需要特殊映射，走通用规则即可
     specialMap.set('/app/api/signIn', 'apihub_app_api_signIn.json');
     specialMap.set('/game_record/app/genshin/api/character/detail', 'game_record_app_genshin_api_character_detail_all.json');
