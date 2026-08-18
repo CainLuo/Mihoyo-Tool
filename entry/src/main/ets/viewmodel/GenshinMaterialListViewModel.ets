@@ -92,6 +92,7 @@ export class GenshinMaterialListViewModel {
    * 切换视图模式。
    */
   toggleViewMode(): void {
+    // 简单切换，不触发任何数据重新计算
     if (this.viewMode === MaterialListViewMode.CHARACTER) {
       this.viewMode = MaterialListViewMode.MATERIAL;
     } else {

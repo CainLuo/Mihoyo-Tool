@@ -10,7 +10,7 @@ import { GameDataSummary } from 'core';
 import { PlaceholderView, PlaceholderState } from '../common/PlaceholderView';
 import { CharacterCard } from './CharacterCard';
 import { CharactersSkeleton } from './CharactersSkeleton';
-import { GameTabBar } from './GameTabBar';
+import { SegmentedTabBar, SegmentedTabItem } from '../common/SegmentedTabBar';
 import { ViewState } from '../../constants/ViewStates';
 import { AppRoutes } from '../../constants/AppRoutes';
 
@@ -26,9 +26,9 @@ export struct CharactersContent {
   build() {
     Column() {
       // 多游戏时显示 Tab 栏
-      if (this.vm.gameTabs.length > 1) {
-        GameTabBar({
-          tabs: this.vm.gameTabs,
+      if (this.vm.gameTabItems.length > 1) {
+        SegmentedTabBar({
+          tabs: this.vm.gameTabItems,
           selectedIdx: this.vm.selectedGameIdx,
           onSelect: (idx: number) => { this.vm.selectGame(idx) }
         })
@@ -84,11 +84,8 @@ export struct CharactersContent {
             GridItem() {
               CharacterCard({
                 character: character,
-                gameId: this.vm.gameTabs.length > 0
-                  ? this.vm.gameTabs[this.vm.selectedGameIdx].gameId
-                  : this.vm.currentGameId,
-                roleUid: this.vm.gameTabs.length > 0
-                  ? this.vm.gameTabs[this.vm.selectedGameIdx].roleUid : '',
+                gameId: this.vm.currentGameId,
+                roleUid: '',
                 onTap: (c: GameDataSummary) => { this.onCardTap(c) }
               })
             }

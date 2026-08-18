@@ -94,7 +94,12 @@ export struct SegmentedTabBar {
             .backgroundColor(idx === this.selectedIdx
               ? $r('app.color.color_primary_bg')
               : Color.Transparent)
-            .onClick(() => { this.onSelect(idx); })
+            .onClick(() => {
+              // 只有点击不同的 Tab 才触发回调
+              if (idx !== this.selectedIdx) {
+                this.onSelect(idx);
+              }
+            })
         }, (tab: SegmentedTabItem) => tab.key)
       }
       .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })

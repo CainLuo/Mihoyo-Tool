@@ -32,11 +32,17 @@ import { ViewState } from '../constants/ViewStates';
 import { AppConstants } from '../constants/AppConstants';
 import { CharacterDataSource } from '../components/characters/CharacterDataSource';
 import { AccountOption } from '../models/AccountOption';
-import { GameTabItem } from '../models/GameTabItem';
 import { CharDetailRouterParam } from '../models/CharDetailModels';
+import { SegmentedTabItem } from '../components/common/SegmentedTabBar';
 import { AppRoutes } from '../constants/AppRoutes';
 
 const TAG: string = 'CharactersViewModel';
+
+/** 内部游戏 Tab 数据，存储 gameId/roleUid，不暴露给 View 层 */
+class GameTabInternal {
+  gameId: GameId = GameId.GENSHIN;
+  roleUid: string = '';
+}
 
 /** 角色卡片点击后的路由信息，由 ViewModel 构建，View 层执行跳转 */
 export class CardTapRoute {
@@ -65,14 +71,15 @@ export class CharactersViewModel {
   /** 是否显示刷新按钮（有游戏数据时为 true） */
   @Trace showRefreshButton: boolean = false;
   @Trace selectedAccountIdx: number = 0;
-  @Trace gameTabs: GameTabItem[] = [];
+  /** 游戏 Tab 列表（SegmentedTabItem 格式，直接传给 SegmentedTabBar） */
+  @Trace gameTabItems: SegmentedTabItem[] = [];
   @Trace selectedGameIdx: number = 0;
   @Trace characters: GameDataSummary[] = [];
   @Trace isRefreshing: boolean = false;
   /** 当前选中游戏 ID（无 Tab 时为 GENSHIN） */
   get currentGameId(): GameId {
-    if (this.gameTabs.length > 0) {
-      return this.gameTabs[this.selectedGameIdx].gameId;
+    if (this.gameTabsInternal.length > 0) {
+      return this.gameTabsInternal[this.selectedGameIdx].gameId;
     }
     return GameId.GENSHIN;
   }
@@ -87,6 +94,12 @@ export class CharactersViewModel {
   // 原始账号+角色数据，切换时复用
   private allAccounts: AccountRow[] = [];
   private allRoles: GameRoleRow[][] = [];
+
+  /** 内部 Tab 数据，存储 gameId/roleUid，与 gameTabItems 一一对应 */
+  private gameTabsInternal: GameTabInternal[] = [];
+
+  /** 切换账号后保留原选中游戏（如该账号也有相同 gameId） */
+  private lastSelectedGameId: GameId = GameId.GENSHIN;
 
   // ─── 公开方法 ────────────────────────────────────────────────
 
@@ -144,10 +157,10 @@ export class CharactersViewModel {
 
   /** 手动刷新：强制同步当前游戏角色，30 分钟内重复触发时发出冷却信号 */
   async refresh(): Promise<void> {
-    if (this.isRefreshing || this.gameTabs.length === 0) {
+    if (this.isRefreshing || this.gameTabsInternal.length === 0) {
       return;
     }
-    const tab = this.gameTabs[this.selectedGameIdx];
+    const tab = this.gameTabsInternal[this.selectedGameIdx];
     // 检查冷却：使用 needsSync
     let inCooldown = false;
     try {
@@ -181,12 +194,12 @@ export class CharactersViewModel {
 
   /** 强制刷新：跳过冷却检查，由 View 层在用户确认冷却 Dialog 后调用 */
   async forceRefresh(): Promise<void> {
-    if (this.isRefreshing || this.gameTabs.length === 0) {
+    if (this.isRefreshing || this.gameTabsInternal.length === 0) {
       return;
     }
     this.isRefreshing = true;
     try {
-      const tab = this.gameTabs[this.selectedGameIdx];
+      const tab = this.gameTabsInternal[this.selectedGameIdx];
       const account = this.allAccounts[this.selectedAccountIdx];
       await this.syncCharacters(account, tab.gameId, tab.roleUid, this.findServer(tab.roleUid));
       await this.reloadCharacters();
@@ -208,7 +221,7 @@ export class CharactersViewModel {
    */
   buildCardTapRoute(character: GameDataSummary): CardTapRoute | null {
     const gameId = this.currentGameId;
-    const roleUid = this.gameTabs.length > 0 ? this.gameTabs[this.selectedGameIdx].roleUid : '';
+    const roleUid = this.gameTabsInternal.length > 0 ? this.gameTabsInternal[this.selectedGameIdx].roleUid : '';
     const accountId = this.accountOptions.length > 0
       ? this.accountOptions[this.selectedAccountIdx].accountId : '';
 
@@ -245,38 +258,59 @@ export class CharactersViewModel {
       return;
     }
     const roles = this.allRoles[this.selectedAccountIdx];
-    const tabs: GameTabItem[] = [];
+    const tabItems: SegmentedTabItem[] = [];
+    const internalTabs: GameTabInternal[] = [];
 
     if (roles.length > 0) {
+      // 尝试保留上次选中的游戏
+      let foundLastGame = false;
       for (let i = 0; i < roles.length; i++) {
         const role = roles[i];
-        tabs[tabs.length] = new GameTabItem(
-          role.gameId,
-          role.roleId,
+        const tabItem = new SegmentedTabItem(
+          `${role.gameId}_${role.roleId}`,
           CharactersViewModel.gameNameResource(role.gameId)
         );
+        tabItems[tabItems.length] = tabItem;
+
+        const internal = new GameTabInternal();
+        internal.gameId = role.gameId;
+        internal.roleUid = role.roleId;
+        internalTabs[internalTabs.length] = internal;
+
+        if (role.gameId === this.lastSelectedGameId && !foundLastGame) {
+          this.selectedGameIdx = i;
+          foundLastGame = true;
+        }
+      }
+      // 如果没找到上次游戏，重置为 0
+      if (!foundLastGame) {
+        this.selectedGameIdx = 0;
       }
     }
 
-    this.gameTabs = tabs;
-    if (tabs.length === 0) {
+    this.gameTabItems = tabItems;
+    this.gameTabsInternal = internalTabs;
+
+    if (tabItems.length === 0) {
       this.setCharacters([]);
       this.showRefreshButton = false;
       this.viewState = ViewState.EMPTY;
       return;
     }
+    // 记录当前选中游戏
+    this.lastSelectedGameId = this.gameTabsInternal[this.selectedGameIdx].gameId;
     this.showRefreshButton = true;
     await this.reloadCharacters();
   }
 
   /** 从 DB 加载当前选中游戏的角色列表，若为空则自动触发一次后台同步 */
   private async reloadCharacters(): Promise<void> {
-    if (this.gameTabs.length === 0) {
+    if (this.gameTabsInternal.length === 0) {
       this.setCharacters([]);
       this.viewState = ViewState.EMPTY;
       return;
     }
-    const tab = this.gameTabs[this.selectedGameIdx];
+    const tab = this.gameTabsInternal[this.selectedGameIdx];
     const accountId = this.allAccounts[this.selectedAccountIdx].uid;
     try {
       const rows = await CharactersViewModel.loadCharacters(accountId, tab.gameId, tab.roleUid);
@@ -410,9 +444,9 @@ export class CharactersViewModel {
     const accountId = account.uid;
     this.syncCharacters(account, gameId, roleUid, server)
       .then(async () => {
-        if (this.gameTabs.length > 0 &&
-            this.gameTabs[this.selectedGameIdx].gameId === gameId &&
-            this.gameTabs[this.selectedGameIdx].roleUid === roleUid) {
+        if (this.gameTabsInternal.length > 0 &&
+            this.gameTabsInternal[this.selectedGameIdx].gameId === gameId &&
+            this.gameTabsInternal[this.selectedGameIdx].roleUid === roleUid) {
           const rows = await CharactersViewModel.loadCharacters(accountId, gameId, roleUid);
           this.setCharacters(rows);
           this.viewState = rows.length > 0 ? ViewState.DATA : ViewState.EMPTY;
