@@ -426,31 +426,21 @@ export class GenshinRepository extends GameRepository {
       const dataObj = respRecord['data'] !== undefined ? respRecord['data'] : resp;
       const data = dataObj as Record<string, Object>;
       
-      // 日志：响应数据结构
-      Logger.info('GenshinRepository', `💥💥💥 parseComputeResult: data keys=${Object.keys(data).join(',')}`);
-      
       // 检查是否有 single_role_result（批量请求返回此字段）
       const singleRoleResult = data['single_role_result'] as Record<string, Object>[] | null;
-      Logger.info('GenshinRepository', `💥💥💥 parseComputeResult: singleRoleResult length=${singleRoleResult?.length ?? 0}`);
       
       // 获取 overall_consume（真实缺口数据）
       const overallConsume = data['overall_consume'] as Record<string, Object>[] | null;
-      Logger.info('GenshinRepository', `💥💥💥 parseComputeResult: overallConsume length=${overallConsume?.length ?? 0}`);
       
       // 检查 items 数组（模板数据，包含 avatar_consume、skill_consume、weapon_consume 分类）
       const items = data['items'] as Record<string, Object>[] | null;
-      Logger.info('GenshinRepository', `💥💥💥 parseComputeResult: items length=${items?.length ?? 0}`);
       
       // 处理 single_role_result（批量请求模式）
       if (singleRoleResult !== null && singleRoleResult !== undefined && singleRoleResult.length > 0) {
-        Logger.info('GenshinRepository', `💥💥💥 parseComputeResult: processing singleRoleResult (length=${singleRoleResult.length})`);
-        
         for (let i = 0; i < singleRoleResult.length; i++) {
           const roleData = singleRoleResult[i];
           const roleItems = roleData['items'] as Record<string, Object>[] | null;
           const roleOverallConsume = roleData['overall_consume'] as Record<string, Object>[] | null;
-          
-          Logger.info('GenshinRepository', `💥💥💥 parseComputeResult: singleRoleResult[${i}] items=${roleItems?.length ?? 0}, overall_consume=${roleOverallConsume?.length ?? 0}`);
           
           if (roleItems !== null && roleItems !== undefined && roleItems.length > 0) {
             const lackNumMap = GenshinRepository.buildLackNumMap(roleOverallConsume);
@@ -465,7 +455,6 @@ export class GenshinRepository extends GameRepository {
           }
         }
         
-        Logger.info('GenshinRepository', `💥💥💥 parseComputeResult: result.length=${result.length} after singleRoleResult`);
         return result;
       }
       

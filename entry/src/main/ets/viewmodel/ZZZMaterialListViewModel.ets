@@ -338,7 +338,6 @@ export class ZZZMaterialListViewModel {
    */
   private async loadCharacterMaterials(accountId: string, roleUid: string): Promise<CharacterMaterialVM[]> {
     const avatarList = await CoreInitializer.zzzRepository.getAvatarList(accountId, roleUid);
-    Logger.info(TAG, `💥💥💥 loadCharacterMaterials: avatarList.length=${avatarList.length}`);
     if (avatarList.length === 0) {
       return [];
     }
@@ -346,11 +345,8 @@ export class ZZZMaterialListViewModel {
     const result: CharacterMaterialVM[] = [];
 
     for (let i = 0; i < avatarList.length; i++) {
-      const avatar = avatarList[i];
-      Logger.info(TAG, `💥💥💥 loadCharacterMaterials: [${i}] avatarId=${avatar.avatarId}, name=${avatar.nameMi18n}`);
-      
+      const avatar = avatarList[i];      
       const computeRow = await CoreInitializer.zzzRepository.getAvatarCompute(accountId, roleUid, avatar.avatarId);
-      Logger.info(TAG, `💥💥💥 loadCharacterMaterials: [${i}] computeRow=${computeRow === null ? 'null' : 'exists, rawJson.length=' + computeRow.rawJson.length}`);
       
       if (computeRow === null) {
         continue;
@@ -363,30 +359,23 @@ export class ZZZMaterialListViewModel {
       vm.characterLevel = avatar.level;
       vm.characterRarity = avatar.rarity === 'S' ? 5 : 4;
       vm.gameId = GameId.ZZZ;
+      // 绝区零显示"所需材料"而非"角色材料"
+      vm.avatarSectionTitle = $r('app.string.material_section_needed');
 
-      Logger.info(TAG, `💥💥💥 loadCharacterMaterials: [${i}] parsing rawJson...`);
       const parsed = ZZZComputeParser.parse(computeRow.rawJson);
-      Logger.info(TAG, `💥💥💥 loadCharacterMaterials: [${i}] parsed: needGet=${parsed.needGet.length}, avatarConsume=${parsed.avatarConsume.length}, skillConsume=${parsed.skillConsume.length}, weaponConsume=${parsed.weaponConsume.length}`);
 
       // 绝区零 API 返回 need_get 字段，直接使用
       if (parsed.needGet.length > 0) {
-        Logger.info(TAG, `💥💥💥 loadCharacterMaterials: [${i}] using needGet`);
         vm.avatarMaterials = this.parseNeedGetItems(parsed.needGet);
-        Logger.info(TAG, `💥💥💥 loadCharacterMaterials: [${i}] avatarMaterials.length=${vm.avatarMaterials.length}`);
       } else {
-        // 如果没有 need_get，则从 consume 和背包数据计算
-        Logger.info(TAG, `💥💥💥 loadCharacterMaterials: [${i}] needGet is empty, fallback to consume arrays`);
         if (parsed.avatarConsume.length > 0) {
           vm.avatarMaterials = this.parseMaterialItems(parsed.avatarConsume, parsed.userOwnsMaterials);
-          Logger.info(TAG, `💥💥💥 loadCharacterMaterials: [${i}] avatarMaterials.length=${vm.avatarMaterials.length}`);
         }
         if (parsed.skillConsume.length > 0) {
           vm.skillMaterials = this.parseMaterialItems(parsed.skillConsume, parsed.userOwnsMaterials);
-          Logger.info(TAG, `💥💥💥 loadCharacterMaterials: [${i}] skillMaterials.length=${vm.skillMaterials.length}`);
         }
         if (parsed.weaponConsume.length > 0) {
           vm.weaponMaterials = this.parseMaterialItems(parsed.weaponConsume, parsed.userOwnsMaterials);
-          Logger.info(TAG, `💥💥💥 loadCharacterMaterials: [${i}] weaponMaterials.length=${vm.weaponMaterials.length}`);
         }
       }
 
@@ -394,7 +383,6 @@ export class ZZZMaterialListViewModel {
       result[result.length] = vm;
     }
 
-    Logger.info(TAG, `💥💥💥 loadCharacterMaterials: result.length=${result.length}`);
     return result;
   }
 

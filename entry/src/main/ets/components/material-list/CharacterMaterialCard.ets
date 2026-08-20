@@ -164,7 +164,8 @@ export struct CharacterMaterialCard {
           CharacterMaterialSections({
             avatarMaterials: this.data.avatarMaterials,
             skillMaterials: this.data.skillMaterials,
-            weaponMaterials: this.data.weaponMaterials
+            weaponMaterials: this.data.weaponMaterials,
+            avatarSectionTitle: this.data.avatarSectionTitle
           })
         }
         .width(this.tm.current.full)

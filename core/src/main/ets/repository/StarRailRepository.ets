@@ -437,7 +437,6 @@ export class StarRailRepository extends GameRepository {
 
       // rawJson 只存储 data 部分，与 Parser 期望一致
       row.rawJson = JSON.stringify(dataObj);
-      Logger.info('StarRailRepository', `💥💥💥 parseComputeResult: avatarId=${avatarId}, rawJson.length=${row.rawJson.length}, hasRetcode=${respRecord['retcode'] !== undefined}`);
 
       // 提取各部分的 consume JSON
       const avatarConsume = data['avatar_consume'] as Record<string, object>[] | null;

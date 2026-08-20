@@ -98,7 +98,6 @@ export class ZZZComputeParser {
    */
   static parse(rawJson: string): ZZZComputeData {
     try {
-      Logger.info('ZZZComputeParser', `💥💥💥 parse: rawJson.length=${rawJson.length}`);
       const parsed: Object = JSON.parse(rawJson) as Object;
       
       // 检查是否是完整的 API 响应结构（包含 retcode/message/data）
@@ -107,18 +106,14 @@ export class ZZZComputeParser {
       if (parsedRecord !== null && parsedRecord['data'] !== undefined) {
         // 完整 API 响应，从 data 字段获取材料数据
         raw = parsedRecord['data'] as RawComputeData;
-        Logger.info('ZZZComputeParser', `💥💥💥 parse: detected full API response, extracting data field`);
       } else {
         // 直接是材料数据
         raw = parsed as RawComputeData;
-        Logger.info('ZZZComputeParser', `💥💥💥 parse: direct material data`);
       }
       
       const result = ZZZComputeParser.fromRaw(raw);
-      Logger.info('ZZZComputeParser', `💥💥💥 parse: needGet=${result.needGet.length}, avatarConsume=${result.avatarConsume.length}, skillConsume=${result.skillConsume.length}, weaponConsume=${result.weaponConsume.length}`);
       return result;
     } catch (_e) {
-      Logger.error('ZZZComputeParser', `💥💥💥 parse failed: ${_e}`);
       return new ZZZComputeData();
     }
   }

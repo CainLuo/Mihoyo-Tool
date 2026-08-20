@@ -1,7 +1,9 @@
 /**
  * CharacterMaterialSections.ets — 角色材料分组组件
  *
- * 展示单个角色的材料分组：角色突破材料、天赋材料、武器材料。
+ * 展示单个角色的材料分组：
+ * - 原神/星铁：角色突破材料、天赋材料、武器材料（分三栏）
+ * - 绝区零：所需材料（合并视图，使用 need_get）
  * 每个分组使用网格形式展示材料列表。
  */
 
@@ -15,15 +17,17 @@ export struct CharacterMaterialSections {
   @Param avatarMaterials: MaterialItemVM[] = [];
   @Param skillMaterials: MaterialItemVM[] = [];
   @Param weaponMaterials: MaterialItemVM[] = [];
+  /** 材料区域标题（由 ViewModel 决定："角色材料" 或 "所需材料"） */
+  @Param avatarSectionTitle: ResourceStr = $r('app.string.material_section_avatar');
 
   @Local private tm: ThemeManager = themeManager;
 
   build() {
     Column({ space: this.tm.current.value12 }) {
-      // 角色突破材料
+      // 角色材料/所需材料
       if (this.avatarMaterials.length > 0) {
         Column({ space: this.tm.current.value8 }) {
-          Text($r('app.string.material_section_avatar'))
+          Text(this.avatarSectionTitle)
             .font(ThemeFonts.fontBold14)
             .fontColor(this.tm.current.colorTextPrimary)
             .width(this.tm.current.full)
@@ -124,6 +128,43 @@ export struct CharacterMaterialSectionsPreview {
         avatarMaterials: this.avatarMaterials,
         skillMaterials: this.skillMaterials,
         weaponMaterials: this.weaponMaterials
+      })
+    }
+    .width('100%')
+    .padding(16)
+    .backgroundColor('#1a1a2e')
+  }
+}
+
+/** 绝区零合并视图 Preview */
+@Preview
+@ComponentV2
+export struct CharacterMaterialSectionsMergedPreview {
+  @Local avatarMaterials: MaterialItemVM[] = [];
+
+  aboutToAppear(): void {
+    const mat1 = new MaterialItemVM();
+    mat1.materialId = '10';
+    mat1.name = '丁尼';
+    mat1.rarity = 3;
+    mat1.have = 93386;
+    mat1.need = 3313614;
+
+    const mat2 = new MaterialItemVM();
+    mat2.materialId = '100133';
+    mat2.name = '特化电击芯片';
+    mat2.rarity = 4;
+    mat2.have = 29;
+    mat2.need = 256;
+
+    this.avatarMaterials = [mat1, mat2];
+  }
+
+  build() {
+    Column() {
+      CharacterMaterialSections({
+        avatarMaterials: this.avatarMaterials,
+        avatarSectionTitle: $r('app.string.material_section_needed')
       })
     }
     .width('100%')
