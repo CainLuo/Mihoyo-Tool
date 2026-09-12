@@ -82,17 +82,21 @@ export class GenshinApiService extends MihoyoApiService {
 
   /** 角色列表 — POST，Domain=TAKUMI_RECORD，Profile=GAME_RECORD */
   async getCharacterList(roleId: string, server: string, cookie: string): Promise<object> {
+    Logger.info('💥 GenshinApiService', `getCharacterList: roleId=${roleId}, server=${server}`);
     const bodyStr = JSON.stringify({ role_id: roleId, server: server });
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, undefined, bodyStr);
     headers.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_GENSHIN);
     headers.set(HKey.PAGE, ApiConfig.PAGE_GENSHIN_ROLES);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
-    return HttpClient.post(
+    Logger.info('💥 GenshinApiService', `getCharacterList: calling API`);
+    const result = await HttpClient.post(
       MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.CHARACTER_LIST,
       bodyStr,
       opts,
     );
+    Logger.info('💥 GenshinApiService', `getCharacterList: response=${JSON.stringify(result).substring(0, 500)}`);
+    return result;
   }
 
   /**
@@ -133,20 +137,33 @@ export class GenshinApiService extends MihoyoApiService {
     region: string,
     cookie: string,
   ): Promise<object> {
+    Logger.info('💥💥💥 GenshinApiService', `batchCompute START: uid=${uid}, region=${region}, items count=${items.length}`);
     const bodyStr = JSON.stringify({
       items: items,
       lang: 'zh-cn',
       region: region,
       uid: uid,
     });
+    Logger.info('💥💥💥 GenshinApiService', `batchCompute REQUEST body: ${bodyStr.substring(0, 500)}`);
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.CALCULATE, cookie, undefined, bodyStr);
     headers.set(HKey.CAL_TYPE, '1');
+    // ── [MIYOYO-NET] batchCompute 请求 header log ───────────────────────
+    Logger.info('💥💥💥 GenshinApiService', `[MIYOYO-NET][HOS][BatchCompute] URL: ${MihoyoDomain.TAKUMI + GenshinApiPath.BATCH_COMPUTE}`);
+    headers.forEach((v: string, k: string) => {
+      const display = k.toLowerCase() === 'cookie' ? v.substring(0, 60) + '...' : v;
+      Logger.info('💥💥💥 GenshinApiService', `[MIYOYO-NET][HOS][BatchCompute] Header ${k}: ${display}`);
+    });
+    // ─────────────────────────────────────────────────────────────────────
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
-    return HttpClient.post(
+    const result = await HttpClient.post(
       MihoyoDomain.TAKUMI + GenshinApiPath.BATCH_COMPUTE,
       bodyStr,
       opts,
     );
+    // ── [MIYOYO-NET] batchCompute response log ────────────────────────────
+    Logger.info('💥💥💥 GenshinApiService', `[MIYOYO-NET][HOS][BatchCompute] Response: ${JSON.stringify(result).substring(0, 1000)}`);
+    // ─────────────────────────────────────────────────────────────────────
+    return result;
   }
 }

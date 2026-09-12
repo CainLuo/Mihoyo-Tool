@@ -16,9 +16,10 @@ import {
   GenshinCharacterListData,
 } from '../models/GenshinRows';
 import { GenshinApiService } from '../network/GenshinApiService';
-import { AuthExpiredError } from '../errors/ApiErrors';
+import { AuthExpiredError, GeetestRequiredError } from '../errors/ApiErrors';
 import { CookieRefreshCoordinator } from '../cookie/CookieRefreshCoordinator';
 import { Logger } from '../utils/Logger';
+import { ApiErrorHandler } from '../utils/ApiErrorHandler';
 import { CoreInitializer } from '../CoreInitializer';
 import { BBSRepository } from './BBSRepository';
 
@@ -63,13 +64,20 @@ export class GenshinRepository extends GameRepository {
    * 拉取角色列表 → 解析 → 写 DB（entry 层只需调用此方法）
    */
   async syncAvatarList(accountId: string, roleUid: string, server: string, cookie: string): Promise<void> {
+    Logger.info('💥 GenshinRepository', `syncAvatarList: accountId=${accountId}, roleUid=${roleUid}, server=${server}`);
     await this.markSyncing(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_LIST);
     try {
+      Logger.info('💥 GenshinRepository', `syncAvatarList: calling getCharacterList API`);
       const resp = await (this.getService() as GenshinApiService).getCharacterList(roleUid, server, cookie);
+      ApiErrorHandler.checkResponse(resp);
+      Logger.info('💥 GenshinRepository', `syncAvatarList: API response received, parsing`);
       const rows = GenshinRepository.parseCharacterList(accountId, roleUid, resp);
+      Logger.info('💥 GenshinRepository', `syncAvatarList: parsed ${rows.length} rows, writing to DB`);
       await this.upsertAvatarList(accountId, roleUid, rows);
+      Logger.info('💥 GenshinRepository', `syncAvatarList: completed successfully`);
     } catch (error) {
       const msg = this.toErrorMessage(error);
+      Logger.error('💥 GenshinRepository', `syncAvatarList: failed - ${msg}`);
       await this.markFailed(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_LIST, msg);
       throw new Error(msg);
     }
@@ -259,6 +267,7 @@ export class GenshinRepository extends GameRepository {
         return;
       }
       const resp = await (this.getService() as GenshinApiService).getCharacterDetail(roleUid, server, characterIds, cookie);
+      ApiErrorHandler.checkResponse(resp);
       const rows = GenshinRepository.parseCharacterDetail(accountId, roleUid, resp);
       await this.upsertAvatarDetails(accountId, roleUid, rows);
     } catch (error) {
@@ -371,6 +380,7 @@ export class GenshinRepository extends GameRepository {
         Logger.info('GenshinRepository', `syncAvatarCompute: batch ${Math.floor(batchStart / BATCH_SIZE) + 1}, items ${batchStart}-${batchEnd - 1}`);
         
         const resp = await (this.getService() as GenshinApiService).batchCompute(batchItems, uid, region, cookie);
+        ApiErrorHandler.checkResponse(resp);
         const rows = GenshinRepository.parseComputeResult(accountId, roleUid, resp, batchItems);
         
         for (let i = 0; i < rows.length; i++) {
@@ -694,10 +704,21 @@ export class GenshinRepository extends GameRepository {
   static parseCharacterList(accountId: string, roleUid: string, resp: object): GenshinCharacterListRow[] {
     const result: GenshinCharacterListRow[] = [];
     try {
+      Logger.info('💥 GenshinRepository', `parseCharacterList: accountId=${accountId}, roleUid=${roleUid}`);
       const respRecord = resp as Record<string, object>;
+      Logger.info('💥 GenshinRepository', `parseCharacterList: respRecord keys=${Object.keys(respRecord).join(',')}`);
+      // 🔍 诊断：记录 retcode 和 message
+      const retcode = respRecord['retcode'];
+      const message = respRecord['message'];
+      Logger.info('💥 GenshinRepository', `parseCharacterList: retcode=${retcode}, message=${message}`);
       const dataObj = respRecord['data'] !== undefined ? respRecord['data'] : resp;
+      Logger.info('💥 GenshinRepository', `parseCharacterList: dataObj type=${typeof dataObj}, is null=${dataObj === null}`);
+      if (dataObj && typeof dataObj === 'object') {
+        Logger.info('💥 GenshinRepository', `parseCharacterList: dataObj keys=${Object.keys(dataObj as Record<string, object>).join(',')}`);
+      }
       const data = dataObj as GenshinCharacterListData;
       const list = data.list;
+      Logger.info('💥 GenshinRepository', `parseCharacterList: list=${list ? list.length : 'null'}`);
       if (!list || list.length === 0) { return result; }
       for (let i = 0; i < list.length; i++) {
         const item = list[i];

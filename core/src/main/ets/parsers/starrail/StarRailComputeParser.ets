@@ -5,6 +5,8 @@
  * 星铁 API 特有：返回 user_owns_materials 字段，包含玩家真实背包数据。
  */
 
+import { Logger } from '../../utils/Logger';
+
 // ─── 纯数据模型（core 对外暴露）────────────────────────────────
 
 /** 单个材料项 */
@@ -35,6 +37,9 @@ export class StarRailComputeData {
 
   /** 玩家拥有的材料（背包数据） */
   userOwnsMaterials: Map<string, number> = new Map();
+
+  /** 仍需获取的材料（API 计算好的差值） */
+  needGetMaterials: StarRailMaterialItem[] = [];
 }
 
 // ─── JSON 接口声明（仅用于 parse）────────────────────────────
@@ -53,6 +58,7 @@ interface RawComputeData {
   skill_consume: RawMaterialItem[];
   equipment_consume: RawMaterialItem[];
   user_owns_materials: Record<string, number>;
+  need_get_materials: RawMaterialItem[];
 }
 
 // ─── Parser ──────────────────────────────────────────────────────
@@ -66,9 +72,18 @@ export class StarRailComputeParser {
    */
   static parse(rawJson: string): StarRailComputeData {
     try {
+      // 打印完整 rawJson 用于调试（分 1000 字符一段，避免日志截断）
+      Logger.info('StarRailComputeParser', `💥💥💥 RAW_JSON_START length=${rawJson.length}`);
+      for (let i = 0; i < rawJson.length; i += 1000) {
+        const chunk = rawJson.substring(i, Math.min(i + 1000, rawJson.length));
+        Logger.info('StarRailComputeParser', `💥💥💥 RAW_JSON[${i}]: ${chunk}`);
+      }
+      Logger.info('StarRailComputeParser', `💥💥💥 RAW_JSON_END`);
+      
       const raw = JSON.parse(rawJson) as RawComputeData;
       return StarRailComputeParser.fromRaw(raw);
     } catch (_e) {
+      Logger.error('StarRailComputeParser', `💥💥💥 PARSE_ERROR: ${String(_e)}`);
       return new StarRailComputeData();
     }
   }
@@ -89,6 +104,11 @@ export class StarRailComputeParser {
     data.avatarConsume = StarRailComputeParser.parseMaterials(raw.avatar_consume);
     data.skillConsume = StarRailComputeParser.parseMaterials(raw.skill_consume);
     data.equipmentConsume = StarRailComputeParser.parseMaterials(raw.equipment_consume);
+
+    // 解析 need_get_materials（仍需获取的材料）
+    if (raw.need_get_materials) {
+      data.needGetMaterials = StarRailComputeParser.parseMaterials(raw.need_get_materials);
+    }
 
     return data;
   }

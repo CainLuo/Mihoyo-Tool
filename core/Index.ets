@@ -35,6 +35,7 @@ export * from './src/main/ets/database/RdbManager';
 export * from './src/main/ets/database/BBSDao';
 export * from './src/main/ets/database/GenshinDao';
 export * from './src/main/ets/database/StarRailDao';
+export * from './src/main/ets/database/StarRailDBManager';
 export * from './src/main/ets/database/ZZZDao';
 export * from './src/main/ets/database/SyncMetaDao';
 export * from './src/main/ets/database/MaterialBagDao';
@@ -73,6 +74,9 @@ export * from './src/main/ets/constants/AppEnvManager';
 
 // 日志工具（core/entry 共用）
 export * from './src/main/ets/utils/Logger';
+
+// API 错误处理工具
+export * from './src/main/ets/utils/ApiErrorHandler';
 
 // 日志系统
 export * from './src/main/ets/log/ApiLogEntry';

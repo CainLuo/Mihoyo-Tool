@@ -100,19 +100,6 @@ export class GenshinComputeWeapon {
   level_target: number = 90
 }
 
-/** 星铁养成计算参数 */
-export class StarRailComputeAvatar {
-  id: number = 0
-  level_current: number = 1
-  level_target: number = 80
-}
-
-export class StarRailComputeSkill {
-  id: number = 0
-  level_current: number = 1
-  level_target: number = 10
-}
-
 /** 绝区零养成计算技能参数 */
 export class ZZZComputeSkill {
   skill_type: number = 0

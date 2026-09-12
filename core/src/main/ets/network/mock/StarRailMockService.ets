@@ -2,6 +2,7 @@ import { common } from '@kit.AbilityKit';
 import { RequestParams, RequestOptions } from '../APIs';
 import { MockServiceBase } from './MockServiceBase';
 import { StarRailApiPath } from '../StarRailApiPath';
+import { Logger } from '../../utils/Logger';
 
 export class StarRailMockService extends MockServiceBase {
   constructor(context: common.UIAbilityContext) {

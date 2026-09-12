@@ -17,6 +17,9 @@ import {
   Logger,
   StarRailComputeParser,
   GameId,
+  StarRailComputeAvatar,
+  StarRailComputeEquipment,
+  StarRailComputeSkill,
 } from 'core';
 import { ViewState } from '../constants/ViewStates';
 import {
@@ -24,27 +27,19 @@ import {
   CharacterMaterialVM,
   MaterialSummaryVM,
   MaterialItemVM,
-  MaterialItemRaw,
   RelatedCharacterVM,
   WeaponMaterialVM,
   MaterialSectionVM,
   MaterialSectionType,
 } from '../models/MaterialListModels';
 
+/** skillTreeJson 中的技能项结构 */
+interface SkillTreeItem {
+  point_id: string;
+  level: number;
+}
+
 const TAG: string = 'StarRailMaterialListViewModel';
-
-/** 星铁养成计算参数 */
-class StarRailComputeAvatar {
-  id: number = 0;
-  level_current: number = 1;
-  level_target: number = 80;
-}
-
-class StarRailComputeSkill {
-  id: number = 0;
-  level_current: number = 1;
-  level_target: number = 10;
-}
 
 /** StarRailMaterialListViewModel @Monitor 路径常量类型 */
 export class StarRailMaterialListViewModelKeys {
@@ -197,54 +192,78 @@ export class StarRailMaterialListViewModel {
       return false;
     }
 
+    // 先同步角色详情（确保有 skillTreeJson）
+    try {
+      Logger.info(TAG, `syncRoleCompute: syncing avatar info...`);
+      await CoreInitializer.starRailRepository.syncAvatarInfo(accountId, roleUid, server, cookie);
+      Logger.info(TAG, `syncRoleCompute: avatar info synced`);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      Logger.error(TAG, `syncRoleCompute: syncAvatarInfo failed: ${msg}`);
+      // 继续执行，可能已有缓存数据
+    }
+
     let successCount = 0;
 
     // 星铁需要逐个角色同步
-    for (let i = 0; i < avatarList.length; i++) {
+    // TODO: 调试阶段只请求第一个角色，调试完后改回循环
+    for (let i = 0; i < 1; i++) {  // 临时：只请求第一个
       const avatar = avatarList[i];
       try {
-        // 构建 avatar 参数
+        // 构建 avatar 参数 — 字段名必须与 API 文档一致
         const avatarParam = new StarRailComputeAvatar();
-        avatarParam.id = parseInt(avatar.avatarId, 10);
-        avatarParam.level_current = avatar.level;
-        avatarParam.level_target = 80; // 星铁最高 80 级
+        avatarParam.item_id = avatar.avatarId;
+        avatarParam.cur_level = avatar.level;
+        avatarParam.target_level = 80;
 
-        // 构建 skillList 参数（普攻、战技、终结技、天赋 4 个技能）
-        // 星铁技能 ID 规则：角色 ID * 100 + 技能序号
-        const avatarIdNum = parseInt(avatar.avatarId, 10);
+        // 构建 equipment 参数（光锥）
+        const equipmentParam = new StarRailComputeEquipment();
+        equipmentParam.item_id = avatar.equipId;
+        equipmentParam.cur_level = avatar.equipLevel > 0 ? avatar.equipLevel : 1;
+        equipmentParam.target_level = 80;
+
+        // 从角色详情中提取技能列表
+        const avatarInfo = await CoreInitializer.starRailRepository.getAvatarDetail(accountId, roleUid, avatar.avatarId);
         const skillList: StarRailComputeSkill[] = [];
-        
-        const skill1 = new StarRailComputeSkill();
-        skill1.id = avatarIdNum * 100 + 1;
-        skill1.level_current = 1;
-        skill1.level_target = 10;
-        skillList[skillList.length] = skill1;
-        
-        const skill2 = new StarRailComputeSkill();
-        skill2.id = avatarIdNum * 100 + 2;
-        skill2.level_current = 1;
-        skill2.level_target = 10;
-        skillList[skillList.length] = skill2;
-        
-        const skill3 = new StarRailComputeSkill();
-        skill3.id = avatarIdNum * 100 + 3;
-        skill3.level_current = 1;
-        skill3.level_target = 10;
-        skillList[skillList.length] = skill3;
-        
-        const skill4 = new StarRailComputeSkill();
-        skill4.id = avatarIdNum * 100 + 4;
-        skill4.level_current = 1;
-        skill4.level_target = 10;
-        skillList[skillList.length] = skill4;
 
-        Logger.info(TAG, `syncRoleCompute: syncing avatarId=${avatar.avatarId}, level=${avatar.level}`);
+        if (avatarInfo && avatarInfo.skillTreeJson !== '') {
+          try {
+            const skills = JSON.parse(avatarInfo.skillTreeJson) as SkillTreeItem[];
+            
+            for (let j = 0; j < skills.length; j++) {
+              const skill = skills[j];
+              
+              const skillParam = new StarRailComputeSkill();
+              skillParam.item_id = skill.point_id;
+              skillParam.cur_level = skill.level;
+              skillParam.target_level = 10;  // 满级
+              skillList.push(skillParam);
+            }
+          } catch (parseError) {
+            Logger.warn(TAG, `parse skillTreeJson failed, fallback to default`);
+          }
+        }
+        
+        // 如果没有技能数据，fallback 到默认 4 个技能
+        if (skillList.length === 0) {
+          Logger.warn(TAG, `syncRoleCompute: no skillTreeJson, fallback to default 4 skills`);
+          const avatarIdNum = parseInt(avatar.avatarId, 10);
+          for (let j = 1; j <= 4; j++) {
+            const skillParam = new StarRailComputeSkill();
+            // 使用正确的格式：avatarId * 1000 + 序号
+            skillParam.item_id = `${avatarIdNum * 1000 + j}`;
+            skillParam.cur_level = 1;
+            skillParam.target_level = 10;
+            skillList.push(skillParam);
+          }
+        }
 
         await CoreInitializer.starRailRepository.syncAvatarCompute(
           accountId,
           roleUid,
           avatar.avatarId,
           avatarParam,
+          equipmentParam,
           skillList,
           roleUid,
           server,
@@ -252,10 +271,9 @@ export class StarRailMaterialListViewModel {
         );
         
         successCount++;
-        Logger.info(TAG, `syncRoleCompute: avatarId=${avatar.avatarId} sync success`);
       } catch (error) {
         const msg = error instanceof Error ? error.message : `${error}`;
-        Logger.warn(TAG, `syncRoleCompute: avatarId=${avatar.avatarId} failed: ${msg}`);
+        Logger.error(TAG, `syncRoleCompute: avatarId=${avatar.avatarId} failed: ${msg}`);
       }
     }
 
@@ -338,6 +356,23 @@ export class StarRailMaterialListViewModel {
         continue;
       }
 
+      // 🔍 输出完整的 rawJson（分段，每段 2000 字符，避免日志截断）
+      const rawJsonFull = computeRow.rawJson;
+      const totalLen = rawJsonFull.length;
+      
+      // 针对 1510 输出完整内容
+      if (avatar.avatarId === '1510') {
+        const chunkSize = 2000;
+        let offset = 0;
+        let chunkIndex = 0;
+        while (offset < totalLen) {
+          const end = offset + chunkSize < totalLen ? offset + chunkSize : totalLen;
+          const chunk = rawJsonFull.substring(offset, end);
+          offset = end;
+          chunkIndex++;
+        }
+      }
+
       const vm = new CharacterMaterialVM();
       vm.characterId = avatar.avatarId;
       vm.characterName = avatar.name;
@@ -348,14 +383,24 @@ export class StarRailMaterialListViewModel {
 
       const parsed = StarRailComputeParser.parse(computeRow.rawJson);
 
-      if (parsed.avatarConsume.length > 0) {
-        vm.avatarMaterials = this.parseMaterialItems(parsed.avatarConsume, parsed.userOwnsMaterials);
+      // 打印 need_get_materials 用于调试
+      if (parsed.needGetMaterials.length > 0) {
       }
-      if (parsed.skillConsume.length > 0) {
-        vm.skillMaterials = this.parseMaterialItems(parsed.skillConsume, parsed.userOwnsMaterials);
-      }
-      if (parsed.equipmentConsume.length > 0) {
-        vm.weaponMaterials = this.parseMaterialItems(parsed.equipmentConsume, parsed.userOwnsMaterials);
+
+      // need_get_materials 是 API 计算好的"仍需获取"列表
+      // item.num 已经是最终需要的数量，直接使用即可
+      for (let j = 0; j < parsed.needGetMaterials.length; j++) {
+        const item = parsed.needGetMaterials[j];
+        
+        const materialVM = new MaterialItemVM();
+        materialVM.materialId = item.itemId;
+        materialVM.name = item.itemName;
+        materialVM.iconUrl = item.itemUrl;
+        materialVM.rarity = parseInt(item.rarity, 10) || 0;
+        materialVM.need = item.num;  // 直接使用 API 返回的 num
+        materialVM.have = 0;  // 不再显示背包数量，避免混淆
+        
+        vm.avatarMaterials[vm.avatarMaterials.length] = materialVM;
       }
 
       // 光锥信息
@@ -373,44 +418,6 @@ export class StarRailMaterialListViewModel {
       result[result.length] = vm;
     }
 
-    return result;
-  }
-
-  /**
-   * 将解析后的材料数据转换为 MaterialItemVM 数组。
-   * 
-   * 星铁 API：返回 user_owns_materials（背包数据），have 从 Map 查询
-   * 
-   * 过滤规则：已满足或已超过的材料（have >= need）不显示
-   */
-  private parseMaterialItems(
-    items: MaterialItemRaw[],
-    userOwnsMaterials: Map<string, number>
-  ): MaterialItemVM[] {
-    const result: MaterialItemVM[] = [];
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      const materialId = `${item.id}`;
-      
-      // 星铁：从背包数据查询 have
-      const have = userOwnsMaterials.get(materialId) ?? 0;
-      const need = item.num;
-      
-      // 过滤：已满足或已超过的材料不显示
-      if (have >= need) {
-        continue;
-      }
-
-      const vm = new MaterialItemVM();
-      vm.materialId = materialId;
-      vm.name = item.name;
-      vm.iconUrl = item.iconUrl;
-      vm.rarity = typeof item.rarity === 'string' ? parseInt(item.rarity, 10) || 0 : item.rarity;
-      vm.need = need;
-      vm.have = have;
-      
-      result[result.length] = vm;
-    }
     return result;
   }
 

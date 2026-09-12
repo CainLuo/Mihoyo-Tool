@@ -21,6 +21,7 @@ export class MaterialTargetConfigParam {
 /**
  * 游戏入口 UI State
  */
+@ObservedV2
 export class GameEntryVM {
   /** 账号 UID（米游社 UID） */
   accountId: string = '';
@@ -35,9 +36,9 @@ export class GameEntryVM {
   /** 游戏主题色 */
   gameColor: ResourceColor = $r('app.color.blue_400');
   /** 角色数量 */
-  characterCount: number = 0;
+  @Trace characterCount: number = 0;
   /** 已计算角色数量 */
-  computedCount: number = 0;
+  @Trace computedCount: number = 0;
   /** 是否有数据 */
-  hasData: boolean = false;
+  @Trace hasData: boolean = false;
 }

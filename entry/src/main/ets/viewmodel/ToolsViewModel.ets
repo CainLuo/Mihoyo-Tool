@@ -19,6 +19,9 @@ import {
   AccountRow,
   GameId,
   Logger,
+  GenshinMaterialTargetConfigDao,
+  StarRailMaterialTargetConfigDao,
+  ZZZMaterialTargetConfigDao,
 } from 'core';
 import { ViewState } from '../constants/ViewStates';
 import { GameEntryVM } from '../models/ToolsModels';
@@ -140,53 +143,29 @@ export class ToolsViewModel {
   }
 
   /**
-   * 检查指定角色是否有计算数据
+   * 检查指定角色是否有养成目标配置数据
+   * 用户在配置页设置完目标等级后，config 表会有数据，此时应认为"已配置"
    */
   private async hasComputeData(gameId: GameId, accountUid: string, roleUid: string): Promise<boolean> {
-    if (gameId === GameId.GENSHIN) {
-      const repo = CoreInitializer.genshinRepository;
-      const list = await repo.getAvatarList(accountUid, roleUid);
-      if (list.length === 0) {
-        return false;
-      }
-      // 只要有一个角色有 compute 数据就算已计算
-      for (let i = 0; i < list.length; i++) {
-        const avatar = list[i];
-        const compute = await repo.getAvatarCompute(accountUid, roleUid, avatar.avatarId);
-        if (compute !== null) {
-          return true;
-        }
-      }
-      return false;
-    } else if (gameId === GameId.STARRAIL) {
-      const repo = CoreInitializer.starRailRepository;
-      const list = await repo.getAvatarList(accountUid, roleUid);
-      if (list.length === 0) {
-        return false;
-      }
-      for (let i = 0; i < list.length; i++) {
-        const avatar = list[i];
-        const compute = await repo.getAvatarCompute(accountUid, roleUid, avatar.avatarId);
-        if (compute !== null) {
-          return true;
-        }
+    try {
+      if (gameId === GameId.GENSHIN) {
+        const dao = new GenshinMaterialTargetConfigDao();
+        const config = await dao.findOne(accountUid, roleUid);
+        return config !== null && config.configJson !== '';
+      } else if (gameId === GameId.STARRAIL) {
+        const dao = new StarRailMaterialTargetConfigDao();
+        const config = await dao.findOne(accountUid, roleUid);
+        return config !== null && config.configJson !== '';
+      } else if (gameId === GameId.ZZZ) {
+        const dao = new ZZZMaterialTargetConfigDao();
+        const config = await dao.findOne(accountUid, roleUid);
+        return config !== null && config.configJson !== '';
       }
       return false;
-    } else if (gameId === GameId.ZZZ) {
-      const repo = CoreInitializer.zzzRepository;
-      const list = await repo.getAvatarList(accountUid, roleUid);
-      if (list.length === 0) {
-        return false;
-      }
-      for (let i = 0; i < list.length; i++) {
-        const avatar = list[i];
-        const compute = await repo.getAvatarCompute(accountUid, roleUid, avatar.avatarId);
-        if (compute !== null) {
-          return true;
-        }
-      }
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      Logger.error(TAG, `hasComputeData failed for ${gameId}: ${msg}`);
       return false;
     }
-    return false;
   }
 }

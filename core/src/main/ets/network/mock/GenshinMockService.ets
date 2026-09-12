@@ -4,6 +4,7 @@ import { MockServiceBase } from './MockServiceBase';
 import { GenshinApiPath } from '../GenshinApiPath';
 import { ApiLogSystem } from '../../log/ApiLogSystem';
 import { LogEventType } from '../../log/ApiLogEntry';
+import { Logger } from '../../utils/Logger';
 
 export class GenshinMockService extends MockServiceBase {
   constructor(context: common.UIAbilityContext) {
@@ -23,7 +24,10 @@ export class GenshinMockService extends MockServiceBase {
   }
 
   async getCharacterList(roleId: string, server: string, cookie: string): Promise<object> {
-    return this.readMockFile(GenshinApiPath.CHARACTER_LIST, cookie, roleId);
+    Logger.info('GenshinMockService', '💥💥💥 getCharacterList called with roleId=' + roleId);
+    const result = await this.readMockFile(GenshinApiPath.CHARACTER_LIST, cookie, roleId);
+    Logger.info('GenshinMockService', '💥💥💥 getCharacterList result keys: ' + Object.keys(result).join(','));
+    return result;
   }
 
   /** 统一使用 character_detail_all.json（特殊映射表会自动处理） */
@@ -32,9 +36,11 @@ export class GenshinMockService extends MockServiceBase {
   }
 
   async batchCompute(items: object[], uid: string, region: string, cookie: string): Promise<object> {
+    Logger.info('GenshinMockService', `💥💥💥 batchCompute START: uid=${uid}, region=${region}, items count=${items.length}`);
     await this.delay();
     const accountId = MockServiceBase.extractAccountId(cookie).toString();
     const rm = this.context.resourceManager;
+    Logger.info('GenshinMockService', `💥💥💥 batchCompute: accountId=${accountId}`);
     
     // 组装所有角色的 items（使用 single_role_result 格式）
     const singleRoleResults: object[] = [];
@@ -43,19 +49,24 @@ export class GenshinMockService extends MockServiceBase {
       const itemObj = item as Record<string, Object>;
       const avatarId = itemObj['avatar_id'] as string;
       if (avatarId === undefined || avatarId === '') {
+        Logger.info('GenshinMockService', `💥💥💥 batchCompute: skipping item without avatar_id`);
         continue;
       }
       
+      Logger.info('GenshinMockService', `💥💥💥 batchCompute: processing avatarId=${avatarId}`);
       const fileName = `${avatarId}.json`;
       
       try {
         // 尝试读取 avatar_compute/{avatarId}.json
         const mockFilePath = `mock/${accountId}/${uid}/avatar_compute/${fileName}`;
+        Logger.info('GenshinMockService', `💥💥💥 batchCompute: reading ${mockFilePath}`);
         const fileContent = await rm.getRawFileContent(mockFilePath);
         const parsed = MockServiceBase.parseAndCheck(fileContent) as Record<string, Object>;
         const data = parsed['data'] as Record<string, Object>;
         const itemData = data['items'] as object[];
         const overallConsume = data['overall_consume'] as object[];
+        
+        Logger.info('GenshinMockService', `💥💥💥 batchCompute: avatarId=${avatarId}, items=${itemData?.length ?? 0}, overallConsume=${overallConsume?.length ?? 0}`);
         
         if (itemData !== undefined && itemData !== null && itemData.length > 0) {
           // 构造 single_role_result 格式
@@ -82,6 +93,7 @@ export class GenshinMockService extends MockServiceBase {
           singleRoleResults.push(roleResult);
         }
       } catch (e) {
+        Logger.info('GenshinMockService', `💥💥💥 batchCompute: ERROR reading avatarId=${avatarId}: ${e}`);
         // 文件不存在，跳过这个角色
       }
     }
@@ -93,6 +105,7 @@ export class GenshinMockService extends MockServiceBase {
     const dataObj: Record<string, Object> = new Object() as Record<string, Object>;
     dataObj['single_role_result'] = singleRoleResults;
     response['data'] = dataObj;
+    Logger.info('GenshinMockService', `💥💥💥 batchCompute END: singleRoleResults count=${singleRoleResults.length}`);
     return response;
   }
 

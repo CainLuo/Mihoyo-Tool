@@ -1,11 +1,6 @@
 import { GameRepository } from './GameRepository';
 import { SyncDataType } from '../constants/SyncDataType';
-import {
-  StarRailAvatarBasicDao,
-  StarRailDailyNoteDao,
-  StarRailAvatarInfoDao,
-  StarRailAvatarComputeDao
-} from '../database/StarRailDao';
+import { StarRailDBManager } from '../database/StarRailDBManager';
 import {
   StarRailAvatarBasicRow,
   StarRailDailyNoteRow,
@@ -14,64 +9,47 @@ import {
   StarRailEquipItem,
   StarRailAvatarItem,
   StarRailAvatarListData,
+  StarRailComputeAvatar,
+  StarRailComputeEquipment,
+  StarRailComputeSkill,
+  StarRailAvatarInfoItem,
+  StarRailAvatarSkill,
 } from '../models/StarRailRows';
 import { StarRailApiService } from '../network/StarRailApiService';
 import { AuthExpiredError } from '../errors/ApiErrors';
 import { CookieRefreshCoordinator } from '../cookie/CookieRefreshCoordinator';
 import { CoreInitializer } from '../CoreInitializer';
 import { BBSRepository } from './BBSRepository';
-import { MaterialBagRepository } from './MaterialBagRepository';
 import { MaterialBagRow } from '../models/MaterialBagRow';
 import { StarRailComputeParser, StarRailMaterialItem } from '../parsers/starrail/StarRailComputeParser';
 import { GameId } from '../constants/GameId';
 import { Logger } from '../utils/Logger';
+import { ApiErrorHandler } from '../utils/ApiErrorHandler';
 
 export class StarRailRepository extends GameRepository {
-  private avatarBasicDao: StarRailAvatarBasicDao = new StarRailAvatarBasicDao();
-  private dailyNoteDao: StarRailDailyNoteDao = new StarRailDailyNoteDao();
-  private avatarInfoDao: StarRailAvatarInfoDao = new StarRailAvatarInfoDao();
-  private avatarComputeDao: StarRailAvatarComputeDao = new StarRailAvatarComputeDao();
-  private materialBagRepo: MaterialBagRepository = new MaterialBagRepository();
+  private dbManager: StarRailDBManager = new StarRailDBManager();
 
   // ── 角色基础列表 ──────────────────────────────────────────────
 
   async getAvatarList(accountId: string, roleUid: string): Promise<StarRailAvatarBasicRow[]> {
-    return this.avatarBasicDao.findAll(accountId, roleUid);
-  }
-
-  async upsertAvatarList(accountId: string, roleUid: string, rows: StarRailAvatarBasicRow[]): Promise<void> {
-    await this.runInTransaction(async () => {
-      await this.avatarBasicDao.upsertAll(rows);
-      await this.markSuccess(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_BASIC);
-    });
-  }
-
-  async deleteAvatarList(accountId: string, roleUid: string): Promise<void> {
-    await this.avatarBasicDao.deleteAll(accountId, roleUid);
+    return this.dbManager.getAvatarList(accountId, roleUid);
   }
 
   async needsAvatarListSync(accountId: string, roleUid: string): Promise<boolean> {
-    return this.needsSync(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_BASIC);
-  }
-
-  async markAvatarListSyncing(accountId: string, roleUid: string): Promise<void> {
-    await this.markSyncing(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_BASIC);
-  }
-
-  async markAvatarListFailed(accountId: string, roleUid: string, errorMsg: string): Promise<void> {
-    await this.markFailed(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_BASIC, errorMsg);
+    return this.dbManager.needsSync(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_BASIC);
   }
 
   /** 拉取角色列表 → 解析 → 写 DB */
   async syncAvatarList(accountId: string, roleUid: string, server: string, cookie: string): Promise<void> {
-    await this.markSyncing(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_BASIC);
+    await this.dbManager.markSyncing(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_BASIC);
     try {
       const resp = await (this.getService() as StarRailApiService).getAvatarBasic(roleUid, server, cookie);
+      ApiErrorHandler.checkResponse(resp);
       const rows = StarRailRepository.parseAvatarBasic(accountId, roleUid, resp);
-      await this.upsertAvatarList(accountId, roleUid, rows);
+      await this.dbManager.upsertAvatarListWithSync(accountId, roleUid, rows);
     } catch (error) {
       const msg = this.toErrorMessage(error);
-      await this.markFailed(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_BASIC, msg);
+      await this.dbManager.markFailed(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_BASIC, msg);
       throw new Error(msg);
     }
   }
@@ -79,35 +57,20 @@ export class StarRailRepository extends GameRepository {
   // ── 实时便笺 ──────────────────────────────────────────────────
 
   async getDailyNote(accountId: string, roleUid: string): Promise<StarRailDailyNoteRow | null> {
-    return this.dailyNoteDao.findOne(accountId, roleUid);
-  }
-
-  async upsertDailyNote(accountId: string, roleUid: string, row: StarRailDailyNoteRow): Promise<void> {
-    await this.runInTransaction(async () => {
-      await this.dailyNoteDao.upsert(row);
-      await this.markSuccess(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE);
-    });
+    return this.dbManager.getDailyNote(accountId, roleUid);
   }
 
   async needsDailyNoteSync(accountId: string, roleUid: string): Promise<boolean> {
-    return this.needsSync(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE);
+    return this.dbManager.needsSync(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE);
   }
 
   async getDailyNoteLastSyncTime(accountId: string, roleUid: string): Promise<number> {
-    return this.getLastSyncTime(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE);
-  }
-
-  async markDailyNoteSyncing(accountId: string, roleUid: string): Promise<void> {
-    await this.markSyncing(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE);
-  }
-
-  async markDailyNoteFailed(accountId: string, roleUid: string, errorMsg: string): Promise<void> {
-    await this.markFailed(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE, errorMsg);
+    return this.dbManager.getLastSyncTime(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE);
   }
 
   /** 拉取便笺 → 写 DB */
   async syncDailyNote(accountId: string, roleUid: string, server: string, cookie: string, geetestChallenge?: string): Promise<void> {
-    await this.markSyncing(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE);
+    await this.dbManager.markSyncing(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE);
     try {
       await this.doSyncDailyNote(accountId, roleUid, server, cookie, geetestChallenge);
     } catch (error) {
@@ -122,7 +85,7 @@ export class StarRailRepository extends GameRepository {
           return;
         } catch (refreshError) {
           const msg = this.toErrorMessage(refreshError);
-          await this.markFailed(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE, msg);
+          await this.dbManager.markFailed(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE, msg);
           if (refreshError instanceof AuthExpiredError) {
             throw refreshError;
           }
@@ -130,7 +93,7 @@ export class StarRailRepository extends GameRepository {
         }
       }
       const msg = this.toErrorMessage(error);
-      await this.markFailed(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE, msg);
+      await this.dbManager.markFailed(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE, msg);
       throw new Error(msg);
     }
   }
@@ -148,7 +111,7 @@ export class StarRailRepository extends GameRepository {
       if (widgetCookie.length > 0) {
         await this.doSyncDailyNoteWidget(accountId, roleUid, widgetCookie);
         // Widget 降级成功，标记为 success
-        await this.markSuccess(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE);
+        await this.dbManager.markSuccess(accountId, roleUid, SyncDataType.STARRAIL_DAILY_NOTE);
         return;
       }
       throw new Error(`retcode=${retcodeStr}: Geetest verification required and no widget cookie available`);
@@ -158,7 +121,7 @@ export class StarRailRepository extends GameRepository {
     }
     const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
     const row = this.parseStarRailDailyNoteData(accountId, roleUid, dataObj);
-    await this.upsertDailyNote(accountId, roleUid, row);
+    await this.dbManager.upsertDailyNoteWithSync(accountId, roleUid, row);
   }
 
   /**
@@ -177,7 +140,7 @@ export class StarRailRepository extends GameRepository {
     }
     const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
     const row = this.parseStarRailDailyNoteData(accountId, roleUid, dataObj);
-    await this.upsertDailyNote(accountId, roleUid, row);
+    await this.dbManager.upsertDailyNoteWithSync(accountId, roleUid, row);
   }
 
   private parseStarRailDailyNoteData(accountId: string, roleUid: string, dataObj: object): StarRailDailyNoteRow {
@@ -210,38 +173,24 @@ export class StarRailRepository extends GameRepository {
   // ── 角色详情 ──────────────────────────────────────────────────
 
   async getAvatarDetail(accountId: string, roleUid: string, avatarId: string): Promise<StarRailAvatarInfoRow | null> {
-    return this.avatarInfoDao.findByAvatarId(accountId, roleUid, avatarId);
-  }
-
-  async upsertAvatarDetails(accountId: string, roleUid: string, rows: StarRailAvatarInfoRow[]): Promise<void> {
-    await this.runInTransaction(async () => {
-      await this.avatarInfoDao.upsertAll(rows);
-      await this.markSuccess(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_INFO);
-    });
+    return this.dbManager.getAvatarDetail(accountId, roleUid, avatarId);
   }
 
   async needsAvatarDetailSync(accountId: string, roleUid: string): Promise<boolean> {
-    return this.needsSync(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_INFO);
-  }
-
-  async markAvatarDetailSyncing(accountId: string, roleUid: string): Promise<void> {
-    await this.markSyncing(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_INFO);
-  }
-
-  async markAvatarDetailFailed(accountId: string, roleUid: string, errorMsg: string): Promise<void> {
-    await this.markFailed(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_INFO, errorMsg);
+    return this.dbManager.needsSync(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_INFO);
   }
 
   /** 拉取角色详情列表 → 解析 → 写 DB（批量，使用 id=0 拉取全部） */
   async syncAvatarInfo(accountId: string, roleUid: string, server: string, cookie: string): Promise<void> {
-    await this.markSyncing(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_INFO);
+    await this.dbManager.markSyncing(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_INFO);
     try {
       const resp = await (this.getService() as StarRailApiService).getAvatarInfo(roleUid, server, '0', cookie);
+      ApiErrorHandler.checkResponse(resp);
       const rows = StarRailRepository.parseAvatarInfo(accountId, roleUid, resp);
-      await this.upsertAvatarDetails(accountId, roleUid, rows);
+      await this.dbManager.upsertAvatarDetailsWithSync(accountId, roleUid, rows);
     } catch (error) {
       const msg = this.toErrorMessage(error);
-      await this.markFailed(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_INFO, msg);
+      await this.dbManager.markFailed(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_INFO, msg);
       throw new Error(msg);
     }
   }
@@ -263,6 +212,12 @@ export class StarRailRepository extends GameRepository {
         row.equipId = item.equip ? `${item.equip.id}` : '';
         row.equipLevel = item.equip ? item.equip.level : 0;
         row.equipRank = item.equip ? item.equip.rank : 0;
+        // 解析 skills 数组，提取 point_id 和 level
+        const infoItem = item as StarRailAvatarInfoItem;
+        if (infoItem.skills !== undefined && infoItem.skills.length > 0) {
+          const skillTree: StarRailAvatarSkill[] = infoItem.skills;
+          row.skillTreeJson = JSON.stringify(skillTree);
+        }
         row.rawJson = JSON.stringify(item);
         row.updateTime = Math.floor(Date.now() / 1000);
         result[result.length] = row;
@@ -274,33 +229,19 @@ export class StarRailRepository extends GameRepository {
   // ── 养成材料计算 ──────────────────────────────────────────────
 
   async getAvatarCompute(accountId: string, roleUid: string, avatarId: string): Promise<StarRailAvatarComputeRow | null> {
-    return this.avatarComputeDao.findByAvatarId(accountId, roleUid, avatarId);
-  }
-
-  async upsertAvatarCompute(accountId: string, roleUid: string, row: StarRailAvatarComputeRow): Promise<void> {
-    await this.runInTransaction(async () => {
-      await this.avatarComputeDao.upsert(row);
-      await this.markSuccess(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_COMPUTE);
-    });
+    return this.dbManager.getAvatarCompute(accountId, roleUid, avatarId);
   }
 
   async needsAvatarComputeSync(accountId: string, roleUid: string): Promise<boolean> {
-    return this.needsSync(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_COMPUTE);
-  }
-
-  async markAvatarComputeSyncing(accountId: string, roleUid: string): Promise<void> {
-    await this.markSyncing(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_COMPUTE);
-  }
-
-  async markAvatarComputeFailed(accountId: string, roleUid: string, errorMsg: string): Promise<void> {
-    await this.markFailed(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_COMPUTE, errorMsg);
+    return this.dbManager.needsSync(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_COMPUTE);
   }
 
   /**
    * 拉取单角色养成计算 → 解析 → 写 DB
    * 同时写入材料背包数据（从 user_owns_materials）
    * @param avatarId 角色 ID（字符串，如 '1001'）—— 用于 Mock 文件路由
-   * @param avatar 角色计算参数（id, level_current, level_target）
+   * @param avatar 角色计算参数（item_id, cur_level, target_level）
+   * @param equipment 光锥计算参数（item_id, cur_level, target_level）
    * @param skillList 技能计算参数数组
    * @param uid 游戏 UID
    * @param region 服务器（如 'prod_gf_cn'）
@@ -310,20 +251,29 @@ export class StarRailRepository extends GameRepository {
     accountId: string,
     roleUid: string,
     avatarId: string,
-    avatar: object,
-    skillList: object[],
+    avatar: StarRailComputeAvatar,
+    equipment: StarRailComputeEquipment,
+    skillList: StarRailComputeSkill[],
     uid: string,
     region: string,
     cookie: string
   ): Promise<StarRailAvatarComputeRow> {
-    await this.markSyncing(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_COMPUTE);
+    Logger.info('StarRailRepository', `💥💥💥 syncAvatarCompute START: accountId=${accountId}, roleUid=${roleUid}, avatarId=${avatarId}`);
+    
+    await this.dbManager.markSyncing(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_COMPUTE);
     try {
-      const resp = await (this.getService() as StarRailApiService).compute(avatarId, avatar, skillList, uid, region, cookie);
+      Logger.info('StarRailRepository', `💥💥💥 syncAvatarCompute: calling API...`);
+      const resp = await (this.getService() as StarRailApiService).compute(avatarId, avatar, equipment, skillList, uid, region, cookie);
+      ApiErrorHandler.checkResponse(resp);
+      Logger.info('StarRailRepository', `💥💥💥 syncAvatarCompute: API response received, parsing...`);
+      
       const row = StarRailRepository.parseComputeResult(accountId, roleUid, avatarId, resp);
 
       // 解析材料背包数据
       const dataObj = (resp as Record<string, object>)['data'] ?? resp;
       const rawJson = JSON.stringify(dataObj);
+      Logger.info('StarRailRepository', `💥💥💥 syncAvatarCompute: rawJson length=${rawJson.length}`);
+      
       const computeData = StarRailComputeParser.parse(rawJson);
 
       // 合并 consume 数据中的材料信息
@@ -336,18 +286,17 @@ export class StarRailRepository extends GameRepository {
         computeData.userOwnsMaterials
       );
 
-      await this.runInTransaction(async () => {
-        await this.avatarComputeDao.upsert(row);
-        // 写入材料背包
-        if (materialRows.length > 0) {
-          await this.materialBagRepo.upsertMaterials(accountId, roleUid, materialRows, GameId.STARRAIL);
-        }
-        await this.markSuccess(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_COMPUTE);
-      });
+      Logger.info('StarRailRepository', `💥💥💥 syncAvatarCompute: writing to DB, materialRows=${materialRows.length}`);
+      
+      await this.dbManager.upsertAvatarComputeWithSync(accountId, roleUid, row, materialRows);
+      Logger.info('StarRailRepository', `💥💥💥 syncAvatarCompute: DB write DONE`);
+      
+      Logger.info('StarRailRepository', `💥💥💥 syncAvatarCompute SUCCESS: avatarId=${avatarId}`);
       return row;
     } catch (error) {
       const msg = this.toErrorMessage(error);
-      await this.markFailed(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_COMPUTE, msg);
+      Logger.error('StarRailRepository', `💥💥💥 syncAvatarCompute FAILED: ${msg}`);
+      await this.dbManager.markFailed(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_COMPUTE, msg);
       throw new Error(msg);
     }
   }
@@ -450,15 +399,6 @@ export class StarRailRepository extends GameRepository {
     } catch (_) {}
 
     return row;
-  }
-
-  // ── 批量读取计算数据 ────────────────────────────────────────
-
-  /**
-   * 读取所有角色的养成计算数据
-   */
-  async getAllComputeData(accountId: string, roleUid: string): Promise<StarRailAvatarComputeRow[]> {
-    return this.avatarComputeDao.findAll(accountId, roleUid);
   }
 
   // ── 解析方法 ─────────────────────────────────────────────────

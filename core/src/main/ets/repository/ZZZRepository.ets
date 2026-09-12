@@ -26,6 +26,7 @@ import { MaterialBagRow } from '../models/MaterialBagRow';
 import { ZZZComputeParser, ZZZMaterialItem } from '../parsers/zzz/ZZZComputeParser';
 import { GameId } from '../constants/GameId';
 import { Logger } from '../utils/Logger';
+import { ApiErrorHandler } from '../utils/ApiErrorHandler';
 
 export class ZZZRepository extends GameRepository {
   private avatarBasicDao: ZZZAvatarBasicDao = new ZZZAvatarBasicDao();
@@ -69,6 +70,7 @@ export class ZZZRepository extends GameRepository {
     await this.markSyncing(accountId, roleUid, SyncDataType.ZZZ_AVATAR_BASIC);
     try {
       const resp = await (this.getService() as ZZZApiService).getAvatarBasic(roleUid, server, cookie);
+      ApiErrorHandler.checkResponse(resp);
       const rows = ZZZRepository.parseAvatarBasic(accountId, roleUid, resp);
       await this.upsertAvatarList(accountId, roleUid, rows);
     } catch (error) {
@@ -267,6 +269,7 @@ export class ZZZRepository extends GameRepository {
     try {
       const idList = avatarId ? [avatarId] : [];
       const resp = await (this.getService() as ZZZApiService).getAvatarInfo(roleUid, server, idList, cookie);
+      ApiErrorHandler.checkResponse(resp);
       const rows = ZZZRepository.parseAvatarInfo(accountId, roleUid, resp);
       await this.upsertAvatarDetails(accountId, roleUid, rows);
     } catch (error) {
@@ -352,6 +355,7 @@ export class ZZZRepository extends GameRepository {
       const resp = await (this.getService() as ZZZApiService).compute(
         avatarId, avatarLevel, avatarCurrentLevel, avatarCurrentPromotes, skills, uid, region, cookie
       );
+      ApiErrorHandler.checkResponse(resp);
       const row = ZZZRepository.parseComputeResult(accountId, roleUid, avatarId, resp);
 
       // 解析材料背包数据

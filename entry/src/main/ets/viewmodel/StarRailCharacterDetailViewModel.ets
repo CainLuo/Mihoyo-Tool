@@ -90,10 +90,12 @@ export class StarRailCharacterDetailViewModel {
     try {
       const row: StarRailAvatarInfoRow | null =
         await CoreInitializer.starRailRepository.getAvatarDetail(this.accountId, this.roleUid, this.entityId);
+
       if (row === null || row.rawJson === '') {
         this.viewState = ViewState.EMPTY;
         return;
       }
+
       this.parseRawJson(row.rawJson);
       this.viewState = ViewState.DATA;
     } catch (error) {
@@ -166,6 +168,20 @@ export class StarRailCharacterDetailViewModel {
       this.skillsMain = main;
       this.skillsExtra = extra;
       this.skillsAttr = attr;
+
+      // 只在 1510 时输出技能和天赋信息
+      if (this.entityId === '1510') {
+        Logger.info(TAG, `💥💥💥 技能信息 (point_type=2):`);
+        for (let i = 0; i < main.length; i++) {
+          const s = main[i];
+          Logger.info(TAG, `💥💥💥   [${i}] ${s.name} Lv.${s.level} icon=${s.iconUrl}`);
+        }
+        Logger.info(TAG, `💥💥💥 天赋信息 (point_type=3):`);
+        for (let i = 0; i < extra.length; i++) {
+          const s = extra[i];
+          Logger.info(TAG, `💥💥💥   [${i}] ${s.name} Lv.${s.level} isActivated=${s.isActivated}`);
+        }
+      }
 
       // 光锥
       if (parsed.equip) {

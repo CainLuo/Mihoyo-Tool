@@ -17,12 +17,21 @@ import {
   GameId,
   StarRailMaterialTargetConfigJson,
   LevelConfig,
+  StarRailComputeAvatar,
+  StarRailComputeEquipment,
+  StarRailComputeSkill,
 } from 'core'
 import {
   LevelConfigVM,
   LevelLabelKeys,
 } from '../models/MaterialTargetConfigModels'
 import { AccountSignal } from '../utils/AccountSignal'
+
+/** skillTreeJson 中的技能项结构 */
+interface SkillTreeItem {
+  point_id: string;
+  level: number;
+}
 
 /** 星穹铁道养成目标配置 ViewModel */
 @ObservedV2
@@ -253,39 +262,51 @@ export class StarRailMaterialTargetConfigViewModel {
     for (let i = 0; i < avatarList.length; i++) {
       const avatar = avatarList[i]
       try {
-        const avatarParam = new StarRailComputeAvatar()
-        avatarParam.id = parseInt(avatar.avatarId, 10)
-        avatarParam.level_current = avatar.level
-        avatarParam.level_target = this.avatarLevel.target
+        // 构建 avatar 参数 — 字段名必须与 API 文档一致
+        const avatarParam = new StarRailComputeAvatar();
+        avatarParam.item_id = avatar.avatarId;
+        avatarParam.cur_level = avatar.level;
+        avatarParam.target_level = this.avatarLevel.target;
 
-        // 构建技能参数（星铁角色有 4 个命途技能）
-        const avatarIdNum = parseInt(avatar.avatarId, 10)
-        const skillList: StarRailComputeSkill[] = []
+        // 构建 equipment 参数（光锥）
+        const equipmentParam = new StarRailComputeEquipment();
+        equipmentParam.item_id = avatar.equipId;
+        equipmentParam.cur_level = avatar.equipLevel > 0 ? avatar.equipLevel : 1;
+        equipmentParam.target_level = this.avatarLevel.target;
+
+        // 从角色详情中提取技能列表
+        const avatarInfo = await CoreInitializer.starRailRepository.getAvatarDetail(accountId, roleUid, avatar.avatarId);
+        const skillList: StarRailComputeSkill[] = [];
         
-        // 技能 ID 规则：avatarId * 100 + 技能序号（1-4）
-        const skill1 = new StarRailComputeSkill()
-        skill1.id = avatarIdNum * 100 + 1
-        skill1.level_current = this.skillLevel.current
-        skill1.level_target = this.skillLevel.target
-        skillList[skillList.length] = skill1
+        if (avatarInfo && avatarInfo.skillTreeJson !== '') {
+          try {
+            const skills = JSON.parse(avatarInfo.skillTreeJson) as SkillTreeItem[];
+            for (let j = 0; j < skills.length; j++) {
+              const skill = skills[j];
+              const skillParam = new StarRailComputeSkill();
+              skillParam.item_id = skill.point_id;
+              skillParam.cur_level = skill.level;
+              skillParam.target_level = this.skillLevel.target;
+              skillList.push(skillParam);
+            }
+            Logger.info(TAG, `syncRoleCompute: extracted ${skillList.length} skills from avatarInfo`);
+          } catch (parseError) {
+            Logger.error(TAG, `syncRoleCompute: parse skillTreeJson failed, fallback to default`);
+          }
+        }
         
-        const skill2 = new StarRailComputeSkill()
-        skill2.id = avatarIdNum * 100 + 2
-        skill2.level_current = this.skillLevel.current
-        skill2.level_target = this.skillLevel.target
-        skillList[skillList.length] = skill2
-        
-        const skill3 = new StarRailComputeSkill()
-        skill3.id = avatarIdNum * 100 + 3
-        skill3.level_current = this.skillLevel.current
-        skill3.level_target = this.skillLevel.target
-        skillList[skillList.length] = skill3
-        
-        const skill4 = new StarRailComputeSkill()
-        skill4.id = avatarIdNum * 100 + 4
-        skill4.level_current = this.skillLevel.current
-        skill4.level_target = this.skillLevel.target
-        skillList[skillList.length] = skill4
+        // 如果没有技能数据，fallback 到默认 4 个技能
+        if (skillList.length === 0) {
+          Logger.warn(TAG, `syncRoleCompute: no skillTreeJson, fallback to default 4 skills`);
+          const avatarIdNum = parseInt(avatar.avatarId, 10);
+          for (let j = 1; j <= 4; j++) {
+            const skillParam = new StarRailComputeSkill();
+            skillParam.item_id = `${avatarIdNum * 1000 + j}`;
+            skillParam.cur_level = this.skillLevel.current;
+            skillParam.target_level = this.skillLevel.target;
+            skillList.push(skillParam);
+          }
+        }
 
         Logger.info(TAG, `syncRoleCompute: syncing avatarId=${avatar.avatarId}`)
 
@@ -294,6 +315,7 @@ export class StarRailMaterialTargetConfigViewModel {
           roleUid,
           avatar.avatarId,
           avatarParam,
+          equipmentParam,
           skillList,
           roleUid,
           server,
@@ -313,16 +335,3 @@ export class StarRailMaterialTargetConfigViewModel {
   }
 }
 
-// ─── 星铁养成计算参数类型 ─────────────────────────────────────────────
-
-class StarRailComputeAvatar {
-  id: number = 0
-  level_current: number = 1
-  level_target: number = 80
-}
-
-class StarRailComputeSkill {
-  id: number = 0
-  level_current: number = 1
-  level_target: number = 10
-}

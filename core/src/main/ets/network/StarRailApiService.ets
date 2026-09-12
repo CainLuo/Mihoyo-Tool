@@ -6,6 +6,8 @@ import { MihoyoHeaderBuilder, HeaderProfile } from './MihoyoHeaderBuilder';
 import { ApiConfig } from './ApiConfig';
 import { HKey, HVal } from './MihoyoHeaderKey';
 import { HttpClient } from './HttpClient';
+import { Logger } from '../utils/Logger';
+import { StarRailComputeAvatar, StarRailComputeEquipment, StarRailComputeSkill } from '../models/StarRailRows';
 
 export class StarRailApiService extends MihoyoApiService {
 
@@ -105,8 +107,9 @@ export class StarRailApiService extends MihoyoApiService {
    */
   async compute(
     avatarId: string,
-    avatar: object,
-    skillList: object[],
+    avatar: StarRailComputeAvatar,
+    equipment: StarRailComputeEquipment,
+    skillList: StarRailComputeSkill[],
     uid: string,
     region: string,
     cookie: string,
@@ -114,21 +117,20 @@ export class StarRailApiService extends MihoyoApiService {
     const bodyStr = JSON.stringify({
       game: 'hkrpg',
       avatar: avatar,
+      equipment: equipment,
       skill_list: skillList,
       lang: 'zh-cn',
       uid: uid,
       region: region,
     });
+    const url = MihoyoDomain.TAKUMI + StarRailApiPath.COMPUTE + '?game=hkrpg';
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.CALCULATE, cookie, undefined, bodyStr);
     // 星铁养成计算 Referer 是 webstatic.mihoyo.com，与原神不同
     headers.set('Referer', 'https://webstatic.mihoyo.com/');
     headers.set('Origin', 'https://webstatic.mihoyo.com');
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
-    return HttpClient.post(
-      MihoyoDomain.TAKUMI + StarRailApiPath.COMPUTE + '?game=hkrpg',
-      bodyStr,
-      opts,
-    );
+    const resp = await HttpClient.post(url, bodyStr, opts);
+    return resp;
   }
 }
