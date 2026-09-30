@@ -222,7 +222,24 @@ export class GenshinMaterialTargetConfigViewModel {
   }
 
   /**
+   * 构建默认技能列表（当角色详情缺失时使用）
+   */
+  private buildDefaultSkills(): GenshinComputeSkill[] {
+    const list: GenshinComputeSkill[] = []
+    const defaultIds = [1001, 1002, 1003]
+    for (let i = 0; i < defaultIds.length; i++) {
+      const skill = new GenshinComputeSkill()
+      skill.id = defaultIds[i]
+      skill.level_current = 1
+      skill.level_target = this.skillLevel.target
+      list[list.length] = skill
+    }
+    return list
+  }
+
+  /**
    * 同步单个角色的材料计算数据
+   * 技能参数从角色详情获取真实的技能 ID 和当前等级。
    */
   private async syncRoleCompute(accountId: string, cookie: string, roleUid: string, server: string): Promise<boolean> {
     const TAG = 'GenshinMaterialTargetConfigVM'
@@ -259,20 +276,50 @@ export class GenshinMaterialTargetConfigViewModel {
       item.avatar_level_current = avatar.level
       item.avatar_level_target = this.avatarLevel.target
 
-      // 技能参数
-      const skill1 = new GenshinComputeSkill()
-      skill1.id = 1001
-      skill1.level_current = this.skillLevel.current
-      skill1.level_target = this.skillLevel.target
-      const skill2 = new GenshinComputeSkill()
-      skill2.id = 1002
-      skill2.level_current = this.skillLevel.current
-      skill2.level_target = this.skillLevel.target
-      const skill3 = new GenshinComputeSkill()
-      skill3.id = 1003
-      skill3.level_current = this.skillLevel.current
-      skill3.level_target = this.skillLevel.target
-      item.skill_list = [skill1, skill2, skill3]
+      // 获取角色详情中的技能数据
+      const detail = await CoreInitializer.genshinRepository.getAvatarDetail(accountId, roleUid, avatar.avatarId)
+      
+      // ── DEBUG LOG: 角色详情技能数据 ─────────────────────────────────
+      Logger.info(TAG, `syncRoleCompute: avatarId=${avatar.avatarId}, skillLevels=${detail?.skillLevels ?? 'null'}`)
+
+      // 技能参数：从角色详情的 rawJson 中解析真实的技能 ID 和当前等级
+      if (detail !== null && detail.rawJson.length > 0) {
+        try {
+          const detailData = JSON.parse(detail.rawJson) as Record<string, Object>
+          const skills = detailData['skills'] as Record<string, Object>[] | null
+          
+          if (skills !== null && skills !== undefined && skills.length > 0) {
+            Logger.info(TAG, `syncRoleCompute: found ${skills.length} skills in rawJson`)
+            
+            for (let k = 0; k < skills.length; k++) {
+              const skillTypeRaw = skills[k]['skill_type']
+              const skillType = typeof skillTypeRaw === 'number' ? skillTypeRaw : parseInt(`${skillTypeRaw ?? 0}`, 10)
+              
+              // skill_type=1 是可升级技能(普攻、E、Q)，skill_type=2 是固有天赋/被动
+              if (skillType === 1 || skillType === 0) {
+                const skill = new GenshinComputeSkill()
+                const skillId = skills[k]['skill_id']
+                skill.id = typeof skillId === 'number' ? skillId : parseInt(`${skillId ?? 0}`, 10)
+                skill.level_current = Number(skills[k]['level'] ?? 1)
+                skill.level_target = this.skillLevel.target
+                item.skill_list[item.skill_list.length] = skill
+              }
+            }
+            
+            Logger.info(TAG, `syncRoleCompute: added ${item.skill_list.length} upgradable skills`)
+          } else {
+            Logger.warn(TAG, `syncRoleCompute: no skills in rawJson, using defaults`)
+            item.skill_list = this.buildDefaultSkills()
+          }
+        } catch (e) {
+          Logger.warn(TAG, `syncRoleCompute: failed to parse rawJson for avatarId=${avatar.avatarId}: ${e}`)
+          // fallback: 使用默认技能
+          item.skill_list = this.buildDefaultSkills()
+        }
+      } else {
+        // 无角色详情时，使用默认技能
+        item.skill_list = this.buildDefaultSkills()
+      }
 
       // 武器参数
       if (avatar.weaponId.length > 0) {
@@ -287,9 +334,20 @@ export class GenshinMaterialTargetConfigViewModel {
     }
 
     Logger.info(TAG, `syncRoleCompute: built ${items.length} compute items`)
+    
+    // ── DEBUG LOG: 打印前 3 个 item 的完整参数（使用 toJSON 过滤 null 字段）─────────────────
+    for (let i = 0; i < Math.min(3, items.length); i++) {
+      const it = items[i]
+      Logger.info(TAG, `syncRoleCompute: item[${i}] = ${JSON.stringify(it.toJSON())}`)
+    }
 
     try {
-      await CoreInitializer.genshinRepository.syncAvatarCompute(accountId, roleUid, items, roleUid, server, cookie)
+      // 将 items 转换为 JSON 格式（weapon 为 null 时不添加该字段）
+      const jsonItems: object[] = []
+      for (let i = 0; i < items.length; i++) {
+        jsonItems[jsonItems.length] = items[i].toJSON()
+      }
+      await CoreInitializer.genshinRepository.syncAvatarCompute(accountId, roleUid, jsonItems, roleUid, server, cookie)
       Logger.info(TAG, `syncRoleCompute: syncAvatarCompute completed`)
       
       const computeRows = await CoreInitializer.genshinRepository.getAllComputeData(accountId, roleUid)
@@ -307,6 +365,41 @@ export class GenshinMaterialTargetConfigViewModel {
 // ─── 原神养成计算参数类型 ─────────────────────────────────────────────
 
 class GenshinComputeItem {
+  avatar_id: number = 0
+  avatar_level_current: number = 1
+  avatar_level_target: number = 90
+  skill_list: GenshinComputeSkill[] = []
+  weapon: GenshinComputeWeapon | null = null
+
+  /** 序列化为 API 请求格式，weapon 为 null 时不添加该字段 */
+  toJSON(): GenshinComputeItemJSONObject {
+    // 使用普通对象而不是 GenshinComputeItemJSON 实例
+    // 因为类实例的字段默认值会被 JSON.stringify 序列化
+    const obj: GenshinComputeItemJSONObject = {
+      avatar_id: this.avatar_id,
+      avatar_level_current: this.avatar_level_current,
+      avatar_level_target: this.avatar_level_target,
+      skill_list: this.skill_list,
+    }
+    // 只有 weapon 不为 null 时才添加该字段
+    if (this.weapon !== null) {
+      obj.weapon = this.weapon
+    }
+    return obj
+  }
+}
+
+/** GenshinComputeItem 序列化后的 JSON 对象类型（weapon 字段可选） */
+interface GenshinComputeItemJSONObject {
+  avatar_id: number;
+  avatar_level_current: number;
+  avatar_level_target: number;
+  skill_list: GenshinComputeSkill[];
+  weapon?: GenshinComputeWeapon;  // 可选字段，不添加时不存在
+}
+
+/** GenshinComputeItem 序列化后的 JSON 类型（类定义，已废弃，改用 interface） */
+class GenshinComputeItemJSON {
   avatar_id: number = 0
   avatar_level_current: number = 1
   avatar_level_target: number = 90

@@ -99,7 +99,14 @@ interface GetCookieBySTokenData {
 
 // ─── Cookie 组装 ──────────────────────────────────────────────────
 
-/** 登录成功后组装完整 Cookie 字符串所需的字段 */
+/**
+ * 登录成功后组装完整 Cookie 字符串所需的字段
+ *
+ * v2 API 需要额外的设备指纹字段：
+ * - ltmid_v2, ltuid_v2, account_id_v2, account_mid_v2：现有字段的 v2 版本
+ * - ltoken_v2, cookie_token_v2：token 的 v2 版本
+ * - DEVICEFP, _MHYUUID, DEVICEFP_SEED_ID, DEVICEFP_SEED_TIME：设备指纹相关
+ */
 export class LoginCookieFields {
   /** 米游社账号 ID */
   accountId: string = '';
@@ -113,4 +120,12 @@ export class LoginCookieFields {
   stoken: string = '';
   /** SToken 对应的 mid */
   mid: string = '';
+  /** 设备指纹（DEVICEFP），从 DeviceFpService 获取 */
+  deviceFp: string = '';
+  /** 设备 UUID（_MHYUUID），即 device_id */
+  mhyUuid: string = '';
+  /** 设备指纹种子 ID（用于生成 DEVICEFP） */
+  deviceFpSeedId: string = '';
+  /** 设备指纹种子时间戳 */
+  deviceFpSeedTime: string = '';
 }

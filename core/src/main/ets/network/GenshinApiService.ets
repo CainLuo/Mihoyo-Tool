@@ -138,20 +138,38 @@ export class GenshinApiService extends MihoyoApiService {
     cookie: string,
   ): Promise<object> {
     Logger.info('💥💥💥 GenshinApiService', `batchCompute START: uid=${uid}, region=${region}, items count=${items.length}`);
+    // 补充缺失的设备字段（v2 API 必需）
+    const enrichedCookie = this.ensureDeviceFields(cookie);
+    
+    // 将 items 转换为 JSON 格式（调用 toJSON() 方法如果存在）
+    const jsonItems: object[] = [];
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      // 检查是否有 toJSON 方法
+      if (item && typeof (item as Record<string, object>)['toJSON'] === 'function') {
+        jsonItems[jsonItems.length] = (item as Record<string, () => object>)['toJSON']() as object;
+      } else {
+        jsonItems[jsonItems.length] = item;
+      }
+    }
     const bodyStr = JSON.stringify({
-      items: items,
+      items: jsonItems,
       lang: 'zh-cn',
       region: region,
       uid: uid,
     });
     Logger.info('💥💥💥 GenshinApiService', `batchCompute REQUEST body: ${bodyStr.substring(0, 500)}`);
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.CALCULATE, cookie, undefined, bodyStr);
+    const headers = MihoyoHeaderBuilder.build(HeaderProfile.CALCULATE, enrichedCookie, undefined, bodyStr);
     headers.set(HKey.CAL_TYPE, '1');
     // ── [MIYOYO-NET] batchCompute 请求 header log ───────────────────────
     Logger.info('💥💥💥 GenshinApiService', `[MIYOYO-NET][HOS][BatchCompute] URL: ${MihoyoDomain.TAKUMI + GenshinApiPath.BATCH_COMPUTE}`);
     headers.forEach((v: string, k: string) => {
-      const display = k.toLowerCase() === 'cookie' ? v.substring(0, 60) + '...' : v;
-      Logger.info('💥💥💥 GenshinApiService', `[MIYOYO-NET][HOS][BatchCompute] Header ${k}: ${display}`);
+      // Cookie 打印完整内容，方便排查缺失字段
+      if (k.toLowerCase() === 'cookie') {
+        Logger.info('💥💥💥 GenshinApiService', `[MIYOYO-NET][HOS][BatchCompute] Header Cookie (FULL): ${v}`);
+      } else {
+        Logger.info('💥💥💥 GenshinApiService', `[MIYOYO-NET][HOS][BatchCompute] Header ${k}: ${v}`);
+      }
     });
     // ─────────────────────────────────────────────────────────────────────
     const opts = new RequestOptions();
@@ -165,5 +183,46 @@ export class GenshinApiService extends MihoyoApiService {
     Logger.info('💥💥💥 GenshinApiService', `[MIYOYO-NET][HOS][BatchCompute] Response: ${JSON.stringify(result).substring(0, 1000)}`);
     // ─────────────────────────────────────────────────────────────────────
     return result;
+  }
+
+  /**
+   * 确保 Cookie 包含 v2 API 必需的设备字段
+   * 如果缺失，使用真实的设备指纹（从 DeviceFpService 获取）
+   * 禁止生成假指纹
+   */
+  private ensureDeviceFields(cookie: string): string {
+    // 检查是否已有 DEVICEFP
+    const hasDeviceFp = cookie.includes('DEVICEFP=');
+    // 检查是否已有 _MHYUUID
+    const hasMhyUuid = cookie.includes('_MHYUUID=');
+
+    if (hasDeviceFp && hasMhyUuid) {
+      // 都有，直接返回
+      return cookie;
+    }
+
+    // 使用真实设备指纹补充缺失字段
+    let enriched = cookie;
+    if (!hasDeviceFp) {
+      const realFp = ApiConfig.getDeviceFp();
+      if (realFp.length === 0) {
+        Logger.error('GenshinApiService', 'ensureDeviceFields: DEVICEFP missing and no real fingerprint available');
+        throw new Error('DEVICEFP is required but no real fingerprint is available. Please ensure DeviceFpService is initialized.');
+      }
+      enriched += `; DEVICEFP=${realFp}`;
+      Logger.info('GenshinApiService', `ensureDeviceFields: added real DEVICEFP=${realFp}`);
+    }
+    if (!hasMhyUuid) {
+      // 使用真实的 device_id 作为 _MHYUUID
+      const realUuid = ApiConfig.getDeviceIdSync();
+      if (realUuid.length === 0) {
+        Logger.error('GenshinApiService', 'ensureDeviceFields: _MHYUUID missing and no device_id available');
+        throw new Error('_MHYUUID is required but no device_id is available. Please ensure ApiConfig.preloadDeviceId is called.');
+      }
+      enriched += `; _MHYUUID=${realUuid}`;
+      Logger.info('GenshinApiService', `ensureDeviceFields: added real _MHYUUID=${realUuid}`);
+    }
+
+    return enriched;
   }
 }

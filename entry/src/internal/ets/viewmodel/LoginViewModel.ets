@@ -10,7 +10,8 @@ import {
   RoleStatItem,
   CoreInitializer,
   LoginResult,
-  BBSRepository
+  BBSRepository,
+  ApiConfig
 } from 'core';
 import { Logger } from 'core';
 import { LoginTab, PhoneStep, QRCodeStat } from 'entry/ets/constants/LoginTabEnum';
@@ -128,6 +129,9 @@ export class LoginViewModel {
       fields.ltuid = aid;
       fields.stoken = stoken;
       fields.mid = mid;
+      // v2 Cookie 字段（设备指纹）
+      fields.deviceFp = ApiConfig.getDeviceFp();
+      fields.mhyUuid = ApiConfig.getDeviceIdSync();
       const cookie = AuthRepository.buildCookieString(fields);
       await this.finalizeLogin(aid, cookie);
     } catch (error) {
@@ -232,6 +236,9 @@ export class LoginViewModel {
       fields.ltuid = confirmed.uid;
       fields.stoken = stoken;
       fields.mid = mid;
+      // v2 Cookie 字段（设备指纹）
+      fields.deviceFp = ApiConfig.getDeviceFp();
+      fields.mhyUuid = ApiConfig.getDeviceIdSync();
       const cookie = AuthRepository.buildCookieString(fields);
       await this.finalizeLogin(confirmed.uid, cookie);
     } catch (error) {

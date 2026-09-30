@@ -9,7 +9,7 @@ export enum HeaderProfile {
   GAME_RECORD = 'GAME_RECORD',
   /** 绝区零 游戏记录接口（无 DS，Referer=act，带 language/platform） */
   ZZZ_GAME_RECORD = 'ZZZ_GAME_RECORD',
-  /** 养成计算接口（原神/星铁，无 DS，Referer=act） */
+  /** 养成计算接口（原神/星铁，有 DS，Referer=act） */
   CALCULATE = 'CALCULATE',
   /** BBS 账号 + 游戏角色绑定 + 战绩卡片 + Geetest（有 DS，Referer=app，client_type=1） */
   BBS = 'BBS',
@@ -87,8 +87,27 @@ export class MihoyoHeaderBuilder {
       h.set(HKey.REFERER, HVal.REFERER_ACT);
       h.set(HKey.ORIGIN, HVal.ORIGIN_ACT);
     } else if (profile === HeaderProfile.CALCULATE) {
+      // 养成计算接口（原神/星铁）
+      // 真实抓包（mihoyo_apis.md 第 741-759 行）：
+      // - x-rpc-device_id: 必需
+      // - x-rpc-cal_type: "1"
+      // - x-rpc-stat_platform: "iOS"
+      // - x-rpc-lrsag: 空值（但存在）
+      // - 无 DS header
+      // - 无 x-rpc-client_type, x-rpc-device_fp, x-rpc-sys_version, x-rpc-language
+      // - 无 x-rpc-app_channel, x-rpc-tool_verison, x-requested-with
+      // 标准头部：Accept, Accept-Language, Content-Type, Origin, User-Agent, Referer, Cookie
+      h.delete(HKey.DEVICE_FP);  // 删除共有的 device_fp
+      h.delete(HKey.SYS_VERSION);  // 删除共有的 sys_version
+      h.delete(HKey.LANGUAGE);  // 删除共有的 language
+      h.delete(HKey.REQUESTED_WITH);  // 删除共有的 requested-with
+      h.set(HKey.CAL_TYPE, '1');
+      h.set(HKey.STAT_PLATFORM, 'iOS');
+      h.set(HKey.LRSAG, '');  // 空值，但必须存在
+      h.set(HKey.ACCEPT_LANGUAGE, HVal.ACCEPT_LANG_ZH);
       h.set(HKey.REFERER, HVal.REFERER_ACT);
       h.set(HKey.ORIGIN, HVal.ORIGIN_ACT);
+      h.set(HKey.CONTENT_TYPE, HVal.JSON_UTF8);
     } else if (profile === HeaderProfile.BBS) {
       h.set(HKey.CLIENT_TYPE, HVal.CLIENT_IOS);
       h.set(HKey.REFERER, HVal.APP_MIHOYO);

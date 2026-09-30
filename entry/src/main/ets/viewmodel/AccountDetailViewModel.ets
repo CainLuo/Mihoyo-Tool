@@ -7,15 +7,15 @@ import { WidgetFormIdStore } from '../widget/utils/WidgetFormIdStore';
 
 const TAG: string = 'AccountDetailViewModel';
 
-/** AccountDetailViewModel @Monitor 路径常量类型 */
-export class AccountDetailViewModelKeys {
-  deleted: string = 'vm.deleted';
-  errorMsg: string = 'vm.errorMsg';
-}
+// ─── @Monitor 路径常量（必须是顶层 const，ArkTS 不支持通过实例访问作为编译时常量） ───
+
+/** AccountDetailViewModel.deleted 路径 */
+export const ACCOUNT_DETAIL_VM_DELETED = 'vm.deleted';
+/** AccountDetailViewModel.errorMsg 路径 */
+export const ACCOUNT_DETAIL_VM_ERROR = 'vm.errorMsg';
 
 @ObservedV2
 export class AccountDetailViewModel {
-  static readonly KEYS: AccountDetailViewModelKeys = new AccountDetailViewModelKeys();
 
   /** 删除成功信号，View 层监听后执行 pop */
   @Trace deleted: boolean = false;

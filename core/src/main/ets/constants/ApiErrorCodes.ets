@@ -13,6 +13,12 @@ export class ApiErrorCodes {
   /** 登录已过期 / Cookie 无效 */
   static readonly AUTH_INVALID: number = -100;
 
+  /** 登录已过期 / Cookie 无效（备用码 1）*/
+  static readonly AUTH_INVALID_ALT1: number = 10001;
+
+  /** 登录已过期 / Cookie 无效（备用码 2）*/
+  static readonly AUTH_INVALID_ALT2: number = -10001;
+
   /** 请求频率过高，触发限流 */
   static readonly RATE_LIMITED: number = -110;
 

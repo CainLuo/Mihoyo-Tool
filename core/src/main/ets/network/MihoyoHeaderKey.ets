@@ -11,6 +11,7 @@ export enum HKey {
   COOKIE              = 'Cookie',
   USER_AGENT          = 'User-Agent',
   ACCEPT              = 'Accept',
+  ACCEPT_LANGUAGE     = 'Accept-Language',
   REFERER             = 'Referer',
   ORIGIN              = 'Origin',
   DS                  = 'DS',
@@ -18,6 +19,7 @@ export enum HKey {
   // x-rpc-* 系列
   APP_VERSION         = 'x-rpc-app_version',
   APP_ID              = 'x-rpc-app_id',
+  APP_CHANNEL         = 'x-rpc-app_channel',
   CLIENT_TYPE         = 'x-rpc-client_type',
   DEVICE_ID           = 'x-rpc-device_id',
   DEVICE_FP           = 'x-rpc-device_fp',
@@ -49,6 +51,10 @@ export enum HKey {
   CAL_TYPE            = 'x-rpc-cal_type',
   /** x-rpc-cultivate_source：绝区零养成计算接口专用 */
   CULTIVATE_SOURCE    = 'x-rpc-cultivate_source',
+  /** x-rpc-stat_platform：原神养成计算接口专用，值固定为 'iOS' */
+  STAT_PLATFORM       = 'x-rpc-stat_platform',
+  /** x-rpc-lrsag：原神养成计算接口专用，值为空字符串 */
+  LRSAG               = 'x-rpc-lrsag',
 
   // 其他
   REQUESTED_WITH      = 'x-requested-with',
@@ -59,10 +65,14 @@ export enum HKey {
 export enum HVal {
   /** content-type: application/json */
   JSON                = 'application/json',
+  /** content-type: application/json;charset=utf-8（养成计算接口专用） */
+  JSON_UTF8           = 'application/json;charset=utf-8',
   /** content-type: text/plain;charset=UTF-8 */
   TEXT_PLAIN          = 'text/plain;charset=UTF-8',
   /** Accept: application/json, text/plain, *\/* */
   ACCEPT_JSON         = 'application/json, text/plain, */*',
+  /** Accept-Language: zh-CN,zh-Hans;q=0.9 */
+  ACCEPT_LANG_ZH      = 'zh-CN,zh-Hans;q=0.9',
 
   /** x-rpc-client_type: 1 = iOS */
   CLIENT_IOS          = '1',

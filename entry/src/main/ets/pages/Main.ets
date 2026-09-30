@@ -19,6 +19,8 @@ import { Tools } from './Tools'
 import { AppRoutes } from '../constants/AppRoutes'
 import { splitPlaceholderBuilder } from '../components/SplitPlaceholder'
 import { CookieExpiredSignal } from '../utils/CookieExpiredSignal'
+import { GeetestSignal } from '../utils/GeetestSignal'
+import { showGeetestDialog } from '../components/GeetestDialogHelper'
 import { FailedAccountInfo } from 'core'
 import BuildProfile from 'BuildProfile'
 
@@ -51,6 +53,9 @@ export struct Main {
   private placeholder: ComponentContent<object> | null = null
   private uiCtx: UIContext | null = null
   @Local private cookieExpiredSignal: CookieExpiredSignal = CookieExpiredSignal.instance()
+  @Local private geetestSignal: GeetestSignal = GeetestSignal.instance()
+  /** 用户是否请求取消全部验证队列 */
+  private geetestCancelAllRequested: boolean = false
 
   // ── Home 标题栏状态（由 Home 页通过 @Param 回调上报）──────────
   @Local private homeShowRefresh: boolean = false
@@ -167,6 +172,47 @@ export struct Main {
         this.cookieExpiredSignal.queue = this.cookieExpiredSignal.queue
       }
     }).catch((_: Error | object) => {})
+  }
+
+  @Monitor('geetestSignal.trigger')
+  async onGeetestTriggered(_monitor: IMonitor): Promise<void> {
+    if (this.geetestSignal.trigger === 0) { return }
+
+    const item = this.geetestSignal.getCurrentItem()
+    if (item === null) { return }
+
+    const progress = this.geetestSignal.getProgress()
+    const ctx = this.uiCtx
+    if (ctx === null) { return }
+
+    // 重置"取消全部"标记
+    this.geetestCancelAllRequested = false
+
+    // 弹出 Geetest 验证对话框
+    const result = await showGeetestDialog(
+      ctx,
+      item.trigger.createResult,
+      progress,
+      item.accountName
+    )
+
+    // 处理结果
+    if (result !== null) {
+      // 验证成功，回调原调用方
+      // gt 来自 createResult，challenge 和 validate 来自验证结果
+      const trigger = item.trigger
+      this.geetestSignal.resolveSuccess(
+        trigger.createResult.gt,
+        result.geetest_challenge,
+        result.geetest_validate
+      )
+    } else if (this.geetestCancelAllRequested) {
+      // 用户请求取消全部队列
+      this.geetestSignal.resolveCancelAll()
+    } else {
+      // 用户只取消当前项
+      this.geetestSignal.resolveCancelCurrent()
+    }
   }
 
 

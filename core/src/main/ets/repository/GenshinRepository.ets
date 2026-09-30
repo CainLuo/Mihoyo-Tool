@@ -16,10 +16,11 @@ import {
   GenshinCharacterListData,
 } from '../models/GenshinRows';
 import { GenshinApiService } from '../network/GenshinApiService';
-import { AuthExpiredError, GeetestRequiredError } from '../errors/ApiErrors';
+import { SyncError, SyncErrorKind, SyncErrorFactory } from '../errors/ApiErrors';
 import { CookieRefreshCoordinator } from '../cookie/CookieRefreshCoordinator';
 import { Logger } from '../utils/Logger';
 import { ApiErrorHandler } from '../utils/ApiErrorHandler';
+import { ApiErrorCodes } from '../constants/ApiErrorCodes';
 import { CoreInitializer } from '../CoreInitializer';
 import { BBSRepository } from './BBSRepository';
 
@@ -79,7 +80,8 @@ export class GenshinRepository extends GameRepository {
       const msg = this.toErrorMessage(error);
       Logger.error('💥 GenshinRepository', `syncAvatarList: failed - ${msg}`);
       await this.markFailed(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_LIST, msg);
-      throw new Error(msg);
+      // 直接抛出 SyncError（ApiErrorHandler.checkResponse 已经转换）
+      throw error as Error;
     }
   }
 
@@ -123,7 +125,8 @@ export class GenshinRepository extends GameRepository {
     try {
       await this.doSyncDailyNote(accountId, roleUid, server, cookie, geetestChallenge);
     } catch (error) {
-      if (error instanceof AuthExpiredError) {
+      const syncError = error as SyncError;
+      if (syncError.kind === SyncErrorKind.AUTH_EXPIRED) {
         // 尝试用 stoken 刷新 cookie 后重试一次
         try {
           const newCookie = await CookieRefreshCoordinator.instance.refreshWithLock(
@@ -134,42 +137,41 @@ export class GenshinRepository extends GameRepository {
           await this.doSyncDailyNote(accountId, roleUid, server, newCookie);
           return;
         } catch (refreshError) {
-          // 刷新失败或重试仍失败，向上抛出 AuthExpiredError
+          // 刷新失败或重试仍失败，向上抛出 SyncError
           const msg = this.toErrorMessage(refreshError);
           await this.markFailed(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE, msg);
-          if (refreshError instanceof AuthExpiredError) {
-            throw refreshError;
-          }
-          throw new AuthExpiredError(msg);
+          throw refreshError as Error;
         }
       }
       const msg = this.toErrorMessage(error);
       await this.markFailed(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE, msg);
-      throw new Error(msg);
+      throw error as Error;
     }
   }
 
   private async doSyncDailyNote(accountId: string, roleUid: string, server: string, cookie: string, geetestChallenge?: string): Promise<void> {
     const resp = await (this.getService() as GenshinApiService).getDailyNote(roleUid, server, cookie, geetestChallenge);
     const respData = resp as Record<string, object>;
-    const retcodeStr = `${respData['retcode'] ?? ''}`;
-    if (retcodeStr === '-100' || retcodeStr === '10001' || retcodeStr === '-10001') {
-      throw new AuthExpiredError(`retcode=${retcodeStr}`);
+    const retcode = Number(respData['retcode'] ?? 0);
+    const message: string = `${respData['message'] ?? 'unknown error'}`;
+
+    if (ApiErrorHandler.isAuthExpired(retcode)) {
+      throw SyncErrorFactory.authExpired(`retcode=${retcode}: ${message}`);
     }
-    if (retcodeStr === '1034' || retcodeStr === '10035') {
-      // 1034/10035：尝试降级到 Widget API
+    if (ApiErrorHandler.isGeetestRequired(retcode)) {
+      // Geetest 风控：尝试降级到 Widget API
       // 参考 PizzaHelperUnited 抓包：Widget 接口用完整 cookie（含 ltuid/ltoken），不是精简的 widgetCookie
       const widgetCookie = BBSRepository.buildWidgetCookie(cookie);
       if (widgetCookie.length > 0) {
-        await this.doSyncDailyNoteWidget(accountId, roleUid, cookie);
+        await this.doSyncDailyNoteWidget(accountId, roleUid, widgetCookie);
         // Widget 降级成功，标记为 success
         await this.markSuccess(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE);
         return;
       }
-      throw new Error(`retcode=${retcodeStr}: Geetest verification required and no widget cookie available`);
+      throw SyncErrorFactory.normal(retcode, `Geetest verification required and no widget cookie available`);
     }
     if (respData['data'] === null || respData['data'] === undefined) {
-      throw new Error(`retcode=${retcodeStr}: ${respData['message'] ?? 'no data'}`);
+      throw SyncErrorFactory.normal(retcode, message);
     }
     const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
     const row = this.parseDailyNoteData(accountId, roleUid, dataObj);
@@ -183,9 +185,11 @@ export class GenshinRepository extends GameRepository {
   private async doSyncDailyNoteWidget(accountId: string, roleUid: string, widgetCookie: string): Promise<void> {
     const resp = await (this.getService() as GenshinApiService).getDailyNoteWidget(widgetCookie);
     const respData = resp as Record<string, object>;
-    const retcodeStr = `${respData['retcode'] ?? ''}`;
-    if (retcodeStr !== '0' && retcodeStr !== '') {
-      throw new Error(`Widget API failed: retcode=${retcodeStr}: ${respData['message'] ?? 'no data'}`);
+    const retcode = Number(respData['retcode'] ?? 0);
+    const message: string = `${respData['message'] ?? 'no data'}`;
+
+    if (retcode !== ApiErrorCodes.SUCCESS) {
+      throw new Error(`Widget API failed: retcode=${retcode}: ${message}`);
     }
     if (respData['data'] === null || respData['data'] === undefined) {
       throw new Error(`Widget API: no data`);
@@ -368,16 +372,27 @@ export class GenshinRepository extends GameRepository {
   ): Promise<void> {
     await this.markSyncing(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_COMPUTE);
     
-    const BATCH_SIZE = 8; // 原神 API 一次最多处理 8 个角色
+    // 原神批量计算 API 限制：改为每次 1 个角色，避免服务器拒绝
+    // TODO: 确认实际批次限制后再调整
+    const BATCH_SIZE = 1;
     const allRows: GenshinCharacterComputeRow[] = [];
     
     try {
-      // 分批处理
-      for (let batchStart = 0; batchStart < items.length; batchStart += BATCH_SIZE) {
-        const batchEnd = Math.min(batchStart + BATCH_SIZE, items.length);
-        const batchItems = items.slice(batchStart, batchEnd);
+      const totalItems = items.length;
+      const batchCount = Math.ceil(totalItems / BATCH_SIZE);
+      Logger.info('GenshinRepository', `syncAvatarCompute: total ${totalItems} items, will request in ${batchCount} batches (max ${BATCH_SIZE} per batch)`);
+      
+      // 分批请求
+      for (let batchIndex = 0; batchIndex < batchCount; batchIndex++) {
+        const startIdx = batchIndex * BATCH_SIZE;
+        const endIdx = Math.min(startIdx + BATCH_SIZE, totalItems);
+        const batchItems: object[] = [];
         
-        Logger.info('GenshinRepository', `syncAvatarCompute: batch ${Math.floor(batchStart / BATCH_SIZE) + 1}, items ${batchStart}-${batchEnd - 1}`);
+        for (let i = startIdx; i < endIdx; i++) {
+          batchItems[batchItems.length] = items[i];
+        }
+        
+        Logger.info('GenshinRepository', `syncAvatarCompute: batch ${batchIndex + 1}/${batchCount}, items ${startIdx + 1}-${endIdx}`);
         
         const resp = await (this.getService() as GenshinApiService).batchCompute(batchItems, uid, region, cookie);
         ApiErrorHandler.checkResponse(resp);
@@ -386,9 +401,11 @@ export class GenshinRepository extends GameRepository {
         for (let i = 0; i < rows.length; i++) {
           allRows[allRows.length] = rows[i];
         }
+        
+        Logger.info('GenshinRepository', `syncAvatarCompute: batch ${batchIndex + 1} completed, got ${rows.length} rows`);
       }
       
-      Logger.info('GenshinRepository', `syncAvatarCompute: total rows=${allRows.length}`);
+      Logger.info('GenshinRepository', `syncAvatarCompute: all batches completed, total rows=${allRows.length}`);
       
       await this.runInTransaction(async () => {
         for (let i = 0; i < allRows.length; i++) {

@@ -9,6 +9,7 @@ import { HttpClient } from '../network/HttpClient';
 import { MihoyoAccountApiService } from '../network/MihoyoAccountApiService';
 import { ApiConfig } from '../network/ApiConfig';
 import { AppEnvManager } from '../constants/AppEnvManager';
+import { Logger } from '../utils/Logger';
 import { MihoyoDomain } from '../network/MihoyoDomain';
 import { HKey, HVal } from '../network/MihoyoHeaderKey';
 import { PassportApiPath } from '../network/PassportApiPath';
@@ -330,13 +331,65 @@ export class AuthRepository {
   // ── 工具方法 ─────────────────────────────────────────────────
 
   static buildCookieString(fields: LoginCookieFields): string {
+    // 调试日志：打印所有输入字段
+    Logger.info('AuthRepository', `buildCookieString input fields:`);
+    Logger.info('AuthRepository', `  accountId=${fields.accountId}`);
+    Logger.info('AuthRepository', `  cookieToken=${fields.cookieToken}`);
+    Logger.info('AuthRepository', `  ltoken=${fields.ltoken}`);
+    Logger.info('AuthRepository', `  ltuid=${fields.ltuid}`);
+    Logger.info('AuthRepository', `  stoken=${fields.stoken}`);
+    Logger.info('AuthRepository', `  mid=${fields.mid}`);
+    Logger.info('AuthRepository', `  deviceFp=${fields.deviceFp}`);
+    Logger.info('AuthRepository', `  mhyUuid=${fields.mhyUuid}`);
+    Logger.info('AuthRepository', `  deviceFpSeedId=${fields.deviceFpSeedId}`);
+    Logger.info('AuthRepository', `  deviceFpSeedTime=${fields.deviceFpSeedTime}`);
+
+    // 基础 Cookie 字段
     let cookie = `${COOKIE_FIELD_ACCOUNT_ID}=${fields.accountId}; ${COOKIE_FIELD_COOKIE_TOKEN}=${fields.cookieToken}; ${COOKIE_FIELD_LTOKEN}=${fields.ltoken}; ${COOKIE_FIELD_LTUID}=${fields.ltuid}`;
+
+    // SToken 相关字段（二维码/手机号登录时有值）
     if (fields.stoken.length > 0) {
       cookie += `; stoken=${fields.stoken}; stuid=${fields.accountId}`;
     }
     if (fields.mid.length > 0) {
       cookie += `; mid=${fields.mid}`;
     }
+
+    // v2 版本字段
+    // 判断 stoken 是否为 v2 格式（以 "v2_" 开头）
+    const isStokenV2 = fields.stoken.length > 0 && fields.stoken.startsWith('v2_');
+
+    // ltuid_v2 和 account_id_v2 始终等于 accountId（这两个字段不依赖 token 格式）
+    cookie += `; ltuid_v2=${fields.accountId}; account_id_v2=${fields.accountId}`;
+
+    // 只有当 stoken 是 v2 格式时，才添加完整的 v2 token 字段
+    // 否则会导致 API 返回 -100 错误（InvalidCookie）
+    if (isStokenV2) {
+      // v2 格式的 stoken，可以添加 ltmid_v2 和 account_mid_v2
+      if (fields.mid.length > 0) {
+        cookie += `; ltmid_v2=${fields.mid}; account_mid_v2=${fields.mid}`;
+      }
+      // 注意：v2 格式的 ltoken 和 cookie_token 需要通过专门的 v2 API 获取
+      // 当前旧版 API（getLTokenBySToken）返回的是 V1 格式 token，不能直接用于 _v2 字段
+      // 因此这里不添加 ltoken_v2 和 cookie_token_v2
+      // 参考：genshin.py issue #151 - ltoken_v2 + ltuid_v2 单独可以工作，但 ltmid_v2 会导致 InvalidCookie
+    }
+
+    // 设备指纹相关字段（新版 batch_compute API 必需）
+    if (fields.deviceFp.length > 0) {
+      cookie += `; DEVICEFP=${fields.deviceFp}`;
+    }
+    if (fields.mhyUuid.length > 0) {
+      cookie += `; _MHYUUID=${fields.mhyUuid}`;
+    }
+    if (fields.deviceFpSeedId.length > 0) {
+      cookie += `; DEVICEFP_SEED_ID=${fields.deviceFpSeedId}`;
+    }
+    if (fields.deviceFpSeedTime.length > 0) {
+      cookie += `; DEVICEFP_SEED_TIME=${fields.deviceFpSeedTime}`;
+    }
+
+    Logger.info('AuthRepository', `buildCookieString result: ${cookie}`);
     return cookie;
   }
 

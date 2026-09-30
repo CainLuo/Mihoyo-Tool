@@ -28,19 +28,17 @@ import {
 
 const TAG: string = 'GenshinCharacterDetailViewModel';
 
-// ─── @Monitor 路径常量 ───────────────────────────────────────────
+// ─── @Monitor 路径常量（必须是顶层 const，ArkTS 不支持通过实例访问作为编译时常量） ───
 
-/** GenshinCharacterDetailViewModel @Monitor 路径常量类型 */
-export class GenshinCharacterDetailViewModelKeys {
-  viewState: string = 'vm.viewState';
-  networkErrorMsg: string = 'vm.networkErrorMsg';
-}
+/** GenshinCharacterDetailViewModel.viewState 路径 */
+export const GENSHIN_CHAR_DETAIL_VM_VIEW_STATE = 'vm.viewState';
+/** GenshinCharacterDetailViewModel.networkErrorMsg 路径 */
+export const GENSHIN_CHAR_DETAIL_VM_ERROR = 'vm.networkErrorMsg';
 
 // ─── ViewModel ───────────────────────────────────────────────────
 
 @ObservedV2
 export class GenshinCharacterDetailViewModel {
-  static readonly KEYS: GenshinCharacterDetailViewModelKeys = new GenshinCharacterDetailViewModelKeys();
 
   @Trace viewState: ViewState = ViewState.LOADING;
   /** 非空时 View 弹 Snackbar，弹完后 View 应将其清空 */

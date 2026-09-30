@@ -26,18 +26,17 @@ import {
 
 const TAG: string = 'ZZZCharacterDetailViewModel';
 
-// ─── @Monitor 路径常量 ───────────────────────────────────────────
+// ─── @Monitor 路径常量（必须是顶层 const，ArkTS 不支持通过实例访问作为编译时常量） ───
 
-export class ZZZCharacterDetailViewModelKeys {
-  viewState: string = 'vm.viewState';
-  networkErrorMsg: string = 'vm.networkErrorMsg';
-}
+/** ZZZCharacterDetailViewModel.viewState 路径 */
+export const ZZZ_CHAR_DETAIL_VM_VIEW_STATE = 'vm.viewState';
+/** ZZZCharacterDetailViewModel.networkErrorMsg 路径 */
+export const ZZZ_CHAR_DETAIL_VM_ERROR = 'vm.networkErrorMsg';
 
 // ─── ViewModel ───────────────────────────────────────────────────
 
 @ObservedV2
 export class ZZZCharacterDetailViewModel {
-  static readonly KEYS: ZZZCharacterDetailViewModelKeys = new ZZZCharacterDetailViewModelKeys();
 
   @Trace viewState: ViewState = ViewState.LOADING;
   /** 非空时 View 弹 Snackbar，弹完后 View 应将其清空 */

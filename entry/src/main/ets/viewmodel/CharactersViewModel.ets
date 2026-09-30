@@ -52,17 +52,29 @@ export class CardTapRoute {
   param: CharDetailRouterParam = new CharDetailRouterParam();
 }
 
-/** CharactersViewModel @Monitor 路径常量类型 */
-export class CharactersViewModelKeys {
-  networkErrorMsg: string = 'vm.networkErrorMsg';
-  refreshCoolingDown: string = 'vm.refreshCoolingDown';
-  refreshResult: string = 'vm.refreshResult';
-}
+// ─── @Monitor 路径常量（必须是顶层 const，ArkTS 不支持通过实例访问作为编译时常量） ───
+
+/** CharactersViewModel.viewState 路径 */
+export const CHAR_VM_VIEW_STATE = 'vm.viewState';
+/** CharactersViewModel.showRefreshButton 路径 */
+export const CHAR_VM_SHOW_REFRESH_BUTTON = 'vm.showRefreshButton';
+/** CharactersViewModel.showAccountSwitcher 路径 */
+export const CHAR_VM_SHOW_SWITCHER = 'vm.showAccountSwitcher';
+/** CharactersViewModel.isRefreshing 路径 */
+export const CHAR_VM_IS_REFRESHING = 'vm.isRefreshing';
+/** CharactersViewModel.accountOptions 路径 */
+export const CHAR_VM_ACCOUNT_OPTIONS = 'vm.accountOptions';
+/** CharactersViewModel.selectedAccountIdx 路径 */
+export const CHAR_VM_SELECTED_IDX = 'vm.selectedAccountIdx';
+/** CharactersViewModel.networkErrorMsg 路径 */
+export const CHAR_VM_NETWORK_ERROR = 'vm.networkErrorMsg';
+/** CharactersViewModel.refreshCoolingDown 路径 */
+export const CHAR_VM_REFRESH_COOLING = 'vm.refreshCoolingDown';
+/** CharactersViewModel.refreshResult 路径 */
+export const CHAR_VM_REFRESH_RESULT = 'vm.refreshResult';
 
 @ObservedV2
 export class CharactersViewModel {
-  /** @Monitor 路径常量，View 层必须通过此对象引用，禁止直接写字符串字面量 */
-  static readonly KEYS: CharactersViewModelKeys = new CharactersViewModelKeys();
 
   @Trace viewState: ViewState = ViewState.LOADING;
   @Trace accountOptions: AccountOption[] = [];

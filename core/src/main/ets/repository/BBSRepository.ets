@@ -438,9 +438,14 @@ export class BBSRepository {
 
       // 替换 cookie 字符串里的 ltoken 和 cookie_token
       let newCookie = BBSRepository.replaceCookieField(cookie, 'ltoken', ltoken);
-      newCookie = BBSRepository.replaceCookieField(newCookie, 'ltoken_v2', ltoken);
       newCookie = BBSRepository.replaceCookieField(newCookie, 'cookie_token', cookieToken);
-      newCookie = BBSRepository.replaceCookieField(newCookie, 'cookie_token_v2', cookieToken);
+
+      // v2 token 处理：
+      // 根据genshin.py issue #151，v2 格式的 ltoken 和 cookie_token 需要通过专门的 v2 API 获取
+      // 当前旧版 API（getLTokenBySToken）返回的是 V1 格式 token
+      // 如果将 V1 格式 token 用于 _v2 字段，会导致 API 返回 -100 错误
+      // 解决方案：不添加 ltoken_v2 和 cookie_token_v2 字段，只保留基础的 v2 字段（ltuid_v2, account_id_v2）
+      // 注意：不要用 stoken 作为 ltoken_v2 或 cookie_token_v2，它们是不同类型的 token
 
       // 写入 DB
       const now = Math.floor(Date.now() / 1000);

@@ -130,9 +130,24 @@ export * from './src/main/ets/network/StarRailApiService';
 export * from './src/main/ets/network/ZZZApiService';
 export * from './src/main/ets/network/SignApiService';
 
-// 业务错误类型
-export { AuthExpiredError, GeetestRequiredError, RoleNotPublicError } from './src/main/ets/errors/ApiErrors';
-export { GeetestCreateResult, GeetestVerifyInput } from './src/main/ets/errors/ApiErrors';
+// 业务错误类型（新的统一错误类）
+export {
+  SyncErrorKind,
+  SyncError,
+  SyncErrorFactory
+} from './src/main/ets/errors/ApiErrors';
+
+// 旧的错误类（deprecated，保留兼容）
+export {
+  GeetestCreateResult,
+  GeetestVerifyInput,
+  AuthExpiredErrorClass,
+  AuthExpiredError,
+  GeetestRequiredErrorClass,
+  GeetestRequiredError,
+  RoleNotPublicErrorClass,
+  RoleNotPublicError
+} from './src/main/ets/errors/ApiErrors';
 
 // Cookie 刷新
 export * from './src/main/ets/cookie/ColdStartCookieChecker';

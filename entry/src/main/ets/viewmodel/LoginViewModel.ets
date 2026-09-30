@@ -12,7 +12,8 @@ import {
   RoleStatItem,
   CoreInitializer,
   LoginResult,
-  BBSRepository
+  BBSRepository,
+  ApiConfig
 } from 'core';
 import { Logger } from 'core';
 import { LoginTab, QRCodeStat } from '../constants/LoginTabEnum';
@@ -24,17 +25,19 @@ export { LoginTab, QRCodeStat };
 
 const TAG: string = 'LoginViewModel';
 
-/** LoginViewModel @Monitor 路径常量类型 */
-export class LoginViewModelKeys {
-  loginSuccess: string = 'vm.loginSuccess';
-  loginedAccountId: string = 'vm.loginedAccountId';
-  loginedAccountVM: string = 'vm.loginedAccountVM';
-  showNoStokenDialog: string = 'vm.showNoStokenDialog';
-}
+// ─── @Monitor 路径常量（必须是顶层 const，ArkTS 不支持通过实例访问作为编译时常量） ───
+
+/** LoginViewModel.loginSuccess 路径 */
+export const LOGIN_VM_SUCCESS = 'vm.loginSuccess';
+/** LoginViewModel.loginedAccountId 路径 */
+export const LOGIN_VM_ACCOUNT_ID = 'vm.loginedAccountId';
+/** LoginViewModel.loginedAccountVM 路径 */
+export const LOGIN_VM_ACCOUNT_VM = 'vm.loginedAccountVM';
+/** LoginViewModel.showNoStokenDialog 路径 */
+export const LOGIN_VM_NO_STOKEN = 'vm.showNoStokenDialog';
 
 @ObservedV2
 export class LoginViewModel {
-  static readonly KEYS: LoginViewModelKeys = new LoginViewModelKeys();
 
   // ── 通用状态 ──────────────────────────────────────────────────
   /** release 版默认 Tab 为二维码 */
@@ -159,7 +162,11 @@ export class LoginViewModel {
       fields.ltuid = confirmed.uid;
       fields.stoken = stoken;
       fields.mid = mid;
+      // v2 Cookie 字段（设备指纹）
+      fields.deviceFp = ApiConfig.getDeviceFp();
+      fields.mhyUuid = ApiConfig.getDeviceIdSync();
       const cookie = AuthRepository.buildCookieString(fields);
+      Logger.info(TAG, `buildCookieString result: ${cookie}`);
       await this.finalizeLogin(confirmed.uid, cookie);
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -181,12 +188,30 @@ export class LoginViewModel {
     this.isLoading = true;
     this.errorMsg = '';
     try {
-      const cookie = this.cookieInput.trim();
-      const stoken = BBSRepository.extractCookieField(cookie, 'stoken');
+      const rawCookie = this.cookieInput.trim();
+      const stoken = BBSRepository.extractCookieField(rawCookie, 'stoken');
       if (stoken.length === 0) {
         this.showNoStokenDialog = true;
         return;
       }
+
+      // 解析用户输入的 Cookie 字段
+      const fields = new LoginCookieFields();
+      fields.accountId = BBSRepository.extractCookieField(rawCookie, 'account_id');
+      fields.cookieToken = BBSRepository.extractCookieField(rawCookie, 'cookie_token');
+      fields.ltoken = BBSRepository.extractCookieField(rawCookie, 'ltoken');
+      fields.ltuid = BBSRepository.extractCookieField(rawCookie, 'ltuid');
+      fields.stoken = stoken;
+      fields.mid = BBSRepository.extractCookieField(rawCookie, 'mid');
+
+      // 补充 v2 Cookie 字段（设备指纹）
+      fields.deviceFp = ApiConfig.getDeviceFp();
+      fields.mhyUuid = ApiConfig.getDeviceIdSync();
+
+      // 重新构建 Cookie 字符串
+      const cookie = AuthRepository.buildCookieString(fields);
+      Logger.info(TAG, `loginByCookie: buildCookieString result: ${cookie}`);
+
       const bbsDetail = await CoreInitializer.bbsRepository.getBbsAccountDetail(cookie);
       const username = bbsDetail.uid.length > 0 ? bbsDetail.uid : 'unknown';
       await this.finalizeLogin(username, cookie);

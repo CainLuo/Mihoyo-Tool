@@ -17,14 +17,12 @@ import { StaminaThresholdCalculator } from '../notification/StaminaThresholdCalc
 
 const TAG: string = 'NotificationSettingsViewModel';
 
-export class NotificationSettingsViewModelKeys {
-  showLimitDialog: string = 'vm.showLimitDialog';
-  permissionDenied: string = 'vm.permissionDenied';
-}
+// @Monitor 路径常量（必须是顶层 const，不能是类属性）
+export const NOTIFICATION_SETTINGS_VM_SHOW_LIMIT_DIALOG = 'vm.showLimitDialog';
+export const NOTIFICATION_SETTINGS_VM_PERMISSION_DENIED = 'vm.permissionDenied';
 
 @ObservedV2
 export class NotificationSettingsViewModel {
-  static readonly KEYS: NotificationSettingsViewModelKeys = new NotificationSettingsViewModelKeys();
 
   @Trace enabled: boolean = false;
   @Trace style: NotificationStyle = NotificationStyle.STYLE_A;

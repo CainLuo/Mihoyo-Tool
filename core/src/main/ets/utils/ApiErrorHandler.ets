@@ -9,35 +9,47 @@
 import { AuthExpiredError, GeetestRequiredError, GeetestCreateResult } from '../errors/ApiErrors';
 import { ApiErrorCodes } from '../constants/ApiErrorCodes';
 
+/**
+ * API 响应基础结构
+ */
+interface ApiResponse {
+  retcode: number;
+  message: string;
+  data: object | null;
+}
+
 export class ApiErrorHandler {
   /**
    * 检查 API 响应的 retcode，根据错误码抛出对应的错误类型
    *
    * @param resp API 响应对象（包含 retcode/message/data 字段）
-   * @throws AuthExpiredError 当 retcode 为 -100/10001/-10001 时（Cookie 失效）
+   * @throws AuthExpiredError 当 retcode 为 -100 时（Cookie 失效）
    * @throws GeetestRequiredError 当 retcode 为 1034/10035 时（需要 Geetest 验证）
    * @throws Error 当 data 为 null 且 retcode 非 0 时（其他业务错误）
    */
   static checkResponse(resp: object): void {
-    const respData = resp as Record<string, object>;
-    const retcodeStr = `${respData['retcode'] ?? ''}`;
-    const message = `${respData['message'] ?? 'unknown error'}`;
+    const respData = resp as ApiResponse;
+    const retcode: number = respData.retcode ?? 0;
+    const message: string = respData.message ?? 'unknown error';
 
     // Cookie 失效（retcode=-100/10001/-10001）
-    if (retcodeStr === '-100' || retcodeStr === '10001' || retcodeStr === '-10001') {
-      throw new AuthExpiredError(`retcode=${retcodeStr}: ${message}`);
+    if (retcode === ApiErrorCodes.AUTH_INVALID ||
+        retcode === ApiErrorCodes.AUTH_INVALID_ALT1 ||
+        retcode === ApiErrorCodes.AUTH_INVALID_ALT2) {
+      throw new AuthExpiredError(`retcode=${retcode}: ${message}`);
     }
 
     // 需要 Geetest 人机验证（retcode=1034/10035）
-    if (retcodeStr === '1034' || retcodeStr === '10035') {
+    if (retcode === ApiErrorCodes.GEETEST_REQUIRED_GENERAL ||
+        retcode === ApiErrorCodes.GEETEST_REQUIRED) {
       const geetestParams = ApiErrorHandler.extractGeetestParams(respData);
-      throw new GeetestRequiredError(`retcode=${retcodeStr}: ${message}`, geetestParams);
+      throw new GeetestRequiredError(`retcode=${retcode}: ${message}`, geetestParams);
     }
 
     // 其他错误（data 为空且 retcode 非 0）
-    if (respData['data'] === null || respData['data'] === undefined) {
-      if (retcodeStr !== '0' && retcodeStr !== '') {
-        throw new Error(`retcode=${retcodeStr}: ${message}`);
+    if (respData.data === null || respData.data === undefined) {
+      if (retcode !== ApiErrorCodes.SUCCESS) {
+        throw new Error(`retcode=${retcode}: ${message}`);
       }
     }
   }
@@ -51,9 +63,9 @@ export class ApiErrorHandler {
    * @param respData API 响应对象
    * @returns GeetestCreateResult 对象，包含 gt/challenge/new_captcha/risk_type 字段
    */
-  static extractGeetestParams(respData: Record<string, object>): GeetestCreateResult {
+  static extractGeetestParams(respData: ApiResponse): GeetestCreateResult {
     const result = new GeetestCreateResult();
-    const data = respData['data'] as Record<string, object> | null;
+    const data = respData.data as Record<string, object> | null;
 
     if (data !== null && data !== undefined) {
       result.gt = `${data['gt'] ?? ''}`;
@@ -68,22 +80,23 @@ export class ApiErrorHandler {
   /**
    * 检查 retcode 是否为 Geetest 验证错误
    *
-   * @param retcode retcode 数值或字符串
+   * @param retcode retcode 数值
    * @returns true 表示需要 Geetest 验证
    */
-  static isGeetestRequired(retcode: number | string): boolean {
-    const retcodeStr = typeof retcode === 'number' ? `${retcode}` : retcode;
-    return retcodeStr === '1034' || retcodeStr === '10035';
+  static isGeetestRequired(retcode: number): boolean {
+    return retcode === ApiErrorCodes.GEETEST_REQUIRED_GENERAL ||
+           retcode === ApiErrorCodes.GEETEST_REQUIRED;
   }
 
   /**
    * 检查 retcode 是否为 Cookie 失效错误
    *
-   * @param retcode retcode 数值或字符串
+   * @param retcode retcode 数值
    * @returns true 表示 Cookie 已失效
    */
-  static isAuthExpired(retcode: number | string): boolean {
-    const retcodeStr = typeof retcode === 'number' ? `${retcode}` : retcode;
-    return retcodeStr === '-100' || retcodeStr === '10001' || retcodeStr === '-10001';
+  static isAuthExpired(retcode: number): boolean {
+    return retcode === ApiErrorCodes.AUTH_INVALID ||
+           retcode === ApiErrorCodes.AUTH_INVALID_ALT1 ||
+           retcode === ApiErrorCodes.AUTH_INVALID_ALT2;
   }
 }

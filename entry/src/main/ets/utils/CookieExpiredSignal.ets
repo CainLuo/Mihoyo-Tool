@@ -7,6 +7,7 @@
  */
 import { AppStorageV2 } from '@kit.ArkUI'
 import { FailedAccountInfo } from 'core'
+import { SignalMonitorKey } from '../constants/SignalMonitorKey'
 
 @ObservedV2
 export class CookieExpiredSignal {
@@ -16,7 +17,7 @@ export class CookieExpiredSignal {
     // 同一个账号已在队列中则跳过，避免多个游戏角色同时失效时重复弹 Dialog
     for (let i = 0; i < this.queue.length; i++) {
       if (this.queue[i].username === info.username) {
-        return;
+        return
       }
     }
     const newQueue: FailedAccountInfo[] = []
@@ -27,12 +28,10 @@ export class CookieExpiredSignal {
     this.queue = newQueue
   }
 
-  static readonly KEY: string = 'CookieExpiredSignal'
-
   static instance(): CookieExpiredSignal {
     return AppStorageV2.connect(
       CookieExpiredSignal,
-      CookieExpiredSignal.KEY,
+      SignalMonitorKey.COOKIE_EXPIRED_SIGNAL_KEY,
       () => new CookieExpiredSignal()
     )!
   }

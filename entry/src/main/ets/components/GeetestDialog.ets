@@ -20,6 +20,7 @@ import { Logger } from 'core';
 import { GeetestDialogTitleBar } from './GeetestDialogTitleBar';
 import { GeetestBridge } from './GeetestBridge';
 import { buildGeetestHtml } from './GeetestHtmlBuilder';
+import { GeetestProgress } from './GeetestDialogHelper';
 
 @ComponentV2
 export struct GeetestDialog {
@@ -27,6 +28,10 @@ export struct GeetestDialog {
   @Param createResult: GeetestCreateResult = new GeetestCreateResult();
   /** 验证完成/取消的回调，由 showGeetestDialog 注入 */
   @Param onResult: (result: GeetestVerifyInput | null) => void = () => {};
+  /** 队列进度（可选，用于显示 "验证中 (1/3)"） */
+  @Param progress: GeetestProgress | null = null;
+  /** 账号名（可选，用于 UI 显示） */
+  @Param accountName: string = '';
 
   @Local private webHeight: number = themeManager.current.value360;
   @Local private tm: ThemeManager = themeManager;
@@ -77,7 +82,11 @@ export struct GeetestDialog {
   build() {
     Column() {
       Column() {
-        GeetestDialogTitleBar({ onClose: () => { this.onResult(null); } })
+        GeetestDialogTitleBar({
+          onClose: () => { this.onResult(null); },
+          progress: this.progress,
+          accountName: this.accountName,
+        })
 
         Divider()
           .color(this.tm.current.colorDivider)
