@@ -93,8 +93,10 @@ function makeCharComputeRow(avatarId: string): GenshinCharacterComputeRow {
   row.roleUid = TEST_ROLE_UID;
   row.avatarId = avatarId;
   row.avatarConsumeJson = '[]';
-  row.skillConsumeJson = '[]';
+  row.avatarSkillConsumeJson = '[]';
   row.weaponConsumeJson = '[]';
+  row.skillsConsumeJson = '[]';
+  row.overallConsumeJson = '';
   row.updateTime = 0;
   return row;
 }

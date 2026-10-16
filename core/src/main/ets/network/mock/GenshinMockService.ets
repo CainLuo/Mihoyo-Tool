@@ -36,77 +36,22 @@ export class GenshinMockService extends MockServiceBase {
   }
 
   async batchCompute(items: object[], uid: string, region: string, cookie: string): Promise<object> {
-    Logger.info('GenshinMockService', `💥💥💥 batchCompute START: uid=${uid}, region=${region}, items count=${items.length}`);
-    await this.delay();
-    const accountId = MockServiceBase.extractAccountId(cookie).toString();
-    const rm = this.context.resourceManager;
-    Logger.info('GenshinMockService', `💥💥💥 batchCompute: accountId=${accountId}`);
-    
-    // 组装所有角色的 items（使用 single_role_result 格式）
-    const singleRoleResults: object[] = [];
-    
-    for (const item of items) {
-      const itemObj = item as Record<string, Object>;
-      const avatarId = itemObj['avatar_id'] as string;
-      if (avatarId === undefined || avatarId === '') {
-        Logger.info('GenshinMockService', `💥💥💥 batchCompute: skipping item without avatar_id`);
-        continue;
-      }
-      
-      Logger.info('GenshinMockService', `💥💥💥 batchCompute: processing avatarId=${avatarId}`);
-      const fileName = `${avatarId}.json`;
-      
-      try {
-        // 尝试读取 avatar_compute/{avatarId}.json
-        const mockFilePath = `mock/${accountId}/${uid}/avatar_compute/${fileName}`;
-        Logger.info('GenshinMockService', `💥💥💥 batchCompute: reading ${mockFilePath}`);
-        const fileContent = await rm.getRawFileContent(mockFilePath);
-        const parsed = MockServiceBase.parseAndCheck(fileContent) as Record<string, Object>;
-        const data = parsed['data'] as Record<string, Object>;
-        const itemData = data['items'] as object[];
-        const overallConsume = data['overall_consume'] as object[];
-        
-        Logger.info('GenshinMockService', `💥💥💥 batchCompute: avatarId=${avatarId}, items=${itemData?.length ?? 0}, overallConsume=${overallConsume?.length ?? 0}`);
-        
-        if (itemData !== undefined && itemData !== null && itemData.length > 0) {
-          // 构造 single_role_result 格式
-          const roleResult: Record<string, Object> = new Object() as Record<string, Object>;
-          // 关键：添加 avatar_id 到 items 中（解析时需要）
-          const itemsWithAvatarId: Record<string, Object>[] = [];
-          for (let k = 0; k < itemData.length; k++) {
-            const itemRecord = itemData[k] as Record<string, Object>;
-            const itemWithId: Record<string, Object> = new Object() as Record<string, Object>;
-            // 复制所有字段
-            const keys = Object.keys(itemRecord);
-            for (let m = 0; m < keys.length; m++) {
-              itemWithId[keys[m]] = itemRecord[keys[m]];
-            }
-            // 添加 avatar_id
-            itemWithId['avatar_id'] = avatarId;
-            itemsWithAvatarId[itemsWithAvatarId.length] = itemWithId;
-          }
-          roleResult['items'] = itemsWithAvatarId;
-          // 关键：包含 overall_consume（如果有）
-          if (overallConsume !== undefined && overallConsume !== null && overallConsume.length > 0) {
-            roleResult['overall_consume'] = overallConsume;
-          }
-          singleRoleResults.push(roleResult);
-        }
-      } catch (e) {
-        Logger.info('GenshinMockService', `💥💥💥 batchCompute: ERROR reading avatarId=${avatarId}: ${e}`);
-        // 文件不存在，跳过这个角色
-      }
-    }
-    
-    // 返回组装后的响应（使用 single_role_result 格式，与真实批量 API 一致）
-    const response: Record<string, Object> = new Object() as Record<string, Object>;
-    response['retcode'] = 0;
-    response['message'] = 'OK';
-    const dataObj: Record<string, Object> = new Object() as Record<string, Object>;
-    dataObj['single_role_result'] = singleRoleResults;
-    response['data'] = dataObj;
-    Logger.info('GenshinMockService', `💥💥💥 batchCompute END: singleRoleResults count=${singleRoleResults.length}`);
-    return response;
+    Logger.info('GenshinMockService', `batchCompute: uid=${uid}, region=${region}, items count=${items.length}`);
+    // 原神批量计算直接读取 genshin_character_batch_compute.json（已包含完整数据）
+    return this.readMockFile(GenshinApiPath.BATCH_COMPUTE, cookie, uid);
+  }
+
+  /** Mock 模式没有 sync/avatar/list 数据，返回空列表（调用方会回退到无计算项） */
+  async syncCalcAvatarList(uid: string, region: string, cookie: string, page: number, size: number): Promise<object> {
+    Logger.info('GenshinMockService', `syncCalcAvatarList: uid=${uid}, page=${page}`);
+    const emptyList: Object[] = [];
+    const data: Record<string, Object> = {};
+    data['list'] = emptyList;
+    const resp: Record<string, Object> = {};
+    resp['retcode'] = 0;
+    resp['message'] = 'OK';
+    resp['data'] = data;
+    return resp;
   }
 
   private extractCookie(options?: RequestOptions): string {

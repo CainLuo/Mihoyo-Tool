@@ -41,23 +41,9 @@ export class MihoyoHeaderBuilder {
     params?: RequestParams,
     body?: string,
   ): Map<string, string> {
-    const h = new Map<string, string>();
-
-    // ── 所有接口共有 ──────────────────────────────────────────────
-    h.set(HKey.APP_VERSION, ApiConfig.APP_VERSION);
-    h.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
-    h.set(HKey.DEVICE_FP, ApiConfig.getDeviceFp());
-    h.set(HKey.SYS_VERSION, HVal.SYS_VERSION_IOS);
-    h.set(HKey.LANGUAGE, HVal.LANG_ZH_CN);
-    h.set(HKey.COOKIE, cookie);
-    h.set(HKey.USER_AGENT, ApiConfig.USER_AGENT);
-    h.set(HKey.ACCEPT, HVal.ACCEPT_JSON);
-    // 米游社大多数 API 需要验证此字段（来源：UIGF-org/mihoyo-api-collect/other/authentication.md）
-    h.set(HKey.REQUESTED_WITH, HVal.REQUESTED_HYPERION);
-
-    // ── 按 Profile 差异化注入 ─────────────────────────────────────
+    // ── Widget Profile 特殊处理：独立构建，不走共有逻辑 ─────────────
     if (profile === HeaderProfile.WIDGET) {
-      // Widget 便笺接口：严格按照真实抓包（mihoyo_apis.md）独立构建，不使用共有 header
+      // Widget 便笺接口：严格按照真实抓包（mihoyo_apis.md）独立构建
       // 真实 Widget 请求只有这些字段：DS、Accept、x-rpc-app_version、x-rpc-client_type、
       // x-rpc-device_id、x-rpc-device_fp（空）、x-rpc-sys_version、Referer、User-Agent、Cookie
       // 无 x-rpc-language、无 x-requested-with
@@ -74,7 +60,49 @@ export class MihoyoHeaderBuilder {
       w.set(HKey.COOKIE, cookie);
       w.set(HKey.DS, DSUtil.generateX4(params, body));
       return w;
-    } else if (profile === HeaderProfile.GAME_RECORD) {
+    }
+
+    // ── CALCULATE Profile 特殊处理：独立构建，不走共有逻辑 ───────────
+    if (profile === HeaderProfile.CALCULATE) {
+      // 养成计算接口（原神/星铁）
+      // 参考 TeyvatGuide takumiReq.ts batchCompute 实现：
+      // - 使用 DS header（X4 salt）
+      // - x-rpc-cal_type: "0"（在线计算，"1" 是离线计算）
+      // - client_type: "5"（来自 getRequestHeader 默认值）
+      // - 使用完整 Cookie（account_id, cookie_token, ltoken, ltuid）
+      const c = new Map<string, string>();
+      c.set(HKey.APP_VERSION, ApiConfig.APP_VERSION);
+      c.set(HKey.CLIENT_TYPE, HVal.CLIENT_WEB);  // 5
+      c.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
+      c.set(HKey.DEVICE_FP, ApiConfig.getDeviceFp());
+      c.set(HKey.REQUESTED_WITH, HVal.REQUESTED_HYPERION);
+      c.set(HKey.REFERER, HVal.REFERER_WEBSTATIC);
+      c.set(HKey.ACCEPT, HVal.ACCEPT_JSON);
+      c.set(HKey.CONTENT_TYPE, HVal.JSON_UTF8);
+      c.set(HKey.USER_AGENT, ApiConfig.USER_AGENT);
+      c.set(HKey.COOKIE, cookie);
+      // x-rpc-cal_type: "0" 在线计算（与 TeyvatGuide 一致）
+      c.set(HKey.CAL_TYPE, '0');
+      // DS 使用 X4 salt（与 TeyvatGuide 一致）
+      c.set(HKey.DS, DSUtil.generateX4(undefined, body));
+      return c;
+    }
+
+    // ── 其他 Profile：共有 header + 差异化注入 ───────────────────────
+    const h = new Map<string, string>();
+    h.set(HKey.APP_VERSION, ApiConfig.APP_VERSION);
+    h.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
+    h.set(HKey.DEVICE_FP, ApiConfig.getDeviceFp());
+    h.set(HKey.SYS_VERSION, HVal.SYS_VERSION_IOS);
+    h.set(HKey.LANGUAGE, HVal.LANG_ZH_CN);
+    h.set(HKey.COOKIE, cookie);
+    h.set(HKey.USER_AGENT, ApiConfig.USER_AGENT);
+    h.set(HKey.ACCEPT, HVal.ACCEPT_JSON);
+    // 米游社大多数 API 需要验证此字段（来源：UIGF-org/mihoyo-api-collect/other/authentication.md）
+    h.set(HKey.REQUESTED_WITH, HVal.REQUESTED_HYPERION);
+
+    // ── 按 Profile 差异化注入 ─────────────────────────────────────
+    if (profile === HeaderProfile.GAME_RECORD) {
       h.set(HKey.CLIENT_TYPE, HVal.CLIENT_WEB);
       h.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_GENSHIN);
       h.set(HKey.REFERER, HVal.REFERER_WEBSTATIC);
@@ -86,28 +114,6 @@ export class MihoyoHeaderBuilder {
       h.set(HKey.PLATFORM, HVal.PLATFORM_ANDROID);
       h.set(HKey.REFERER, HVal.REFERER_ACT);
       h.set(HKey.ORIGIN, HVal.ORIGIN_ACT);
-    } else if (profile === HeaderProfile.CALCULATE) {
-      // 养成计算接口（原神/星铁）
-      // 真实抓包（mihoyo_apis.md 第 741-759 行）：
-      // - x-rpc-device_id: 必需
-      // - x-rpc-cal_type: "1"
-      // - x-rpc-stat_platform: "iOS"
-      // - x-rpc-lrsag: 空值（但存在）
-      // - 无 DS header
-      // - 无 x-rpc-client_type, x-rpc-device_fp, x-rpc-sys_version, x-rpc-language
-      // - 无 x-rpc-app_channel, x-rpc-tool_verison, x-requested-with
-      // 标准头部：Accept, Accept-Language, Content-Type, Origin, User-Agent, Referer, Cookie
-      h.delete(HKey.DEVICE_FP);  // 删除共有的 device_fp
-      h.delete(HKey.SYS_VERSION);  // 删除共有的 sys_version
-      h.delete(HKey.LANGUAGE);  // 删除共有的 language
-      h.delete(HKey.REQUESTED_WITH);  // 删除共有的 requested-with
-      h.set(HKey.CAL_TYPE, '1');
-      h.set(HKey.STAT_PLATFORM, 'iOS');
-      h.set(HKey.LRSAG, '');  // 空值，但必须存在
-      h.set(HKey.ACCEPT_LANGUAGE, HVal.ACCEPT_LANG_ZH);
-      h.set(HKey.REFERER, HVal.REFERER_ACT);
-      h.set(HKey.ORIGIN, HVal.ORIGIN_ACT);
-      h.set(HKey.CONTENT_TYPE, HVal.JSON_UTF8);
     } else if (profile === HeaderProfile.BBS) {
       h.set(HKey.CLIENT_TYPE, HVal.CLIENT_IOS);
       h.set(HKey.REFERER, HVal.APP_MIHOYO);

@@ -17,7 +17,10 @@ var PAGES = {
     render: renderCharacterDetailEntry,
     controls: characterDetailEntryControls,
   },
-
+  "material-char-select": {
+    render: renderMaterialCharSelect,
+    controls: materialCharSelectControls,
+  },
   "material-calc": {
     render: renderMaterialCalc,
     controls: materialCalcControls,

@@ -17,11 +17,10 @@ import {
   Logger,
   StarRailComputeParser,
   GameId,
-  StarRailComputeAvatar,
-  StarRailComputeEquipment,
-  StarRailComputeSkill,
 } from 'core';
 import { ViewState } from '../constants/ViewStates';
+import { MaterialTargetConfigParam } from '../models/ToolsModels';
+import { MaterialComputeService, MaterialComputeResult } from '../utils/MaterialComputeService';
 import {
   MaterialListViewMode,
   CharacterMaterialVM,
@@ -33,13 +32,9 @@ import {
   MaterialSectionType,
 } from '../models/MaterialListModels';
 
-/** skillTreeJson 中的技能项结构 */
-interface SkillTreeItem {
-  point_id: string;
-  level: number;
-}
-
 const TAG: string = 'StarRailMaterialListViewModel';
+/** 材料页日志 tag，过滤：hilog | grep 🚀🚀🚀 */
+const PAGE_CALC_TAG: string = '🚀🚀🚀 MaterialList';
 
 /** StarRailMaterialListViewModel @Monitor 路径常量类型 */
 export class StarRailMaterialListViewModelKeys {
@@ -60,14 +55,25 @@ export class StarRailMaterialListViewModel {
   @Trace isSyncing: boolean = false;
   @Trace syncErrorMsg: string = '';
 
+  /** 路由参数：选中的账号 / 游戏 UID / 角色 / 目标等级。只展示、只计算这些角色 */
+  private selection: MaterialTargetConfigParam | null = null;
+
   // ─── 公开方法 ────────────────────────────────────────────────
 
   /**
-   * 初始化：加载星铁材料汇总数据。
+   * 初始化：只加载路由参数中选中角色的材料数据。
    */
-  async init(): Promise<void> {
+  async init(selection: MaterialTargetConfigParam | null): Promise<void> {
+    this.selection = selection;
+    Logger.info(PAGE_CALC_TAG, `[${TAG}] init, selection=${selection === null ? 'null' :
+      `account=${selection.accountId}, role=${selection.roleUid}, avatarIds=${selection.avatarIds.join(',')}`}`);
     this.viewState = ViewState.LOADING;
     await this.loadData();
+  }
+
+  /** 当前选中信息（给页面跳转养成目标配置页用） */
+  getSelection(): MaterialTargetConfigParam | null {
+    return this.selection;
   }
 
   /**
@@ -109,210 +115,57 @@ export class StarRailMaterialListViewModel {
   }
 
   /**
-   * 触发材料计算同步。
-   * 遍历所有账号的星铁角色，调用 Repository 的同步方法。
+   * 重新计算：只重新计算路由参数中选中的角色（目标等级从 DB 读取），完成后重新加载。
    */
   async syncComputeData(): Promise<void> {
-    Logger.info(TAG, `syncComputeData called, isSyncing=${this.isSyncing}`);
+    const sel = this.selection;
     if (this.isSyncing) {
-      Logger.info(TAG, `syncComputeData skipped - already syncing`);
+      return;
+    }
+    if (sel === null || sel.avatarIds.length === 0) {
+      Logger.warn(PAGE_CALC_TAG, `[${TAG}] syncComputeData: no selection, skip`);
+      this.syncErrorMsg = 'no_selection';
       return;
     }
     this.isSyncing = true;
     this.syncErrorMsg = '';
-    Logger.info(TAG, `syncComputeData started`);
-
     try {
-      const accounts = await CoreInitializer.bbsRepository.getAllAccounts();
-      Logger.info(TAG, `syncComputeData: found ${accounts.length} accounts`);
-      
-      if (accounts.length === 0) {
-        Logger.warn(TAG, `syncComputeData: no accounts found`);
-        this.syncErrorMsg = 'no_account';
-        return;
+      // 目标等级由 MaterialComputeService 从 DB 读取
+      const result = await MaterialComputeService.compute(sel);
+      Logger.info(PAGE_CALC_TAG, `[${TAG}] syncComputeData result=${result}`);
+      if (result === MaterialComputeResult.FAILED) {
+        this.syncErrorMsg = 'compute_failed';
+      } else if (result === MaterialComputeResult.NO_CONFIG) {
+        this.syncErrorMsg = 'no_config';
       }
-
-      let syncCount = 0;
-
-      for (let i = 0; i < accounts.length; i++) {
-        const account = accounts[i];
-        Logger.info(TAG, `syncComputeData: processing account[${i}] uid=${account.uid}`);
-        
-        const roles = await CoreInitializer.bbsRepository.getGameRolesByGame(account.uid, GameId.STARRAIL);
-        Logger.info(TAG, `syncComputeData: found ${roles.length} StarRail roles`);
-
-        for (let j = 0; j < roles.length; j++) {
-          const role = roles[j];
-          Logger.info(TAG, `syncComputeData: syncing role[${j}] roleId=${role.roleId}`);
-          
-          const success = await this.syncRoleCompute(account.uid, account.cookie, role.roleId, role.server);
-          Logger.info(TAG, `syncComputeData: role[${j}] sync result=${success}`);
-          
-          if (success) {
-            syncCount++;
-          }
-        }
-      }
-
-      Logger.info(TAG, `syncComputeData: total syncCount=${syncCount}`);
-      
-      if (syncCount === 0) {
-        this.syncErrorMsg = 'no_roles';
-        return;
-      }
-
-      // 同步完成后重新加载数据
-      Logger.info(TAG, `syncComputeData: reloading data...`);
       await this.loadData();
-      Logger.info(TAG, `syncComputeData: reload done, viewState=${this.viewState}`);
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error(TAG, `syncComputeData failed: ${msg}`);
-      this.syncErrorMsg = msg;
     } finally {
       this.isSyncing = false;
-      Logger.info(TAG, `syncComputeData finished`);
     }
   }
 
   // ─── 私有方法 ────────────────────────────────────────────────
 
-  /**
-   * 同步单个星铁角色的材料计算数据。
-   * 星铁 compute API 参数格式：
-   *   avatar: { id, level_current, level_target }
-   *   skillList: [{ id, level_current, level_target }]
-   */
-  private async syncRoleCompute(accountId: string, cookie: string, roleUid: string, server: string): Promise<boolean> {
-    const avatarList = await CoreInitializer.starRailRepository.getAvatarList(accountId, roleUid);
-    Logger.info(TAG, `syncRoleCompute: avatarList.length=${avatarList.length}`);
-    
-    if (avatarList.length === 0) {
-      Logger.warn(TAG, `syncRoleCompute: no avatarList`);
-      return false;
-    }
-
-    // 先同步角色详情（确保有 skillTreeJson）
-    try {
-      Logger.info(TAG, `syncRoleCompute: syncing avatar info...`);
-      await CoreInitializer.starRailRepository.syncAvatarInfo(accountId, roleUid, server, cookie);
-      Logger.info(TAG, `syncRoleCompute: avatar info synced`);
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error(TAG, `syncRoleCompute: syncAvatarInfo failed: ${msg}`);
-      // 继续执行，可能已有缓存数据
-    }
-
-    let successCount = 0;
-
-    // 星铁需要逐个角色同步
-    // TODO: 调试阶段只请求第一个角色，调试完后改回循环
-    for (let i = 0; i < 1; i++) {  // 临时：只请求第一个
-      const avatar = avatarList[i];
-      try {
-        // 构建 avatar 参数 — 字段名必须与 API 文档一致
-        const avatarParam = new StarRailComputeAvatar();
-        avatarParam.item_id = avatar.avatarId;
-        avatarParam.cur_level = avatar.level;
-        avatarParam.target_level = 80;
-
-        // 构建 equipment 参数（光锥）
-        const equipmentParam = new StarRailComputeEquipment();
-        equipmentParam.item_id = avatar.equipId;
-        equipmentParam.cur_level = avatar.equipLevel > 0 ? avatar.equipLevel : 1;
-        equipmentParam.target_level = 80;
-
-        // 从角色详情中提取技能列表
-        const avatarInfo = await CoreInitializer.starRailRepository.getAvatarDetail(accountId, roleUid, avatar.avatarId);
-        const skillList: StarRailComputeSkill[] = [];
-
-        if (avatarInfo && avatarInfo.skillTreeJson !== '') {
-          try {
-            const skills = JSON.parse(avatarInfo.skillTreeJson) as SkillTreeItem[];
-            
-            for (let j = 0; j < skills.length; j++) {
-              const skill = skills[j];
-              
-              const skillParam = new StarRailComputeSkill();
-              skillParam.item_id = skill.point_id;
-              skillParam.cur_level = skill.level;
-              skillParam.target_level = 10;  // 满级
-              skillList.push(skillParam);
-            }
-          } catch (parseError) {
-            Logger.warn(TAG, `parse skillTreeJson failed, fallback to default`);
-          }
-        }
-        
-        // 如果没有技能数据，fallback 到默认 4 个技能
-        if (skillList.length === 0) {
-          Logger.warn(TAG, `syncRoleCompute: no skillTreeJson, fallback to default 4 skills`);
-          const avatarIdNum = parseInt(avatar.avatarId, 10);
-          for (let j = 1; j <= 4; j++) {
-            const skillParam = new StarRailComputeSkill();
-            // 使用正确的格式：avatarId * 1000 + 序号
-            skillParam.item_id = `${avatarIdNum * 1000 + j}`;
-            skillParam.cur_level = 1;
-            skillParam.target_level = 10;
-            skillList.push(skillParam);
-          }
-        }
-
-        await CoreInitializer.starRailRepository.syncAvatarCompute(
-          accountId,
-          roleUid,
-          avatar.avatarId,
-          avatarParam,
-          equipmentParam,
-          skillList,
-          roleUid,
-          server,
-          cookie
-        );
-        
-        successCount++;
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : `${error}`;
-        Logger.error(TAG, `syncRoleCompute: avatarId=${avatar.avatarId} failed: ${msg}`);
-      }
-    }
-
-    Logger.info(TAG, `syncRoleCompute: total success=${successCount}/${avatarList.length}`);
-    return successCount > 0;
-  }
-
   private async loadData(): Promise<void> {
     Logger.info(TAG, `loadData: start`);
     try {
-      const accounts = await CoreInitializer.bbsRepository.getAllAccounts();
-      Logger.info(TAG, `loadData: found ${accounts.length} accounts`);
-      
-      if (accounts.length === 0) {
-        Logger.warn(TAG, `loadData: no accounts`);
+      // 只加载选中的账号 / 游戏 UID / 角色（全部角色的材料汇总是后续需求）
+      const sel = this.selection;
+      if (sel === null || sel.avatarIds.length === 0) {
+        Logger.warn(PAGE_CALC_TAG, `[${TAG}] loadData: no selection`);
         this.viewState = ViewState.EMPTY;
         return;
       }
 
       const allCharacterMaterials: CharacterMaterialVM[] = [];
-
-      // 遍历所有账号，收集角色材料数据
-      for (let i = 0; i < accounts.length; i++) {
-        const account = accounts[i];
-        const roles = await CoreInitializer.bbsRepository.getGameRolesByGame(account.uid, GameId.STARRAIL);
-        Logger.info(TAG, `loadData: account[${i}] has ${roles.length} StarRail roles`);
-
-        for (let j = 0; j < roles.length; j++) {
-          const role = roles[j];
-          Logger.info(TAG, `loadData: loading material for role[${j}] roleId=${role.roleId}`);
-          
-          const charMaterials = await this.loadCharacterMaterials(account.uid, role.roleId);
-          Logger.info(TAG, `loadData: loadCharacterMaterials result, count=${charMaterials.length}`);
-          
-          for (let k = 0; k < charMaterials.length; k++) {
-            allCharacterMaterials[allCharacterMaterials.length] = charMaterials[k];
-          }
+      const charMaterials = await this.loadCharacterMaterials(sel.accountId, sel.roleUid, sel.avatarIds);
+      for (let k = 0; k < charMaterials.length; k++) {
+        if (sel.avatarIds.includes(charMaterials[k].characterId)) {
+          allCharacterMaterials[allCharacterMaterials.length] = charMaterials[k];
         }
       }
+      Logger.info(PAGE_CALC_TAG, `[${TAG}] loadData: selected=${sel.avatarIds.length}, loaded=${charMaterials.length}, ` +
+        `shown=${allCharacterMaterials.length} (${allCharacterMaterials.map((c: CharacterMaterialVM) => c.characterId).join(',')})`);
 
       Logger.info(TAG, `loadData: total allCharacterMaterials.length=${allCharacterMaterials.length}`);
       
@@ -335,7 +188,11 @@ export class StarRailMaterialListViewModel {
   /**
    * 加载星铁角色材料数据。
    */
-  private async loadCharacterMaterials(accountId: string, roleUid: string): Promise<CharacterMaterialVM[]> {
+  /**
+   * 加载选中角色的材料数据。
+   * 选中但没有计算结果的角色：计算时已判定达到目标（MaterialComputeService 跳过），显示为"已达成目标"。
+   */
+  private async loadCharacterMaterials(accountId: string, roleUid: string, onlyAvatarIds: string[]): Promise<CharacterMaterialVM[]> {
     const avatarList = await CoreInitializer.starRailRepository.getAvatarList(accountId, roleUid);
     Logger.info(TAG, `loadCharacterMaterials: avatarList.length=${avatarList.length}`);
     
@@ -347,12 +204,33 @@ export class StarRailMaterialListViewModel {
 
     for (let i = 0; i < avatarList.length; i++) {
       const avatar = avatarList[i];
+      if (!onlyAvatarIds.includes(avatar.avatarId)) {
+        continue;
+      }
       Logger.info(TAG, `loadCharacterMaterials: [${i}] avatarId=${avatar.avatarId}, name=${avatar.name}`);
       
       const computeRow = await CoreInitializer.starRailRepository.getAvatarCompute(accountId, roleUid, avatar.avatarId);
       Logger.info(TAG, `loadCharacterMaterials: [${i}] computeRow=${computeRow === null ? 'null' : 'exists, rawJson.length=' + computeRow.rawJson.length}`);
       
       if (computeRow === null) {
+        const reached = new CharacterMaterialVM();
+        reached.characterId = avatar.avatarId;
+        reached.characterName = avatar.name;
+        reached.characterIconUrl = avatar.icon;
+        reached.characterLevel = avatar.level;
+        reached.characterRarity = avatar.rarity;
+        reached.gameId = GameId.STARRAIL;
+        reached.isTargetReached = true;
+        if (avatar.equipName.length > 0) {
+          const lc = new WeaponMaterialVM();
+          lc.weaponId = avatar.equipId;
+          lc.weaponName = avatar.equipName;
+          lc.weaponIconUrl = avatar.equipIconUrl;
+          lc.weaponLevel = avatar.equipLevel;
+          lc.weaponRarity = avatar.equipRarity;
+          reached.lightCone = lc;
+        }
+        result[result.length] = reached;
         continue;
       }
 

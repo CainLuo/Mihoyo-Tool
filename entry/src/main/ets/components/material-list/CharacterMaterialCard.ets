@@ -57,6 +57,16 @@ export struct CharacterMaterialCard {
               Text(`Lv.${this.data.characterLevel}`)
                 .font(ThemeFonts.font13)
                 .fontColor(this.tm.current.colorTextSecondary)
+
+              // 已达到养成目标（无需材料）
+              if (this.data.isTargetReached) {
+                Text($r('app.string.material_list_target_reached'))
+                  .font(ThemeFonts.font11)
+                  .fontColor(this.tm.current.colorPrimary)
+                  .padding({ left: 6, right: 6, top: 2, bottom: 2 })
+                  .border({ width: 1, color: this.tm.current.colorPrimary })
+                  .borderRadius(4)
+              }
             }
 
             // 第二行：武器/光锥信息（图标 + 名称 + 等级）
@@ -95,15 +105,17 @@ export struct CharacterMaterialCard {
           .alignItems(HorizontalAlign.Start)
           .layoutWeight(1)
 
-          // 展开箭头
-          SymbolGlyph($r('sys.symbol.chevron_right'))
-            .fontSize(this.tm.current.font16)
-            .fontColor([this.tm.current.colorTextSecondary])
-            .rotate({ angle: this.data.isExpanded ? 90 : 0 })
-            .animation({
-              duration: 200,
-              curve: Curve.EaseInOut
-            })
+          // 展开箭头（已达成目标时没有材料可展开）
+          if (!this.data.isTargetReached) {
+            SymbolGlyph($r('sys.symbol.chevron_right'))
+              .fontSize(this.tm.current.font16)
+              .fontColor([this.tm.current.colorTextSecondary])
+              .rotate({ angle: this.data.isExpanded ? 90 : 0 })
+              .animation({
+                duration: 200,
+                curve: Curve.EaseInOut
+              })
+          }
         }
         .width(this.tm.current.full)
 
@@ -149,7 +161,9 @@ export struct CharacterMaterialCard {
         bottom: this.tm.current.value12
       })
       .onClick(() => {
-        this.onToggleExpand();
+        if (!this.data.isTargetReached) {
+          this.onToggleExpand();
+        }
       })
 
       // ─── 展开区域：材料列表 ─────────────────────────────────────────

@@ -8,7 +8,7 @@ const PREFS_NAME: string = 'mihoyo_device_config';
 const KEY_DEVICE_ID: string = 'device_id';
 
 export class ApiConfig {
-  static readonly APP_VERSION: string = '2.104.0';
+  static readonly APP_VERSION: string = '2.115.0';
   /** 米游社 BBS App ID，用于登录接口的 x-rpc-app_id 请求头 */
   static readonly BBS_APP_ID: string = 'bll8iq97cem8';
   /**

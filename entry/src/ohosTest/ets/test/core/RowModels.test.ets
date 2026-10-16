@@ -95,7 +95,9 @@ export default function rowModelsTest() {
       const row = new GenshinCharacterComputeRow();
       expect(row.avatarId).assertEqual('');
       expect(row.avatarConsumeJson).assertEqual('');
-      expect(row.skillConsumeJson).assertEqual('');
+      expect(row.avatarSkillConsumeJson).assertEqual('');
+      expect(row.skillsConsumeJson).assertEqual('');
+      expect(row.overallConsumeJson).assertEqual('');
       expect(row.weaponConsumeJson).assertEqual('');
     });
   });

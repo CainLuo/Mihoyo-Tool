@@ -75,7 +75,7 @@ export default function rdbManagerTest() {
       expect(threw).assertTrue();
     });
 
-    it('userVersion_firstInstall_returnsOne', 0, async () => {
+    it('userVersion_firstInstall_returnsLatest', 0, async () => {
       const store = RdbManager.getRdbStore();
       const rs: relationalStore.ResultSet = await store.querySql('PRAGMA user_version', []);
       let version: number = 0;
@@ -87,7 +87,8 @@ export default function rdbManagerTest() {
       } finally {
         rs.close();
       }
-      expect(version).assertEqual(1);
+      // DB v6：v4 原神养成计算字段对齐 API + genshin_calc_avatar；v5 genshin_compute_summary；v6 绝区零核心技配置修正
+      expect(version).assertEqual(6);
     });
 
     it('allTables_exist_fifteenTables', 0, async () => {
@@ -115,7 +116,9 @@ export default function rdbManagerTest() {
         'starrail_avatar_info', 'starrail_avatar_compute',
         'zzz_avatar_basic', 'zzz_daily_note',
         'zzz_avatar_info', 'zzz_avatar_compute',
-        'sync_meta'
+        'sync_meta',
+        'genshin_calc_avatar',
+        'genshin_compute_summary'
       ];
       for (let i = 0; i < expectedTables.length; i++) {
         expect(tableNames.indexOf(expectedTables[i]) >= 0).assertTrue();

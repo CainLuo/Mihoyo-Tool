@@ -7,6 +7,7 @@
 
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { Logger } from 'core'
+import { MaterialComputeResult } from '../utils/MaterialComputeService'
 import { ThemeFonts } from '../theme/ThemeFonts'
 import { PrimaryButtonModifier } from '../styles/ButtonModifier'
 import { AppRoutes } from '../constants/AppRoutes'
@@ -93,19 +94,33 @@ export struct ZZZMaterialTargetConfig {
 
   /**
    * 开始计算材料
-   * 先在当前页面同步数据，完成后再跳转到材料总汇页。
+   * 先把当前页面的目标等级保存到 DB，再只计算传入的选中角色（计算时从 DB 读取目标等级），
+   * 完成后用新的目标等级重新打开材料汇总页（替换掉旧的材料页和当前配置页，返回时直接回到工具页）。
    */
   private async startCalculation(): Promise<void> {
-    Logger.info('ZZZMaterialTargetConfig', `startCalculation called, isSyncing=${this.vm.isSyncing}`)
-    
-    // 先同步数据
-    const success = await this.vm.syncComputeData()
-    Logger.info('ZZZMaterialTargetConfig', `syncComputeData result=${success}`)
-    
-    // 同步完成后跳转到材料总汇页，替换当前配置页
-    // 这样从材料总汇返回时会直接回到 Tools 页面
-    if (this.localStack !== null) {
-      this.localStack.replacePathByName(AppRoutes.ZZZ_MATERIAL_LIST, null)
+    const TAG = '🚀🚀🚀 MaterialTargetConfig'
+    Logger.info(TAG, `[ZZZ] startCalculation, isSyncing=${this.vm.isSyncing}`)
+    const selection = this.param
+    if (selection === null || selection.avatarIds.length === 0) {
+      // 没有选中角色（全部角色的计算是后续需求），直接返回上一页
+      Logger.error(TAG, `[ZZZ] no selection, pop back`)
+      this.localStack?.pop()
+      return
+    }
+
+    const result = await this.vm.computeSelected(selection)
+    Logger.info(TAG, `[ZZZ] computeSelected result=${result}`)
+    if (result === MaterialComputeResult.SUCCESS) {
+      if (this.localStack !== null) {
+        // 移除旧的材料页和角色选择页（从选择页"去设置"进入时），返回时直接回到工具页
+        this.localStack.removeByName(AppRoutes.ZZZ_MATERIAL_LIST)
+        this.localStack.removeByName(AppRoutes.MATERIAL_CHARACTER_SELECT)
+        this.localStack.replacePathByName(AppRoutes.ZZZ_MATERIAL_LIST, selection)
+      }
+    } else if (result === MaterialComputeResult.NO_NEEDS) {
+      this.getUIContext().getPromptAction().showToast({ message: $r('app.string.material_character_select_no_needs') })
+    } else if (result === MaterialComputeResult.FAILED) {
+      this.getUIContext().getPromptAction().showToast({ message: $r('app.string.material_character_select_failed') })
     }
   }
 

@@ -3,6 +3,9 @@ import { common } from '@kit.AbilityKit';
 import { ALL_TABLES, ALL_INDEXES, TableName } from './TableSchema';
 import { RdbMigrationV2 } from './RdbMigrationV2';
 import { RdbMigrationV3 } from './RdbMigrationV3';
+import { RdbMigrationV4 } from './RdbMigrationV4';
+import { RdbMigrationV5 } from './RdbMigrationV5';
+import { RdbMigrationV6 } from './RdbMigrationV6';
 
 /**
  * 数据库管理器
@@ -11,7 +14,7 @@ import { RdbMigrationV3 } from './RdbMigrationV3';
 export class RdbManager {
   private static rdbStore: relationalStore.RdbStore | null = null;
   private static readonly DB_NAME: string = 'mihoyo_tool_v2.db';
-  private static readonly DB_VERSION: number = 3;
+  private static readonly DB_VERSION: number = 6;
 
   /**
    * 初始化数据库，使用 SecurityLevel.S1 加密
@@ -138,6 +141,18 @@ export class RdbManager {
     // 版本 2 → 3：新增 Compute 表 raw_json 列 + material_bag 分表 + material_target_config 表
     if (oldVersion < 3) {
       await RdbMigrationV3.run();
+    }
+    // 版本 3 → 4：重建 genshin_character_compute（字段对齐 API）+ 新建 genshin_calc_avatar + 配置技能拆分
+    if (oldVersion < 4) {
+      await RdbMigrationV4.run();
+    }
+    // 版本 4 → 5：新建 genshin_compute_summary（整批计算合计）
+    if (oldVersion < 5) {
+      await RdbMigrationV5.run();
+    }
+    // 版本 5 → 6：绝区零配置 config_json 核心技（skill_type 5）截断到 7 级
+    if (oldVersion < 6) {
+      await RdbMigrationV6.run();
     }
   }
 

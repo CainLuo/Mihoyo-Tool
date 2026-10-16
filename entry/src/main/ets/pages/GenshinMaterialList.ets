@@ -16,6 +16,7 @@ import { Logger } from 'core'
 import { ThemeFonts } from '../theme/ThemeFonts'
 import { PrimaryButtonModifier } from '../styles/ButtonModifier'
 import { AppRoutes } from '../constants/AppRoutes'
+import { MaterialTargetConfigParam } from '../models/ToolsModels'
 
 const TAG: string = 'GenshinMaterialList'
 
@@ -24,11 +25,13 @@ export struct GenshinMaterialList {
   @Local private vm: GenshinMaterialListViewModel = new GenshinMaterialListViewModel()
   @Local private tm: ThemeManager = themeManager
   @Local private buttonModifier: PrimaryButtonModifier = new PrimaryButtonModifier(true)
+  /** 路由参数：选中的账号 / 游戏 UID / 角色 / 目标等级（由角色选择页或目标配置页传入） */
+  @Param param: MaterialTargetConfigParam | null = null
   private localStack: NavPathStack | null = null
 
   aboutToAppear(): void {
     Logger.info(TAG, 'aboutToAppear')
-    this.vm.init()
+    this.vm.init(this.param)
   }
 
   private get menuItems(): NavigationMenuItem[] {
@@ -54,7 +57,8 @@ export struct GenshinMaterialList {
       isEnabled: true,
       action: () => {
         Logger.info(TAG, 'Config menu item clicked')
-        this.localStack?.pushPathByName(AppRoutes.GENSHIN_MATERIAL_TARGET_CONFIG, null)
+        // 带上选中信息，目标配置页只重新计算这些角色
+        this.localStack?.pushPathByName(AppRoutes.GENSHIN_MATERIAL_TARGET_CONFIG, this.vm.getSelection())
       }
     })
 
@@ -177,6 +181,6 @@ export struct GenshinMaterialListPreview {
 // ─── Router Builder ───────────────────────────────────────────────
 
 @Builder
-export function GenshinMaterialListBuilder(_name: string, _param: Object) {
-  GenshinMaterialList()
+export function GenshinMaterialListBuilder(_name: string, param: Object) {
+  GenshinMaterialList({ param: param as MaterialTargetConfigParam | null })
 }

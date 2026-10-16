@@ -19,6 +19,8 @@ import {
   GameId,
 } from 'core';
 import { ViewState } from '../constants/ViewStates';
+import { MaterialTargetConfigParam } from '../models/ToolsModels';
+import { MaterialComputeService, MaterialComputeResult } from '../utils/MaterialComputeService';
 import {
   MaterialListViewMode,
   CharacterMaterialVM,
@@ -31,6 +33,8 @@ import {
 } from '../models/MaterialListModels';
 
 const TAG: string = 'ZZZMaterialListViewModel';
+/** 材料页日志 tag，过滤：hilog | grep 🚀🚀🚀 */
+const PAGE_CALC_TAG: string = '🚀🚀🚀 MaterialList';
 
 /** ZZZMaterialListViewModel @Monitor 路径常量类型 */
 export class ZZZMaterialListViewModelKeys {
@@ -51,14 +55,25 @@ export class ZZZMaterialListViewModel {
   @Trace isSyncing: boolean = false;
   @Trace syncErrorMsg: string = '';
 
+  /** 路由参数：选中的账号 / 游戏 UID / 角色 / 目标等级。只展示、只计算这些角色 */
+  private selection: MaterialTargetConfigParam | null = null;
+
   // ─── 公开方法 ────────────────────────────────────────────────
 
   /**
-   * 初始化：加载绝区零材料汇总数据。
+   * 初始化：只加载路由参数中选中角色的材料数据。
    */
-  async init(): Promise<void> {
+  async init(selection: MaterialTargetConfigParam | null): Promise<void> {
+    this.selection = selection;
+    Logger.info(PAGE_CALC_TAG, `[${TAG}] init, selection=${selection === null ? 'null' :
+      `account=${selection.accountId}, role=${selection.roleUid}, avatarIds=${selection.avatarIds.join(',')}`}`);
     this.viewState = ViewState.LOADING;
     await this.loadData();
+  }
+
+  /** 当前选中信息（给页面跳转养成目标配置页用） */
+  getSelection(): MaterialTargetConfigParam | null {
+    return this.selection;
   }
 
   /**
@@ -100,220 +115,57 @@ export class ZZZMaterialListViewModel {
   }
 
   /**
-   * 触发材料计算同步。
-   * 遍历所有账号的绝区零角色，调用 Repository 的同步方法。
+   * 重新计算：只重新计算路由参数中选中的角色（目标等级从 DB 读取），完成后重新加载。
    */
   async syncComputeData(): Promise<void> {
-    Logger.info(TAG, `syncComputeData called, isSyncing=${this.isSyncing}`);
+    const sel = this.selection;
     if (this.isSyncing) {
-      Logger.info(TAG, `syncComputeData skipped - already syncing`);
+      return;
+    }
+    if (sel === null || sel.avatarIds.length === 0) {
+      Logger.warn(PAGE_CALC_TAG, `[${TAG}] syncComputeData: no selection, skip`);
+      this.syncErrorMsg = 'no_selection';
       return;
     }
     this.isSyncing = true;
     this.syncErrorMsg = '';
-    Logger.info(TAG, `syncComputeData started`);
-
     try {
-      const accounts = await CoreInitializer.bbsRepository.getAllAccounts();
-      Logger.info(TAG, `syncComputeData: found ${accounts.length} accounts`);
-      
-      if (accounts.length === 0) {
-        Logger.warn(TAG, `syncComputeData: no accounts found`);
-        this.syncErrorMsg = 'no_account';
-        return;
+      // 目标等级由 MaterialComputeService 从 DB 读取
+      const result = await MaterialComputeService.compute(sel);
+      Logger.info(PAGE_CALC_TAG, `[${TAG}] syncComputeData result=${result}`);
+      if (result === MaterialComputeResult.FAILED) {
+        this.syncErrorMsg = 'compute_failed';
+      } else if (result === MaterialComputeResult.NO_CONFIG) {
+        this.syncErrorMsg = 'no_config';
       }
-
-      let syncCount = 0;
-
-      for (let i = 0; i < accounts.length; i++) {
-        const account = accounts[i];
-        Logger.info(TAG, `syncComputeData: processing account[${i}] uid=${account.uid}`);
-        
-        const roles = await CoreInitializer.bbsRepository.getGameRolesByGame(account.uid, GameId.ZZZ);
-        Logger.info(TAG, `syncComputeData: found ${roles.length} ZZZ roles`);
-
-        for (let j = 0; j < roles.length; j++) {
-          const role = roles[j];
-          Logger.info(TAG, `syncComputeData: syncing role[${j}] roleId=${role.roleId}`);
-          
-          const success = await this.syncRoleCompute(account.uid, account.cookie, role.roleId, role.server);
-          Logger.info(TAG, `syncComputeData: role[${j}] sync result=${success}`);
-          
-          if (success) {
-            syncCount++;
-          }
-        }
-      }
-
-      Logger.info(TAG, `syncComputeData: total syncCount=${syncCount}`);
-      
-      if (syncCount === 0) {
-        this.syncErrorMsg = 'no_roles';
-        return;
-      }
-
-      // 同步完成后重新加载数据
-      Logger.info(TAG, `syncComputeData: reloading data...`);
       await this.loadData();
-      Logger.info(TAG, `syncComputeData: reload done, viewState=${this.viewState}`);
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error(TAG, `syncComputeData failed: ${msg}`);
-      this.syncErrorMsg = msg;
     } finally {
       this.isSyncing = false;
-      Logger.info(TAG, `syncComputeData finished`);
     }
   }
 
   // ─── 私有方法 ────────────────────────────────────────────────
 
-  /**
-   * 同步单个绝区零角色的材料计算数据。
-   */
-  private async syncRoleCompute(accountId: string, cookie: string, roleUid: string, server: string): Promise<boolean> {
-    try {
-      let avatarList = await CoreInitializer.zzzRepository.getAvatarList(accountId, roleUid);
-      Logger.info(TAG, `syncRoleCompute: avatarList.length=${avatarList.length}`);
-      
-      // 如果 DB 中没有角色列表，先同步角色列表
-      if (avatarList.length === 0) {
-        Logger.info(TAG, `syncRoleCompute: no avatarList, syncing avatar list first`);
-        try {
-          await CoreInitializer.zzzRepository.syncAvatarList(accountId, roleUid, server, cookie);
-          avatarList = await CoreInitializer.zzzRepository.getAvatarList(accountId, roleUid);
-          Logger.info(TAG, `syncRoleCompute: after sync, avatarList.length=${avatarList.length}`);
-        } catch (error) {
-          const msg = error instanceof Error ? error.message : `${error}`;
-          Logger.error(TAG, `syncRoleCompute: failed to sync avatar list: ${msg}`);
-          return false;
-        }
-        
-        if (avatarList.length === 0) {
-          Logger.warn(TAG, `syncRoleCompute: still no avatarList after sync`);
-          return false;
-        }
-      }
-
-      let successCount = 0;
-
-      // 绝区零需要逐个角色同步
-      for (let i = 0; i < avatarList.length; i++) {
-        const avatar = avatarList[i];
-        try {
-          // 计算当前突破阶段
-          let currentPromotes = 0;
-          if (avatar.level >= 46) {
-            currentPromotes = 3;
-          } else if (avatar.level >= 31) {
-            currentPromotes = 2;
-          } else if (avatar.level >= 16) {
-            currentPromotes = 1;
-          }
-
-          // 构建技能参数
-          const skills: ZZZComputeSkill[] = [];
-          
-          const skill0 = new ZZZComputeSkill();
-          skill0.skill_type = 0;
-          skill0.init_level = 1;
-          skill0.level = 12;
-          skills[skills.length] = skill0;
-          
-          const skill1 = new ZZZComputeSkill();
-          skill1.skill_type = 1;
-          skill1.init_level = 1;
-          skill1.level = 12;
-          skills[skills.length] = skill1;
-          
-          const skill2 = new ZZZComputeSkill();
-          skill2.skill_type = 2;
-          skill2.init_level = 1;
-          skill2.level = 12;
-          skills[skills.length] = skill2;
-          
-          const skill3 = new ZZZComputeSkill();
-          skill3.skill_type = 3;
-          skill3.init_level = 1;
-          skill3.level = 12;
-          skills[skills.length] = skill3;
-          
-          const skill5 = new ZZZComputeSkill();
-          skill5.skill_type = 5;
-          skill5.init_level = 1;
-          skill5.level = 12;
-          skills[skills.length] = skill5;
-          
-          const skill6 = new ZZZComputeSkill();
-          skill6.skill_type = 6;
-          skill6.init_level = 1;
-          skill6.level = 12;
-          skills[skills.length] = skill6;
-
-          Logger.info(TAG, `syncRoleCompute: syncing avatarId=${avatar.avatarId}, level=${avatar.level}`);
-
-          await CoreInitializer.zzzRepository.syncAvatarCompute(
-            accountId,
-            roleUid,
-            avatar.avatarId,
-            60,
-            avatar.level,
-            currentPromotes,
-            skills,
-            roleUid,
-            server,
-            cookie
-          );
-          
-          successCount++;
-          Logger.info(TAG, `syncRoleCompute: avatarId=${avatar.avatarId} sync success`);
-        } catch (error) {
-          const msg = error instanceof Error ? error.message : `${error}`;
-          Logger.warn(TAG, `syncRoleCompute: avatarId=${avatar.avatarId} failed: ${msg}`);
-        }
-      }
-
-      Logger.info(TAG, `syncRoleCompute: total success=${successCount}/${avatarList.length}`);
-      return successCount > 0;
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.warn(TAG, `syncRoleCompute failed for ${roleUid}: ${msg}`);
-    }
-    return false;
-  }
-
   private async loadData(): Promise<void> {
     Logger.info(TAG, `loadData: start`);
     try {
-      const accounts = await CoreInitializer.bbsRepository.getAllAccounts();
-      Logger.info(TAG, `loadData: found ${accounts.length} accounts`);
-      
-      if (accounts.length === 0) {
-        Logger.warn(TAG, `loadData: no accounts`);
+      // 只加载选中的账号 / 游戏 UID / 角色（全部角色的材料汇总是后续需求）
+      const sel = this.selection;
+      if (sel === null || sel.avatarIds.length === 0) {
+        Logger.warn(PAGE_CALC_TAG, `[${TAG}] loadData: no selection`);
         this.viewState = ViewState.EMPTY;
         return;
       }
 
       const allCharacterMaterials: CharacterMaterialVM[] = [];
-
-      // 遍历所有账号，收集角色材料数据
-      for (let i = 0; i < accounts.length; i++) {
-        const account = accounts[i];
-        const roles = await CoreInitializer.bbsRepository.getGameRolesByGame(account.uid, GameId.ZZZ);
-        Logger.info(TAG, `loadData: account[${i}] has ${roles.length} ZZZ roles`);
-
-        for (let j = 0; j < roles.length; j++) {
-          const role = roles[j];
-          Logger.info(TAG, `loadData: loading material for role[${j}] roleId=${role.roleId}`);
-          
-          const charMaterials = await this.loadCharacterMaterials(account.uid, role.roleId);
-          Logger.info(TAG, `loadData: loadCharacterMaterials result, count=${charMaterials.length}`);
-          
-          for (let k = 0; k < charMaterials.length; k++) {
-            allCharacterMaterials[allCharacterMaterials.length] = charMaterials[k];
-          }
+      const charMaterials = await this.loadCharacterMaterials(sel.accountId, sel.roleUid, sel.avatarIds);
+      for (let k = 0; k < charMaterials.length; k++) {
+        if (sel.avatarIds.includes(charMaterials[k].characterId)) {
+          allCharacterMaterials[allCharacterMaterials.length] = charMaterials[k];
         }
       }
+      Logger.info(PAGE_CALC_TAG, `[${TAG}] loadData: selected=${sel.avatarIds.length}, loaded=${charMaterials.length}, ` +
+        `shown=${allCharacterMaterials.length} (${allCharacterMaterials.map((c: CharacterMaterialVM) => c.characterId).join(',')})`);
 
       Logger.info(TAG, `loadData: total allCharacterMaterials.length=${allCharacterMaterials.length}`);
       
@@ -336,7 +188,11 @@ export class ZZZMaterialListViewModel {
   /**
    * 加载单个游戏角色的材料数据。
    */
-  private async loadCharacterMaterials(accountId: string, roleUid: string): Promise<CharacterMaterialVM[]> {
+  /**
+   * 加载选中角色的材料数据。
+   * 选中但没有计算结果的角色：计算时已判定达到目标（MaterialComputeService 跳过），显示为"已达成目标"。
+   */
+  private async loadCharacterMaterials(accountId: string, roleUid: string, onlyAvatarIds: string[]): Promise<CharacterMaterialVM[]> {
     const avatarList = await CoreInitializer.zzzRepository.getAvatarList(accountId, roleUid);
     if (avatarList.length === 0) {
       return [];
@@ -345,10 +201,22 @@ export class ZZZMaterialListViewModel {
     const result: CharacterMaterialVM[] = [];
 
     for (let i = 0; i < avatarList.length; i++) {
-      const avatar = avatarList[i];      
+      const avatar = avatarList[i];
+      if (!onlyAvatarIds.includes(avatar.avatarId)) {
+        continue;
+      }
       const computeRow = await CoreInitializer.zzzRepository.getAvatarCompute(accountId, roleUid, avatar.avatarId);
-      
+
       if (computeRow === null) {
+        const reached = new CharacterMaterialVM();
+        reached.characterId = avatar.avatarId;
+        reached.characterName = avatar.nameMi18n;
+        reached.characterIconUrl = avatar.hollowIconPath;
+        reached.characterLevel = avatar.level;
+        reached.characterRarity = avatar.rarity === 'S' ? 5 : 4;
+        reached.gameId = GameId.ZZZ;
+        reached.isTargetReached = true;
+        result[result.length] = reached;
         continue;
       }
 
@@ -560,11 +428,4 @@ export class ZZZMaterialListViewModel {
 
     return sections;
   }
-}
-
-/** 绝区零养成计算技能参数 */
-class ZZZComputeSkill {
-  skill_type: number = 0;
-  level: number = 12;
-  init_level: number = 1;
 }

@@ -2141,6 +2141,34 @@
       "value": "確定"
     },
     {
+      "name": "genshin_skill_normal_attack",
+      "value": "普通攻擊"
+    },
+    {
+      "name": "genshin_skill_elemental_skill",
+      "value": "元素戰技"
+    },
+    {
+      "name": "genshin_skill_elemental_burst",
+      "value": "元素爆發"
+    },
+    {
+      "name": "starrail_skill_basic_attack",
+      "value": "普攻"
+    },
+    {
+      "name": "starrail_skill_skill",
+      "value": "戰技"
+    },
+    {
+      "name": "starrail_skill_ultimate",
+      "value": "終結技"
+    },
+    {
+      "name": "starrail_skill_talent",
+      "value": "天賦"
+    },
+    {
       "name": "zzz_skill_normal_attack",
       "value": "普通攻擊"
     },
@@ -2163,6 +2191,46 @@
     {
       "name": "zzz_skill_core",
       "value": "核心技"
+    },
+    {
+      "name": "material_character_select_empty_title",
+      "value": "暫無可選角色"
+    },
+    {
+      "name": "material_character_select_empty_desc",
+      "value": "請先同步角色數據"
+    },
+    {
+      "name": "material_character_select_count",
+      "value": "已選 %d/4 個"
+    },
+    {
+      "name": "material_character_select_start",
+      "value": "開始計算"
+    },
+    {
+      "name": "material_list_target_reached",
+      "value": "已達成目標"
+    },
+    {
+      "name": "material_target_config_required_title",
+      "value": "尚未設置養成目標"
+    },
+    {
+      "name": "material_target_config_required_message",
+      "value": "計算材料前需要先設置角色、技能和武器的目標等級。"
+    },
+    {
+      "name": "material_target_config_required_go",
+      "value": "去設置"
+    },
+    {
+      "name": "material_character_select_failed",
+      "value": "計算失敗，請稍後重試"
+    },
+    {
+      "name": "material_character_select_no_needs",
+      "value": "所選角色已全部滿級，無需培養材料"
     }
   ]
 }

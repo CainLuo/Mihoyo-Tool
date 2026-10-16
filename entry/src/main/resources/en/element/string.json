@@ -2145,6 +2145,34 @@
       "value": "Confirm"
     },
     {
+      "name": "genshin_skill_normal_attack",
+      "value": "Normal Attack"
+    },
+    {
+      "name": "genshin_skill_elemental_skill",
+      "value": "Elemental Skill"
+    },
+    {
+      "name": "genshin_skill_elemental_burst",
+      "value": "Elemental Burst"
+    },
+    {
+      "name": "starrail_skill_basic_attack",
+      "value": "Basic ATK"
+    },
+    {
+      "name": "starrail_skill_skill",
+      "value": "Skill"
+    },
+    {
+      "name": "starrail_skill_ultimate",
+      "value": "Ultimate"
+    },
+    {
+      "name": "starrail_skill_talent",
+      "value": "Talent"
+    },
+    {
       "name": "zzz_skill_normal_attack",
       "value": "Normal Attack"
     },
@@ -2167,6 +2195,46 @@
     {
       "name": "zzz_skill_core",
       "value": "Core"
+    },
+    {
+      "name": "material_character_select_empty_title",
+      "value": "No Characters Available"
+    },
+    {
+      "name": "material_character_select_empty_desc",
+      "value": "Please sync character data first"
+    },
+    {
+      "name": "material_character_select_count",
+      "value": "%d/4 selected"
+    },
+    {
+      "name": "material_character_select_start",
+      "value": "Start Calculation"
+    },
+    {
+      "name": "material_list_target_reached",
+      "value": "Target reached"
+    },
+    {
+      "name": "material_target_config_required_title",
+      "value": "Target not set"
+    },
+    {
+      "name": "material_target_config_required_message",
+      "value": "Please set the target levels for character, skills and weapon before calculating materials."
+    },
+    {
+      "name": "material_target_config_required_go",
+      "value": "Set now"
+    },
+    {
+      "name": "material_character_select_failed",
+      "value": "Calculation failed, please try again later"
+    },
+    {
+      "name": "material_character_select_no_needs",
+      "value": "Selected characters are already maxed out"
     }
   ]
 }

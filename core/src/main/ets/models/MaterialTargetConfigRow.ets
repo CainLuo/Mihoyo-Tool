@@ -14,19 +14,21 @@
  *
  * config_json 字段结构（JSON 字符串）：
  *
- * 原神：
+ * 原神（skills 按天赋分别配置，skillType：0=普通攻击, 1=元素战技, 2=元素爆发）：
  * {
  *   "avatar": { "current": 1, "target": 90 },
- *   "skill": { "current": 1, "target": 10 },
+ *   "skills": [ { "skillType": 0, "current": 1, "target": 10 }, ... ],
  *   "weapon": { "current": 1, "target": 90 }
  * }
  *
- * 星穹铁道：
+ * 星穹铁道（skills 按技能分别配置，skillType 与行迹 point_id 末三位一致：1=普攻, 2=战技, 3=终结技, 4=天赋）：
  * {
  *   "avatar": { "current": 1, "target": 80 },
- *   "skill": { "current": 1, "target": 10 },
+ *   "skills": [ { "skillType": 1, "current": 1, "target": 6 }, ... ],
  *   "lightCone": { "current": 1, "target": 80 }
  * }
+ *
+ * 旧版本原神 / 星铁只有统一的 "skill": { current, target }，DB v4 迁移（RdbMigrationV4）已将其拆分为 skills。
  *
  * 绝区零：
  * {
@@ -70,7 +72,7 @@ export class LevelConfig {
 }
 
 /**
- * 技能等级配置（绝区零专用，含 skillType）
+ * 技能等级配置（按技能区分，含 skillType；三个游戏 skillType 含义见文件头注释）
  */
 export class SkillLevelConfig extends LevelConfig {
   /** 技能类型（绝区零 API 使用的 skill_type） */
@@ -83,8 +85,8 @@ export class SkillLevelConfig extends LevelConfig {
 export class GenshinMaterialTargetConfigJson {
   /** 角色等级配置 */
   avatar: LevelConfig = new LevelConfig();
-  /** 技能等级配置 */
-  skill: LevelConfig = new LevelConfig();
+  /** 各天赋等级配置（普通攻击 / 元素战技 / 元素爆发） */
+  skills: SkillLevelConfig[] = [];
   /** 武器等级配置 */
   weapon: LevelConfig = new LevelConfig();
 }
@@ -95,8 +97,8 @@ export class GenshinMaterialTargetConfigJson {
 export class StarRailMaterialTargetConfigJson {
   /** 角色等级配置 */
   avatar: LevelConfig = new LevelConfig();
-  /** 命途/行迹等级配置 */
-  skill: LevelConfig = new LevelConfig();
+  /** 各技能等级配置（普攻 / 战技 / 终结技 / 天赋） */
+  skills: SkillLevelConfig[] = [];
   /** 光锥等级配置 */
   lightCone: LevelConfig = new LevelConfig();
 }

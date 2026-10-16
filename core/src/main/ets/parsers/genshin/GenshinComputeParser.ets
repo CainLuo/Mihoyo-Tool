@@ -99,11 +99,94 @@ interface RawComputeData {
   list?: RawComputeItem[];  // 有些 API 返回 list 而不是 items
   /** 汇总的材料缺口数据（这才是真实数据） */
   overall_consume?: RawMaterialItem[];
+  /** 批量请求返回的单角色结果 */
+  single_role_result?: RawSingleRoleResult[];
+}
+
+/** 批量请求返回的单角色结果 */
+interface RawSingleRoleResult {
+  items: RawComputeItem[];
+  overall_consume?: RawMaterialItem[];
 }
 
 // ─── Parser ──────────────────────────────────────────────────────
 
 export class GenshinComputeParser {
+
+  /**
+   * 解析 genshin_character_compute 的一行（DB v4 起各列为 API 原样数据）。
+   *
+   * 缺口计算（UI 用）：
+   * - 优先使用 overall_consume_json（single_role_result[i].overall_consume，该角色单独计算时扣除背包、含合成后的真实缺口），
+   *   算出每种材料的"已拥有" = num - lack_num，再按 角色 → 天赋 → 武器 顺序分配给各项
+   * - 没有 overall_consume 时使用各项自带的 lack_num
+   *
+   * @param avatarId 角色 ID（行的 avatar_id）
+   */
+  static parseRow(
+    avatarId: string,
+    avatarConsumeJson: string,
+    avatarSkillConsumeJson: string,
+    weaponConsumeJson: string,
+    overallConsumeJson: string,
+  ): GenshinComputeItem {
+    const item = new GenshinComputeItem();
+    item.avatarId = avatarId;
+    item.avatarConsume = GenshinComputeParser.parseMaterials(GenshinComputeParser.parseRawList(avatarConsumeJson));
+    item.skillConsume = GenshinComputeParser.parseMaterials(GenshinComputeParser.parseRawList(avatarSkillConsumeJson));
+    item.weaponConsume = GenshinComputeParser.parseMaterials(GenshinComputeParser.parseRawList(weaponConsumeJson));
+
+    const overall = GenshinComputeParser.parseRawList(overallConsumeJson);
+    if (overall.length > 0) {
+      const owned = new Map<number, number>();
+      for (let i = 0; i < overall.length; i++) {
+        const have = Math.max((overall[i].num ?? 0) - (overall[i].lack_num ?? 0), 0);
+        owned.set(overall[i].id, (owned.get(overall[i].id) ?? 0) + have);
+      }
+      GenshinComputeParser.allocateLack(item.avatarConsume, owned);
+      GenshinComputeParser.allocateLack(item.skillConsume, owned);
+      GenshinComputeParser.allocateLack(item.weaponConsume, owned);
+    }
+    return item;
+  }
+
+  /** 按剩余拥有量重新计算一组材料的 lackNum（会扣减 owned） */
+  private static allocateLack(list: GenshinMaterialItem[], owned: Map<number, number>): void {
+    for (let i = 0; i < list.length; i++) {
+      const remain = owned.get(list[i].id) ?? 0;
+      const have = Math.min(list[i].num, remain);
+      owned.set(list[i].id, remain - have);
+      list[i].lackNum = list[i].num - have;
+    }
+  }
+
+  private static parseRawList(json: string): RawMaterialItem[] {
+    if (json.length === 0) {
+      return [];
+    }
+    try {
+      const v = JSON.parse(json) as RawMaterialItem[];
+      return Array.isArray(v) ? v : [];
+    } catch (_e) {
+      return [];
+    }
+  }
+
+  /**
+   * 解析完整 API 响应对象
+   * @param resp API 返回的完整响应对象（包含 retcode/message/data）
+   * @returns 角色计算结果数组
+   */
+  static parseResponse(resp: object): GenshinComputeItem[] {
+    try {
+      const respRecord = resp as Record<string, Object>;
+      const dataObj = respRecord['data'] !== undefined ? respRecord['data'] : resp;
+      const rawJson = JSON.stringify(dataObj);
+      return GenshinComputeParser.parse(rawJson);
+    } catch (_e) {
+      return [];
+    }
+  }
 
   /**
    * 解析批量计算 API 响应
@@ -170,7 +253,29 @@ export class GenshinComputeParser {
 
   private static fromRaw(raw: RawComputeData): GenshinComputeItem[] {
     const result: GenshinComputeItem[] = [];
-    
+
+    // 优先处理 single_role_result（批量请求模式）
+    if (raw.single_role_result !== undefined && raw.single_role_result.length > 0) {
+      for (let i = 0; i < raw.single_role_result.length; i++) {
+        const roleData = raw.single_role_result[i];
+        const roleItems = roleData.items ?? [];
+        const roleOverallConsume = roleData.overall_consume ?? [];
+
+        for (let j = 0; j < roleItems.length; j++) {
+          const item = roleItems[j];
+          const computeItem = GenshinComputeParser.fromRawItem(item);
+          if (computeItem !== null) {
+            // 用 single_role_result 中的 overall_consume 覆盖
+            if (roleOverallConsume.length > 0) {
+              computeItem.avatarConsume = GenshinComputeParser.parseMaterials(roleOverallConsume);
+            }
+            result[result.length] = computeItem;
+          }
+        }
+      }
+      return result;
+    }
+
     // 兼容 items 和 list 两种字段名
     const items = raw.items ?? raw.list ?? [];
     if (items.length === 0) {

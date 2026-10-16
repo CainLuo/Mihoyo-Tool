@@ -24,6 +24,13 @@ export class LevelLabelKeys {
   static readonly WEAPON_LEVEL: string = 'material_target_config_weapon_level'
   static readonly TRACE_LEVEL: string = 'material_target_config_trace_level'
   static readonly LIGHT_CONE_LEVEL: string = 'material_target_config_light_cone_level'
+  static readonly GENSHIN_SKILL_NORMAL: string = 'genshin_skill_normal_attack'
+  static readonly GENSHIN_SKILL_ELEMENTAL: string = 'genshin_skill_elemental_skill'
+  static readonly GENSHIN_SKILL_BURST: string = 'genshin_skill_elemental_burst'
+  static readonly STARRAIL_SKILL_BASIC: string = 'starrail_skill_basic_attack'
+  static readonly STARRAIL_SKILL_SKILL: string = 'starrail_skill_skill'
+  static readonly STARRAIL_SKILL_ULTIMATE: string = 'starrail_skill_ultimate'
+  static readonly STARRAIL_SKILL_TALENT: string = 'starrail_skill_talent'
   static readonly ZZZ_SKILL_NORMAL: string = 'zzz_skill_normal_attack'
   static readonly ZZZ_SKILL_DODGE: string = 'zzz_skill_dodge'
   static readonly ZZZ_SKILL_ASSIST: string = 'zzz_skill_assist'
@@ -69,11 +76,23 @@ export class LevelConfigVM {
 }
 
 /**
- * 技能等级配置 UI State（绝区零专用，包含 skillType）
+ * 用 DB 中保存的值恢复等级配置（按 1 ~ max 截断；目标等级不低于当前等级）。
+ * 是否"保存过"由调用方根据 DB 是否存在配置记录判断，不能用 target > 1 判断（用户可以把目标设为 1）。
+ */
+export function applySavedLevel(config: LevelConfigVM, current: number, target: number): void {
+  const cur = Math.min(Math.max(current, 1), config.max)
+  const tgt = Math.min(Math.max(target, 1), config.max)
+  config.current = cur
+  config.target = Math.max(tgt, cur)
+}
+
+/**
+ * 技能等级配置 UI State（按技能区分，包含 skillType）
+ * skillType：原神 0/1/2 = 普通攻击/元素战技/元素爆发；星铁 1/2/3/4 = 普攻/战技/终结技/天赋；绝区零为 API 的 skill_type
  */
 @ObservedV2
 export class SkillLevelConfigVM extends LevelConfigVM {
-  /** 技能类型（绝区零 API 使用的 skill_type） */
+  /** 技能类型（含义见类注释） */
   skillType: number = 0
 }
 

@@ -25,11 +25,13 @@ export struct StarRailMaterialList {
   @Local private vm: StarRailMaterialListViewModel = new StarRailMaterialListViewModel()
   @Local private tm: ThemeManager = themeManager
   @Local private buttonModifier: PrimaryButtonModifier = new PrimaryButtonModifier(true)
+  /** 路由参数：选中的账号 / 游戏 UID / 角色 / 目标等级（由角色选择页或目标配置页传入） */
+  @Param param: MaterialTargetConfigParam | null = null
   private localStack: NavPathStack | null = null
 
   aboutToAppear(): void {
     Logger.info(TAG, 'aboutToAppear')
-    this.vm.init()
+    this.vm.init(this.param)
   }
 
   private get menuItems(): NavigationMenuItem[] {
@@ -55,7 +57,8 @@ export struct StarRailMaterialList {
       isEnabled: true,
       action: () => {
         Logger.info(TAG, 'Config menu item clicked')
-        this.localStack?.pushPathByName(AppRoutes.STARRAIL_MATERIAL_TARGET_CONFIG, null)
+        // 带上选中信息，目标配置页只重新计算这些角色
+        this.localStack?.pushPathByName(AppRoutes.STARRAIL_MATERIAL_TARGET_CONFIG, this.vm.getSelection())
       }
     })
 
@@ -178,6 +181,6 @@ export struct StarRailMaterialListPreview {
 // ─── Router Builder ───────────────────────────────────────────────
 
 @Builder
-export function StarRailMaterialListBuilder(_name: string, _param: Object) {
-  StarRailMaterialList()
+export function StarRailMaterialListBuilder(_name: string, param: Object) {
+  StarRailMaterialList({ param: param as MaterialTargetConfigParam | null })
 }

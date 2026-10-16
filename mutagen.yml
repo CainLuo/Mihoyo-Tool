@@ -1,0 +1,100 @@
+sync:
+  workspace:
+    alpha: "."
+
+    beta: "claude.tech.u37@151.145.77.220:~/workspaces/projects/harmonyos"
+
+    mode: "two-way-safe"
+
+    ignore:
+      vcs: true
+
+      paths:
+        # ===== 白名单模式：只同步指定目录 =====
+
+        # 第一步：排除根目录下的所有目录和文件
+        - "/*"
+
+        # 第二步：加回需要的目录（父目录）
+        - "!/core/"
+        - "!/internal/"
+        - "!/entry/"
+        - "!/TeyvatGuide/"
+        - "!/.kiro/"
+
+        # 第三步：在已加回的目录中排除不需要的子路径
+        # core 模块：只保留 src/，排除其他
+        - "/core/build/"
+        - "/core/src/mock/"
+        - "/core/oh_modules/"
+        - "/core/.hvigor/"
+        - "/core/oh-package.json5"
+        - "/core/build-profile.json5"
+        - "/core/hvigorfile.ts"
+        - "/core/hvigorw"
+        - "/core/hvigorw.bat"
+        - "/core/.gitignore"
+        - "/core/Index.ets"
+
+        # internal 模块：只保留 src/，排除其他
+        - "/internal/build/"
+        - "/internal/src/mock/"
+        - "/internal/oh_modules/"
+        - "/internal/.hvigor/"
+        - "/internal/oh-package.json5"
+        - "/internal/build-profile.json5"
+        - "/internal/hvigorfile.ts"
+        - "/internal/hvigorw"
+        - "/internal/hvigorw.bat"
+        - "/internal/.gitignore"
+        - "/internal/Index.ets"
+
+        # entry 模块：只保留 src/，排除其他
+        - "/entry/build/"
+        - "/entry/src/mock/"
+        - "/entry/oh_modules/"
+        - "/entry/.hvigor/"
+        - "/entry/oh-package.json5"
+        - "/entry/build-profile.json5"
+        - "/entry/hvigorfile.ts"
+        - "/entry/hvigorw"
+        - "/entry/hvigorw.bat"
+        - "/entry/.gitignore"
+
+        # TeyvatGuide 模块：只保留 src/ 和 src-tauri/，排除其他
+        - "/TeyvatGuide/test/"
+        - "/TeyvatGuide/docs/"
+        - "/TeyvatGuide/public/"
+        - "/TeyvatGuide/scripts/"
+        - "/TeyvatGuide/.husky/"
+        - "/TeyvatGuide/.github/"
+        - "/TeyvatGuide/.vscode/"
+        - "/TeyvatGuide/.agents/"
+        - "/TeyvatGuide/node_modules/"
+        - "/TeyvatGuide/target/"
+        - "/TeyvatGuide/dist/"
+        - "/TeyvatGuide/pnpm-lock.yaml"
+        - "/TeyvatGuide/package.json"
+        - "/TeyvatGuide/README.md"
+        - "/TeyvatGuide/.gitignore"
+        - "/TeyvatGuide/Cargo.toml"
+        - "/TeyvatGuide/Cargo.lock"
+
+        # 第四步：全局排除
+        # macOS
+        - ".DS_Store"
+        - "._*"
+
+        # IDE / Editor
+        - ".idea/"
+        - ".vscode/"
+        - ".fleet/"
+        - "*.iml"
+
+        # HarmonyOS 构建产物
+        - ".hvigor/"
+        - "oh_modules/"
+        - ".arkui-x/"
+        - "*.hap"
+        - "*.app"
+

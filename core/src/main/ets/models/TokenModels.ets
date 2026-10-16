@@ -97,6 +97,50 @@ interface GetCookieBySTokenData {
   cookie_token: string;
 }
 
+// ─── V2 Token Exchange（v2_ 格式 stoken 专用）─────────────────────
+
+/**
+ * getCookieBySToken V2 接口响应
+ * 接口：GET /account/auth/api/getCookieBySToken
+ * 用途：用 v2_ 格式的 stoken 换取 cookie_token_v2
+ * 参考：genshin.py COOKIE_V2_REFRESH_URL
+ */
+export interface GetCookieBySTokenV2Response {
+  retcode: number;
+  message: string;
+  data: GetCookieBySTokenV2Data;
+}
+
+interface GetCookieBySTokenV2Data {
+  /** cookie_token 的 v2 版本 */
+  cookie_token_v2: string;
+  /** 账号 UID（部分响应可能返回） */
+  aid?: string;
+  /** mid（部分响应可能返回） */
+  mid?: string;
+}
+
+/**
+ * getCookieAccountInfoBySToken V2 接口响应
+ * 接口：GET /account/auth/api/getCookieAccountInfoBySToken
+ * 用途：用 v2_ 格式的 stoken 换取账号信息（含 cookie_token_v2）
+ * 参考：genshin.py CN_GET_COOKIE_TOKEN_BY_STOKEN_URL
+ */
+export interface GetCookieAccountInfoBySTokenV2Response {
+  retcode: number;
+  message: string;
+  data: GetCookieAccountInfoBySTokenV2Data;
+}
+
+interface GetCookieAccountInfoBySTokenV2Data {
+  /** 账号 UID */
+  aid: string;
+  /** mid */
+  mid: string;
+  /** cookie_token 的 v2 版本 */
+  cookie_token_v2: string;
+}
+
 // ─── Cookie 组装 ──────────────────────────────────────────────────
 
 /**
@@ -128,4 +172,11 @@ export class LoginCookieFields {
   deviceFpSeedId: string = '';
   /** 设备指纹种子时间戳 */
   deviceFpSeedTime: string = '';
+
+  // ── V2 Token 字段（v2_ 格式 stoken 专用）──────────────────────
+
+  /** LToken v2（v2_ 格式，通过 V2 token exchange 获取） */
+  ltokenV2: string = '';
+  /** CookieToken v2（v2_ 格式，通过 V2 token exchange 获取） */
+  cookieTokenV2: string = '';
 }

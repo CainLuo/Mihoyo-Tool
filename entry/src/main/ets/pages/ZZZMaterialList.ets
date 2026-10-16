@@ -25,11 +25,13 @@ export struct ZZZMaterialList {
   @Local private vm: ZZZMaterialListViewModel = new ZZZMaterialListViewModel()
   @Local private tm: ThemeManager = themeManager
   @Local private buttonModifier: PrimaryButtonModifier = new PrimaryButtonModifier(true)
+  /** 路由参数：选中的账号 / 游戏 UID / 角色 / 目标等级（由角色选择页或目标配置页传入） */
+  @Param param: MaterialTargetConfigParam | null = null
   private localStack: NavPathStack | null = null
 
   aboutToAppear(): void {
     Logger.info(TAG, 'aboutToAppear')
-    this.vm.init()
+    this.vm.init(this.param)
   }
 
   private get menuItems(): NavigationMenuItem[] {
@@ -55,7 +57,8 @@ export struct ZZZMaterialList {
       isEnabled: true,
       action: () => {
         Logger.info(TAG, 'Config menu item clicked')
-        this.localStack?.pushPathByName(AppRoutes.ZZZ_MATERIAL_TARGET_CONFIG, null)
+        // 带上选中信息，目标配置页只重新计算这些角色
+        this.localStack?.pushPathByName(AppRoutes.ZZZ_MATERIAL_TARGET_CONFIG, this.vm.getSelection())
       }
     })
 
@@ -178,6 +181,6 @@ export struct ZZZMaterialListPreview {
 // ─── Router Builder ───────────────────────────────────────────────
 
 @Builder
-export function ZZZMaterialListBuilder(_name: string, _param: Object) {
-  ZZZMaterialList()
+export function ZZZMaterialListBuilder(_name: string, param: Object) {
+  ZZZMaterialList({ param: param as MaterialTargetConfigParam | null })
 }

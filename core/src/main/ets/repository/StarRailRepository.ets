@@ -236,6 +236,11 @@ export class StarRailRepository extends GameRepository {
     return this.dbManager.needsSync(accountId, roleUid, SyncDataType.STARRAIL_AVATAR_COMPUTE);
   }
 
+  /** 清空该游戏 UID 下全部养成计算结果（角色选择页重新计算前调用） */
+  async clearAvatarCompute(accountId: string, roleUid: string): Promise<void> {
+    await this.dbManager.deleteAllAvatarCompute(accountId, roleUid);
+  }
+
   /**
    * 拉取单角色养成计算 → 解析 → 写 DB
    * 同时写入材料背包数据（从 user_owns_materials）

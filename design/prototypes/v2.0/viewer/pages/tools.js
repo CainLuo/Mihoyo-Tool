@@ -3,11 +3,14 @@
  *
  * 底部导航新增「工具」Tab，包含 3 个游戏的材料总汇入口
  * 处理空态和无数据场景
+ * 
+ * 流程：工具页 → 点击材料计算 → 游戏选择弹框 → 角色选择页
  */
 
 var toolsState = {
   view: "normal",      // normal | empty_account | empty_data
   accountCount: 1,
+  showGameSelector: false,  // 是否显示游戏选择弹框
   // 各游戏数据状态
   genshin: { count: 12, computed: 8, hasData: true },
   starrail: { count: 15, computed: 12, hasData: true },
@@ -84,7 +87,7 @@ function renderNormal(w, h, c, isPhone) {
     cards += renderGameCard(games[i], c);
   }
 
-  return "<div style=\"width:" + w + "px;height:" + h + "px;display:flex;flex-direction:column;background:" + c.pageBg + "\">" +
+  var html = "<div style=\"width:" + w + "px;height:" + h + "px;display:flex;flex-direction:column;background:" + c.pageBg + ";position:relative;\">" +
     // 标题栏
     "<div style=\"padding:12px 16px;border-bottom:1px solid " + c.div + ";flex-shrink:0;background:" + c.cardBg + "\">" +
     "<div style=\"font-size:17px;font-weight:600;color:" + c.txt + "\">工具</div>" +
@@ -94,8 +97,72 @@ function renderNormal(w, h, c, isPhone) {
     cards +
     "</div>" +
     // 底部 Tab 栏
-    renderTabBar(c, "tools") +
+    renderTabBar(c, "tools");
+  
+  // 游戏选择弹框
+  if (toolsState.showGameSelector) {
+    html += renderGameSelectorModal(c, games);
+  }
+  
+  html += "</div>";
+  return html;
+}
+
+/**
+ * 游戏选择弹框
+ */
+function renderGameSelectorModal(c, games) {
+  // 只显示有数据的游戏
+  var availableGames = games.filter(function(g) { return g.data.hasData; });
+  
+  var items = "";
+  for (var i = 0; i < availableGames.length; i++) {
+    var g = availableGames[i];
+    items += "<div onclick=\"selectGameForMaterial('" + g.id + "')\" style=\"" +
+      "padding:16px;display:flex;align-items:center;gap:12px;cursor:pointer;border-bottom:1px solid " + c.div + ";" +
+      "\" onmouseover=\"this.style.background='" + c.primary + "15'\" onmouseout=\"this.style.background='transparent'\">" +
+      "<div style=\"width:40px;height:40px;border-radius:10px;background:" + g.color + "22;display:flex;align-items:center;justify-content:center;font-size:20px;\">" + g.icon + "</div>" +
+      "<div style=\"flex:1;\">" +
+      "<div style=\"font-size:15px;font-weight:500;color:" + c.txt + ";margin-bottom:2px;\">" + g.name.replace("材料总汇", "") + "</div>" +
+      "<div style=\"font-size:12px;color:" + c.txt2 + ";\">" + g.data.count + " 个角色</div>" +
+      "</div>" +
+      "<div style=\"font-size:16px;color:" + c.txt2 + ";\">›</div>" +
+      "</div>";
+  }
+
+  return "<div onclick=\"closeGameSelector()\" style=\"" +
+    "position:absolute;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:100;" +
+    "\">" +
+    "<div onclick=\"event.stopPropagation()\" style=\"" +
+    "background:" + c.cardBg + ";border-radius:16px;width:280px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.5);" +
+    "\">" +
+    // 标题
+    "<div style=\"padding:16px;border-bottom:1px solid " + c.div + ";display:flex;justify-content:space-between;align-items:center;\">" +
+    "<div style=\"font-size:16px;font-weight:600;color:" + c.txt + ";\">选择游戏</div>" +
+    "<div onclick=\"closeGameSelector()\" style=\"cursor:pointer;color:" + c.txt2 + ";font-size:20px;\">✕</div>" +
+    "</div>" +
+    // 游戏列表
+    items +
+    "</div>" +
     "</div>";
+}
+
+/**
+ * 选择游戏后跳转到角色选择页
+ */
+function selectGameForMaterial(gameId) {
+  toolsState.showGameSelector = false;
+  // 设置全局状态，传递给角色选择页
+  window.selectedGameId = gameId;
+  // 跳转到角色选择页
+  if (typeof setPage === 'function') {
+    setPage('material-char-select');
+  }
+}
+
+function closeGameSelector() {
+  toolsState.showGameSelector = false;
+  refresh();
 }
 
 /**

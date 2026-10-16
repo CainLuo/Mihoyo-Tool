@@ -119,6 +119,8 @@ export class CharacterMaterialVM {
   lightCone: WeaponMaterialVM | null = null;
   /** 是否展开 — 使用 @Trace 标记为响应式字段 */
   @Trace isExpanded: boolean = false;
+  /** 已达到养成目标（选中但无需计算材料）：卡片显示"已达成目标"，不可展开 */
+  isTargetReached: boolean = false;
   /** 材料区域标题（ViewModel 组装时确定："角色材料" 或 "所需材料"） */
   avatarSectionTitle: ResourceStr = $r('app.string.material_section_avatar');
 }

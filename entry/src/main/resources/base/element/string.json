@@ -2285,6 +2285,34 @@
       "value": "确定"
     },
     {
+      "name": "genshin_skill_normal_attack",
+      "value": "普通攻击"
+    },
+    {
+      "name": "genshin_skill_elemental_skill",
+      "value": "元素战技"
+    },
+    {
+      "name": "genshin_skill_elemental_burst",
+      "value": "元素爆发"
+    },
+    {
+      "name": "starrail_skill_basic_attack",
+      "value": "普攻"
+    },
+    {
+      "name": "starrail_skill_skill",
+      "value": "战技"
+    },
+    {
+      "name": "starrail_skill_ultimate",
+      "value": "终结技"
+    },
+    {
+      "name": "starrail_skill_talent",
+      "value": "天赋"
+    },
+    {
       "name": "zzz_skill_normal_attack",
       "value": "普通攻击"
     },
@@ -2307,6 +2335,50 @@
     {
       "name": "zzz_skill_core",
       "value": "核心技"
+    },
+    {
+      "name": "material_character_select_title",
+      "value": "选择角色"
+    },
+    {
+      "name": "material_character_select_empty_title",
+      "value": "暂无角色数据"
+    },
+    {
+      "name": "material_character_select_empty_desc",
+      "value": "请先在角色页面同步数据"
+    },
+    {
+      "name": "material_character_select_count",
+      "value": "已选择 %d/%d 个角色"
+    },
+    {
+      "name": "material_character_select_start",
+      "value": "开始计算"
+    },
+    {
+      "name": "material_list_target_reached",
+      "value": "已达成目标"
+    },
+    {
+      "name": "material_target_config_required_title",
+      "value": "尚未设置养成目标"
+    },
+    {
+      "name": "material_target_config_required_message",
+      "value": "计算材料前需要先设置角色、技能和武器的目标等级。"
+    },
+    {
+      "name": "material_target_config_required_go",
+      "value": "去设置"
+    },
+    {
+      "name": "material_character_select_failed",
+      "value": "计算失败，请稍后重试"
+    },
+    {
+      "name": "material_character_select_no_needs",
+      "value": "所选角色已全部满级，无需培养材料"
     }
   ]
 }

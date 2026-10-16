@@ -63,7 +63,8 @@ function renderCharacterCard(charData, isPhone, c, isExpanded) {
   var avatarSize = isPhone ? 48 : 52;
   var avatarFS = isPhone ? 24 : 26;
   var avatarBg = getElementGradient(ML_STATE.selectedGame, charData);
-  html += "<div style=\"width:" + avatarSize + "px;height:" + avatarSize + "px;border-radius:12px;background:" + avatarBg + ";display:flex;align-items:center;justify-content:center;font-size:" + avatarFS + "px\">" + charData.characterIcon + "</div>";
+  var charIcon = charData.characterIcon || "?";
+  html += "<div style=\"width:" + avatarSize + "px;height:" + avatarSize + "px;border-radius:12px;background:" + avatarBg + ";display:flex;align-items:center;justify-content:center;font-size:" + avatarFS + "px\">" + charIcon + "</div>";
   
   // 技能图标（纵向排列）
   if (hasSkills) {

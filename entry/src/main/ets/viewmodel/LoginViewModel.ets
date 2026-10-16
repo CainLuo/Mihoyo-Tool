@@ -153,8 +153,31 @@ export class LoginViewModel {
       const stoken = confirmed.stoken;
       const ltoken = confirmed.ltoken;
       const mid = confirmed.mid.length > 0 ? confirmed.mid : confirmed.uid;
-      // cookie_token 仍需通过 stoken 换取
-      const cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
+
+      // 判断 stoken 是否为 v2 格式
+      const isStokenV2 = stoken.length > 0 && stoken.startsWith('v2_');
+      Logger.info(TAG, `handleQRCodeConfirmed: stoken format ${isStokenV2 ? 'v2' : 'v1'}`);
+
+      // cookie_token 通过 stoken 换取
+      // V1 stoken 用 V1 API，V2 stoken 用 V2 API
+      let cookieToken = '';
+      let cookieTokenV2 = '';
+      if (isStokenV2) {
+        // V2 stoken: 尝试 V2 exchange API
+        try {
+          cookieTokenV2 = await AuthRepository.getCookieBySTokenV2(stoken, mid);
+          Logger.info(TAG, `handleQRCodeConfirmed: got cookie_token_v2 via V2 API`);
+        } catch (error) {
+          const msg = error instanceof Error ? error.message : `${error}`;
+          Logger.warn(TAG, `V2 token exchange failed, falling back to V1: ${msg}`);
+          // Fallback to V1 API
+          cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
+        }
+      } else {
+        // V1 stoken: 使用 V1 API
+        cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
+      }
+
       const fields = new LoginCookieFields();
       fields.accountId = confirmed.uid;
       fields.cookieToken = cookieToken;
@@ -162,6 +185,8 @@ export class LoginViewModel {
       fields.ltuid = confirmed.uid;
       fields.stoken = stoken;
       fields.mid = mid;
+      // V2 token 字段
+      fields.cookieTokenV2 = cookieTokenV2;
       // v2 Cookie 字段（设备指纹）
       fields.deviceFp = ApiConfig.getDeviceFp();
       fields.mhyUuid = ApiConfig.getDeviceIdSync();

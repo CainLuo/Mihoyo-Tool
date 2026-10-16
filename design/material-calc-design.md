@@ -480,26 +480,74 @@ material_bag 表：
 
 ## 四、数据库设计
 
-### 4.1 新增表：`material_bag`
+### 4.1 新增表：`material_bag`（三张独立表）
 
-存储玩家背包中的材料数据，支持多账号数据隔离。
+> **设计变更说明**：
+> - **原设计**：单张 `material_bag` 表，通过 `game_id` 字段区分游戏
+> - **最终实现**：三张独立表（`genshin_material_bag`、`starrail_material_bag`、`zzz_material_bag`）
+> - **变更原因**：与现有数据库设计风格保持一致（如 `genshin_character_list`、`starrail_avatar_basic` 等），便于管理和维护
+
+存储玩家背包中的材料数据，支持多账号数据隔离。每个游戏独立一张表：
+
+#### 4.1.1 原神材料背包表 `genshin_material_bag`
 
 ```sql
-CREATE TABLE IF NOT EXISTS material_bag (
+CREATE TABLE IF NOT EXISTS genshin_material_bag (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   account_id TEXT NOT NULL,           -- 米游社账号 UID（外键 → account_table.uid）
-  material_id TEXT NOT NULL,          -- 材料 ID（统一 string 类型，兼容三游戏）
+  role_uid TEXT NOT NULL,             -- 游戏角色 UID
+  material_id TEXT NOT NULL,          -- 材料 ID
   material_name TEXT NOT NULL,        -- 材料名称
-  material_icon TEXT,                 -- 材料图标 URL
-  rarity TEXT DEFAULT '',             -- 稀有度（S/A/B/C 或 1-5，统一存 string）
-  count INTEGER DEFAULT 0,            -- 拥有数量（星铁/绝区零来自 API，原神手动输入）
-  source TEXT DEFAULT 'api',          -- 数据来源：api 或 manual
-  game_id TEXT NOT NULL,              -- 游戏标识（genshin/starrail/zzz）
-  update_time INTEGER DEFAULT 0,      -- 更新时间戳
-  UNIQUE(account_id, material_id, game_id),
+  material_icon TEXT DEFAULT '',      -- 材料图标 URL
+  rarity TEXT DEFAULT '',             -- 稀有度（1-5）
+  count INTEGER DEFAULT 0,            -- 拥有数量（用户手动输入或从 lack_num 反推）
+  source TEXT DEFAULT 'api',          -- 数据来源：api / manual / computed
+  update_time INTEGER,                -- 更新时间戳
   FOREIGN KEY (account_id) REFERENCES account_table(uid) ON DELETE CASCADE
 )
 ```
+
+**唯一索引**：`CREATE UNIQUE INDEX idx_genshin_material_bag_unique ON genshin_material_bag(account_id, role_uid, material_id)`
+
+#### 4.1.2 星穹铁道材料背包表 `starrail_material_bag`
+
+```sql
+CREATE TABLE IF NOT EXISTS starrail_material_bag (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  account_id TEXT NOT NULL,           -- 米游社账号 UID
+  role_uid TEXT NOT NULL,             -- 游戏角色 UID
+  material_id TEXT NOT NULL,          -- 材料 ID
+  material_name TEXT NOT NULL,        -- 材料名称
+  material_icon TEXT DEFAULT '',      -- 材料图标 URL
+  rarity TEXT DEFAULT '',             -- 稀有度（S/A/B/C）
+  count INTEGER DEFAULT 0,            -- 拥有数量（从 API 自动获取）
+  source TEXT DEFAULT 'api',          -- 数据来源：api
+  update_time INTEGER,                -- 更新时间戳
+  FOREIGN KEY (account_id) REFERENCES account_table(uid) ON DELETE CASCADE
+)
+```
+
+**唯一索引**：`CREATE UNIQUE INDEX idx_starrail_material_bag_unique ON starrail_material_bag(account_id, role_uid, material_id)`
+
+#### 4.1.3 绝区零材料背包表 `zzz_material_bag`
+
+```sql
+CREATE TABLE IF NOT EXISTS zzz_material_bag (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  account_id TEXT NOT NULL,           -- 米游社账号 UID
+  role_uid TEXT NOT NULL,             -- 游戏角色 UID
+  material_id TEXT NOT NULL,          -- 材料 ID
+  material_name TEXT NOT NULL,        -- 材料名称
+  material_icon TEXT DEFAULT '',      -- 材料图标 URL
+  rarity TEXT DEFAULT '',             -- 稀有度（S/A/B）
+  count INTEGER DEFAULT 0,            -- 拥有数量（从 API 自动获取）
+  source TEXT DEFAULT 'api',          -- 数据来源：api
+  update_time INTEGER,                -- 更新时间戳
+  FOREIGN KEY (account_id) REFERENCES account_table(uid) ON DELETE CASCADE
+)
+```
+
+**唯一索引**：`CREATE UNIQUE INDEX idx_zzz_material_bag_unique ON zzz_material_bag(account_id, role_uid, material_id)`
 
 **字段说明**：
 
@@ -507,20 +555,84 @@ CREATE TABLE IF NOT EXISTS material_bag (
 |-----|-----|-----|
 | id | INTEGER | 自增主键 |
 | account_id | TEXT | 米游社账号 UID，关联 `account_table.uid`，删除账号时级联删除 |
-| material_id | TEXT | 材料 ID，统一使用 string 类型（星铁 `item_id`、绝区零 `id`、原神 `id` 都转为 string） |
+| role_uid | TEXT | 游戏角色 UID，同一个米游社账号下不同游戏角色的背包是独立的 |
+| material_id | TEXT | 材料 ID，统一使用 string 类型 |
 | material_name | TEXT | 材料名称 |
 | material_icon | TEXT | 材料图标 URL |
-| rarity | TEXT | 稀有度，星铁/绝区零返回 string（S/A/B/C），原神返回 number（1-5），存储时统一转 string |
-| count | INTEGER | 玩家拥有数量，**星铁/绝区零从 API 自动获取，原神需要用户手动输入或从 lack_num 反推** |
-| source | TEXT | 数据来源：`api`（API 自动获取）或 `manual`（用户手动输入）或 `computed`（从 lack_num 反推），用于区分数据可信度 |
-| game_id | TEXT | 游戏标识，使用 `GameId` 枚举值（'genshin'/'starrail'/'zzz'） |
+| rarity | TEXT | 稀有度（星铁/绝区零：S/A/B/C，原神：1-5） |
+| count | INTEGER | 玩家拥有数量（星铁/绝区零从 API 自动获取，原神需要用户手动输入或从 lack_num 反推） |
+| source | TEXT | 数据来源：`api`（API 自动获取）、`manual`（用户手动输入）、`computed`（从 lack_num 反推） |
 | update_time | INTEGER | 最后更新时间戳（Unix 秒） |
 
-**唯一键约束**：`(account_id, material_id, game_id)` 确保同一账号下同一游戏同一材料只有一条记录。
+**唯一键约束**：`(account_id, role_uid, material_id)` 确保同一账号下同一角色同一材料只有一条记录。
 
 **外键约束**：`account_id` 关联 `account_table.uid`，删除账号时级联删除所有材料数据。
 
-### 4.2 修改现有 Compute 表
+### 4.2 新增表：`material_target_config`（三张独立表）
+
+存储用户配置的养成目标（角色等级、武器等级、技能等级等）：
+
+#### 4.2.1 原神养成目标配置表 `genshin_material_target_config`
+
+```sql
+CREATE TABLE IF NOT EXISTS genshin_material_target_config (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  account_id TEXT NOT NULL,           -- 米游社账号 UID
+  role_uid TEXT NOT NULL,             -- 游戏角色 UID
+  config_json TEXT DEFAULT '',        -- 目标配置 JSON
+  update_time INTEGER,                -- 更新时间戳
+  FOREIGN KEY (account_id) REFERENCES account_table(uid) ON DELETE CASCADE
+)
+```
+
+**唯一索引**：`CREATE UNIQUE INDEX idx_genshin_material_target_config_unique ON genshin_material_target_config(account_id, role_uid)`
+
+**config_json 结构示例**：
+```json
+{
+  "characterLevelTarget": 90,
+  "weaponLevelTarget": 90,
+  "skills": {
+    "normalAttack": 10,
+    "elementalSkill": 10,
+    "elementalBurst": 10
+  }
+}
+```
+
+#### 4.2.2 星穹铁道养成目标配置表 `starrail_material_target_config`
+
+表结构与原神相同，`config_json` 结构略有差异：
+```json
+{
+  "avatarLevelTarget": 80,
+  "equipmentLevelTarget": 80,
+  "skills": {
+    "basicAttack": 6,
+    "skill": 10,
+    "ultimate": 10,
+    "talent": 10
+  }
+}
+```
+
+#### 4.2.3 绝区零养成目标配置表 `zzz_material_target_config`
+
+表结构与其他游戏相同，`config_json` 结构略有差异：
+```json
+{
+  "avatarLevelTarget": 60,
+  "weaponLevelTarget": 60,
+  "skills": {
+    "normalAttack": 6,
+    "specialSkill": 12,
+    "dodge": 12,
+    "ultimate": 12
+  }
+}
+```
+
+### 4.3 修改现有 Compute 表
 
 为三张 Compute 表添加 `raw_json` 字段，存储完整 API 响应：
 
@@ -536,31 +648,31 @@ ALTER TABLE zzz_avatar_compute ADD COLUMN raw_json TEXT DEFAULT '';
 
 ### 5.1 数据隔离设计
 
-本 App 支持多米游社账号登录，材料背包数据必须按账号隔离：
+本 App 支持多米游社账号登录，材料背包数据按账号隔离：
 
 ```
 account_table (米游社账号)
   ├── uid: '348366494' (账号 1)
-  │     ├── material_bag (原神材料)
-  │     ├── material_bag (星铁材料)
-  │     └── material_bag (绝区零材料)
+  │     ├── genshin_material_bag (原神材料)
+  │     ├── starrail_material_bag (星铁材料)
+  │     └── zzz_material_bag (绝区零材料)
   │
   └── uid: '182692936' (账号 2)
-        ├── material_bag (原神材料)
+        ├── genshin_material_bag (原神材料)
         └── ...
 ```
 
 ### 5.2 数据访问逻辑
 
-1. **读取背包数据**：`MaterialBagDao.findByAccountAndGame(accountId, gameId)`
-2. **写入背包数据**：`MaterialBagDao.upsert(accountId, materialId, gameId, count, ...)`
+1. **读取背包数据**：`MaterialBagDao.findByRole(accountId, roleUid)`（每个游戏独立的 DAO 实例）
+2. **写入背包数据**：`MaterialBagDao.upsertAll(accountId, roleUid, materials)`
 3. **删除账号时**：外键级联删除自动清理，无需手动处理
 
 ### 5.3 ViewModel 层处理
 
 ViewModel 在初始化时：
 1. 从 `BBSRepository.getActiveAccount()` 获取当前激活账号
-2. 调用 `MaterialBagRepository.getMaterials(accountId, gameId)` 读取背包数据
+2. 调用对应游戏的 `MaterialBagRepository.getMaterials(accountId, roleUid)` 读取背包数据
 3. 材料计算结果与背包数据合并，计算缺口
 
 ---
@@ -572,25 +684,63 @@ ViewModel 在初始化时：
 | 数据库版本 | App 版本 | 迁移内容 |
 |-----------|---------|---------|
 | v1 | ≤ 1.1.0 | 原始版本，16 张表（无 `material_bag`） |
-| v2 | 2.0.0 | 新增 `material_bag` 表，Compute 表添加 `raw_json` 字段 |
+| v2 | ≤ 1.2.0 | 为 `zzz_daily_note` 表添加 `widget_raw_json` 列 |
+| v3 | 2.0.0 | 为 Compute 表添加 `raw_json` 列；创建三张 `material_bag` 表；创建三张 `material_target_config` 表 |
 
 ### 6.2 迁移实现
 
-**RdbManager.runMigrations()** 中实现：
+**RdbMigrationV3.run()** 中实现：
 
 ```typescript
-// v1 → v2 迁移
-if (currentVersion < 2) {
-  // 1. 创建 material_bag 表
-  await rdbStore.executeSql(MATERIAL_BAG_TABLE.buildCreateSql());
-  
-  // 2. 为 Compute 表添加 raw_json 字段
-  await rdbStore.executeSql('ALTER TABLE genshin_character_compute ADD COLUMN raw_json TEXT DEFAULT \'\'');
-  await rdbStore.executeSql('ALTER TABLE starrail_avatar_compute ADD COLUMN raw_json TEXT DEFAULT \'\'');
-  await rdbStore.executeSql('ALTER TABLE zzz_avatar_compute ADD COLUMN raw_json TEXT DEFAULT \'\'');
-  
-  // 3. 更新 user_version
-  await rdbStore.executeSql('PRAGMA user_version = 2');
+// v2 → v3 迁移
+export class RdbMigrationV3 {
+  public static async run(): Promise<void> {
+    // 1. 为三张 Compute 表添加 raw_json 列
+    await RdbManager.executeSql(
+      'ALTER TABLE genshin_character_compute ADD COLUMN raw_json TEXT DEFAULT \'\'',
+      []
+    );
+    await RdbManager.executeSql(
+      'ALTER TABLE starrail_avatar_compute ADD COLUMN raw_json TEXT DEFAULT \'\'',
+      []
+    );
+    await RdbManager.executeSql(
+      'ALTER TABLE zzz_avatar_compute ADD COLUMN raw_json TEXT DEFAULT \'\'',
+      []
+    );
+
+    // 2. 创建 material_bag 分表（三张独立表）
+    await RdbManager.executeSql(
+      `CREATE TABLE IF NOT EXISTS genshin_material_bag (...)`,
+      []
+    );
+    await RdbManager.executeSql(
+      `CREATE TABLE IF NOT EXISTS starrail_material_bag (...)`,
+      []
+    );
+    await RdbManager.executeSql(
+      `CREATE TABLE IF NOT EXISTS zzz_material_bag (...)`,
+      []
+    );
+
+    // 3. 创建 material_target_config 表（三张独立表）
+    await RdbManager.executeSql(
+      `CREATE TABLE IF NOT EXISTS genshin_material_target_config (...)`,
+      []
+    );
+    await RdbManager.executeSql(
+      `CREATE TABLE IF NOT EXISTS starrail_material_target_config (...)`,
+      []
+    );
+    await RdbManager.executeSql(
+      `CREATE TABLE IF NOT EXISTS zzz_material_target_config (...)`,
+      []
+    );
+
+    // 4. 创建唯一索引
+    // 5. 删除旧的 material_bag 表（如果存在）
+    await RdbManager.executeSql('DROP TABLE IF EXISTS material_bag', []);
+  }
 }
 ```
 
@@ -598,16 +748,18 @@ if (currentVersion < 2) {
 
 | 场景 | 处理方式 |
 |-----|---------|
-| v1 用户升级到 v2.0.0 | 数据库迁移自动执行，新增 `material_bag` 表，现有数据不受影响 |
+| v1 用户升级到 v2.0.0 | 数据库迁移自动执行：v1→v2→v3，新增所有新表和字段 |
+| v2 用户升级到 v2.0.0 | 数据库迁移执行 v2→v3，新增 `material_bag` 和 `material_target_config` 表 |
 | Compute 表已有数据 | `raw_json` 字段默认为空字符串，下次同步时会填充 |
 | 用户未使用过材料计算 | 无数据，功能首次使用时初始化 |
+| 旧的 material_bag 表（如果存在） | 自动删除，不迁移数据（用户重新同步即可） |
 
 ### 6.4 新用户安装处理
 
 | 场景 | 处理方式 |
 |-----|---------|
-| 全新安装 v2.0.0 | 数据库初始化时直接创建 v2 版本，包含 `material_bag` 表 |
-| 首次进入材料计算页面 | `material_bag` 表为空，用户手动输入材料数量 |
+| 全新安装 v2.0.0 | 数据库初始化时直接创建 v3 版本，包含所有新表 |
+| 首次进入材料计算页面 | `material_bag` 表为空，星铁/绝区零从 API 获取，原神需用户手动输入 |
 | 首次同步养成计算数据 | Compute 表写入，`raw_json` 字段填充完整响应 |
 
 ---
@@ -1038,12 +1190,21 @@ export class ToolsViewModel {
 
 ## 十、实现计划
 
-### Phase 1：数据库层
-- [x] 新增 `material_bag` 表
+### Phase 1：数据库层 ✅ 已完成
+- [x] 设计材料背包表结构（改为三张独立表：`genshin_material_bag`、`starrail_material_bag`、`zzz_material_bag`）
 - [x] 为 Compute 表添加 `raw_json` 字段
-- [x] 实现 `MaterialBagDao`
+- [x] 实现 `MaterialBagDao`（支持三张独立表）
 - [x] 实现 `MaterialBagRow` 模型
-- [x] 实现数据库迁移 v1→v2
+- [x] 实现数据库迁移 v2→v3（RdbMigrationV3）
+- [x] 创建 `material_target_config` 表（三张独立表，存储养成目标配置）
+- [x] 实现 `MaterialTargetConfigDao`
+- [x] 实现 `MaterialTargetConfigRow` 模型
+
+**设计变更说明**：
+- **原设计**：单张 `material_bag` 表，通过 `game_id` 字段区分游戏
+- **最终实现**：三张独立表（`genshin_material_bag`、`starrail_material_bag`、`zzz_material_bag`）
+- **变更原因**：与现有数据库设计风格保持一致（如 `genshin_character_list`、`starrail_avatar_basic` 等），便于管理和维护
+- **新增表**：`material_target_config` 表用于存储用户配置的养成目标（角色等级、武器等级、技能等级等）
 
 ### Phase 2：API 层
 - [x] `GenshinApiService.batchCompute()` 已存在
@@ -1057,17 +1218,35 @@ export class ToolsViewModel {
 - [ ] 扩展 `StarRailRepository`
 - [ ] 扩展 `ZZZRepository`
 
-### Phase 4：UI 层
-- [ ] 实现 `MaterialCalcViewModel`
-- [ ] 实现 `MaterialListViewModel`
-- [ ] 实现材料计算页面
-- [ ] 实现材料汇总页面
-- [ ] 实现技能等级 Picker
+### Phase 4：UI 层 ✅ 部分完成
+- [x] 实现 `ToolsViewModel`
+- [x] 实现 `Tools.ets` 页面（工具页入口）
+- [x] 实现 `MaterialCalcViewModel`（单角色材料计算）
+- [x] 实现 `MaterialCalc.ets` 页面
+- [x] 实现 `GenshinMaterialListViewModel`（原神材料汇总）
+- [x] 实现 `GenshinMaterialList.ets` 页面
+- [x] 实现 `GenshinMaterialTargetConfigViewModel`（原神目标配置）
+- [x] 实现 `GenshinMaterialTargetConfig.ets` 页面
+- [x] 实现 `StarRailMaterialListViewModel`（星铁材料汇总）
+- [x] 实现 `StarRailMaterialList.ets` 页面
+- [x] 实现 `StarRailMaterialTargetConfigViewModel`（星铁目标配置）
+- [x] 实现 `StarRailMaterialTargetConfig.ets` 页面
+- [x] 实现 `ZZZMaterialListViewModel`（绝区零材料汇总）
+- [x] 实现 `ZZZMaterialList.ets` 页面
+- [x] 实现 `ZZZMaterialTargetConfigViewModel`（绝区零目标配置）
+- [x] 实现 `ZZZMaterialTargetConfig.ets` 页面
 
-### Phase 5：原型设计
+**UI 实现说明**：
+- 每个游戏独立的材料汇总页面和目标配置页面
+- 材料汇总页面支持两种视图模式（按角色分组 / 按材料汇总）
+- 目标配置页面用于设置角色等级、武器等级、技能等级目标
+
+### Phase 5：原型设计 ✅ 已完成
 - [x] 创建原型框架（参考 v1.0）
 - [x] 实现材料计算原型 `material-calc.js`
 - [x] 实现材料汇总原型 `material-list.js`（含两种视图模式）
+- [x] 实现工具页原型 `tools.js`
+- [x] 实现目标配置原型 `material-target-config.js`
 
 ### Phase 6：测试
 - [ ] 数据库层测试
@@ -1080,34 +1259,48 @@ export class ToolsViewModel {
 
 ### 核心模块（core）
 
-| 文件路径 | 说明 |
-|---------|-----|
-| `core/src/main/ets/database/TableSchema.ets` | 表结构定义 |
-| `core/src/main/ets/database/RdbManager.ets` | 数据库管理（含迁移逻辑） |
-| `core/src/main/ets/database/MaterialBagDao.ets` | 材料背包 DAO |
-| `core/src/main/ets/models/MaterialBagRow.ets` | 材料背包 Row 模型 |
-| `core/src/main/ets/repository/MaterialBagRepository.ets` | 材料背包 Repository |
+| 文件路径 | 说明 | 状态 |
+|---------|-----|-----|
+| `core/src/main/ets/database/TableSchema.ets` | 表结构定义 | ✅ 已更新 |
+| `core/src/main/ets/database/RdbManager.ets` | 数据库管理 | ✅ 已更新 |
+| `core/src/main/ets/database/RdbMigrationV3.ets` | 数据库迁移 v2→v3 | ✅ 已实现 |
+| `core/src/main/ets/database/MaterialBagDao.ets` | 材料背包 DAO（支持三张独立表） | ✅ 已实现 |
+| `core/src/main/ets/database/MaterialTargetConfigDao.ets` | 养成目标配置 DAO | ✅ 已实现 |
+| `core/src/main/ets/models/MaterialBagRow.ets` | 材料背包 Row 模型 | ✅ 已实现 |
+| `core/src/main/ets/models/MaterialTargetConfigRow.ets` | 养成目标配置 Row 模型 | ✅ 已实现 |
 
 ### 入口模块（entry）
 
-| 文件路径 | 说明 |
-|---------|-----|
-| `entry/src/main/ets/pages/Tools.ets` | 工具页（材料总汇入口） |
-| `entry/src/main/ets/pages/MaterialCalc.ets` | 材料计算页 |
-| `entry/src/main/ets/pages/MaterialList.ets` | 材料汇总页 |
-| `entry/src/main/ets/viewmodel/ToolsViewModel.ets` | 工具页 ViewModel |
-| `entry/src/main/ets/viewmodel/MaterialCalcViewModel.ets` | 材料计算 ViewModel |
-| `entry/src/main/ets/viewmodel/MaterialListViewModel.ets` | 材料汇总 ViewModel |
+| 文件路径 | 说明 | 状态 |
+|---------|-----|-----|
+| `entry/src/main/ets/pages/Tools.ets` | 工具页（材料总汇入口） | ✅ 已实现 |
+| `entry/src/main/ets/pages/MaterialCalc.ets` | 材料计算页 | ✅ 已实现 |
+| `entry/src/main/ets/pages/GenshinMaterialList.ets` | 原神材料汇总页 | ✅ 已实现 |
+| `entry/src/main/ets/pages/GenshinMaterialTargetConfig.ets` | 原神目标配置页 | ✅ 已实现 |
+| `entry/src/main/ets/pages/StarRailMaterialList.ets` | 星铁材料汇总页 | ✅ 已实现 |
+| `entry/src/main/ets/pages/StarRailMaterialTargetConfig.ets` | 星铁目标配置页 | ✅ 已实现 |
+| `entry/src/main/ets/pages/ZZZMaterialList.ets` | 绝区零材料汇总页 | ✅ 已实现 |
+| `entry/src/main/ets/pages/ZZZMaterialTargetConfig.ets` | 绝区零目标配置页 | ✅ 已实现 |
+| `entry/src/main/ets/viewmodel/ToolsViewModel.ets` | 工具页 ViewModel | ✅ 已实现 |
+| `entry/src/main/ets/viewmodel/MaterialCalcViewModel.ets` | 材料计算 ViewModel | ✅ 已实现 |
+| `entry/src/main/ets/viewmodel/GenshinMaterialListViewModel.ets` | 原神材料汇总 ViewModel | ✅ 已实现 |
+| `entry/src/main/ets/viewmodel/GenshinMaterialTargetConfigViewModel.ets` | 原神目标配置 ViewModel | ✅ 已实现 |
+| `entry/src/main/ets/viewmodel/StarRailMaterialListViewModel.ets` | 星铁材料汇总 ViewModel | ✅ 已实现 |
+| `entry/src/main/ets/viewmodel/StarRailMaterialTargetConfigViewModel.ets` | 星铁目标配置 ViewModel | ✅ 已实现 |
+| `entry/src/main/ets/viewmodel/ZZZMaterialListViewModel.ets` | 绝区零材料汇总 ViewModel | ✅ 已实现 |
+| `entry/src/main/ets/viewmodel/ZZZMaterialTargetConfigViewModel.ets` | 绝区零目标配置 ViewModel | ✅ 已实现 |
 
 ### 原型文件
 
-| 文件路径 | 说明 |
-|---------|-----|
-| `design/prototypes/v2.0/viewer/index.html` | 原型入口 |
-| `design/prototypes/v2.0/viewer/pages/tools.js` | 工具页原型 |
-| `design/prototypes/v2.0/viewer/pages/material-calc.js` | 材料计算原型 |
-| `design/prototypes/v2.0/viewer/pages/material-list-data.js` | 材料汇总数据 |
-| `design/prototypes/v2.0/viewer/pages/material-list-utils.js` | 材料汇总工具函数 |
-| `design/prototypes/v2.0/viewer/pages/material-list-render.js` | 材料汇总渲染逻辑 |
-| `design/prototypes/v2.0/viewer/pages/material-list-card.js` | 材料汇总卡片组件 |
-| `design/prototypes/v2.0/viewer/pages/material-list-controls.js` | 材料汇总控制项 |
+| 文件路径 | 说明 | 状态 |
+|---------|-----|-----|
+| `design/prototypes/v2.0/viewer/index.html` | 原型入口 | ✅ 已实现 |
+| `design/prototypes/v2.0/viewer/pages/tools.js` | 工具页原型 | ✅ 已实现 |
+| `design/prototypes/v2.0/viewer/pages/material-calc.js` | 材料计算原型 | ✅ 已实现 |
+| `design/prototypes/v2.0/viewer/pages/material-list.js` | 材料汇总入口 | ✅ 已实现 |
+| `design/prototypes/v2.0/viewer/pages/material-list-data.js` | 材料汇总数据 | ✅ 已实现 |
+| `design/prototypes/v2.0/viewer/pages/material-list-utils.js` | 材料汇总工具函数 | ✅ 已实现 |
+| `design/prototypes/v2.0/viewer/pages/material-list-render.js` | 材料汇总渲染逻辑 | ✅ 已实现 |
+| `design/prototypes/v2.0/viewer/pages/material-list-card.js` | 材料汇总卡片组件 | ✅ 已实现 |
+| `design/prototypes/v2.0/viewer/pages/material-list-controls.js` | 材料汇总控制项 | ✅ 已实现 |
+| `design/prototypes/v2.0/viewer/pages/material-target-config.js` | 目标配置原型 | ✅ 已实现 |

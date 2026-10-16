@@ -16,7 +16,7 @@
  */
 
 /**
- * 表名枚举 — 所有 16 张表名的唯一来源，禁止在其他地方直接写表名字符串。
+ * 表名枚举 — 所有 24 张表名的唯一来源，禁止在其他地方直接写表名字符串。
  * 值与 sync_meta.data_type 字段的存储值完全对齐。
  */
 export enum TableName {
@@ -30,8 +30,12 @@ export enum TableName {
   GENSHIN_DAILY_NOTE        = 'genshin_daily_note',
   /** 原神角色详情，存储武器/圣遗物/技能等级等完整配装数据 */
   GENSHIN_CHARACTER_DETAIL  = 'genshin_character_detail',
-  /** 原神角色养成计算，存储角色/技能/武器的养成材料消耗 JSON */
+  /** 原神角色养成计算，存储 batch_compute 返回的单角色计算结果（字段与 API 一致） */
   GENSHIN_CHARACTER_COMPUTE = 'genshin_character_compute',
+  /** 原神养成计算器角色（v4 新增），存储计算器 sync/avatar/list 返回的角色养成数据（字段与 API 一致） */
+  GENSHIN_CALC_AVATAR       = 'genshin_calc_avatar',
+  /** 原神养成计算整批合计（v5 新增），存储 batch_compute 顶层的合计数据（字段与 API 一致） */
+  GENSHIN_COMPUTE_SUMMARY   = 'genshin_compute_summary',
   /** 星穹铁道角色基础信息，存储角色属性/命途/光锥摘要 */
   STARRAIL_AVATAR_BASIC     = 'starrail_avatar_basic',
   /** 星穹铁道实时便笺，存储开拓力/派遣/实训/模拟宇宙/混沌回忆等数据 */
@@ -246,16 +250,71 @@ export enum GenshinCharDetailCol {
 }
 
 /**
- * genshin_character_compute 专属列名。
- * 存储原神角色养成计算的材料消耗数据，每个角色（avatarId）只保留一条最新记录。
+ * genshin_character_compute 专属列名（v4 起与 batch_compute API 字段一致）。
+ * 每个角色（avatarId）只保留一条最新记录。
+ * API：data.single_role_result[i]（单角色结果）/ data.items[i]（与请求 items 按顺序一一对应，不含 avatar_id）
  */
 export enum GenshinCharComputeCol {
-  /** 角色本体升级所需材料 JSON */
-  AVATAR_CONSUME_JSON = 'avatar_consume_json',
-  /** 技能升级所需材料 JSON */
-  SKILL_CONSUME_JSON  = 'skill_consume_json',
-  /** 武器升级所需材料 JSON */
-  WEAPON_CONSUME_JSON = 'weapon_consume_json',
+  /** items[i].avatar_consume：角色等级材料 */
+  AVATAR_CONSUME_JSON       = 'avatar_consume_json',
+  /** items[i].avatar_skill_consume：天赋材料合计（v4 由 skill_consume_json 更名） */
+  AVATAR_SKILL_CONSUME_JSON = 'avatar_skill_consume_json',
+  /** items[i].weapon_consume：武器材料 */
+  WEAPON_CONSUME_JSON       = 'weapon_consume_json',
+  /** items[i].skills_consume：按天赋拆分的材料（v4 新增） */
+  SKILLS_CONSUME_JSON       = 'skills_consume_json',
+  /** single_role_result[i].overall_consume：该角色合计材料，lack_num 为扣除背包（含合成）后的缺口（v4 新增） */
+  OVERALL_CONSUME_JSON      = 'overall_consume_json',
+}
+
+/**
+ * genshin_compute_summary 专属列名（v5 新增，与 batch_compute 顶层 data 字段一致）。
+ * 每个 (account_id, role_uid) 一行，对应最近一次计算的整批结果。
+ */
+export enum GenshinComputeSummaryCol {
+  /** 本批计算的角色 ID（逗号分隔，按请求顺序；API 不返回，取自请求参数） */
+  AVATAR_IDS                    = 'avatar_ids',
+  /** data.overall_consume：全部角色合计材料，lack_num 为扣除背包（含合成）后的真实总缺口 */
+  OVERALL_CONSUME_JSON          = 'overall_consume_json',
+  /** data.overall_material_consume：按来源分类的合计材料 */
+  OVERALL_MATERIAL_CONSUME_JSON = 'overall_material_consume_json',
+  /** data.available_material：接口返回的可用材料（只含部分材料，不是完整背包） */
+  AVAILABLE_MATERIAL_JSON       = 'available_material_json',
+  /** data.has_user_info：是否包含用户背包信息（1 / 0） */
+  HAS_USER_INFO                 = 'has_user_info',
+}
+
+/**
+ * genshin_calc_avatar 专属列名（v4 新增，与计算器 sync/avatar/list 的 data.list[] 字段一致）。
+ * avatar_id 对应 API 的 id；skill_list / weapon / reliquary_list 为嵌套结构，以 JSON 存储。
+ */
+export enum GenshinCalcAvatarCol {
+  /** 角色名称 */
+  NAME                = 'name',
+  /** 角色图标 */
+  ICON                = 'icon',
+  /** 武器类型 ID（1 单手剑 / 10 法器 / 11 双手剑 / 12 弓 / 13 长柄） */
+  WEAPON_CAT_ID       = 'weapon_cat_id',
+  /** 角色稀有度 */
+  AVATAR_LEVEL        = 'avatar_level',
+  /** 元素 ID（1 火 / 2 风 / 3 岩 / 4 草 / 5 雷 / 6 水 / 7 冰） */
+  ELEMENT_ATTR_ID     = 'element_attr_id',
+  /** 最高等级 */
+  MAX_LEVEL           = 'max_level',
+  /** 当前等级 */
+  LEVEL_CURRENT       = 'level_current',
+  /** 当前突破等级 */
+  PROMOTE_LEVEL       = 'promote_level',
+  /** 已激活命座数 */
+  CONSTELLATION_NUM   = 'constellation_num',
+  /** 好感等级 */
+  FETTER_LEVEL        = 'fetter_level',
+  /** skill_list（含 id / group_id / max_level / level_current） */
+  SKILL_LIST_JSON     = 'skill_list_json',
+  /** weapon（含 weapon_cat_id / weapon_level 星级 / max_level / level_current） */
+  WEAPON_JSON         = 'weapon_json',
+  /** reliquary_list */
+  RELIQUARY_LIST_JSON = 'reliquary_list_json',
 }
 
 /**
@@ -714,15 +773,54 @@ export const GENSHIN_CHARACTER_DETAIL_TABLE = new TableDef(TableName.GENSHIN_CHA
   new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
 ], FK_ACCOUNT);
 
-// ── 表 6：genshin_character_compute ──────────────────────────
+// ── 表 6：genshin_character_compute（v4 重建，列名与 API 一致）────
 export const GENSHIN_CHARACTER_COMPUTE_TABLE = new TableDef(TableName.GENSHIN_CHARACTER_COMPUTE, [
   new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
   new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT', 'NOT NULL'),
   new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
   new ColumnDef(CommonCol.AVATAR_ID,  'TEXT',    'NOT NULL'),
-  new ColumnDef('avatar_consume_json', 'TEXT'),
-  new ColumnDef('skill_consume_json',  'TEXT'),
-  new ColumnDef('weapon_consume_json', 'TEXT'),
+  new ColumnDef(GenshinCharComputeCol.AVATAR_CONSUME_JSON,       'TEXT', "DEFAULT ''"),
+  new ColumnDef(GenshinCharComputeCol.AVATAR_SKILL_CONSUME_JSON, 'TEXT', "DEFAULT ''"),
+  new ColumnDef(GenshinCharComputeCol.WEAPON_CONSUME_JSON,       'TEXT', "DEFAULT ''"),
+  new ColumnDef(GenshinCharComputeCol.SKILLS_CONSUME_JSON,       'TEXT', "DEFAULT ''"),
+  new ColumnDef(GenshinCharComputeCol.OVERALL_CONSUME_JSON,      'TEXT', "DEFAULT ''"),
+  new ColumnDef(CommonCol.RAW_JSON,    'TEXT',    "DEFAULT ''"),
+  new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
+], FK_ACCOUNT);
+
+// ── 表 24：genshin_compute_summary（v5 新增，整批计算合计）────────
+export const GENSHIN_COMPUTE_SUMMARY_TABLE = new TableDef(TableName.GENSHIN_COMPUTE_SUMMARY, [
+  new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
+  new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT',    'NOT NULL'),
+  new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
+  new ColumnDef(GenshinComputeSummaryCol.AVATAR_IDS,                    'TEXT',    "DEFAULT ''"),
+  new ColumnDef(GenshinComputeSummaryCol.OVERALL_CONSUME_JSON,          'TEXT',    "DEFAULT ''"),
+  new ColumnDef(GenshinComputeSummaryCol.OVERALL_MATERIAL_CONSUME_JSON, 'TEXT',    "DEFAULT ''"),
+  new ColumnDef(GenshinComputeSummaryCol.AVAILABLE_MATERIAL_JSON,       'TEXT',    "DEFAULT ''"),
+  new ColumnDef(GenshinComputeSummaryCol.HAS_USER_INFO,                 'INTEGER', 'DEFAULT 0'),
+  new ColumnDef(CommonCol.RAW_JSON,    'TEXT',    "DEFAULT ''"),
+  new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
+], FK_ACCOUNT);
+
+// ── 表 23：genshin_calc_avatar（v4 新增，计算器同步角色）──────────
+export const GENSHIN_CALC_AVATAR_TABLE = new TableDef(TableName.GENSHIN_CALC_AVATAR, [
+  new ColumnDef(CommonCol.ID,         'INTEGER', 'PRIMARY KEY AUTOINCREMENT'),
+  new ColumnDef(CommonCol.ACCOUNT_ID, 'TEXT',    'NOT NULL'),
+  new ColumnDef(CommonCol.ROLE_UID,   'TEXT',    'NOT NULL'),
+  new ColumnDef(CommonCol.AVATAR_ID,  'TEXT',    'NOT NULL'),
+  new ColumnDef(GenshinCalcAvatarCol.NAME,                'TEXT',    "DEFAULT ''"),
+  new ColumnDef(GenshinCalcAvatarCol.ICON,                'TEXT',    "DEFAULT ''"),
+  new ColumnDef(GenshinCalcAvatarCol.WEAPON_CAT_ID,       'INTEGER', 'DEFAULT 0'),
+  new ColumnDef(GenshinCalcAvatarCol.AVATAR_LEVEL,        'INTEGER', 'DEFAULT 0'),
+  new ColumnDef(GenshinCalcAvatarCol.ELEMENT_ATTR_ID,     'INTEGER', 'DEFAULT 0'),
+  new ColumnDef(GenshinCalcAvatarCol.MAX_LEVEL,           'INTEGER', 'DEFAULT 0'),
+  new ColumnDef(GenshinCalcAvatarCol.LEVEL_CURRENT,       'INTEGER', 'DEFAULT 0'),
+  new ColumnDef(GenshinCalcAvatarCol.PROMOTE_LEVEL,       'INTEGER', 'DEFAULT 0'),
+  new ColumnDef(GenshinCalcAvatarCol.CONSTELLATION_NUM,   'INTEGER', 'DEFAULT 0'),
+  new ColumnDef(GenshinCalcAvatarCol.FETTER_LEVEL,        'INTEGER', 'DEFAULT 0'),
+  new ColumnDef(GenshinCalcAvatarCol.SKILL_LIST_JSON,     'TEXT',    "DEFAULT ''"),
+  new ColumnDef(GenshinCalcAvatarCol.WEAPON_JSON,         'TEXT',    "DEFAULT ''"),
+  new ColumnDef(GenshinCalcAvatarCol.RELIQUARY_LIST_JSON, 'TEXT',    "DEFAULT ''"),
   new ColumnDef(CommonCol.RAW_JSON,    'TEXT',    "DEFAULT ''"),
   new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
 ], FK_ACCOUNT);
@@ -973,7 +1071,7 @@ export const ZZZ_MATERIAL_TARGET_CONFIG_TABLE = new TableDef(TableName.ZZZ_MATER
 ], FK_ACCOUNT);
 
 /**
- * 所有 22 张表的有序列表，供 RdbManager.createTables() 循环建表使用。
+ * 所有 24 张表的有序列表，供 RdbManager.createTables() 循环建表使用。
  * 顺序很重要：account_table 必须在所有有外键的子表之前创建。
  */
 export const ALL_TABLES: TableDef[] = [
@@ -999,6 +1097,8 @@ export const ALL_TABLES: TableDef[] = [
   GENSHIN_MATERIAL_TARGET_CONFIG_TABLE,
   STARRAIL_MATERIAL_TARGET_CONFIG_TABLE,
   ZZZ_MATERIAL_TARGET_CONFIG_TABLE,
+  GENSHIN_CALC_AVATAR_TABLE,
+  GENSHIN_COMPUTE_SUMMARY_TABLE,
 ];
 
 // ── 索引定义 ─────────────────────────────────────────────────
@@ -1062,6 +1162,10 @@ export const ALL_INDEXES: IndexDef[] = [
   new IndexDef('idx_genshin_char_detail_unique', TableName.GENSHIN_CHARACTER_DETAIL, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, CommonCol.AVATAR_ID], true),
   // genshin_character_compute
   new IndexDef('idx_genshin_char_compute_unique', TableName.GENSHIN_CHARACTER_COMPUTE, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, CommonCol.AVATAR_ID], true),
+  // v4 新增
+  new IndexDef('idx_genshin_calc_avatar_unique', TableName.GENSHIN_CALC_AVATAR, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, CommonCol.AVATAR_ID], true),
+  // v5 新增
+  new IndexDef('idx_genshin_compute_summary_unique', TableName.GENSHIN_COMPUTE_SUMMARY, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID], true),
   // starrail_avatar_basic
   new IndexDef('idx_starrail_avatar_basic_unique',  TableName.STARRAIL_AVATAR_BASIC, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, CommonCol.AVATAR_ID], true),
   new IndexDef('idx_starrail_avatar_basic_type',    TableName.STARRAIL_AVATAR_BASIC, [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, 'base_type']),

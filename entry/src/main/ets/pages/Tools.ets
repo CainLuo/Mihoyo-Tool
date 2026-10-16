@@ -13,7 +13,8 @@ import { GameEntryCard } from '../components/tools/GameEntryCard'
 import { AppRoutes } from '../constants/AppRoutes'
 import { AccountSignal } from '../utils/AccountSignal'
 import { GameId } from 'core'
-import { GameEntryVM, MaterialTargetConfigParam } from '../models/ToolsModels'
+import { GameEntryVM } from '../models/ToolsModels'
+import { MaterialCharacterSelectParam } from '../viewmodel/MaterialCharacterSelectViewModel'
 
 @ComponentV2
 export struct Tools {
@@ -100,8 +101,7 @@ export struct Tools {
 
   /**
    * 游戏入口点击处理
-   * - 如果已计算角色数 > 0：直接跳转到对应游戏的材料汇总页
-   * - 如果已计算角色数 = 0：弹出 Alert，提示用户先去配置
+   * 直接跳转到角色选择页，传递 accountId + roleUid + gameId
    */
   private onEntryTap(entry: GameEntryVM): void {
     if (!entry.hasData) {
@@ -112,47 +112,13 @@ export struct Tools {
       return
     }
 
-    // 构建路由参数（accountId + roleUid + gameId）
-    const param: MaterialTargetConfigParam = {
+    // 跳转到角色选择页
+    const selectParam: MaterialCharacterSelectParam = {
       accountId: entry.accountId,
       roleUid: entry.roleUid,
       gameId: entry.gameId
     }
-
-    // 已有计算数据 → 直接跳转到材料汇总页
-    if (entry.computedCount > 0) {
-      if (entry.gameId === GameId.GENSHIN) {
-        this.detailStack.pushPathByName(AppRoutes.GENSHIN_MATERIAL_LIST, null)
-      } else if (entry.gameId === GameId.STARRAIL) {
-        this.detailStack.pushPathByName(AppRoutes.STARRAIL_MATERIAL_LIST, null)
-      } else if (entry.gameId === GameId.ZZZ) {
-        this.detailStack.pushPathByName(AppRoutes.ZZZ_MATERIAL_LIST, null)
-      }
-      return
-    }
-
-    // 无计算数据 → 弹出 Alert 提示用户先配置
-    this.uiContext?.showAlertDialog({
-      title: $r('app.string.tool_sync_required_title'),
-      message: $r('app.string.tool_sync_required_desc'),
-      primaryButton: {
-        value: $r('app.string.tool_sync_required_button'),
-        action: () => {
-          // 根据游戏类型跳转到对应的配置页，传递参数
-          if (entry.gameId === GameId.GENSHIN) {
-            this.detailStack!.pushPathByName(AppRoutes.GENSHIN_MATERIAL_TARGET_CONFIG, param)
-          } else if (entry.gameId === GameId.STARRAIL) {
-            this.detailStack!.pushPathByName(AppRoutes.STARRAIL_MATERIAL_TARGET_CONFIG, param)
-          } else if (entry.gameId === GameId.ZZZ) {
-            this.detailStack!.pushPathByName(AppRoutes.ZZZ_MATERIAL_TARGET_CONFIG, param)
-          }
-        }
-      },
-      secondaryButton: {
-        value: $r('app.string.dialog_cancel'),
-        action: () => {}
-      }
-    })
+    this.detailStack.pushPathByName(AppRoutes.MATERIAL_CHARACTER_SELECT, selectParam)
   }
 }
 

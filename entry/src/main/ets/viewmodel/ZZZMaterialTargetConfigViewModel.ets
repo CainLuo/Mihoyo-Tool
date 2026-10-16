@@ -1,15 +1,14 @@
 /**
  * ZZZMaterialTargetConfigViewModel.ets — 绝区零养成目标配置 ViewModel
  *
- * 负责绝区零养成目标配置的数据管理和同步逻辑。
- * 绝区零养成计算只能逐个角色请求，不支持批量。
- * 绝区零有 6 个技能等级需要配置。
+ * 负责绝区零养成目标配置的数据管理和计算触发。
+ * 6 个技能按 skill_type 分别配置目标等级；计算时技能当前等级优先取代理人详情中的真实等级。
  *
  * 数据流：
- * 1. 用户设置角色/武器/6个技能的目标等级
- * 2. 点击"开始计算"触发 syncComputeData()
- * 3. 从 DB 读取角色列表，逐个调用计算 API
- * 4. 完成后跳转到 ZZZMaterialList 页面
+ * 1. 材料汇总页带着选中代理人进入本页（MaterialTargetConfigParam）
+ * 2. 用户设置代理人 / 音擎 / 6 个技能的目标等级
+ * 3. 点击"开始计算"触发 computeSelected()：保存配置 → MaterialComputeService 只计算选中代理人
+ * 4. 完成后由页面用新的目标等级重新打开材料汇总页
  */
 
 import {
@@ -24,8 +23,14 @@ import {
   LevelConfigVM,
   LevelLabelKeys,
   SkillLevelConfigVM,
+  applySavedLevel,
 } from '../models/MaterialTargetConfigModels'
 import { AccountSignal } from '../utils/AccountSignal'
+import { MaterialTargetConfigParam, ZZZSkillType } from '../models/ToolsModels'
+import { MaterialComputeService, MaterialComputeResult } from '../utils/MaterialComputeService'
+
+/** 养成目标配置日志 tag，过滤：hilog | grep 🚀🚀🚀 */
+const CONFIG_TAG: string = '🚀🚀🚀 MaterialTargetConfig'
 
 /** 绝区零养成目标配置 ViewModel */
 @ObservedV2
@@ -57,47 +62,40 @@ export class ZZZMaterialTargetConfigViewModel {
     this.avatarLevel = this.createLevelConfig(1, 60, 60, LevelLabelKeys.AVATAR_LEVEL)
     this.weaponLevel = this.createLevelConfig(1, 60, 60, LevelLabelKeys.WEAPON_LEVEL)
 
-    // 绝区零 6 个技能
+    // 绝区零 6 个技能（skill_type 含义见 ZZZSkillType：1 特殊技 / 2 闪避 / 3 连携技 / 5 核心技 / 6 支援技）
     this.skills = [
-      this.createSkillConfig(0, LevelLabelKeys.ZZZ_SKILL_NORMAL),
-      this.createSkillConfig(1, LevelLabelKeys.ZZZ_SKILL_DODGE),
-      this.createSkillConfig(2, LevelLabelKeys.ZZZ_SKILL_ASSIST),
-      this.createSkillConfig(3, LevelLabelKeys.ZZZ_SKILL_SPECIAL),
-      this.createSkillConfig(5, LevelLabelKeys.ZZZ_SKILL_CHAIN),
-      this.createSkillConfig(6, LevelLabelKeys.ZZZ_SKILL_CORE)
+      this.createSkillConfig(ZZZSkillType.NORMAL_ATTACK, LevelLabelKeys.ZZZ_SKILL_NORMAL),
+      this.createSkillConfig(ZZZSkillType.SPECIAL, LevelLabelKeys.ZZZ_SKILL_SPECIAL),
+      this.createSkillConfig(ZZZSkillType.DODGE, LevelLabelKeys.ZZZ_SKILL_DODGE),
+      this.createSkillConfig(ZZZSkillType.CHAIN, LevelLabelKeys.ZZZ_SKILL_CHAIN),
+      this.createSkillConfig(ZZZSkillType.CORE, LevelLabelKeys.ZZZ_SKILL_CORE),
+      this.createSkillConfig(ZZZSkillType.ASSIST, LevelLabelKeys.ZZZ_SKILL_ASSIST)
     ]
 
-    // 从 DB 加载已保存的配置
+    // 从 DB 加载已保存的配置：有配置记录就完整恢复（按 1 ~ 上限截断，核心技最高 7 级），没有记录才使用默认值
     try {
-      const config = await CoreInitializer.materialTargetConfigRepository.getZZZConfig(this.accountId, this.roleUid)
-      // 只有当配置有效时才覆盖默认值（target > 1 表示用户曾经保存过有效配置）
-      if (config.avatar && config.avatar.target > 1) {
-        this.avatarLevel.current = config.avatar.current
-        this.avatarLevel.target = config.avatar.target
-      }
-      if (config.weapon && config.weapon.target > 1) {
-        this.weaponLevel.current = config.weapon.current
-        this.weaponLevel.target = config.weapon.target
-      }
-      if (config.skills && config.skills.length > 0) {
+      const repo = CoreInitializer.materialTargetConfigRepository
+      const row = await repo.getConfig(this.accountId, this.roleUid, GameId.ZZZ)
+      if (row !== null) {
+        const config = await repo.getZZZConfig(this.accountId, this.roleUid)
+        applySavedLevel(this.avatarLevel, config.avatar.current, config.avatar.target)
+        applySavedLevel(this.weaponLevel, config.weapon.current, config.weapon.target)
         for (let i = 0; i < config.skills.length; i++) {
-          const savedSkill = config.skills[i]
-          // 只有当 target > 1 才覆盖（表示有效配置）
-          if (savedSkill.target > 1) {
-            for (let j = 0; j < this.skills.length; j++) {
-              if (this.skills[j].skillType === savedSkill.skillType) {
-                this.skills[j].current = savedSkill.current
-                this.skills[j].target = savedSkill.target
-                break
-              }
+          const saved = config.skills[i]
+          for (let j = 0; j < this.skills.length; j++) {
+            if (this.skills[j].skillType === saved.skillType) {
+              applySavedLevel(this.skills[j], saved.current, saved.target)
+              break
             }
           }
         }
+        Logger.info(CONFIG_TAG, `[ZZZ] init: restored from DB, account=${this.accountId}, role=${this.roleUid}, json=${row.configJson}`)
+      } else {
+        Logger.info(CONFIG_TAG, `[ZZZ] init: no saved config for account=${this.accountId}, role=${this.roleUid}, use defaults`)
       }
-      Logger.info('ZZZMaterialTargetConfigVM', `init: loaded config from DB for account=${this.accountId}, role=${this.roleUid}`)
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`
-      Logger.warn('ZZZMaterialTargetConfigVM', `init: failed to load config: ${msg}`)
+      Logger.warn(CONFIG_TAG, `[ZZZ] init: failed to load config: ${msg}`)
     }
   }
 
@@ -117,10 +115,11 @@ export class ZZZMaterialTargetConfigViewModel {
    * 创建技能配置
    */
   private createSkillConfig(skillType: number, labelKey: string): SkillLevelConfigVM {
+    const maxLevel = ZZZSkillType.maxLevel(skillType)
     const config = new SkillLevelConfigVM()
     config.current = 1
-    config.target = 12
-    config.max = 12
+    config.target = maxLevel
+    config.max = maxLevel
     config.labelKey = labelKey
     config.skillType = skillType
     return config
@@ -197,9 +196,37 @@ export class ZZZMaterialTargetConfigViewModel {
   }
 
   /**
-   * 保存配置到 DB
+   * 保存配置到 DB 后只计算选中的角色。
+   * 目标等级不从页面直接传给计算，而是由 MaterialComputeService 从 DB 读取（DB 是唯一来源）。
+   * @param selection 选中的账号 / 游戏 UID / 角色
+   * @returns 保存失败时返回 FAILED，不进行计算
    */
-  async saveConfig(): Promise<void> {
+  async computeSelected(selection: MaterialTargetConfigParam): Promise<MaterialComputeResult> {
+    if (this.isSyncing) {
+      return MaterialComputeResult.BUSY
+    }
+    this.isSyncing = true
+    try {
+      const saved = await this.saveConfig()
+      if (!saved) {
+        return MaterialComputeResult.FAILED
+      }
+      Logger.info(CONFIG_TAG, `[ZZZ] computeSelected avatarIds=${selection.avatarIds.join(',')}`)
+      const result = await MaterialComputeService.compute(selection)
+      if (result === MaterialComputeResult.SUCCESS) {
+        AccountSignal.instance().notify()
+      }
+      return result
+    } finally {
+      this.isSyncing = false
+    }
+  }
+
+  /**
+   * 保存配置到 DB
+   * @returns 是否保存成功
+   */
+  async saveConfig(): Promise<boolean> {
     const config = new ZZZMaterialTargetConfigJson()
     config.avatar = new LevelConfig()
     config.avatar.current = this.avatarLevel.current
@@ -221,170 +248,12 @@ export class ZZZMaterialTargetConfigViewModel {
 
     try {
       await CoreInitializer.materialTargetConfigRepository.saveZZZConfig(this.accountId, this.roleUid, config)
-      Logger.info('ZZZMaterialTargetConfigVM', `saveConfig: config saved to DB for account=${this.accountId}, role=${this.roleUid}`)
+      Logger.info(CONFIG_TAG, `[ZZZ] saveConfig OK, account=${this.accountId}, role=${this.roleUid}, json=${JSON.stringify(config)}`)
+      return true
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`
-      Logger.error('ZZZMaterialTargetConfigVM', `saveConfig failed: ${msg}`)
-    }
-  }
-
-  /**
-   * 同步绝区零材料计算数据
-   * 遍历所有账号的绝区零角色，逐个调用计算 API。
-   * 开始前先保存当前配置到 DB。
-   */
-  async syncComputeData(): Promise<boolean> {
-    const TAG = 'ZZZMaterialTargetConfigVM'
-    Logger.info(TAG, `syncComputeData called, isSyncing=${this.isSyncing}`)
-    
-    if (this.isSyncing) {
-      Logger.info(TAG, `syncComputeData skipped - already syncing`)
+      Logger.error(CONFIG_TAG, `[ZZZ] saveConfig FAILED, account=${this.accountId}, role=${this.roleUid}: ${msg}`)
       return false
     }
-    
-    // 先保存配置
-    await this.saveConfig()
-    
-    this.isSyncing = true
-    Logger.info(TAG, `syncComputeData started`)
-
-    try {
-      const accounts = await CoreInitializer.bbsRepository.getAllAccounts()
-      Logger.info(TAG, `syncComputeData: found ${accounts.length} accounts`)
-      
-      if (accounts.length === 0) {
-        Logger.warn(TAG, `syncComputeData: no accounts found`)
-        return false
-      }
-
-      let syncCount = 0
-
-      for (let i = 0; i < accounts.length; i++) {
-        const account = accounts[i]
-        Logger.info(TAG, `syncComputeData: processing account[${i}] uid=${account.uid}`)
-        
-        const roles = await CoreInitializer.bbsRepository.getGameRolesByGame(account.uid, GameId.ZZZ)
-        Logger.info(TAG, `syncComputeData: found ${roles.length} zzz roles`)
-
-        for (let j = 0; j < roles.length; j++) {
-          const role = roles[j]
-          Logger.info(TAG, `syncComputeData: syncing role[${j}] roleId=${role.roleId}`)
-          
-          const success = await this.syncRoleCompute(account.uid, account.cookie, role.roleId, role.server)
-          Logger.info(TAG, `syncComputeData: role[${j}] sync result=${success}`)
-          
-          if (success) {
-            syncCount++
-          }
-        }
-      }
-
-      Logger.info(TAG, `syncComputeData: total syncCount=${syncCount}`)
-      
-      // 同步成功后通知 Tools 页面刷新
-      if (syncCount > 0) {
-        AccountSignal.instance().notify()
-        Logger.info(TAG, `syncComputeData: notified AccountSignal`)
-      }
-      
-      return syncCount > 0
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`
-      Logger.error(TAG, `syncComputeData failed: ${msg}`)
-      return false
-    } finally {
-      this.isSyncing = false
-      Logger.info(TAG, `syncComputeData finished`)
-    }
   }
-
-  /**
-   * 同步单个角色的材料计算数据
-   */
-  private async syncRoleCompute(accountId: string, cookie: string, roleUid: string, server: string): Promise<boolean> {
-    const TAG = 'ZZZMaterialTargetConfigVM'
-    let avatarList = await CoreInitializer.zzzRepository.getAvatarList(accountId, roleUid)
-    Logger.info(TAG, `syncRoleCompute: avatarList.length=${avatarList.length}`)
-    
-    // 如果 DB 中没有角色列表，先同步角色列表
-    if (avatarList.length === 0) {
-      Logger.info(TAG, `syncRoleCompute: no avatarList, syncing avatar list first`)
-      try {
-        await CoreInitializer.zzzRepository.syncAvatarList(accountId, roleUid, server, cookie)
-        avatarList = await CoreInitializer.zzzRepository.getAvatarList(accountId, roleUid)
-        Logger.info(TAG, `syncRoleCompute: after sync, avatarList.length=${avatarList.length}`)
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : `${error}`
-        Logger.error(TAG, `syncRoleCompute: failed to sync avatar list: ${msg}`)
-        return false
-      }
-      
-      if (avatarList.length === 0) {
-        Logger.warn(TAG, `syncRoleCompute: still no avatarList after sync`)
-        return false
-      }
-    }
-
-    let successCount = 0
-
-    // 绝区零需要逐个角色同步
-    for (let i = 0; i < avatarList.length; i++) {
-      const avatar = avatarList[i]
-      try {
-        // 计算当前突破阶段
-        let currentPromotes = 0
-        if (avatar.level >= 46) {
-          currentPromotes = 3
-        } else if (avatar.level >= 31) {
-          currentPromotes = 2
-        } else if (avatar.level >= 16) {
-          currentPromotes = 1
-        }
-
-        // 构建技能参数
-        const skills: ZZZComputeSkill[] = []
-        
-        for (let k = 0; k < this.skills.length; k++) {
-          const skillConfig = this.skills[k]
-          const skill = new ZZZComputeSkill()
-          skill.skill_type = skillConfig.skillType
-          skill.init_level = skillConfig.current
-          skill.level = skillConfig.target
-          skills[skills.length] = skill
-        }
-
-        Logger.info(TAG, `syncRoleCompute: syncing avatarId=${avatar.avatarId}, level=${avatar.level}`)
-
-        await CoreInitializer.zzzRepository.syncAvatarCompute(
-          accountId,
-          roleUid,
-          avatar.avatarId,
-          this.avatarLevel.target,
-          avatar.level,
-          currentPromotes,
-          skills,
-          roleUid,
-          server,
-          cookie
-        )
-        
-        successCount++
-        Logger.info(TAG, `syncRoleCompute: avatarId=${avatar.avatarId} sync success`)
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : `${error}`
-        Logger.warn(TAG, `syncRoleCompute: avatarId=${avatar.avatarId} failed: ${msg}`)
-      }
-    }
-
-    Logger.info(TAG, `syncRoleCompute: total success=${successCount}/${avatarList.length}`)
-    return successCount > 0
-  }
-}
-
-// ─── 绝区零养成计算技能参数 ─────────────────────────────────────────────
-
-class ZZZComputeSkill {
-  skill_type: number = 0
-  level: number = 12
-  init_level: number = 1
 }

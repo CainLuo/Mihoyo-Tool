@@ -23,6 +23,8 @@ import {
   GenshinCharacterDetailRaw,
 } from 'core';
 import { ViewState } from '../constants/ViewStates';
+import { MaterialTargetConfigParam } from '../models/ToolsModels';
+import { MaterialComputeService, MaterialComputeResult } from '../utils/MaterialComputeService';
 import {
   MaterialListViewMode,
   CharacterMaterialVM,
@@ -36,97 +38,24 @@ import {
   MaterialSectionType,
 } from '../models/MaterialListModels';
 
+/** 养成计算链路统一日志 tag，过滤：hilog | grep 🚀🚀🚀 */
+const CALC_TAG: string = '🚀🚀🚀 GenshinCalc';
+
 const TAG: string = 'GenshinMaterialListViewModel';
 
-// 元素名称到 ID 映射（API 要求的 element_attr_id）
-// API 返回英文值（如 'Geo', 'Anemo'），映射表使用英文键
-const ELEMENT_ATTR_ID_MAP: Record<string, number> = {
-  'Anemo': 1,   // 风
-  'Geo': 2,     // 岩
-  'Electro': 3, // 雷
-  'Dendro': 4,  // 草
-  'Hydro': 5,   // 水
-  'Pyro': 6,    // 火
-  'Cryo': 7,    // 冰
-};
-
-// 武器类型映射：DB 中的 weapon_type → API 要求的 weapon_cat_id
-// DB: 1=单手剑, 2=双手剑, 3=长柄, 4=弓, 5=法器
-// API: 1=单手剑, 10=弓, 11=双手剑, 12=长柄, 13=法器
-const WEAPON_CAT_ID_MAP: Record<number, number> = {
-  1: 1,   // 单手剑
-  2: 11,  // 双手剑
-  3: 12,  // 长柄
-  4: 10,  // 弓
-  5: 13,  // 法器
-};
-
-/** 原神养成计算参数 */
-class GenshinComputeItem {
-  avatar_id: number = 0;
-  avatar_level_current: number = 1;
-  avatar_level_target: number = 90;
-  element_attr_id: number = 0;
-  skill_list: GenshinComputeSkill[] = [];
-  weapon: GenshinComputeWeapon | null = null;
-  from_user_sync: boolean = false;  // 标识是否来自用户同步
-
-  /** 序列化为 API 请求格式，weapon 为 null 时不添加该字段 */
-  toJSON(): GenshinComputeItemJSONObject {
-    // 使用普通对象而不是 GenshinComputeItemJSON 实例
-    // 因为类实例的字段默认值会被 JSON.stringify 序列化
-    const obj: GenshinComputeItemJSONObject = {
-      avatar_id: this.avatar_id,
-      avatar_level_current: this.avatar_level_current,
-      avatar_level_target: this.avatar_level_target,
-      element_attr_id: this.element_attr_id,
-      skill_list: this.skill_list,
-      from_user_sync: this.from_user_sync,
-    };
-    // 只有 weapon 不为 null 时才添加该字段
-    if (this.weapon !== null) {
-      obj.weapon = this.weapon;
-    }
-    return obj;
-  }
+/** genshin_compute_summary.overall_consume_json 中的材料项（API 原样字段） */
+interface OverallMaterialRaw {
+  id: number;
+  name?: string;
+  icon?: string;
+  icon_url?: string;
+  num: number;
+  lack_num?: number;
+  level?: number;
 }
+/** 材料页日志 tag，过滤：hilog | grep 🚀🚀🚀 */
+const PAGE_CALC_TAG: string = '🚀🚀🚀 MaterialList';
 
-/** GenshinComputeItem 序列化后的 JSON 对象类型（weapon 字段可选） */
-interface GenshinComputeItemJSONObject {
-  avatar_id: number;
-  avatar_level_current: number;
-  avatar_level_target: number;
-  element_attr_id: number;
-  skill_list: GenshinComputeSkill[];
-  from_user_sync: boolean;
-  weapon?: GenshinComputeWeapon;  // 可选字段，不添加时不存在
-}
-
-/** GenshinComputeItem 序列化后的 JSON 类型（类定义，已废弃，改用 interface） */
-class GenshinComputeItemJSON {
-  avatar_id: number = 0;
-  avatar_level_current: number = 1;
-  avatar_level_target: number = 90;
-  element_attr_id: number = 0;
-  skill_list: GenshinComputeSkill[] = [];
-  weapon: GenshinComputeWeapon | null = null;
-  from_user_sync: boolean = false;
-}
-
-class GenshinComputeSkill {
-  id: number = 0;
-  level_current: number = 1;
-  level_target: number = 10;
-}
-
-class GenshinComputeWeapon {
-  id: number = 0;
-  level_current: number = 1;
-  level_target: number = 90;
-  weapon_cat_id: number = 0;  // 武器类型 ID（1=单手剑,10=弓,11=双手剑,12=长柄,13=法器）
-  weapon_level: number = 1;   // 当前等级（与 level_current 相同）
-  max_level: number = 90;     // 最大等级
-}
 /** GenshinMaterialListViewModel @Monitor 路径常量类型 */
 export class GenshinMaterialListViewModelKeys {
   viewMode: string = 'vm.viewMode';
@@ -146,14 +75,25 @@ export class GenshinMaterialListViewModel {
   @Trace isSyncing: boolean = false;
   @Trace syncErrorMsg: string = '';
 
+  /** 路由参数：选中的账号 / 游戏 UID / 角色 / 目标等级。只展示、只计算这些角色 */
+  private selection: MaterialTargetConfigParam | null = null;
+
   // ─── 公开方法 ────────────────────────────────────────────────
 
   /**
-   * 初始化：加载原神材料汇总数据。
+   * 初始化：只加载路由参数中选中角色的材料数据。
    */
-  async init(): Promise<void> {
+  async init(selection: MaterialTargetConfigParam | null): Promise<void> {
+    this.selection = selection;
+    Logger.info(PAGE_CALC_TAG, `[${TAG}] init, selection=${selection === null ? 'null' :
+      `account=${selection.accountId}, role=${selection.roleUid}, avatarIds=${selection.avatarIds.join(',')}`}`);
     this.viewState = ViewState.LOADING;
     await this.loadData();
+  }
+
+  /** 当前选中信息（给页面跳转养成目标配置页用） */
+  getSelection(): MaterialTargetConfigParam | null {
+    return this.selection;
   }
 
   /**
@@ -196,306 +136,59 @@ export class GenshinMaterialListViewModel {
   }
 
   /**
-   * 触发材料计算同步。
-   * 遍历所有账号的原神角色，调用 Repository 的同步方法。
+   * 重新计算：只重新计算路由参数中选中的角色（目标等级从 DB 读取），完成后重新加载。
    */
   async syncComputeData(): Promise<void> {
-    Logger.info(TAG, `syncComputeData called, isSyncing=${this.isSyncing}`);
+    const sel = this.selection;
     if (this.isSyncing) {
-      Logger.info(TAG, `syncComputeData skipped - already syncing`);
+      return;
+    }
+    if (sel === null || sel.avatarIds.length === 0) {
+      Logger.warn(PAGE_CALC_TAG, `[${TAG}] syncComputeData: no selection, skip`);
+      this.syncErrorMsg = 'no_selection';
       return;
     }
     this.isSyncing = true;
     this.syncErrorMsg = '';
-    Logger.info(TAG, `syncComputeData started`);
-
     try {
-      const accounts = await CoreInitializer.bbsRepository.getAllAccounts();
-      Logger.info(TAG, `syncComputeData: found ${accounts.length} accounts`);
-      
-      if (accounts.length === 0) {
-        Logger.warn(TAG, `syncComputeData: no accounts found`);
-        this.syncErrorMsg = 'no_account';
-        return;
+      // 目标等级由 MaterialComputeService 从 DB 读取
+      const result = await MaterialComputeService.compute(sel);
+      Logger.info(PAGE_CALC_TAG, `[${TAG}] syncComputeData result=${result}`);
+      if (result === MaterialComputeResult.FAILED) {
+        this.syncErrorMsg = 'compute_failed';
+      } else if (result === MaterialComputeResult.NO_CONFIG) {
+        this.syncErrorMsg = 'no_config';
       }
-
-      let syncCount = 0;
-
-      for (let i = 0; i < accounts.length; i++) {
-        const account = accounts[i];
-        Logger.info(TAG, `syncComputeData: processing account[${i}] uid=${account.uid}`);
-        
-        const roles = await CoreInitializer.bbsRepository.getGameRolesByGame(account.uid, GameId.GENSHIN);
-        Logger.info(TAG, `syncComputeData: found ${roles.length} Genshin roles`);
-
-        for (let j = 0; j < roles.length; j++) {
-          const role = roles[j];
-          Logger.info(TAG, `syncComputeData: syncing role[${j}] roleId=${role.roleId}`);
-          
-          const success = await this.syncRoleCompute(account.uid, account.cookie, role.roleId, role.server);
-          Logger.info(TAG, `syncComputeData: role[${j}] sync result=${success}`);
-          
-          if (success) {
-            syncCount++;
-          }
-        }
-      }
-
-      Logger.info(TAG, `syncComputeData: total syncCount=${syncCount}`);
-      
-      if (syncCount === 0) {
-        this.syncErrorMsg = 'no_roles';
-        return;
-      }
-
-      // 同步完成后重新加载数据
-      Logger.info(TAG, `syncComputeData: reloading data...`);
       await this.loadData();
-      Logger.info(TAG, `syncComputeData: reload done, viewState=${this.viewState}`);
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error(TAG, `syncComputeData failed: ${msg}`);
-      this.syncErrorMsg = msg;
     } finally {
       this.isSyncing = false;
-      Logger.info(TAG, `syncComputeData finished`);
     }
   }
 
   // ─── 私有方法 ────────────────────────────────────────────────
 
-  /**
-   * 构建默认技能列表（当角色详情缺失时使用）
-   */
-  private buildDefaultSkills(): GenshinComputeSkill[] {
-    const list: GenshinComputeSkill[] = [];
-    const defaultIds = [1001, 1002, 1003];
-    for (let i = 0; i < defaultIds.length; i++) {
-      const skill = new GenshinComputeSkill();
-      skill.id = defaultIds[i];
-      skill.level_current = 1;
-      skill.level_target = 10;
-      list[list.length] = skill;
-    }
-    return list;
-  }
-
-  /**
-   * 同步单个原神角色的材料计算数据。
-   * 技能参数从角色详情获取真实的技能 ID 和当前等级。
-   */
-  private async syncRoleCompute(accountId: string, cookie: string, roleUid: string, server: string): Promise<boolean> {
-    Logger.info(TAG, `syncRoleCompute: start, accountId=${accountId}, roleUid=${roleUid}, server=${server}`);
-    
-    // 获取角色列表
-    const avatarList = await CoreInitializer.genshinRepository.getAvatarList(accountId, roleUid);
-    Logger.info(TAG, `syncRoleCompute: avatarList.length=${avatarList.length}`);
-    
-    if (avatarList.length === 0) {
-      Logger.warn(TAG, `syncRoleCompute: no avatarList`);
-      return false;
-    }
-
-    // 构建计算参数
-    const items: GenshinComputeItem[] = [];
-    for (let i = 0; i < avatarList.length; i++) {
-      const avatar = avatarList[i];
-      
-      // ── DEBUG LOG: 角色基础数据 ─────────────────────────────────
-      Logger.info(TAG, `syncRoleCompute: avatar[${i}] id=${avatar.avatarId}, level=${avatar.level}, weaponId=${avatar.weaponId}, weaponLevel=${avatar.weaponLevel}`);
-
-
-      // 满级角色跳过角色升级计算，但仍需检查技能和武器
-      const isAvatarMaxLevel = avatar.level >= 90;
-      
-      const item = new GenshinComputeItem();
-      item.avatar_id = parseInt(avatar.avatarId, 10);
-      
-      // 角色等级参数：
-      // - 非满级角色：从当前等级计算到 90 级
-      // - 满级角色：不参与 API 计算（API 要求 level_target > level_current）
-      //   但如果满级角色有技能/武器升级需求，需要特殊处理
-      if (!isAvatarMaxLevel) {
-        item.avatar_level_current = avatar.level;
-        item.avatar_level_target = 90;
-      }
-      // 满级角色：保留默认值（1→90），后续会检查是否有技能/武器升级需求
-      
-      item.element_attr_id = ELEMENT_ATTR_ID_MAP[avatar.element] ?? 0;
-
-      // ── DEBUG LOG: element_attr_id 设置 ─────────────────────────────────
-      Logger.info(TAG, `syncRoleCompute: avatarId=${avatar.avatarId}, element='${avatar.element}', element_attr_id=${item.element_attr_id}`);
-
-      // 获取角色详情中的技能数据
-      const detail = await CoreInitializer.genshinRepository.getAvatarDetail(accountId, roleUid, avatar.avatarId);
-      
-      // ── DEBUG LOG: 角色详情技能数据 ─────────────────────────────────
-      Logger.info(TAG, `syncRoleCompute: avatarId=${avatar.avatarId}, skillLevels=${detail?.skillLevels ?? 'null'}`);
-
-      // 技能参数：从角色详情的 rawJson 中解析真实的技能 ID 和当前等级
-      if (detail !== null && detail.rawJson.length > 0) {
-        try {
-          const detailData = JSON.parse(detail.rawJson) as Record<string, Object>;
-          const skills = detailData['skills'] as Record<string, Object>[] | null;
-          
-          if (skills !== null && skills !== undefined && skills.length > 0) {
-            Logger.info(TAG, `syncRoleCompute: found ${skills.length} skills in rawJson`);
-            
-            for (let k = 0; k < skills.length; k++) {
-              const skillTypeRaw = skills[k]['skill_type'];
-              const skillType = typeof skillTypeRaw === 'number' ? skillTypeRaw : parseInt(`${skillTypeRaw ?? 0}`, 10);
-              
-              // skill_type=1 是可升级技能(普攻、E、Q)，skill_type=2 是固有天赋/被动
-              if (skillType === 1 || skillType === 0) {
-                const currentLevel = Number(skills[k]['level'] ?? 1);
-                
-                // 跳过已满级或超过目标等级的技能（命座提升的技能等级可能超过 10）
-                // API 要求 level_target > level_current，否则会返回 -500001 错误
-                if (currentLevel >= 10) {
-                  Logger.info(TAG, `syncRoleCompute: skip skill id=${skills[k]['skill_id']}, already max level ${currentLevel}`);
-                  continue;
-                }
-                
-                const skill = new GenshinComputeSkill();
-                const skillId = skills[k]['skill_id'];
-                skill.id = typeof skillId === 'number' ? skillId : parseInt(`${skillId ?? 0}`, 10);
-                skill.level_current = currentLevel;
-                skill.level_target = 10;
-                item.skill_list[item.skill_list.length] = skill;
-              }
-            }
-            
-            Logger.info(TAG, `syncRoleCompute: added ${item.skill_list.length} upgradable skills`);
-          } else {
-            Logger.warn(TAG, `syncRoleCompute: no skills in rawJson, using defaults`);
-            item.skill_list = this.buildDefaultSkills();
-          }
-        } catch (e) {
-          Logger.warn(TAG, `syncRoleCompute: failed to parse rawJson for avatarId=${avatar.avatarId}: ${e}`);
-          // fallback: 使用默认技能
-          item.skill_list = this.buildDefaultSkills();
-        }
-      } else {
-        // 无角色详情时，使用默认技能
-        item.skill_list = this.buildDefaultSkills();
-      }
-
-      // 武器参数：
-      // - 跳过已满级的武器（weaponLevel >= 90）
-      // - 跳过满级角色的武器（角色满级时，武器养成计算会导致 API 报错 -500001）
-      // - 只计算非满级角色的非满级武器
-      if (avatar.weaponId.length > 0 && avatar.weaponLevel < 90 && !isAvatarMaxLevel) {
-        const weapon = new GenshinComputeWeapon();
-        weapon.id = parseInt(avatar.weaponId, 10);
-        weapon.level_current = avatar.weaponLevel;
-        weapon.level_target = 90;
-        // 添加 API 要求的字段
-        weapon.weapon_cat_id = WEAPON_CAT_ID_MAP[avatar.weaponType] ?? 0;
-        weapon.weapon_level = avatar.weaponLevel;
-        weapon.max_level = 90;
-        item.weapon = weapon;
-        
-        // ── DEBUG LOG: 武器参数 ─────────────────────────────────
-        Logger.info(TAG, `syncRoleCompute: avatarId=${avatar.avatarId}, weaponId=${weapon.id}, weaponType=${avatar.weaponType}, weapon_cat_id=${weapon.weapon_cat_id}`);
-      }
-
-      // 只有有升级需求的角色才加入计算请求：
-      // - 角色未满级（需要升级）
-      // - 或技能未满级（需要升级）
-      // - 或武器未满级（需要升级）
-      // 
-      // 重要限制：API 要求 avatar_level_target > avatar_level_current
-      // 满级角色（level >= 90）无法发送有效请求：
-      // - 如果发送 90→90，API 返回 -500001 错误
-      // - 如果发送 89→90，与实际情况不符
-      // 
-      // 因此，满级角色统一跳过 API 计算，即使有技能/武器升级需求
-      // TODO: 未来可考虑单独实现技能/武器材料计算
-      const hasAvatarNeeds = !isAvatarMaxLevel;
-      const hasSkillNeeds = item.skill_list.length > 0;
-      const hasWeaponNeeds = item.weapon !== null;
-      
-      if (isAvatarMaxLevel) {
-        // 满级角色：跳过 API 计算
-        if (hasSkillNeeds || hasWeaponNeeds) {
-          Logger.info(TAG, `syncRoleCompute: skip max-level avatarId=${avatar.avatarId} (has skill/weapon needs but API requires level_target > level_current)`);
-        } else {
-          Logger.info(TAG, `syncRoleCompute: skip max-level avatarId=${avatar.avatarId}, already max level and no upgrade needs`);
-        }
-        continue;
-      }
-      
-      if (!hasAvatarNeeds && !hasSkillNeeds && !hasWeaponNeeds) {
-        Logger.info(TAG, `syncRoleCompute: skip avatarId=${avatar.avatarId}, no upgrade needs`);
-        continue;
-      }
-      
-      items[items.length] = item;
-      Logger.info(TAG, `syncRoleCompute: avatarId=${avatar.avatarId} added, avatar=${hasAvatarNeeds}, skills=${hasSkillNeeds}, weapon=${hasWeaponNeeds}`);
-    }
-
-    Logger.info(TAG, `syncRoleCompute: built ${items.length} compute items`);
-    
-    // ── DEBUG LOG: 打印前 3 个 item 的完整参数（使用 toJSON 过滤 null 字段）─────────────────
-    for (let i = 0; i < Math.min(3, items.length); i++) {
-      const it = items[i];
-      Logger.info(TAG, `syncRoleCompute: item[${i}] = ${JSON.stringify(it.toJSON())}`);
-    }
-
-    // 调用 Repository 同步
-    try {
-      // 将 items 转换为 JSON 格式（weapon 为 null 时不添加该字段）
-      const jsonItems: object[] = [];
-      for (let i = 0; i < items.length; i++) {
-        jsonItems[jsonItems.length] = items[i].toJSON();
-      }
-      await CoreInitializer.genshinRepository.syncAvatarCompute(accountId, roleUid, jsonItems, roleUid, server, cookie);
-      Logger.info(TAG, `syncRoleCompute: syncAvatarCompute completed`);
-      
-      // 验证数据是否写入
-      const computeRows = await CoreInitializer.genshinRepository.getAllComputeData(accountId, roleUid);
-      Logger.info(TAG, `syncRoleCompute: after sync, computeRows.length=${computeRows.length}`);
-      
-      return computeRows.length > 0;
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error(TAG, `syncRoleCompute failed: ${msg}`);
-      return false;
-    }
-  }
-
   private async loadData(): Promise<void> {
     Logger.info(TAG, `loadData: start`);
     try {
-      const accounts = await CoreInitializer.bbsRepository.getAllAccounts();
-      Logger.info(TAG, `loadData: found ${accounts.length} accounts`);
-      
-      if (accounts.length === 0) {
-        Logger.warn(TAG, `loadData: no accounts`);
+      // 只加载选中的账号 / 游戏 UID / 角色（全部角色的材料汇总是后续需求）
+      const sel = this.selection;
+      if (sel === null || sel.avatarIds.length === 0) {
+        Logger.warn(PAGE_CALC_TAG, `[${TAG}] loadData: no selection`);
         this.viewState = ViewState.EMPTY;
         return;
       }
 
       const allCharacterMaterials: CharacterMaterialVM[] = [];
-
-      // 遍历所有账号，收集角色材料数据
-      for (let i = 0; i < accounts.length; i++) {
-        const account = accounts[i];
-        const roles = await CoreInitializer.bbsRepository.getGameRolesByGame(account.uid, GameId.GENSHIN);
-        Logger.info(TAG, `loadData: account[${i}] has ${roles.length} Genshin roles`);
-
-        for (let j = 0; j < roles.length; j++) {
-          const role = roles[j];
-          Logger.info(TAG, `loadData: loading material for role[${j}] roleId=${role.roleId}`);
-          
-          const charMaterials = await this.loadCharacterMaterials(account.uid, role.roleId);
-          Logger.info(TAG, `loadData: loadCharacterMaterials result, count=${charMaterials.length}`);
-          
-          for (let k = 0; k < charMaterials.length; k++) {
-            allCharacterMaterials[allCharacterMaterials.length] = charMaterials[k];
-          }
+      /** avatarId → (materialId → 该角色需求量)，用于汇总视图的关联角色 */
+      const charNeeds = new Map<string, Map<string, number>>();
+      const charMaterials = await this.loadCharacterMaterials(sel.accountId, sel.roleUid, sel.avatarIds, charNeeds);
+      for (let k = 0; k < charMaterials.length; k++) {
+        if (sel.avatarIds.includes(charMaterials[k].characterId)) {
+          allCharacterMaterials[allCharacterMaterials.length] = charMaterials[k];
         }
       }
+      Logger.info(PAGE_CALC_TAG, `[${TAG}] loadData: selected=${sel.avatarIds.length}, loaded=${charMaterials.length}, ` +
+        `shown=${allCharacterMaterials.length} (${allCharacterMaterials.map((c: CharacterMaterialVM) => c.characterId).join(',')})`);
 
       Logger.info(TAG, `loadData: total allCharacterMaterials.length=${allCharacterMaterials.length}`);
       
@@ -504,8 +197,36 @@ export class GenshinMaterialListViewModel {
         return;
       }
 
+      // 材料背包（batch_compute 的 available_material，DB：genshin_material_bag），用于汇总视图的"已拥有"
+      const bagCounts = new Map<string, number>();
+      try {
+        const bag = await CoreInitializer.genshinRepository.getMaterialBag(sel.accountId, sel.roleUid);
+        for (let i = 0; i < bag.length; i++) {
+          bagCounts.set(bag[i].materialId, bag[i].count);
+        }
+      } catch (error) {
+        Logger.warn(PAGE_CALC_TAG, `[${TAG}] loadData: read material bag failed: ${error instanceof Error ? error.message : `${error}`}`);
+      }
+
       this.characterMaterials = allCharacterMaterials;
-      this.materialSummaries = this.aggregateMaterials(allCharacterMaterials);
+
+      // 汇总视图：优先使用整批合计（genshin_compute_summary.overall_consume，接口算好的精确总缺口），
+      // 只有当它正好对应当前展示的这批计算结果时才使用；否则回退到按角色估算
+      const summaryRow = await CoreInitializer.genshinRepository.getComputeSummary(sel.accountId, sel.roleUid);
+      const computedIds: string[] = [];
+      charNeeds.forEach((_v: Map<string, number>, avatarId: string) => {
+        computedIds[computedIds.length] = avatarId;
+      });
+      const summaryIds = summaryRow !== null && summaryRow.avatarIds.length > 0 ? summaryRow.avatarIds.split(',') : [];
+      const summaryMatches = summaryRow !== null && summaryIds.length === computedIds.length &&
+        computedIds.every((id: string) => summaryIds.includes(id));
+      if (summaryRow !== null && summaryMatches) {
+        this.materialSummaries = this.buildSummariesFromOverall(summaryRow.overallConsumeJson, charNeeds, allCharacterMaterials);
+        Logger.info(PAGE_CALC_TAG, `[${TAG}] loadData: summary from overall_consume, materials=${this.materialSummaries.length}`);
+      } else {
+        this.materialSummaries = this.aggregateMaterials(allCharacterMaterials, bagCounts);
+        Logger.warn(PAGE_CALC_TAG, `[${TAG}] loadData: no matching compute summary (summary=${summaryIds.join(',')}, computed=${computedIds.join(',')}), use estimate`);
+      }
       this.materialSections = this.groupMaterialsIntoSections(this.materialSummaries);
       this.viewState = ViewState.DATA;
     } catch (error) {
@@ -519,7 +240,12 @@ export class GenshinMaterialListViewModel {
    * 加载原神角色材料数据。
    * 原神一个 game_role 包含多个角色，返回 CharacterMaterialVM 数组。
    */
-  private async loadCharacterMaterials(accountId: string, roleUid: string): Promise<CharacterMaterialVM[]> {
+  private async loadCharacterMaterials(
+    accountId: string,
+    roleUid: string,
+    onlyAvatarIds: string[],
+    needsOut: Map<string, Map<string, number>>,
+  ): Promise<CharacterMaterialVM[]> {
     Logger.info(TAG, `loadCharacterMaterials: accountId=${accountId}, roleUid=${roleUid}`);
     
     // 获取角色基础信息
@@ -535,10 +261,7 @@ export class GenshinMaterialListViewModel {
     const computeRows = await CoreInitializer.genshinRepository.getAllComputeData(accountId, roleUid);
     Logger.info(TAG, `loadCharacterMaterials: computeRows.length=${computeRows.length}`);
     
-    if (computeRows.length === 0) {
-      Logger.warn(TAG, `loadCharacterMaterials: no computeRows`);
-      return [];
-    }
+    // 没有计算结果的选中角色会显示为"已达成目标"，因此这里不提前返回
 
     // 获取所有角色详情（用于提取技能等级）
     const detailRows = await CoreInitializer.genshinRepository.getAllAvatarDetails(accountId, roleUid);
@@ -557,15 +280,13 @@ export class GenshinMaterialListViewModel {
 
     const result: CharacterMaterialVM[] = [];
 
-    // 遍历 avatarList，为每个角色创建 VM
+    // 遍历 avatarList，为每个选中角色创建 VM
     for (let i = 0; i < avatarList.length; i++) {
       const avatar = avatarList[i];
-      const computeRow = computeMap.get(avatar.avatarId);
-      
-      if (computeRow === undefined || computeRow === null) {
-        Logger.info(TAG, `loadCharacterMaterials: no computeRow for avatarId=${avatar.avatarId}, skipping`);
+      if (!onlyAvatarIds.includes(avatar.avatarId)) {
         continue;
       }
+      const computeRow = computeMap.get(avatar.avatarId);
 
       const vm = new CharacterMaterialVM();
       vm.characterId = avatar.avatarId;
@@ -576,10 +297,27 @@ export class GenshinMaterialListViewModel {
       vm.element = avatar.element;
       vm.gameId = GameId.GENSHIN;
 
-      // 解析材料数据（DB 中存储的是单个 item）
-      const parsed = GenshinComputeParser.parseItem(computeRow.rawJson);
-      
+      // 选中但没有计算结果：计算时已判定该角色达到目标（Repository buildCalcItems 中 SKIP），无需材料
+      if (computeRow === undefined || computeRow === null) {
+        vm.isTargetReached = true;
+      }
+
+      // 解析材料数据（DB 各列为 API 原样数据，缺口由 Parser 按该角色的 overall_consume 计算）
+      const parsed = computeRow !== undefined && computeRow !== null
+        ? GenshinComputeParser.parseRow(computeRow.avatarId, computeRow.avatarConsumeJson,
+          computeRow.avatarSkillConsumeJson, computeRow.weaponConsumeJson, computeRow.overallConsumeJson)
+        : null;
+
       if (parsed !== null) {
+        // 该角色各材料的需求量（未过滤，用于汇总视图的关联角色）
+        const needs = new Map<string, number>();
+        const allConsume = parsed.avatarConsume.concat(parsed.skillConsume, parsed.weaponConsume);
+        for (let k = 0; k < allConsume.length; k++) {
+          const mid = `${allConsume[k].id}`;
+          needs.set(mid, (needs.get(mid) ?? 0) + allConsume[k].num);
+        }
+        needsOut.set(avatar.avatarId, needs);
+
         // 角色突破材料
         if (parsed.avatarConsume.length > 0) {
           vm.avatarMaterials = this.parseMaterialItems(parsed.avatarConsume);
@@ -618,6 +356,7 @@ export class GenshinMaterialListViewModel {
     }
 
     Logger.info(TAG, `loadCharacterMaterials: returning ${result.length} VMs`);
+    Logger.info(CALC_TAG, `[Page] roleUid=${roleUid}: computeRows=${computeRows.length} (avatarIds=${computeRows.map((r: GenshinCharacterComputeRow) => r.avatarId).join(',')}), matched characters=${result.length}`);
     return result;
   }
 
@@ -693,15 +432,76 @@ export class GenshinMaterialListViewModel {
   }
 
   /**
-   * 将所有角色的材料汇总为按材料视图。
+   * 用整批合计 overall_consume 构建按材料视图（精确值）。
+   * - 需求 = num，已拥有 = num - lack_num（接口已扣除背包并计入合成）
+   * - 只展示仍有缺口（lack_num > 0）的材料，与按角色视图"已满足不显示"一致
+   * - 关联角色取自各角色自己的需求量
+   * 排序规则与 aggregateMaterials 一致：按 materialId 从大到小。
+   */
+  private buildSummariesFromOverall(
+    overallConsumeJson: string,
+    charNeeds: Map<string, Map<string, number>>,
+    characters: CharacterMaterialVM[],
+  ): MaterialSummaryVM[] {
+    let overall: OverallMaterialRaw[] = [];
+    try {
+      const parsed = JSON.parse(overallConsumeJson) as OverallMaterialRaw[];
+      overall = Array.isArray(parsed) ? parsed : [];
+    } catch (_) {
+      overall = [];
+    }
+
+    const result: MaterialSummaryVM[] = [];
+    for (let i = 0; i < overall.length; i++) {
+      const m = overall[i];
+      const lack = m.lack_num ?? 0;
+      if (lack <= 0) {
+        continue;
+      }
+      const materialId = `${m.id}`;
+      const summary = new MaterialSummaryVM();
+      summary.materialId = materialId;
+      summary.name = m.name ?? '';
+      summary.iconUrl = m.icon ?? m.icon_url ?? '';
+      summary.rarity = m.level ?? 1;
+      summary.totalNeed = m.num;
+      summary.totalHave = Math.max(m.num - lack, 0);
+
+      const related: RelatedCharacterVM[] = [];
+      for (let c = 0; c < characters.length; c++) {
+        const need = charNeeds.get(characters[c].characterId)?.get(materialId) ?? 0;
+        if (need > 0) {
+          const rc = new RelatedCharacterVM();
+          rc.characterId = characters[c].characterId;
+          rc.characterName = characters[c].characterName;
+          rc.characterIconUrl = characters[c].characterIconUrl;
+          rc.needCount = need;
+          related[related.length] = rc;
+        }
+      }
+      summary.relatedCharacters = related;
+      result[result.length] = summary;
+    }
+
+    result.sort((a, b) => (parseInt(b.materialId, 10) || 0) - (parseInt(a.materialId, 10) || 0));
+    return result;
+  }
+
+  /**
+   * 将所有角色的材料汇总为按材料视图（没有整批合计时的估算）。
    * 按 materialId 去重，同一材料的需求量累加。
+   * 已拥有：每个角色的缺口都是计算器针对该角色单独计算的（各自扣除完整背包），不能直接相加；
+   * 取 max(背包数量, 单个角色的最大已拥有量)，且不超过总需求。
    * 排序规则：按 materialId 从大到小（数值降序）。
    */
-  private aggregateMaterials(characters: CharacterMaterialVM[]): MaterialSummaryVM[] {
+  private aggregateMaterials(characters: CharacterMaterialVM[], bagCounts: Map<string, number>): MaterialSummaryVM[] {
     const materialMap: Map<string, MaterialSummaryVM> = new Map();
+    /** 单个角色内同一材料的已拥有量之和，在所有角色中的最大值 */
+    const maxCharHave = new Map<string, number>();
 
     for (let i = 0; i < characters.length; i++) {
       const char = characters[i];
+      const charHave = new Map<string, number>();
       const allMaterials: MaterialItemVM[] = [];
       
       // 手动合并数组，避免展开运算符
@@ -717,10 +517,11 @@ export class GenshinMaterialListViewModel {
 
       for (let j = 0; j < allMaterials.length; j++) {
         const mat = allMaterials[j];
+        charHave.set(mat.materialId, (charHave.get(mat.materialId) ?? 0) + mat.have);
         const existing = materialMap.get(mat.materialId);
 
         if (existing !== undefined) {
-          // 已存在：累加需求量，添加关联角色
+          // 已存在：累加需求量，添加关联角色（已拥有在循环结束后统一计算）
           existing.totalNeed += mat.need;
           
           // 检查是否已添加过该角色（避免同一角色重复添加）
@@ -750,7 +551,7 @@ export class GenshinMaterialListViewModel {
           summary.name = mat.name;
           summary.iconUrl = mat.iconUrl;
           summary.rarity = mat.rarity;
-          summary.totalHave = mat.have;
+          summary.totalHave = 0;
           summary.totalNeed = mat.need;
           
           const relatedChar = new RelatedCharacterVM();
@@ -763,7 +564,17 @@ export class GenshinMaterialListViewModel {
           materialMap.set(mat.materialId, summary);
         }
       }
+
+      charHave.forEach((have: number, materialId: string) => {
+        maxCharHave.set(materialId, Math.max(maxCharHave.get(materialId) ?? 0, have));
+      });
     }
+
+    // 已拥有 = min(总需求, max(背包数量, 单个角色的最大已拥有量))
+    materialMap.forEach((summary: MaterialSummaryVM, materialId: string) => {
+      const have = Math.max(bagCounts.get(materialId) ?? 0, maxCharHave.get(materialId) ?? 0);
+      summary.totalHave = Math.min(have, summary.totalNeed);
+    });
 
     // 转换为数组并按 materialId 从大到小排列
     const result: MaterialSummaryVM[] = [];

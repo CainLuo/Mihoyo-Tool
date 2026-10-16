@@ -53,4 +53,6 @@ export class AppRoutes {
   static readonly STARRAIL_MATERIAL_LIST = 'StarRailMaterialList'
   /** 绝区零材料汇总页 */
   static readonly ZZZ_MATERIAL_LIST = 'ZZZMaterialList'
+  /** 角色选择页（材料计算） */
+  static readonly MATERIAL_CHARACTER_SELECT = 'MaterialCharacterSelect'
 }

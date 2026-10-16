@@ -1,37 +1,47 @@
 /**
  * StarRailMaterialTargetConfigViewModel.ets — 星穹铁道养成目标配置 ViewModel
  *
- * 负责星穹铁道养成目标配置的数据管理和同步逻辑。
- * 星铁养成计算只能逐个角色请求，不支持批量。
+ * 负责星穹铁道养成目标配置的数据管理和计算触发。
+ * 技能按 普攻 / 战技 / 终结技 / 天赋 分别配置目标等级；
+ * 秘技、额外能力、属性加成只能解锁，计算时统一按"解锁"处理，不在本页配置。
  *
  * 数据流：
- * 1. 用户设置角色/命途/光锥的目标等级
- * 2. 点击"开始计算"触发 syncComputeData()
- * 3. 从 DB 读取角色列表，逐个调用计算 API
- * 4. 完成后跳转到 StarRailMaterialList 页面
+ * 1. 材料汇总页带着选中角色进入本页（MaterialTargetConfigParam）
+ * 2. 用户设置角色 / 各技能 / 光锥的目标等级
+ * 3. 点击"开始计算"触发 computeSelected()：保存配置 → MaterialComputeService 只计算选中角色
+ * 4. 完成后由页面用新的目标等级重新打开材料汇总页
  */
 
 import {
   CoreInitializer,
-  Logger,
   GameId,
+  Logger,
   StarRailMaterialTargetConfigJson,
   LevelConfig,
-  StarRailComputeAvatar,
-  StarRailComputeEquipment,
-  StarRailComputeSkill,
+  SkillLevelConfig,
 } from 'core'
 import {
   LevelConfigVM,
   LevelLabelKeys,
+  SkillLevelConfigVM,
+  applySavedLevel,
 } from '../models/MaterialTargetConfigModels'
 import { AccountSignal } from '../utils/AccountSignal'
+import { MaterialTargetConfigParam, StarRailSkillSlot } from '../models/ToolsModels'
+import { MaterialComputeService, MaterialComputeResult } from '../utils/MaterialComputeService'
 
-/** skillTreeJson 中的技能项结构 */
-interface SkillTreeItem {
-  point_id: string;
-  level: number;
-}
+const TAG: string = 'StarRailMaterialTargetConfigVM'
+
+/** 各技能的标签（下标 = StarRailSkillSlot） */
+const SKILL_LABELS: string[] = [
+  LevelLabelKeys.STARRAIL_SKILL_BASIC,
+  LevelLabelKeys.STARRAIL_SKILL_SKILL,
+  LevelLabelKeys.STARRAIL_SKILL_ULTIMATE,
+  LevelLabelKeys.STARRAIL_SKILL_TALENT,
+]
+
+/** 养成目标配置日志 tag，过滤：hilog | grep 🚀🚀🚀 */
+const CONFIG_TAG: string = '🚀🚀🚀 MaterialTargetConfig'
 
 /** 星穹铁道养成目标配置 ViewModel */
 @ObservedV2
@@ -41,7 +51,8 @@ export class StarRailMaterialTargetConfigViewModel {
 
   // 星铁配置
   @Trace avatarLevel: LevelConfigVM = new LevelConfigVM()
-  @Trace skillLevel: LevelConfigVM = new LevelConfigVM()
+  /** 各技能配置，skillType = 行迹 point_id 末三位（1 普攻 / 2 战技 / 3 终结技 / 4 天赋） */
+  @Trace skills: SkillLevelConfigVM[] = []
   @Trace lightConeLevel: LevelConfigVM = new LevelConfigVM()
 
   /** 账号 UID（米游社 UID） */
@@ -61,29 +72,34 @@ export class StarRailMaterialTargetConfigViewModel {
 
     // 先初始化默认值
     this.avatarLevel = this.createLevelConfig(1, 80, 80, LevelLabelKeys.AVATAR_LEVEL)
-    this.skillLevel = this.createLevelConfig(1, 10, 10, LevelLabelKeys.TRACE_LEVEL)
+    const skills: SkillLevelConfigVM[] = []
+    for (let slot = 0; slot < StarRailSkillSlot.COUNT; slot++) {
+      skills[skills.length] = this.createSkillConfig(slot + 1, StarRailSkillSlot.MAX_LEVELS[slot], SKILL_LABELS[slot])
+    }
+    this.skills = skills
     this.lightConeLevel = this.createLevelConfig(1, 80, 80, LevelLabelKeys.LIGHT_CONE_LEVEL)
 
-    // 从 DB 加载已保存的配置
+    // 从 DB 加载已保存的配置：有配置记录就完整恢复（按 1 ~ 上限截断），没有记录才使用默认值
     try {
-      const config = await CoreInitializer.materialTargetConfigRepository.getStarRailConfig(this.accountId, this.roleUid)
-      // 只有当配置有效时才覆盖默认值（target > 1 表示用户曾经保存过有效配置）
-      if (config.avatar && config.avatar.target > 1) {
-        this.avatarLevel.current = config.avatar.current
-        this.avatarLevel.target = config.avatar.target
+      const repo = CoreInitializer.materialTargetConfigRepository
+      const row = await repo.getConfig(this.accountId, this.roleUid, GameId.STARRAIL)
+      if (row !== null) {
+        const config = await repo.getStarRailConfig(this.accountId, this.roleUid)
+        applySavedLevel(this.avatarLevel, config.avatar.current, config.avatar.target)
+        for (let i = 0; i < config.skills.length; i++) {
+          const skill = this.findSkill(config.skills[i].skillType)
+          if (skill !== null) {
+            applySavedLevel(skill, config.skills[i].current, config.skills[i].target)
+          }
+        }
+        applySavedLevel(this.lightConeLevel, config.lightCone.current, config.lightCone.target)
+        Logger.info(CONFIG_TAG, `[StarRail] init: restored from DB, account=${this.accountId}, role=${this.roleUid}, json=${row.configJson}`)
+      } else {
+        Logger.info(CONFIG_TAG, `[StarRail] init: no saved config for account=${this.accountId}, role=${this.roleUid}, use defaults`)
       }
-      if (config.skill && config.skill.target > 1) {
-        this.skillLevel.current = config.skill.current
-        this.skillLevel.target = config.skill.target
-      }
-      if (config.lightCone && config.lightCone.target > 1) {
-        this.lightConeLevel.current = config.lightCone.current
-        this.lightConeLevel.target = config.lightCone.target
-      }
-      Logger.info('StarRailMaterialTargetConfigVM', `init: loaded config from DB for account=${this.accountId}, role=${this.roleUid}`)
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`
-      Logger.warn('StarRailMaterialTargetConfigVM', `init: failed to load config: ${msg}`)
+      Logger.warn(CONFIG_TAG, `[StarRail] init: failed to load config: ${msg}`)
     }
   }
 
@@ -100,7 +116,20 @@ export class StarRailMaterialTargetConfigViewModel {
   }
 
   /**
-   * 更新当前等级
+   * 创建技能配置（1 → 上限）
+   */
+  private createSkillConfig(skillType: number, max: number, labelKey: string): SkillLevelConfigVM {
+    const config = new SkillLevelConfigVM()
+    config.current = 1
+    config.target = max
+    config.max = max
+    config.labelKey = labelKey
+    config.skillType = skillType
+    return config
+  }
+
+  /**
+   * 更新当前等级（key：'avatar' / 'lightCone' / 'skill{skillType}'）
    */
   updateCurrent(key: string, value: number): void {
     const config = this.getConfigByKey(key)
@@ -110,7 +139,7 @@ export class StarRailMaterialTargetConfigViewModel {
   }
 
   /**
-   * 更新目标等级
+   * 更新目标等级（key：'avatar' / 'lightCone' / 'skill{skillType}'）
    */
   updateTarget(key: string, value: number): void {
     const config = this.getConfigByKey(key)
@@ -123,11 +152,12 @@ export class StarRailMaterialTargetConfigViewModel {
    * 根据 key 获取等级配置
    */
   private getConfigByKey(key: string): LevelConfigVM | null {
+    if (key.startsWith('skill')) {
+      return this.findSkill(parseInt(key.replace('skill', ''), 10))
+    }
     switch (key) {
       case 'avatar':
         return this.avatarLevel
-      case 'skill':
-        return this.skillLevel
       case 'lightCone':
         return this.lightConeLevel
       default:
@@ -135,203 +165,71 @@ export class StarRailMaterialTargetConfigViewModel {
     }
   }
 
+  private findSkill(skillType: number): SkillLevelConfigVM | null {
+    for (let i = 0; i < this.skills.length; i++) {
+      if (this.skills[i].skillType === skillType) {
+        return this.skills[i]
+      }
+    }
+    return null
+  }
+
+  /**
+   * 保存配置到 DB 后只计算选中的角色。
+   * 目标等级不从页面直接传给计算，而是由 MaterialComputeService 从 DB 读取（DB 是唯一来源）。
+   * @param selection 选中的账号 / 游戏 UID / 角色
+   * @returns 保存失败时返回 FAILED，不进行计算
+   */
+  async computeSelected(selection: MaterialTargetConfigParam): Promise<MaterialComputeResult> {
+    if (this.isSyncing) {
+      return MaterialComputeResult.BUSY
+    }
+    this.isSyncing = true
+    try {
+      const saved = await this.saveConfig()
+      if (!saved) {
+        return MaterialComputeResult.FAILED
+      }
+      Logger.info(CONFIG_TAG, `[StarRail] computeSelected avatarIds=${selection.avatarIds.join(',')}`)
+      const result = await MaterialComputeService.compute(selection)
+      if (result === MaterialComputeResult.SUCCESS) {
+        AccountSignal.instance().notify()
+      }
+      return result
+    } finally {
+      this.isSyncing = false
+    }
+  }
+
   /**
    * 保存配置到 DB
+   * @returns 是否保存成功
    */
-  async saveConfig(): Promise<void> {
+  async saveConfig(): Promise<boolean> {
     const config = new StarRailMaterialTargetConfigJson()
     config.avatar = new LevelConfig()
     config.avatar.current = this.avatarLevel.current
     config.avatar.target = this.avatarLevel.target
-    config.skill = new LevelConfig()
-    config.skill.current = this.skillLevel.current
-    config.skill.target = this.skillLevel.target
+    config.skills = []
+    for (let i = 0; i < this.skills.length; i++) {
+      const s = new SkillLevelConfig()
+      s.skillType = this.skills[i].skillType
+      s.current = this.skills[i].current
+      s.target = this.skills[i].target
+      config.skills[config.skills.length] = s
+    }
     config.lightCone = new LevelConfig()
     config.lightCone.current = this.lightConeLevel.current
     config.lightCone.target = this.lightConeLevel.target
 
     try {
       await CoreInitializer.materialTargetConfigRepository.saveStarRailConfig(this.accountId, this.roleUid, config)
-      Logger.info('StarRailMaterialTargetConfigVM', `saveConfig: config saved to DB for account=${this.accountId}, role=${this.roleUid}`)
+      Logger.info(CONFIG_TAG, `[StarRail] saveConfig OK, account=${this.accountId}, role=${this.roleUid}, json=${JSON.stringify(config)}`)
+      return true
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`
-      Logger.error('StarRailMaterialTargetConfigVM', `saveConfig failed: ${msg}`)
-    }
-  }
-
-  /**
-   * 同步星铁材料计算数据
-   * 遍历所有账号的星铁角色，逐个调用计算 API。
-   * 开始前先保存当前配置到 DB。
-   */
-  async syncComputeData(): Promise<boolean> {
-    const TAG = 'StarRailMaterialTargetConfigVM'
-    Logger.info(TAG, `syncComputeData called, isSyncing=${this.isSyncing}`)
-    
-    if (this.isSyncing) {
-      Logger.info(TAG, `syncComputeData skipped - already syncing`)
+      Logger.error(CONFIG_TAG, `[StarRail] saveConfig FAILED, account=${this.accountId}, role=${this.roleUid}: ${msg}`)
       return false
     }
-    
-    // 先保存配置
-    await this.saveConfig()
-    
-    this.isSyncing = true
-    Logger.info(TAG, `syncComputeData started`)
-
-    try {
-      const accounts = await CoreInitializer.bbsRepository.getAllAccounts()
-      Logger.info(TAG, `syncComputeData: found ${accounts.length} accounts`)
-      
-      if (accounts.length === 0) {
-        Logger.warn(TAG, `syncComputeData: no accounts found`)
-        return false
-      }
-
-      let syncCount = 0
-
-      for (let i = 0; i < accounts.length; i++) {
-        const account = accounts[i]
-        Logger.info(TAG, `syncComputeData: processing account[${i}] uid=${account.uid}`)
-        
-        const roles = await CoreInitializer.bbsRepository.getGameRolesByGame(account.uid, GameId.STARRAIL)
-        Logger.info(TAG, `syncComputeData: found ${roles.length} starrail roles`)
-
-        for (let j = 0; j < roles.length; j++) {
-          const role = roles[j]
-          Logger.info(TAG, `syncComputeData: syncing role[${j}] roleId=${role.roleId}`)
-          
-          const success = await this.syncRoleCompute(account.uid, account.cookie, role.roleId, role.server)
-          Logger.info(TAG, `syncComputeData: role[${j}] sync result=${success}`)
-          
-          if (success) {
-            syncCount++
-          }
-        }
-      }
-
-      Logger.info(TAG, `syncComputeData: total syncCount=${syncCount}`)
-      
-      // 同步成功后通知 Tools 页面刷新
-      if (syncCount > 0) {
-        AccountSignal.instance().notify()
-        Logger.info(TAG, `syncComputeData: notified AccountSignal`)
-      }
-      
-      return syncCount > 0
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`
-      Logger.error(TAG, `syncComputeData failed: ${msg}`)
-      return false
-    } finally {
-      this.isSyncing = false
-      Logger.info(TAG, `syncComputeData finished`)
-    }
-  }
-
-  /**
-   * 同步单个角色的材料计算数据
-   */
-  private async syncRoleCompute(accountId: string, cookie: string, roleUid: string, server: string): Promise<boolean> {
-    const TAG = 'StarRailMaterialTargetConfigVM'
-    let avatarList = await CoreInitializer.starRailRepository.getAvatarList(accountId, roleUid)
-    Logger.info(TAG, `syncRoleCompute: avatarList.length=${avatarList.length}`)
-    
-    // 如果 DB 中没有角色列表，先同步角色列表
-    if (avatarList.length === 0) {
-      Logger.info(TAG, `syncRoleCompute: no avatarList, syncing avatar list first`)
-      try {
-        await CoreInitializer.starRailRepository.syncAvatarList(accountId, roleUid, server, cookie)
-        avatarList = await CoreInitializer.starRailRepository.getAvatarList(accountId, roleUid)
-        Logger.info(TAG, `syncRoleCompute: after sync, avatarList.length=${avatarList.length}`)
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : `${error}`
-        Logger.error(TAG, `syncRoleCompute: failed to sync avatar list: ${msg}`)
-        return false
-      }
-      
-      if (avatarList.length === 0) {
-        Logger.warn(TAG, `syncRoleCompute: still no avatarList after sync`)
-        return false
-      }
-    }
-
-    let successCount = 0
-
-    // 星铁需要逐个角色同步
-    for (let i = 0; i < avatarList.length; i++) {
-      const avatar = avatarList[i]
-      try {
-        // 构建 avatar 参数 — 字段名必须与 API 文档一致
-        const avatarParam = new StarRailComputeAvatar();
-        avatarParam.item_id = avatar.avatarId;
-        avatarParam.cur_level = avatar.level;
-        avatarParam.target_level = this.avatarLevel.target;
-
-        // 构建 equipment 参数（光锥）
-        const equipmentParam = new StarRailComputeEquipment();
-        equipmentParam.item_id = avatar.equipId;
-        equipmentParam.cur_level = avatar.equipLevel > 0 ? avatar.equipLevel : 1;
-        equipmentParam.target_level = this.avatarLevel.target;
-
-        // 从角色详情中提取技能列表
-        const avatarInfo = await CoreInitializer.starRailRepository.getAvatarDetail(accountId, roleUid, avatar.avatarId);
-        const skillList: StarRailComputeSkill[] = [];
-        
-        if (avatarInfo && avatarInfo.skillTreeJson !== '') {
-          try {
-            const skills = JSON.parse(avatarInfo.skillTreeJson) as SkillTreeItem[];
-            for (let j = 0; j < skills.length; j++) {
-              const skill = skills[j];
-              const skillParam = new StarRailComputeSkill();
-              skillParam.item_id = skill.point_id;
-              skillParam.cur_level = skill.level;
-              skillParam.target_level = this.skillLevel.target;
-              skillList.push(skillParam);
-            }
-            Logger.info(TAG, `syncRoleCompute: extracted ${skillList.length} skills from avatarInfo`);
-          } catch (parseError) {
-            Logger.error(TAG, `syncRoleCompute: parse skillTreeJson failed, fallback to default`);
-          }
-        }
-        
-        // 如果没有技能数据，fallback 到默认 4 个技能
-        if (skillList.length === 0) {
-          Logger.warn(TAG, `syncRoleCompute: no skillTreeJson, fallback to default 4 skills`);
-          const avatarIdNum = parseInt(avatar.avatarId, 10);
-          for (let j = 1; j <= 4; j++) {
-            const skillParam = new StarRailComputeSkill();
-            skillParam.item_id = `${avatarIdNum * 1000 + j}`;
-            skillParam.cur_level = this.skillLevel.current;
-            skillParam.target_level = this.skillLevel.target;
-            skillList.push(skillParam);
-          }
-        }
-
-        Logger.info(TAG, `syncRoleCompute: syncing avatarId=${avatar.avatarId}`)
-
-        await CoreInitializer.starRailRepository.syncAvatarCompute(
-          accountId,
-          roleUid,
-          avatar.avatarId,
-          avatarParam,
-          equipmentParam,
-          skillList,
-          roleUid,
-          server,
-          cookie
-        )
-        
-        successCount++
-        Logger.info(TAG, `syncRoleCompute: avatarId=${avatar.avatarId} sync success`)
-      } catch (error) {
-        const msg = error instanceof Error ? error.message : `${error}`
-        Logger.warn(TAG, `syncRoleCompute: avatarId=${avatar.avatarId} failed: ${msg}`)
-      }
-    }
-
-    Logger.info(TAG, `syncRoleCompute: total success=${successCount}/${avatarList.length}`)
-    return successCount > 0
   }
 }
-

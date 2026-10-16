@@ -94,6 +94,11 @@
       "name": "StarRailMaterialList",
       "pageSourceFile": "src/main/ets/pages/StarRailMaterialList.ets",
       "buildFunction": "StarRailMaterialListBuilder"
+    },
+    {
+      "name": "MaterialCharacterSelect",
+      "pageSourceFile": "src/main/ets/builders/MaterialCharacterSelectBuilder.ets",
+      "buildFunction": "MaterialCharacterSelectBuilder"
     }
   ]
 }

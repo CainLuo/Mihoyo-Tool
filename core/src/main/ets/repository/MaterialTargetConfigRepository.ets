@@ -229,8 +229,8 @@ export class MaterialTargetConfigRepository {
     if (obj['avatar']) {
       config.avatar = this.parseLevelConfig(obj['avatar'] as Record<string, Object>);
     }
-    if (obj['skill']) {
-      config.skill = this.parseLevelConfig(obj['skill'] as Record<string, Object>);
+    if (obj['skills'] && Array.isArray(obj['skills'])) {
+      config.skills = obj['skills'].map((item: Object) => this.parseSkillLevelConfig(item as Record<string, Object>));
     }
     if (obj['weapon']) {
       config.weapon = this.parseLevelConfig(obj['weapon'] as Record<string, Object>);
@@ -249,8 +249,8 @@ export class MaterialTargetConfigRepository {
     if (obj['avatar']) {
       config.avatar = this.parseLevelConfig(obj['avatar'] as Record<string, Object>);
     }
-    if (obj['skill']) {
-      config.skill = this.parseLevelConfig(obj['skill'] as Record<string, Object>);
+    if (obj['skills'] && Array.isArray(obj['skills'])) {
+      config.skills = obj['skills'].map((item: Object) => this.parseSkillLevelConfig(item as Record<string, Object>));
     }
     if (obj['lightCone']) {
       config.lightCone = this.parseLevelConfig(obj['lightCone'] as Record<string, Object>);
@@ -294,7 +294,7 @@ export class MaterialTargetConfigRepository {
   }
 
   /**
-   * 解析技能等级配置（绝区零专用）
+   * 解析技能等级配置（按技能区分，三个游戏通用）
    */
   private parseSkillLevelConfig(obj: Record<string, Object>): SkillLevelConfig {
     const config = new SkillLevelConfig();

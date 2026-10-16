@@ -9,6 +9,9 @@ import { HttpClient } from './HttpClient';
 import { Logger } from '../utils/Logger';
 import { StarRailComputeAvatar, StarRailComputeEquipment, StarRailComputeSkill } from '../models/StarRailRows';
 
+/** 养成计算链路统一日志 tag，过滤：hilog | grep 🚀🚀🚀 */
+const SR_CALC_TAG: string = '🚀🚀🚀 StarRailCalc';
+
 export class StarRailApiService extends MihoyoApiService {
 
   async get(path: string, params?: RequestParams, options?: RequestOptions): Promise<object> {
@@ -130,7 +133,34 @@ export class StarRailApiService extends MihoyoApiService {
     headers.set('Origin', 'https://webstatic.mihoyo.com');
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
+    Logger.info(SR_CALC_TAG, `[Compute] avatarId=${avatarId} URL: ${url}`);
+    StarRailApiService.logLong(`[Compute] avatarId=${avatarId} REQUEST body`, bodyStr);
+    const startTime = Date.now();
     const resp = await HttpClient.post(url, bodyStr, opts);
+    const r = resp as Record<string, Object>;
+    Logger.info(SR_CALC_TAG, `[Compute] avatarId=${avatarId} RESPONSE retcode=${r['retcode']}, message=${r['message']}, cost=${Date.now() - startTime}ms`);
+    // 各材料列表的条数，便于确认"已满级仍返回材料"时具体是哪一类
+    const data = r['data'] as Record<string, Object> | undefined;
+    if (data) {
+      const keys = ['avatar_consume', 'skill_consume', 'equipment_consume', 'need_get_materials', 'can_pay_materials', 'can_merge_materials'];
+      const counts: string[] = [];
+      for (let i = 0; i < keys.length; i++) {
+        const v = data[keys[i]];
+        counts[counts.length] = `${keys[i]}=${Array.isArray(v) ? (v as Object[]).length : '-'}`;
+      }
+      Logger.info(SR_CALC_TAG, `[Compute] avatarId=${avatarId} RESPONSE counts: ${counts.join(', ')}`);
+    }
+    StarRailApiService.logLong(`[Compute] avatarId=${avatarId} RESPONSE body`, JSON.stringify(resp));
     return resp;
+  }
+
+  /** hilog 单条约 4KB 会被截断，长文本分段打印（最多 40 段） */
+  private static logLong(label: string, text: string): void {
+    const chunk = 1000;
+    const total = Math.max(Math.ceil(text.length / chunk), 1);
+    const printCount = Math.min(total, 40);
+    for (let i = 0; i < printCount; i++) {
+      Logger.info(SR_CALC_TAG, `${label} [${i + 1}/${total}] (len=${text.length}): ${text.substring(i * chunk, (i + 1) * chunk)}`);
+    }
   }
 }
