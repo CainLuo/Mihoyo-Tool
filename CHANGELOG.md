@@ -1,5 +1,37 @@
 # Changelog
 
+## v2.0.0 (2026-10-17)
+
+### 新功能
+
+- **材料计算功能**
+  - 支持原神 / 星穹铁道 / 绝区零三款游戏的角色养成材料计算
+  - 原神支持批量请求（最多 8 个角色），星铁/绝区零支持单角色请求
+  - 材料汇总：统一列出所有缺失材料
+  - 缓存管理：逐次缓存每次请求的数据，避免重复请求
+  - 背包数据融合：星铁/绝区零直接从 API 读取背包数据，原神通过算法反推背包数量
+
+- **数据库升级**
+  - 新增 `genshin_calc_avatar` 表（原神计算器角色数据）
+  - 新增 `genshin_compute_summary` 表（批量计算汇总数据）
+  - 三张 Compute 表新增 `raw_json` 列（原始 API 响应）
+  - 新增三张 `material_bag` 表（玩家背包材料存储）
+  - 新增三张 `material_target_config` 表（材料目标配置）
+
+- **架构优化**
+  - 删除冗余组件 `HomeContent.ets`
+  - 重构 `CharacterCard.ets`，拆分为 6 个独立子组件
+  - 重构 `WidgetSection.ets`，删除 `@Builder` 内联方法
+  - 重构 chardetail 模块，删除 11 个 `@Builder` 内联方法，新增 10 个独立子组件
+  - 重构 widgetconfig 模块组件
+
+### 说明
+
+- 本 Release 附带未签名 App 包（zip 压缩），解压后通过 `hdc install` 侧载安装（需开启开发者模式）
+- 正式签名版本通过华为应用市场（AppGallery）分发
+
+---
+
 ## v1.1.1 (2026-07-08)
 
 ### 新功能
