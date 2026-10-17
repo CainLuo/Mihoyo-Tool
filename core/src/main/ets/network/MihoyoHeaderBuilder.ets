@@ -2,6 +2,7 @@ import { RequestParams } from './APIs';
 import { ApiConfig } from './ApiConfig';
 import { DSUtil } from './DSUtil';
 import { HKey, HVal } from './MihoyoHeaderKey';
+import { GameFpBiz } from './DeviceFpService';
 
 /** 请求头 Profile 枚举 */
 export enum HeaderProfile {
@@ -19,15 +20,90 @@ export enum HeaderProfile {
    * 游戏签到额外需要 x-rpc-signgame 头（由调用方在 build() 后手动 set）
    */
   SIGN = 'SIGN',
-  /**
-   * Widget 便笺接口（原神/星铁/绝区零）
-   * 使用 WidgetExtension User-Agent，client_type=1，Referer=app.mihoyo.com
-   * Cookie 格式：stuid=xxx;stoken=v2_xxx;mid=xxx（由调用方传入已构造好的 Widget Cookie）
-   */
-  WIDGET = 'WIDGET',
 }
 
+/** PizzaHelperUnited 国服 x-rpc-app_version 与 User-Agent */
+const PZ_APP_VERSION: string = '2.40.1';
+const PZ_USER_AGENT: string =
+  `Mozilla/5.0 (iPhone; CPU iPhone OS 17_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/${PZ_APP_VERSION}`;
+
 export class MihoyoHeaderBuilder {
+  /**
+   * 整套对齐 PizzaHelperUnited（generateRecordAPIRequest + URLRequestConfig.defaultHeaders）：
+   * 便笺 / Widget / 星铁角色接口使用。账号完整 Cookie、DS(X4)、该游戏单独申请的 device_fp、大写 device_id。
+   * @param biz        游戏（决定使用哪个游戏的指纹）
+   * @param userAgent  覆盖 User-Agent（星铁 / 绝区零 Widget 用 WidgetExtension），不传则用 PizzaHelperUnited 默认 UA
+   */
+  static buildPizza(cookie: string, biz: GameFpBiz, params?: RequestParams, userAgent?: string): Map<string, string> {
+    const h = new Map<string, string>();
+    h.set(HKey.USER_AGENT, userAgent !== undefined ? userAgent : PZ_USER_AGENT);
+    h.set(HKey.REFERER, HVal.WEBSTATIC);
+    h.set(HKey.ORIGIN, HVal.WEBSTATIC);
+    h.set(HKey.ACCEPT_LANGUAGE, 'zh-CN,zh-Hans;q=0.9');
+    h.set(HKey.ACCEPT, HVal.ACCEPT_JSON);
+    h.set(HKey.REQUESTED_WITH, HVal.REQUESTED_HYPERION);
+    h.set(HKey.APP_VERSION, PZ_APP_VERSION);
+    h.set(HKey.CLIENT_TYPE, HVal.CLIENT_WEB);
+    h.set(HKey.PAGE, '3.1.3_#/rpg');
+    h.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync().toUpperCase());
+    h.set(HKey.LANGUAGE, HVal.LANG_ZH_CN);
+    h.set('Sec-Fetch-Dest', 'empty');
+    h.set('Sec-Fetch-Site', 'same-site');
+    h.set('Sec-Fetch-Mode', 'cors');
+    h.set(HKey.DEVICE_FP, ApiConfig.getGameFp(biz));
+    h.set(HKey.COOKIE, MihoyoHeaderBuilder.pizzaCookie(cookie));
+    h.set(HKey.DS, DSUtil.generateX4(params));
+    return h;
+  }
+
+  /**
+   * PizzaHelperUnited 扫码登录后保存的 Cookie（GetCookieQRCodeView.parseGameToken）：
+   * stuid / stoken / ltuid / ltoken / mid / cookie_token / account_id，其中 ltoken 直接等于 stoken。
+   * 已有账号的 Cookie 可能带 DEVICEFP / _MHYUUID / *_v2 等字段、ltoken 为换来的真 ltoken，
+   * 这里在请求时统一按 PizzaHelperUnited 的格式重建（不改数据库里保存的 Cookie）。
+   */
+  static pizzaCookie(cookie: string): string {
+    const keep = ['stuid', 'stoken', 'ltuid', 'mid', 'cookie_token', 'account_id'];
+    const values = new Map<string, string>();
+    const parts = cookie.split(';');
+    for (let i = 0; i < parts.length; i++) {
+      const p = parts[i].trim();
+      const eq = p.indexOf('=');
+      if (eq > 0) {
+        const k = p.substring(0, eq);
+        if (keep.indexOf(k) !== -1 && !values.has(k)) {
+          values.set(k, p.substring(eq + 1));
+        }
+      }
+    }
+    if (values.size === 0) {
+      return cookie;
+    }
+    const stoken = values.get('stoken');
+    let result = '';
+    const order = ['stuid', 'stoken', 'ltuid', 'ltoken', 'mid', 'cookie_token', 'account_id'];
+    for (let i = 0; i < order.length; i++) {
+      const v = order[i] === 'ltoken' ? stoken : values.get(order[i]);
+      if (v !== undefined && v.length > 0) {
+        result += `${order[i]}=${v}; `;
+      }
+    }
+    return result;
+  }
+
+  /**
+   * 实时便笺接口：补齐真实抓包（mihoyo_apis.md 原神 / 星铁 / 绝区零实时便笺）中有、而通用 Profile 缺少的请求头：
+   * - x-rpc-device_name：URL 编码的设备名
+   * - Accept-Language：zh-CN,zh-Hans;q=0.9
+   * - User-Agent：版本号与 x-rpc-app_version 一致（原 USER_AGENT 为 2.104.0，而 app_version 为 2.115.0）
+   * 性能监控类请求头（x-rum-*、baggage、traceparent）不参与校验，不补。
+   */
+  static addNoteCaptureHeaders(headers: Map<string, string>): void {
+    headers.set(HKey.DEVICE_NAME, encodeURIComponent(ApiConfig.DEVICE_NAME));
+    headers.set(HKey.ACCEPT_LANGUAGE, 'zh-CN,zh-Hans;q=0.9');
+    headers.set(HKey.USER_AGENT, ApiConfig.USER_AGENT_MATCH_APP_VERSION);
+  }
+
   /**
    * 构建请求头 Map
    * @param profile  请求头 Profile
@@ -41,27 +117,6 @@ export class MihoyoHeaderBuilder {
     params?: RequestParams,
     body?: string,
   ): Map<string, string> {
-    // ── Widget Profile 特殊处理：独立构建，不走共有逻辑 ─────────────
-    if (profile === HeaderProfile.WIDGET) {
-      // Widget 便笺接口：严格按照真实抓包（mihoyo_apis.md）独立构建
-      // 真实 Widget 请求只有这些字段：DS、Accept、x-rpc-app_version、x-rpc-client_type、
-      // x-rpc-device_id、x-rpc-device_fp（空）、x-rpc-sys_version、Referer、User-Agent、Cookie
-      // 无 x-rpc-language、无 x-requested-with
-      const w = new Map<string, string>();
-      w.set(HKey.APP_VERSION, ApiConfig.APP_VERSION);
-      w.set(HKey.CLIENT_TYPE, HVal.CLIENT_IOS);
-      w.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
-      w.set(HKey.DEVICE_FP, '');
-      w.set(HKey.SYS_VERSION, HVal.SYS_VERSION_IOS);
-      w.set(HKey.REFERER, HVal.APP_MIHOYO);
-      w.set(HKey.ORIGIN, HVal.APP_MIHOYO);
-      w.set(HKey.USER_AGENT, ApiConfig.WIDGET_USER_AGENT);
-      w.set(HKey.ACCEPT, HVal.ACCEPT_JSON);
-      w.set(HKey.COOKIE, cookie);
-      w.set(HKey.DS, DSUtil.generateX4(params, body));
-      return w;
-    }
-
     // ── CALCULATE Profile 特殊处理：独立构建，不走共有逻辑 ───────────
     if (profile === HeaderProfile.CALCULATE) {
       // 养成计算接口（原神/星铁）

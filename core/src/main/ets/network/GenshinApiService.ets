@@ -5,6 +5,7 @@ import { GenshinApiPath } from './GenshinApiPath';
 import { MihoyoHeaderBuilder, HeaderProfile } from './MihoyoHeaderBuilder';
 import { ApiConfig } from './ApiConfig';
 import { HKey } from './MihoyoHeaderKey';
+import { GameFpBiz } from './DeviceFpService';
 import { HttpClient } from './HttpClient';
 import { Logger } from '../utils/Logger';
 
@@ -28,9 +29,8 @@ export class GenshinApiService extends MihoyoApiService {
     const params = new RequestParams();
     params.set('role_id', roleId);
     params.set('server', server);
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, params);
-    headers.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_GENSHIN);
-    headers.set(HKey.PAGE, ApiConfig.PAGE_GENSHIN_NOTE);
+    // 请求头整套对齐 PizzaHelperUnited fullNote4GI（原神指纹 hk4e_cn）
+    const headers = MihoyoHeaderBuilder.buildPizza(cookie, GameFpBiz.GENSHIN, params);
     // Geetest 验证通过后，注入 challenge + challenge_path + challenge_game
     // 参考 PizzaHelperUnited URLRequestConfig.writeXRPCChallengeHeaders4DailyNote
     if (geetestChallenge) {
@@ -38,13 +38,6 @@ export class GenshinApiService extends MihoyoApiService {
       headers.set(HKey.CHALLENGE_PATH, 'https://api-takumi-record.mihoyo.com' + GenshinApiPath.DAILY_NOTE);
       headers.set(HKey.CHALLENGE_GAME, '2');
     }
-    // ── [MIYOYO-NET] dailyNote 请求 header log ───────────────────────
-    Logger.info('GenshinApiService', `[MIYOYO-NET][HOS][DailyNote] URL: ${MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE}?role_id=${roleId}&server=${server}`);
-    headers.forEach((v: string, k: string) => {
-      const display = k.toLowerCase() === 'cookie' ? v.substring(0, 60) + '...' : v;
-      Logger.info('GenshinApiService', `[MIYOYO-NET][HOS][DailyNote] Header ${k}: ${display}`);
-    });
-    // ─────────────────────────────────────────────────────────────────
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     const result = await HttpClient.get(
@@ -52,9 +45,6 @@ export class GenshinApiService extends MihoyoApiService {
       params,
       opts,
     );
-    // ── [MIYOYO-NET] dailyNote response log ──────────────────────────
-    Logger.info('GenshinApiService', `[MIYOYO-NET][HOS][DailyNote] Response: ${JSON.stringify(result).substring(0, 300)}`);
-    // ─────────────────────────────────────────────────────────────────
     return result;
   }
 
@@ -64,14 +54,8 @@ export class GenshinApiService extends MihoyoApiService {
    * Cookie 传完整 cookie（含 ltuid/ltoken），不是精简的 stuid+stoken+mid
    */
   async getDailyNoteWidget(cookie: string): Promise<object> {
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie);
-    // ── [MIYOYO-NET] Widget 请求 header log ──────────────────────────
-    Logger.info('GenshinApiService', `[MIYOYO-NET][HOS][Widget] URL: ${MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE_WIDGET}`);
-    headers.forEach((v: string, k: string) => {
-      const display = k.toLowerCase() === 'cookie' ? v.substring(0, 60) + '...' : v;
-      Logger.info('GenshinApiService', `[MIYOYO-NET][HOS][Widget] Header ${k}: ${display}`);
-    });
-    // ─────────────────────────────────────────────────────────────────
+    // 请求头整套对齐 PizzaHelperUnited widgetNote4GI
+    const headers = MihoyoHeaderBuilder.buildPizza(cookie, GameFpBiz.GENSHIN);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     const result = await HttpClient.get(
@@ -79,29 +63,19 @@ export class GenshinApiService extends MihoyoApiService {
       undefined,
       opts,
     );
-    // ── [MIYOYO-NET] Widget response log ─────────────────────────────
-    Logger.info('GenshinApiService', `[MIYOYO-NET][HOS][Widget] Response: ${JSON.stringify(result).substring(0, 300)}`);
-    // ─────────────────────────────────────────────────────────────────
     return result;
   }
 
   /** 角色列表 — POST，Domain=TAKUMI_RECORD，Profile=GAME_RECORD */
   async getCharacterList(roleId: string, server: string, cookie: string): Promise<object> {
-    Logger.info('💥 GenshinApiService', `getCharacterList: roleId=${roleId}, server=${server}`);
     const bodyStr = JSON.stringify({ role_id: roleId, server: server });
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, undefined, bodyStr);
     headers.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_GENSHIN);
     headers.set(HKey.PAGE, ApiConfig.PAGE_GENSHIN_ROLES);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
-    Logger.info('💥 GenshinApiService', `getCharacterList: calling API`);
-    const result = await HttpClient.post(
-      MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.CHARACTER_LIST,
-      bodyStr,
-      opts,
-    );
-    Logger.info('💥 GenshinApiService', `getCharacterList: response=${JSON.stringify(result).substring(0, 500)}`);
-    return result;
+    const url = MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.CHARACTER_LIST;
+    return HttpClient.post(url, bodyStr, opts);
   }
 
   /**
@@ -128,11 +102,8 @@ export class GenshinApiService extends MihoyoApiService {
       : ApiConfig.PAGE_GENSHIN_ROLES);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
-    return HttpClient.post(
-      MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.CHARACTER_DETAIL,
-      bodyStr,
-      opts,
-    );
+    const url = MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.CHARACTER_DETAIL;
+    return HttpClient.post(url, bodyStr, opts);
   }
 
   /** 养成材料批量计算 — POST，Domain=TAKUMI，Profile=CALCULATE */
@@ -218,16 +189,19 @@ export class GenshinApiService extends MihoyoApiService {
     return result;
   }
 
-  /** 🚀 打印请求 URL / 全部 header（含完整 Cookie）/ 完整 body */
+  /** 打印请求 URL / 全部 header（Cookie 只打印字段名）/ 完整 body */
   private static logRequest(api: string, url: string, headers: Map<string, string>, bodyStr: string): void {
     Logger.info(CALC_TAG, `[${api}] URL: ${url}`);
     headers.forEach((v: string, k: string) => {
-      Logger.info(CALC_TAG, `[${api}] Header ${k}: ${v}`);
+      const display = k.toLowerCase() === 'cookie'
+        ? v.split(';').map((p: string) => p.split('=')[0].trim()).filter((n: string) => n.length > 0).join(',')
+        : v;
+      Logger.info(CALC_TAG, `[${api}] Header ${k}: ${display}`);
     });
     GenshinApiService.logLong(`[${api}] REQUEST body`, bodyStr);
   }
 
-  /** 🚀 打印 retcode / message / 耗时 / 响应（最多 maxChunks 段） */
+  /** 打印 retcode / message / 耗时 / 响应（最多 maxChunks 段） */
   private static logResponse(api: string, result: object, costMs: number, maxChunks: number): void {
     const r = result as Record<string, Object>;
     Logger.info(CALC_TAG, `[${api}] RESPONSE retcode=${r['retcode']}, message=${r['message']}, cost=${costMs}ms`);

@@ -72,18 +72,9 @@ export class StarRailComputeParser {
    */
   static parse(rawJson: string): StarRailComputeData {
     try {
-      // 打印完整 rawJson 用于调试（分 1000 字符一段，避免日志截断）
-      Logger.info('StarRailComputeParser', `💥💥💥 RAW_JSON_START length=${rawJson.length}`);
-      for (let i = 0; i < rawJson.length; i += 1000) {
-        const chunk = rawJson.substring(i, Math.min(i + 1000, rawJson.length));
-        Logger.info('StarRailComputeParser', `💥💥💥 RAW_JSON[${i}]: ${chunk}`);
-      }
-      Logger.info('StarRailComputeParser', `💥💥💥 RAW_JSON_END`);
-      
       const raw = JSON.parse(rawJson) as RawComputeData;
       return StarRailComputeParser.fromRaw(raw);
     } catch (_e) {
-      Logger.error('StarRailComputeParser', `💥💥💥 PARSE_ERROR: ${String(_e)}`);
       return new StarRailComputeData();
     }
   }

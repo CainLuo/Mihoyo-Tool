@@ -5,9 +5,12 @@ import { StarRailApiPath } from './StarRailApiPath';
 import { MihoyoHeaderBuilder, HeaderProfile } from './MihoyoHeaderBuilder';
 import { ApiConfig } from './ApiConfig';
 import { HKey, HVal } from './MihoyoHeaderKey';
+import { GameFpBiz } from './DeviceFpService';
 import { HttpClient } from './HttpClient';
 import { Logger } from '../utils/Logger';
 import { StarRailComputeAvatar, StarRailComputeEquipment, StarRailComputeSkill } from '../models/StarRailRows';
+
+const WIDGET_EXTENSION_UA: string = 'WidgetExtension/434 CFNetwork/1492.0.1 Darwin/23.3.0';
 
 /** 养成计算链路统一日志 tag，过滤：hilog | grep */
 const SR_CALC_TAG: string = 'StarRailCalc';
@@ -30,10 +33,8 @@ export class StarRailApiService extends MihoyoApiService {
     const params = new RequestParams();
     params.set('role_id', roleId);
     params.set('server', server);
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, params);
-    headers.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_STARRAIL);
-    headers.set(HKey.PLATFORM, HVal.PLATFORM_WEB);
-    headers.set(HKey.PAGE, ApiConfig.PAGE_STARRAIL_NOTE);
+    // 请求头整套对齐 PizzaHelperUnited fullNote4HSR（星铁指纹 hkrpg_cn）
+    const headers = MihoyoHeaderBuilder.buildPizza(cookie, GameFpBiz.STARRAIL, params);
     if (geetestChallenge) {
       headers.set(HKey.CHALLENGE, geetestChallenge);
       headers.set(HKey.CHALLENGE_PATH, 'https://api-takumi-record.mihoyo.com' + StarRailApiPath.DAILY_NOTE);
@@ -53,9 +54,8 @@ export class StarRailApiService extends MihoyoApiService {
    * 参考 PizzaHelperUnited widgetNote4HSR：覆盖 User-Agent 为 WidgetExtension/434，其余用 GAME_RECORD 默认 header
    */
   async getDailyNoteWidget(widgetCookie: string): Promise<object> {
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, widgetCookie);
-    // 覆盖 User-Agent 为 WidgetExtension（参考 PizzaHelperUnited widgetNote4HSR）
-    headers.set(HKey.USER_AGENT, 'WidgetExtension/434 CFNetwork/1492.0.1 Darwin/23.3.0');
+    // 请求头整套对齐 PizzaHelperUnited widgetNote4HSR（User-Agent 为 WidgetExtension）
+    const headers = MihoyoHeaderBuilder.buildPizza(widgetCookie, GameFpBiz.STARRAIL, undefined, WIDGET_EXTENSION_UA);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     return HttpClient.get(

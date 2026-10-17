@@ -23,7 +23,6 @@ import { GeetestSignal } from '../utils/GeetestSignal'
 import { showGeetestDialog } from '../components/GeetestDialogHelper'
 import { FailedAccountInfo, Logger } from 'core'
 import { DialogDedup } from '../utils/DialogDedup'
-import { AUTH_EXPIRE_TAG } from '../utils/AuthExpireLog'
 import BuildProfile from 'BuildProfile'
 
 @Builder
@@ -161,10 +160,8 @@ export struct Main {
     // 同一账号的登录过期弹框正在显示时，忽略重复触发
     const dedupKey = `cookie_expired:${info.username}`
     if (!DialogDedup.tryAcquire(dedupKey)) {
-      Logger.warn(AUTH_EXPIRE_TAG, `[Dialog] skip duplicate expired dialog, username=${info.username}`)
       return
     }
-    Logger.warn(AUTH_EXPIRE_TAG, `[Dialog] show expired dialog, username=${info.username}, nickname=${info.nickname}`)
     ctx.getPromptAction().showDialog({
       title: $r('app.string.cookie_expired_dialog_title'),
       message: $r('app.string.cookie_expired_dialog_msg', info.nickname),

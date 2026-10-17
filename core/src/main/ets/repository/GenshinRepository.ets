@@ -20,7 +20,7 @@ import {
   GenshinCharacterListData,
 } from '../models/GenshinRows';
 import { GenshinApiService } from '../network/GenshinApiService';
-import { SyncError, SyncErrorKind, SyncErrorFactory } from '../errors/ApiErrors';
+import { SyncError, SyncErrorKind, SyncErrorFactory, AuthExpiredError } from '../errors/ApiErrors';
 import { CookieRefreshCoordinator } from '../cookie/CookieRefreshCoordinator';
 import { Logger } from '../utils/Logger';
 import { ApiErrorHandler } from '../utils/ApiErrorHandler';
@@ -30,7 +30,7 @@ import { BBSRepository } from './BBSRepository';
 import { MaterialBagRepository } from './MaterialBagRepository';
 import { MaterialBagRow } from '../models/MaterialBagRow';
 import { GameId } from '../constants/GameId';
-import { AUTH_EXPIRE_TAG } from '../utils/CookieDebug';
+import { CookieDebug } from '../utils/CookieDebug';
 import {
   GENSHIN_TALENT_SLOT_COUNT,
   GenshinCalcTargets,
@@ -43,6 +43,11 @@ import {
 const CALC_EXCLUDED_AVATAR_IDS: number[] = [10000117, 10000118];
 const SYNC_AVATAR_PAGE_SIZE: number = 100;
 const SYNC_AVATAR_MAX_PAGES: number = 10;
+/** tryWidgetFallback 结果 */
+const WIDGET_FALLBACK_SUCCESS: string = 'success';
+const WIDGET_FALLBACK_REJECTED: string = 'rejected';
+const WIDGET_FALLBACK_UNAVAILABLE: string = 'unavailable';
+
 /** 养成计算链路统一日志 tag，过滤：hilog | grep */
 const CALC_TAG: string = 'GenshinCalc';
 
@@ -88,20 +93,14 @@ export class GenshinRepository extends GameRepository {
    * 拉取角色列表 → 解析 → 写 DB（entry 层只需调用此方法）
    */
   async syncAvatarList(accountId: string, roleUid: string, server: string, cookie: string): Promise<void> {
-    Logger.info('💥 GenshinRepository', `syncAvatarList: accountId=${accountId}, roleUid=${roleUid}, server=${server}`);
     await this.markSyncing(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_LIST);
     try {
-      Logger.info('💥 GenshinRepository', `syncAvatarList: calling getCharacterList API`);
       const resp = await (this.getService() as GenshinApiService).getCharacterList(roleUid, server, cookie);
       ApiErrorHandler.checkResponse(resp);
-      Logger.info('💥 GenshinRepository', `syncAvatarList: API response received, parsing`);
       const rows = GenshinRepository.parseCharacterList(accountId, roleUid, resp);
-      Logger.info('💥 GenshinRepository', `syncAvatarList: parsed ${rows.length} rows, writing to DB`);
       await this.upsertAvatarList(accountId, roleUid, rows);
-      Logger.info('💥 GenshinRepository', `syncAvatarList: completed successfully`);
     } catch (error) {
       const msg = this.toErrorMessage(error);
-      Logger.error('💥 GenshinRepository', `syncAvatarList: failed - ${msg}`);
       await this.markFailed(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_LIST, msg);
       // 直接抛出 SyncError（ApiErrorHandler.checkResponse 已经转换）
       throw error as Error;
@@ -160,9 +159,15 @@ export class GenshinRepository extends GameRepository {
           await this.doSyncDailyNote(accountId, roleUid, server, newCookie);
           return;
         } catch (refreshError) {
-          // 刷新失败或重试仍失败，向上抛出 SyncError
+          // 刷新失败或重试仍失败
           const msg = this.toErrorMessage(refreshError);
           await this.markFailed(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE, msg);
+          // 仍是登录过期：统一转成 AuthExpiredError（与星铁 / 绝区零一致），首页据此弹"登录已过期"，
+          // 避免消息里的 retcode=1034 被首页误判成人机验证
+          const retryError = refreshError as SyncError;
+          if (retryError.kind === SyncErrorKind.AUTH_EXPIRED || refreshError instanceof AuthExpiredError) {
+            throw new AuthExpiredError(msg);
+          }
           throw refreshError as Error;
         }
       }
@@ -184,10 +189,17 @@ export class GenshinRepository extends GameRepository {
     const message: string = `${respData['message'] ?? 'no data'}`;
 
     if (retcode !== ApiErrorCodes.SUCCESS) {
-      if (await this.tryWidgetFallback(accountId, roleUid, cookie, `retcode=${retcode}: ${message}`)) {
+      const fallback = await this.tryWidgetFallback(accountId, roleUid, cookie, `retcode=${retcode}: ${message}`);
+      if (fallback === WIDGET_FALLBACK_SUCCESS) {
         return;
       }
-      // Widget 也失败：按便笺接口原本的错误处理
+      if (fallback === WIDGET_FALLBACK_REJECTED) {
+        // Widget 也返回登录过期（-100 / 10001）：视为登录已过期。
+        // 上层 syncDailyNote 会先用 stoken 自动刷新 Cookie 重试一次，仍失败则由首页弹"登录已过期"
+        const reason4Expire = `retcode=${retcode}: ${message}; widget auth expired`;
+        throw SyncErrorFactory.authExpired(`note ${reason4Expire}`);
+      }
+      // Widget 不可用 / 返回其他错误：按便笺接口原本的错误处理（1034 仍会触发人机验证）
       if (ApiErrorHandler.isAuthExpired(retcode)) {
         throw SyncErrorFactory.authExpired(`retcode=${retcode}: ${message}`);
       }
@@ -203,24 +215,31 @@ export class GenshinRepository extends GameRepository {
 
   /**
    * 降级到 Widget 接口同步便笺。
-   * @returns true 表示 Widget 同步成功；false 表示没有 v2 stoken 或 Widget 也失败（由调用方抛出原错误）
+   * @returns WIDGET_FALLBACK_SUCCESS：Widget 同步成功；
+   *          WIDGET_FALLBACK_REJECTED：Widget 返回 -100 / 10001（调用方视为登录已过期）；
+   *          WIDGET_FALLBACK_UNAVAILABLE：没有 v2 stoken、网络异常或 Widget 返回其他错误（调用方按便笺原错误处理）
    */
-  private async tryWidgetFallback(accountId: string, roleUid: string, cookie: string, reason: string): Promise<boolean> {
-    const widgetCookie = BBSRepository.buildWidgetCookie(cookie);
-    Logger.warn(AUTH_EXPIRE_TAG, `[Fallback] genshin note failed (${reason}), fallback to widget, widgetCookie=${widgetCookie.length > 0 ? 'OK' : 'NONE (no v2 stoken)'}`);
+  private async tryWidgetFallback(accountId: string, roleUid: string, cookie: string, reason: string): Promise<string> {
+    // 与 PizzaHelperUnited 一致：Cookie 含 v2 stoken 才能降级，Widget 请求使用账号完整 Cookie
+    const widgetCookie = cookie.indexOf('stoken=v2_') !== -1 ? cookie : '';
     if (widgetCookie.length === 0) {
-      return false;
+      return WIDGET_FALLBACK_UNAVAILABLE;
     }
     try {
       await this.doSyncDailyNoteWidget(accountId, roleUid, widgetCookie);
       await this.markSuccess(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE);
-      Logger.warn(AUTH_EXPIRE_TAG, `[Fallback] genshin widget OK`);
-      return true;
+      return WIDGET_FALLBACK_SUCCESS;
     } catch (widgetError) {
-      Logger.error(AUTH_EXPIRE_TAG, `[Fallback] genshin widget FAILED: ${widgetError instanceof Error ? widgetError.message : String(widgetError)}`);
-      return false;
+      const msg = widgetError instanceof Error ? widgetError.message : String(widgetError);
+      // doSyncDailyNoteWidget 在接口返回 retcode ≠ 0 时抛出 "Widget API failed: retcode=..."
+      // 只有 Widget 自己返回登录过期（-100 / 10001）才视为过期；其他错误（如 -10001）按便笺接口原错误处理
+      const m = msg.match(/retcode=(-?\d+)/);
+      const rejected = m !== null && CookieDebug.isAuthExpiredCode(Number(m[1]));
+      Logger.error('GenshinRepository', `[Fallback] genshin widget FAILED (${rejected ? 'rejected' : 'unavailable'}): ${msg}`);
+      return rejected ? WIDGET_FALLBACK_REJECTED : WIDGET_FALLBACK_UNAVAILABLE;
     }
   }
+
 
 
   /**
@@ -924,21 +943,10 @@ export class GenshinRepository extends GameRepository {
   static parseCharacterList(accountId: string, roleUid: string, resp: object): GenshinCharacterListRow[] {
     const result: GenshinCharacterListRow[] = [];
     try {
-      Logger.info('💥 GenshinRepository', `parseCharacterList: accountId=${accountId}, roleUid=${roleUid}`);
       const respRecord = resp as Record<string, object>;
-      Logger.info('💥 GenshinRepository', `parseCharacterList: respRecord keys=${Object.keys(respRecord).join(',')}`);
-      // 🔍 诊断：记录 retcode 和 message
-      const retcode = respRecord['retcode'];
-      const message = respRecord['message'];
-      Logger.info('💥 GenshinRepository', `parseCharacterList: retcode=${retcode}, message=${message}`);
       const dataObj = respRecord['data'] !== undefined ? respRecord['data'] : resp;
-      Logger.info('💥 GenshinRepository', `parseCharacterList: dataObj type=${typeof dataObj}, is null=${dataObj === null}`);
-      if (dataObj && typeof dataObj === 'object') {
-        Logger.info('💥 GenshinRepository', `parseCharacterList: dataObj keys=${Object.keys(dataObj as Record<string, object>).join(',')}`);
-      }
       const data = dataObj as GenshinCharacterListData;
       const list = data.list;
-      Logger.info('💥 GenshinRepository', `parseCharacterList: list=${list ? list.length : 'null'}`);
       if (!list || list.length === 0) { return result; }
       for (let i = 0; i < list.length; i++) {
         const item = list[i];

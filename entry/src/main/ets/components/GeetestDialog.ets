@@ -112,8 +112,17 @@ export struct GeetestDialog {
             }
           })
           .onErrorReceive((event) => {
-            Logger.error('GeetestDialog', 'Web error: ' + event?.error?.getErrorInfo());
+            Logger.error('GeetestDialog', `[Geetest] Web error: code=${event?.error?.getErrorCode()} ${event?.error?.getErrorInfo()}, url=${event?.request?.getRequestUrl()}, mainFrame=${event?.request?.isMainFrame()}`);
             this.onResult(null);
+          })
+          .onHttpErrorReceive((event) => {
+            Logger.error('GeetestDialog', `[Geetest] Web http error: status=${event?.response?.getResponseCode()}, url=${event?.request?.getRequestUrl()}`);
+          })
+          .onConsole((event) => {
+            if (event?.message.getMessageLevel() === MessageLevel.Error) {
+              Logger.error('GeetestDialog', `[Geetest] JS error: ${event.message.getMessage()} @${event.message.getSourceId()}:${event.message.getLineNumber()}`);
+            }
+            return false;
           })
       }
       .width(this.tm.current.full)

@@ -295,7 +295,7 @@ export class HomeViewModel {
       this.viewState = loaded.length > 0 ? ViewState.DATA : ViewState.EMPTY;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error(TAG, `onGeetestResult retry failed: ${msg}`);
+      Logger.error('HomeViewModel', `[Geetest] verify / retry failed ${trigger.gameId}/${trigger.roleId}: ${msg}`);
       this.networkErrorMsg = msg;
     }
   }
@@ -493,7 +493,7 @@ export class HomeViewModel {
       );
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error(TAG, `createVerification failed: ${msg}`);
+      Logger.error('HomeViewModel', `[Geetest] createVerification failed ${role.gameId}/${role.roleId}: ${msg}`);
       if (!this.isAutoSync) {
         this.networkErrorMsg = msg;
       }

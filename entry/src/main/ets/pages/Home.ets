@@ -99,7 +99,7 @@ export struct Home {
     showGeetestDialog(ctx, trigger.createResult).then((result) => {
       this.vm.onGeetestResult(result)
     }).catch((e: BusinessError) => {
-      Logger.error('Home', 'showGeetestDialog failed: ' + e.message)
+      Logger.error('Home', `[Geetest] showGeetestDialog failed: code=${e.code} ${e.message}`)
       this.vm.onGeetestResult(null)
     })
   }

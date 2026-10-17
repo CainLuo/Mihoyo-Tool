@@ -18,7 +18,6 @@ import { LoginTab, PhoneStep, QRCodeStat } from 'entry/ets/constants/LoginTabEnu
 import { MyAccountVM, MyGameRoleVM, GameStatItem } from 'entry/ets/models/MyModels';
 import { serverDisplayName } from 'entry/ets/utils/ServerNameUtil';
 import { CookieExpiredSignal } from 'entry/ets/utils/CookieExpiredSignal';
-import { AUTH_EXPIRE_TAG, summarizeCookie } from 'entry/ets/utils/AuthExpireLog';
 import { gameIdToName, gameIdToColor } from 'entry/ets/utils/GameIdUtil';
 
 export { LoginTab, PhoneStep, QRCodeStat };
@@ -123,44 +122,15 @@ export class LoginViewModel {
       const aid = loginResult.aid;
       const mid = loginResult.mid;
 
-      // 判断 stoken 是否为 v2 格式
-      const isStokenV2 = stoken.length > 0 && stoken.startsWith('v2_');
-      Logger.info(TAG, `loginByPhone: stoken format ${isStokenV2 ? 'v2' : 'v1'}`);
-
-      // ltoken 和 cookie_token 通过 stoken 换取
-      // V1 stoken 用 V1 API，V2 stoken 用 V2 API
-      let ltoken = '';
-      let cookieToken = '';
-      let cookieTokenV2 = '';
-      if (isStokenV2) {
-        // V2 stoken: 尝试 V2 exchange API
-        try {
-          cookieTokenV2 = await AuthRepository.getCookieBySTokenV2(stoken, mid);
-          Logger.info(TAG, `loginByPhone: got cookie_token_v2 via V2 API`);
-          // V2 stoken 的 ltoken 可能需要单独获取，暂时用空字符串
-          // 因为 genshin.py 显示 V2 exchange 主要用于 cookie_token_v2
-        } catch (error) {
-          const msg = error instanceof Error ? error.message : `${error}`;
-          Logger.warn(TAG, `V2 token exchange failed, falling back to V1: ${msg}`);
-          // Fallback to V1 API
-          ltoken = await AuthRepository.getLTokenBySToken(stoken, mid);
-          cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
-        }
-      } else {
-        // V1 stoken: 使用 V1 API
-        ltoken = await AuthRepository.getLTokenBySToken(stoken, mid);
-        cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
-      }
-
+      // ltoken 和 cookie_token 通过 stoken 换取（V1 接口）。
+      // 原先 v2 stoken 会先调用 V2 接口 getCookieBySToken，国服返回 404 后才退回 V1，现已去掉 V2 调用。
       const fields = new LoginCookieFields();
       fields.accountId = aid;
-      fields.cookieToken = cookieToken;
-      fields.ltoken = ltoken;
+      fields.ltoken = await AuthRepository.getLTokenBySToken(stoken, mid);
+      fields.cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
       fields.ltuid = aid;
       fields.stoken = stoken;
       fields.mid = mid;
-      // V2 token 字段
-      fields.cookieTokenV2 = cookieTokenV2;
       // v2 Cookie 字段（设备指纹）
       fields.deviceFp = ApiConfig.getDeviceFp();
       fields.mhyUuid = ApiConfig.getDeviceIdSync();
@@ -257,42 +227,19 @@ export class LoginViewModel {
     try {
       // 新版 passport API 直接返回 stoken、ltoken、mid，无需 getTokenByGameToken 转换
       const stoken = confirmed.stoken;
-      const ltoken = confirmed.ltoken;
       const mid = confirmed.mid.length > 0 ? confirmed.mid : confirmed.uid;
 
-      // 判断 stoken 是否为 v2 格式
-      const isStokenV2 = stoken.length > 0 && stoken.startsWith('v2_');
-      Logger.info(TAG, `handleQRCodeConfirmed: stoken format ${isStokenV2 ? 'v2' : 'v1'}`);
-
-      // cookie_token 通过 stoken 换取
-      // V1 stoken 用 V1 API，V2 stoken 用 V2 API
-      let cookieToken = '';
-      let cookieTokenV2 = '';
-      if (isStokenV2) {
-        // V2 stoken: 尝试 V2 exchange API
-        try {
-          cookieTokenV2 = await AuthRepository.getCookieBySTokenV2(stoken, mid);
-          Logger.info(TAG, `handleQRCodeConfirmed: got cookie_token_v2 via V2 API`);
-        } catch (error) {
-          const msg = error instanceof Error ? error.message : `${error}`;
-          Logger.warn(TAG, `V2 token exchange failed, falling back to V1: ${msg}`);
-          // Fallback to V1 API
-          cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
-        }
-      } else {
-        // V1 stoken: 使用 V1 API
-        cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
-      }
+      // cookie_token 通过 stoken 换取（passport getCookieAccountInfoBySToken）。
+      // 原先会先调用 V2 接口 /account/auth/api/getCookieBySToken，国服返回 404 后才退回此接口，现已去掉 V2 调用。
+      const cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
 
       const fields = new LoginCookieFields();
       fields.accountId = confirmed.uid;
       fields.cookieToken = cookieToken;
-      fields.ltoken = ltoken;
+      fields.ltoken = confirmed.ltoken;
       fields.ltuid = confirmed.uid;
       fields.stoken = stoken;
       fields.mid = mid;
-      // V2 token 字段
-      fields.cookieTokenV2 = cookieTokenV2;
       // v2 Cookie 字段（设备指纹）
       fields.deviceFp = ApiConfig.getDeviceFp();
       fields.mhyUuid = ApiConfig.getDeviceIdSync();
@@ -370,16 +317,6 @@ export class LoginViewModel {
     this.loginedAccountId = loginResult.accountId;
     // 重新登录成功：移除该账号的过期标记（账号详情页的"重新登录 / 刷新 Cookie"随之隐藏）
     CookieExpiredSignal.instance().clearExpired(loginResult.username);
-    // 排查：登录时传入的 username 与 DB 中实际保存的账号是否一致、DB 是否出现重复账号
-    try {
-      const all = await CoreInitializer.bbsRepository.getAllAccounts();
-      Logger.warn(AUTH_EXPIRE_TAG, `[Login] success, input username=${username}, saved username=${loginResult.username}, ` +
-        `accountId=${loginResult.accountId}, uid=${loginResult.uid}, ${summarizeCookie(cookie)}`);
-      for (let i = 0; i < all.length; i++) {
-        Logger.warn(AUTH_EXPIRE_TAG, `[Login] DB account[${i}] username=${all[i].username}, uid=${all[i].uid}, ` +
-          `updateTime=${all[i].updateTime}, ${summarizeCookie(all[i].cookie)}`);
-      }
-    } catch (_) {}
     this.loginSuccess = true;
   }
 

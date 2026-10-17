@@ -4,14 +4,13 @@ import { MihoyoDomain } from './MihoyoDomain';
 import { ZZZApiPath } from './ZZZApiPath';
 import { MihoyoHeaderBuilder, HeaderProfile } from './MihoyoHeaderBuilder';
 import { ApiConfig } from './ApiConfig';
-import { HKey } from './MihoyoHeaderKey';
+import { HKey, HVal } from './MihoyoHeaderKey';
+import { GameFpBiz } from './DeviceFpService';
 import { HttpClient } from './HttpClient';
 import { Logger } from '../utils/Logger';
 
 /** 养成计算链路统一日志 tag，过滤：hilog | grep */
 const ZZZ_CALC_TAG: string = 'ZZZCalc';
-/** 绝区零代理人列表接口日志，过滤：hilog | grep 🚀🚀🚀 */
-const ZZZ_LIST_TAG: string = '🚀🚀🚀 ZZZAvatarBasic';
 
 export class ZZZApiService extends MihoyoApiService {
 
@@ -30,6 +29,11 @@ export class ZZZApiService extends MihoyoApiService {
     params.set('server', server);
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.ZZZ_GAME_RECORD, cookie, params);
     headers.set(HKey.PAGE, ApiConfig.PAGE_ZZZ_NOTE);
+    // 补齐真实抓包（mihoyo_apis.md 绝区零实时便签）中的请求头
+    MihoyoHeaderBuilder.addNoteCaptureHeaders(headers);
+    headers.set(HKey.LANG, HVal.LANG_ZH_CN);
+    headers.set(HKey.LRSAG, '');
+    headers.set(HKey.GEETEST_EXT, ZZZApiService.buildNoteGeetestExt(cookie, server));
     if (geetestChallenge) {
       headers.set(HKey.CHALLENGE, geetestChallenge);
       headers.set(HKey.CHALLENGE_PATH, 'https://api-takumi-record.mihoyo.com' + ZZZApiPath.DAILY_NOTE);
@@ -45,13 +49,28 @@ export class ZZZApiService extends MihoyoApiService {
   }
 
   /**
+   * x-rpc-geetest_ext，格式与真实抓包一致：
+   * {"viewUid":"<米游社 UID>","server":"<server>","gameId":8,"page":"<x-rpc-page>","isHost":1,"viewSource":3,"actionSource":127}
+   */
+  private static buildNoteGeetestExt(cookie: string, server: string): string {
+    let viewUid = '';
+    const keys: string[] = ['ltuid', 'account_id', 'stuid', 'ltuid_v2', 'account_id_v2'];
+    for (let i = 0; i < keys.length && viewUid.length === 0; i++) {
+      const m = cookie.match(new RegExp(`(?:^|;\\s*)${keys[i]}=([^;]+)`));
+      if (m !== null) {
+        viewUid = m[1].trim();
+      }
+    }
+    return `{"viewUid":"${viewUid}","server":"${server}","gameId":8,"page":"${ApiConfig.PAGE_ZZZ_NOTE}","isHost":1,"viewSource":3,"actionSource":127}`;
+  }
+
+  /**
    * Widget 实时便笺 — GET，Domain=TAKUMI_RECORD
    * 参考 PizzaHelperUnited widgetNote4ZZZ：覆盖 User-Agent 为 WidgetExtension/434，其余用 ZZZ_GAME_RECORD 默认 header
    */
   async getDailyNoteWidget(widgetCookie: string): Promise<object> {
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.ZZZ_GAME_RECORD, widgetCookie);
-    // 覆盖 User-Agent 为 WidgetExtension（参考 PizzaHelperUnited widgetNote4ZZZ）
-    headers.set(HKey.USER_AGENT, 'WidgetExtension/434 CFNetwork/1492.0.1 Darwin/23.3.0');
+    // 请求头整套对齐 PizzaHelperUnited widgetNote4ZZZ（绝区零指纹 nap_cn，User-Agent 为 WidgetExtension）
+    const headers = MihoyoHeaderBuilder.buildPizza(widgetCookie, GameFpBiz.ZZZ, undefined, 'WidgetExtension/434 CFNetwork/1492.0.1 Darwin/23.3.0');
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     return HttpClient.get(
@@ -71,17 +90,7 @@ export class ZZZApiService extends MihoyoApiService {
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     const url = MihoyoDomain.TAKUMI_RECORD + ZZZApiPath.AVATAR_BASIC;
-    Logger.info(ZZZ_LIST_TAG, `[AvatarBasic] REQUEST ${url}?role_id=${roleId}&server=${server}`);
-    const startTime = Date.now();
-    const resp = await HttpClient.get(url, params, opts);
-    const r = resp as Record<string, Object>;
-    const data = r['data'] as Record<string, Object> | undefined;
-    const list = data !== undefined ? data['avatar_list'] as Object[] | undefined : undefined;
-    Logger.info(ZZZ_LIST_TAG, `[AvatarBasic] RESPONSE retcode=${r['retcode']}, message=${r['message']}, ` +
-      `cost=${Date.now() - startTime}ms, data keys=${data !== undefined ? Object.keys(data).join(',') : '-'}, ` +
-      `avatar_list=${Array.isArray(list) ? list.length : '-'}`);
-    ZZZApiService.logLongWithTag(ZZZ_LIST_TAG, '[AvatarBasic] RESPONSE body', JSON.stringify(resp), 100);
-    return resp;
+    return HttpClient.get(url, params, opts);
   }
 
   /**

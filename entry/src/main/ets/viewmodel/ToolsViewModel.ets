@@ -96,8 +96,6 @@ export class ToolsViewModel {
       const account = accounts[i];
       if (firstAccountUid === '') {
         firstAccountUid = account.uid;
-        // 💥💥💥 调试日志：打印第一个账号的完整 Cookie
-        Logger.info(TAG, `💥💥💥 firstAccountUid=${account.uid}, cookie=${account.cookie}`);
       }
       const roles = await CoreInitializer.bbsRepository.getGameRoles(account.uid);
 

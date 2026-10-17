@@ -35,6 +35,7 @@ import {
   QRCodeQueryResponse,
   QRCodeConfirmedData,
 } from '../models/QRCodeLoginModels';
+import { Logger } from '../utils/Logger';
 import {
   GetLTokenBySTokenResponse,
   GetCookieBySTokenResponse,
@@ -42,6 +43,7 @@ import {
   GetCookieBySTokenV2Response,
   GetCookieAccountInfoBySTokenV2Response,
 } from '../models/TokenModels';
+
 
 export {
   LoginMobileResult,
@@ -226,79 +228,8 @@ export class AuthRepository {
     }
   }
 
-  // ── V2 Token Exchange（v2_ 格式 stoken 专用）────────────────────
-
-  /**
-   * 用 v2_ 格式的 stoken 换取 cookie_token_v2
-   * 接口：GET /account/auth/api/getCookieBySToken
-   * 参考：genshin.py COOKIE_V2_REFRESH_URL
-   *
-   * @param stoken v2_ 格式的 stoken
-   * @param mid 设备 mid
-   * @returns cookie_token_v2 字符串
-   */
-  static async getCookieBySTokenV2(stoken: string, mid: string): Promise<string> {
-    try {
-      const params = new RequestParams();
-      // V2 API 需要 aid 参数
-      // stoken 格式：v2_{aid}#{random}，从中提取 aid
-      const aidMatch = stoken.match(/^v2_([^#]+)/);
-      if (aidMatch !== null) {
-        params.set('aid', aidMatch[1]);
-      }
-      const opts = new RequestOptions();
-      opts.extraHeaders.set(HKey.COOKIE, `stoken=${stoken};mid=${mid}`);
-      opts.extraHeaders.set(HKey.CLIENT_TYPE, HVal.CLIENT_WEB);
-      opts.extraHeaders.set(HKey.REFERER, HVal.WEBSTATIC);
-      const resp = await NetworkFactory.getInstance().get(
-        MihoyoDomain.PASSPORT + PassportApiPath.GET_COOKIE_BY_STOKEN_V2,
-        params,
-        opts
-      ) as GetCookieBySTokenV2Response;
-      if (resp.retcode !== 0) {
-        throw new Error(`getCookieBySTokenV2 failed: [${resp.retcode}] ${resp.message}`);
-      }
-      Logger.info('AuthRepository', `getCookieBySTokenV2 success: cookie_token_v2 length=${resp.data.cookie_token_v2.length}`);
-      return resp.data.cookie_token_v2;
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error('AuthRepository', `getCookieBySTokenV2 failed: ${msg}`);
-      throw new Error(`AuthRepository.getCookieBySTokenV2 failed: ${msg}`);
-    }
-  }
-
-  /**
-   * 用 v2_ 格式的 stoken 换取账号信息（含 cookie_token_v2）
-   * 接口：GET /account/auth/api/getCookieAccountInfoBySToken
-   * 参考：genshin.py CN_GET_COOKIE_TOKEN_BY_STOKEN_URL
-   *
-   * @param stoken v2_ 格式的 stoken
-   * @param mid 设备 mid
-   * @returns cookie_token_v2 字符串
-   */
-  static async getCookieAccountInfoBySTokenV2(stoken: string, mid: string): Promise<string> {
-    try {
-      const params = new RequestParams();
-      const opts = new RequestOptions();
-      opts.extraHeaders.set(HKey.COOKIE, `stoken=${stoken};mid=${mid}`);
-      opts.extraHeaders.set(HKey.CLIENT_TYPE, HVal.CLIENT_WEB);
-      opts.extraHeaders.set(HKey.REFERER, HVal.WEBSTATIC);
-      const resp = await NetworkFactory.getInstance().get(
-        MihoyoDomain.PASSPORT + PassportApiPath.GET_COOKIE_ACCOUNT_INFO_BY_STOKEN_V2,
-        params,
-        opts
-      ) as GetCookieAccountInfoBySTokenV2Response;
-      if (resp.retcode !== 0) {
-        throw new Error(`getCookieAccountInfoBySTokenV2 failed: [${resp.retcode}] ${resp.message}`);
-      }
-      Logger.info('AuthRepository', `getCookieAccountInfoBySTokenV2 success: aid=${resp.data.aid}, cookie_token_v2 length=${resp.data.cookie_token_v2.length}`);
-      return resp.data.cookie_token_v2;
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error('AuthRepository', `getCookieAccountInfoBySTokenV2 failed: ${msg}`);
-      throw new Error(`AuthRepository.getCookieAccountInfoBySTokenV2 failed: ${msg}`);
-    }
-  }
+  // 原先的 getCookieBySTokenV2（/account/auth/api/getCookieBySToken）在国服 passport 返回 HTTP 404，
+  // 两个参考项目都没有使用，已删除；getCookieAccountInfoBySTokenV2 与 V1 路径完全相同，一并删除。
 
   // ── 二维码登录 ────────────────────────────────────────────────
 
@@ -407,24 +338,8 @@ export class AuthRepository {
   // ── 工具方法 ─────────────────────────────────────────────────
 
   static buildCookieString(fields: LoginCookieFields): string {
-    // 调试日志：打印所有输入字段
-    Logger.info('AuthRepository', `buildCookieString input fields:`);
-    Logger.info('AuthRepository', `  accountId=${fields.accountId}`);
-    Logger.info('AuthRepository', `  cookieToken=${fields.cookieToken}`);
-    Logger.info('AuthRepository', `  ltoken=${fields.ltoken}`);
-    Logger.info('AuthRepository', `  ltuid=${fields.ltuid}`);
-    Logger.info('AuthRepository', `  stoken=${fields.stoken}`);
-    Logger.info('AuthRepository', `  mid=${fields.mid}`);
-    Logger.info('AuthRepository', `  deviceFp=${fields.deviceFp}`);
-    Logger.info('AuthRepository', `  mhyUuid=${fields.mhyUuid}`);
-    Logger.info('AuthRepository', `  deviceFpSeedId=${fields.deviceFpSeedId}`);
-    Logger.info('AuthRepository', `  deviceFpSeedTime=${fields.deviceFpSeedTime}`);
-    Logger.info('AuthRepository', `  ltokenV2=${fields.ltokenV2}`);
-    Logger.info('AuthRepository', `  cookieTokenV2=${fields.cookieTokenV2}`);
-
     // 判断 stoken 是否为 v2 格式（以 "v2_" 开头）
     const isStokenV2 = fields.stoken.length > 0 && fields.stoken.startsWith('v2_');
-    Logger.info('AuthRepository', `  isStokenV2=${isStokenV2}`);
 
     // 基础 Cookie 字段
     let cookie = `${COOKIE_FIELD_ACCOUNT_ID}=${fields.accountId}; ${COOKIE_FIELD_COOKIE_TOKEN}=${fields.cookieToken}; ${COOKIE_FIELD_LTOKEN}=${fields.ltoken}; ${COOKIE_FIELD_LTUID}=${fields.ltuid}`;

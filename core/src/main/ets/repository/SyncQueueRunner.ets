@@ -71,11 +71,9 @@ export class SyncQueueRunner {
     roles: GameRoleRow[],
     cookie: string
   ): SyncTask[] {
-    Logger.info('💥 SyncQueueRunner', `buildTasksForRoles: accountId=${accountId}, roles.length=${roles.length}`);
     const tasks: SyncTask[] = [];
     for (let i = 0; i < roles.length; i++) {
       const role = roles[i];
-      Logger.info('💥 SyncQueueRunner', `buildTasksForRoles: role[${i}].gameId=${role.gameId}, roleId=${role.roleId}`);
       const base = new SyncTask();
       base.accountId = accountId;
       base.roleUid = role.roleId;
@@ -95,7 +93,6 @@ export class SyncQueueRunner {
         tasks[tasks.length] = t1;
         tasks[tasks.length] = t2;
         tasks[tasks.length] = t3;
-        Logger.info('💥 SyncQueueRunner', `buildTasksForRoles: added GENSHIN tasks for roleId=${role.roleId}`);
       } else if (role.gameId === GameId.STARRAIL) {
         const t1 = new SyncTask();
         t1.accountId = accountId; t1.roleUid = role.roleId; t1.server = role.server; t1.cookie = cookie;
@@ -128,7 +125,6 @@ export class SyncQueueRunner {
         tasks[tasks.length] = t4;
       }
     }
-    Logger.info('💥 SyncQueueRunner', `buildTasksForRoles: total tasks=${tasks.length}`);
     return tasks;
   }
 
@@ -208,12 +204,9 @@ export class SyncQueueRunner {
     const cookie = task.cookie;
     const dataType = task.dataType;
     
-    Logger.info('💥 SyncQueueRunner', `executeTask: dataType=${dataType}, accountId=${accountId}, roleUid=${roleUid}`);
     
     if (dataType === SyncDataType.GENSHIN_CHARACTER_LIST) {
-      Logger.info('💥 SyncQueueRunner', `executeTask: calling genshinRepository.syncAvatarList`);
       await CoreInitializer.genshinRepository.syncAvatarList(accountId, roleUid, server, cookie);
-      Logger.info('💥 SyncQueueRunner', `executeTask: syncAvatarList completed`);
     } else if (dataType === SyncDataType.GENSHIN_CHARACTER_DETAIL) {
       await CoreInitializer.genshinRepository.syncAvatarDetail(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.GENSHIN_DAILY_NOTE) {

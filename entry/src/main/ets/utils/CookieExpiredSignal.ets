@@ -12,7 +12,6 @@
 import { AppStorageV2 } from '@kit.ArkUI'
 import { FailedAccountInfo } from 'core'
 import { Logger } from 'core'
-import { AUTH_EXPIRE_TAG } from './AuthExpireLog'
 import { SignalMonitorKey } from '../constants/SignalMonitorKey'
 
 @ObservedV2
@@ -25,8 +24,6 @@ export class CookieExpiredSignal {
    * @param source 触发来源（用于日志排查，例如 'Home.syncDailyNote genshin/123'）
    */
   push(info: FailedAccountInfo, source: string = ''): void {
-    Logger.warn(AUTH_EXPIRE_TAG, `[Signal] push username=${info.username}, nickname=${info.nickname}, ` +
-      `isNetworkError=${info.isNetworkError}, source=${source}, alreadyExpired=${this.expiredUsernames.includes(info.username)}`)
     this.markExpired(info.username)
     // 同一个账号已在队列中则跳过，避免多个游戏角色同时失效时重复弹 Dialog
     for (let i = 0; i < this.queue.length; i++) {
@@ -52,7 +49,6 @@ export class CookieExpiredSignal {
 
   /** 刷新 Cookie / 重新登录成功后移除过期标记（同时移除尚未弹出的过期弹框） */
   clearExpired(username: string): void {
-    Logger.warn(AUTH_EXPIRE_TAG, `[Signal] clearExpired username=${username}, before=${this.expiredUsernames.join(',')}`)
     this.expiredUsernames = this.expiredUsernames.filter((u: string) => u !== username)
     if (this.queue.some((q: FailedAccountInfo) => q.username === username)) {
       this.queue = this.queue.filter((q: FailedAccountInfo) => q.username !== username)

@@ -170,15 +170,11 @@ export class StarRailCharacterDetailViewModel {
 
       // 只在 1510 时输出技能和天赋信息
       if (this.entityId === '1510') {
-        Logger.info(TAG, `💥💥💥 技能信息 (point_type=2):`);
         for (let i = 0; i < main.length; i++) {
           const s = main[i];
-          Logger.info(TAG, `💥💥💥   [${i}] ${s.name} Lv.${s.level} icon=${s.iconUrl}`);
         }
-        Logger.info(TAG, `💥💥💥 天赋信息 (point_type=3):`);
         for (let i = 0; i < extra.length; i++) {
           const s = extra[i];
-          Logger.info(TAG, `💥💥💥   [${i}] ${s.name} Lv.${s.level} isActivated=${s.isActivated}`);
         }
       }
 

@@ -26,9 +26,14 @@ import { MaterialBagRow } from '../models/MaterialBagRow';
 import { ZZZComputeParser, ZZZMaterialItem } from '../parsers/zzz/ZZZComputeParser';
 import { GameId } from '../constants/GameId';
 import { Logger } from '../utils/Logger';
-import { AUTH_EXPIRE_TAG } from '../utils/CookieDebug';
+import { CookieDebug } from '../utils/CookieDebug';
 import { ApiErrorCodes } from '../constants/ApiErrorCodes';
 import { ApiErrorHandler } from '../utils/ApiErrorHandler';
+
+/** tryWidgetFallback 结果 */
+const WIDGET_FALLBACK_SUCCESS: string = 'success';
+const WIDGET_FALLBACK_REJECTED: string = 'rejected';
+const WIDGET_FALLBACK_UNAVAILABLE: string = 'unavailable';
 
 export class ZZZRepository extends GameRepository {
   private avatarBasicDao: ZZZAvatarBasicDao = new ZZZAvatarBasicDao();
@@ -153,10 +158,17 @@ export class ZZZRepository extends GameRepository {
     const message: string = `${respData['message'] ?? 'no data'}`;
 
     if (retcode !== ApiErrorCodes.SUCCESS) {
-      if (await this.tryWidgetFallback(accountId, roleUid, cookie, `retcode=${retcode}: ${message}`)) {
+      const fallback = await this.tryWidgetFallback(accountId, roleUid, cookie, `retcode=${retcode}: ${message}`);
+      if (fallback === WIDGET_FALLBACK_SUCCESS) {
         return;
       }
-      // Widget 也失败：按便笺接口原本的错误处理
+      if (fallback === WIDGET_FALLBACK_REJECTED) {
+        // Widget 也返回登录过期（-100 / 10001）：视为登录已过期。
+        // 上层 syncDailyNote 会先用 stoken 自动刷新 Cookie 重试一次，仍失败则由首页弹"登录已过期"
+        const reason4Expire = `retcode=${retcode}: ${message}; widget auth expired`;
+        throw new AuthExpiredError(`note ${reason4Expire}`);
+      }
+      // Widget 不可用 / 返回其他错误：按便笺接口原本的错误处理（1034 仍会触发人机验证）
       if (ApiErrorHandler.isAuthExpired(retcode)) {
         throw new AuthExpiredError(`retcode=${retcode}: ${message}`);
       }
@@ -173,24 +185,31 @@ export class ZZZRepository extends GameRepository {
 
   /**
    * 降级到 Widget 接口同步便笺。
-   * @returns true 表示 Widget 同步成功；false 表示没有 v2 stoken 或 Widget 也失败（由调用方抛出原错误）
+   * @returns WIDGET_FALLBACK_SUCCESS：Widget 同步成功；
+   *          WIDGET_FALLBACK_REJECTED：Widget 返回 -100 / 10001（调用方视为登录已过期）；
+   *          WIDGET_FALLBACK_UNAVAILABLE：没有 v2 stoken、网络异常或 Widget 返回其他错误（调用方按便笺原错误处理）
    */
-  private async tryWidgetFallback(accountId: string, roleUid: string, cookie: string, reason: string): Promise<boolean> {
-    const widgetCookie = BBSRepository.buildWidgetCookie(cookie);
-    Logger.warn(AUTH_EXPIRE_TAG, `[Fallback] zzz note failed (${reason}), fallback to widget, widgetCookie=${widgetCookie.length > 0 ? 'OK' : 'NONE (no v2 stoken)'}`);
+  private async tryWidgetFallback(accountId: string, roleUid: string, cookie: string, reason: string): Promise<string> {
+    // 与 PizzaHelperUnited 一致：Cookie 含 v2 stoken 才能降级，Widget 请求使用账号完整 Cookie
+    const widgetCookie = cookie.indexOf('stoken=v2_') !== -1 ? cookie : '';
     if (widgetCookie.length === 0) {
-      return false;
+      return WIDGET_FALLBACK_UNAVAILABLE;
     }
     try {
       await this.doSyncDailyNoteWidget(accountId, roleUid, widgetCookie);
       await this.markSuccess(accountId, roleUid, SyncDataType.ZZZ_DAILY_NOTE);
-      Logger.warn(AUTH_EXPIRE_TAG, `[Fallback] zzz widget OK`);
-      return true;
+      return WIDGET_FALLBACK_SUCCESS;
     } catch (widgetError) {
-      Logger.error(AUTH_EXPIRE_TAG, `[Fallback] zzz widget FAILED: ${widgetError instanceof Error ? widgetError.message : String(widgetError)}`);
-      return false;
+      const msg = widgetError instanceof Error ? widgetError.message : String(widgetError);
+      // doSyncDailyNoteWidget 在接口返回 retcode ≠ 0 时抛出 "Widget API failed: retcode=..."
+      // 只有 Widget 自己返回登录过期（-100 / 10001）才视为过期；其他错误（如 -10001）按便笺接口原错误处理
+      const m = msg.match(/retcode=(-?\d+)/);
+      const rejected = m !== null && CookieDebug.isAuthExpiredCode(Number(m[1]));
+      Logger.error('ZZZRepository', `[Fallback] zzz widget FAILED (${rejected ? 'rejected' : 'unavailable'}): ${msg}`);
+      return rejected ? WIDGET_FALLBACK_REJECTED : WIDGET_FALLBACK_UNAVAILABLE;
     }
   }
+
 
 
   /**

@@ -24,9 +24,7 @@ export class GenshinMockService extends MockServiceBase {
   }
 
   async getCharacterList(roleId: string, server: string, cookie: string): Promise<object> {
-    Logger.info('GenshinMockService', '💥💥💥 getCharacterList called with roleId=' + roleId);
     const result = await this.readMockFile(GenshinApiPath.CHARACTER_LIST, cookie, roleId);
-    Logger.info('GenshinMockService', '💥💥💥 getCharacterList result keys: ' + Object.keys(result).join(','));
     return result;
   }
 

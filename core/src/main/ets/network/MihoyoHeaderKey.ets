@@ -55,6 +55,10 @@ export enum HKey {
   STAT_PLATFORM       = 'x-rpc-stat_platform',
   /** x-rpc-lrsag：原神养成计算接口专用，值为空字符串 */
   LRSAG               = 'x-rpc-lrsag',
+  /** 绝区零便笺：界面语言（与 x-rpc-language 并存，见 mihoyo_apis.md 绝区零实时便签抓包） */
+  LANG                = 'x-rpc-lang',
+  /** 绝区零便笺：人机验证扩展信息 JSON（见 mihoyo_apis.md 绝区零实时便签抓包） */
+  GEETEST_EXT         = 'x-rpc-geetest_ext',
 
   // 其他
   REQUESTED_WITH      = 'x-requested-with',
