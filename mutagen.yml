@@ -20,6 +20,7 @@ sync:
         - "!/internal/"
         - "!/entry/"
         - "!/TeyvatGuide/"
+        - "!/PizzaHelperUnited/"
         - "!/.kiro/"
 
         # 第三步：在已加回的目录中排除不需要的子路径
@@ -79,6 +80,12 @@ sync:
         - "/TeyvatGuide/.gitignore"
         - "/TeyvatGuide/Cargo.toml"
         - "/TeyvatGuide/Cargo.lock"
+
+        # PizzaHelperUnited 模块：只同步 Packages/ 下除 EnkaKit 外的 Sources/
+        - "/PizzaHelperUnited/*/"
+        - "!/PizzaHelperUnited/Packages/"
+        - "/PizzaHelperUnited/Packages/EnkaKit/"
+        - "/PizzaHelperUnited/Packages/*/Tests/"
 
         # 第四步：全局排除
         # macOS
