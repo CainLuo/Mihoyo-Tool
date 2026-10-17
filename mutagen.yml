@@ -22,6 +22,7 @@ sync:
         - "!/TeyvatGuide/"
         - "!/PizzaHelperUnited/"
         - "!/.kiro/"
+        - "!/.claude/"
 
         # 第三步：在已加回的目录中排除不需要的子路径
         # core 模块：只保留 src/，排除其他
