@@ -98,13 +98,19 @@ export struct ZZZMaterialTargetConfig {
    * 完成后用新的目标等级重新打开材料汇总页（替换掉旧的材料页和当前配置页，返回时直接回到工具页）。
    */
   private async startCalculation(): Promise<void> {
-    const TAG = '🚀🚀🚀 MaterialTargetConfig'
+    const TAG = 'MaterialTargetConfig'
     Logger.info(TAG, `[ZZZ] startCalculation, isSyncing=${this.vm.isSyncing}`)
     const selection = this.param
     if (selection === null || selection.avatarIds.length === 0) {
-      // 没有选中角色（全部角色的计算是后续需求），直接返回上一页
-      Logger.error(TAG, `[ZZZ] no selection, pop back`)
-      this.localStack?.pop()
+      // 没有选中角色（从角色选择页右上角入口进入）：只保存配置到 DB，然后返回
+      const saved = await this.vm.saveConfig()
+      Logger.info(TAG, `[ZZZ] no selection, saveConfig=${saved}, pop back`)
+      this.getUIContext().getPromptAction().showToast({
+        message: saved ? $r('app.string.material_target_config_saved') : $r('app.string.material_character_select_failed')
+      })
+      if (saved) {
+        this.localStack?.pop()
+      }
       return
     }
 

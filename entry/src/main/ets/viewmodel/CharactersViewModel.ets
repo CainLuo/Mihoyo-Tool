@@ -34,6 +34,7 @@ import { CharacterDataSource } from '../components/characters/CharacterDataSourc
 import { AccountOption } from '../models/AccountOption';
 import { CharDetailRouterParam } from '../models/CharDetailModels';
 import { SegmentedTabItem } from '../components/common/SegmentedTabBar';
+import { compareCharacter } from '../utils/CharacterSort';
 import { AppRoutes } from '../constants/AppRoutes';
 
 const TAG: string = 'CharactersViewModel';
@@ -167,41 +168,34 @@ export class CharactersViewModel {
     await this.reloadCharacters();
   }
 
-  /** 手动刷新：强制同步当前游戏角色，30 分钟内重复触发时发出冷却信号 */
+  /**
+   * 手动刷新：同步当前账号下所有游戏角色（不只是当前 Tab 的游戏）。
+   * 所有游戏都在 30 分钟冷却内时发出冷却信号，由用户确认后 forceRefresh。
+   */
   async refresh(): Promise<void> {
     if (this.isRefreshing || this.gameTabsInternal.length === 0) {
       return;
     }
-    const tab = this.gameTabsInternal[this.selectedGameIdx];
-    // 检查冷却：使用 needsSync
-    let inCooldown = false;
-    try {
-      const needed = await CharactersViewModel.needsCharacterSync(
-        this.allAccounts[this.selectedAccountIdx].uid, tab.roleUid, tab.gameId
-      );
-      inCooldown = !needed;
-    } catch (_) {
-      inCooldown = false;
+    // 冷却：只要有一个游戏需要同步就不算冷却
+    let inCooldown = true;
+    const accountId = this.allAccounts[this.selectedAccountIdx].uid;
+    for (let i = 0; i < this.gameTabsInternal.length; i++) {
+      const tab = this.gameTabsInternal[i];
+      try {
+        if (await CharactersViewModel.needsCharacterSync(accountId, tab.roleUid, tab.gameId)) {
+          inCooldown = false;
+          break;
+        }
+      } catch (_) {
+        inCooldown = false;
+        break;
+      }
     }
     if (inCooldown) {
       this.refreshCoolingDown = !this.refreshCoolingDown;
       return;
     }
-    this.isRefreshing = true;
-    try {
-      const account = this.allAccounts[this.selectedAccountIdx];
-      const server = this.findServer(tab.roleUid);
-      await this.syncCharacters(account, tab.gameId, tab.roleUid, server);
-      await this.reloadCharacters();
-      this.refreshResult = 'success';
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error(TAG, `refresh failed: ${msg}`);
-      this.networkErrorMsg = msg;
-      this.refreshResult = 'error';
-    } finally {
-      this.isRefreshing = false;
-    }
+    await this.syncAllGamesAndReload('refresh');
   }
 
   /** 强制刷新：跳过冷却检查，由 View 层在用户确认冷却 Dialog 后调用 */
@@ -209,16 +203,32 @@ export class CharactersViewModel {
     if (this.isRefreshing || this.gameTabsInternal.length === 0) {
       return;
     }
+    await this.syncAllGamesAndReload('forceRefresh');
+  }
+
+  /** 同步当前账号下所有游戏角色，完成后重新加载当前 Tab */
+  private async syncAllGamesAndReload(from: string): Promise<void> {
     this.isRefreshing = true;
     try {
-      const tab = this.gameTabsInternal[this.selectedGameIdx];
       const account = this.allAccounts[this.selectedAccountIdx];
-      await this.syncCharacters(account, tab.gameId, tab.roleUid, this.findServer(tab.roleUid));
+      const roles: GameRoleRow[] = [];
+      for (let i = 0; i < this.gameTabsInternal.length; i++) {
+        const tab = this.gameTabsInternal[i];
+        const roleRow = new GameRoleRow();
+        roleRow.gameId = tab.gameId;
+        roleRow.roleId = tab.roleUid;
+        roleRow.server = this.findServer(tab.roleUid);
+        roles[roles.length] = roleRow;
+      }
+      Logger.info(TAG, `${from}: sync all games of account=${account.uid}, roles=${roles.map((r: GameRoleRow) => `${r.gameId}/${r.roleId}`).join(',')}`);
+      const tasks = SyncQueueRunner.buildTasksForRoles(account.uid, roles, account.cookie);
+      await SyncQueueRunner.enqueue(tasks);
+      await SyncQueueRunner.runTasks(tasks);
       await this.reloadCharacters();
       this.refreshResult = 'success';
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error(TAG, `forceRefresh failed: ${msg}`);
+      Logger.error(TAG, `${from} failed: ${msg}`);
       this.networkErrorMsg = msg;
       this.refreshResult = 'error';
     } finally {
@@ -347,19 +357,20 @@ export class CharactersViewModel {
     gameId: GameId,
     roleUid: string
   ): Promise<GameDataSummary[]> {
+    let result: GameDataSummary[] = [];
     if (gameId === GameId.GENSHIN) {
       const rows = await CoreInitializer.genshinRepository.getAvatarList(accountId, roleUid);
-      return CharactersViewModel.genshinRowsToSummaries(rows, roleUid);
-    }
-    if (gameId === GameId.STARRAIL) {
+      result = CharactersViewModel.genshinRowsToSummaries(rows, roleUid);
+    } else if (gameId === GameId.STARRAIL) {
       const rows = await CoreInitializer.starRailRepository.getAvatarList(accountId, roleUid);
-      return CharactersViewModel.starRailRowsToSummaries(rows, roleUid);
-    }
-    if (gameId === GameId.ZZZ) {
+      result = CharactersViewModel.starRailRowsToSummaries(rows, roleUid);
+    } else if (gameId === GameId.ZZZ) {
       const rows = await CoreInitializer.zzzRepository.getAvatarList(accountId, roleUid);
-      return CharactersViewModel.zzzRowsToSummaries(rows, roleUid);
+      result = CharactersViewModel.zzzRowsToSummaries(rows, roleUid);
     }
-    return [];
+    // 星级从高到低，同星级按角色 ID 从大到小
+    result.sort((a: GameDataSummary, b: GameDataSummary) => compareCharacter(a.rarity, a.entityId, b.rarity, b.entityId));
+    return result;
   }
 
   /** 将 GenshinCharacterListRow[] 转换为 GameDataSummary[] */

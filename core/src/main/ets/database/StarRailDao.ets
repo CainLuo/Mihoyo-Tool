@@ -14,7 +14,7 @@ import { relationalStore } from '@kit.ArkData';
 import { RdbManager } from './RdbManager';
 import { RsReader } from './RsReader';
 import {
-  TableName, CommonCol,
+  TableName, CommonCol, ComputeStateCol,
   StarRailAvatarBasicCol, StarRailDailyNoteCol, StarRailAvatarInfoCol, StarRailAvatarComputeCol,
   STARRAIL_AVATAR_BASIC_TABLE, STARRAIL_DAILY_NOTE_TABLE,
   STARRAIL_AVATAR_INFO_TABLE, STARRAIL_AVATAR_COMPUTE_TABLE
@@ -328,7 +328,7 @@ export class StarRailAvatarComputeDao {
     try {
       await RdbManager.upsertRow(TableName.STARRAIL_AVATAR_COMPUTE, STARRAIL_AVATAR_COMPUTE_TABLE.columnNames(), [
         idVal, row.accountId, row.roleUid, row.avatarId,
-        row.avatarConsumeJson, row.skillConsumeJson, row.equipmentConsumeJson, row.rawJson, row.updateTime
+        row.avatarConsumeJson, row.skillConsumeJson, row.equipmentConsumeJson, row.rawJson, row.updateTime, row.targetReached
       ]);
     } catch (e) {
       throw new Error(`StarRailAvatarComputeDao.upsert failed: ${e instanceof Error ? e.message : e}`);
@@ -350,6 +350,26 @@ export class StarRailAvatarComputeDao {
       return await RdbManager.queryFirst(predicates, STARRAIL_AVATAR_COMPUTE_TABLE.columnNames(), (rs) => StarRailAvatarComputeDao.mapRow(rs));
     } catch (e) {
       throw new Error(`StarRailAvatarComputeDao.findByAvatarId failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /**
+   * 删除指定角色的养成计算记录（只删 avatarIds 中的角色，其他角色的历史计算结果保留）。
+   */
+  async deleteByAvatarIds(accountId: string, roleUid: string, avatarIds: string[]): Promise<void> {
+    if (avatarIds.length === 0) {
+      return;
+    }
+    const predicates = new relationalStore.RdbPredicates(TableName.STARRAIL_AVATAR_COMPUTE);
+    predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
+    predicates.and();
+    predicates.equalTo(CommonCol.ROLE_UID, roleUid);
+    predicates.and();
+    predicates.in(CommonCol.AVATAR_ID, avatarIds);
+    try {
+      await RdbManager.deleteRows(predicates);
+    } catch (e) {
+      throw new Error(`StarRailAvatarComputeDao.deleteByAvatarIds failed: ${e instanceof Error ? e.message : e}`);
     }
   }
 
@@ -396,6 +416,7 @@ export class StarRailAvatarComputeDao {
       row.equipmentConsumeJson = r.str(StarRailAvatarComputeCol.EQUIPMENT_CONSUME_JSON);
       row.rawJson              = r.str(CommonCol.RAW_JSON);
       row.updateTime           = r.num(CommonCol.UPDATE_TIME);
+      row.targetReached = r.num(ComputeStateCol.TARGET_REACHED);
       return row;
     } catch (e) {
       throw new Error(`StarRailAvatarComputeDao.mapRow failed: ${e instanceof Error ? e.message : e}`);

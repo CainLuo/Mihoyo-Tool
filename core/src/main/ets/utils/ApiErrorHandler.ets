@@ -32,10 +32,9 @@ export class ApiErrorHandler {
     const retcode: number = respData.retcode ?? 0;
     const message: string = respData.message ?? 'unknown error';
 
-    // Cookie 失效（retcode=-100/10001/-10001）
+    // Cookie 失效（retcode=-100/10001）；-10001 是请求无效，不属于登录失效
     if (retcode === ApiErrorCodes.AUTH_INVALID ||
-        retcode === ApiErrorCodes.AUTH_INVALID_ALT1 ||
-        retcode === ApiErrorCodes.AUTH_INVALID_ALT2) {
+        retcode === ApiErrorCodes.AUTH_INVALID_ALT1) {
       throw new AuthExpiredError(`retcode=${retcode}: ${message}`);
     }
 
@@ -88,6 +87,7 @@ export class ApiErrorHandler {
            retcode === ApiErrorCodes.GEETEST_REQUIRED;
   }
 
+
   /**
    * 检查 retcode 是否为 Cookie 失效错误
    *
@@ -96,7 +96,6 @@ export class ApiErrorHandler {
    */
   static isAuthExpired(retcode: number): boolean {
     return retcode === ApiErrorCodes.AUTH_INVALID ||
-           retcode === ApiErrorCodes.AUTH_INVALID_ALT1 ||
-           retcode === ApiErrorCodes.AUTH_INVALID_ALT2;
+           retcode === ApiErrorCodes.AUTH_INVALID_ALT1;
   }
 }

@@ -92,6 +92,15 @@ export enum CommonCol {
 }
 
 /**
+ * 三张养成计算表（genshin_character_compute / starrail_avatar_compute / zzz_avatar_compute）共用的本地状态列（v7 新增）。
+ * 不来自 API：计算时判定该角色已达到养成目标、没有请求接口，用于在历史记录中保留并标记该角色。
+ */
+export enum ComputeStateCol {
+  /** 1 = 已达成目标（各 consume / raw_json 为空），0 = 正常计算结果 */
+  TARGET_REACHED = 'target_reached',
+}
+
+/**
  * account_table 专属列名。
  * 对应 AccountRow 模型字段，存储米游社账号的登录凭证和基础信息。
  */
@@ -786,6 +795,8 @@ export const GENSHIN_CHARACTER_COMPUTE_TABLE = new TableDef(TableName.GENSHIN_CH
   new ColumnDef(GenshinCharComputeCol.OVERALL_CONSUME_JSON,      'TEXT', "DEFAULT ''"),
   new ColumnDef(CommonCol.RAW_JSON,    'TEXT',    "DEFAULT ''"),
   new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
+  // v7 新增（ALTER TABLE ADD COLUMN 追加在末尾，定义顺序与之保持一致）
+  new ColumnDef(ComputeStateCol.TARGET_REACHED, 'INTEGER', 'DEFAULT 0'),
 ], FK_ACCOUNT);
 
 // ── 表 24：genshin_compute_summary（v5 新增，整批计算合计）────────
@@ -903,6 +914,8 @@ export const STARRAIL_AVATAR_COMPUTE_TABLE = new TableDef(TableName.STARRAIL_AVA
   new ColumnDef('equipment_consume_json', 'TEXT'),
   new ColumnDef(CommonCol.RAW_JSON,       'TEXT',    "DEFAULT ''"),
   new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
+  // v7 新增（ALTER TABLE ADD COLUMN 追加在末尾，定义顺序与之保持一致）
+  new ColumnDef(ComputeStateCol.TARGET_REACHED, 'INTEGER', 'DEFAULT 0'),
 ], FK_ACCOUNT);
 
 // ── 表 11：zzz_avatar_basic ──────────────────────────────────
@@ -973,6 +986,8 @@ export const ZZZ_AVATAR_COMPUTE_TABLE = new TableDef(TableName.ZZZ_AVATAR_COMPUT
   new ColumnDef('skill_consume_json',  'TEXT'),
   new ColumnDef(CommonCol.RAW_JSON,    'TEXT',    "DEFAULT ''"),
   new ColumnDef(CommonCol.UPDATE_TIME, 'INTEGER'),
+  // v7 新增（ALTER TABLE ADD COLUMN 追加在末尾，定义顺序与之保持一致）
+  new ColumnDef(ComputeStateCol.TARGET_REACHED, 'INTEGER', 'DEFAULT 0'),
 ], FK_ACCOUNT);
 
 // ── 表 15：zzz_buddy ─────────────────────────────────────────

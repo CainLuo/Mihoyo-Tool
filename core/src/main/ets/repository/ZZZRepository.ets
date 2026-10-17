@@ -26,6 +26,8 @@ import { MaterialBagRow } from '../models/MaterialBagRow';
 import { ZZZComputeParser, ZZZMaterialItem } from '../parsers/zzz/ZZZComputeParser';
 import { GameId } from '../constants/GameId';
 import { Logger } from '../utils/Logger';
+import { AUTH_EXPIRE_TAG } from '../utils/CookieDebug';
+import { ApiErrorCodes } from '../constants/ApiErrorCodes';
 import { ApiErrorHandler } from '../utils/ApiErrorHandler';
 
 export class ZZZRepository extends GameRepository {
@@ -139,32 +141,57 @@ export class ZZZRepository extends GameRepository {
     }
   }
 
+  /**
+   * 拉取实时便笺。便笺接口返回 retcode ≠ 0 时一律降级到 Widget 接口；
+   * Widget 成功则视为同步成功；Widget 失败或没有 v2 stoken 时，按便笺接口原本的错误抛出
+   * （登录过期仍会触发上层的 Cookie 自动刷新，人机验证仍会触发验证弹框）。
+   */
   private async doSyncDailyNote(accountId: string, roleUid: string, server: string, cookie: string, geetestChallenge?: string): Promise<void> {
     const resp = await (this.getService() as ZZZApiService).getDailyNote(roleUid, server, cookie, geetestChallenge);
     const respData = resp as Record<string, object>;
     const retcode = Number(respData['retcode'] ?? 0);
-    if (ApiErrorHandler.isAuthExpired(retcode)) {
-      throw new AuthExpiredError(`retcode=${retcode}`);
-    }
-    if (ApiErrorHandler.isGeetestRequired(retcode)) {
-      // Geetest 风控：尝试降级到 Widget API（无验证）
-      const widgetCookie = BBSRepository.buildWidgetCookie(cookie);
-      if (widgetCookie.length > 0) {
-        await this.doSyncDailyNoteWidget(accountId, roleUid, widgetCookie);
-        // Widget 降级成功，标记为 success
-        await this.markSuccess(accountId, roleUid, SyncDataType.ZZZ_DAILY_NOTE);
+    const message: string = `${respData['message'] ?? 'no data'}`;
+
+    if (retcode !== ApiErrorCodes.SUCCESS) {
+      if (await this.tryWidgetFallback(accountId, roleUid, cookie, `retcode=${retcode}: ${message}`)) {
         return;
       }
-      throw new Error(`retcode=${retcode}: Geetest verification required and no widget cookie available`);
+      // Widget 也失败：按便笺接口原本的错误处理
+      if (ApiErrorHandler.isAuthExpired(retcode)) {
+        throw new AuthExpiredError(`retcode=${retcode}: ${message}`);
+      }
+      throw new Error(`retcode=${retcode}: ${message}`);
     }
     if (respData['data'] === null || respData['data'] === undefined) {
-      throw new Error(`retcode=${retcode}: ${respData['message'] ?? 'no data'}`);
+      throw new Error(`retcode=${retcode}: ${message}`);
     }
     const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
     // Note API 数据存储到 rawJson
     const row = this.parseZZZDailyNoteData(accountId, roleUid, dataObj, false);
     await this.upsertDailyNote(accountId, roleUid, row);
   }
+
+  /**
+   * 降级到 Widget 接口同步便笺。
+   * @returns true 表示 Widget 同步成功；false 表示没有 v2 stoken 或 Widget 也失败（由调用方抛出原错误）
+   */
+  private async tryWidgetFallback(accountId: string, roleUid: string, cookie: string, reason: string): Promise<boolean> {
+    const widgetCookie = BBSRepository.buildWidgetCookie(cookie);
+    Logger.warn(AUTH_EXPIRE_TAG, `[Fallback] zzz note failed (${reason}), fallback to widget, widgetCookie=${widgetCookie.length > 0 ? 'OK' : 'NONE (no v2 stoken)'}`);
+    if (widgetCookie.length === 0) {
+      return false;
+    }
+    try {
+      await this.doSyncDailyNoteWidget(accountId, roleUid, widgetCookie);
+      await this.markSuccess(accountId, roleUid, SyncDataType.ZZZ_DAILY_NOTE);
+      Logger.warn(AUTH_EXPIRE_TAG, `[Fallback] zzz widget OK`);
+      return true;
+    } catch (widgetError) {
+      Logger.error(AUTH_EXPIRE_TAG, `[Fallback] zzz widget FAILED: ${widgetError instanceof Error ? widgetError.message : String(widgetError)}`);
+      return false;
+    }
+  }
+
 
   /**
    * Widget API 同步便笺（绝区零 /api/zzz/widget）
@@ -326,9 +353,23 @@ export class ZZZRepository extends GameRepository {
     await this.markFailed(accountId, roleUid, SyncDataType.ZZZ_AVATAR_COMPUTE, errorMsg);
   }
 
-  /** 清空该游戏 UID 下全部养成计算结果（角色选择页重新计算前调用） */
-  async clearAvatarCompute(accountId: string, roleUid: string): Promise<void> {
-    await this.avatarComputeDao.deleteAll(accountId, roleUid);
+  /**
+   * 标记指定角色"已达成目标"：写入（覆盖）一行 target_reached = 1、各 consume / raw_json 为空的记录。
+   * 同一角色 ID 覆盖旧的计算结果，不存在则新增；该角色保留在历史记录中（排在最后）。
+   */
+  async markTargetReached(accountId: string, roleUid: string, avatarIds: string[]): Promise<void> {
+    const now = Math.floor(Date.now() / 1000);
+    await this.runInTransaction(async () => {
+      for (let i = 0; i < avatarIds.length; i++) {
+        const row = new ZZZAvatarComputeRow();
+        row.accountId = accountId;
+        row.roleUid = roleUid;
+        row.avatarId = avatarIds[i];
+        row.updateTime = now;
+        row.targetReached = 1;
+        await this.avatarComputeDao.upsert(row);
+      }
+    });
   }
 
   /**

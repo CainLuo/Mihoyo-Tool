@@ -8,8 +8,8 @@ import { HKey } from './MihoyoHeaderKey';
 import { HttpClient } from './HttpClient';
 import { Logger } from '../utils/Logger';
 
-/** 养成计算链路统一日志 tag，过滤：hilog | grep 🚀🚀🚀 */
-const CALC_TAG: string = '🚀🚀🚀 GenshinCalc';
+/** 养成计算链路统一日志 tag，过滤：hilog | grep */
+const CALC_TAG: string = 'GenshinCalc';
 /** 分段长度（字符数，中文按 3 字节算也低于 hilog 4KB 上限） */
 const CALC_LOG_CHUNK: number = 1000;
 

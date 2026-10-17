@@ -225,6 +225,30 @@
       "value": "Actions"
     },
     {
+      "name": "account_detail_relogin",
+      "value": "Log in again"
+    },
+    {
+      "name": "account_detail_refresh_cookie",
+      "value": "Refresh Cookie"
+    },
+    {
+      "name": "account_detail_refreshing_cookie",
+      "value": "Refreshing…"
+    },
+    {
+      "name": "account_detail_refresh_cookie_success",
+      "value": "Cookie refreshed"
+    },
+    {
+      "name": "account_detail_refresh_cookie_failed",
+      "value": "Failed to refresh cookie, please log in again"
+    },
+    {
+      "name": "account_detail_expired_tip",
+      "value": "Login has expired for this account"
+    },
+    {
       "name": "account_detail_delete",
       "value": "Delete This Account"
     },
@@ -2227,6 +2251,14 @@
     {
       "name": "material_target_config_required_go",
       "value": "Set now"
+    },
+    {
+      "name": "material_history",
+      "value": "History"
+    },
+    {
+      "name": "material_target_config_saved",
+      "value": "Target saved"
     },
     {
       "name": "material_character_select_failed",

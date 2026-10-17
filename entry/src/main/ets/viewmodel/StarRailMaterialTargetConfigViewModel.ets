@@ -40,8 +40,8 @@ const SKILL_LABELS: string[] = [
   LevelLabelKeys.STARRAIL_SKILL_TALENT,
 ]
 
-/** 养成目标配置日志 tag，过滤：hilog | grep 🚀🚀🚀 */
-const CONFIG_TAG: string = '🚀🚀🚀 MaterialTargetConfig'
+/** 养成目标配置日志 tag，过滤：hilog | grep */
+const CONFIG_TAG: string = 'MaterialTargetConfig'
 
 /** 星穹铁道养成目标配置 ViewModel */
 @ObservedV2

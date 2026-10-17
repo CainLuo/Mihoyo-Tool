@@ -6,6 +6,7 @@ import { RdbMigrationV3 } from './RdbMigrationV3';
 import { RdbMigrationV4 } from './RdbMigrationV4';
 import { RdbMigrationV5 } from './RdbMigrationV5';
 import { RdbMigrationV6 } from './RdbMigrationV6';
+import { RdbMigrationV7 } from './RdbMigrationV7';
 
 /**
  * 数据库管理器
@@ -14,7 +15,7 @@ import { RdbMigrationV6 } from './RdbMigrationV6';
 export class RdbManager {
   private static rdbStore: relationalStore.RdbStore | null = null;
   private static readonly DB_NAME: string = 'mihoyo_tool_v2.db';
-  private static readonly DB_VERSION: number = 6;
+  private static readonly DB_VERSION: number = 7;
 
   /**
    * 初始化数据库，使用 SecurityLevel.S1 加密
@@ -153,6 +154,10 @@ export class RdbManager {
     // 版本 5 → 6：绝区零配置 config_json 核心技（skill_type 5）截断到 7 级
     if (oldVersion < 6) {
       await RdbMigrationV6.run();
+    }
+    // 版本 6 → 7：三张养成计算表新增 target_reached（已达成目标的角色保留在历史记录中）
+    if (oldVersion < 7) {
+      await RdbMigrationV7.run();
     }
   }
 

@@ -225,6 +225,30 @@
       "value": "操作"
     },
     {
+      "name": "account_detail_relogin",
+      "value": "重新登入"
+    },
+    {
+      "name": "account_detail_refresh_cookie",
+      "value": "刷新 Cookie"
+    },
+    {
+      "name": "account_detail_refreshing_cookie",
+      "value": "刷新中…"
+    },
+    {
+      "name": "account_detail_refresh_cookie_success",
+      "value": "Cookie 已刷新"
+    },
+    {
+      "name": "account_detail_refresh_cookie_failed",
+      "value": "刷新 Cookie 失敗，請重新登入"
+    },
+    {
+      "name": "account_detail_expired_tip",
+      "value": "該帳號登入已過期"
+    },
+    {
       "name": "account_detail_delete",
       "value": "刪除此帳號"
     },
@@ -2223,6 +2247,14 @@
     {
       "name": "material_target_config_required_go",
       "value": "去設置"
+    },
+    {
+      "name": "material_history",
+      "value": "歷史記錄"
+    },
+    {
+      "name": "material_target_config_saved",
+      "value": "養成目標已保存"
     },
     {
       "name": "material_character_select_failed",

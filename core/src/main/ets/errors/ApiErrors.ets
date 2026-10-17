@@ -169,10 +169,9 @@ export class SyncErrorFactory {
       return null;
     }
 
-    // Cookie 失效（-100, 10001, -10001）
+    // Cookie 失效（-100, 10001）；-10001 是请求无效，不属于登录失效
     if (retcode === ApiErrorCodes.AUTH_INVALID ||
-        retcode === ApiErrorCodes.AUTH_INVALID_ALT1 ||
-        retcode === ApiErrorCodes.AUTH_INVALID_ALT2) {
+        retcode === ApiErrorCodes.AUTH_INVALID_ALT1) {
       return SyncErrorFactory.authExpired(message);
     }
 

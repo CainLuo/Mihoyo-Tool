@@ -87,8 +87,8 @@ export default function rdbManagerTest() {
       } finally {
         rs.close();
       }
-      // DB v6：v4 原神养成计算字段对齐 API + genshin_calc_avatar；v5 genshin_compute_summary；v6 绝区零核心技配置修正
-      expect(version).assertEqual(6);
+      // DB v6：v4 原神养成计算字段对齐 API + genshin_calc_avatar；v5 genshin_compute_summary；v6 绝区零核心技配置修正；v7 计算表 target_reached
+      expect(version).assertEqual(7);
     });
 
     it('allTables_exist_fifteenTables', 0, async () => {

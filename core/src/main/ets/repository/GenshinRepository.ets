@@ -30,6 +30,7 @@ import { BBSRepository } from './BBSRepository';
 import { MaterialBagRepository } from './MaterialBagRepository';
 import { MaterialBagRow } from '../models/MaterialBagRow';
 import { GameId } from '../constants/GameId';
+import { AUTH_EXPIRE_TAG } from '../utils/CookieDebug';
 import {
   GENSHIN_TALENT_SLOT_COUNT,
   GenshinCalcTargets,
@@ -42,8 +43,8 @@ import {
 const CALC_EXCLUDED_AVATAR_IDS: number[] = [10000117, 10000118];
 const SYNC_AVATAR_PAGE_SIZE: number = 100;
 const SYNC_AVATAR_MAX_PAGES: number = 10;
-/** 养成计算链路统一日志 tag，过滤：hilog | grep 🚀🚀🚀 */
-const CALC_TAG: string = '🚀🚀🚀 GenshinCalc';
+/** 养成计算链路统一日志 tag，过滤：hilog | grep */
+const CALC_TAG: string = 'GenshinCalc';
 
 export class GenshinRepository extends GameRepository {
   private characterListDao: GenshinCharacterListDao = new GenshinCharacterListDao();
@@ -171,26 +172,26 @@ export class GenshinRepository extends GameRepository {
     }
   }
 
+  /**
+   * 拉取实时便笺。便笺接口返回 retcode ≠ 0 时一律降级到 Widget 接口；
+   * Widget 成功则视为同步成功；Widget 失败或没有 v2 stoken 时，按便笺接口原本的错误抛出
+   * （登录过期仍会触发上层的 Cookie 自动刷新，人机验证仍会触发验证弹框）。
+   */
   private async doSyncDailyNote(accountId: string, roleUid: string, server: string, cookie: string, geetestChallenge?: string): Promise<void> {
     const resp = await (this.getService() as GenshinApiService).getDailyNote(roleUid, server, cookie, geetestChallenge);
     const respData = resp as Record<string, object>;
     const retcode = Number(respData['retcode'] ?? 0);
-    const message: string = `${respData['message'] ?? 'unknown error'}`;
+    const message: string = `${respData['message'] ?? 'no data'}`;
 
-    if (ApiErrorHandler.isAuthExpired(retcode)) {
-      throw SyncErrorFactory.authExpired(`retcode=${retcode}: ${message}`);
-    }
-    if (ApiErrorHandler.isGeetestRequired(retcode)) {
-      // Geetest 风控：尝试降级到 Widget API
-      // 参考 PizzaHelperUnited 抓包：Widget 接口用完整 cookie（含 ltuid/ltoken），不是精简的 widgetCookie
-      const widgetCookie = BBSRepository.buildWidgetCookie(cookie);
-      if (widgetCookie.length > 0) {
-        await this.doSyncDailyNoteWidget(accountId, roleUid, widgetCookie);
-        // Widget 降级成功，标记为 success
-        await this.markSuccess(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE);
+    if (retcode !== ApiErrorCodes.SUCCESS) {
+      if (await this.tryWidgetFallback(accountId, roleUid, cookie, `retcode=${retcode}: ${message}`)) {
         return;
       }
-      throw SyncErrorFactory.normal(retcode, `Geetest verification required and no widget cookie available`);
+      // Widget 也失败：按便笺接口原本的错误处理
+      if (ApiErrorHandler.isAuthExpired(retcode)) {
+        throw SyncErrorFactory.authExpired(`retcode=${retcode}: ${message}`);
+      }
+      throw SyncErrorFactory.normal(retcode, message);
     }
     if (respData['data'] === null || respData['data'] === undefined) {
       throw SyncErrorFactory.normal(retcode, message);
@@ -199,6 +200,28 @@ export class GenshinRepository extends GameRepository {
     const row = this.parseDailyNoteData(accountId, roleUid, dataObj);
     await this.upsertDailyNote(accountId, roleUid, row);
   }
+
+  /**
+   * 降级到 Widget 接口同步便笺。
+   * @returns true 表示 Widget 同步成功；false 表示没有 v2 stoken 或 Widget 也失败（由调用方抛出原错误）
+   */
+  private async tryWidgetFallback(accountId: string, roleUid: string, cookie: string, reason: string): Promise<boolean> {
+    const widgetCookie = BBSRepository.buildWidgetCookie(cookie);
+    Logger.warn(AUTH_EXPIRE_TAG, `[Fallback] genshin note failed (${reason}), fallback to widget, widgetCookie=${widgetCookie.length > 0 ? 'OK' : 'NONE (no v2 stoken)'}`);
+    if (widgetCookie.length === 0) {
+      return false;
+    }
+    try {
+      await this.doSyncDailyNoteWidget(accountId, roleUid, widgetCookie);
+      await this.markSuccess(accountId, roleUid, SyncDataType.GENSHIN_DAILY_NOTE);
+      Logger.warn(AUTH_EXPIRE_TAG, `[Fallback] genshin widget OK`);
+      return true;
+    } catch (widgetError) {
+      Logger.error(AUTH_EXPIRE_TAG, `[Fallback] genshin widget FAILED: ${widgetError instanceof Error ? widgetError.message : String(widgetError)}`);
+      return false;
+    }
+  }
+
 
   /**
    * Widget API 降级同步便笺（原神 /aapi/widget/v2）
@@ -390,7 +413,7 @@ export class GenshinRepository extends GameRepository {
    * @param uid 游戏 UID
    * @param region 服务器（如 'cn_gf01'）
    * @param cookie 登录 Cookie
-   * @param replaceExisting true 时先清空该游戏 UID 下旧的计算结果（角色选择页：只保留本次选中角色）
+   * 只 upsert 本批角色（唯一键 account_id + role_uid + avatar_id），其他角色以前的计算结果保留，作为历史记录。
    */
   async syncAvatarCompute(
     accountId: string,
@@ -398,8 +421,7 @@ export class GenshinRepository extends GameRepository {
     items: object[],
     uid: string,
     region: string,
-    cookie: string,
-    replaceExisting: boolean = false
+    cookie: string
   ): Promise<void> {
     await this.markSyncing(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_COMPUTE);
 
@@ -447,9 +469,6 @@ export class GenshinRepository extends GameRepository {
       Logger.info(CALC_TAG, `[Compute] all batches completed, total rows=${allRows.length}, writing DB...`);
 
       await this.runInTransaction(async () => {
-        if (replaceExisting) {
-          await this.characterComputeDao.deleteAll(accountId, roleUid);
-        }
         for (let i = 0; i < allRows.length; i++) {
           await this.characterComputeDao.upsert(allRows[i]);
         }
@@ -462,7 +481,7 @@ export class GenshinRepository extends GameRepository {
         }
         await this.markSuccess(accountId, roleUid, SyncDataType.GENSHIN_CHARACTER_COMPUTE);
       });
-      Logger.info(CALC_TAG, `[Compute] DB write done, rows=${allRows.length}, replaceExisting=${replaceExisting}`);
+      Logger.info(CALC_TAG, `[Compute] DB write done, upserted rows=${allRows.length}`);
     } catch (error) {
       const msg = this.toErrorMessage(error);
       Logger.error(CALC_TAG, `[Compute] FAILED: ${msg}`);
@@ -483,11 +502,22 @@ export class GenshinRepository extends GameRepository {
     }
   }
 
-  /** 清空该游戏 UID 下的计算结果与整批合计（选中角色全部已达成目标时调用） */
-  async clearAvatarCompute(accountId: string, roleUid: string): Promise<void> {
+  /**
+   * 标记指定角色"已达成目标"：写入（覆盖）一行 target_reached = 1、各 consume / raw_json 为空的记录。
+   * 同一角色 ID 覆盖旧的计算结果，不存在则新增；该角色保留在历史记录中（排在最后）。
+   */
+  async markTargetReached(accountId: string, roleUid: string, avatarIds: string[]): Promise<void> {
+    const now = Math.floor(Date.now() / 1000);
     await this.runInTransaction(async () => {
-      await this.characterComputeDao.deleteAll(accountId, roleUid);
-      await this.computeSummaryDao.deleteOne(accountId, roleUid);
+      for (let i = 0; i < avatarIds.length; i++) {
+        const row = new GenshinCharacterComputeRow();
+        row.accountId = accountId;
+        row.roleUid = roleUid;
+        row.avatarId = avatarIds[i];
+        row.updateTime = now;
+        row.targetReached = 1;
+        await this.characterComputeDao.upsert(row);
+      }
     });
   }
 

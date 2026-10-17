@@ -9,8 +9,8 @@ import { HttpClient } from './HttpClient';
 import { Logger } from '../utils/Logger';
 import { StarRailComputeAvatar, StarRailComputeEquipment, StarRailComputeSkill } from '../models/StarRailRows';
 
-/** 养成计算链路统一日志 tag，过滤：hilog | grep 🚀🚀🚀 */
-const SR_CALC_TAG: string = '🚀🚀🚀 StarRailCalc';
+/** 养成计算链路统一日志 tag，过滤：hilog | grep */
+const SR_CALC_TAG: string = 'StarRailCalc';
 
 export class StarRailApiService extends MihoyoApiService {
 

@@ -6,7 +6,7 @@
  */
 import { ThemeManager, themeManager } from '../../theme/ThemeManager';
 import { CharactersViewModel } from '../../viewmodel/CharactersViewModel';
-import { GameDataSummary } from 'core';
+import { GameDataSummary, GameId } from 'core';
 import { PlaceholderView, PlaceholderState } from '../common/PlaceholderView';
 import { CharacterCard } from './CharacterCard';
 import { CharactersSkeleton } from './CharactersSkeleton';
@@ -91,7 +91,8 @@ export struct CharactersContent {
             }
           }, (character: GameDataSummary) => `${character.gameId}_${character.entityId}`)
         }
-        .columnsTemplate('1fr 1fr')
+        // 绝区零一行 3 个（卡片内容较少），原神 / 星铁保持一行 2 个
+        .columnsTemplate(this.vm.currentGameId === GameId.ZZZ ? '1fr 1fr 1fr' : '1fr 1fr')
         .columnsGap(this.tm.current.value12)
         .rowsGap(this.tm.current.value12)
         .padding({

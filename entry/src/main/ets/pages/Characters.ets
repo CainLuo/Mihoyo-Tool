@@ -13,6 +13,7 @@ import { CharactersContent } from '../components/characters/CharactersContent';
 import { Logger, GameDataSummary } from 'core';
 import { AccountSignal } from '../utils/AccountSignal';
 import { showFeedback } from '../utils/FeedbackUtil';
+import { DialogDedup } from '../utils/DialogDedup';
 import { FeedbackType } from '../constants/FeedbackType';
 
 @ComponentV2
@@ -92,6 +93,8 @@ export struct Characters {
   onRefreshCoolingDown(_monitor: IMonitor): void {
     const ctx = this.uiCtx;
     if (ctx === null) { return; }
+    // 冷却确认框正在显示时忽略重复点击
+    if (!DialogDedup.tryAcquire('characters_refresh_cooldown')) { return; }
     ctx.getPromptAction().showDialog({
       title: $r('app.string.characters_refresh_cooldown_title'),
       message: $r('app.string.characters_refresh_cooldown_msg'),
@@ -100,8 +103,10 @@ export struct Characters {
         { text: $r('app.string.dialog_sync'), color: $r('app.color.color_warning') }
       ]
     }).then((result) => {
+      DialogDedup.release('characters_refresh_cooldown');
       if (result.index === 1) { this.vm.forceRefresh(); }
     }).catch((e: BusinessError) => {
+      DialogDedup.release('characters_refresh_cooldown');
       Logger.warn('Characters', 'showDialog cooldown failed: ' + e.message);
     });
   }

@@ -314,7 +314,7 @@ export class HomeViewModel {
     for (let i = 0; i < result.failedAccounts.length; i++) {
       const info = result.failedAccounts[i];
       if (!info.isNetworkError) {
-        signal.push(info);
+        signal.push(info, 'ColdStartCookieChecker');
       }
     }
     if (result.successCount > 0) {
@@ -387,7 +387,7 @@ export class HomeViewModel {
         info.username = account.username;
         info.nickname = account.nickname.length > 0 ? account.nickname : account.username;
         info.isNetworkError = false;
-        CookieExpiredSignal.instance().push(info);
+        CookieExpiredSignal.instance().push(info, `Home.syncDailyNote ${role.gameId}/${role.roleId}: ${msg}`);
         Logger.warn(TAG, `Cookie expired for ${account.username} (${role.gameId}/${role.roleId}): ${msg}`);
       } else if (msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED}`) !== -1 ||
           msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED_GENERAL}`) !== -1) {

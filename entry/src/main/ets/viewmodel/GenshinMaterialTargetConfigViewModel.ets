@@ -31,8 +31,8 @@ import { MaterialComputeService, MaterialComputeResult } from '../utils/Material
 
 const TAG: string = 'GenshinMaterialTargetConfigVM'
 
-/** 养成目标配置日志 tag，过滤：hilog | grep 🚀🚀🚀 */
-const CONFIG_TAG: string = '🚀🚀🚀 MaterialTargetConfig'
+/** 养成目标配置日志 tag，过滤：hilog | grep */
+const CONFIG_TAG: string = 'MaterialTargetConfig'
 
 /** 原神养成目标配置 ViewModel */
 @ObservedV2

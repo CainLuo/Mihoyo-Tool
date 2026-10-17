@@ -6,6 +6,12 @@ import { MihoyoHeaderBuilder, HeaderProfile } from './MihoyoHeaderBuilder';
 import { ApiConfig } from './ApiConfig';
 import { HKey } from './MihoyoHeaderKey';
 import { HttpClient } from './HttpClient';
+import { Logger } from '../utils/Logger';
+
+/** 养成计算链路统一日志 tag，过滤：hilog | grep */
+const ZZZ_CALC_TAG: string = 'ZZZCalc';
+/** 绝区零代理人列表接口日志，过滤：hilog | grep 🚀🚀🚀 */
+const ZZZ_LIST_TAG: string = '🚀🚀🚀 ZZZAvatarBasic';
 
 export class ZZZApiService extends MihoyoApiService {
 
@@ -64,11 +70,18 @@ export class ZZZApiService extends MihoyoApiService {
     headers.set(HKey.PAGE, ApiConfig.PAGE_ZZZ_ROLES);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
-    return HttpClient.get(
-      MihoyoDomain.TAKUMI_RECORD + ZZZApiPath.AVATAR_BASIC,
-      params,
-      opts,
-    );
+    const url = MihoyoDomain.TAKUMI_RECORD + ZZZApiPath.AVATAR_BASIC;
+    Logger.info(ZZZ_LIST_TAG, `[AvatarBasic] REQUEST ${url}?role_id=${roleId}&server=${server}`);
+    const startTime = Date.now();
+    const resp = await HttpClient.get(url, params, opts);
+    const r = resp as Record<string, Object>;
+    const data = r['data'] as Record<string, Object> | undefined;
+    const list = data !== undefined ? data['avatar_list'] as Object[] | undefined : undefined;
+    Logger.info(ZZZ_LIST_TAG, `[AvatarBasic] RESPONSE retcode=${r['retcode']}, message=${r['message']}, ` +
+      `cost=${Date.now() - startTime}ms, data keys=${data !== undefined ? Object.keys(data).join(',') : '-'}, ` +
+      `avatar_list=${Array.isArray(list) ? list.length : '-'}`);
+    ZZZApiService.logLongWithTag(ZZZ_LIST_TAG, '[AvatarBasic] RESPONSE body', JSON.stringify(resp), 100);
+    return resp;
   }
 
   /**
@@ -134,6 +147,47 @@ export class ZZZApiService extends MihoyoApiService {
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     const url = `${MihoyoDomain.ACT_TAKUMI}${ZZZApiPath.COMPUTE}?uid=${uid}&region=${region}`;
-    return HttpClient.post(url, bodyStr, opts);
+    Logger.info(ZZZ_CALC_TAG, `[Compute] avatarId=${avatarId} URL: ${url}`);
+    ZZZApiService.logLong(`[Compute] avatarId=${avatarId} REQUEST body`, bodyStr);
+    const startTime = Date.now();
+    const resp = await HttpClient.post(url, bodyStr, opts);
+    const r = resp as Record<string, Object>;
+    Logger.info(ZZZ_CALC_TAG, `[Compute] avatarId=${avatarId} RESPONSE retcode=${r['retcode']}, message=${r['message']}, cost=${Date.now() - startTime}ms`);
+    // 各材料列表的条数，便于对照页面展示
+    const data = r['data'] as Record<string, Object> | undefined;
+    if (data) {
+      const keys = ['avatar_consume', 'weapon_consume', 'skill_consume', 'need_get'];
+      const counts: string[] = [];
+      for (let i = 0; i < keys.length; i++) {
+        const v = data[keys[i]];
+        counts[counts.length] = `${keys[i]}=${Array.isArray(v) ? (v as Object[]).length : '-'}`;
+      }
+      Logger.info(ZZZ_CALC_TAG, `[Compute] avatarId=${avatarId} RESPONSE counts: ${counts.join(', ')}`);
+    }
+    ZZZApiService.logLong(`[Compute] avatarId=${avatarId} RESPONSE body`, JSON.stringify(resp));
+    return resp;
+  }
+
+  /** hilog 单条约 4KB 会被截断，长文本分段打印（最多 maxChunks 段） */
+  private static logLongWithTag(tag: string, label: string, text: string, maxChunks: number): void {
+    const chunk = 1000;
+    const total = Math.max(Math.ceil(text.length / chunk), 1);
+    const printCount = Math.min(total, maxChunks);
+    for (let i = 0; i < printCount; i++) {
+      Logger.info(tag, `${label} [${i + 1}/${total}] (len=${text.length}): ${text.substring(i * chunk, (i + 1) * chunk)}`);
+    }
+    if (printCount < total) {
+      Logger.info(tag, `${label} ... omitted ${total - printCount} chunks`);
+    }
+  }
+
+  /** hilog 单条约 4KB 会被截断，长文本分段打印（最多 40 段） */
+  private static logLong(label: string, text: string): void {
+    const chunk = 1000;
+    const total = Math.max(Math.ceil(text.length / chunk), 1);
+    const printCount = Math.min(total, 40);
+    for (let i = 0; i < printCount; i++) {
+      Logger.info(ZZZ_CALC_TAG, `${label} [${i + 1}/${total}] (len=${text.length}): ${text.substring(i * chunk, (i + 1) * chunk)}`);
+    }
   }
 }

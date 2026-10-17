@@ -140,6 +140,8 @@ export class GenshinCharacterComputeRow {
   rawJson: string = '';
   /** 数据更新时间（Unix 秒） */
   updateTime: number = 0;
+  /** 本地状态（v7）：1 = 已达成目标，各 consume / raw_json 为空 */
+  targetReached: number = 0;
 }
 
 /**

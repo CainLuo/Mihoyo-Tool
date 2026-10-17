@@ -252,7 +252,15 @@ export class StarRailDBManager {
    * 删除指定角色的星穹铁道养成计算记录。
    */
   async deleteAvatarCompute(accountId: string, roleUid: string, avatarId: string): Promise<void> {
-    await this.avatarComputeDao.deleteAll(accountId, roleUid);
+    // 修正：原实现调用 deleteAll，会删除该游戏 UID 下全部角色的计算记录
+    await this.avatarComputeDao.deleteByAvatarIds(accountId, roleUid, [avatarId]);
+  }
+
+  /**
+   * 删除指定的多个角色的星穹铁道养成计算记录。
+   */
+  async deleteAvatarComputeByIds(accountId: string, roleUid: string, avatarIds: string[]): Promise<void> {
+    await this.avatarComputeDao.deleteByAvatarIds(accountId, roleUid, avatarIds);
   }
 
   /**

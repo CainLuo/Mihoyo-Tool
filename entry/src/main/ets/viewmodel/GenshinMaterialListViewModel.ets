@@ -38,8 +38,8 @@ import {
   MaterialSectionType,
 } from '../models/MaterialListModels';
 
-/** 养成计算链路统一日志 tag，过滤：hilog | grep 🚀🚀🚀 */
-const CALC_TAG: string = '🚀🚀🚀 GenshinCalc';
+/** 养成计算链路统一日志 tag，过滤：hilog | grep */
+const CALC_TAG: string = 'GenshinCalc';
 
 const TAG: string = 'GenshinMaterialListViewModel';
 
@@ -53,8 +53,8 @@ interface OverallMaterialRaw {
   lack_num?: number;
   level?: number;
 }
-/** 材料页日志 tag，过滤：hilog | grep 🚀🚀🚀 */
-const PAGE_CALC_TAG: string = '🚀🚀🚀 MaterialList';
+/** 材料页日志 tag，过滤：hilog | grep */
+const PAGE_CALC_TAG: string = 'MaterialList';
 
 /** GenshinMaterialListViewModel @Monitor 路径常量类型 */
 export class GenshinMaterialListViewModelKeys {
@@ -208,7 +208,16 @@ export class GenshinMaterialListViewModel {
         Logger.warn(PAGE_CALC_TAG, `[${TAG}] loadData: read material bag failed: ${error instanceof Error ? error.message : `${error}`}`);
       }
 
-      this.characterMaterials = allCharacterMaterials;
+      // 已达成目标的角色永远排在最后（同组内保持原顺序）
+      const needed = allCharacterMaterials.filter((c: CharacterMaterialVM) => !c.isTargetReached);
+      const reached = allCharacterMaterials.filter((c: CharacterMaterialVM) => c.isTargetReached);
+      const sorted = needed.concat(reached);
+      // 每次加载生成新的渲染 key，保证刷新后列表按新数据重新渲染（顺序 + 内容）
+      const loadVersion = Date.now();
+      for (let k = 0; k < sorted.length; k++) {
+        sorted[k].renderKey = `${sorted[k].characterId}_${loadVersion}`;
+      }
+      this.characterMaterials = sorted;
 
       // 汇总视图：优先使用整批合计（genshin_compute_summary.overall_consume，接口算好的精确总缺口），
       // 只有当它正好对应当前展示的这批计算结果时才使用；否则回退到按角色估算
@@ -227,7 +236,11 @@ export class GenshinMaterialListViewModel {
         this.materialSummaries = this.aggregateMaterials(allCharacterMaterials, bagCounts);
         Logger.warn(PAGE_CALC_TAG, `[${TAG}] loadData: no matching compute summary (summary=${summaryIds.join(',')}, computed=${computedIds.join(',')}), use estimate`);
       }
-      this.materialSections = this.groupMaterialsIntoSections(this.materialSummaries);
+      const sections = this.groupMaterialsIntoSections(this.materialSummaries);
+      for (let k = 0; k < sections.length; k++) {
+        sections[k].renderKey = `${sections[k].type}_${loadVersion}`;
+      }
+      this.materialSections = sections;
       this.viewState = ViewState.DATA;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -297,13 +310,13 @@ export class GenshinMaterialListViewModel {
       vm.element = avatar.element;
       vm.gameId = GameId.GENSHIN;
 
-      // 选中但没有计算结果：计算时已判定该角色达到目标（Repository buildCalcItems 中 SKIP），无需材料
-      if (computeRow === undefined || computeRow === null) {
+      // 已达成目标：DB 中标记 target_reached = 1，或选中但没有计算结果
+      if (computeRow === undefined || computeRow === null || computeRow.targetReached === 1) {
         vm.isTargetReached = true;
       }
 
       // 解析材料数据（DB 各列为 API 原样数据，缺口由 Parser 按该角色的 overall_consume 计算）
-      const parsed = computeRow !== undefined && computeRow !== null
+      const parsed = !vm.isTargetReached && computeRow !== undefined && computeRow !== null
         ? GenshinComputeParser.parseRow(computeRow.avatarId, computeRow.avatarConsumeJson,
           computeRow.avatarSkillConsumeJson, computeRow.weaponConsumeJson, computeRow.overallConsumeJson)
         : null;

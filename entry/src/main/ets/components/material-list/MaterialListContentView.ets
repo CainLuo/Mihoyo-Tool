@@ -47,7 +47,7 @@ export struct MaterialListContentView {
                 }
               })
             }
-          }, (char: CharacterMaterialVM) => char.characterId)
+          }, (char: CharacterMaterialVM) => char.renderKey.length > 0 ? char.renderKey : char.characterId)
         }
         .width(this.tm.current.full)
         .height(this.tm.current.full)
@@ -68,7 +68,7 @@ export struct MaterialListContentView {
                 }
               })
             }
-          }, (section: MaterialSectionVM) => section.type)
+          }, (section: MaterialSectionVM) => section.renderKey.length > 0 ? section.renderKey : `${section.type}`)
         }
         .width(this.tm.current.full)
         .height(this.tm.current.full)

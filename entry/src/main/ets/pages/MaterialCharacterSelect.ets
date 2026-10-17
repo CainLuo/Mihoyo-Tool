@@ -6,7 +6,8 @@
  */
 
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
-import { UIContext } from '@kit.ArkUI'
+import { UIContext, SymbolGlyphModifier, ComponentContent } from '@kit.ArkUI'
+import { AccountSwitchDialog, AccountSwitchDialogParams } from '../components/characters/AccountSwitchDialog'
 import { ViewState } from '../constants/ViewStates'
 import { GameId, Logger } from 'core'
 import {
@@ -16,16 +17,25 @@ import {
 } from '../viewmodel/MaterialCharacterSelectViewModel'
 import { MaterialComputeResult } from '../utils/MaterialComputeService'
 import { MaterialTargetConfigParam } from '../models/ToolsModels'
+import { DialogDedup } from '../utils/DialogDedup'
 import { materialListRoute, materialTargetConfigRoute } from '../utils/MaterialRoutes'
 import { PlaceholderView, PlaceholderState } from '../components/common/PlaceholderView'
 import { AppRoutes } from '../constants/AppRoutes'
 import { gameIdToColor, gameIdToName } from '../utils/GameIdUtil'
+import { genshinElementFromString, elementIcon } from '../constants/GenshinElement'
+import { starRailElementIcon, starRailPathIcon } from '../constants/StarRailElement'
+import { zzzElementIcon, zzzProfessionIcon } from '../constants/ZZZElement'
 
 /** 路由参数类型（从 Builder 传入） */
 interface MaterialCharacterSelectRouteParam {
   accountId: string
   roleUid: string
   gameId: GameId
+}
+
+@Builder
+function accountSwitchDialogBuilder(params: AccountSwitchDialogParams) {
+  AccountSwitchDialog({ params: params })
 }
 
 @ComponentV2
@@ -91,6 +101,7 @@ export struct MaterialCharacterSelect {
                 GridCol({ span: 1 }) {
                   CharacterSelectCard({
                     character: char,
+                    gameId: this.param !== null ? this.param.gameId : GameId.GENSHIN,
                     onTap: () => {
                       this.vm.toggleSelect(char.avatarId)
                     }
@@ -121,28 +132,96 @@ export struct MaterialCharacterSelect {
     }
     .title(this.param !== null ? gameIdToName(this.param.gameId) : '')
     .hideTitleBar(false)
-    .menus(this.vm.showAccountSwitcher ? this.buildAccountMenu() : [])
+    .menus(this.buildMenuItems())
     .onReady((ctx: NavDestinationContext) => {
       this.localStack = ctx.pathStack
+    })
+    .onShown(() => {
+      // 从配置页 / 材料页返回时刷新历史记录入口（DB 中的计算结果可能已变化）
+      this.vm.loadHistory()
     })
   }
 
   /**
-   * 构建账号切换菜单
+   * 右上角按钮：历史记录（DB 中有该游戏的计算结果时才显示）、养成目标配置、切换账号（多账号时才显示）
    */
-  private buildAccountMenu(): MenuElement[] {
-    const items: MenuElement[] = []
-    for (let i = 0; i < this.vm.accountOptions.length; i++) {
-      const option = this.vm.accountOptions[i]
-      const isSelected = i === this.vm.selectedAccountIdx
+  private buildMenuItems(): NavigationMenuItem[] {
+    const items: NavigationMenuItem[] = []
+    if (this.vm.historyAvatarIds.length > 0) {
       items.push({
-        value: isSelected ? `✓ ${option.username}` : option.username,
+        value: $r('app.string.material_history'),
+        symbolIcon: new SymbolGlyphModifier($r('sys.symbol.clock')),
         action: () => {
-          this.vm.selectAccount(i)
+          this.openHistory()
+        }
+      })
+    }
+    items.push({
+      value: $r('app.string.material_target_config_title'),
+      symbolIcon: new SymbolGlyphModifier($r('sys.symbol.gearshape')),
+      action: () => {
+        this.openTargetConfig()
+      }
+    })
+    if (this.vm.showAccountSwitcher) {
+      items.push({
+        value: $r('app.string.characters_switch_account_title'),
+        symbolIcon: new SymbolGlyphModifier($r('sys.symbol.person_2')),
+        action: () => {
+          this.showAccountMenu()
         }
       })
     }
     return items
+  }
+
+  /** 历史记录：用材料汇总页展示 DB 中已有计算结果的全部角色 */
+  private openHistory(): void {
+    const stack = this.localStack ?? this.detailStack
+    if (stack === null || this.vm.historyAvatarIds.length === 0) {
+      return
+    }
+    const param = this.vm.buildHistoryParam()
+    Logger.info('MaterialSelect', `open history, gameId=${param.gameId}, avatarIds=${param.avatarIds.join(',')}`)
+    stack.pushPathByName(materialListRoute(param.gameId), param)
+  }
+
+  /**
+   * 养成目标配置入口：带上当前选中的角色（可以为空）。
+   * 配置页点"开始计算"会先保存到 DB；有选中角色时接着计算并进入材料页，没有选中角色时保存后返回本页。
+   */
+  private openTargetConfig(): void {
+    const stack = this.localStack ?? this.detailStack
+    if (stack === null) {
+      return
+    }
+    const param = this.vm.buildSelectionParam()
+    stack.pushPathByName(materialTargetConfigRoute(param.gameId), param)
+  }
+
+  /** 切换账号（复用角色页的 AccountSwitchDialog 底部弹窗） */
+  private showAccountMenu(): void {
+    const ctx = this.getUIContext()
+    if (this.vm.accountOptions.length === 0) {
+      return
+    }
+    const params = new AccountSwitchDialogParams()
+    params.options = this.vm.accountOptions
+    params.selectedIdx = this.vm.selectedAccountIdx
+    params.onSelect = (idx: number) => {
+      this.vm.selectAccount(idx)
+    }
+    const content = new ComponentContent(ctx, wrapBuilder(accountSwitchDialogBuilder), params)
+    params.onClose = () => {
+      ctx.getPromptAction().closeCustomDialog(content)
+    }
+    ctx.getPromptAction().openCustomDialog(content, {
+      alignment: DialogAlignment.Bottom,
+      offset: { dx: 0, dy: 0 },
+      maskColor: '#80000000',
+      isModal: true,
+      autoCancel: true
+    }).catch((_: Error | object) => {})
   }
 
   /**
@@ -204,24 +283,24 @@ export struct MaterialCharacterSelect {
 
     const stack = this.localStack ?? this.detailStack
     if (stack === null || this.param === null) {
-      Logger.error('🚀🚀🚀 MaterialSelect', `no NavPathStack or param, cannot navigate`)
+      Logger.error('MaterialSelect', `no NavPathStack or param, cannot navigate`)
       return
     }
 
     // 选中信息作为路由参数传给后续页面；目标等级不传，每次计算都从 DB 读取
     const selection = this.vm.buildSelectionParam()
-    Logger.info('🚀🚀🚀 MaterialSelect', `start tap, gameId=${selection.gameId}, selected=${selection.avatarIds.join(',')}`)
+    Logger.info('MaterialSelect', `start tap, gameId=${selection.gameId}, selected=${selection.avatarIds.join(',')}`)
 
     // DB 中没有养成目标配置：提示用户先去配置，不用默认值计算
     if (!(await this.vm.hasSavedConfig())) {
-      Logger.info('🚀🚀🚀 MaterialSelect', `no saved target config, ask user to configure`)
+      Logger.info('MaterialSelect', `no saved target config, ask user to configure`)
       this.showConfigRequiredDialog(stack, selection)
       return
     }
 
     // 计算选中角色 → 替换当前页为对应游戏的材料汇总页（返回时直接回到工具页）
     const result = await this.vm.startCompute(selection)
-    Logger.info('🚀🚀🚀 MaterialSelect', `compute result=${result}`)
+    Logger.info('MaterialSelect', `compute result=${result}`)
     if (result === MaterialComputeResult.SUCCESS) {
       stack.replacePathByName(materialListRoute(selection.gameId), selection)
     } else if (result === MaterialComputeResult.NO_NEEDS) {
@@ -239,6 +318,11 @@ export struct MaterialCharacterSelect {
    * 完成后替换为材料汇总页（同时移除本页，返回时直接回到工具页）。
    */
   private showConfigRequiredDialog(stack: NavPathStack, selection: MaterialTargetConfigParam): void {
+    // 弹框正在显示时忽略重复点击
+    const key = 'material_target_config_required'
+    if (!DialogDedup.tryAcquire(key)) {
+      return
+    }
     this.getUIContext().showAlertDialog({
       title: $r('app.string.material_target_config_required_title'),
       message: $r('app.string.material_target_config_required_message'),
@@ -251,6 +335,10 @@ export struct MaterialCharacterSelect {
         action: () => {
           stack.pushPathByName(materialTargetConfigRoute(selection.gameId), selection)
         }
+      },
+      // 按钮点击、点外部、返回键关闭都会走到这里
+      onDidDisappear: () => {
+        DialogDedup.release(key)
       }
     })
   }
@@ -262,34 +350,104 @@ export struct MaterialCharacterSelect {
 @ComponentV2
 struct CharacterSelectCard {
   @Param character: SelectableCharacterVM = new SelectableCharacterVM()
+  /** 当前游戏，决定头像左上角显示哪些图标 */
+  @Param gameId: GameId = GameId.GENSHIN
   @Param onTap: () => void = () => {}
   @Local private tm: ThemeManager = themeManager
+
+  /** 头像左上角要显示的图标（复用角色页的图标映射；取不到时不显示） */
+  private badgeIcons(): Resource[] {
+    const icons: Resource[] = []
+    if (this.gameId === GameId.GENSHIN) {
+      const e = elementIcon(genshinElementFromString(this.character.element))
+      if (e !== null) { icons.push(e) }
+    } else if (this.gameId === GameId.STARRAIL) {
+      const e = starRailElementIcon(this.character.element)
+      if (e !== null) { icons.push(e) }
+      const p = starRailPathIcon(this.character.pathOrProfession)
+      if (p !== null) { icons.push(p) }
+    } else if (this.gameId === GameId.ZZZ) {
+      const e = zzzElementIcon(parseInt(this.character.element, 10))
+      if (e !== null) { icons.push(e) }
+      const p = zzzProfessionIcon(this.character.pathOrProfession)
+      if (p !== null) { icons.push(p) }
+    }
+    return icons
+  }
 
   build() {
     Stack({ alignContent: Alignment.TopEnd }) {
       Column() {
-        // 角色图标
-        Image(this.character.iconUrl)
-          .width(this.tm.current.value56)
-          .height(this.tm.current.value56)
-          .borderRadius(this.tm.current.radius12)
-          .backgroundColor(this.character.rarity === 5 ? $r('app.color.rarity_5star_bg') : $r('app.color.rarity_4star_bg'))
+        // 角色头像：左上角元素图标（原神：元素；星铁：属性 + 命途；绝区零：属性 + 特性），底部渐变遮罩 + 角色等级
+        Stack({ alignContent: Alignment.TopStart }) {
+          Image(this.character.iconUrl)
+            .width(this.tm.current.value56)
+            .height(this.tm.current.value56)
+            .borderRadius(this.tm.current.radius12)
+            .backgroundColor(this.character.rarity === 5 ? $r('app.color.rarity_5star_bg') : $r('app.color.rarity_4star_bg'))
 
-        // 角色名称
-        Text(this.character.name)
-          .fontSize(this.tm.current.font12)
-          .fontWeight(FontWeight.Medium)
-          .fontColor(this.tm.current.colorTextPrimary)
-          .maxLines(1)
-          .textOverflow({ overflow: TextOverflow.Ellipsis })
-          .margin({ top: this.tm.current.value8 })
+          // 底部渐变遮罩 + 角色等级
+          Text(`Lv.${this.character.level}`)
+            .fontSize(this.tm.current.font10)
+            .fontWeight(FontWeight.Bold)
+            .fontColor(this.tm.current.textOnDarkHigh)
+            .textAlign(TextAlign.Center)
+            .width(this.tm.current.value56)
+            .padding({ top: this.tm.current.value8, bottom: this.tm.current.value2 })
+            .linearGradient({
+              angle: this.tm.current.a180,
+              colors: [[Color.Transparent, 0.0], [this.tm.current.overlayGradientEnd, 1.0]]
+            })
+            .borderRadius({ bottomLeft: this.tm.current.radius12, bottomRight: this.tm.current.radius12 })
+            .position({ x: 0, y: this.tm.current.full })
+            .markAnchor({ x: 0, y: this.tm.current.full })
 
-        // 等级
-        Text(`Lv.${this.character.level}`)
-          .fontSize(this.tm.current.font10)
-          .fontWeight(FontWeight.Normal)
-          .fontColor(this.tm.current.colorTextSecondary)
-          .margin({ top: this.tm.current.value2 })
+          // 左上角图标：加半透明深色底，避免和头像混在一起
+          if (this.badgeIcons().length > 0) {
+            Column({ space: this.tm.current.value2 }) {
+              ForEach(this.badgeIcons(), (icon: Resource) => {
+                Image(icon)
+                  .width(this.tm.current.value14)
+                  .height(this.tm.current.value14)
+                  .objectFit(ImageFit.Contain)
+              }, (icon: Resource, idx: number) => `${idx}_${icon.id}`)
+            }
+            .alignItems(HorizontalAlign.Center)
+            .padding(this.tm.current.value2)
+            .backgroundColor(this.tm.current.colorMask)
+            .borderRadius(this.tm.current.radius8)
+            .margin({ left: this.tm.current.value2, top: this.tm.current.value2 })
+          }
+        }
+        .width(this.tm.current.value56)
+        .height(this.tm.current.value56)
+        .clip(true)
+        .borderRadius(this.tm.current.radius12)
+
+        // 武器（原神）/ 光锥（星铁）/ 音擎（绝区零）：图标 + 等级；没有装备时显示占位
+        Row({ space: this.tm.current.value4 }) {
+          if (this.character.weaponIconUrl.length > 0) {
+            Image(this.character.weaponIconUrl)
+              .width(this.tm.current.value22)
+              .height(this.tm.current.value22)
+              .borderRadius(this.tm.current.radius8)
+              .objectFit(ImageFit.Cover)
+              .backgroundColor(this.character.weaponRarity >= 5
+                ? $r('app.color.rarity_5star_bg')
+                : $r('app.color.rarity_4star_bg'))
+            Text(`Lv.${this.character.weaponLevel}`)
+              .fontSize(this.tm.current.font10)
+              .fontWeight(FontWeight.Medium)
+              .fontColor(this.tm.current.colorTextSecondary)
+          } else {
+            Text('—')
+              .fontSize(this.tm.current.font10)
+              .fontColor(this.tm.current.colorTextSecondary)
+          }
+        }
+        .height(this.tm.current.value22)
+        .justifyContent(FlexAlign.Center)
+        .margin({ top: this.tm.current.value8 })
       }
       .width(this.tm.current.full)
       .padding(this.tm.current.value12)

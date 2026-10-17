@@ -2,8 +2,9 @@
  * MaterialComputeService.ets — 选中角色的养成材料计算
  *
  * 角色选择页、材料汇总页（刷新）、养成目标配置页共用。
- * 只计算 MaterialTargetConfigParam.avatarIds 中的角色，
- * 并在写入前清空该游戏 UID 下旧的计算结果，保证材料汇总页只展示本次选中的角色。
+ * 只计算 MaterialTargetConfigParam.avatarIds 中的角色，计算结果按角色 upsert 到 DB；
+ * 其他角色以前的计算结果保留（角色选择页的"历史记录"会列出全部）。
+ * 材料汇总页只展示路由参数中的角色，所以不需要清空其他角色的数据。
  */
 
 import {
@@ -19,9 +20,9 @@ import {
 import { MaterialComputeTargets, MaterialTargetConfigParam, StarRailSkillSlot, ZZZSkillTarget, ZZZSkillType } from '../models/ToolsModels';
 import { ZZZComputeSkill } from '../models/MaterialTargetConfigModels';
 
-const GENSHIN_TAG: string = '🚀🚀🚀 GenshinCalc';
-const SR_TAG: string = '🚀🚀🚀 StarRailCalc';
-const ZZZ_TAG: string = '🚀🚀🚀 ZZZCalc';
+const GENSHIN_TAG: string = 'GenshinCalc';
+const SR_TAG: string = 'StarRailCalc';
+const ZZZ_TAG: string = 'ZZZCalc';
 
 /** 计算结果 */
 export enum MaterialComputeResult {
@@ -41,6 +42,13 @@ export enum MaterialComputeResult {
 interface StarRailSkillTreeItem {
   point_id: string;
   level: number;
+}
+
+/** 星铁 avatar/info rawJson 中的星魂项 */
+interface StarRailRawRank {
+  pos: number;
+  desc: string;
+  is_unlocked: boolean;
 }
 
 /** 绝区零 avatar/info rawJson 中的技能项 */
@@ -172,14 +180,20 @@ export class MaterialComputeService {
       // 计算器角色数据（sync/avatar/list）会先写入 genshin_calc_avatar，再从 DB 读取组装参数
       const items = await CoreInitializer.genshinRepository.buildCalcItems(
         account.uid, role.roleId, role.server, account.cookie, t.avatarLevel, skillLevels, t.weaponLevel, avatarIds);
+      // 选中但不需要计算的角色（已达成目标）：写入"已达成目标"记录（覆盖旧的计算结果），保留在历史记录中
+      const computedIds: string[] = items.map((it: object) => `${(it as Record<string, Object>)['avatar_id']}`);
+      const reachedIds: string[] = avatarIds.filter((id: string) => !computedIds.includes(id));
+      if (reachedIds.length > 0) {
+        await CoreInitializer.genshinRepository.markTargetReached(account.uid, role.roleId, reachedIds);
+        Logger.info(GENSHIN_TAG, `[Service] target reached, marked: ${reachedIds.join(',')}`);
+      }
       if (items.length === 0) {
         Logger.warn(GENSHIN_TAG, `[Service] no compute items, selected avatars already reach target`);
-        // 清掉旧结果，避免材料页刷新后仍展示过期材料（选中角色会显示为"已达成目标"）
-        await CoreInitializer.genshinRepository.clearAvatarCompute(account.uid, role.roleId);
         return MaterialComputeResult.NO_NEEDS;
       }
+      // 只 upsert 本次计算的角色
       await CoreInitializer.genshinRepository.syncAvatarCompute(
-        account.uid, role.roleId, items, role.roleId, role.server, account.cookie, true);
+        account.uid, role.roleId, items, role.roleId, role.server, account.cookie);
       Logger.info(GENSHIN_TAG, `[Service] done, items=${items.length}`);
       return MaterialComputeResult.SUCCESS;
     } catch (error) {
@@ -216,14 +230,9 @@ export class MaterialComputeService {
     }
 
     const avatarList = await repo.getAvatarList(account.uid, role.roleId);
-    try {
-      await repo.clearAvatarCompute(account.uid, role.roleId);
-    } catch (error) {
-      Logger.warn(SR_TAG, `[Service] clear old compute failed: ${MaterialComputeService.msg(error)}`);
-    }
 
     let successCount = 0;
-    let reachedCount = 0;
+    const reachedIds: string[] = [];
     for (let i = 0; i < avatarList.length; i++) {
       const avatar = avatarList[i];
       if (!avatarIds.includes(avatar.avatarId)) {
@@ -247,6 +256,8 @@ export class MaterialComputeService {
         equipmentParam.cur_level = equipLevel > 0 ? equipLevel : 1;
         equipmentParam.target_level = Math.max(t.weaponLevel, equipmentParam.cur_level);
 
+        // 战绩接口返回的技能等级含星魂（E3 / E5）加成，计算器需要不含加成的基础等级
+        const rankBonus = MaterialComputeService.starRailRankBonus(detailRaw);
         const skillList: StarRailComputeSkill[] = [];
         if (detail && detail.skillTreeJson !== '') {
           try {
@@ -254,7 +265,8 @@ export class MaterialComputeService {
             for (let j = 0; j < skills.length; j++) {
               const skillParam = new StarRailComputeSkill();
               skillParam.item_id = skills[j].point_id;
-              skillParam.cur_level = skills[j].level;
+              skillParam.cur_level = MaterialComputeService.starRailBaseLevel(
+                avatar.avatarId, skills[j].point_id, skills[j].level, rankBonus);
               skillParam.target_level = MaterialComputeService.starRailPointTarget(
                 avatar.avatarId, skills[j].point_id, skills[j].level, t.skillLevels);
               skillList.push(skillParam);
@@ -277,14 +289,15 @@ export class MaterialComputeService {
           }
         }
 
-        Logger.info(SR_TAG, `[Service] avatarId=${avatar.avatarId} ${avatar.name}, level(db=${avatar.level}, detail=${detailLevel}), ` +
+        Logger.info(SR_TAG, `[Service] avatarId=${avatar.avatarId} ${avatar.name}, rank bonus(slot→+N)=${JSON.stringify(Array.from(rankBonus.entries()))}, ` +
+          `level(db=${avatar.level}, detail=${detailLevel}), ` +
           `equip(db=${avatar.equipLevel}, detail=${detail !== null ? detail.equipLevel : -1}), avatar=${JSON.stringify(avatarParam)}, ` +
           `equipment=${JSON.stringify(equipmentParam)}, skills=${JSON.stringify(skillList)}`);
 
         // 全部已达到目标：不请求接口
         const skillsReached = skillList.every((sk: StarRailComputeSkill) => sk.cur_level >= sk.target_level);
         if (avatarParam.cur_level >= avatarParam.target_level && equipmentParam.cur_level >= equipmentParam.target_level && skillsReached) {
-          reachedCount++;
+          reachedIds.push(avatar.avatarId);
           Logger.info(SR_TAG, `[Service] avatarId=${avatar.avatarId} target reached, skip compute`);
           continue;
         }
@@ -298,8 +311,16 @@ export class MaterialComputeService {
       }
     }
 
-    Logger.info(SR_TAG, `[Service] done, success=${successCount}, reached=${reachedCount}, selected=${avatarIds.length}`);
-    return MaterialComputeService.toResult(successCount, reachedCount, avatarIds.length);
+    // 已达成目标的选中角色：写入"已达成目标"记录（覆盖旧的计算结果），保留在历史记录中
+    if (reachedIds.length > 0) {
+      try {
+        await repo.markTargetReached(account.uid, role.roleId, reachedIds);
+      } catch (error) {
+        Logger.warn(SR_TAG, `[Service] mark target reached failed: ${MaterialComputeService.msg(error)}`);
+      }
+    }
+    Logger.info(SR_TAG, `[Service] done, success=${successCount}, reached=${reachedIds.length}(${reachedIds.join(',')}), selected=${avatarIds.length}`);
+    return MaterialComputeService.toResult(successCount, reachedIds.length, avatarIds.length);
   }
 
   // ─── 绝区零 ──────────────────────────────────────────────────
@@ -326,11 +347,6 @@ export class MaterialComputeService {
       Logger.warn(ZZZ_TAG, `[Service] syncAvatarList failed, use cached list: ${MaterialComputeService.msg(error)}`);
     }
     const avatarList = await repo.getAvatarList(account.uid, role.roleId);
-    try {
-      await repo.clearAvatarCompute(account.uid, role.roleId);
-    } catch (error) {
-      Logger.warn(ZZZ_TAG, `[Service] clear old compute failed: ${MaterialComputeService.msg(error)}`);
-    }
 
     // 技能配置为空时用默认
     const skillTargets = t.zzzSkills.length > 0 ? t.zzzSkills : MaterialComputeTargets.defaults(GameId.ZZZ).zzzSkills;
@@ -345,7 +361,7 @@ export class MaterialComputeService {
     }
 
     let successCount = 0;
-    let reachedCount = 0;
+    const reachedIds: string[] = [];
     for (let i = 0; i < avatarList.length; i++) {
       const avatar = avatarList[i];
       if (!avatarIds.includes(avatar.avatarId)) {
@@ -380,7 +396,7 @@ export class MaterialComputeService {
         // 全部已达到目标：不请求接口
         const skillsReached = skills.every((sk: ZZZComputeSkill) => sk.init_level >= sk.level);
         if (level >= avatarTarget && skillsReached) {
-          reachedCount++;
+          reachedIds.push(avatar.avatarId);
           Logger.info(ZZZ_TAG, `[Service] avatarId=${avatar.avatarId} target reached, skip compute`);
           continue;
         }
@@ -394,8 +410,16 @@ export class MaterialComputeService {
       }
     }
 
-    Logger.info(ZZZ_TAG, `[Service] done, success=${successCount}, reached=${reachedCount}, selected=${avatarIds.length}`);
-    return MaterialComputeService.toResult(successCount, reachedCount, avatarIds.length);
+    // 已达成目标的选中角色：写入"已达成目标"记录（覆盖旧的计算结果），保留在历史记录中
+    if (reachedIds.length > 0) {
+      try {
+        await repo.markTargetReached(account.uid, role.roleId, reachedIds);
+      } catch (error) {
+        Logger.warn(ZZZ_TAG, `[Service] mark target reached failed: ${MaterialComputeService.msg(error)}`);
+      }
+    }
+    Logger.info(ZZZ_TAG, `[Service] done, success=${successCount}, reached=${reachedIds.length}(${reachedIds.join(',')}), selected=${avatarIds.length}`);
+    return MaterialComputeService.toResult(successCount, reachedIds.length, avatarIds.length);
   }
 
   // ─── 工具 ────────────────────────────────────────────────────
@@ -414,6 +438,48 @@ export class MaterialComputeService {
       return Math.max(Math.min(target, maxLevel), current);
     }
     return Math.max(current, 1);
+  }
+
+  /**
+   * 星铁：从角色详情（avatar/info）已激活星魂的说明中解析技能等级加成。
+   * 说明格式固定，例如"战技等级+2，最多不超过15级；普攻等级+1，最多不超过10级"。
+   * @returns 技能槽位（1 普攻 / 2 战技 / 3 终结技 / 4 天赋，与 point_id 末三位一致）→ 加成等级
+   */
+  private static starRailRankBonus(detailRaw: Record<string, Object> | null): Map<number, number> {
+    const bonus = new Map<number, number>();
+    if (detailRaw === null) {
+      return bonus;
+    }
+    const ranks = detailRaw['ranks'] as StarRailRawRank[] | undefined;
+    if (!Array.isArray(ranks)) {
+      return bonus;
+    }
+    const pattern = /(普攻|普通攻击|战技|终结技|天赋)等级\+(\d+)/g;
+    for (let i = 0; i < ranks.length; i++) {
+      if (ranks[i].is_unlocked !== true || typeof ranks[i].desc !== 'string') {
+        continue;
+      }
+      pattern.lastIndex = 0;
+      let m = pattern.exec(ranks[i].desc);
+      while (m !== null) {
+        const name = m[1];
+        const slot = name === '战技' ? 2 : name === '终结技' ? 3 : name === '天赋' ? 4 : 1;
+        bonus.set(slot, (bonus.get(slot) ?? 0) + parseInt(m[2], 10));
+        m = pattern.exec(ranks[i].desc);
+      }
+    }
+    return bonus;
+  }
+
+  /** 星铁：point_id 对应的技能扣除星魂加成后的基础等级（非 001~004 的节点不受星魂影响） */
+  private static starRailBaseLevel(avatarId: string, pointId: string, level: number, rankBonus: Map<number, number>): number {
+    const suffix = pointId.startsWith(avatarId) ? pointId.substring(avatarId.length) : '';
+    const slot = suffix.length === 3 ? parseInt(suffix, 10) : -1;
+    if (slot >= 1 && slot <= StarRailSkillSlot.COUNT) {
+      const base = level - (rankBonus.get(slot) ?? 0);
+      return Math.min(Math.max(base, 1), StarRailSkillSlot.MAX_LEVELS[slot - 1]);
+    }
+    return level;
   }
 
   /** 绝区零：从 avatar/info rawJson 读取 skill_type → 当前等级 */

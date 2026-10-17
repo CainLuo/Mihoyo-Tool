@@ -25,6 +25,8 @@ import {
 } from '../models/GameRoleModels';
 import { ApiLogSystem } from '../log/ApiLogSystem';
 import { LogEventType } from '../log/ApiLogEntry';
+import { Logger } from '../utils/Logger';
+import { CookieDebug, AUTH_EXPIRE_TAG } from '../utils/CookieDebug';
 import { AuthExpiredError, GeetestRequiredError } from '../errors/ApiErrors';
 
 export {
@@ -427,14 +429,31 @@ export class BBSRepository {
 
     const stoken = BBSRepository.extractCookieField(cookie, 'stoken');
     const mid = BBSRepository.extractCookieField(cookie, 'mid');
+    Logger.warn(AUTH_EXPIRE_TAG, `[Refresh] username=${username}, stoken=${stoken.length > 0 ? stoken.substring(0, 6) + '…(len=' + stoken.length + ')' : '<none>'}, ` +
+      `mid=${mid.length > 0 ? mid : '<none>'}, ${CookieDebug.summarize(cookie)}`);
 
     if (stoken.length === 0) {
+      Logger.error(AUTH_EXPIRE_TAG, `[Refresh] username=${username} FAILED: no stoken in cookie`);
       throw new AuthExpiredError('Cookie expired and no stoken available, please re-login');
     }
 
     try {
-      const ltoken = await AuthRepository.getLTokenBySToken(stoken, mid);
-      const cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
+      let ltoken = '';
+      try {
+        ltoken = await AuthRepository.getLTokenBySToken(stoken, mid);
+        Logger.warn(AUTH_EXPIRE_TAG, `[Refresh] username=${username} getLTokenBySToken OK (len=${ltoken.length})`);
+      } catch (e) {
+        Logger.error(AUTH_EXPIRE_TAG, `[Refresh] username=${username} getLTokenBySToken FAILED: ${e instanceof Error ? e.message : String(e)}`);
+        throw e as Error;
+      }
+      let cookieToken = '';
+      try {
+        cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
+        Logger.warn(AUTH_EXPIRE_TAG, `[Refresh] username=${username} getCookieBySToken OK (len=${cookieToken.length})`);
+      } catch (e) {
+        Logger.error(AUTH_EXPIRE_TAG, `[Refresh] username=${username} getCookieBySToken FAILED: ${e instanceof Error ? e.message : String(e)}`);
+        throw e as Error;
+      }
 
       // 替换 cookie 字符串里的 ltoken 和 cookie_token
       let newCookie = BBSRepository.replaceCookieField(cookie, 'ltoken', ltoken);
@@ -450,6 +469,9 @@ export class BBSRepository {
       // 写入 DB
       const now = Math.floor(Date.now() / 1000);
       await this.accountDao.updateCookie(username, newCookie, now);
+      // 确认确实写进了 DB（username 对不上时 UPDATE 不会生效）
+      const saved = await this.accountDao.findByUsername(username);
+      Logger.warn(AUTH_EXPIRE_TAG, `[Refresh] username=${username} saved to DB: ${saved === null ? 'ACCOUNT NOT FOUND BY USERNAME' : (saved.cookie === newCookie ? 'OK' : 'MISMATCH')}`);
 
       return newCookie;
     } catch (e) {

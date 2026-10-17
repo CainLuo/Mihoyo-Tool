@@ -29,8 +29,8 @@ import { AccountSignal } from '../utils/AccountSignal'
 import { MaterialTargetConfigParam, ZZZSkillType } from '../models/ToolsModels'
 import { MaterialComputeService, MaterialComputeResult } from '../utils/MaterialComputeService'
 
-/** 养成目标配置日志 tag，过滤：hilog | grep 🚀🚀🚀 */
-const CONFIG_TAG: string = '🚀🚀🚀 MaterialTargetConfig'
+/** 养成目标配置日志 tag，过滤：hilog | grep */
+const CONFIG_TAG: string = 'MaterialTargetConfig'
 
 /** 绝区零养成目标配置 ViewModel */
 @ObservedV2

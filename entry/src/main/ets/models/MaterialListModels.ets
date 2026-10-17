@@ -121,6 +121,11 @@ export class CharacterMaterialVM {
   @Trace isExpanded: boolean = false;
   /** 已达到养成目标（选中但无需计算材料）：卡片显示"已达成目标"，不可展开 */
   isTargetReached: boolean = false;
+  /**
+   * 列表渲染 key（characterId + 本次加载版本号）。
+   * ForEach 的 key 不变时只移动组件、不会用新数据重新渲染，所以每次加载都要生成新的 key。
+   */
+  renderKey: string = '';
   /** 材料区域标题（ViewModel 组装时确定："角色材料" 或 "所需材料"） */
   avatarSectionTitle: ResourceStr = $r('app.string.material_section_avatar');
 }
@@ -169,6 +174,8 @@ export enum MaterialSectionType {
  * 材料汇总分组 UI State
  */
 export class MaterialSectionVM {
+  /** 列表渲染 key（type + 本次加载版本号），原因同 CharacterMaterialVM.renderKey */
+  renderKey: string = '';
   /** 分组类型 */
   type: MaterialSectionType = MaterialSectionType.MATERIALS;
   /** 分组标题 */

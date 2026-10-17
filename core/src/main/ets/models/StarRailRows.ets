@@ -146,6 +146,8 @@ export class StarRailAvatarComputeRow {
   rawJson: string = '';
   /** 数据更新时间（Unix 秒） */
   updateTime: number = 0;
+  /** 本地状态（v7）：1 = 已达成目标，各 consume / raw_json 为空 */
+  targetReached: number = 0;
 }
 
 // ─── API 响应解析用 interface（供 StarRailRepository 内部使用）──

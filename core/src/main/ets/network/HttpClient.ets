@@ -4,6 +4,8 @@ import { ApiLogSystem } from '../log/ApiLogSystem';
 import { LogEventType } from '../log/ApiLogEntry';
 import { AppEnvManager } from '../constants/AppEnvManager';
 import certFramework from '@ohos.security.cert';
+import { Logger } from '../utils/Logger';
+import { CookieDebug, AUTH_EXPIRE_TAG } from '../utils/CookieDebug';
 
 interface X509TrustManager {
   checkClientTrusted(data: certFramework.X509Cert): void;
@@ -106,6 +108,17 @@ export class HttpClient {
     const retcode = data['retcode'] as number | undefined;
 
     if (retcode !== undefined && retcode !== 0) {
+      // 登录过期排查：哪个接口、什么返回码、带的是哪份 Cookie
+      if (CookieDebug.isAuthExpiredCode(retcode)) {
+        Logger.warn(AUTH_EXPIRE_TAG, `[HTTP] GET ${url} → retcode=${retcode}, message=${data['message'] ?? ''}, ` +
+          `${CookieDebug.summarize(CookieDebug.cookieFromHeaders(headers))}`);
+      }
+      // 请求无效：打印查询参数 / body、全部请求头（DS、client_type、device_fp 等）和 Cookie 摘要，排查是哪一项不对
+      if (CookieDebug.isInvalidRequestCode(retcode)) {
+        Logger.warn(AUTH_EXPIRE_TAG, `[HTTP][InvalidRequest] GET ${url} → retcode=${retcode}, message=${data['message'] ?? ''}`);
+        Logger.warn(AUTH_EXPIRE_TAG, `[HTTP][InvalidRequest] ` + `params=${params !== undefined && params.size > 0 ? JSON.stringify(HttpClient.paramsToRecord(params)) : '-'}, ` + `headers: ${CookieDebug.summarizeHeaders(headers)}`);
+        Logger.warn(AUTH_EXPIRE_TAG, `[HTTP][InvalidRequest] ${CookieDebug.summarize(CookieDebug.cookieFromHeaders(headers))}`);
+      }
       // 记录业务错误日志
       try {
         const message = data['message'] as string ?? '';
@@ -189,6 +202,17 @@ export class HttpClient {
     const retcode = respData['retcode'] as number | undefined;
 
     if (retcode !== undefined && retcode !== 0) {
+      // 登录过期排查：哪个接口、什么返回码、带的是哪份 Cookie
+      if (CookieDebug.isAuthExpiredCode(retcode)) {
+        Logger.warn(AUTH_EXPIRE_TAG, `[HTTP] POST ${url} → retcode=${retcode}, message=${respData['message'] ?? ''}, ` +
+          `${CookieDebug.summarize(CookieDebug.cookieFromHeaders(headers))}`);
+      }
+      // 请求无效：打印查询参数 / body、全部请求头（DS、client_type、device_fp 等）和 Cookie 摘要，排查是哪一项不对
+      if (CookieDebug.isInvalidRequestCode(retcode)) {
+        Logger.warn(AUTH_EXPIRE_TAG, `[HTTP][InvalidRequest] POST ${url} → retcode=${retcode}, message=${respData['message'] ?? ''}`);
+        Logger.warn(AUTH_EXPIRE_TAG, `[HTTP][InvalidRequest] ` + `body=${typeof body === 'string' ? body : (body !== undefined ? JSON.stringify(body) : '-')}, ` + `headers: ${CookieDebug.summarizeHeaders(headers)}`);
+        Logger.warn(AUTH_EXPIRE_TAG, `[HTTP][InvalidRequest] ${CookieDebug.summarize(CookieDebug.cookieFromHeaders(headers))}`);
+      }
       // 记录业务错误日志
       try {
         const message = respData['message'] as string ?? '';

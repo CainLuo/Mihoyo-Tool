@@ -21,6 +21,8 @@ import { Logger } from 'core';
 import { LoginTab, PhoneStep, QRCodeStat } from '../constants/LoginTabEnum';
 import { MyAccountVM, MyGameRoleVM, GameStatItem } from '../models/MyModels';
 import { serverDisplayName } from '../utils/ServerNameUtil';
+import { CookieExpiredSignal } from '../utils/CookieExpiredSignal';
+import { AUTH_EXPIRE_TAG, summarizeCookie } from '../utils/AuthExpireLog';
 import { gameIdToName, gameIdToColor } from '../utils/GameIdUtil';
 
 export { LoginTab, PhoneStep, QRCodeStat };
@@ -303,6 +305,18 @@ export class LoginViewModel {
       loginResult.nickname, loginResult.avatarUrl, loginResult.uid
     );
     this.loginedAccountId = loginResult.accountId;
+    // 重新登录成功：移除该账号的过期标记（账号详情页的"重新登录 / 刷新 Cookie"随之隐藏）
+    CookieExpiredSignal.instance().clearExpired(loginResult.username);
+    // 排查：登录时传入的 username 与 DB 中实际保存的账号是否一致、DB 是否出现重复账号
+    try {
+      const all = await CoreInitializer.bbsRepository.getAllAccounts();
+      Logger.warn(AUTH_EXPIRE_TAG, `[Login] success, input username=${username}, saved username=${loginResult.username}, ` +
+        `accountId=${loginResult.accountId}, uid=${loginResult.uid}, ${summarizeCookie(cookie)}`);
+      for (let i = 0; i < all.length; i++) {
+        Logger.warn(AUTH_EXPIRE_TAG, `[Login] DB account[${i}] username=${all[i].username}, uid=${all[i].uid}, ` +
+          `updateTime=${all[i].updateTime}, ${summarizeCookie(all[i].cookie)}`);
+      }
+    } catch (_) {}
     this.loginSuccess = true;
   }
 

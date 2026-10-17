@@ -16,7 +16,7 @@ import { relationalStore } from '@kit.ArkData';
 import { RdbManager } from './RdbManager';
 import { RsReader } from './RsReader';
 import {
-  TableName, CommonCol,
+  TableName, CommonCol, ComputeStateCol,
   GenshinCharListCol, GenshinDailyNoteCol, GenshinCharDetailCol, GenshinCharComputeCol, GenshinCalcAvatarCol, GenshinComputeSummaryCol,
   GENSHIN_CHARACTER_LIST_TABLE, GENSHIN_DAILY_NOTE_TABLE,
   GENSHIN_CHARACTER_DETAIL_TABLE, GENSHIN_CHARACTER_COMPUTE_TABLE, GENSHIN_CALC_AVATAR_TABLE, GENSHIN_COMPUTE_SUMMARY_TABLE
@@ -351,7 +351,7 @@ export class GenshinCharacterComputeDao {
       await RdbManager.upsertRow(TableName.GENSHIN_CHARACTER_COMPUTE, GENSHIN_CHARACTER_COMPUTE_TABLE.columnNames(), [
         idVal, row.accountId, row.roleUid, row.avatarId,
         row.avatarConsumeJson, row.avatarSkillConsumeJson, row.weaponConsumeJson,
-        row.skillsConsumeJson, row.overallConsumeJson, row.rawJson, row.updateTime
+        row.skillsConsumeJson, row.overallConsumeJson, row.rawJson, row.updateTime, row.targetReached
       ]);
     } catch (e) {
       throw new Error(`GenshinCharacterComputeDao.upsert failed: ${e instanceof Error ? e.message : e}`);
@@ -393,6 +393,26 @@ export class GenshinCharacterComputeDao {
     }
   }
 
+  /**
+   * 删除指定角色的养成计算记录（只删 avatarIds 中的角色，其他角色的历史计算结果保留）。
+   */
+  async deleteByAvatarIds(accountId: string, roleUid: string, avatarIds: string[]): Promise<void> {
+    if (avatarIds.length === 0) {
+      return;
+    }
+    const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_CHARACTER_COMPUTE);
+    predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
+    predicates.and();
+    predicates.equalTo(CommonCol.ROLE_UID, roleUid);
+    predicates.and();
+    predicates.in(CommonCol.AVATAR_ID, avatarIds);
+    try {
+      await RdbManager.deleteRows(predicates);
+    } catch (e) {
+      throw new Error(`GenshinCharacterComputeDao.deleteByAvatarIds failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
   /** 删除指定账号和角色的所有原神养成计算记录 */
   async deleteAll(accountId: string, roleUid: string): Promise<void> {
     const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_CHARACTER_COMPUTE);
@@ -422,6 +442,7 @@ export class GenshinCharacterComputeDao {
       row.overallConsumeJson     = r.str(GenshinCharComputeCol.OVERALL_CONSUME_JSON);
       row.rawJson           = r.str(CommonCol.RAW_JSON);
       row.updateTime        = r.num(CommonCol.UPDATE_TIME);
+      row.targetReached = r.num(ComputeStateCol.TARGET_REACHED);
       return row;
     } catch (e) {
       throw new Error(`GenshinCharacterComputeDao.mapRow failed: ${e instanceof Error ? e.message : e}`);

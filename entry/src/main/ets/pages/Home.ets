@@ -17,6 +17,7 @@ import { AccountSignal } from '../utils/AccountSignal'
 import { ViewState } from '../constants/ViewStates'
 import { AppRoutes } from '../constants/AppRoutes'
 import { showFeedback } from '../utils/FeedbackUtil'
+import { DialogDedup } from '../utils/DialogDedup'
 import { FeedbackType } from '../constants/FeedbackType'
 
 @ComponentV2
@@ -71,6 +72,8 @@ export struct Home {
   onRefreshCoolingDown(_monitor: IMonitor): void {
     const ctx = this.uiCtx
     if (ctx === null) { return }
+    // 冷却确认框正在显示时忽略重复点击
+    if (!DialogDedup.tryAcquire('home_refresh_cooldown')) { return }
     ctx.getPromptAction().showDialog({
       title: $r('app.string.home_refresh_cooldown_title'),
       message: $r('app.string.home_refresh_cooldown_msg'),
@@ -79,8 +82,10 @@ export struct Home {
         { text: $r('app.string.dialog_sync'), color: $r('app.color.color_warning') }
       ]
     }).then((result) => {
+      DialogDedup.release('home_refresh_cooldown')
       if (result.index === 1) { this.vm.forceRefresh() }
     }).catch((e: BusinessError) => {
+      DialogDedup.release('home_refresh_cooldown')
       Logger.warn('Home', 'showDialog cooldown failed: ' + e.message)
     })
   }

@@ -13,6 +13,8 @@
 import { BBSRepository } from '../repository/BBSRepository';
 import { AuthExpiredError } from '../errors/ApiErrors';
 import { ApiLogSystem } from '../log/ApiLogSystem';
+import { Logger } from '../utils/Logger';
+import { CookieDebug, AUTH_EXPIRE_TAG } from '../utils/CookieDebug';
 import { LogEventType } from '../log/ApiLogEntry';
 
 /** 60 秒内同一账号不重复刷新 */
@@ -52,11 +54,13 @@ export class CookieRefreshCoordinator {
     cookie: string,
     bbsRepository: BBSRepository,
   ): Promise<string> {
+    Logger.warn(AUTH_EXPIRE_TAG, `[Coordinator] refreshWithLock username=${username}, ${CookieDebug.summarize(cookie)}`);
     // 60 秒内已完成刷新，从 DB 读取最新 cookie 返回
     const lastTime = this.lastRefreshTime.get(username);
     if (lastTime !== undefined) {
       const now = Math.floor(Date.now() / 1000);
       if (now - lastTime < REFRESH_COOLDOWN_SECONDS) {
+        Logger.warn(AUTH_EXPIRE_TAG, `[Coordinator] username=${username} refreshed ${now - lastTime}s ago, reuse cookie from DB`);
         // 读取 DB 中最新的 cookie
         try {
           const account = await bbsRepository.getAccountByUsername(username);
@@ -71,6 +75,7 @@ export class CookieRefreshCoordinator {
     // 已有进行中的刷新，复用同一个 Promise
     const existing = this.refreshLocks.get(username);
     if (existing !== undefined) {
+      Logger.warn(AUTH_EXPIRE_TAG, `[Coordinator] username=${username} refresh in progress, wait for it`);
       return existing;
     }
 
@@ -107,8 +112,10 @@ export class CookieRefreshCoordinator {
         'cookie refreshed for: ' + username,
         LogEventType.LIFECYCLE,
       );
+      Logger.warn(AUTH_EXPIRE_TAG, `[Coordinator] username=${username} refresh OK, new ${CookieDebug.summarize(newCookie)}`);
       return newCookie;
     } catch (e) {
+      Logger.error(AUTH_EXPIRE_TAG, `[Coordinator] username=${username} refresh FAILED: ${e instanceof Error ? e.message : String(e)}`);
       if (e instanceof AuthExpiredError) {
         throw e;
       }

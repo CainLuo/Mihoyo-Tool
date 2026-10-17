@@ -33,8 +33,8 @@ import {
 } from '../models/MaterialListModels';
 
 const TAG: string = 'StarRailMaterialListViewModel';
-/** 材料页日志 tag，过滤：hilog | grep 🚀🚀🚀 */
-const PAGE_CALC_TAG: string = '🚀🚀🚀 MaterialList';
+/** 材料页日志 tag，过滤：hilog | grep */
+const PAGE_CALC_TAG: string = 'MaterialList';
 
 /** StarRailMaterialListViewModel @Monitor 路径常量类型 */
 export class StarRailMaterialListViewModelKeys {
@@ -174,9 +174,22 @@ export class StarRailMaterialListViewModel {
         return;
       }
 
-      this.characterMaterials = allCharacterMaterials;
+      // 已达成目标的角色永远排在最后（同组内保持原顺序）
+      const needed = allCharacterMaterials.filter((c: CharacterMaterialVM) => !c.isTargetReached);
+      const reached = allCharacterMaterials.filter((c: CharacterMaterialVM) => c.isTargetReached);
+      const sorted = needed.concat(reached);
+      // 每次加载生成新的渲染 key，保证刷新后列表按新数据重新渲染（顺序 + 内容）
+      const loadVersion = Date.now();
+      for (let k = 0; k < sorted.length; k++) {
+        sorted[k].renderKey = `${sorted[k].characterId}_${loadVersion}`;
+      }
+      this.characterMaterials = sorted;
       this.materialSummaries = this.aggregateMaterials(allCharacterMaterials);
-      this.materialSections = this.groupMaterialsIntoSections(this.materialSummaries);
+      const sections = this.groupMaterialsIntoSections(this.materialSummaries);
+      for (let k = 0; k < sections.length; k++) {
+        sections[k].renderKey = `${sections[k].type}_${loadVersion}`;
+      }
+      this.materialSections = sections;
       this.viewState = ViewState.DATA;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -212,7 +225,8 @@ export class StarRailMaterialListViewModel {
       const computeRow = await CoreInitializer.starRailRepository.getAvatarCompute(accountId, roleUid, avatar.avatarId);
       Logger.info(TAG, `loadCharacterMaterials: [${i}] computeRow=${computeRow === null ? 'null' : 'exists, rawJson.length=' + computeRow.rawJson.length}`);
       
-      if (computeRow === null) {
+      // 已达成目标：DB 中标记 target_reached = 1，或选中但没有计算结果
+      if (computeRow === null || computeRow.targetReached === 1) {
         const reached = new CharacterMaterialVM();
         reached.characterId = avatar.avatarId;
         reached.characterName = avatar.name;
