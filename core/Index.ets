@@ -19,8 +19,11 @@ export * from './src/main/ets/constants/GenshinPropertyType';
 
 // Parsers
 export * from './src/main/ets/parsers/genshin/GenshinDailyNoteParser';
+export * from './src/main/ets/parsers/genshin/GenshinComputeParser';
 export * from './src/main/ets/parsers/starrail/StarRailDailyNoteParser';
+export * from './src/main/ets/parsers/starrail/StarRailComputeParser';
 export * from './src/main/ets/parsers/zzz/ZZZDailyNoteParser';
+export * from './src/main/ets/parsers/zzz/ZZZComputeParser';
 
 // ── 核心导出 ──────────────────────────────────────────────────
 
@@ -32,8 +35,11 @@ export * from './src/main/ets/database/RdbManager';
 export * from './src/main/ets/database/BBSDao';
 export * from './src/main/ets/database/GenshinDao';
 export * from './src/main/ets/database/StarRailDao';
+export * from './src/main/ets/database/StarRailDBManager';
 export * from './src/main/ets/database/ZZZDao';
 export * from './src/main/ets/database/SyncMetaDao';
+export * from './src/main/ets/database/MaterialBagDao';
+export * from './src/main/ets/database/MaterialTargetConfigDao';
 // 数据模型
 export * from './src/main/ets/models/AccountRow';
 export * from './src/main/ets/models/GameRoleRow';
@@ -46,6 +52,8 @@ export * from './src/main/ets/models/SyncTask';
 export * from './src/main/ets/models/GenshinCharacterDetailRaw';
 export * from './src/main/ets/models/StarRailAvatarDetailRaw';
 export * from './src/main/ets/models/ZZZAvatarDetailRaw';
+export * from './src/main/ets/models/MaterialBagRow';
+export * from './src/main/ets/models/MaterialTargetConfigRow';
 // Repository 层
 export * from './src/main/ets/repository/GameRepository';
 export * from './src/main/ets/repository/BBSRepository';
@@ -54,6 +62,8 @@ export * from './src/main/ets/repository/StarRailRepository';
 export * from './src/main/ets/repository/ZZZRepository';
 export * from './src/main/ets/repository/SignRepository';
 export * from './src/main/ets/repository/SyncQueueRunner';
+export * from './src/main/ets/repository/MaterialBagRepository';
+export * from './src/main/ets/repository/MaterialTargetConfigRepository';
 
 // 网络层（抽象基类）
 export * from './src/main/ets/network/MihoyoApiService';
@@ -64,6 +74,9 @@ export * from './src/main/ets/constants/AppEnvManager';
 
 // 日志工具（core/entry 共用）
 export * from './src/main/ets/utils/Logger';
+
+// API 错误处理工具
+export * from './src/main/ets/utils/ApiErrorHandler';
 
 // 日志系统
 export * from './src/main/ets/log/ApiLogEntry';
@@ -117,9 +130,24 @@ export * from './src/main/ets/network/StarRailApiService';
 export * from './src/main/ets/network/ZZZApiService';
 export * from './src/main/ets/network/SignApiService';
 
-// 业务错误类型
-export { AuthExpiredError, GeetestRequiredError, RoleNotPublicError } from './src/main/ets/errors/ApiErrors';
-export { GeetestCreateResult, GeetestVerifyInput } from './src/main/ets/errors/ApiErrors';
+// 业务错误类型（新的统一错误类）
+export {
+  SyncErrorKind,
+  SyncError,
+  SyncErrorFactory
+} from './src/main/ets/errors/ApiErrors';
+
+// 旧的错误类（deprecated，保留兼容）
+export {
+  GeetestCreateResult,
+  GeetestVerifyInput,
+  AuthExpiredErrorClass,
+  AuthExpiredError,
+  GeetestRequiredErrorClass,
+  GeetestRequiredError,
+  RoleNotPublicErrorClass,
+  RoleNotPublicError
+} from './src/main/ets/errors/ApiErrors';
 
 // Cookie 刷新
 export * from './src/main/ets/cookie/ColdStartCookieChecker';

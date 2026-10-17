@@ -2,6 +2,7 @@ import { common } from '@kit.AbilityKit';
 import { RequestParams, RequestOptions } from '../APIs';
 import { MockServiceBase } from './MockServiceBase';
 import { StarRailApiPath } from '../StarRailApiPath';
+import { Logger } from '../../utils/Logger';
 
 export class StarRailMockService extends MockServiceBase {
   constructor(context: common.UIAbilityContext) {
@@ -28,8 +29,8 @@ export class StarRailMockService extends MockServiceBase {
     return this.readMockFile(StarRailApiPath.AVATAR_INFO, cookie, roleId);
   }
 
-  async compute(avatar: object, skillList: object[], uid: string, region: string, cookie: string): Promise<object> {
-    return this.readMockFile(StarRailApiPath.COMPUTE, cookie, uid);
+  async compute(avatarId: string, avatar: object, skillList: object[], uid: string, region: string, cookie: string): Promise<object> {
+    return this.readMockFile(StarRailApiPath.COMPUTE, cookie, uid, avatarId);
   }
 
   private extractCookie(options?: RequestOptions): string {

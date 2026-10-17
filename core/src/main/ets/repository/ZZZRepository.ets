@@ -21,6 +21,19 @@ import { AuthExpiredError } from '../errors/ApiErrors';
 import { CookieRefreshCoordinator } from '../cookie/CookieRefreshCoordinator';
 import { CoreInitializer } from '../CoreInitializer';
 import { BBSRepository } from './BBSRepository';
+import { MaterialBagRepository } from './MaterialBagRepository';
+import { MaterialBagRow } from '../models/MaterialBagRow';
+import { ZZZComputeParser, ZZZMaterialItem } from '../parsers/zzz/ZZZComputeParser';
+import { GameId } from '../constants/GameId';
+import { Logger } from '../utils/Logger';
+import { CookieDebug } from '../utils/CookieDebug';
+import { ApiErrorCodes } from '../constants/ApiErrorCodes';
+import { ApiErrorHandler } from '../utils/ApiErrorHandler';
+
+/** tryWidgetFallback 结果 */
+const WIDGET_FALLBACK_SUCCESS: string = 'success';
+const WIDGET_FALLBACK_REJECTED: string = 'rejected';
+const WIDGET_FALLBACK_UNAVAILABLE: string = 'unavailable';
 
 export class ZZZRepository extends GameRepository {
   private avatarBasicDao: ZZZAvatarBasicDao = new ZZZAvatarBasicDao();
@@ -28,6 +41,7 @@ export class ZZZRepository extends GameRepository {
   private avatarInfoDao: ZZZAvatarInfoDao = new ZZZAvatarInfoDao();
   private avatarComputeDao: ZZZAvatarComputeDao = new ZZZAvatarComputeDao();
   private buddyDao: ZZZBuddyDao = new ZZZBuddyDao();
+  private materialBagRepo: MaterialBagRepository = new MaterialBagRepository();
 
   // ── 角色基础列表 ──────────────────────────────────────────────
 
@@ -63,6 +77,7 @@ export class ZZZRepository extends GameRepository {
     await this.markSyncing(accountId, roleUid, SyncDataType.ZZZ_AVATAR_BASIC);
     try {
       const resp = await (this.getService() as ZZZApiService).getAvatarBasic(roleUid, server, cookie);
+      ApiErrorHandler.checkResponse(resp);
       const rows = ZZZRepository.parseAvatarBasic(accountId, roleUid, resp);
       await this.upsertAvatarList(accountId, roleUid, rows);
     } catch (error) {
@@ -131,32 +146,71 @@ export class ZZZRepository extends GameRepository {
     }
   }
 
+  /**
+   * 拉取实时便笺。便笺接口返回 retcode ≠ 0 时一律降级到 Widget 接口；
+   * Widget 成功则视为同步成功；Widget 失败或没有 v2 stoken 时，按便笺接口原本的错误抛出
+   * （登录过期仍会触发上层的 Cookie 自动刷新，人机验证仍会触发验证弹框）。
+   */
   private async doSyncDailyNote(accountId: string, roleUid: string, server: string, cookie: string, geetestChallenge?: string): Promise<void> {
     const resp = await (this.getService() as ZZZApiService).getDailyNote(roleUid, server, cookie, geetestChallenge);
     const respData = resp as Record<string, object>;
-    const retcodeStr = `${respData['retcode'] ?? ''}`;
-    if (retcodeStr === '-100' || retcodeStr === '10001' || retcodeStr === '-10001') {
-      throw new AuthExpiredError(`retcode=${retcodeStr}`);
-    }
-    if (retcodeStr === '1034' || retcodeStr === '10035') {
-      // 1034/10035：尝试降级到 Widget API（无 Geetest 验证）
-      const widgetCookie = BBSRepository.buildWidgetCookie(cookie);
-      if (widgetCookie.length > 0) {
-        await this.doSyncDailyNoteWidget(accountId, roleUid, widgetCookie);
-        // Widget 降级成功，标记为 success
-        await this.markSuccess(accountId, roleUid, SyncDataType.ZZZ_DAILY_NOTE);
+    const retcode = Number(respData['retcode'] ?? 0);
+    const message: string = `${respData['message'] ?? 'no data'}`;
+
+    if (retcode !== ApiErrorCodes.SUCCESS) {
+      const fallback = await this.tryWidgetFallback(accountId, roleUid, cookie, `retcode=${retcode}: ${message}`);
+      if (fallback === WIDGET_FALLBACK_SUCCESS) {
         return;
       }
-      throw new Error(`retcode=${retcodeStr}: Geetest verification required and no widget cookie available`);
+      if (fallback === WIDGET_FALLBACK_REJECTED) {
+        // Widget 也返回登录过期（-100 / 10001）：视为登录已过期。
+        // 上层 syncDailyNote 会先用 stoken 自动刷新 Cookie 重试一次，仍失败则由首页弹"登录已过期"
+        const reason4Expire = `retcode=${retcode}: ${message}; widget auth expired`;
+        throw new AuthExpiredError(`note ${reason4Expire}`);
+      }
+      // Widget 不可用 / 返回其他错误：按便笺接口原本的错误处理（1034 仍会触发人机验证）
+      if (ApiErrorHandler.isAuthExpired(retcode)) {
+        throw new AuthExpiredError(`retcode=${retcode}: ${message}`);
+      }
+      throw new Error(`retcode=${retcode}: ${message}`);
     }
     if (respData['data'] === null || respData['data'] === undefined) {
-      throw new Error(`retcode=${retcodeStr}: ${respData['message'] ?? 'no data'}`);
+      throw new Error(`retcode=${retcode}: ${message}`);
     }
     const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
     // Note API 数据存储到 rawJson
     const row = this.parseZZZDailyNoteData(accountId, roleUid, dataObj, false);
     await this.upsertDailyNote(accountId, roleUid, row);
   }
+
+  /**
+   * 降级到 Widget 接口同步便笺。
+   * @returns WIDGET_FALLBACK_SUCCESS：Widget 同步成功；
+   *          WIDGET_FALLBACK_REJECTED：Widget 返回 -100 / 10001（调用方视为登录已过期）；
+   *          WIDGET_FALLBACK_UNAVAILABLE：没有 v2 stoken、网络异常或 Widget 返回其他错误（调用方按便笺原错误处理）
+   */
+  private async tryWidgetFallback(accountId: string, roleUid: string, cookie: string, reason: string): Promise<string> {
+    // 与 PizzaHelperUnited 一致：Cookie 含 v2 stoken 才能降级，Widget 请求使用账号完整 Cookie
+    const widgetCookie = cookie.indexOf('stoken=v2_') !== -1 ? cookie : '';
+    if (widgetCookie.length === 0) {
+      return WIDGET_FALLBACK_UNAVAILABLE;
+    }
+    try {
+      await this.doSyncDailyNoteWidget(accountId, roleUid, widgetCookie);
+      await this.markSuccess(accountId, roleUid, SyncDataType.ZZZ_DAILY_NOTE);
+      return WIDGET_FALLBACK_SUCCESS;
+    } catch (widgetError) {
+      const msg = widgetError instanceof Error ? widgetError.message : String(widgetError);
+      // doSyncDailyNoteWidget 在接口返回 retcode ≠ 0 时抛出 "Widget API failed: retcode=..."
+      // 只有 Widget 自己返回登录过期（-100 / 10001）才视为过期；其他错误（如 -10001）按便笺接口原错误处理
+      const m = msg.match(/retcode=(-?\d+)/);
+      const rejected = m !== null && CookieDebug.isAuthExpiredCode(Number(m[1]));
+      Logger.error('ZZZRepository', `[Fallback] zzz widget FAILED (${rejected ? 'rejected' : 'unavailable'}): ${msg}`);
+      return rejected ? WIDGET_FALLBACK_REJECTED : WIDGET_FALLBACK_UNAVAILABLE;
+    }
+  }
+
+
 
   /**
    * Widget API 同步便笺（绝区零 /api/zzz/widget）
@@ -261,6 +315,7 @@ export class ZZZRepository extends GameRepository {
     try {
       const idList = avatarId ? [avatarId] : [];
       const resp = await (this.getService() as ZZZApiService).getAvatarInfo(roleUid, server, idList, cookie);
+      ApiErrorHandler.checkResponse(resp);
       const rows = ZZZRepository.parseAvatarInfo(accountId, roleUid, resp);
       await this.upsertAvatarDetails(accountId, roleUid, rows);
     } catch (error) {
@@ -315,6 +370,194 @@ export class ZZZRepository extends GameRepository {
 
   async markAvatarComputeFailed(accountId: string, roleUid: string, errorMsg: string): Promise<void> {
     await this.markFailed(accountId, roleUid, SyncDataType.ZZZ_AVATAR_COMPUTE, errorMsg);
+  }
+
+  /**
+   * 标记指定角色"已达成目标"：写入（覆盖）一行 target_reached = 1、各 consume / raw_json 为空的记录。
+   * 同一角色 ID 覆盖旧的计算结果，不存在则新增；该角色保留在历史记录中（排在最后）。
+   */
+  async markTargetReached(accountId: string, roleUid: string, avatarIds: string[]): Promise<void> {
+    const now = Math.floor(Date.now() / 1000);
+    await this.runInTransaction(async () => {
+      for (let i = 0; i < avatarIds.length; i++) {
+        const row = new ZZZAvatarComputeRow();
+        row.accountId = accountId;
+        row.roleUid = roleUid;
+        row.avatarId = avatarIds[i];
+        row.updateTime = now;
+        row.targetReached = 1;
+        await this.avatarComputeDao.upsert(row);
+      }
+    });
+  }
+
+  /**
+   * 拉取单角色养成计算 → 解析 → 写 DB
+   * 同时写入材料背包数据（从 user_owns_materials）
+   * @param avatarId 角色 ID
+   * @param avatarLevel 目标等级
+   * @param avatarCurrentLevel 当前等级
+   * @param avatarCurrentPromotes 当前突破阶段
+   * @param skills 技能参数数组
+   * @param uid 游戏 UID
+   * @param region 服务器（如 'prod_gf_cn'）
+   * @param cookie 登录 Cookie
+   */
+  async syncAvatarCompute(
+    accountId: string,
+    roleUid: string,
+    avatarId: string,
+    avatarLevel: number,
+    avatarCurrentLevel: number,
+    avatarCurrentPromotes: number,
+    skills: object[],
+    uid: string,
+    region: string,
+    cookie: string
+  ): Promise<ZZZAvatarComputeRow> {
+    await this.markSyncing(accountId, roleUid, SyncDataType.ZZZ_AVATAR_COMPUTE);
+    try {
+      const resp = await (this.getService() as ZZZApiService).compute(
+        avatarId, avatarLevel, avatarCurrentLevel, avatarCurrentPromotes, skills, uid, region, cookie
+      );
+      ApiErrorHandler.checkResponse(resp);
+      const row = ZZZRepository.parseComputeResult(accountId, roleUid, avatarId, resp);
+
+      // 解析材料背包数据
+      const dataObj = (resp as Record<string, object>)['data'] ?? resp;
+      const rawJson = JSON.stringify(dataObj);
+      const computeData = ZZZComputeParser.parse(rawJson);
+
+      // 合并 consume 数据中的材料信息
+      const materialRows = this.buildMaterialRows(
+        accountId,
+        roleUid,
+        computeData.avatarConsume,
+        computeData.skillConsume,
+        computeData.weaponConsume,
+        computeData.userOwnsMaterials
+      );
+
+      await this.runInTransaction(async () => {
+        await this.avatarComputeDao.upsert(row);
+        // 写入材料背包
+        if (materialRows.length > 0) {
+          await this.materialBagRepo.upsertMaterials(accountId, roleUid, materialRows, GameId.ZZZ);
+        }
+        await this.markSuccess(accountId, roleUid, SyncDataType.ZZZ_AVATAR_COMPUTE);
+      });
+      return row;
+    } catch (error) {
+      const msg = this.toErrorMessage(error);
+      await this.markFailed(accountId, roleUid, SyncDataType.ZZZ_AVATAR_COMPUTE, msg);
+      throw new Error(msg);
+    }
+  }
+
+  /**
+   * 从 consume 数据和 userOwnsMaterials 构建材料背包行
+   */
+  private buildMaterialRows(
+    accountId: string,
+    roleUid: string,
+    avatarConsume: ZZZMaterialItem[],
+    skillConsume: ZZZMaterialItem[],
+    weaponConsume: ZZZMaterialItem[],
+    userOwnsMaterials: Map<string, number>
+  ): MaterialBagRow[] {
+    const rows: MaterialBagRow[] = [];
+    const materialInfoMap = new Map<string, ZZZMaterialItem>();
+
+    // 收集所有材料信息（去重）
+    for (let i = 0; i < avatarConsume.length; i++) {
+      const item = avatarConsume[i];
+      if (!materialInfoMap.has(item.id)) {
+        materialInfoMap.set(item.id, item);
+      }
+    }
+    for (let i = 0; i < skillConsume.length; i++) {
+      const item = skillConsume[i];
+      if (!materialInfoMap.has(item.id)) {
+        materialInfoMap.set(item.id, item);
+      }
+    }
+    for (let i = 0; i < weaponConsume.length; i++) {
+      const item = weaponConsume[i];
+      if (!materialInfoMap.has(item.id)) {
+        materialInfoMap.set(item.id, item);
+      }
+    }
+
+    // 从 userOwnsMaterials 构建背包数据
+    const materialIds = Array.from(userOwnsMaterials.keys());
+    for (let i = 0; i < materialIds.length; i++) {
+      const materialId = materialIds[i];
+      const count = userOwnsMaterials.get(materialId) ?? 0;
+      const info = materialInfoMap.get(materialId);
+
+      const row = new MaterialBagRow();
+      row.accountId = accountId;
+      row.roleUid = roleUid;
+      row.materialId = materialId;
+      row.count = count;
+      row.source = 'api';
+      row.updateTime = Math.floor(Date.now() / 1000);
+
+      // 如果有材料详情，填充名称/图标/稀有度
+      if (info) {
+        row.materialName = info.name;
+        row.materialIcon = info.iconUrl;
+        row.rarity = info.rarity;
+      } else {
+        // 没有详情时，用 ID 作为名称兜底
+        row.materialName = materialId;
+        row.materialIcon = '';
+        row.rarity = '';
+      }
+
+      rows.push(row);
+    }
+
+    return rows;
+  }
+
+  /**
+   * 解析单角色计算 API 响应为 ZZZAvatarComputeRow
+   */
+  static parseComputeResult(accountId: string, roleUid: string, avatarId: string, resp: object): ZZZAvatarComputeRow {
+    const row = new ZZZAvatarComputeRow();
+    row.accountId = accountId;
+    row.roleUid = roleUid;
+    row.avatarId = avatarId;
+    row.rawJson = JSON.stringify(resp);
+    row.updateTime = Math.floor(Date.now() / 1000);
+
+    try {
+      const respRecord = resp as Record<string, object>;
+      const dataObj = respRecord['data'] !== undefined ? respRecord['data'] : resp;
+      const data = dataObj as Record<string, object>;
+
+      // 提取各部分的 consume JSON
+      const avatarConsume = data['avatar_consume'] as Record<string, object>[] | null;
+      row.avatarConsumeJson = avatarConsume ? JSON.stringify(avatarConsume) : '';
+
+      const weaponConsume = data['weapon_consume'] as Record<string, object>[] | null;
+      row.weaponConsumeJson = weaponConsume ? JSON.stringify(weaponConsume) : '';
+
+      const skillConsume = data['skill_consume'] as Record<string, object>[] | null;
+      row.skillConsumeJson = skillConsume ? JSON.stringify(skillConsume) : '';
+    } catch (_) {}
+
+    return row;
+  }
+
+  // ── 批量读取计算数据 ────────────────────────────────────────
+
+  /**
+   * 读取所有角色的养成计算数据
+   */
+  async getAllComputeData(accountId: string, roleUid: string): Promise<ZZZAvatarComputeRow[]> {
+    return this.avatarComputeDao.findAll(accountId, roleUid);
   }
 
   // ── 解析方法 ─────────────────────────────────────────────────

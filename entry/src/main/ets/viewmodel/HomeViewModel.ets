@@ -67,18 +67,23 @@ export class HomeCardTapRoute {
   param: GenshinDailyDetailParam | StarRailDailyDetailParam | ZZZDailyDetailParam = new GenshinDailyDetailParam();
 }
 
-/** HomeViewModel @Monitor 路径常量类型 */
-export class HomeViewModelKeys {
-  networkErrorMsg: string = 'vm.networkErrorMsg';
-  geetestTrigger: string = 'vm.geetestTrigger';
-  refreshCoolingDown: string = 'vm.refreshCoolingDown';
-  refreshResult: string = 'vm.refreshResult';
-}
+// ─── @Monitor 路径常量（必须是顶层 const，ArkTS 不支持通过实例访问作为编译时常量） ───
+
+/** HomeViewModel.viewState 路径 */
+export const HOME_VM_VIEW_STATE = 'vm.viewState';
+/** HomeViewModel.isRefreshing 路径 */
+export const HOME_VM_IS_REFRESHING = 'vm.isRefreshing';
+/** HomeViewModel.networkErrorMsg 路径 */
+export const HOME_VM_NETWORK_ERROR = 'vm.networkErrorMsg';
+/** HomeViewModel.geetestTrigger 路径 */
+export const HOME_VM_GEESTEST_TRIGGER = 'vm.geetestTrigger';
+/** HomeViewModel.refreshCoolingDown 路径 */
+export const HOME_VM_REFRESH_COOLING = 'vm.refreshCoolingDown';
+/** HomeViewModel.refreshResult 路径 */
+export const HOME_VM_REFRESH_RESULT = 'vm.refreshResult';
 
 @ObservedV2
 export class HomeViewModel {
-  /** @Monitor 路径常量，View 层必须通过此对象引用，禁止直接写字符串字面量 */
-  static readonly KEYS: HomeViewModelKeys = new HomeViewModelKeys();
 
   @Trace viewState: ViewState = ViewState.LOADING;
   @Trace accounts: MihoyoAccountVM[] = [];
@@ -290,7 +295,7 @@ export class HomeViewModel {
       this.viewState = loaded.length > 0 ? ViewState.DATA : ViewState.EMPTY;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error(TAG, `onGeetestResult retry failed: ${msg}`);
+      Logger.error('HomeViewModel', `[Geetest] verify / retry failed ${trigger.gameId}/${trigger.roleId}: ${msg}`);
       this.networkErrorMsg = msg;
     }
   }
@@ -309,7 +314,7 @@ export class HomeViewModel {
     for (let i = 0; i < result.failedAccounts.length; i++) {
       const info = result.failedAccounts[i];
       if (!info.isNetworkError) {
-        signal.push(info);
+        signal.push(info, 'ColdStartCookieChecker');
       }
     }
     if (result.successCount > 0) {
@@ -382,8 +387,8 @@ export class HomeViewModel {
         info.username = account.username;
         info.nickname = account.nickname.length > 0 ? account.nickname : account.username;
         info.isNetworkError = false;
-        CookieExpiredSignal.instance().push(info);
-        Logger.warn(TAG, `Cookie expired for ${account.username}: ${msg}`);
+        CookieExpiredSignal.instance().push(info, `Home.syncDailyNote ${role.gameId}/${role.roleId}: ${msg}`);
+        Logger.warn(TAG, `Cookie expired for ${account.username} (${role.gameId}/${role.roleId}): ${msg}`);
       } else if (msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED}`) !== -1 ||
           msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED_GENERAL}`) !== -1) {
         await this.handleGeetest(account, role);
@@ -488,7 +493,7 @@ export class HomeViewModel {
       );
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error(TAG, `createVerification failed: ${msg}`);
+      Logger.error('HomeViewModel', `[Geetest] createVerification failed ${role.gameId}/${role.roleId}: ${msg}`);
       if (!this.isAutoSync) {
         this.networkErrorMsg = msg;
       }

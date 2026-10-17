@@ -2,13 +2,13 @@ import { common } from '@kit.AbilityKit';
 import { preferences } from '@kit.ArkData';
 import { util } from '@kit.ArkTS';
 import deviceInfo from '@ohos.deviceInfo';
-import { DeviceFpService } from './DeviceFpService';
+import { DeviceFpService, GameFpBiz } from './DeviceFpService';
 
 const PREFS_NAME: string = 'mihoyo_device_config';
 const KEY_DEVICE_ID: string = 'device_id';
 
 export class ApiConfig {
-  static readonly APP_VERSION: string = '2.104.0';
+  static readonly APP_VERSION: string = '2.115.0';
   /** 米游社 BBS App ID，用于登录接口的 x-rpc-app_id 请求头 */
   static readonly BBS_APP_ID: string = 'bll8iq97cem8';
   /**
@@ -17,6 +17,12 @@ export class ApiConfig {
    */
   static readonly USER_AGENT: string =
     'Mozilla/5.0 (iPhone; CPU iPhone OS 16_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.104.0';
+  /**
+   * 版本号与 APP_VERSION 一致的 User-Agent（实时便笺接口使用）。
+   * 真实抓包中 User-Agent 的 miHoYoBBS 版本与 x-rpc-app_version 一致；USER_AGENT 的 2.104.0 与 APP_VERSION 不一致。
+   */
+  static readonly USER_AGENT_MATCH_APP_VERSION: string =
+    `Mozilla/5.0 (iPhone; CPU iPhone OS 16_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/${ApiConfig.APP_VERSION}`;
   /**
    * Widget 扩展 User-Agent（参考 HSRPizzaHelper widgetNote 实现）
    * Widget API 使用此 UA 可绕过 1034 Geetest 验证
@@ -109,9 +115,16 @@ export class ApiConfig {
    */
   static async preloadDeviceFp(context: common.UIAbilityContext): Promise<void> {
     await DeviceFpService.init(context, ApiConfig.cachedDeviceId);
+    // 按游戏的指纹（PizzaHelperUnited 方式，便笺 / Widget 使用）
+    await DeviceFpService.initGameFps(context, ApiConfig.cachedDeviceId);
   }
 
   static getDeviceFp(): string {
     return DeviceFpService.getFp();
+  }
+
+  /** 指定游戏的指纹（PizzaHelperUnited 方式） */
+  static getGameFp(biz: GameFpBiz): string {
+    return DeviceFpService.getGameFp(biz);
   }
 }

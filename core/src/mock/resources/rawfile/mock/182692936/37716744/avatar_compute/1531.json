@@ -1,0 +1,232 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "avatar_consume": [
+      {
+        "id": 10,
+        "cnt": 800000,
+        "name": "丁尼",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/af812943378ddbdd625987dc390121bb.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 100216,
+        "cnt": 4,
+        "name": "初阶命破认证章",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/909804455fa8d1b05ce988a141cb8bae.png",
+        "rarity": "C",
+        "not_opened": false
+      },
+      {
+        "id": 100226,
+        "cnt": 32,
+        "name": "高阶命破认证章",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/8aff75b23d9129597639b92910bf314d.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 100236,
+        "cnt": 30,
+        "name": "裁决者认证章",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/5ee0e291963b630f8d198716e2d14f3a.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 300003,
+        "cnt": 300,
+        "name": "资深调查员记录",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/163f2270545dc694697ff65a61502daa.png",
+        "rarity": "A",
+        "not_opened": false
+      }
+    ],
+    "weapon_consume": [
+      {
+        "id": 10,
+        "cnt": 400000,
+        "name": "丁尼",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/af812943378ddbdd625987dc390121bb.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 101015,
+        "cnt": 4,
+        "name": "命破组件",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/26f7b8b3cd68884843cc6bead3b4b9c1.png",
+        "rarity": "C",
+        "not_opened": false
+      },
+      {
+        "id": 101025,
+        "cnt": 32,
+        "name": "增强型命破组件",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/17bf1bde50b06570ceca4da4b0e39ee2.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 101035,
+        "cnt": 30,
+        "name": "特化型命破组件",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/22f7ac74caac83ba64cf94115f21e6d7.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 301003,
+        "cnt": 200,
+        "name": "音擎能源模块",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/5dbfea633f5522c9730763c35c85854c.png",
+        "rarity": "A",
+        "not_opened": false
+      }
+    ],
+    "skill_consume": [
+      {
+        "id": 10,
+        "cnt": 2905000,
+        "name": "丁尼",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/af812943378ddbdd625987dc390121bb.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 100110,
+        "cnt": 25,
+        "name": "基础物理芯片",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/630d4f1f475929ec7713f4e1029c7064.png",
+        "rarity": "C",
+        "not_opened": false
+      },
+      {
+        "id": 100120,
+        "cnt": 75,
+        "name": "进阶物理芯片",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/3fdbf32c8b8416c0d409943ec88c4543.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 100130,
+        "cnt": 250,
+        "name": "特化物理芯片",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/b00d11dc543c633ce50092de903f285f.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 100941,
+        "cnt": 5,
+        "name": "「仓鼠笼」访问器",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/6e12155fdbb8289b2570c408d48d893e.png",
+        "rarity": "S",
+        "not_opened": false
+      },
+      {
+        "id": 110008,
+        "cnt": 9,
+        "name": "浊纹晶质",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/zzzv2/material_icon/material_icon_110008.png",
+        "rarity": "S",
+        "not_opened": false
+      },
+      {
+        "id": 110514,
+        "cnt": 60,
+        "name": "高维数据：喋血秽羽",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/zzzv2/material_icon/material_icon_110514.png",
+        "rarity": "A",
+        "not_opened": false
+      }
+    ],
+    "coin_id": 10,
+    "user_owns_materials": {
+      "100120": 21,
+      "300003": 192,
+      "100216": 10,
+      "10": 93386,
+      "301003": 219,
+      "100110": 63
+    },
+    "need_get": [
+      {
+        "id": 10,
+        "cnt": 4011614,
+        "name": "丁尼",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/af812943378ddbdd625987dc390121bb.png",
+        "rarity": "B",
+        "not_opened": false
+      },
+      {
+        "id": 100130,
+        "cnt": 264,
+        "name": "特化物理芯片",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/b00d11dc543c633ce50092de903f285f.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 100236,
+        "cnt": 40,
+        "name": "裁决者认证章",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/5ee0e291963b630f8d198716e2d14f3a.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 100941,
+        "cnt": 5,
+        "name": "「仓鼠笼」访问器",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/6e12155fdbb8289b2570c408d48d893e.png",
+        "rarity": "S",
+        "not_opened": false
+      },
+      {
+        "id": 101035,
+        "cnt": 42,
+        "name": "特化型命破组件",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/22f7ac74caac83ba64cf94115f21e6d7.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 110008,
+        "cnt": 9,
+        "name": "浊纹晶质",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/zzzv2/material_icon/material_icon_110008.png",
+        "rarity": "S",
+        "not_opened": false
+      },
+      {
+        "id": 110514,
+        "cnt": 60,
+        "name": "高维数据：喋血秽羽",
+        "icon": "https://act-webstatic.mihoyo.com/game_record/zzzv2/material_icon/material_icon_110514.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 300003,
+        "cnt": 105,
+        "name": "资深调查员记录",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/163f2270545dc694697ff65a61502daa.png",
+        "rarity": "A",
+        "not_opened": false
+      },
+      {
+        "id": 301003,
+        "cnt": 0,
+        "name": "音擎能源模块",
+        "icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/5dbfea633f5522c9730763c35c85854c.png",
+        "rarity": "A",
+        "not_opened": false
+      }
+    ],
+    "coin_icon": "https://act-webstatic.mihoyo.com/darkmatter/nap/prod_gf_cn/item_icon_ue005d/af812943378ddbdd625987dc390121bb.png"
+  }
+}

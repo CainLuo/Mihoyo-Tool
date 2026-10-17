@@ -14,6 +14,8 @@ import { ViewState } from '../constants/ViewStates'
 import { CharDetailRouterParam } from '../models/CharDetailModels'
 import { showFeedback } from '../utils/FeedbackUtil'
 import { FeedbackType } from '../constants/FeedbackType'
+import { AppRoutes } from '../constants/AppRoutes'
+import { MaterialCalcParam } from './MaterialCalc'
 
 /** 原神角色详情路由参数（与 CharDetailRouterParam 字段一致，保留别名供 Builder 使用） */
 export type GenshinCharacterDetailParam = CharDetailRouterParam;
@@ -28,6 +30,7 @@ export struct GenshinCharacterDetail {
   @Local private currentBreakpoint: string = 'xs'
 
   private uiCtx: UIContext | null = null
+  private localStack: NavPathStack | null = null
 
   private sizeCallback: (size: window.Size) => void = (size: window.Size) => {
     const ctx = this.uiCtx
@@ -55,7 +58,7 @@ export struct GenshinCharacterDetail {
     this.vm.loadData()
   }
 
-  @Monitor(GenshinCharacterDetailViewModel.KEYS.networkErrorMsg)
+  @Monitor('vm.networkErrorMsg')
   onNetworkError(_monitor: IMonitor): void {
     const msg = this.vm.networkErrorMsg
     if (msg === '') { return }
@@ -84,6 +87,20 @@ export struct GenshinCharacterDetail {
     return this.currentBreakpoint === 'xs' && this.windowWidthVp <= this.windowHeightVp
   }
 
+  /**
+   * 跳转到材料计算页
+   */
+  private goToMaterialCalc(): void {
+    if (this.localStack !== null) {
+      const params: MaterialCalcParam = {
+        accountId: this.routerParam.accountId,
+        roleUid: this.routerParam.roleUid,
+        avatarId: this.routerParam.entityId
+      };
+      this.localStack.pushPathByName(AppRoutes.MATERIAL_CALC, params);
+    }
+  }
+
   build() {
     NavDestination() {
       Column() {
@@ -93,11 +110,11 @@ export struct GenshinCharacterDetail {
           CharDetailEmptyView()
         } else {
           if (this.isPhonePortrait()) {
-            CharDetailPortraitLayout({ vm: this.vm })
+            CharDetailPortraitLayout({ vm: this.vm, onMaterialCalcTap: () => { this.goToMaterialCalc() } })
           } else if (this.isPhoneLandscape()) {
-            CharDetailLandscapeLayout({ vm: this.vm })
+            CharDetailLandscapeLayout({ vm: this.vm, onMaterialCalcTap: () => { this.goToMaterialCalc() } })
           } else {
-            CharDetailWideLayout({ vm: this.vm })
+            CharDetailWideLayout({ vm: this.vm, onMaterialCalcTap: () => { this.goToMaterialCalc() } })
           }
         }
       }
@@ -115,6 +132,7 @@ export struct GenshinCharacterDetail {
     }
     .title($r('app.string.char_detail_title'))
     .hideTitleBar(false)
+    .onReady((ctx: NavDestinationContext) => { this.localStack = ctx.pathStack })
   }
 }
 

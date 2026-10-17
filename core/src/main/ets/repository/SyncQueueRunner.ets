@@ -23,6 +23,7 @@ import { CoreInitializer } from '../CoreInitializer';
 import { GameRoleRow } from '../models/GameRoleRow';
 import { GameId } from '../constants/GameId';
 import { SyncTask } from '../models/SyncTask';
+import { Logger } from '../utils/Logger';
 
 export { SyncTask } from '../models/SyncTask';
 
@@ -202,6 +203,8 @@ export class SyncQueueRunner {
     const server = task.server;
     const cookie = task.cookie;
     const dataType = task.dataType;
+    
+    
     if (dataType === SyncDataType.GENSHIN_CHARACTER_LIST) {
       await CoreInitializer.genshinRepository.syncAvatarList(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.GENSHIN_CHARACTER_DETAIL) {

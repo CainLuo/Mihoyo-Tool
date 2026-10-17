@@ -2,12 +2,14 @@
  * FeedbackUtil — 操作反馈工具函数
  *
  * 调用方传入当前 UIContext、反馈类型和文案，即可在屏幕底部显示 Snackbar。
- * 每次调用独立创建 ComponentContent，用完即销毁，无全局状态。
+ * 每次调用独立创建 ComponentContent，用完即销毁。
+ * 同一错误码 / 同一文案的 Snackbar 正在显示时，再次调用会被忽略（见 DialogDedup）。
  */
 import { ComponentContent } from '@kit.ArkUI'
 import { FeedbackType } from '../constants/FeedbackType'
 import { SnackbarParams } from '../models/SnackbarParams'
 import { SnackbarContent } from '../components/SnackbarContent'
+import { DialogDedup } from './DialogDedup'
 
 /** 供 ComponentContent + wrapBuilder 使用的模块级 @Builder 函数 */
 @Builder
@@ -27,12 +29,19 @@ export function showFeedback(
   type: FeedbackType,
   text: ResourceStr,
 ): void {
+  // 同一错误码 / 文案正在显示时忽略
+  const key = `snackbar:${type}:${DialogDedup.keyOf(text)}`
+  if (!DialogDedup.tryAcquire(key)) {
+    return
+  }
+
   const params = new SnackbarParams()
   params.type = type
   params.text = text
 
   const content = new ComponentContent(ctx, wrapBuilder(snackbarBuilder), params)
   params.onDismiss = () => {
+    DialogDedup.release(key)
     ctx.getPromptAction().closeCustomDialog(content)
   }
 
@@ -42,5 +51,11 @@ export function showFeedback(
     maskColor: Color.Transparent,
     isModal: false,
     autoCancel: true,
-  }).catch((_: Error | object) => {})
+    // 被系统 / 点击外部关闭时也要释放 key
+    onDidDisappear: () => {
+      DialogDedup.release(key)
+    },
+  }).catch((_: Error | object) => {
+    DialogDedup.release(key)
+  })
 }

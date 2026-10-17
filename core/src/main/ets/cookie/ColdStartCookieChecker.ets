@@ -14,6 +14,7 @@ import { BBSRepository } from '../repository/BBSRepository';
 import { AccountRow } from '../models/AccountRow';
 import { AuthExpiredError } from '../errors/ApiErrors';
 import { ApiLogSystem } from '../log/ApiLogSystem';
+import { Logger } from '../utils/Logger';
 import { LogEventType } from '../log/ApiLogEntry';
 
 /** 7 天阈值（秒） */
@@ -112,6 +113,7 @@ export class ColdStartCookieChecker {
         );
       } catch (e) {
         const isNetworkError = !(e instanceof AuthExpiredError);
+        Logger.error('ColdStartCookieChecker', `[ColdStart] username=${account.username} refresh FAILED, isNetworkError=${isNetworkError}: ${e instanceof Error ? e.message : String(e)}`);
         const info = new FailedAccountInfo();
         info.username = account.username;
         info.nickname = account.nickname.length > 0 ? account.nickname : account.username;

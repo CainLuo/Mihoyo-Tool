@@ -1,0 +1,125 @@
+import { RequestParams } from './APIs';
+import { ApiConfig } from './ApiConfig';
+import { DSUtil } from './DSUtil';
+import { HKey, HVal } from './MihoyoHeaderKey';
+
+/** 请求头 Profile 枚举 */
+export enum HeaderProfile {
+  /** 原神/星铁 游戏记录接口（有 DS，Referer=webstatic，client_type=5） */
+  GAME_RECORD = 'GAME_RECORD',
+  /** 绝区零 游戏记录接口（无 DS，Referer=act，带 language/platform） */
+  ZZZ_GAME_RECORD = 'ZZZ_GAME_RECORD',
+  /** 养成计算接口（原神/星铁，有 DS，Referer=act） */
+  CALCULATE = 'CALCULATE',
+  /** BBS 账号 + 游戏角色绑定 + 战绩卡片 + Geetest（有 DS，Referer=app，client_type=1） */
+  BBS = 'BBS',
+  /**
+   * 签到接口（大别野 + 各游戏）
+   * 使用 X6 salt，client_type=2，Referer=act
+   * 游戏签到额外需要 x-rpc-signgame 头（由调用方在 build() 后手动 set）
+   */
+  SIGN = 'SIGN',
+  /**
+   * Widget 便笺接口（原神/星铁/绝区零）
+   * 使用 WidgetExtension User-Agent，client_type=1，Referer=app.mihoyo.com
+   * Cookie 格式：stuid=xxx;stoken=v2_xxx;mid=xxx（由调用方传入已构造好的 Widget Cookie）
+   */
+  WIDGET = 'WIDGET',
+}
+
+export class MihoyoHeaderBuilder {
+  /**
+   * 构建请求头 Map
+   * @param profile  请求头 Profile
+   * @param cookie   登录 Cookie
+   * @param params   GET 请求参数（用于 DS 签名的 query 部分，POST 请求传 undefined）
+   * @param body     POST 请求 body 字符串（用于 DS 签名的 body 部分，GET 请求传 undefined）
+   */
+  static build(
+    profile: HeaderProfile,
+    cookie: string,
+    params?: RequestParams,
+    body?: string,
+  ): Map<string, string> {
+    const h = new Map<string, string>();
+
+    // ── 所有接口共有 ──────────────────────────────────────────────
+    h.set(HKey.APP_VERSION, ApiConfig.APP_VERSION);
+    h.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
+    h.set(HKey.DEVICE_FP, ApiConfig.getDeviceFp());
+    h.set(HKey.SYS_VERSION, HVal.SYS_VERSION_IOS);
+    h.set(HKey.LANGUAGE, HVal.LANG_ZH_CN);
+    h.set(HKey.COOKIE, cookie);
+    h.set(HKey.USER_AGENT, ApiConfig.USER_AGENT);
+    h.set(HKey.ACCEPT, HVal.ACCEPT_JSON);
+    // 米游社大多数 API 需要验证此字段（来源：UIGF-org/mihoyo-api-collect/other/authentication.md）
+    h.set(HKey.REQUESTED_WITH, HVal.REQUESTED_HYPERION);
+
+    // ── 按 Profile 差异化注入 ─────────────────────────────────────
+    if (profile === HeaderProfile.WIDGET) {
+      // Widget 便笺接口：严格按照真实抓包（mihoyo_apis.md）独立构建，不使用共有 header
+      // 真实 Widget 请求只有这些字段：DS、Accept、x-rpc-app_version、x-rpc-client_type、
+      // x-rpc-device_id、x-rpc-device_fp（空）、x-rpc-sys_version、Referer、User-Agent、Cookie
+      // 无 x-rpc-language、无 x-requested-with
+      const w = new Map<string, string>();
+      w.set(HKey.APP_VERSION, ApiConfig.APP_VERSION);
+      w.set(HKey.CLIENT_TYPE, HVal.CLIENT_IOS);
+      w.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
+      w.set(HKey.DEVICE_FP, '');
+      w.set(HKey.SYS_VERSION, HVal.SYS_VERSION_IOS);
+      w.set(HKey.REFERER, HVal.APP_MIHOYO);
+      w.set(HKey.ORIGIN, HVal.APP_MIHOYO);
+      w.set(HKey.USER_AGENT, ApiConfig.WIDGET_USER_AGENT);
+      w.set(HKey.ACCEPT, HVal.ACCEPT_JSON);
+      w.set(HKey.COOKIE, cookie);
+      w.set(HKey.DS, DSUtil.generateX4(params, body));
+      return w;
+    } else if (profile === HeaderProfile.GAME_RECORD) {
+      h.set(HKey.CLIENT_TYPE, HVal.CLIENT_WEB);
+      h.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_GENSHIN);
+      h.set(HKey.REFERER, HVal.REFERER_WEBSTATIC);
+      h.set(HKey.ORIGIN, HVal.WEBSTATIC);
+      // GAME_RECORD 接口使用 salt_x4（经抓包验证，米游社 App 2.104.0 使用此 salt）
+      h.set(HKey.DS, DSUtil.generateX4(params, body));
+    } else if (profile === HeaderProfile.ZZZ_GAME_RECORD) {
+      h.set(HKey.LANGUAGE, HVal.LANG_ZH_CN);
+      h.set(HKey.PLATFORM, HVal.PLATFORM_ANDROID);
+      h.set(HKey.REFERER, HVal.REFERER_ACT);
+      h.set(HKey.ORIGIN, HVal.ORIGIN_ACT);
+    } else if (profile === HeaderProfile.CALCULATE) {
+      // 养成计算接口（原神/星铁）
+      // 真实抓包（mihoyo_apis.md 第 741-759 行）：
+      // - x-rpc-device_id: 必需
+      // - x-rpc-cal_type: "1"
+      // - x-rpc-stat_platform: "iOS"
+      // - x-rpc-lrsag: 空值（但存在）
+      // - 无 DS header
+      // - 无 x-rpc-client_type, x-rpc-device_fp, x-rpc-sys_version, x-rpc-language
+      // - 无 x-rpc-app_channel, x-rpc-tool_verison, x-requested-with
+      // 标准头部：Accept, Accept-Language, Content-Type, Origin, User-Agent, Referer, Cookie
+      h.delete(HKey.DEVICE_FP);  // 删除共有的 device_fp
+      h.delete(HKey.SYS_VERSION);  // 删除共有的 sys_version
+      h.delete(HKey.LANGUAGE);  // 删除共有的 language
+      h.delete(HKey.REQUESTED_WITH);  // 删除共有的 requested-with
+      h.set(HKey.CAL_TYPE, '1');
+      h.set(HKey.STAT_PLATFORM, 'iOS');
+      h.set(HKey.LRSAG, '');  // 空值，但必须存在
+      h.set(HKey.ACCEPT_LANGUAGE, HVal.ACCEPT_LANG_ZH);
+      h.set(HKey.REFERER, HVal.REFERER_ACT);
+      h.set(HKey.ORIGIN, HVal.ORIGIN_ACT);
+      h.set(HKey.CONTENT_TYPE, HVal.JSON_UTF8);
+    } else if (profile === HeaderProfile.BBS) {
+      h.set(HKey.CLIENT_TYPE, HVal.CLIENT_IOS);
+      h.set(HKey.REFERER, HVal.APP_MIHOYO);
+      h.set(HKey.ORIGIN, HVal.APP_MIHOYO);
+      h.set(HKey.DS, DSUtil.generateV2(params, body));
+    } else if (profile === HeaderProfile.SIGN) {
+      h.set(HKey.CLIENT_TYPE, HVal.CLIENT_ANDROID);
+      h.set(HKey.REFERER, HVal.REFERER_ACT);
+      h.set(HKey.ORIGIN, HVal.ORIGIN_ACT);
+      h.set(HKey.DS, DSUtil.generateX6(params, body));
+    }
+
+    return h;
+  }
+}

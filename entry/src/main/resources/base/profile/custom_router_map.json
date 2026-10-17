@@ -64,6 +64,41 @@
       "name": "WidgetSettings",
       "pageSourceFile": "src/main/ets/pages/WidgetSettings.ets",
       "buildFunction": "WidgetSettingsBuilder"
+    },
+    {
+      "name": "ZZZMaterialList",
+      "pageSourceFile": "src/main/ets/pages/ZZZMaterialList.ets",
+      "buildFunction": "ZZZMaterialListBuilder"
+    },
+    {
+      "name": "GenshinMaterialTargetConfig",
+      "pageSourceFile": "src/main/ets/pages/GenshinMaterialTargetConfig.ets",
+      "buildFunction": "GenshinMaterialTargetConfigBuilder"
+    },
+    {
+      "name": "StarRailMaterialTargetConfig",
+      "pageSourceFile": "src/main/ets/pages/StarRailMaterialTargetConfig.ets",
+      "buildFunction": "StarRailMaterialTargetConfigBuilder"
+    },
+    {
+      "name": "ZZZMaterialTargetConfig",
+      "pageSourceFile": "src/main/ets/pages/ZZZMaterialTargetConfig.ets",
+      "buildFunction": "ZZZMaterialTargetConfigBuilder"
+    },
+    {
+      "name": "GenshinMaterialList",
+      "pageSourceFile": "src/main/ets/pages/GenshinMaterialList.ets",
+      "buildFunction": "GenshinMaterialListBuilder"
+    },
+    {
+      "name": "StarRailMaterialList",
+      "pageSourceFile": "src/main/ets/pages/StarRailMaterialList.ets",
+      "buildFunction": "StarRailMaterialListBuilder"
+    },
+    {
+      "name": "MaterialCharacterSelect",
+      "pageSourceFile": "src/main/ets/builders/MaterialCharacterSelectBuilder.ets",
+      "buildFunction": "MaterialCharacterSelectBuilder"
     }
   ]
 }

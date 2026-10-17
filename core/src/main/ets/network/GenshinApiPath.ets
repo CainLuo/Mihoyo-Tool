@@ -9,4 +9,6 @@ export enum GenshinApiPath {
   CHARACTER_DETAIL = '/game_record/app/genshin/api/character/detail',
   /** 养成材料批量计算 */
   BATCH_COMPUTE = '/event/e20200928calculate/v3/batch_compute',
+  /** 养成计算器：同步用户已有角色（含技能 group_id、武器、突破等级） */
+  SYNC_AVATAR_LIST = '/event/e20200928calculate/v1/sync/avatar/list',
 }

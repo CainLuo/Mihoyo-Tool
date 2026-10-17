@@ -109,7 +109,18 @@ export abstract class MockServiceBase extends MihoyoApiService {
   protected async readMockFile(path: string, cookie: string, roleId?: string, avatarId?: string): Promise<object> {
     await this.delay();
     const accountId = MockServiceBase.extractAccountId(cookie);
-    const fileName = avatarId ? `${avatarId}.json` : MockServiceBase.pathToFileName(path);
+
+    // 养成计算使用 avatar_compute/{avatarId}.json 路径
+    // 原神: /event/e20200928calculate/v3/batch_compute
+    // 星铁: /event/rpgcalc/compute
+    // 绝区零: /event/nap_cultivate_tool/avatar_calc
+    let fileName: string;
+    if (avatarId && (path.includes('compute') || path.includes('avatar_calc'))) {
+      fileName = `avatar_compute/${avatarId}.json`;
+    } else {
+      fileName = avatarId ? `${avatarId}.json` : MockServiceBase.pathToFileName(path);
+    }
+
     const rm = this.context.resourceManager;
     let fileContent: Uint8Array;
     const startTime = Date.now();
@@ -175,7 +186,7 @@ export abstract class MockServiceBase extends MihoyoApiService {
     return empty;
   }
 
-  private static parseAndCheck(fileContent: Uint8Array): object {
+  public static parseAndCheck(fileContent: Uint8Array): object {
     const decoder = new util.TextDecoder('utf-8');
     const jsonStr = decoder.decodeToString(new Uint8Array(fileContent.buffer));
     let raw: Record<string, Object>;
@@ -203,10 +214,10 @@ export abstract class MockServiceBase extends MihoyoApiService {
   static pathToFileName(path: string): string {
     const cleanPath = path.split('?')[0];
 
+    // 特殊映射表
     const specialMap = new Map<string, string>();
-    specialMap.set('/event/e20200928calculate/v3/batch_compute', 'genshin_character_batch_compute.json');
-    specialMap.set('/event/rpgcalc/compute', 'hkrpg_character_compute.json');
-    specialMap.set('/event/nap_cultivate_tool/avatar_calc', 'zzz_character_compute.json');
+    // 星铁养成计算使用 avatarId 作为文件名，在 readMockFile 中通过 avatarId 参数传入
+    // 此处不需要特殊映射，走通用规则即可
     specialMap.set('/app/api/signIn', 'apihub_app_api_signIn.json');
     specialMap.set('/game_record/app/genshin/api/character/detail', 'game_record_app_genshin_api_character_detail_all.json');
     specialMap.set('/game_record/app/hkrpg/api/avatar/basic', 'game_record_app_hkrpg_api_avatar_list.json');

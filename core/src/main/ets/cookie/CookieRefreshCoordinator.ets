@@ -13,6 +13,7 @@
 import { BBSRepository } from '../repository/BBSRepository';
 import { AuthExpiredError } from '../errors/ApiErrors';
 import { ApiLogSystem } from '../log/ApiLogSystem';
+import { Logger } from '../utils/Logger';
 import { LogEventType } from '../log/ApiLogEntry';
 
 /** 60 秒内同一账号不重复刷新 */
@@ -109,6 +110,7 @@ export class CookieRefreshCoordinator {
       );
       return newCookie;
     } catch (e) {
+      Logger.error('CookieRefreshCoordinator', `[Coordinator] username=${username} refresh FAILED: ${e instanceof Error ? e.message : String(e)}`);
       if (e instanceof AuthExpiredError) {
         throw e;
       }

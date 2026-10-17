@@ -6,6 +6,8 @@
  * - GenshinDailyNoteDao：实时便笺（genshin_daily_note）
  * - GenshinCharacterDetailDao：角色详情（genshin_character_detail）
  * - GenshinCharacterComputeDao：养成计算（genshin_character_compute）
+ * - GenshinCalcAvatarDao：养成计算器角色（genshin_calc_avatar，DB v4 新增）
+ * - GenshinComputeSummaryDao：养成计算整批合计（genshin_compute_summary，DB v5 新增）
  *
  * 所有写入操作使用 INSERT OR REPLACE（依赖 UNIQUE 索引实现 upsert 语义）。
  * 所有读取操作通过 RdbManager.queryFirst/queryAll 封装，自动管理 ResultSet 生命周期。
@@ -14,16 +16,18 @@ import { relationalStore } from '@kit.ArkData';
 import { RdbManager } from './RdbManager';
 import { RsReader } from './RsReader';
 import {
-  TableName, CommonCol,
-  GenshinCharListCol, GenshinDailyNoteCol, GenshinCharDetailCol, GenshinCharComputeCol,
+  TableName, CommonCol, ComputeStateCol,
+  GenshinCharListCol, GenshinDailyNoteCol, GenshinCharDetailCol, GenshinCharComputeCol, GenshinCalcAvatarCol, GenshinComputeSummaryCol,
   GENSHIN_CHARACTER_LIST_TABLE, GENSHIN_DAILY_NOTE_TABLE,
-  GENSHIN_CHARACTER_DETAIL_TABLE, GENSHIN_CHARACTER_COMPUTE_TABLE
+  GENSHIN_CHARACTER_DETAIL_TABLE, GENSHIN_CHARACTER_COMPUTE_TABLE, GENSHIN_CALC_AVATAR_TABLE, GENSHIN_COMPUTE_SUMMARY_TABLE
 } from './TableSchema';
 import {
   GenshinCharacterListRow,
   GenshinDailyNoteRow,
   GenshinCharacterDetailRow,
-  GenshinCharacterComputeRow
+  GenshinCharacterComputeRow,
+  GenshinCalcAvatarRow,
+  GenshinComputeSummaryRow
 } from '../models/GenshinRows';
 
 // ─────────────────────────────────────────────
@@ -279,6 +283,22 @@ export class GenshinCharacterDetailDao {
     }
   }
 
+  /**
+   * 查询指定账号和角色的所有原神角色详情。
+   * @returns 角色详情行数组
+   */
+  async findAll(accountId: string, roleUid: string): Promise<GenshinCharacterDetailRow[]> {
+    const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_CHARACTER_DETAIL);
+    predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
+    predicates.and();
+    predicates.equalTo(CommonCol.ROLE_UID, roleUid);
+    try {
+      return await RdbManager.queryAll(predicates, GENSHIN_CHARACTER_DETAIL_TABLE.columnNames(), (rs) => GenshinCharacterDetailDao.mapRow(rs));
+    } catch (e) {
+      throw new Error(`GenshinCharacterDetailDao.findAll failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
   /** 删除指定账号和角色的所有原神角色详情记录 */
   async deleteAll(accountId: string, roleUid: string): Promise<void> {
     const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_CHARACTER_DETAIL);
@@ -330,10 +350,28 @@ export class GenshinCharacterComputeDao {
     try {
       await RdbManager.upsertRow(TableName.GENSHIN_CHARACTER_COMPUTE, GENSHIN_CHARACTER_COMPUTE_TABLE.columnNames(), [
         idVal, row.accountId, row.roleUid, row.avatarId,
-        row.avatarConsumeJson, row.skillConsumeJson, row.weaponConsumeJson, row.updateTime
+        row.avatarConsumeJson, row.avatarSkillConsumeJson, row.weaponConsumeJson,
+        row.skillsConsumeJson, row.overallConsumeJson, row.rawJson, row.updateTime, row.targetReached
       ]);
     } catch (e) {
       throw new Error(`GenshinCharacterComputeDao.upsert failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /**
+   * 查询指定账号和角色的所有养成计算数据。
+   * @param accountId 米游社账号 ID
+   * @param roleUid   游戏角色 UID
+   */
+  async findAll(accountId: string, roleUid: string): Promise<GenshinCharacterComputeRow[]> {
+    const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_CHARACTER_COMPUTE);
+    predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
+    predicates.and();
+    predicates.equalTo(CommonCol.ROLE_UID, roleUid);
+    try {
+      return await RdbManager.queryAll(predicates, GENSHIN_CHARACTER_COMPUTE_TABLE.columnNames(), (rs) => GenshinCharacterComputeDao.mapRow(rs));
+    } catch (e) {
+      throw new Error(`GenshinCharacterComputeDao.findAll failed: ${e instanceof Error ? e.message : e}`);
     }
   }
 
@@ -352,6 +390,26 @@ export class GenshinCharacterComputeDao {
       return await RdbManager.queryFirst(predicates, GENSHIN_CHARACTER_COMPUTE_TABLE.columnNames(), (rs) => GenshinCharacterComputeDao.mapRow(rs));
     } catch (e) {
       throw new Error(`GenshinCharacterComputeDao.findByAvatarId failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /**
+   * 删除指定角色的养成计算记录（只删 avatarIds 中的角色，其他角色的历史计算结果保留）。
+   */
+  async deleteByAvatarIds(accountId: string, roleUid: string, avatarIds: string[]): Promise<void> {
+    if (avatarIds.length === 0) {
+      return;
+    }
+    const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_CHARACTER_COMPUTE);
+    predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
+    predicates.and();
+    predicates.equalTo(CommonCol.ROLE_UID, roleUid);
+    predicates.and();
+    predicates.in(CommonCol.AVATAR_ID, avatarIds);
+    try {
+      await RdbManager.deleteRows(predicates);
+    } catch (e) {
+      throw new Error(`GenshinCharacterComputeDao.deleteByAvatarIds failed: ${e instanceof Error ? e.message : e}`);
     }
   }
 
@@ -377,13 +435,158 @@ export class GenshinCharacterComputeDao {
       row.accountId         = r.str(CommonCol.ACCOUNT_ID);
       row.roleUid           = r.str(CommonCol.ROLE_UID);
       row.avatarId          = r.str(CommonCol.AVATAR_ID);
-      row.avatarConsumeJson = r.str(GenshinCharComputeCol.AVATAR_CONSUME_JSON);
-      row.skillConsumeJson  = r.str(GenshinCharComputeCol.SKILL_CONSUME_JSON);
-      row.weaponConsumeJson = r.str(GenshinCharComputeCol.WEAPON_CONSUME_JSON);
+      row.avatarConsumeJson      = r.str(GenshinCharComputeCol.AVATAR_CONSUME_JSON);
+      row.avatarSkillConsumeJson = r.str(GenshinCharComputeCol.AVATAR_SKILL_CONSUME_JSON);
+      row.weaponConsumeJson      = r.str(GenshinCharComputeCol.WEAPON_CONSUME_JSON);
+      row.skillsConsumeJson      = r.str(GenshinCharComputeCol.SKILLS_CONSUME_JSON);
+      row.overallConsumeJson     = r.str(GenshinCharComputeCol.OVERALL_CONSUME_JSON);
+      row.rawJson           = r.str(CommonCol.RAW_JSON);
       row.updateTime        = r.num(CommonCol.UPDATE_TIME);
+      row.targetReached = r.num(ComputeStateCol.TARGET_REACHED);
       return row;
     } catch (e) {
       throw new Error(`GenshinCharacterComputeDao.mapRow failed: ${e instanceof Error ? e.message : e}`);
     }
+  }
+}
+
+// ─────────────────────────────────────────────
+// GenshinCalcAvatarDao：操作 genshin_calc_avatar（DB v4 新增）
+// ─────────────────────────────────────────────
+
+export class GenshinCalcAvatarDao {
+
+  /**
+   * 写入计算器角色（INSERT OR REPLACE）。
+   * 唯一键为 (account_id, role_uid, avatar_id)，重复时覆盖旧数据。
+   */
+  async upsert(row: GenshinCalcAvatarRow): Promise<void> {
+    const idVal: relationalStore.ValueType = row.id > 0 ? row.id : null;
+    try {
+      await RdbManager.upsertRow(TableName.GENSHIN_CALC_AVATAR, GENSHIN_CALC_AVATAR_TABLE.columnNames(), [
+        idVal, row.accountId, row.roleUid, row.avatarId,
+        row.name, row.icon, row.weaponCatId, row.avatarLevel, row.elementAttrId,
+        row.maxLevel, row.levelCurrent, row.promoteLevel, row.constellationNum, row.fetterLevel,
+        row.skillListJson, row.weaponJson, row.reliquaryListJson, row.rawJson, row.updateTime
+      ]);
+    } catch (e) {
+      throw new Error(`GenshinCalcAvatarDao.upsert failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /** 查询指定账号和游戏 UID 的全部计算器角色 */
+  async findAll(accountId: string, roleUid: string): Promise<GenshinCalcAvatarRow[]> {
+    const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_CALC_AVATAR);
+    predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
+    predicates.and();
+    predicates.equalTo(CommonCol.ROLE_UID, roleUid);
+    try {
+      return await RdbManager.queryAll(predicates, GENSHIN_CALC_AVATAR_TABLE.columnNames(), (rs) => GenshinCalcAvatarDao.mapRow(rs));
+    } catch (e) {
+      throw new Error(`GenshinCalcAvatarDao.findAll failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /** 删除指定账号和游戏 UID 的全部计算器角色 */
+  async deleteAll(accountId: string, roleUid: string): Promise<void> {
+    const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_CALC_AVATAR);
+    predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
+    predicates.and();
+    predicates.equalTo(CommonCol.ROLE_UID, roleUid);
+    try {
+      await RdbManager.deleteRows(predicates);
+    } catch (e) {
+      throw new Error(`GenshinCalcAvatarDao.deleteAll failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /** 将 ResultSet 当前行映射为 GenshinCalcAvatarRow */
+  private static mapRow(rs: relationalStore.ResultSet): GenshinCalcAvatarRow {
+    const r = new RsReader(rs);
+    const row = new GenshinCalcAvatarRow();
+    row.id                = r.num(CommonCol.ID);
+    row.accountId         = r.str(CommonCol.ACCOUNT_ID);
+    row.roleUid           = r.str(CommonCol.ROLE_UID);
+    row.avatarId          = r.str(CommonCol.AVATAR_ID);
+    row.name              = r.str(GenshinCalcAvatarCol.NAME);
+    row.icon              = r.str(GenshinCalcAvatarCol.ICON);
+    row.weaponCatId       = r.num(GenshinCalcAvatarCol.WEAPON_CAT_ID);
+    row.avatarLevel       = r.num(GenshinCalcAvatarCol.AVATAR_LEVEL);
+    row.elementAttrId     = r.num(GenshinCalcAvatarCol.ELEMENT_ATTR_ID);
+    row.maxLevel          = r.num(GenshinCalcAvatarCol.MAX_LEVEL);
+    row.levelCurrent      = r.num(GenshinCalcAvatarCol.LEVEL_CURRENT);
+    row.promoteLevel      = r.num(GenshinCalcAvatarCol.PROMOTE_LEVEL);
+    row.constellationNum  = r.num(GenshinCalcAvatarCol.CONSTELLATION_NUM);
+    row.fetterLevel       = r.num(GenshinCalcAvatarCol.FETTER_LEVEL);
+    row.skillListJson     = r.str(GenshinCalcAvatarCol.SKILL_LIST_JSON);
+    row.weaponJson        = r.str(GenshinCalcAvatarCol.WEAPON_JSON);
+    row.reliquaryListJson = r.str(GenshinCalcAvatarCol.RELIQUARY_LIST_JSON);
+    row.rawJson           = r.str(CommonCol.RAW_JSON);
+    row.updateTime        = r.num(CommonCol.UPDATE_TIME);
+    return row;
+  }
+}
+
+// ─────────────────────────────────────────────
+// GenshinComputeSummaryDao：操作 genshin_compute_summary（DB v5 新增）
+// ─────────────────────────────────────────────
+
+export class GenshinComputeSummaryDao {
+
+  /** 写入整批合计（INSERT OR REPLACE，唯一键 (account_id, role_uid)） */
+  async upsert(row: GenshinComputeSummaryRow): Promise<void> {
+    const idVal: relationalStore.ValueType = row.id > 0 ? row.id : null;
+    try {
+      await RdbManager.upsertRow(TableName.GENSHIN_COMPUTE_SUMMARY, GENSHIN_COMPUTE_SUMMARY_TABLE.columnNames(), [
+        idVal, row.accountId, row.roleUid, row.avatarIds,
+        row.overallConsumeJson, row.overallMaterialConsumeJson, row.availableMaterialJson, row.hasUserInfo,
+        row.rawJson, row.updateTime
+      ]);
+    } catch (e) {
+      throw new Error(`GenshinComputeSummaryDao.upsert failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /** 查询指定账号和游戏 UID 的整批合计，不存在时返回 null */
+  async findOne(accountId: string, roleUid: string): Promise<GenshinComputeSummaryRow | null> {
+    const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_COMPUTE_SUMMARY);
+    predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
+    predicates.and();
+    predicates.equalTo(CommonCol.ROLE_UID, roleUid);
+    try {
+      return await RdbManager.queryFirst(predicates, GENSHIN_COMPUTE_SUMMARY_TABLE.columnNames(), (rs) => GenshinComputeSummaryDao.mapRow(rs));
+    } catch (e) {
+      throw new Error(`GenshinComputeSummaryDao.findOne failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /** 删除指定账号和游戏 UID 的整批合计 */
+  async deleteOne(accountId: string, roleUid: string): Promise<void> {
+    const predicates = new relationalStore.RdbPredicates(TableName.GENSHIN_COMPUTE_SUMMARY);
+    predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
+    predicates.and();
+    predicates.equalTo(CommonCol.ROLE_UID, roleUid);
+    try {
+      await RdbManager.deleteRows(predicates);
+    } catch (e) {
+      throw new Error(`GenshinComputeSummaryDao.deleteOne failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /** 将 ResultSet 当前行映射为 GenshinComputeSummaryRow */
+  private static mapRow(rs: relationalStore.ResultSet): GenshinComputeSummaryRow {
+    const r = new RsReader(rs);
+    const row = new GenshinComputeSummaryRow();
+    row.id                         = r.num(CommonCol.ID);
+    row.accountId                  = r.str(CommonCol.ACCOUNT_ID);
+    row.roleUid                    = r.str(CommonCol.ROLE_UID);
+    row.avatarIds                  = r.str(GenshinComputeSummaryCol.AVATAR_IDS);
+    row.overallConsumeJson         = r.str(GenshinComputeSummaryCol.OVERALL_CONSUME_JSON);
+    row.overallMaterialConsumeJson = r.str(GenshinComputeSummaryCol.OVERALL_MATERIAL_CONSUME_JSON);
+    row.availableMaterialJson      = r.str(GenshinComputeSummaryCol.AVAILABLE_MATERIAL_JSON);
+    row.hasUserInfo                = r.num(GenshinComputeSummaryCol.HAS_USER_INFO);
+    row.rawJson                    = r.str(CommonCol.RAW_JSON);
+    row.updateTime                 = r.num(CommonCol.UPDATE_TIME);
+    return row;
   }
 }

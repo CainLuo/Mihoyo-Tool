@@ -4,6 +4,7 @@ import { ApiLogSystem } from '../log/ApiLogSystem';
 import { LogEventType } from '../log/ApiLogEntry';
 import { AppEnvManager } from '../constants/AppEnvManager';
 import certFramework from '@ohos.security.cert';
+import { Logger } from '../utils/Logger';
 
 interface X509TrustManager {
   checkClientTrusted(data: certFramework.X509Cert): void;

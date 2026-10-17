@@ -25,6 +25,7 @@ import {
 } from '../models/GameRoleModels';
 import { ApiLogSystem } from '../log/ApiLogSystem';
 import { LogEventType } from '../log/ApiLogEntry';
+import { Logger } from '../utils/Logger';
 import { AuthExpiredError, GeetestRequiredError } from '../errors/ApiErrors';
 
 export {
@@ -429,23 +430,40 @@ export class BBSRepository {
     const mid = BBSRepository.extractCookieField(cookie, 'mid');
 
     if (stoken.length === 0) {
+      Logger.error('BBSRepository', `[Refresh] username=${username} FAILED: no stoken in cookie`);
       throw new AuthExpiredError('Cookie expired and no stoken available, please re-login');
     }
 
     try {
-      const ltoken = await AuthRepository.getLTokenBySToken(stoken, mid);
-      const cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
+      let ltoken = '';
+      try {
+        ltoken = await AuthRepository.getLTokenBySToken(stoken, mid);
+      } catch (e) {
+        Logger.error('BBSRepository', `[Refresh] username=${username} getLTokenBySToken FAILED: ${e instanceof Error ? e.message : String(e)}`);
+        throw e as Error;
+      }
+      let cookieToken = '';
+      try {
+        cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
+      } catch (e) {
+        Logger.error('BBSRepository', `[Refresh] username=${username} getCookieBySToken FAILED: ${e instanceof Error ? e.message : String(e)}`);
+        throw e as Error;
+      }
 
       // 替换 cookie 字符串里的 ltoken 和 cookie_token
       let newCookie = BBSRepository.replaceCookieField(cookie, 'ltoken', ltoken);
-      newCookie = BBSRepository.replaceCookieField(newCookie, 'ltoken_v2', ltoken);
       newCookie = BBSRepository.replaceCookieField(newCookie, 'cookie_token', cookieToken);
-      newCookie = BBSRepository.replaceCookieField(newCookie, 'cookie_token_v2', cookieToken);
+
+      // v2 token 处理：
+      // 根据genshin.py issue #151，v2 格式的 ltoken 和 cookie_token 需要通过专门的 v2 API 获取
+      // 当前旧版 API（getLTokenBySToken）返回的是 V1 格式 token
+      // 如果将 V1 格式 token 用于 _v2 字段，会导致 API 返回 -100 错误
+      // 解决方案：不添加 ltoken_v2 和 cookie_token_v2 字段，只保留基础的 v2 字段（ltuid_v2, account_id_v2）
+      // 注意：不要用 stoken 作为 ltoken_v2 或 cookie_token_v2，它们是不同类型的 token
 
       // 写入 DB
       const now = Math.floor(Date.now() / 1000);
       await this.accountDao.updateCookie(username, newCookie, now);
-
       return newCookie;
     } catch (e) {
       if (e instanceof AuthExpiredError) {

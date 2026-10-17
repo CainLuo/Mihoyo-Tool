@@ -26,18 +26,17 @@ import {
 
 const TAG: string = 'StarRailCharacterDetailViewModel';
 
-// ─── @Monitor 路径常量 ───────────────────────────────────────────
+// ─── @Monitor 路径常量（必须是顶层 const，ArkTS 不支持通过实例访问作为编译时常量） ───
 
-export class StarRailCharacterDetailViewModelKeys {
-  viewState: string = 'vm.viewState';
-  networkErrorMsg: string = 'vm.networkErrorMsg';
-}
+/** StarRailCharacterDetailViewModel.viewState 路径 */
+export const STARRAIL_CHAR_DETAIL_VM_VIEW_STATE = 'vm.viewState';
+/** StarRailCharacterDetailViewModel.networkErrorMsg 路径 */
+export const STARRAIL_CHAR_DETAIL_VM_ERROR = 'vm.networkErrorMsg';
 
 // ─── ViewModel ───────────────────────────────────────────────────
 
 @ObservedV2
 export class StarRailCharacterDetailViewModel {
-  static readonly KEYS: StarRailCharacterDetailViewModelKeys = new StarRailCharacterDetailViewModelKeys();
 
   @Trace viewState: ViewState = ViewState.LOADING;
   /** 非空时 View 弹 Snackbar，弹完后 View 应将其清空 */
@@ -90,10 +89,12 @@ export class StarRailCharacterDetailViewModel {
     try {
       const row: StarRailAvatarInfoRow | null =
         await CoreInitializer.starRailRepository.getAvatarDetail(this.accountId, this.roleUid, this.entityId);
+
       if (row === null || row.rawJson === '') {
         this.viewState = ViewState.EMPTY;
         return;
       }
+
       this.parseRawJson(row.rawJson);
       this.viewState = ViewState.DATA;
     } catch (error) {
@@ -166,6 +167,16 @@ export class StarRailCharacterDetailViewModel {
       this.skillsMain = main;
       this.skillsExtra = extra;
       this.skillsAttr = attr;
+
+      // 只在 1510 时输出技能和天赋信息
+      if (this.entityId === '1510') {
+        for (let i = 0; i < main.length; i++) {
+          const s = main[i];
+        }
+        for (let i = 0; i < extra.length; i++) {
+          const s = extra[i];
+        }
+      }
 
       // 光锥
       if (parsed.equip) {

@@ -49,7 +49,9 @@ export class ZZZMockService extends MockServiceBase {
     region: string,
     cookie: string,
   ): Promise<object> {
-    return this.readMockFile(ZZZApiPath.COMPUTE, cookie);
+    // 绝区零养成计算 Mock 文件路径：{accountId}/{uid}/avatar_compute/{avatarId}.json
+    // uid 是游戏角色 UID（对应 roleId）
+    return this.readMockFile(ZZZApiPath.COMPUTE, cookie, uid, avatarId);
   }
 
   private extractCookie(options?: RequestOptions): string {

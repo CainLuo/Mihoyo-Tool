@@ -1,7 +1,7 @@
 /**
  * Login.ets — 登录页
  */
-import { LoginViewModel } from 'entry/ets/viewmodel/LoginViewModel'
+import { LoginViewModel } from '../viewmodel/LoginViewModel'
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { LoginNarrowLayout } from '../components/login/LoginNarrowLayout'
 import { LoginWideLayout } from '../components/login/LoginWideLayout'
@@ -49,8 +49,9 @@ export struct Login {
     stack.pushPathByName(AppRoutes.WEB_VIEW, param)
   }
 
-  @Monitor(LoginViewModel.KEYS.loginSuccess)
-  onLoginSuccess(_monitor: IMonitor): void {    if (!this.vm.loginSuccess) { return }
+  @Monitor('vm.loginSuccess')
+  onLoginSuccess(_monitor: IMonitor): void {
+    if (!this.vm.loginSuccess) { return }
     const stack = this.localStack
     if (stack === null) { return }
     AccountSignal.instance().notify()
@@ -63,7 +64,7 @@ export struct Login {
     stack.replacePath({ name: AppRoutes.ACCOUNT_DETAIL, param: accountVM })
   }
 
-  @Monitor(LoginViewModel.KEYS.showNoStokenDialog)
+  @Monitor('vm.showNoStokenDialog')
   onShowNoStokenDialog(_monitor: IMonitor): void {
     if (!this.vm.showNoStokenDialog) { return }
     this.vm.showNoStokenDialog = false

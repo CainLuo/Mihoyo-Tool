@@ -52,7 +52,7 @@ export struct ZZZCharacterDetail {
     this.vm.loadData();
   }
 
-  @Monitor(ZZZCharacterDetailViewModel.KEYS.networkErrorMsg)
+  @Monitor('vm.networkErrorMsg')
   onNetworkError(_monitor: IMonitor): void {
     const msg = this.vm.networkErrorMsg;
     if (msg === '') { return; }

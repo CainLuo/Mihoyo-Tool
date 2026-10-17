@@ -1,0 +1,103 @@
+{
+  "game": "hkrpg",
+  "avatar": {
+    "item_id": "1412",
+    "cur_level": 1,
+    "target_level": 80
+  },
+  "equipment": {
+    "item_id": "24006",
+    "cur_level": 1,
+    "target_level": 80
+  },
+  "skill_list": [
+    {
+      "item_id": "1412001",
+      "cur_level": 1,
+      "target_level": 6
+    },
+    {
+      "item_id": "1412002",
+      "cur_level": 1,
+      "target_level": 10
+    },
+    {
+      "item_id": "1412003",
+      "cur_level": 1,
+      "target_level": 10
+    },
+    {
+      "item_id": "1412004",
+      "cur_level": 1,
+      "target_level": 10
+    },
+    {
+      "item_id": "1412101",
+      "cur_level": 1,
+      "target_level": 1
+    },
+    {
+      "item_id": "1412102",
+      "cur_level": 1,
+      "target_level": 1
+    },
+    {
+      "item_id": "1412103",
+      "cur_level": 1,
+      "target_level": 1
+    },
+    {
+      "item_id": "1412201",
+      "cur_level": 1,
+      "target_level": 1
+    },
+    {
+      "item_id": "1412202",
+      "cur_level": 1,
+      "target_level": 1
+    },
+    {
+      "item_id": "1412203",
+      "cur_level": 1,
+      "target_level": 1
+    },
+    {
+      "item_id": "1412204",
+      "cur_level": 1,
+      "target_level": 1
+    },
+    {
+      "item_id": "1412205",
+      "cur_level": 1,
+      "target_level": 1
+    },
+    {
+      "item_id": "1412206",
+      "cur_level": 1,
+      "target_level": 1
+    },
+    {
+      "item_id": "1412207",
+      "cur_level": 1,
+      "target_level": 1
+    },
+    {
+      "item_id": "1412208",
+      "cur_level": 1,
+      "target_level": 1
+    },
+    {
+      "item_id": "1412209",
+      "cur_level": 1,
+      "target_level": 1
+    },
+    {
+      "item_id": "1412210",
+      "cur_level": 1,
+      "target_level": 1
+    }
+  ],
+  "lang": "zh-cn",
+  "uid": "102731382",
+  "region": "prod_gf_cn"
+}

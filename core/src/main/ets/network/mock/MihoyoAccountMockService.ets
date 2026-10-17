@@ -114,30 +114,19 @@ export class MihoyoAccountMockService extends MihoyoAccountApiService {
     return this.okResp(d);
   }
 
+  /**
+   * 二维码状态查询
+   * 
+   * Mock 环境下不自动确认登录，用户需要：
+   * 1. 使用 Cookie 登录（推荐）
+   * 2. 或手动调用 mock 接口模拟扫码确认
+   * 
+   * 返回 'init' 状态，表示二维码已生成但未扫码
+   */
   async queryQRCode(_deviceId: string, _ticket: string): Promise<object> {
     await MockServiceBase.delayStatic();
-    // 新版 passport API 直接返回 tokens 和 user_info
-    const tokens: Object[] = [];
-    const t1 = new Object() as Record<string, Object>;
-    t1['token'] = `${MOCK_STOKEN_PREFIX}${MOCK_AID_182}`;
-    t1['token_type'] = 1;
-    tokens.push(t1);
-    const t2 = new Object() as Record<string, Object>;
-    t2['token'] = `mock_ltoken_${MOCK_AID_182}`;
-    t2['token_type'] = 2;
-    tokens.push(t2);
-    const t3 = new Object() as Record<string, Object>;
-    t3['token'] = `mock_cookie_token_${MOCK_AID_182}`;
-    t3['token_type'] = 4;
-    tokens.push(t3);
-    const userInfo = new Object() as Record<string, Object>;
-    userInfo['aid'] = MOCK_AID_182;
-    userInfo['mid'] = `mock_mid_${MOCK_AID_182}`;
-    userInfo['account_name'] = 'MockAccount';
     const d = new Object() as Record<string, Object>;
-    d['status'] = 'Confirmed';
-    d['tokens'] = tokens;
-    d['user_info'] = userInfo;
+    d['status'] = 'init';
     return this.okResp(d);
   }
 

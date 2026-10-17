@@ -27,7 +27,6 @@
     {
       name: "mock",
       source: {
-        sourceRoots: ["./src/main", "./src/internal"],
         abilities: [
           {
             name: "EntryAbility",
@@ -39,7 +38,6 @@
     {
       name: "debug",
       source: {
-        sourceRoots: ["./src/internal"],
         abilities: [
           {
             name: "EntryAbility",
@@ -50,9 +48,6 @@
     },
     {
       name: "internal",
-      source: {
-        sourceRoots: ["./src/internal"],
-      },
     },
     {
       name: "ohosTest",

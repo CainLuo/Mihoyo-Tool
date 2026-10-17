@@ -11,6 +11,7 @@ import { GenshinMockService } from './mock/GenshinMockService';
 import { StarRailMockService } from './mock/StarRailMockService';
 import { ZZZMockService } from './mock/ZZZMockService';
 import { SignMockService } from './mock/SignMockService';
+import { Logger } from '../utils/Logger';
 
 export class MihoyoApiServiceFactory {
   /**

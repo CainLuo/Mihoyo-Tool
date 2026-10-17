@@ -10,12 +10,14 @@ import {
   RoleStatItem,
   CoreInitializer,
   LoginResult,
-  BBSRepository
+  BBSRepository,
+  ApiConfig
 } from 'core';
 import { Logger } from 'core';
 import { LoginTab, PhoneStep, QRCodeStat } from 'entry/ets/constants/LoginTabEnum';
 import { MyAccountVM, MyGameRoleVM, GameStatItem } from 'entry/ets/models/MyModels';
 import { serverDisplayName } from 'entry/ets/utils/ServerNameUtil';
+import { CookieExpiredSignal } from 'entry/ets/utils/CookieExpiredSignal';
 import { gameIdToName, gameIdToColor } from 'entry/ets/utils/GameIdUtil';
 
 export { LoginTab, PhoneStep, QRCodeStat };
@@ -119,15 +121,19 @@ export class LoginViewModel {
       const stoken = loginResult.stoken;
       const aid = loginResult.aid;
       const mid = loginResult.mid;
-      const ltoken = await AuthRepository.getLTokenBySToken(stoken, mid);
-      const cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
+
+      // ltoken 和 cookie_token 通过 stoken 换取（V1 接口）。
+      // 原先 v2 stoken 会先调用 V2 接口 getCookieBySToken，国服返回 404 后才退回 V1，现已去掉 V2 调用。
       const fields = new LoginCookieFields();
       fields.accountId = aid;
-      fields.cookieToken = cookieToken;
-      fields.ltoken = ltoken;
+      fields.ltoken = await AuthRepository.getLTokenBySToken(stoken, mid);
+      fields.cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
       fields.ltuid = aid;
       fields.stoken = stoken;
       fields.mid = mid;
+      // v2 Cookie 字段（设备指纹）
+      fields.deviceFp = ApiConfig.getDeviceFp();
+      fields.mhyUuid = ApiConfig.getDeviceIdSync();
       const cookie = AuthRepository.buildCookieString(fields);
       await this.finalizeLogin(aid, cookie);
     } catch (error) {
@@ -221,17 +227,22 @@ export class LoginViewModel {
     try {
       // 新版 passport API 直接返回 stoken、ltoken、mid，无需 getTokenByGameToken 转换
       const stoken = confirmed.stoken;
-      const ltoken = confirmed.ltoken;
       const mid = confirmed.mid.length > 0 ? confirmed.mid : confirmed.uid;
-      // cookie_token 仍需通过 stoken 换取
+
+      // cookie_token 通过 stoken 换取（passport getCookieAccountInfoBySToken）。
+      // 原先会先调用 V2 接口 /account/auth/api/getCookieBySToken，国服返回 404 后才退回此接口，现已去掉 V2 调用。
       const cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
+
       const fields = new LoginCookieFields();
       fields.accountId = confirmed.uid;
       fields.cookieToken = cookieToken;
-      fields.ltoken = ltoken;
+      fields.ltoken = confirmed.ltoken;
       fields.ltuid = confirmed.uid;
       fields.stoken = stoken;
       fields.mid = mid;
+      // v2 Cookie 字段（设备指纹）
+      fields.deviceFp = ApiConfig.getDeviceFp();
+      fields.mhyUuid = ApiConfig.getDeviceIdSync();
       const cookie = AuthRepository.buildCookieString(fields);
       await this.finalizeLogin(confirmed.uid, cookie);
     } catch (error) {
@@ -304,6 +315,8 @@ export class LoginViewModel {
       loginResult.nickname, loginResult.avatarUrl, loginResult.uid
     );
     this.loginedAccountId = loginResult.accountId;
+    // 重新登录成功：移除该账号的过期标记（账号详情页的"重新登录 / 刷新 Cookie"随之隐藏）
+    CookieExpiredSignal.instance().clearExpired(loginResult.username);
     this.loginSuccess = true;
   }
 

@@ -1,0 +1,178 @@
+{
+  "retcode": 0,
+  "message": "OK",
+  "data": {
+    "avatar_consume": [],
+    "skill_consume": [],
+    "equipment_consume": [
+      {
+        "item_id": "2",
+        "item_name": "信用点",
+        "item_url": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u47dee/25fc899824a6e927e954e899d9f35824.png",
+        "num": 740000,
+        "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/204/detail?bbs_presentation_style=no_header",
+        "rarity": "3",
+        "item_group": "0",
+        "item_purpose": "通用货币",
+        "item_desc": "星际和平公司与客户结算时使用的货币，如今已成为太空旅行的硬通货。",
+        "item_bg_desc": "<i>「人们奔波、争斗、贸易，为的不过是个终端里显示的数字。但真正珍贵之物，公司的数字是买不到的。」</i>"
+      },
+      {
+        "item_id": "223",
+        "item_name": "提纯以太",
+        "item_url": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u47dee/b9228080c5ca7dcee14afa7b3de6db6e.png",
+        "num": 130,
+        "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/522/detail?bbs_presentation_style=no_header",
+        "rarity": "4",
+        "item_group": "1020",
+        "item_purpose": "光锥经验材料",
+        "item_desc": "光锥的强化材料，可以获得6000点光锥经验。",
+        "item_bg_desc": "一罐经由特殊技术精炼而成的以太。\\n\\n<i>「忆庭盼望重现往日的辉煌，但那是由他们所选择的『往日辉煌』，明白吗？」</i>"
+      },
+      {
+        "item_id": "110293",
+        "item_name": "银河沙盘",
+        "item_url": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u47dee/9a0521b37c96135615d5f2d82d525676.png",
+        "num": 15,
+        "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/7691/detail?bbs_presentation_style=no_header",
+        "rarity": "4",
+        "item_group": "1223",
+        "item_purpose": "行迹材料 \\n光锥晋阶材料",
+        "item_desc": "由一位领航员遍观寰宇绘出的银河沙盘。可大幅提升<color=#f29e38ff>智识</color>角色的命途行迹。",
+        "item_bg_desc": "先驱者绘下的图景包罗万象，拟造的沙盘足以将整个星海囊括入怀。\\n后来者便以此为旅途之始，将沙盘装入随身的手提包，依傍前人的足迹前行。\\n直到星星陨落，她回头，才发现一路聚散离合，她已行至众人之前，她正踩在连沙盘也未记述的星间。\\n\\n<i>「寰宇的意义，必定在寰宇之外。」</i>"
+      },
+      {
+        "item_id": "110292",
+        "item_name": "星系框架",
+        "item_url": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u47dee/15b105333801129bb7f9f23e19f0eca6.png",
+        "num": 8,
+        "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/7692/detail?bbs_presentation_style=no_header",
+        "rarity": "3",
+        "item_group": "1223",
+        "item_purpose": "行迹材料 \\n光锥晋阶材料",
+        "item_desc": "星际航行相关专业用以进阶研究的星系框架。可中幅提升<color=#f29e38ff>智识</color>角色的命途行迹。",
+        "item_bg_desc": "星际航行动力学的课堂上，浩瀚的星海被丈量出几寸几尺，不落的星子也成了框架里规格参数各异的零部件。\\n从此远方站满分数与考核，浪漫需要写成白纸黑字的答案。\\n看来求学的旅途比想象中更需要热爱的力气。\\n\\n<i>「这个星系框架做得非常漂亮，我是说，我该给你一个优秀。」</i>"
+      },
+      {
+        "item_id": "116003",
+        "item_name": "梦现管锥",
+        "item_url": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u47dee/dd4a42d14804c7a7a29aaf94c170beda.png",
+        "num": 14,
+        "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/6859/detail?bbs_presentation_style=no_header",
+        "rarity": "4",
+        "item_group": "1411",
+        "item_purpose": "行迹材料 \\n角色晋阶材料",
+        "item_desc": "幻造生物的愿力碎片，强化所需的高级材料。",
+        "item_bg_desc": "所有值得被严肃对待的故事，都共享同一个主题：「人如何渡过只此一次的人生。」\\n生命是如此短暂，纵是圣者贤人也免不了被突兀地抛掷在人世间，毫无准备地经历一段人生。也因此，人们总也无法很好地渡过一生，难免有遗憾、难免有虚度。\\n但好在我们有故事。在故事中，创作者与阅读者得以共享另一段人生；在故事中，人的生命得以被持续地延长；在故事中，我们在有限的囚笼中抵达不朽。\\n\\n<i>「有了故事，我们得以活上千次万次。」</i>"
+      },
+      {
+        "item_id": "116002",
+        "item_name": "造梦蘸钢",
+        "item_url": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u47dee/87966547e16cc90bb53c72b88356d5e2.png",
+        "num": 12,
+        "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/6858/detail?bbs_presentation_style=no_header",
+        "rarity": "3",
+        "item_group": "1411",
+        "item_purpose": "行迹材料 \\n角色晋阶材料",
+        "item_desc": "幻造生物的愿力碎片，强化所需的普通材料。",
+        "item_bg_desc": "还记得那个历史掌故吗？军官指着揭露暴行的画作质问道：「这是你画的吗？」\\n画家笑着回答：「不，这是你们画的。」\\n一切试图表现现实的艺术，都不能临摹现实。因为现实粗浅的表象无法涵盖其非物质的深刻意涵。\\n就像一位死去的战士，如果你只去临摹遗容，那便只是世间无数死者中平凡的另一个。但你若在现实之上探索，找到那些肉眼不可见的崇高、勇气、愤怒、不甘，那才算是真正贴近了属于这位战士的现实。\\n唯有那样，人们才会知道，这位战士并不只是世间无数死者中平凡的另一个，此人曾使有山、有水、有房屋的地方，也能有人烟。\\n\\n<i>「有了故事，我们得以与邪恶对抗。」</i>"
+      }
+    ],
+    "user_owns_materials": {
+      "110292": 20,
+      "2": 22260156,
+      "223": 646
+    },
+    "need_get_materials": [
+      {
+        "item_id": "110293",
+        "item_name": "银河沙盘",
+        "item_url": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u47dee/9a0521b37c96135615d5f2d82d525676.png",
+        "num": 11,
+        "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/7691/detail?bbs_presentation_style=no_header",
+        "rarity": "4",
+        "item_group": "1223",
+        "item_purpose": "行迹材料 \\n光锥晋阶材料",
+        "item_desc": "由一位领航员遍观寰宇绘出的银河沙盘。可大幅提升<color=#f29e38ff>智识</color>角色的命途行迹。",
+        "item_bg_desc": "先驱者绘下的图景包罗万象，拟造的沙盘足以将整个星海囊括入怀。\\n后来者便以此为旅途之始，将沙盘装入随身的手提包，依傍前人的足迹前行。\\n直到星星陨落，她回头，才发现一路聚散离合，她已行至众人之前，她正踩在连沙盘也未记述的星间。\\n\\n<i>「寰宇的意义，必定在寰宇之外。」</i>"
+      }
+    ],
+    "can_pay_materials": [
+      {
+        "item_id": "2",
+        "item_name": "信用点",
+        "item_url": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u47dee/25fc899824a6e927e954e899d9f35824.png",
+        "num": 740000,
+        "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/204/detail?bbs_presentation_style=no_header",
+        "rarity": "3",
+        "item_group": "0",
+        "item_purpose": "通用货币",
+        "item_desc": "星际和平公司与客户结算时使用的货币，如今已成为太空旅行的硬通货。",
+        "item_bg_desc": "<i>「人们奔波、争斗、贸易，为的不过是个终端里显示的数字。但真正珍贵之物，公司的数字是买不到的。」</i>"
+      },
+      {
+        "item_id": "223",
+        "item_name": "提纯以太",
+        "item_url": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u47dee/b9228080c5ca7dcee14afa7b3de6db6e.png",
+        "num": 130,
+        "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/522/detail?bbs_presentation_style=no_header",
+        "rarity": "4",
+        "item_group": "1020",
+        "item_purpose": "光锥经验材料",
+        "item_desc": "光锥的强化材料，可以获得6000点光锥经验。",
+        "item_bg_desc": "一罐经由特殊技术精炼而成的以太。\\n\\n<i>「忆庭盼望重现往日的辉煌，但那是由他们所选择的『往日辉煌』，明白吗？」</i>"
+      },
+      {
+        "item_id": "110292",
+        "item_name": "星系框架",
+        "item_url": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u47dee/15b105333801129bb7f9f23e19f0eca6.png",
+        "num": 8,
+        "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/7692/detail?bbs_presentation_style=no_header",
+        "rarity": "3",
+        "item_group": "1223",
+        "item_purpose": "行迹材料 \\n光锥晋阶材料",
+        "item_desc": "星际航行相关专业用以进阶研究的星系框架。可中幅提升<color=#f29e38ff>智识</color>角色的命途行迹。",
+        "item_bg_desc": "星际航行动力学的课堂上，浩瀚的星海被丈量出几寸几尺，不落的星子也成了框架里规格参数各异的零部件。\\n从此远方站满分数与考核，浪漫需要写成白纸黑字的答案。\\n看来求学的旅途比想象中更需要热爱的力气。\\n\\n<i>「这个星系框架做得非常漂亮，我是说，我该给你一个优秀。」</i>"
+      }
+    ],
+    "can_merge_materials": [
+      {
+        "item_id": "110293",
+        "item_name": "银河沙盘",
+        "item_url": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u47dee/9a0521b37c96135615d5f2d82d525676.png",
+        "num": 4,
+        "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/7691/detail?bbs_presentation_style=no_header",
+        "rarity": "4",
+        "item_group": "1223",
+        "item_purpose": "行迹材料 \\n光锥晋阶材料",
+        "item_desc": "由一位领航员遍观寰宇绘出的银河沙盘。可大幅提升<color=#f29e38ff>智识</color>角色的命途行迹。",
+        "item_bg_desc": "先驱者绘下的图景包罗万象，拟造的沙盘足以将整个星海囊括入怀。\\n后来者便以此为旅途之始，将沙盘装入随身的手提包，依傍前人的足迹前行。\\n直到星星陨落，她回头，才发现一路聚散离合，她已行至众人之前，她正踩在连沙盘也未记述的星间。\\n\\n<i>「寰宇的意义，必定在寰宇之外。」</i>"
+      },
+      {
+        "item_id": "116003",
+        "item_name": "梦现管锥",
+        "item_url": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u47dee/dd4a42d14804c7a7a29aaf94c170beda.png",
+        "num": 14,
+        "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/6859/detail?bbs_presentation_style=no_header",
+        "rarity": "4",
+        "item_group": "1411",
+        "item_purpose": "行迹材料 \\n角色晋阶材料",
+        "item_desc": "幻造生物的愿力碎片，强化所需的高级材料。",
+        "item_bg_desc": "所有值得被严肃对待的故事，都共享同一个主题：「人如何渡过只此一次的人生。」\\n生命是如此短暂，纵是圣者贤人也免不了被突兀地抛掷在人世间，毫无准备地经历一段人生。也因此，人们总也无法很好地渡过一生，难免有遗憾、难免有虚度。\\n但好在我们有故事。在故事中，创作者与阅读者得以共享另一段人生；在故事中，人的生命得以被持续地延长；在故事中，我们在有限的囚笼中抵达不朽。\\n\\n<i>「有了故事，我们得以活上千次万次。」</i>"
+      },
+      {
+        "item_id": "116002",
+        "item_name": "造梦蘸钢",
+        "item_url": "https://act-webstatic.mihoyo.com/darkmatter/hkrpg/prod_gf_cn/item_icon_u47dee/87966547e16cc90bb53c72b88356d5e2.png",
+        "num": 12,
+        "wiki_url": "https://bbs.mihoyo.com/sr/wiki/content/6858/detail?bbs_presentation_style=no_header",
+        "rarity": "3",
+        "item_group": "1411",
+        "item_purpose": "行迹材料 \\n角色晋阶材料",
+        "item_desc": "幻造生物的愿力碎片，强化所需的普通材料。",
+        "item_bg_desc": "还记得那个历史掌故吗？军官指着揭露暴行的画作质问道：「这是你画的吗？」\\n画家笑着回答：「不，这是你们画的。」\\n一切试图表现现实的艺术，都不能临摹现实。因为现实粗浅的表象无法涵盖其非物质的深刻意涵。\\n就像一位死去的战士，如果你只去临摹遗容，那便只是世间无数死者中平凡的另一个。但你若在现实之上探索，找到那些肉眼不可见的崇高、勇气、愤怒、不甘，那才算是真正贴近了属于这位战士的现实。\\n唯有那样，人们才会知道，这位战士并不只是世间无数死者中平凡的另一个，此人曾使有山、有水、有房屋的地方，也能有人烟。\\n\\n<i>「有了故事，我们得以与邪恶对抗。」</i>"
+      }
+    ],
+    "coin_id": "2"
+  }
+}

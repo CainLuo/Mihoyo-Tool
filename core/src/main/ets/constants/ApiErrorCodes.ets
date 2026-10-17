@@ -13,6 +13,16 @@ export class ApiErrorCodes {
   /** 登录已过期 / Cookie 无效 */
   static readonly AUTH_INVALID: number = -100;
 
+  /** 登录已过期 / Cookie 无效（备用码 1）*/
+  static readonly AUTH_INVALID_ALT1: number = 10001;
+
+  /**
+   * 请求无效（message 为 "invalid request"）。
+   * 不是登录过期：通常是 DS 签名、请求头或参数不正确，刷新 Cookie 无法解决，不能按登录失效处理。
+   * （原名 AUTH_INVALID_ALT2，曾被误当作 Cookie 失效，导致 Cookie 有效时也弹"登录已过期"）
+   */
+  static readonly INVALID_REQUEST: number = -10001;
+
   /** 请求频率过高，触发限流 */
   static readonly RATE_LIMITED: number = -110;
 

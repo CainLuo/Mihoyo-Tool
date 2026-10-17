@@ -11,6 +11,7 @@ import { StarRailRepository } from './repository/StarRailRepository';
 import { ZZZRepository } from './repository/ZZZRepository';
 import { SignRepository } from './repository/SignRepository';
 import { SyncQueueRunner } from './repository/SyncQueueRunner';
+import { MaterialTargetConfigRepository } from './repository/MaterialTargetConfigRepository';
 import { ApiLogSystem } from './log/ApiLogSystem';
 import { LogEventType } from './log/ApiLogEntry';
 import { Logger } from './utils/Logger';
@@ -34,6 +35,7 @@ export class CoreInitializer {
   private static _starRailRepository: StarRailRepository | null = null;
   private static _zzzRepository: ZZZRepository | null = null;
   private static _signRepository: SignRepository | null = null;
+  private static _materialTargetConfigRepository: MaterialTargetConfigRepository | null = null;
 
   static get bbsRepository(): BBSRepository {
     if (CoreInitializer._bbsRepository === null) {
@@ -68,6 +70,13 @@ export class CoreInitializer {
       CoreInitializer._signRepository = new SignRepository();
     }
     return CoreInitializer._signRepository;
+  }
+
+  static get materialTargetConfigRepository(): MaterialTargetConfigRepository {
+    if (CoreInitializer._materialTargetConfigRepository === null) {
+      CoreInitializer._materialTargetConfigRepository = new MaterialTargetConfigRepository();
+    }
+    return CoreInitializer._materialTargetConfigRepository;
   }
 
   /**

@@ -9,6 +9,7 @@ import { HttpClient } from '../network/HttpClient';
 import { MihoyoAccountApiService } from '../network/MihoyoAccountApiService';
 import { ApiConfig } from '../network/ApiConfig';
 import { AppEnvManager } from '../constants/AppEnvManager';
+import { Logger } from '../utils/Logger';
 import { MihoyoDomain } from '../network/MihoyoDomain';
 import { HKey, HVal } from '../network/MihoyoHeaderKey';
 import { PassportApiPath } from '../network/PassportApiPath';
@@ -40,7 +41,10 @@ import {
   GetLTokenBySTokenResponse,
   GetCookieBySTokenResponse,
   LoginCookieFields,
+  GetCookieBySTokenV2Response,
+  GetCookieAccountInfoBySTokenV2Response,
 } from '../models/TokenModels';
+
 
 export {
   LoginMobileResult,
@@ -60,6 +64,8 @@ export {
   UserInfo,
   GetLTokenBySTokenResponse,
   GetCookieBySTokenResponse,
+  GetCookieBySTokenV2Response,
+  GetCookieAccountInfoBySTokenV2Response,
 } from '../models/TokenModels';
 
 export class AuthRepository {
@@ -223,6 +229,9 @@ export class AuthRepository {
     }
   }
 
+  // 原先的 getCookieBySTokenV2（/account/auth/api/getCookieBySToken）在国服 passport 返回 HTTP 404，
+  // 两个参考项目都没有使用，已删除；getCookieAccountInfoBySTokenV2 与 V1 路径完全相同，一并删除。
+
   // ── 二维码登录 ────────────────────────────────────────────────
 
   static async fetchQRCode(deviceId: string): Promise<QRCodeFetchResult> {
@@ -330,13 +339,54 @@ export class AuthRepository {
   // ── 工具方法 ─────────────────────────────────────────────────
 
   static buildCookieString(fields: LoginCookieFields): string {
+    // 判断 stoken 是否为 v2 格式（以 "v2_" 开头）
+    const isStokenV2 = fields.stoken.length > 0 && fields.stoken.startsWith('v2_');
+
+    // 基础 Cookie 字段
     let cookie = `${COOKIE_FIELD_ACCOUNT_ID}=${fields.accountId}; ${COOKIE_FIELD_COOKIE_TOKEN}=${fields.cookieToken}; ${COOKIE_FIELD_LTOKEN}=${fields.ltoken}; ${COOKIE_FIELD_LTUID}=${fields.ltuid}`;
+
+    // SToken 相关字段（二维码/手机号登录时有值）
     if (fields.stoken.length > 0) {
       cookie += `; stoken=${fields.stoken}; stuid=${fields.accountId}`;
     }
     if (fields.mid.length > 0) {
       cookie += `; mid=${fields.mid}`;
     }
+
+    // v2 版本字段
+    // ltuid_v2 和 account_id_v2 始终等于 accountId（这两个字段不依赖 token 格式）
+    cookie += `; ltuid_v2=${fields.accountId}; account_id_v2=${fields.accountId}`;
+
+    // 只有当 stoken 是 v2 格式时，才添加完整的 v2 token 字段
+    if (isStokenV2) {
+      // v2 格式的 stoken，可以添加 ltmid_v2 和 account_mid_v2
+      if (fields.mid.length > 0) {
+        cookie += `; ltmid_v2=${fields.mid}; account_mid_v2=${fields.mid}`;
+      }
+      // 如果有 v2 token 字段，添加到 Cookie
+      if (fields.ltokenV2.length > 0) {
+        cookie += `; ltoken_v2=${fields.ltokenV2}`;
+      }
+      if (fields.cookieTokenV2.length > 0) {
+        cookie += `; cookie_token_v2=${fields.cookieTokenV2}`;
+      }
+    }
+
+    // 设备指纹相关字段（新版 batch_compute API 必需）
+    if (fields.deviceFp.length > 0) {
+      cookie += `; DEVICEFP=${fields.deviceFp}`;
+    }
+    if (fields.mhyUuid.length > 0) {
+      cookie += `; _MHYUUID=${fields.mhyUuid}`;
+    }
+    if (fields.deviceFpSeedId.length > 0) {
+      cookie += `; DEVICEFP_SEED_ID=${fields.deviceFpSeedId}`;
+    }
+    if (fields.deviceFpSeedTime.length > 0) {
+      cookie += `; DEVICEFP_SEED_TIME=${fields.deviceFpSeedTime}`;
+    }
+
+    Logger.info('AuthRepository', `buildCookieString result length: ${cookie.length}`);
     return cookie;
   }
 

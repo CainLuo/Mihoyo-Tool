@@ -15,6 +15,8 @@ import staminaNotificationServiceTest from './StaminaNotificationService.test';
 import widgetExtraRowTypeTest from './WidgetExtraRowType.test';
 import widgetExtraRowConfigTest from './WidgetExtraRowConfig.test';
 import widgetDataHelperExtraRowsTest from './WidgetDataHelperExtraRows.test';
+import toolsViewModelTest from './ToolsViewModel.test';
+import materialCalcViewModelTest from './MaterialCalcViewModel.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -34,4 +36,6 @@ export default function testsuite() {
   widgetExtraRowTypeTest();
   widgetExtraRowConfigTest();
   widgetDataHelperExtraRowsTest();
+  toolsViewModelTest();
+  materialCalcViewModelTest();
 }

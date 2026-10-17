@@ -38,6 +38,18 @@ export const COOKIE_FIELD_COOKIE_TOKEN = 'cookie_token';
 export const COOKIE_FIELD_LTOKEN = 'ltoken';
 export const COOKIE_FIELD_LTUID = 'ltuid';
 
+/** Cookie v2 字段名（新版 API 必需） */
+export const COOKIE_FIELD_LTMID_V2 = 'ltmid_v2';
+export const COOKIE_FIELD_LTUID_V2 = 'ltuid_v2';
+export const COOKIE_FIELD_ACCOUNT_ID_V2 = 'account_id_v2';
+export const COOKIE_FIELD_ACCOUNT_MID_V2 = 'account_mid_v2';
+export const COOKIE_FIELD_LTOKEN_V2 = 'ltoken_v2';
+export const COOKIE_FIELD_COOKIE_TOKEN_V2 = 'cookie_token_v2';
+export const COOKIE_FIELD_DEVICEFP = 'DEVICEFP';
+export const COOKIE_FIELD_MHYUUID = '_MHYUUID';
+export const COOKIE_FIELD_DEVICEFP_SEED_ID = 'DEVICEFP_SEED_ID';
+export const COOKIE_FIELD_DEVICEFP_SEED_TIME = 'DEVICEFP_SEED_TIME';
+
 // ─── 同步状态 ─────────────────────────────────────────────────────
 
 /** sync_meta.sync_status 字段值 */

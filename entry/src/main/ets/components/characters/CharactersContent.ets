@@ -6,12 +6,11 @@
  */
 import { ThemeManager, themeManager } from '../../theme/ThemeManager';
 import { CharactersViewModel } from '../../viewmodel/CharactersViewModel';
-import { GameDataSummary } from 'core';
-import { HomePlaceholderView } from '../home/HomePlaceholderView';
+import { GameDataSummary, GameId } from 'core';
+import { PlaceholderView, PlaceholderState } from '../common/PlaceholderView';
 import { CharacterCard } from './CharacterCard';
 import { CharactersSkeleton } from './CharactersSkeleton';
-import { CharactersEmptyView } from './CharactersEmptyView';
-import { GameTabBar } from './GameTabBar';
+import { SegmentedTabBar, SegmentedTabItem } from '../common/SegmentedTabBar';
 import { ViewState } from '../../constants/ViewStates';
 import { AppRoutes } from '../../constants/AppRoutes';
 
@@ -27,9 +26,9 @@ export struct CharactersContent {
   build() {
     Column() {
       // 多游戏时显示 Tab 栏
-      if (this.vm.gameTabs.length > 1) {
-        GameTabBar({
-          tabs: this.vm.gameTabs,
+      if (this.vm.gameTabItems.length > 1) {
+        SegmentedTabBar({
+          tabs: this.vm.gameTabItems,
           selectedIdx: this.vm.selectedGameIdx,
           onSelect: (idx: number) => { this.vm.selectGame(idx) }
         })
@@ -45,22 +44,38 @@ export struct CharactersContent {
           .padding({ top: this.tm.current.font16 })
         }
         .scrollBar(BarState.Off)
-        .layoutWeight(1)
+        .width(this.tm.current.full)
+        .height(this.tm.current.full)
         .align(Alignment.Top)
+        .layoutWeight(1)
       } else if (this.vm.viewState === ViewState.EMPTY) {
         // 无账号：显示登录占位；有账号但无数据：显示刷新提示
         if (this.vm.accountOptions.length === 0) {
-          HomePlaceholderView({
-            onTap: () => {
-              if (this.isSplit) {
-                this.detailStack.replacePath({ name: AppRoutes.LOGIN, param: null })
-              } else {
-                this.detailStack.pushPathByName(AppRoutes.LOGIN, null)
+          PlaceholderView({
+            state: {
+              icon: '📋',
+              title: $r('app.string.home_placeholder_title'),
+              description: $r('app.string.home_placeholder_desc'),
+              buttonText: $r('app.string.home_placeholder_button'),
+              onButtonTap: () => {
+                if (this.isSplit) {
+                  this.detailStack.replacePath({ name: AppRoutes.LOGIN, param: null })
+                } else {
+                  this.detailStack.pushPathByName(AppRoutes.LOGIN, null)
+                }
               }
-            }
+            } as PlaceholderState
           })
         } else {
-          CharactersEmptyView({ onRefresh: () => { this.vm.refresh() } })
+          PlaceholderView({
+            state: {
+              icon: '📋',
+              title: $r('app.string.characters_placeholder_title'),
+              description: $r('app.string.characters_placeholder_desc'),
+              buttonText: $r('app.string.characters_no_data_hint'),
+              onButtonTap: () => { this.vm.refresh() }
+            } as PlaceholderState
+          })
         }
       } else {
         // DATA 状态：LazyForEach + Grid 懒加载
@@ -69,17 +84,15 @@ export struct CharactersContent {
             GridItem() {
               CharacterCard({
                 character: character,
-                gameId: this.vm.gameTabs.length > 0
-                  ? this.vm.gameTabs[this.vm.selectedGameIdx].gameId
-                  : this.vm.currentGameId,
-                roleUid: this.vm.gameTabs.length > 0
-                  ? this.vm.gameTabs[this.vm.selectedGameIdx].roleUid : '',
+                gameId: this.vm.currentGameId,
+                roleUid: '',
                 onTap: (c: GameDataSummary) => { this.onCardTap(c) }
               })
             }
           }, (character: GameDataSummary) => `${character.gameId}_${character.entityId}`)
         }
-        .columnsTemplate('1fr 1fr')
+        // 绝区零一行 3 个（卡片内容较少），原神 / 星铁保持一行 2 个
+        .columnsTemplate(this.vm.currentGameId === GameId.ZZZ ? '1fr 1fr 1fr' : '1fr 1fr')
         .columnsGap(this.tm.current.value12)
         .rowsGap(this.tm.current.value12)
         .padding({

@@ -59,7 +59,7 @@ export struct WebViewPage {
     })
   }
 
-  @Monitor('tm.current.colorPageBg')
+  @Monitor('tm')
   onThemeChanged(_m: IMonitor): void {
     if (this.pageLoaded) { this.injectTheme() }
   }

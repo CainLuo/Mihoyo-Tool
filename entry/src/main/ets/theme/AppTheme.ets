@@ -29,6 +29,13 @@ export interface AppColor {
   colorWarning: Resource
   colorSurfaceSubtle: Resource
 
+  // ---- 成功状态 ----
+  colorSuccess: Resource
+  colorSuccessBg: Resource
+
+  // ---- 文本 ----
+  colorTextMuted: Resource
+
   // ---- Surface ----
   surfaceActivePrimary: Resource
   surfaceDarkLg: Resource

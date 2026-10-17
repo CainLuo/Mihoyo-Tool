@@ -21,6 +21,7 @@ import { Logger } from 'core';
 import { LoginTab, PhoneStep, QRCodeStat } from '../constants/LoginTabEnum';
 import { MyAccountVM, MyGameRoleVM, GameStatItem } from '../models/MyModels';
 import { serverDisplayName } from '../utils/ServerNameUtil';
+import { CookieExpiredSignal } from '../utils/CookieExpiredSignal';
 import { gameIdToName, gameIdToColor } from '../utils/GameIdUtil';
 
 export { LoginTab, PhoneStep, QRCodeStat };
@@ -303,6 +304,8 @@ export class LoginViewModel {
       loginResult.nickname, loginResult.avatarUrl, loginResult.uid
     );
     this.loginedAccountId = loginResult.accountId;
+    // 重新登录成功：移除该账号的过期标记（账号详情页的"重新登录 / 刷新 Cookie"随之隐藏）
+    CookieExpiredSignal.instance().clearExpired(loginResult.username);
     this.loginSuccess = true;
   }
 

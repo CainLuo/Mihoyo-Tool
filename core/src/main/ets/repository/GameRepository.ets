@@ -7,6 +7,7 @@ import {
   SYNC_STATUS_SUCCESS,
   SYNC_STATUS_FAILED,
 } from '../constants/ApiConstants';
+import { SyncError, SyncErrorKind } from '../errors/ApiErrors';
 
 export abstract class GameRepository {
   // 同步间隔阈值（秒）

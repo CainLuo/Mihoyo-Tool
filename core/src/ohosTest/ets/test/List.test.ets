@@ -9,6 +9,7 @@ import bbsRepositoryTest from './BBSRepository.test';
 import genshinRepositoryTest from './GenshinRepository.test';
 import starRailRepositoryTest from './StarRailRepository.test';
 import zzzRepositoryTest from './ZZZRepository.test';
+import materialBagDaoTest from './MaterialBagDao.test';
 
 export default function testsuite() {
   abilityTest();
@@ -22,4 +23,5 @@ export default function testsuite() {
   genshinRepositoryTest();
   starRailRepositoryTest();
   zzzRepositoryTest();
+  materialBagDaoTest();
 }

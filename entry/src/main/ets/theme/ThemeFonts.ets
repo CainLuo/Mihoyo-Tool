@@ -20,8 +20,10 @@ import { makeFont } from './AppTheme'
  * 字体预设对象（entry 层专用）
  */
 export class ThemeFonts {
+  static readonly font10: Font = makeFont(10, FontWeight.Normal)
   static readonly font11: Font = makeFont(11, FontWeight.Normal)
   static readonly font13: Font = makeFont(13, FontWeight.Normal)
+  static readonly fontBold13: Font = makeFont(13, FontWeight.Bold)
   static readonly font14: Font = makeFont(14, FontWeight.Normal)
   static readonly fontBold14: Font = makeFont(14, FontWeight.Bold)
   static readonly font16: Font = makeFont(16, FontWeight.Normal)

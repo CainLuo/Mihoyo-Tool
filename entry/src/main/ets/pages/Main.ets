@@ -15,10 +15,14 @@ import { AccountSwitchDialog, AccountSwitchDialogParams } from '../components/ch
 import { Home } from './Home'
 import { Characters } from './Characters'
 import { My } from './My'
+import { Tools } from './Tools'
 import { AppRoutes } from '../constants/AppRoutes'
 import { splitPlaceholderBuilder } from '../components/SplitPlaceholder'
 import { CookieExpiredSignal } from '../utils/CookieExpiredSignal'
-import { FailedAccountInfo } from 'core'
+import { GeetestSignal } from '../utils/GeetestSignal'
+import { showGeetestDialog } from '../components/GeetestDialogHelper'
+import { FailedAccountInfo, Logger } from 'core'
+import { DialogDedup } from '../utils/DialogDedup'
 import BuildProfile from 'BuildProfile'
 
 @Builder
@@ -28,7 +32,8 @@ function accountSwitchDialogBuilder(params: AccountSwitchDialogParams) {
 
 const TAB_HOME = 0
 const TAB_CHARACTERS = 1
-const TAB_MY = 2
+const TAB_TOOLS = 2
+const TAB_MY = 3
 
 @ComponentV2
 export struct Main {
@@ -49,6 +54,9 @@ export struct Main {
   private placeholder: ComponentContent<object> | null = null
   private uiCtx: UIContext | null = null
   @Local private cookieExpiredSignal: CookieExpiredSignal = CookieExpiredSignal.instance()
+  @Local private geetestSignal: GeetestSignal = GeetestSignal.instance()
+  /** 用户是否请求取消全部验证队列 */
+  private geetestCancelAllRequested: boolean = false
 
   // ── Home 标题栏状态（由 Home 页通过 @Param 回调上报）──────────
   @Local private homeShowRefresh: boolean = false
@@ -149,6 +157,11 @@ export struct Main {
 
     const ctx = this.uiCtx
     if (ctx === null) { return }
+    // 同一账号的登录过期弹框正在显示时，忽略重复触发
+    const dedupKey = `cookie_expired:${info.username}`
+    if (!DialogDedup.tryAcquire(dedupKey)) {
+      return
+    }
     ctx.getPromptAction().showDialog({
       title: $r('app.string.cookie_expired_dialog_title'),
       message: $r('app.string.cookie_expired_dialog_msg', info.nickname),
@@ -157,6 +170,7 @@ export struct Main {
         { text: $r('app.string.cookie_expired_go_login'), color: '#E8534A' },
       ],
     }).then((result: promptAction.ShowDialogSuccessResponse) => {
+      DialogDedup.release(dedupKey)
       if (result.index === 1) {
         this.stack.pushPathByName(AppRoutes.LOGIN, null)
       }
@@ -164,7 +178,50 @@ export struct Main {
       if (this.cookieExpiredSignal.queue.length > 0) {
         this.cookieExpiredSignal.queue = this.cookieExpiredSignal.queue
       }
-    }).catch((_: Error | object) => {})
+    }).catch((_: Error | object) => {
+      DialogDedup.release(dedupKey)
+    })
+  }
+
+  @Monitor('geetestSignal.trigger')
+  async onGeetestTriggered(_monitor: IMonitor): Promise<void> {
+    if (this.geetestSignal.trigger === 0) { return }
+
+    const item = this.geetestSignal.getCurrentItem()
+    if (item === null) { return }
+
+    const progress = this.geetestSignal.getProgress()
+    const ctx = this.uiCtx
+    if (ctx === null) { return }
+
+    // 重置"取消全部"标记
+    this.geetestCancelAllRequested = false
+
+    // 弹出 Geetest 验证对话框
+    const result = await showGeetestDialog(
+      ctx,
+      item.trigger.createResult,
+      progress,
+      item.accountName
+    )
+
+    // 处理结果
+    if (result !== null) {
+      // 验证成功，回调原调用方
+      // gt 来自 createResult，challenge 和 validate 来自验证结果
+      const trigger = item.trigger
+      this.geetestSignal.resolveSuccess(
+        trigger.createResult.gt,
+        result.geetest_challenge,
+        result.geetest_validate
+      )
+    } else if (this.geetestCancelAllRequested) {
+      // 用户请求取消全部队列
+      this.geetestSignal.resolveCancelAll()
+    } else {
+      // 用户只取消当前项
+      this.geetestSignal.resolveCancelCurrent()
+    }
   }
 
 
@@ -232,6 +289,7 @@ export struct Main {
   private tabTitle(): Resource {
     if (this.selectedTab === TAB_HOME) { return $r('app.string.main_tab_home') }
     if (this.selectedTab === TAB_CHARACTERS) { return $r('app.string.characters_tab_title') }
+    if (this.selectedTab === TAB_TOOLS) { return $r('app.string.tools_title') }
     return $r('app.string.main_tab_my')
   }
 
@@ -273,6 +331,8 @@ export struct Main {
             }
           })
           .visibility(this.selectedTab === TAB_CHARACTERS ? Visibility.Visible : Visibility.None)
+          Tools({ detailStack: this.stack })
+            .visibility(this.selectedTab === TAB_TOOLS ? Visibility.Visible : Visibility.None)
           My({ detailStack: this.stack, isSplit: this.isSplit })
             .visibility(this.selectedTab === TAB_MY ? Visibility.Visible : Visibility.None)
         }
@@ -301,6 +361,16 @@ export struct Main {
           status: (this.selectedTab === TAB_CHARACTERS && this.tabVersion >= 0)
             ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
           action: () => { this.selectedTab = TAB_CHARACTERS; this.tabVersion++; if (this.isSplit) { this.stack.clear() } }
+        },
+        {
+          value: $r('app.string.tools_title'),
+          symbolIcon: new SymbolGlyphModifier($r('sys.symbol.wrench_and_screwdriver'))
+            .fontColor([this.tm.current.colorTextSecondary]),
+          activeSymbolIcon: new SymbolGlyphModifier($r('sys.symbol.wrench_and_screwdriver'))
+            .fontColor([this.tm.current.colorPrimary]),
+          status: (this.selectedTab === TAB_TOOLS && this.tabVersion >= 0)
+            ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
+          action: () => { this.selectedTab = TAB_TOOLS; this.tabVersion++; if (this.isSplit) { this.stack.clear() } }
         },
         {
           value: $r('app.string.main_tab_my'),

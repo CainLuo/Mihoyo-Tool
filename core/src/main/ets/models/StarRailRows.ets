@@ -142,8 +142,12 @@ export class StarRailAvatarComputeRow {
   skillConsumeJson: string = '';
   /** 光锥养成消耗 JSON */
   equipmentConsumeJson: string = '';
+  /** 完整 API 响应 JSON（v2.0.0 新增） */
+  rawJson: string = '';
   /** 数据更新时间（Unix 秒） */
   updateTime: number = 0;
+  /** 本地状态（v7）：1 = 已达成目标，各 consume / raw_json 为空 */
+  targetReached: number = 0;
 }
 
 // ─── API 响应解析用 interface（供 StarRailRepository 内部使用）──
@@ -192,8 +196,43 @@ export interface StarRailAvatarItem {
   equip: StarRailEquipItem | null;
 }
 
+/** 星铁角色技能项（来自 avatar/info API 的 skills 字段） */
+export interface StarRailAvatarSkill {
+  point_id: string;
+  level: number;
+  is_activated: boolean;
+}
+
+/** 星铁角色详情项（来自 avatar/info API，含 skills 字段） */
+export interface StarRailAvatarInfoItem extends StarRailAvatarItem {
+  skills: StarRailAvatarSkill[];
+}
+
 /** 星铁角色列表 API 响应 data 字段结构（兼容 list 和 avatar_list 两种字段名） */
 export interface StarRailAvatarListData {
   list: StarRailAvatarItem[];
   avatar_list: StarRailAvatarItem[];
+}
+
+// ─── 养成计算请求参数 class ───
+
+/** 星铁养成计算 — 角色参数 */
+export class StarRailComputeAvatar {
+  item_id: string = '';
+  cur_level: number = 1;
+  target_level: number = 80;
+}
+
+/** 星铁养成计算 — 光锥参数 */
+export class StarRailComputeEquipment {
+  item_id: string = '';
+  cur_level: number = 1;
+  target_level: number = 80;
+}
+
+/** 星铁养成计算 — 技能参数 */
+export class StarRailComputeSkill {
+  item_id: string = '';
+  cur_level: number = 1;
+  target_level: number = 10;
 }

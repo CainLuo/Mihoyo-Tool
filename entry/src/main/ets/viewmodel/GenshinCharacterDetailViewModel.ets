@@ -28,19 +28,17 @@ import {
 
 const TAG: string = 'GenshinCharacterDetailViewModel';
 
-// ─── @Monitor 路径常量 ───────────────────────────────────────────
+// ─── @Monitor 路径常量（必须是顶层 const，ArkTS 不支持通过实例访问作为编译时常量） ───
 
-/** GenshinCharacterDetailViewModel @Monitor 路径常量类型 */
-export class GenshinCharacterDetailViewModelKeys {
-  viewState: string = 'vm.viewState';
-  networkErrorMsg: string = 'vm.networkErrorMsg';
-}
+/** GenshinCharacterDetailViewModel.viewState 路径 */
+export const GENSHIN_CHAR_DETAIL_VM_VIEW_STATE = 'vm.viewState';
+/** GenshinCharacterDetailViewModel.networkErrorMsg 路径 */
+export const GENSHIN_CHAR_DETAIL_VM_ERROR = 'vm.networkErrorMsg';
 
 // ─── ViewModel ───────────────────────────────────────────────────
 
 @ObservedV2
 export class GenshinCharacterDetailViewModel {
-  static readonly KEYS: GenshinCharacterDetailViewModelKeys = new GenshinCharacterDetailViewModelKeys();
 
   @Trace viewState: ViewState = ViewState.LOADING;
   /** 非空时 View 弹 Snackbar，弹完后 View 应将其清空 */
@@ -184,16 +182,20 @@ export class GenshinCharacterDetailViewModel {
       }
       this.relics = relics;
 
-      // 技能（取前3个）
+      // 技能（只取 skill_type=1 的可升级技能）
       const skills: CharDetailSkill[] = [];
       if (parsed.skills) {
-        const count = Math.min(3, parsed.skills.length);
-        for (let i = 0; i < count; i++) {
-          const sk = new CharDetailSkill();
-          sk.iconUrl = parsed.skills[i].icon ?? '';
-          sk.level = parsed.skills[i].level ?? 0;
-          sk.name = parsed.skills[i].name ?? '';
-          skills[skills.length] = sk;
+        for (let i = 0; i < parsed.skills.length; i++) {
+          const sk = parsed.skills[i];
+          // skill_type=1 是可升级技能（普攻、E、Q），skill_type=2 是固有天赋/被动
+          // 如果没有 skill_type 字段，兼容旧数据：取前3个
+          if (sk.skill_type === 1 || sk.skill_type === undefined) {
+            const skill = new CharDetailSkill();
+            skill.iconUrl = sk.icon ?? '';
+            skill.level = sk.level ?? 0;
+            skill.name = sk.name ?? '';
+            skills[skills.length] = skill;
+          }
         }
       }
       this.skills = skills;
