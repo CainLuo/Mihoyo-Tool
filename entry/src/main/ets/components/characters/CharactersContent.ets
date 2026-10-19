@@ -57,6 +57,7 @@ export struct CharactersContent {
               title: $r('app.string.home_placeholder_title'),
               description: $r('app.string.home_placeholder_desc'),
               buttonText: $r('app.string.home_placeholder_button'),
+              buttonEnabled: true,
               onButtonTap: () => {
                 if (this.isSplit) {
                   this.detailStack.replacePath({ name: AppRoutes.LOGIN, param: null })
@@ -73,7 +74,9 @@ export struct CharactersContent {
               title: $r('app.string.characters_placeholder_title'),
               description: $r('app.string.characters_placeholder_desc'),
               buttonText: $r('app.string.characters_no_data_hint'),
-              onButtonTap: () => { this.vm.refresh() }
+              onButtonTap: () => { this.vm.refresh() },
+              // 同步进行中禁用，防止连续点击触发多轮同步
+              buttonEnabled: !this.vm.isRefreshing
             } as PlaceholderState
           })
         }

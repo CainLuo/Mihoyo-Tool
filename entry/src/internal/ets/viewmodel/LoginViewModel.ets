@@ -167,7 +167,8 @@ export class LoginViewModel {
     this.qrCodeUrl = '';
     this.errorMsg = '';
     if (this.deviceId.length === 0) {
-      this.deviceId = LoginViewModel.generateDeviceId();
+      // 与登录后的所有请求使用同一个 x-rpc-device_id（TeyvatGuide 做法），不再为扫码单独随机生成
+      this.deviceId = ApiConfig.getDeviceIdSync();
     }
     this.isLoading = true;
     try {
@@ -321,21 +322,6 @@ export class LoginViewModel {
   }
 
   // ─── 工具方法 ─────────────────────────────────────────────────
-
-  private static generateDeviceId(): string {
-    const chars = '0123456789abcdef';
-    let id = '';
-    const groups = [8, 4, 4, 4, 12];
-    for (let g = 0; g < groups.length; g++) {
-      if (g > 0) {
-        id += '-';
-      }
-      for (let i = 0; i < groups[g]; i++) {
-        id += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-    }
-    return id;
-  }
 
   private startCooldown(seconds: number): void {
     this.smsCooldown = seconds;

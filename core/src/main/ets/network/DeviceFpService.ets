@@ -170,6 +170,27 @@ export class DeviceFpService {
     await DeviceFpService.fetchAndCache(context, deviceId);
   }
 
+  /**
+   * 重新生成全部指纹（通用 + 各游戏，并清空绝区零各账号的指纹），用于 5003 / 10041（设备指纹无效 / 账号异常）。
+   * 与 PizzaHelperUnited「重新生成设备指纹」一致：申请时的 device_id 混入当前时间，确保拿到新指纹；
+   * 请求头 x-rpc-device_id 不变。任一申请失败时抛出，已成功的部分保留。
+   */
+  static async regenerateAll(context: common.UIAbilityContext, deviceId: string): Promise<void> {
+    const seedDeviceId = crypto.MD5(`${deviceId}|${Date.now()}`).toString();
+    const prefs = await preferences.getPreferences(context, PREFS_NAME);
+    const fp = await DeviceFpService.fetchFromApi(seedDeviceId);
+    DeviceFpService.cachedFp = fp;
+    await prefs.put(KEY_DEVICE_FP, fp);
+    await prefs.put(KEY_DEVICE_FP_SOURCE, DEVICE_FP_SOURCE);
+    for (let i = 0; i < ALL_GAME_FP_BIZ.length; i++) {
+      const biz = ALL_GAME_FP_BIZ[i];
+      const gameFp = await DeviceFpService.fetchGameFpFromApi(seedDeviceId, biz);
+      DeviceFpService.gameFps.set(biz, gameFp);
+      await prefs.put(KEY_GAME_FP_PREFIX + biz, gameFp);
+    }
+    await prefs.flush();
+  }
+
   private static async fetchAndCache(context: common.UIAbilityContext, deviceId: string): Promise<void> {
     try {
       const fp = await DeviceFpService.fetchFromApi(deviceId);

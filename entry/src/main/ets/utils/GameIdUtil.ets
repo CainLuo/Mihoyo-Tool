@@ -74,3 +74,10 @@ export function gameIdStrToLogo(gameId: string): Resource {
   if (gameId === GameId.ZZZ)      { return $r('app.media.logo_zzz') }
   return $r('app.media.logo_honkai3')
 }
+
+/** 由米游社接口地址判断游戏（hkrpg → 星铁，zzz / nap_ → 绝区零），无法判断时按原神处理 */
+export function gameIdFromApiUrl(url: string): GameId {
+  if (url.indexOf('hkrpg') !== -1) { return GameId.STARRAIL }
+  if (url.indexOf('zzz') !== -1 || url.indexOf('nap_') !== -1) { return GameId.ZZZ }
+  return GameId.GENSHIN
+}

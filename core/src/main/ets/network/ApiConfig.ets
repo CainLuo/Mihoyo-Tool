@@ -3,6 +3,8 @@ import { preferences } from '@kit.ArkData';
 import { util } from '@kit.ArkTS';
 import deviceInfo from '@ohos.deviceInfo';
 import { DeviceFpService, GameFpBiz } from './DeviceFpService';
+import { FingerprintReporter, FingerprintInvalidListener } from './FingerprintReporter';
+import { ZZZRecordRequest } from './ZZZRecordRequest';
 
 const PREFS_NAME: string = 'mihoyo_device_config';
 const KEY_DEVICE_ID: string = 'device_id';
@@ -89,17 +91,33 @@ export class ApiConfig {
       const prefs = await preferences.getPreferences(context, PREFS_NAME);
       const stored = await prefs.get(KEY_DEVICE_ID, '');
       if (typeof stored === 'string' && stored.length > 0) {
-        ApiConfig.cachedDeviceId = stored;
+        if (stored === stored.toUpperCase()) {
+          ApiConfig.cachedDeviceId = stored;
+          return;
+        }
+        // 旧版本存的是小写 UUID：统一成与 iOS 米游社一致的大写格式，
+        // 并清掉用旧 ID 申请的设备指纹缓存（通用 / 各游戏 / 绝区零各账号），之后用新 ID 重新申请
+        const upper = stored.toUpperCase();
+        ApiConfig.cachedDeviceId = upper;
+        await prefs.put(KEY_DEVICE_ID, upper);
+        const all = await prefs.getAll() as Record<string, Object>;
+        const keys = Object.keys(all);
+        for (let i = 0; i < keys.length; i++) {
+          if (keys[i].startsWith('device_fp') || keys[i].startsWith('zzz_device_fp_')) {
+            await prefs.delete(keys[i]);
+          }
+        }
+        await prefs.flush();
         return;
       }
-      // 生成新 UUID 并持久化
-      const newId = util.generateRandomUUID(false);
+      // 生成新 UUID 并持久化（大写，与 iOS 米游社 x-rpc-device_id 格式一致）
+      const newId = util.generateRandomUUID(false).toUpperCase();
       ApiConfig.cachedDeviceId = newId;
       await prefs.put(KEY_DEVICE_ID, newId);
       await prefs.flush();
     } catch (e) {
       // 失败时使用随机 UUID（不持久化）
-      ApiConfig.cachedDeviceId = util.generateRandomUUID(false);
+      ApiConfig.cachedDeviceId = util.generateRandomUUID(false).toUpperCase();
     }
   }
 
@@ -126,5 +144,17 @@ export class ApiConfig {
   /** 指定游戏的指纹（PizzaHelperUnited 方式） */
   static getGameFp(biz: GameFpBiz): string {
     return DeviceFpService.getGameFp(biz);
+  }
+
+  /** 重新生成设备指纹（通用 + 各游戏，PizzaHelperUnited 方式：device_id 不变），失败时抛出 */
+  static async regenerateDeviceFp(context: common.UIAbilityContext): Promise<void> {
+    await DeviceFpService.regenerateAll(context, ApiConfig.cachedDeviceId);
+    // 绝区零：清空各账号的指纹，下次请求重新申请并登记设备（ZZZ-Plugin 方式）
+    await ZZZRecordRequest.clearAll();
+  }
+
+  /** 注册设备指纹无效 / 账号异常（5003 / 10041）统一处理：任何接口返回时回调 */
+  static setFingerprintInvalidListener(listener: FingerprintInvalidListener | null): void {
+    FingerprintReporter.setListener(listener);
   }
 }

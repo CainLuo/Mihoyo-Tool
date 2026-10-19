@@ -40,6 +40,8 @@ export class GenshinApiService extends MihoyoApiService {
     }
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
+    // 便笺 / Widget 不自动上报人机验证：降级 Widget 成功则不弹，由 Repository 在两者都失败后上报
+    opts.suppressGeetestReport = true;
     const result = await HttpClient.get(
       MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE,
       params,
@@ -58,6 +60,8 @@ export class GenshinApiService extends MihoyoApiService {
     const headers = MihoyoHeaderBuilder.buildPizza(cookie, GameFpBiz.GENSHIN);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
+    // 便笺 / Widget 不自动上报人机验证：降级 Widget 成功则不弹，由 Repository 在两者都失败后上报
+    opts.suppressGeetestReport = true;
     const result = await HttpClient.get(
       MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE_WIDGET,
       undefined,

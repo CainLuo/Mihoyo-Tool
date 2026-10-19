@@ -71,6 +71,17 @@ export class DSUtil {
   }
 
   /**
+   * 生成 X4 DS，q 直接使用调用方给出的 query 原文（不排序）。
+   * 绝区零照 ZZZure/ZZZ-Plugin（dist/lib/mysapi.js getDs）：q 为接口自带 query，id_list[] 等追加参数不参与签名。
+   */
+  static generateX4RawQuery(query: string, body: string): string {
+    const timestamp = Math.floor(Date.now() / 1000);
+    const random = DSUtil.generateNumericRandom(6);
+    const md5Hash = crypto.MD5(`salt=${DSUtil.saltX4}&t=${timestamp}&r=${random}&b=${body}&q=${query}`).toString();
+    return `${timestamp},${random},${md5Hash}`;
+  }
+
+  /**
    * 生成 K2 Sign DS（Geetest createVerification 接口）
    * 对应 TeyvatGuide 的 K2 salt + isSign=true
    * 格式：salt={salt}&t={t}&r={r}（不含 b/q）

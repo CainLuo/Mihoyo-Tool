@@ -36,6 +36,9 @@ export class RequestOptions {
    *   Cookie: <指定账号的 cookie>
    */
   extraHeaders: Map<string, string> = new Map();
+
+  /** 返回 1034 / 10035 时不自动上报人机验证（便笺 / Widget：降级成功则不弹，由 Repository 自行上报） */
+  suppressGeetestReport: boolean = false;
 }
 
 export abstract class BaseApiService {

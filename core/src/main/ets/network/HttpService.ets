@@ -4,6 +4,8 @@ import { getCookie } from './CookieManager';
 import { AppEnvManager } from '../constants/AppEnvManager';
 import { ApiConfig } from './ApiConfig';
 import certFramework from '@ohos.security.cert';
+import { GeetestReporter } from './GeetestReporter';
+import { FingerprintReporter } from './FingerprintReporter';
 
 interface X509TrustManager {
   checkClientTrusted(data: certFramework.X509Cert): void;
@@ -119,6 +121,8 @@ export class HttpService extends BaseApiService {
       params: this.mapToRecord(params),
       headers
     });
+    HttpService.reportGeetestIfNeeded(response.data as object, fullUrl, headers, options,
+      GeetestReporter.roleUidOf(fullUrl, params));
     return response.data;
   }
 
@@ -128,7 +132,23 @@ export class HttpService extends BaseApiService {
     const response: AxiosResponse = await HttpService.getAxiosInstance().post(fullUrl, this.mapToRecord(data), {
       headers
     });
+    HttpService.reportGeetestIfNeeded(response.data as object, fullUrl, headers, options,
+      GeetestReporter.roleUidOf(fullUrl, data));
     return response.data;
+  }
+
+  /** 1034 / 10035 上报人机验证，5003 / 10041 上报设备指纹无效（与 HttpClient 一致） */
+  private static reportGeetestIfNeeded(data: object, url: string, headers: Record<string, string>,
+    options: RequestOptions | undefined, roleUid: string): void {
+    if (data === null || data === undefined || options?.suppressGeetestReport === true) {
+      return;
+    }
+    const retcode = (data as Record<string, Object>)['retcode'] as number | undefined;
+    if (GeetestReporter.isGeetestRetcode(retcode)) {
+      GeetestReporter.report(url, headers['Cookie'] ?? headers['cookie'] ?? '', roleUid, retcode as number);
+    } else if (retcode !== undefined && FingerprintReporter.isFingerprintRetcode(retcode)) {
+      FingerprintReporter.report(url, retcode, roleUid);
+    }
   }
 
   public async put(url: string, data?: RequestParams, options?: RequestOptions): Promise<object> {

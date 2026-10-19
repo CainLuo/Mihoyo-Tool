@@ -87,6 +87,7 @@ export struct MaterialCharacterSelect {
               title: $r('app.string.material_character_select_empty_title'),
               description: $r('app.string.material_character_select_empty_desc'),
               buttonText: '',
+              buttonEnabled: true,
               onButtonTap: () => {}
             } as PlaceholderState
           })

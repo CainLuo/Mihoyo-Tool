@@ -15,6 +15,7 @@ import { MaterialTargetConfigRepository } from './repository/MaterialTargetConfi
 import { ApiLogSystem } from './log/ApiLogSystem';
 import { LogEventType } from './log/ApiLogEntry';
 import { Logger } from './utils/Logger';
+import { ZZZRecordRequest } from './network/ZZZRecordRequest';
 
 export interface CoreConfig {
   env: AppEnv;
@@ -117,6 +118,8 @@ export class CoreInitializer {
     await ApiConfig.preloadDeviceId(config.context);
     await ApiConfig.preloadDeviceFp(config.context);
     await DSUtil.preloadSalts(config.context);
+    // 绝区零战绩接口（ZZZ-Plugin 方式）：每个账号的设备指纹缓存
+    ZZZRecordRequest.init(config.context, ApiConfig.getDeviceIdSync());
 
     // 3. 创建 Service 实例并注入到各 Repository
     const accountService = MihoyoApiServiceFactory.createAccountService(config.env, config.context);

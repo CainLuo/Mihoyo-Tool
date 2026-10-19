@@ -352,7 +352,11 @@ export class MaterialComputeService {
     const skillTargets = t.zzzSkills.length > 0 ? t.zzzSkills : MaterialComputeTargets.defaults(GameId.ZZZ).zzzSkills;
 
     // 同步选中代理人的详情，拿到真实等级 / 技能等级（失败则用 DB 缓存 / 配置页的当前等级）
+    // 照 ZZZ-Plugin（dist/lib/avatar.js）：逐个请求间隔 3000ms（panel.roleInterval 默认值）
     for (let i = 0; i < avatarIds.length; i++) {
+      if (i > 0) {
+        await new Promise<void>((resolve: () => void) => setTimeout(resolve, 3000));
+      }
       try {
         await repo.syncAvatarInfo(account.uid, role.roleId, role.server, account.cookie, avatarIds[i]);
       } catch (error) {

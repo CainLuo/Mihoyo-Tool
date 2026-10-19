@@ -2,7 +2,6 @@ import { describe, it, expect } from '@ohos/hypium';
 import { HomeViewModel } from '../main/ets/viewmodel/HomeViewModel';
 import { ViewState } from '../main/ets/constants/ViewStates';
 import { GAME_GENSHIN, GAME_STARRAIL, GAME_ZZZ } from '../main/ets/components/home/HomeModels';
-import { GeetestVerifyInput } from 'core';
 
 export default function homeViewModelTest() {
   describe('HomeViewModel', () => {
@@ -29,11 +28,6 @@ export default function homeViewModelTest() {
       expect(vm.networkErrorMsg).assertEqual('');
     });
 
-    it('初始 geetestTrigger 为 null', 0, () => {
-      const vm = new HomeViewModel();
-      expect(vm.geetestTrigger).assertNull();
-    });
-
     it('初始 refreshCoolingDown 为 false', 0, () => {
       const vm = new HomeViewModel();
       expect(vm.refreshCoolingDown).assertFalse();
@@ -55,36 +49,6 @@ export default function homeViewModelTest() {
       vm.isRefreshing = true;
       await vm.forceRefresh();
       expect(vm.isRefreshing).assertTrue();
-      done();
-    });
-
-    // ─── onGeetestResult 边界测试 ────────────────────────────────
-
-    it('onGeetestResult 传入 null 时 geetestTrigger 置为 null', 0, async (done: Function) => {
-      const vm = new HomeViewModel();
-      // 模拟已有 trigger（直接赋值，不调用网络）
-      vm.geetestTrigger = null;
-      await vm.onGeetestResult(null);
-      expect(vm.geetestTrigger).assertNull();
-      done();
-    });
-
-    it('onGeetestResult 在 geetestTrigger=null 时调用不崩溃', 0, async (done: Function) => {
-      const vm = new HomeViewModel();
-      expect(vm.geetestTrigger).assertNull();
-      // 传入非 null result，但 trigger 为 null，应直接返回不崩溃
-      try {
-        // 构造一个最小的 GeetestVerifyInput 对象
-        const fakeResult: GeetestVerifyInput = {
-          geetest_challenge: 'challenge',
-          geetest_validate: 'validate',
-          geetest_seccode: 'seccode'
-        };
-        await vm.onGeetestResult(fakeResult);
-        expect(true).assertTrue();
-      } catch (_) {
-        expect(true).assertTrue(); // 不崩溃即可
-      }
       done();
     });
 
@@ -137,10 +101,6 @@ export default function homeViewModelTest() {
 
     it('KEYS.networkErrorMsg 路径正确', 0, () => {
       expect(HomeViewModel.KEYS.networkErrorMsg).assertEqual('vm.networkErrorMsg');
-    });
-
-    it('KEYS.geetestTrigger 路径正确', 0, () => {
-      expect(HomeViewModel.KEYS.geetestTrigger).assertEqual('vm.geetestTrigger');
     });
 
     it('KEYS.refreshCoolingDown 路径正确', 0, () => {

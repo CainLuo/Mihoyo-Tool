@@ -2263,6 +2263,42 @@
     {
       "name": "material_character_select_no_needs",
       "value": "所選角色已全部滿級，無需培養材料"
+    },
+    {
+      "name": "device_fp_invalid_title",
+      "value": "設備指紋無效"
+    },
+    {
+      "name": "device_fp_invalid_msg",
+      "value": "%s 的請求返回設備指紋無效（錯誤碼 %d），通常是被米遊社風控。可以重新生成設備指紋後重試。"
+    },
+    {
+      "name": "device_fp_regenerate",
+      "value": "重新生成設備指紋"
+    },
+    {
+      "name": "device_fp_regenerating",
+      "value": "重新生成中…"
+    },
+    {
+      "name": "device_fp_regenerate_success",
+      "value": "已重新生成設備指紋，正在重新同步"
+    },
+    {
+      "name": "device_fp_regenerate_failed",
+      "value": "重新生成設備指紋失敗，請稍後再試"
+    },
+    {
+      "name": "device_fp_unknown_account",
+      "value": "米遊社帳號"
+    },
+    {
+      "name": "device_fp_regenerate_short",
+      "value": "重新生成"
+    },
+    {
+      "name": "characters_refresh_busy",
+      "value": "正在刷新，請勿頻繁刷新"
     }
   ]
 }

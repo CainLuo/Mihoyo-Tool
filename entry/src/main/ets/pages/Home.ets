@@ -10,10 +10,10 @@ import { MihoyoAccountVM, GameRoleCardVM } from '../models/HomeModels'
 import { UserGameSection } from '../components/home/UserGameSection'
 import { HomeSkeletonView } from '../components/home/HomeSkeletonView'
 import { PlaceholderView, PlaceholderState } from '../components/common/PlaceholderView'
-import { showGeetestDialog } from '../components/GeetestDialogHelper'
 import { Logger } from 'core'
 import { BusinessError } from '@kit.BasicServicesKit'
 import { AccountSignal } from '../utils/AccountSignal'
+import { SyncRetrySignal } from '../utils/SyncRetrySignal'
 import { ViewState } from '../constants/ViewStates'
 import { AppRoutes } from '../constants/AppRoutes'
 import { showFeedback } from '../utils/FeedbackUtil'
@@ -30,6 +30,7 @@ export struct Home {
   @Local vm: HomeViewModel = new HomeViewModel()
   @Local private tm: ThemeManager = themeManager
   @Local private signal: AccountSignal = AccountSignal.instance()
+  @Local private syncRetry: SyncRetrySignal = SyncRetrySignal.instance()
   private uiCtx: UIContext | null = null
   private scroller: Scroller = new Scroller()
 
@@ -90,18 +91,10 @@ export struct Home {
     })
   }
 
-  @Monitor('vm.geetestTrigger')
-  onGeetestTriggerChanged(_monitor: IMonitor): void {
-    const trigger = this.vm.geetestTrigger
-    if (trigger === null) { return }
-    const ctx = this.uiCtx
-    if (ctx === null) { return }
-    showGeetestDialog(ctx, trigger.createResult).then((result) => {
-      this.vm.onGeetestResult(result)
-    }).catch((e: BusinessError) => {
-      Logger.error('Home', `[Geetest] showGeetestDialog failed: code=${e.code} ${e.message}`)
-      this.vm.onGeetestResult(null)
-    })
+  /** 人机验证通过 / 重新生成设备指纹后重新同步便笺 */
+  @Monitor('syncRetry.version')
+  onSyncRetry(_monitor: IMonitor): void {
+    this.vm.forceRefresh()
   }
 
   @Monitor('vm.refreshResult')
@@ -129,6 +122,7 @@ export struct Home {
           title: $r('app.string.home_placeholder_title'),
           description: $r('app.string.home_placeholder_desc'),
           buttonText: $r('app.string.home_placeholder_button'),
+          buttonEnabled: true,
           onButtonTap: () => {
             if (this.isSplit) {
               this.detailStack.replacePath({ name: AppRoutes.LOGIN, param: null })

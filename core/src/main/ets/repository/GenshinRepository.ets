@@ -20,6 +20,9 @@ import {
   GenshinCharacterListData,
 } from '../models/GenshinRows';
 import { GenshinApiService } from '../network/GenshinApiService';
+import { GeetestService } from '../network/GeetestService';
+import { MihoyoDomain } from '../network/MihoyoDomain';
+import { GenshinApiPath } from '../network/GenshinApiPath';
 import { SyncError, SyncErrorKind, SyncErrorFactory, AuthExpiredError } from '../errors/ApiErrors';
 import { CookieRefreshCoordinator } from '../cookie/CookieRefreshCoordinator';
 import { Logger } from '../utils/Logger';
@@ -192,6 +195,10 @@ export class GenshinRepository extends GameRepository {
       const fallback = await this.tryWidgetFallback(accountId, roleUid, cookie, `retcode=${retcode}: ${message}`);
       if (fallback === WIDGET_FALLBACK_SUCCESS) {
         return;
+      }
+      // 便笺与 Widget 都没拿到数据且便笺需要人机验证：统一上报弹框（便笺请求本身不自动上报）
+      if (GeetestService.isGeetestRetcode(retcode)) {
+        GeetestService.reportRequired(MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE, cookie, roleUid, retcode);
       }
       if (fallback === WIDGET_FALLBACK_REJECTED) {
         // Widget 也返回登录过期（-100 / 10001）：视为登录已过期。

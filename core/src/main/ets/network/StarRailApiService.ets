@@ -42,6 +42,8 @@ export class StarRailApiService extends MihoyoApiService {
     }
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
+    // 便笺 / Widget 不自动上报人机验证：降级 Widget 成功则不弹，由 Repository 在两者都失败后上报
+    opts.suppressGeetestReport = true;
     return HttpClient.get(
       MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.DAILY_NOTE,
       params,
@@ -58,6 +60,8 @@ export class StarRailApiService extends MihoyoApiService {
     const headers = MihoyoHeaderBuilder.buildPizza(widgetCookie, GameFpBiz.STARRAIL, undefined, WIDGET_EXTENSION_UA);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
+    // 便笺 / Widget 不自动上报人机验证：降级 Widget 成功则不弹，由 Repository 在两者都失败后上报
+    opts.suppressGeetestReport = true;
     return HttpClient.get(
       MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.DAILY_NOTE_WIDGET,
       undefined,

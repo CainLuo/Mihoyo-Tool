@@ -14,6 +14,7 @@ import { CookieExpiredSignal } from '../utils/CookieExpiredSignal'
 import { AppRoutes } from '../constants/AppRoutes'
 import { showFeedback } from '../utils/FeedbackUtil'
 import { FeedbackType } from '../constants/FeedbackType'
+import { common } from '@kit.AbilityKit'
 
 const TAG: string = 'AccountDetail'
 
@@ -46,6 +47,18 @@ export struct AccountDetail {
     } else {
       // stoken 不存在或已失效，只能重新登录
       showFeedback(this.getUIContext(), FeedbackType.ERROR, $r('app.string.account_detail_refresh_cookie_failed'))
+    }
+  }
+
+  @Monitor('vm.regenerateFpResult')
+  onRegenerateFpResult(_monitor: IMonitor): void {
+    const result = this.vm.regenerateFpResult
+    if (result === RefreshCookieResult.NONE) { return }
+    this.vm.regenerateFpResult = RefreshCookieResult.NONE
+    if (result === RefreshCookieResult.SUCCESS) {
+      showFeedback(this.getUIContext(), FeedbackType.SUCCESS, $r('app.string.device_fp_regenerate_success'))
+    } else {
+      showFeedback(this.getUIContext(), FeedbackType.ERROR, $r('app.string.device_fp_regenerate_failed'))
     }
   }
 
@@ -83,6 +96,10 @@ export struct AccountDetail {
             // 重新登录：与正常登录流程一致；登录成功后 LoginViewModel 会清除过期标记
             onRelogin: () => { this.localStack?.pushPathByName(AppRoutes.LOGIN, null) },
             onRefreshCookie: () => { this.vm.refreshCookie(this.account.username) },
+            isRegeneratingFp: this.vm.isRegeneratingFp,
+            onRegenerateFp: () => {
+              this.vm.regenerateDeviceFp(this.getUIContext().getHostContext() as common.UIAbilityContext)
+            },
             onDelete: () => { this.vm.deleteAccount(this.account.accountId) }
           })
 

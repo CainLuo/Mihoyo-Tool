@@ -11,6 +11,8 @@ import { GameId } from '../constants/GameId';
 import { GenshinApiPath } from './GenshinApiPath';
 import { StarRailApiPath } from './StarRailApiPath';
 import { ZZZApiPath } from './ZZZApiPath';
+import { GeetestReporter, GeetestRequiredListener } from './GeetestReporter';
+import { ZZZRecordRequest } from './ZZZRecordRequest';
 
 /**
  * ============================================================
@@ -99,17 +101,42 @@ export class GeetestService {
   }
 
   /**
+   * 注册人机验证统一处理：任何接口返回 1034 / 10035 时回调（url 已去掉 query，cookie 为该请求的 Cookie，roleUid 为游戏 UID，retcode 决定验证接口）
+   */
+  public static setRequiredListener(listener: GeetestRequiredListener | null): void {
+    GeetestReporter.setListener(listener);
+  }
+
+  /** 是否为需要人机验证的返回码（1034 / 10035） */
+  public static isGeetestRetcode(retcode: number): boolean {
+    return GeetestReporter.isGeetestRetcode(retcode);
+  }
+
+  /** Repository 主动上报（便笺与 Widget 都失败时） */
+  public static reportRequired(url: string, cookie: string, roleUid: string, retcode: number): void {
+    GeetestReporter.report(url, cookie, roleUid, retcode);
+  }
+
+  /**
    * 向米游社申请一次 Geetest 验证任务
    *
    * @param cookie  当前用户的 Cookie 字符串
    * @param gameId  触发验证的游戏 ID，用于注入 x-rpc-challenge_path 和 x-rpc-challenge_game
+   * @param challengePathOverride 失败接口的完整地址；不传则为该游戏的便笺接口（参考 PizzaHelperUnited challengePathOverride）
+   * @param retcode 触发验证的返回码（绝区零战绩接口据此选择验证接口）
    * @returns GeetestCreateResult，包含 gt 和 challenge（v3）或 risk_type（v4）
    * @throws Error 当接口返回 retcode !== 0 时
    */
   public static async createVerification(
     cookie: string,
     gameId: GameId,
+    challengePathOverride?: string,
+    retcode: number = 1034,
   ): Promise<GeetestCreateResult> {
+    // 绝区零战绩接口：照 Axiu-Plugin（10035 → createGeetest，1034 → card/wapi/createVerification），用该账号的设备指纹
+    if (challengePathOverride !== undefined && ZZZRecordRequest.isZZZRecordUrl(challengePathOverride)) {
+      return ZZZRecordRequest.createGeetest(cookie, retcode);
+    }
     const createParams = new RequestParams();
     createParams.set('is_high', 'true');
 
@@ -121,7 +148,8 @@ export class GeetestService {
     opts.extraHeaders.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
     opts.extraHeaders.set(HKey.USER_AGENT, ApiConfig.USER_AGENT);
     // 告知服务器此次验证针对哪个接口，参考 PizzaHelperUnited writeXRPCChallengeHeaders4DailyNote
-    const challengePath = GeetestService.getChallengePath(gameId);
+    const challengePath = challengePathOverride !== undefined && challengePathOverride.length > 0
+      ? challengePathOverride : GeetestService.getChallengePath(gameId);
     const challengeGame = GeetestService.getChallengeGame(gameId);
     if (challengePath.length > 0) {
       opts.extraHeaders.set(HKey.CHALLENGE_PATH, challengePath);
@@ -150,6 +178,7 @@ export class GeetestService {
    * @param verifyInput 用户完成 Geetest 验证后 SDK 返回的结果
    * @param cookie      当前用户的 Cookie 字符串
    * @param gameId      触发验证的游戏 ID，用于注入 x-rpc-challenge_path 和 x-rpc-challenge_game
+   * @param challengePathOverride 失败接口的完整地址，须与 createVerification 时一致；不传则为该游戏的便笺接口
    * @returns 新的 challenge 字符串，直接用于 x-rpc-challenge 请求头
    * @throws Error 当接口返回 retcode !== 0 时
    */
@@ -157,7 +186,13 @@ export class GeetestService {
     verifyInput: GeetestVerifyInput,
     cookie: string,
     gameId: GameId,
+    challengePathOverride?: string,
+    retcode: number = 1034,
   ): Promise<string> {
+    // 绝区零战绩接口：照 Axiu-Plugin（10035 → verifyGeetest，1034 → card/wapi/verifyVerification），返回的 challenge 用于重放原请求
+    if (challengePathOverride !== undefined && ZZZRecordRequest.isZZZRecordUrl(challengePathOverride)) {
+      return ZZZRecordRequest.verifyGeetest(cookie, verifyInput, challengePathOverride, retcode);
+    }
     // geetest_seccode 格式：validate + "|jordan"
     // 参考 PizzaHelperUnited VerifyVerificationBody：geetestSeccode = "\(validate)|jordan"
     const bodyStr = JSON.stringify({
@@ -174,7 +209,8 @@ export class GeetestService {
     opts.extraHeaders.set(HKey.DEVICE_ID, ApiConfig.getDeviceIdSync());
     opts.extraHeaders.set(HKey.USER_AGENT, ApiConfig.USER_AGENT);
     // 告知服务器此次验证针对哪个接口
-    const challengePath = GeetestService.getChallengePath(gameId);
+    const challengePath = challengePathOverride !== undefined && challengePathOverride.length > 0
+      ? challengePathOverride : GeetestService.getChallengePath(gameId);
     const challengeGame = GeetestService.getChallengeGame(gameId);
     if (challengePath.length > 0) {
       opts.extraHeaders.set(HKey.CHALLENGE_PATH, challengePath);

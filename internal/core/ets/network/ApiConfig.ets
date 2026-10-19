@@ -86,14 +86,14 @@ export class ApiConfig {
         ApiConfig.cachedDeviceId = stored;
         return;
       }
-      // 生成新 UUID 并持久化
-      const newId = util.generateRandomUUID(false);
+      // 生成新 UUID 并持久化（大写，与 iOS 米游社 x-rpc-device_id 格式一致）
+      const newId = util.generateRandomUUID(false).toUpperCase();
       ApiConfig.cachedDeviceId = newId;
       await prefs.put(KEY_DEVICE_ID, newId);
       await prefs.flush();
     } catch (e) {
       // 失败时使用随机 UUID（不持久化）
-      ApiConfig.cachedDeviceId = util.generateRandomUUID(false);
+      ApiConfig.cachedDeviceId = util.generateRandomUUID(false).toUpperCase();
     }
   }
 

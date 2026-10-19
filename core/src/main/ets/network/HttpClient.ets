@@ -5,6 +5,8 @@ import { LogEventType } from '../log/ApiLogEntry';
 import { AppEnvManager } from '../constants/AppEnvManager';
 import certFramework from '@ohos.security.cert';
 import { Logger } from '../utils/Logger';
+import { GeetestReporter } from './GeetestReporter';
+import { FingerprintReporter } from './FingerprintReporter';
 
 interface X509TrustManager {
   checkClientTrusted(data: certFramework.X509Cert): void;
@@ -46,6 +48,19 @@ export class HttpClient {
       result[k] = v;
     });
     return result;
+  }
+
+  /** 1034 / 10035 上报人机验证（GeetestReporter），5003 / 10041 上报设备指纹无效（FingerprintReporter），除非调用方要求不上报 */
+  private static reportGeetestIfNeeded(retcode: number | undefined, url: string, headers: Record<string, string>,
+    options: RequestOptions | undefined, roleUid: string): void {
+    if (options?.suppressGeetestReport === true) {
+      return;
+    }
+    if (GeetestReporter.isGeetestRetcode(retcode)) {
+      GeetestReporter.report(url, headers['Cookie'] ?? headers['cookie'] ?? '', roleUid, retcode as number);
+    } else if (retcode !== undefined && FingerprintReporter.isFingerprintRetcode(retcode)) {
+      FingerprintReporter.report(url, retcode, roleUid);
+    }
   }
 
   /** 将 RequestParams 转为 Record<string, RequestValue> */
@@ -105,6 +120,7 @@ export class HttpClient {
     const durationMs = Date.now() - startTime;
     const data = response.data as Record<string, Object>;
     const retcode = data['retcode'] as number | undefined;
+    HttpClient.reportGeetestIfNeeded(retcode, url, headers, options, GeetestReporter.roleUidOf(url, params));
 
     if (retcode !== undefined && retcode !== 0) {
       // 记录业务错误日志
@@ -188,6 +204,7 @@ export class HttpClient {
     const durationMs = Date.now() - startTime;
     const respData = response.data as Record<string, Object>;
     const retcode = respData['retcode'] as number | undefined;
+    HttpClient.reportGeetestIfNeeded(retcode, url, headers, options, GeetestReporter.roleUidOf(url, undefined, body));
 
     if (retcode !== undefined && retcode !== 0) {
       // 记录业务错误日志

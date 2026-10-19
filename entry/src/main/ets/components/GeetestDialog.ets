@@ -22,6 +22,7 @@ import { GeetestBridge } from './GeetestBridge';
 import { buildGeetestHtml } from './GeetestHtmlBuilder';
 import { GeetestProgress } from './GeetestDialogHelper';
 
+
 @ComponentV2
 export struct GeetestDialog {
   /** createVerification 返回的参数，由调用方传入 */
@@ -49,7 +50,9 @@ export struct GeetestDialog {
   }
 
   aboutToAppear(): void {
-    this.bridge.setCallback((result) => { this.onResult(result); });
+    this.bridge.setCallback((result) => {
+      this.onResult(result);
+    });
 
     try {
       const ctx = this.getUIContext().getHostContext();
@@ -83,7 +86,9 @@ export struct GeetestDialog {
     Column() {
       Column() {
         GeetestDialogTitleBar({
-          onClose: () => { this.onResult(null); },
+          onClose: () => {
+            this.onResult(null);
+          },
           progress: this.progress,
           accountName: this.accountName,
         })
@@ -112,17 +117,8 @@ export struct GeetestDialog {
             }
           })
           .onErrorReceive((event) => {
-            Logger.error('GeetestDialog', `[Geetest] Web error: code=${event?.error?.getErrorCode()} ${event?.error?.getErrorInfo()}, url=${event?.request?.getRequestUrl()}, mainFrame=${event?.request?.isMainFrame()}`);
+            Logger.error('GeetestDialog', 'Web error: ' + event?.error?.getErrorInfo());
             this.onResult(null);
-          })
-          .onHttpErrorReceive((event) => {
-            Logger.error('GeetestDialog', `[Geetest] Web http error: status=${event?.response?.getResponseCode()}, url=${event?.request?.getRequestUrl()}`);
-          })
-          .onConsole((event) => {
-            if (event?.message.getMessageLevel() === MessageLevel.Error) {
-              Logger.error('GeetestDialog', `[Geetest] JS error: ${event.message.getMessage()} @${event.message.getSourceId()}:${event.message.getLineNumber()}`);
-            }
-            return false;
           })
       }
       .width(this.tm.current.full)

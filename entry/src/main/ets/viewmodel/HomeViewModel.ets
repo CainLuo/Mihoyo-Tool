@@ -14,14 +14,12 @@
  *   （无 error 状态，网络失败通过 networkErrorMsg 通知 View 弹 Alert）
  *
  * Geetest 处理：
- *   syncDailyNote 抛出 retcode=10035 时，通过 needGeetest + geetestData 通知 View
- *   View 弹出 GeetestDialog，用户完成后调用 onGeetestResult()
+ *   便笺与 Widget 都失败且需要人机验证时，由 Repository 上报，GeetestCenter 统一弹框；
+ *   验证通过后 SyncRetrySignal 通知 View 调用 forceRefresh()
  */
 
 import {
-  GeetestService,
   GeetestCreateResult,
-  GeetestVerifyInput,
   CoreInitializer,
   AccountRow,
   GameRoleRow,
@@ -36,7 +34,6 @@ import {
   Logger,
   ApiErrorCodes,
 } from 'core';
-import { GeetestTrigger } from '../models/GeetestTrigger';
 import { serverDisplayName } from '../utils/ServerNameUtil';
 import { CookieExpiredSignal } from '../utils/CookieExpiredSignal';
 import {
@@ -75,8 +72,6 @@ export const HOME_VM_VIEW_STATE = 'vm.viewState';
 export const HOME_VM_IS_REFRESHING = 'vm.isRefreshing';
 /** HomeViewModel.networkErrorMsg 路径 */
 export const HOME_VM_NETWORK_ERROR = 'vm.networkErrorMsg';
-/** HomeViewModel.geetestTrigger 路径 */
-export const HOME_VM_GEESTEST_TRIGGER = 'vm.geetestTrigger';
 /** HomeViewModel.refreshCoolingDown 路径 */
 export const HOME_VM_REFRESH_COOLING = 'vm.refreshCoolingDown';
 /** HomeViewModel.refreshResult 路径 */
@@ -99,8 +94,6 @@ export class HomeViewModel {
    */
   private isAutoSync: boolean = true;
 
-  /** 非 null 时 View 弹 GeetestDialog */
-  @Trace geetestTrigger: GeetestTrigger | null = null;
 
   /** 手动刷新冷却信号（切换时触发 View 弹 Dialog） */
   @Trace refreshCoolingDown: boolean = false;
@@ -269,37 +262,6 @@ export class HomeViewModel {
     }
   }
 
-  /**
-   * View 层 GeetestDialog 完成后调用此方法。
-   */
-  async onGeetestResult(result: GeetestVerifyInput | null): Promise<void> {
-    const trigger = this.geetestTrigger;
-    this.geetestTrigger = null;
-
-    if (result === null || trigger === null) {
-      return;
-    }
-
-    try {
-      const newChallenge = await GeetestService.verifyVerification(result, trigger.cookie, trigger.gameId);
-      await this.syncDailyNoteWithChallenge(
-        trigger.accountId,
-        trigger.cookie,
-        trigger.gameId,
-        trigger.roleId,
-        trigger.server,
-        newChallenge,
-      );
-      const loaded = await this.fetchFromLocal();
-      this.accounts = loaded;
-      this.viewState = loaded.length > 0 ? ViewState.DATA : ViewState.EMPTY;
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error('HomeViewModel', `[Geetest] verify / retry failed ${trigger.gameId}/${trigger.roleId}: ${msg}`);
-      this.networkErrorMsg = msg;
-    }
-  }
-
   /** 释放定时器，在组件 aboutToDisappear 中调用 */
   dispose(): void {
     this.stopAutoRefresh();
@@ -391,7 +353,8 @@ export class HomeViewModel {
         Logger.warn(TAG, `Cookie expired for ${account.username} (${role.gameId}/${role.roleId}): ${msg}`);
       } else if (msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED}`) !== -1 ||
           msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED_GENERAL}`) !== -1) {
-        await this.handleGeetest(account, role);
+        // 人机验证已由 Repository 上报、GeetestCenter 统一弹框，这里不再提示错误
+        Logger.warn(TAG, `syncDailyNote needs geetest for ${role.gameId}/${role.roleId}: ${msg}`);
       } else {
         // 始终记录日志
         Logger.error(TAG, `syncDailyNote error for ${role.gameId}/${role.roleId}: ${msg}`);
@@ -400,31 +363,6 @@ export class HomeViewModel {
           this.networkErrorMsg = msg;
         }
       }
-    }
-  }
-
-  /** Geetest 验证后重新拉取便笺 */
-  private async syncDailyNoteWithChallenge(
-    accountId: string,
-    cookie: string,
-    gameId: GameId,
-    roleId: string,
-    server: string,
-    geetestChallenge: string,
-  ): Promise<void> {
-    // 直接调用 Repository，只带 challenge（与 TeyvatGuide lunaReq.ts 一致）
-    if (gameId === GameId.GENSHIN) {
-      await CoreInitializer.genshinRepository.syncDailyNote(
-        accountId, roleId, server, cookie, geetestChallenge
-      );
-    } else if (gameId === GameId.STARRAIL) {
-      await CoreInitializer.starRailRepository.syncDailyNote(
-        accountId, roleId, server, cookie, geetestChallenge
-      );
-    } else if (gameId === GameId.ZZZ) {
-      await CoreInitializer.zzzRepository.syncDailyNote(
-        accountId, roleId, server, cookie, geetestChallenge
-      );
     }
   }
 
@@ -470,34 +408,6 @@ export class HomeViewModel {
     }
     // 同步完成后触发通知阈值检查
     StaminaNotificationService.instance().onDailyNotesSynced().catch((_: Error | object) => {});
-  }
-
-  /**
-   * 触发 Geetest 流程
-   */
-  private async handleGeetest(account: AccountRow, role: GameRoleRow): Promise<void> {
-    // 已有 Geetest 弹窗等待用户操作时，跳过后续角色的 Geetest 触发
-    if (this.geetestTrigger !== null) {
-      Logger.warn(TAG, `Geetest already pending, skip for ${role.gameId}/${role.roleId}`);
-      return;
-    }
-    try {
-      const createResult = await GeetestService.createVerification(account.cookie, role.gameId);
-      this.geetestTrigger = new GeetestTrigger(
-        createResult,
-        account.cookie,
-        role.gameId,
-        role.roleId,
-        role.server,
-        account.uid
-      );
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error('HomeViewModel', `[Geetest] createVerification failed ${role.gameId}/${role.roleId}: ${msg}`);
-      if (!this.isAutoSync) {
-        this.networkErrorMsg = msg;
-      }
-    }
   }
 
   /**
