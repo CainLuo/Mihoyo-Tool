@@ -174,6 +174,7 @@ export class DeviceFpService {
    * 重新生成全部指纹（通用 + 各游戏，并清空绝区零各账号的指纹），用于 5003 / 10041（设备指纹无效 / 账号异常）。
    * 与 PizzaHelperUnited「重新生成设备指纹」一致：申请时的 device_id 混入当前时间，确保拿到新指纹；
    * 请求头 x-rpc-device_id 不变。任一申请失败时抛出，已成功的部分保留。
+   * @throws { Error } 任一指纹申请或写入失败时
    */
   static async regenerateAll(context: common.UIAbilityContext, deviceId: string): Promise<void> {
     const seedDeviceId = crypto.MD5(`${deviceId}|${Date.now()}`).toString();

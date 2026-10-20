@@ -71,6 +71,7 @@ export class DeviceFpCenter {
   /**
    * 重新生成设备指纹（提示 / 账号详情页共用）。成功后通知首页 / 角色页重新同步；失败时抛出。
    * 无论成功与否，本次启动都不再提示：重新生成后仍返回 5003 / 10041 时再提示也无济于事。
+   * @throws { Error } 指纹申请或写入失败时
    */
   static async regenerate(context: common.UIAbilityContext): Promise<void> {
     DeviceFpCenter.dismiss()

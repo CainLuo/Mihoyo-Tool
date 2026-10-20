@@ -3,6 +3,8 @@
 > 版本：v2.0（已确认）
 > 状态：待执行
 > 目标：利用 HarmonyOS Multi-Target SourceSet 机制，将手机号登录（含短信 API）从 `default`（上架包）构建中物理剔除，在 `mock`/`debug`/`internal` 构建中保留全部功能。
+>
+> **2026-10-20 更新**：Core/entry 中的 Mock 适配器、`MockTransport`、`MockServiceBase` 以及独立 `mock/` 源码目录已删除；本文中涉及这些路径的内容仅作历史记录。当前 Mock 状态见 [`Documents/Core-Kits-Refactor/Mock.md`](Documents/Core-Kits-Refactor/Mock.md)。
 
 ---
 

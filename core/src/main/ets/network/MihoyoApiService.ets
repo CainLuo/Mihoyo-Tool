@@ -1,6 +1,6 @@
 /**
  * MihoyoApiService 抽象基类
- * 所有游戏 API Service 和 Mock Service 的公共接口。
+ * 所有游戏 API Service 的公共接口。
  * 通过 MihoyoApiServiceFactory 创建具体实现。
  */
 import { RequestParams, RequestOptions } from './APIs';

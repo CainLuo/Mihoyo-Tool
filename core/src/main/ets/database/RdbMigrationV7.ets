@@ -38,8 +38,9 @@ export class RdbMigrationV7 {
   /** 查询表中是否已有指定列 */
   private static async hasColumn(table: TableName, column: string): Promise<boolean> {
     const store: relationalStore.RdbStore = RdbManager.getRdbStore();
-    const rs: relationalStore.ResultSet = await store.querySql(`PRAGMA table_info(${table})`, []);
+    let rs: relationalStore.ResultSet | null = null;
     try {
+      rs = await store.querySql(`PRAGMA table_info(${table})`, []);
       const nameIdx = rs.getColumnIndex('name');
       while (rs.goToNextRow()) {
         if (rs.getValue(nameIdx) === column) {
@@ -47,8 +48,17 @@ export class RdbMigrationV7 {
         }
       }
       return false;
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      throw new Error(`hasColumn(${table}, ${column}) failed: ${msg}`);
     } finally {
-      rs.close();
+      if (rs !== null) {
+        try {
+          rs.close();
+        } catch (_) {
+          // 关闭失败不掩盖查询结果
+        }
+      }
     }
   }
 }

@@ -24,7 +24,8 @@ import { rpc } from '@kit.IPCKit';
 import { formProvider } from '@kit.FormKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { preferences } from '@kit.ArkData';
-import { CoreInitializer, Logger, GameId, AppEnv } from 'core';
+import { CoreInitializer, Logger, GameId } from 'core';
+import { APP_ENV } from '../config/RuntimeConfig';
 import { WidgetDataStoreBuilder } from '../widget/utils/WidgetDataStoreBuilder';
 import { WidgetUpdateNotifier } from '../widget/utils/WidgetUpdateNotifier';
 import { WidgetConfigStore } from '../widget/utils/WidgetConfigStore';
@@ -207,7 +208,7 @@ export default class WidgetSyncAbility extends UIAbility {
         }
 
         // 初始化 core 模块（WidgetSyncAbility 是独立 UIAbility，需要单独初始化）
-        CoreInitializer.initCore({ env: AppEnv.MOCK, context: this.context })
+        CoreInitializer.initCore({ env: APP_ENV, context: this.context })
           .then(async () => {
             Logger.info(TAG, 'CoreInitializer.initCore completed');
             

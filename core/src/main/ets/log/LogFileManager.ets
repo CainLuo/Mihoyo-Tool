@@ -3,7 +3,7 @@
  *
  * 负责日志文件的创建、追加写入、大小轮转和清理。
  * 日志存储在应用沙箱目录 files/logs/，无需任何用户权限。
- * 文件操作通过 IFileSystem 接口抽象，支持 Mock 测试。
+ * 文件操作通过 IFileSystem 接口抽象，支持测试。
  */
 
 import { common } from '@kit.AbilityKit';

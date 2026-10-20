@@ -19,7 +19,7 @@ export const SIGN_GAME_ACT_ID: string = 'e202311201442471';
 
 /**
  * 从 gameBiz 提取签到 host（如 hk4e_cn → hk4e）
- * SignApiService 和 SignMockService 共用此函数
+ * SignApiService 内部使用此函数
  */
 export function gameBizToSignHost(gameBiz: string): string {
   if (gameBiz.startsWith('hk4e')) { return 'hk4e'; }

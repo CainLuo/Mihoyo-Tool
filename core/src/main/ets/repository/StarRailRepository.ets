@@ -316,7 +316,7 @@ export class StarRailRepository extends GameRepository {
   /**
    * 拉取单角色养成计算 → 解析 → 写 DB
    * 同时写入材料背包数据（从 user_owns_materials）
-   * @param avatarId 角色 ID（字符串，如 '1001'）—— 用于 Mock 文件路由
+   * @param avatarId 角色 ID（字符串，如 '1001'）
    * @param avatar 角色计算参数（item_id, cur_level, target_level）
    * @param equipment 光锥计算参数（item_id, cur_level, target_level）
    * @param skillList 技能计算参数数组

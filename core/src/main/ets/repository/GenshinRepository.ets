@@ -667,7 +667,10 @@ export class GenshinRepository extends GameRepository {
     return items;
   }
 
-  /** 分页拉取 sync/avatar/list 的全部角色（原样返回 data.list[]） */
+  /**
+   * 分页拉取 sync/avatar/list 的全部角色（原样返回 data.list[]）。
+   * @throws { Error } retcode 非 0（含 Cookie 失效等业务错误）时
+   */
   private async fetchCalcSyncAvatars(uid: string, region: string, cookie: string): Promise<Record<string, Object>[]> {
     const result: Record<string, Object>[] = [];
     for (let page = 1; page <= SYNC_AVATAR_MAX_PAGES; page++) {

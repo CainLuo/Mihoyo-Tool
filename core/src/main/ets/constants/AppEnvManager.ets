@@ -26,7 +26,7 @@ export class AppEnvManager {
     return AppEnvManager.currentEnv;
   }
 
-  /** 是否为 Mock 环境 */
+  /** 是否为 Mock 环境（枚举值保留；当前无逻辑分支使用） */
   static isMock(): boolean {
     return AppEnvManager.currentEnv === AppEnv.MOCK;
   }

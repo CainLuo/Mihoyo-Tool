@@ -3,7 +3,7 @@
  *
  * 职责：
  *   - 展示 App Logo + 名称动画
- *   - 等待 Core 初始化完成（含 DB 初始化、Mock 数据填充）
+ *   - 等待 Core 初始化完成（含 DB 初始化）
  *   - 直接 replace 到 Main（Main 内部负责判断是否需要登录）
  *
  * 路由：Navigation 入口页，由 Index.ets 通过 initialStack 指定。

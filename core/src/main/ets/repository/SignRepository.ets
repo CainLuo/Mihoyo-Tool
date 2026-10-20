@@ -4,11 +4,7 @@ import { SignApiService } from '../network/SignApiService';
 /**
  * SignRepository 签到功能仓库
  *
- * 支持两种 Service：
- * - SignApiService（DEBUG/RELEASE 环境）
- * - SignMockService（MOCK 环境）
- *
- * SignMockService 继承 MockServiceBase，签到大纲方法签名与 SignApiService 一致。
+ * 接受方法签名与 SignApiService 一致的签到 Service 实现。
  */
 export class SignRepository {
   private service: MihoyoApiService | null = null;
@@ -25,9 +21,8 @@ export class SignRepository {
   }
 
   /**
-   * 将 service 转换为 SignApiService 类型
-   * 注意：SignMockService 虽然不是 SignApiService 子类，但方法签名一致，
-   * ArkTS 运行时会正确调用对应方法。
+   * 将 service 转换为 SignApiService 类型。
+   * 兼容实现只要方法签名一致即可。
    */
   private asSignService(): SignApiService {
     return this.getService() as SignApiService;

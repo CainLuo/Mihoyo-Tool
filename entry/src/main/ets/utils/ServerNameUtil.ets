@@ -8,7 +8,7 @@
  * 因此必须结合 gameId 才能正确映射。
  *
  * 重要说明：
- * 本文件所有 server 值均来自项目 mock 数据（binding_api_getUserGameRolesByCookie.json），
+ * 本文件所有 server 值均来自项目实际接口数据（binding_api_getUserGameRolesByCookie.json），
  * 100% 已验证，无推断值。未知 server 原样返回 null，由调用方决定兜底显示。
  *
  * 待扩展（需要真实账号数据验证后再添加）：

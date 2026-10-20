@@ -85,7 +85,7 @@ export default function zzzComputeParserTest() {
 
     it('parse_validJson_returnsData', 0, () => {
       const data = ZZZComputeParser.parse(VALID_JSON);
-      expect(data).not.assertNull();
+      expect(data).not().assertNull();
     });
 
     it('parse_avatarConsume_length', 0, () => {

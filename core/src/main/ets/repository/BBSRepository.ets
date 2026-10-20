@@ -2,7 +2,6 @@ import { MihoyoApiService } from '../network/MihoyoApiService';
 import { MihoyoAccountApiService } from '../network/MihoyoAccountApiService';
 import { AccountDao, GameRoleDao } from '../database/BBSDao';
 import { RdbManager } from '../database/RdbManager';
-import { AppEnvManager } from '../constants/AppEnvManager';
 import { AccountRow } from '../models/AccountRow';
 import { GameRoleRow } from '../models/GameRoleRow';
 import { AuthRepository } from './AuthRepository';
@@ -57,7 +56,7 @@ export class BBSRepository {
 
   setService(service: MihoyoApiService): void {
     this.service = service;
-    // 同步给 AuthRepository，让登录接口走同一个 service（mock/release 统一）
+    // 同步给 AuthRepository，让登录接口复用同一个 service
     if (service instanceof MihoyoAccountApiService) {
       AuthRepository.accountService = service;
     }
@@ -72,9 +71,6 @@ export class BBSRepository {
   /**
    * 完整登录流程：写账号 → 拉游戏角色 → 补充详情 → 返回结果。
    * entry 层只需调用此方法，不接触任何 DB 操作和环境判断。
-   *
-   * mock 环境下，core 内部自动将 username/cookie 替换为 mockIdx，
-   * 确保 MockService 能路由到正确的 account1/ 或 account2/ 目录。
    */
   async login(username: string, cookie: string): Promise<LoginResult> {
     // entry 层传入的 username 和 cookie 直接使用，core 不做任何替换
@@ -356,12 +352,12 @@ export class BBSRepository {
     return result.join(';');
   }
 
-  // ── 测试工具（仅 Mock 环境使用）─────────────────────────────────
+  // ── 测试工具（仅测试入口使用）─────────────────────────────────
 
   /**
    * 将所有账号的 update_time 设置为 8 天前，并确保 cookie 里有 stoken，
    * 用于手动触发冷启动刷新测试（T1 场景）。
-   * 仅供 Mock 环境的测试入口调用，禁止在业务逻辑中使用。
+   * 仅供测试入口调用，禁止在业务逻辑中使用。
    */
   async setAllUpdateTimeTo8DaysAgo(): Promise<void> {
     const eightDaysAgo = Math.floor(Date.now() / 1000) - 8 * 24 * 3600;
@@ -371,7 +367,7 @@ export class BBSRepository {
       let cookie = accounts[i].cookie;
       const existingStoken = BBSRepository.extractCookieField(cookie, 'stoken');
       if (existingStoken.length === 0) {
-        cookie = cookie + '; stoken=mock_stoken_for_testing';
+        cookie = cookie + '; stoken=test_stoken_for_testing';
       }
       await RdbManager.executeSql(
         `UPDATE account_table SET update_time = ?, cookie = ? WHERE username = ?`,
@@ -382,7 +378,7 @@ export class BBSRepository {
 
   /**
    * 将所有账号的 cookie 替换为不含 stoken 的版本，用于测试 T3 场景（静默跳过）。
-   * 仅供 Mock 环境的测试入口调用，禁止在业务逻辑中使用。
+   * 仅供测试入口调用，禁止在业务逻辑中使用。
    */
   async setAllCookieWithoutStoken(): Promise<void> {
     const eightDaysAgo = Math.floor(Date.now() / 1000) - 8 * 24 * 3600;
@@ -419,13 +415,6 @@ export class BBSRepository {
    * @returns 刷新后的新 cookie 字符串
    */
   async refreshCookieIfNeeded(username: string, cookie: string): Promise<string> {
-    // Mock 环境：直接模拟刷新成功，更新 update_time，不发真实网络请求
-    if (AppEnvManager.isMock()) {
-      const now = Math.floor(Date.now() / 1000);
-      await this.accountDao.updateCookie(username, cookie, now);
-      return cookie;
-    }
-
     const stoken = BBSRepository.extractCookieField(cookie, 'stoken');
     const mid = BBSRepository.extractCookieField(cookie, 'mid');
 
@@ -482,7 +471,7 @@ export class BBSRepository {
   async getBbsAccountDetail(cookie: string): Promise<BbsAccountDetailResult> {
     try {
       const uid = BBSRepository.extractCookieField(cookie, 'account_id');
-      // 优先走 service（mock/release 自动适配），兜底走 NetworkFactory
+      // 优先走 service，兜底走 NetworkFactory
       let resp: BbsAccountDetailResponse;
       if (this.service !== null) {
         resp = await (this.service as MihoyoAccountApiService).getUserFullInfo(uid, cookie) as BbsAccountDetailResponse;

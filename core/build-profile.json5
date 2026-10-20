@@ -26,15 +26,6 @@
       name: "default",
     },
     {
-      name: "mock",
-      source: {
-        sourceRoots: ["./src/internal"],
-      },
-      resource: {
-        directories: ["./src/mock/resources", "./src/main/resources"],
-      },
-    },
-    {
       name: "debug",
       source: {
         sourceRoots: ["./src/internal"],

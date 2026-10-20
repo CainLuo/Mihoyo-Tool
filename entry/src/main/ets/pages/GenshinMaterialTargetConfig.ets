@@ -105,9 +105,13 @@ export struct GenshinMaterialTargetConfig {
       // 没有选中角色（从角色选择页右上角入口进入）：只保存配置到 DB，然后返回
       const saved = await this.vm.saveConfig()
       Logger.info(TAG, `[Genshin] no selection, saveConfig=${saved}, pop back`)
-      this.getUIContext().getPromptAction().showToast({
-        message: saved ? $r('app.string.material_target_config_saved') : $r('app.string.material_character_select_failed')
-      })
+      try {
+        this.getUIContext().getPromptAction().showToast({
+          message: saved ? $r('app.string.material_target_config_saved') : $r('app.string.material_character_select_failed')
+        })
+      } catch (_) {
+        // 提示失败不影响页面返回
+      }
       if (saved) {
         this.localStack?.pop()
       }
@@ -124,9 +128,17 @@ export struct GenshinMaterialTargetConfig {
         this.localStack.replacePathByName(AppRoutes.GENSHIN_MATERIAL_LIST, selection)
       }
     } else if (result === MaterialComputeResult.NO_NEEDS) {
-      this.getUIContext().getPromptAction().showToast({ message: $r('app.string.material_character_select_no_needs') })
+      try {
+        this.getUIContext().getPromptAction().showToast({ message: $r('app.string.material_character_select_no_needs') })
+      } catch (_) {
+        // 提示失败不影响后续流程
+      }
     } else if (result === MaterialComputeResult.FAILED) {
-      this.getUIContext().getPromptAction().showToast({ message: $r('app.string.material_character_select_failed') })
+      try {
+        this.getUIContext().getPromptAction().showToast({ message: $r('app.string.material_character_select_failed') })
+      } catch (_) {
+        // 提示失败不影响后续流程
+      }
     }
   }
 

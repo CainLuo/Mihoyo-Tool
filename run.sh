@@ -2,9 +2,9 @@
 # 构建并安装到模拟器
 #
 # 用法：
-#   bash run.sh                            # 交互选择（5 秒无输入默认 mock）
-#   bash run.sh mock                       # 直接指定 product
-#   bash run.sh debug
+#   bash run.sh                            # 交互选择（5 秒无输入默认 debug）
+#   bash run.sh debug                      # 直接指定 product
+#   bash run.sh mock                       # 独立 mock 包（APP_ENV=mock，bundle .mock）
 #   bash run.sh internal
 #   bash run.sh release
 #   bash run.sh release --proxy 192.168.1.x:9090   # release + Proxyman 代理
@@ -23,6 +23,7 @@ AVD_PATH="$HOME/.Huawei/Emulator/deployed/$AVD"
 IMAGE_ROOT="$HOME/Library/Huawei/Sdk"
 
 PRODUCT=''
+BUILD_PRODUCT=''
 PROXY_HOST=''
 CLEAR_PROXY=false
 
@@ -65,9 +66,9 @@ fi
 # ── 交互选择 product（未通过参数指定时）──────────────────────
 if [ -z "$PRODUCT" ]; then
   echo ""
-  echo "  选择构建目标（5 秒无输入默认 mock）："
-  echo "  [1] mock     — 本地 mock 数据，手机号登录"
-  echo "  [2] debug    — 真实 API，手机号登录，可抓包"
+  echo "  选择构建目标（5 秒无输入默认 debug）："
+  echo "  [1] debug    — 真实 API，手机号登录，可抓包"
+  echo "  [2] mock     — 独立 mock 包（APP_ENV=mock）"
   echo "  [3] internal — 真实 API，手机号登录，正式签名"
   echo "  [4] release  — 上架包，无手机号登录"
   echo ""
@@ -75,40 +76,48 @@ if [ -z "$PRODUCT" ]; then
   # read -t 5 在 bash 中支持超时
   if read -t 5 -p "  输入 1/2/3/4 或直接回车：" choice 2>/dev/null; then
     case "$choice" in
-      2) PRODUCT='debug' ;;
+      2) PRODUCT='mock' ;;
       3) PRODUCT='internal' ;;
       4) PRODUCT='release' ;;
-      *) PRODUCT='mock' ;;
+      *) PRODUCT='debug' ;;
     esac
   else
     echo ""
-    echo "  ⏱ 超时，使用默认：mock"
-    PRODUCT='mock'
+    echo "  ⏱ 超时，使用默认：debug"
+    PRODUCT='debug'
   fi
 fi
 
 # ── 根据 product 设置 bundle 和 HAP 路径 ─────────────────────
 case "$PRODUCT" in
   mock)
+    BUILD_PRODUCT='mock'
     BUNDLE='com.cainluo.miyoyo.tools.mock'
     HAP='entry/build/mock/outputs/mock/entry-mock-unsigned.hap'
     ;;
   debug)
+    BUILD_PRODUCT='debug'
     BUNDLE='com.cainluo.miyoyo.tools.debug'
     HAP='entry/build/debug/outputs/debug/entry-debug-unsigned.hap'
     ;;
   internal)
+    BUILD_PRODUCT='internal'
     BUNDLE='com.cainluo.miyoyo.tools'
     HAP='entry/build/internal/outputs/internal/entry-internal-signed.hap'
     ;;
   release)
+    BUILD_PRODUCT='default'
     BUNDLE='com.cainluo.miyoyo.tools'
-    HAP='entry/build/default/outputs/default/entry-default-unsigned.hap'
+    HAP='entry/build/default/outputs/default/entry-default-signed.hap'
     ;;
 esac
 
 echo ""
-echo "▶ 构建目标：$PRODUCT"
+if [ "$PRODUCT" = "mock" ]; then
+  echo "▶ 构建目标：mock（独立 .mock 包，APP_ENV=mock）"
+else
+  echo "▶ 构建目标：$PRODUCT"
+fi
 
 # ── 1. 启动模拟器（如果还没运行）──────────────────────────────
 if "$HDC" list targets 2>/dev/null | grep -q "$TARGET"; then
@@ -143,7 +152,7 @@ echo "▶ Clean..."
 
 # ── 4. Build ──────────────────────────────────────────────────
 echo "▶ Build ($PRODUCT)..."
-"$HVIGOR" assembleHap -p product="$PRODUCT"
+"$HVIGOR" assembleHap -p product="$BUILD_PRODUCT"
 
 # ── 5. 安装 ──────────────────────────────────────────────────
 echo "▶ 安装..."

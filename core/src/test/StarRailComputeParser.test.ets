@@ -64,7 +64,7 @@ export default function starRailComputeParserTest() {
 
     it('parse_validJson_returnsData', 0, () => {
       const data = StarRailComputeParser.parse(VALID_JSON);
-      expect(data).not.assertNull();
+      expect(data).not().assertNull();
     });
 
     it('parse_avatarConsume_length', 0, () => {

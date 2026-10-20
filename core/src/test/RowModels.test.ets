@@ -34,7 +34,7 @@ export default function rowModelsTest() {
       expect(row.id).assertEqual(0);
       expect(row.username).assertEqual('');
       expect(row.cookie).assertEqual('');
-      expect(row.stoken).assertEqual('');
+      expect(row.introduce).assertEqual('');
       expect(row.isActive).assertEqual(0);
       expect(row.uid).assertEqual('');
       expect(row.nickname).assertEqual('');

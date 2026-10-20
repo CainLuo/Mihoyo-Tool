@@ -215,7 +215,7 @@ export struct Main {
     }
     let gameName = ''
     try {
-      gameName = this.uiCtx?.getHostContext()?.resourceManager.getStringSync(gameIdToName(gameId)) ?? ''
+      gameName = this.uiCtx?.getHostContext()?.resourceManager.getStringSync(gameIdToName(gameId).id) ?? ''
     } catch (_) {
     }
     return gameName.length > 0 ? `${gameName} · UID ${roleId}` : `UID ${roleId}`
@@ -241,7 +241,7 @@ export struct Main {
     const signal = this.deviceFpInvalidSignal
     let fallback = ''
     try {
-      fallback = ctx.getHostContext()?.resourceManager.getStringSync($r('app.string.device_fp_unknown_account')) ?? ''
+      fallback = ctx.getHostContext()?.resourceManager.getStringSync($r('app.string.device_fp_unknown_account').id) ?? ''
     } catch (_) {
     }
     const label = this.gameAccountLabel(signal.gameId, signal.roleUid, fallback)

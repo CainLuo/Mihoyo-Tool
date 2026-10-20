@@ -26,7 +26,7 @@ export interface LogContext {
  * 统一日志工具类（core 层，entry 和 core 共用）。
  *
  * 日志输出格式：
- * ℹ️ℹ️ℹ️ [INFO] [2026-02-28 19:42:11.037] [mock] [#12] [EntryAbility.ets:33:7] [EntryAbility.onWindowStageCreate] [EntryAbility] onWindowStageCreate ℹ️ℹ️ℹ️
+ * ℹ️ℹ️ℹ️ [INFO] [2026-02-28 19:42:11.037] [debug] [#12] [EntryAbility.ets:33:7] [EntryAbility.onWindowStageCreate] [EntryAbility] onWindowStageCreate ℹ️ℹ️ℹ️
  *
  * 环境判断职责由 AppEnvManager 负责，Logger 只通过 AppEnvManager.getEnv() 读取环境标签。
  * 

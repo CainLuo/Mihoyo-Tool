@@ -12,7 +12,7 @@
  *   - starrail_avatar_basic      星铁角色列表
  *   - starrail_avatar_info       星铁角色详情（批量）
  *   - zzz_avatar_basic           绝区零角色列表
- *   - zzz_avatar_info            绝区零角色详情（批量，mock 环境）
+ *   - zzz_avatar_info            绝区零角色详情（批量）
  *   - zzz_avatar_info_{avatarId} 绝区零单个角色详情（真实环境，每个角色一条记录）
  */
 

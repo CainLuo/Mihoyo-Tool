@@ -8,7 +8,6 @@ import { RsaUtil } from '../utils/RsaUtil';
 import { HttpClient } from '../network/HttpClient';
 import { MihoyoAccountApiService } from '../network/MihoyoAccountApiService';
 import { ApiConfig } from '../network/ApiConfig';
-import { AppEnvManager } from '../constants/AppEnvManager';
 import { Logger } from '../utils/Logger';
 import { MihoyoDomain } from '../network/MihoyoDomain';
 import { HKey, HVal } from '../network/MihoyoHeaderKey';
@@ -77,13 +76,7 @@ export class AuthRepository {
   static async createLoginCaptcha(mobile: string, areaCode: string = '+86'): Promise<void> {
     const svc = AuthRepository.accountService;
     if (svc !== null) {
-      let encryptedMobile = mobile;
-      let encryptedAreaCode = areaCode;
-      if (!AppEnvManager.isMock()) {
-        encryptedMobile = await RsaUtil.encrypt(mobile);
-        encryptedAreaCode = await RsaUtil.encrypt(areaCode);
-      }
-      const resp = await svc.createLoginCaptcha(encryptedMobile, encryptedAreaCode) as Record<string, Object>;
+      const resp = await svc.createLoginCaptcha(mobile, areaCode) as Record<string, Object>;
       const retcode = resp['retcode'] as number;
       if (retcode !== 0) {
         throw new Error(`[${retcode}] ${resp['message']}`);
@@ -122,13 +115,7 @@ export class AuthRepository {
   ): Promise<LoginMobileResult> {
     const svc = AuthRepository.accountService;
     if (svc !== null) {
-      let encryptedMobile = mobile;
-      let encryptedAreaCode = areaCode;
-      if (!AppEnvManager.isMock()) {
-        encryptedMobile = await RsaUtil.encrypt(mobile);
-        encryptedAreaCode = await RsaUtil.encrypt(areaCode);
-      }
-      const resp = await svc.loginByMobileCaptcha(encryptedMobile, encryptedAreaCode, captcha) as Record<string, Object>;
+      const resp = await svc.loginByMobileCaptcha(mobile, areaCode, captcha) as Record<string, Object>;
       const retcode = resp['retcode'] as number;
       if (retcode !== 0) {
         throw new Error(`[${retcode}] ${resp['message']}`);

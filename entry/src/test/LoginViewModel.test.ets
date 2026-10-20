@@ -7,7 +7,7 @@ import { LoginTab, PhoneStep } from '../main/ets/constants/LoginTabEnum';
  *
  * 只测试纯逻辑（初始状态、纯函数、KEYS 常量），
  * 不依赖设备、不调用 Repository 或 ApiService。
- * 使用 main source set 的 LoginViewModel（mock 版本接口一致）。
+ * 使用 main source set 的 LoginViewModel。
  */
 export default function loginViewModelTest() {
   describe('LoginViewModel', () => {

@@ -317,7 +317,7 @@ export class ZZZRepository extends GameRepository {
     await this.markFailed(accountId, roleUid, SyncDataType.ZZZ_AVATAR_INFO, errorMsg);
   }
 
-  /** 拉取代理人详情 → 解析 → 写 DB。avatarId 为空时传空数组（mock 环境一次拿全部） */
+  /** 拉取代理人详情 → 解析 → 写 DB。avatarId 为空时传空数组（一次获取全部） */
   async syncAvatarInfo(accountId: string, roleUid: string, server: string, cookie: string, avatarId?: string): Promise<void> {
     await this.markSyncing(accountId, roleUid, SyncDataType.ZZZ_AVATAR_INFO);
     try {

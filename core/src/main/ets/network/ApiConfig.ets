@@ -146,7 +146,10 @@ export class ApiConfig {
     return DeviceFpService.getGameFp(biz);
   }
 
-  /** 重新生成设备指纹（通用 + 各游戏，PizzaHelperUnited 方式：device_id 不变），失败时抛出 */
+  /**
+   * 重新生成设备指纹（通用 + 各游戏，PizzaHelperUnited 方式：device_id 不变），失败时抛出。
+   * @throws { Error } 指纹申请或写入失败时
+   */
   static async regenerateDeviceFp(context: common.UIAbilityContext): Promise<void> {
     await DeviceFpService.regenerateAll(context, ApiConfig.cachedDeviceId);
     // 绝区零：清空各账号的指纹，下次请求重新申请并登记设备（ZZZ-Plugin 方式）

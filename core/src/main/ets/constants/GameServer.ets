@@ -10,7 +10,7 @@
  * - 各游戏 API 请求参数中的 server 字段
  *
  * 重要说明：
- * 本文件所有枚举值均来自项目 mock 数据（binding_api_getUserGameRolesByCookie.json），
+ * 本文件所有枚举值均来自项目实际接口数据（binding_api_getUserGameRolesByCookie.json），
  * 100% 已验证，无推断值。
  *
  * 当前已验证的值（国服官服）：

@@ -1,5 +1,6 @@
 #!/bin/bash
-# 构建 entry@ohosTest HAP，包含 core 单元测试（Parser、DSUtil、MockServiceBase、RowModels 等）
+# 构建 entry@ohosTest HAP，包含 core 单元测试（Parser、DSUtil、RowModels 等）
+# Mock 路由测试已迁移到 mock-service/tests（Node），运行：cd mock-service && npm test
 # 构建成功 = 所有测试文件编译通过
 # 安装到设备后可运行测试：hdc install + aa test
 

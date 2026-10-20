@@ -122,11 +122,11 @@ export class CoreInitializer {
     ZZZRecordRequest.init(config.context, ApiConfig.getDeviceIdSync());
 
     // 3. 创建 Service 实例并注入到各 Repository
-    const accountService = MihoyoApiServiceFactory.createAccountService(config.env, config.context);
-    const genshinService = MihoyoApiServiceFactory.createGenshinService(config.env, config.context);
-    const starRailService = MihoyoApiServiceFactory.createStarRailService(config.env, config.context);
-    const zzzService = MihoyoApiServiceFactory.createZZZService(config.env, config.context);
-    const signService = MihoyoApiServiceFactory.createSignService(config.env, config.context);
+    const accountService = MihoyoApiServiceFactory.createAccountService();
+    const genshinService = MihoyoApiServiceFactory.createGenshinService();
+    const starRailService = MihoyoApiServiceFactory.createStarRailService();
+    const zzzService = MihoyoApiServiceFactory.createZZZService();
+    const signService = MihoyoApiServiceFactory.createSignService();
 
     CoreInitializer.bbsRepository.setService(accountService);
     CoreInitializer.genshinRepository.setService(genshinService);

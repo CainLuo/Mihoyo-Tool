@@ -12,6 +12,7 @@ import { HKey, HVal } from './MihoyoHeaderKey';
 import { HttpClient } from './HttpClient';
 import { ApiConfig } from './ApiConfig';
 import { DSUtil } from './DSUtil';
+import { RsaUtil } from '../utils/RsaUtil';
 
 export class MihoyoAccountApiService extends MihoyoApiService {
 
@@ -25,7 +26,9 @@ export class MihoyoAccountApiService extends MihoyoApiService {
 
   // ── 手机号登录 ────────────────────────────────────────────────
 
-  async createLoginCaptcha(encryptedMobile: string, encryptedAreaCode: string): Promise<object> {
+  async createLoginCaptcha(mobile: string, areaCode: string): Promise<object> {
+    const encryptedMobile = await RsaUtil.encrypt(mobile);
+    const encryptedAreaCode = await RsaUtil.encrypt(areaCode);
     const bodyStr = JSON.stringify({
       area_code: encryptedAreaCode,
       mobile: encryptedMobile,
@@ -52,10 +55,12 @@ export class MihoyoAccountApiService extends MihoyoApiService {
   }
 
   async loginByMobileCaptcha(
-    encryptedMobile: string,
-    encryptedAreaCode: string,
+    mobile: string,
+    areaCode: string,
     captcha: string,
   ): Promise<object> {
+    const encryptedMobile = await RsaUtil.encrypt(mobile);
+    const encryptedAreaCode = await RsaUtil.encrypt(areaCode);
     const bodyStr = JSON.stringify({
       area_code: encryptedAreaCode,
       mobile: encryptedMobile,
