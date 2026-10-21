@@ -1,7 +1,7 @@
 import { common } from '@kit.AbilityKit';
 import { preferences } from '@kit.ArkData';
 import crypto from '@ohos/crypto-js';
-import { HttpClient } from './HttpClient';
+import { BaseApiService } from './BaseApiService';
 import { MihoyoDomain } from './MihoyoDomain';
 import { RequestOptions } from './APIs';
 import { HKey, HVal } from './MihoyoHeaderKey';
@@ -124,11 +124,12 @@ export class DeviceFpService {
     const opts = new RequestOptions();
     opts.extraHeaders = new Map<string, string>();
     opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.JSON);
-    const resp = await HttpClient.post(
+    const response = await BaseApiService.shared.post(
       MihoyoDomain.PUBLIC_DATA_API + '/device-fp/api/getFp',
       JSON.stringify(body),
       opts,
-    ) as FpApiOuterResponse;
+    );
+    const resp = response.data as FpApiOuterResponse;
     if (resp.retcode !== 0 || !resp.data || !resp.data.device_fp || resp.data.device_fp.length < 13) {
       throw new Error(`getFp(${biz}) failed: retcode=${resp.retcode}, msg=${resp.message}, code=${resp.data?.code}, data.msg=${resp.data?.msg}`);
     }
@@ -238,11 +239,12 @@ export class DeviceFpService {
     opts.extraHeaders = new Map<string, string>();
     opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.JSON);
 
-    const resp = await HttpClient.post(
+    const response = await BaseApiService.shared.post(
       MihoyoDomain.PUBLIC_DATA_API + '/device-fp/api/getFp',
       JSON.stringify(body),
       opts,
-    ) as FpApiOuterResponse;
+    );
+    const resp = response.data as FpApiOuterResponse;
 
     if (resp.retcode !== 0 || !resp.data || !resp.data.device_fp || resp.data.device_fp.length < 13) {
       throw new Error(`getFp failed: retcode=${resp.retcode}, msg=${resp.message}`);

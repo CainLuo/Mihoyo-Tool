@@ -19,7 +19,7 @@ import { common } from '@kit.AbilityKit';
 import { preferences } from '@kit.ArkData';
 import { util } from '@kit.ArkTS';
 import { RequestOptions } from './APIs';
-import { HttpClient } from './HttpClient';
+import { BaseApiService } from './BaseApiService';
 import { DSUtil } from './DSUtil';
 import { MihoyoDomain } from './MihoyoDomain';
 import { GeetestCreateResult, GeetestVerifyInput } from '../errors/ApiErrors';
@@ -134,7 +134,8 @@ export class ZZZRecordRequest {
       ? `${MihoyoDomain.TAKUMI}/event/toolcomsrv/risk/createGeetest?${query}`
       : `${MihoyoDomain.TAKUMI_RECORD}/game_record/app/card/wapi/createVerification?${query}`;
     const opts = await ZZZRecordRequest.geetestOptions(cookie, query, '');
-    const resp = await HttpClient.get(url, undefined, opts);
+    const response = await BaseApiService.shared.get(url, undefined, opts);
+    const resp = response.data;
     const r = resp as Record<string, Object>;
     const data = r['data'] as Record<string, Object> | null | undefined;
     if (Number(r['retcode']) !== 0 || data === null || data === undefined) {
@@ -173,7 +174,8 @@ export class ZZZRecordRequest {
       : `${MihoyoDomain.TAKUMI_RECORD}/game_record/app/card/wapi/verifyVerification`;
     const opts = await ZZZRecordRequest.geetestOptions(cookie, '', bodyStr);
     opts.extraHeaders.set('content-type', 'application/json');
-    const resp = await HttpClient.post(url, bodyStr, opts);
+    const response = await BaseApiService.shared.post(url, bodyStr, opts);
+    const resp = response.data;
     const r = resp as Record<string, Object>;
     const data = r['data'] as Record<string, Object> | null | undefined;
     const challenge = data !== null && data !== undefined ? `${data['challenge'] ?? ''}` : '';
@@ -319,7 +321,8 @@ export class ZZZRecordRequest {
     const opts = new RequestOptions();
     opts.extraHeaders = ZZZRecordRequest.baseHeaders(cookie, '');
     opts.extraHeaders.set('content-type', 'application/json');
-    const resp = await HttpClient.post(MihoyoDomain.PUBLIC_DATA_API + '/device-fp/api/getFp', bodyStr, opts);
+    const response = await BaseApiService.shared.post(MihoyoDomain.PUBLIC_DATA_API + '/device-fp/api/getFp', bodyStr, opts);
+    const resp = response.data;
     const r = resp as Record<string, Object>;
     const data = r['data'] as Record<string, Object> | null | undefined;
     const fp = data !== null && data !== undefined ? `${data['device_fp'] ?? ''}` : '';
@@ -342,7 +345,7 @@ export class ZZZRecordRequest {
         opts.extraHeaders = ZZZRecordRequest.baseHeaders(cookie, fp);
         opts.extraHeaders.set('DS', DSUtil.generateX4RawQuery('', bodyStr));
         opts.extraHeaders.set('content-type', 'application/json');
-        await HttpClient.post(MihoyoDomain.BBS + paths[i], bodyStr, opts);
+        await BaseApiService.shared.post(MihoyoDomain.BBS + paths[i], bodyStr, opts);
       } catch (_) {
         // 登记失败不影响后续请求（与 plugin.js 一致，只记录不中断）
       }

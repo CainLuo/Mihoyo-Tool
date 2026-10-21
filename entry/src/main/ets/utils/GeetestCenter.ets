@@ -1,7 +1,7 @@
 /**
  * GeetestCenter — 人机验证（retcode=1034 / 10035）统一处理
  *
- * 任何接口返回 1034 / 10035 时，core 的 HttpClient / HttpService 通过 GeetestService.setRequiredListener() 上报，
+ * 任何接口返回 1034 / 10035 时，core 的具体 API 通过 GeetestService.setRequiredListener() 显式上报，
  * 这里统一申请验证并推入 GeetestSignal，由 Main.ets 弹框：
  * - 同一账号申请 / 排队 / 弹框中时不重复；不同账号排队依次弹（GeetestSignal 队列）
  * - 用户取消（或申请 / 提交验证失败）后，该账号本次启动不再弹

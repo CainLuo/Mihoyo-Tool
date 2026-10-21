@@ -1,8 +1,7 @@
-import { NetworkFactory } from './NetworkFactory';
 import { RequestOptions, RequestParams } from './APIs';
 import { GeetestCreateResult, GeetestVerifyInput } from '../errors/ApiErrors';
 import { DSUtil } from './DSUtil';
-import { HttpClient } from './HttpClient';
+import { BaseApiService } from './BaseApiService';
 import { MihoyoDomain } from './MihoyoDomain';
 import { MihoyoAccountApiPath } from './MihoyoAccountApiPath';
 import { HKey, HVal } from './MihoyoHeaderKey';
@@ -160,11 +159,12 @@ export class GeetestService {
     // 使用 X4 salt（与 PizzaHelperUnited defaultHeaders 一致，card/wapi 端点使用 X4）
     opts.extraHeaders.set(HKey.DS, DSUtil.generateX4(createParams));
 
-    const resp = await HttpClient.get(
+    const response = await BaseApiService.shared.get(
       MihoyoDomain.TAKUMI_RECORD + MihoyoAccountApiPath.CREATE_VERIFICATION,
       createParams,
       opts
-    ) as CreateVerificationResponse;
+    );
+    const resp = response.data as CreateVerificationResponse;
 
     if (resp.retcode !== 0) {
       throw new Error(`createVerification failed: [${resp.retcode}] ${resp.message}`);
@@ -221,11 +221,12 @@ export class GeetestService {
     // 使用 X4 salt（与 PizzaHelperUnited 一致）
     opts.extraHeaders.set(HKey.DS, DSUtil.generateX4(undefined, bodyStr));
 
-    const resp = await HttpClient.post(
+    const response = await BaseApiService.shared.post(
       MihoyoDomain.TAKUMI_RECORD + MihoyoAccountApiPath.VERIFY_VERIFICATION,
       bodyStr,
       opts
-    ) as VerifyVerificationResponse;
+    );
+    const resp = response.data as VerifyVerificationResponse;
 
     if (resp.retcode !== 0) {
       throw new Error(`verifyVerification failed: [${resp.retcode}] ${resp.message}`);

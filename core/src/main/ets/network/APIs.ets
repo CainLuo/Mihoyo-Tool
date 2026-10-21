@@ -1,6 +1,6 @@
 /**
- * API 服务抽象基类
- * 定义基础的 HTTP 方法签名和公共类型
+ * API 请求公共类型
+ * 定义 RequestValue / RequestParams / RequestOptions。
  *
  * 设计决策（方案 B）：
  *   所有请求方法统一接收 RequestOptions 对象作为最后一个可选参数。
@@ -29,7 +29,8 @@ export class RequestOptions {
   baseUrlType: string = '';
 
   /**
-   * 额外请求头（Map 形式），会与默认请求头合并（同名字段以此处为准）。
+   * 额外请求头（Map 形式），由 BaseApiService 透传给 axios。
+   * BaseApiService 不设置默认请求头；Cookie / User-Agent / DS 等由具体 Service 显式设置。
    * 主要用途：Geetest 验证通过后注入：
    *   x-rpc-challenge / x-rpc-validate / x-rpc-seccode
    * 以及覆盖 Cookie：
@@ -37,32 +38,6 @@ export class RequestOptions {
    */
   extraHeaders: Map<string, string> = new Map();
 
-  /** 返回 1034 / 10035 时不自动上报人机验证（便笺 / Widget：降级成功则不弹，由 Repository 自行上报） */
+  /** 具体 API 显式上报时读取；当前同时抑制 Geetest + 指纹上报（便笺 / Widget：降级成功则不弹，由 Repository 自行上报） */
   suppressGeetestReport: boolean = false;
-}
-
-export abstract class BaseApiService {
-  public abstract get(
-    url: string,
-    params?: RequestParams,
-    options?: RequestOptions
-  ): Promise<object>;
-
-  public abstract post(
-    url: string,
-    data?: RequestParams,
-    options?: RequestOptions
-  ): Promise<object>;
-
-  public abstract put(
-    url: string,
-    data?: RequestParams,
-    options?: RequestOptions
-  ): Promise<object>;
-
-  public abstract delete(
-    url: string,
-    params?: RequestParams,
-    options?: RequestOptions
-  ): Promise<object>;
 }

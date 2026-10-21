@@ -4,17 +4,8 @@ import { MihoyoDomain } from './MihoyoDomain';
 import { SignApiPath, SIGN_GAME_ACT_ID, gameBizToSignHost } from './SignApiPath';
 import { MihoyoHeaderBuilder, HeaderProfile } from './MihoyoHeaderBuilder';
 import { HKey } from './MihoyoHeaderKey';
-import { HttpClient } from './HttpClient';
 
 export class SignApiService extends MihoyoApiService {
-
-  async get(path: string, params?: RequestParams, options?: RequestOptions): Promise<object> {
-    return HttpClient.get(path, params, options);
-  }
-
-  async post(path: string, data?: string | RequestParams, options?: RequestOptions): Promise<object> {
-    return HttpClient.post(path, data, options);
-  }
 
   /** 大别野签到 — POST，Domain=BBS_APIHUB，Profile=SIGN */
   async signBBS(cookie: string, challenge?: string): Promise<object> {
@@ -22,11 +13,10 @@ export class SignApiService extends MihoyoApiService {
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.SIGN, cookie, undefined, bodyStr);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
-    return HttpClient.post(
-      MihoyoDomain.BBS_APIHUB + SignApiPath.SIGN_BBS,
-      bodyStr,
-      opts,
-    );
+    const url = MihoyoDomain.BBS_APIHUB + SignApiPath.SIGN_BBS;
+    const response = await this.post(url, bodyStr, opts);
+    this.reportBusinessError(url, response.data, opts, undefined, bodyStr, cookie, '');
+    return response.data;
   }
 
   /** 游戏每日签到 — POST，Domain=TAKUMI，Profile=SIGN */
@@ -50,11 +40,10 @@ export class SignApiService extends MihoyoApiService {
     headers.set(HKey.SIGN_GAME, host);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
-    return HttpClient.post(
-      MihoyoDomain.TAKUMI + SignApiPath.SIGN_GAME_BASE + `/${host}/sign`,
-      bodyStr,
-      opts,
-    );
+    const url = MihoyoDomain.TAKUMI + SignApiPath.SIGN_GAME_BASE + `/${host}/sign`;
+    const response = await this.post(url, bodyStr, opts);
+    this.reportBusinessError(url, response.data, opts, undefined, bodyStr, cookie, roleId);
+    return response.data;
   }
 
   /** 获取签到状态 — GET，Domain=TAKUMI，Profile=SIGN */
@@ -67,11 +56,10 @@ export class SignApiService extends MihoyoApiService {
     headers.set(HKey.SIGN_GAME, host);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
-    return HttpClient.get(
-      MihoyoDomain.TAKUMI + SignApiPath.SIGN_GAME_BASE + `/${host}/info`,
-      params,
-      opts,
-    );
+    const url = MihoyoDomain.TAKUMI + SignApiPath.SIGN_GAME_BASE + `/${host}/info`;
+    const response = await this.get(url, params, opts);
+    this.reportBusinessError(url, response.data, opts, params, undefined, cookie, roleId);
+    return response.data;
   }
 
   /** 获取今日签到奖励 — GET，Domain=TAKUMI，Profile=SIGN */
@@ -82,10 +70,9 @@ export class SignApiService extends MihoyoApiService {
     headers.set(HKey.SIGN_GAME, host);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
-    return HttpClient.get(
-      MihoyoDomain.TAKUMI + SignApiPath.SIGN_GAME_BASE + `/${host}/home`,
-      params,
-      opts,
-    );
+    const url = MihoyoDomain.TAKUMI + SignApiPath.SIGN_GAME_BASE + `/${host}/home`;
+    const response = await this.get(url, params, opts);
+    this.reportBusinessError(url, response.data, opts, params, undefined, cookie, '');
+    return response.data;
   }
 }

@@ -6,13 +6,8 @@ import { AccountRow } from '../models/AccountRow';
 import { GameRoleRow } from '../models/GameRoleRow';
 import { AuthRepository } from './AuthRepository';
 import { SyncQueueRunner } from './SyncQueueRunner';
-import { NetworkFactory } from '../network/NetworkFactory';
-import { RequestParams, RequestOptions } from '../network/APIs';
 import { GameId, isGameSupported, gameIdFromMihoyo } from '../constants/GameId';
 import { gameBizToGameId } from '../constants/GameServer';
-import { MihoyoDomain } from '../network/MihoyoDomain';
-import { HKey } from '../network/MihoyoHeaderKey';
-import { MihoyoAccountApiPath } from '../network/MihoyoAccountApiPath';
 import {
   BbsAccountDetailResult,
   BbsAccountDetailResponse,
@@ -64,6 +59,14 @@ export class BBSRepository {
 
   private toErrorMessage(error: Error | object): string {
     return error instanceof Error ? error.message : `${error}`;
+  }
+
+  private requireAccountService(): MihoyoAccountApiService {
+    const service = this.service;
+    if (!(service instanceof MihoyoAccountApiService)) {
+      throw new Error('BBSRepository: MihoyoAccountApiService not initialized');
+    }
+    return service;
   }
 
   // ── 登录 ──────────────────────────────────────────────────────
@@ -471,24 +474,8 @@ export class BBSRepository {
   async getBbsAccountDetail(cookie: string): Promise<BbsAccountDetailResult> {
     try {
       const uid = BBSRepository.extractCookieField(cookie, 'account_id');
-      // 优先走 service，兜底走 NetworkFactory
-      let resp: BbsAccountDetailResponse;
-      if (this.service !== null) {
-        resp = await (this.service as MihoyoAccountApiService).getUserFullInfo(uid, cookie) as BbsAccountDetailResponse;
-      } else {
-        const options = new RequestOptions();
-        options.extraHeaders.set(HKey.COOKIE, cookie);
-        const params = new RequestParams();
-        if (uid.length > 0) {
-          params.set('uid', uid);
-          params.set('gids', '2');
-        }
-        resp = await NetworkFactory.getInstance().get(
-          MihoyoDomain.BBS + MihoyoAccountApiPath.GET_USER_FULL_INFO,
-          params,
-          options
-        ) as BbsAccountDetailResponse;
-      }
+      const account = this.requireAccountService();
+      const resp = await account.getUserFullInfo(uid, cookie) as BbsAccountDetailResponse;
       if (resp.retcode !== 0) {
         throw new Error(`getBbsAccountDetail failed: [${resp.retcode}] ${resp.message}`);
       }
@@ -519,13 +506,8 @@ export class BBSRepository {
    */
   async getUserGameRoles(cookie: string): Promise<GameRoleRecord[]> {
     try {
-      const options = new RequestOptions();
-      options.extraHeaders.set(HKey.COOKIE, cookie);
-      const resp = await NetworkFactory.getInstance().get(
-        `${MihoyoDomain.TAKUMI}/binding/api/getUserGameRolesByCookie`,
-        new RequestParams(),
-        options
-      ) as GameRolesResponse;
+      const account = this.requireAccountService();
+      const resp = await account.getGameRoles(cookie) as GameRolesResponse;
       if (resp.retcode !== 0) {
         throw new Error(`getUserGameRoles failed: [${resp.retcode}] ${resp.message}`);
       }
@@ -562,15 +544,8 @@ export class BBSRepository {
    */
   async getGameRecordCard(cookie: string, uid: string): Promise<GameRoleRecord[]> {
     try {
-      const options = new RequestOptions();
-      options.extraHeaders.set(HKey.COOKIE, cookie);
-      const params = new RequestParams();
-      params.set('uid', uid);
-      const resp = await NetworkFactory.getInstance().get(
-        MihoyoDomain.TAKUMI_RECORD + MihoyoAccountApiPath.GET_GAME_RECORD_CARD,
-        params,
-        options
-      ) as GameRecordCardResponse;
+      const account = this.requireAccountService();
+      const resp = await account.getGameRecordCard(uid, cookie) as GameRecordCardResponse;
       if (resp.retcode !== 0) {
         throw new Error(`getGameRecordCard failed: [${resp.retcode}] ${resp.message}`);
       }

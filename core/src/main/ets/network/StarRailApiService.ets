@@ -6,7 +6,6 @@ import { MihoyoHeaderBuilder, HeaderProfile } from './MihoyoHeaderBuilder';
 import { ApiConfig } from './ApiConfig';
 import { HKey, HVal } from './MihoyoHeaderKey';
 import { GameFpBiz } from './DeviceFpService';
-import { HttpClient } from './HttpClient';
 import { Logger } from '../utils/Logger';
 import { StarRailComputeAvatar, StarRailComputeEquipment, StarRailComputeSkill } from '../models/StarRailRows';
 
@@ -16,14 +15,6 @@ const WIDGET_EXTENSION_UA: string = 'WidgetExtension/434 CFNetwork/1492.0.1 Darw
 const SR_CALC_TAG: string = 'StarRailCalc';
 
 export class StarRailApiService extends MihoyoApiService {
-
-  async get(path: string, params?: RequestParams, options?: RequestOptions): Promise<object> {
-    return HttpClient.get(path, params, options);
-  }
-
-  async post(path: string, data?: string | RequestParams, options?: RequestOptions): Promise<object> {
-    return HttpClient.post(path, data, options);
-  }
 
   /**
    * 实时便笺 — GET，Domain=TAKUMI_RECORD，Profile=GAME_RECORD
@@ -44,11 +35,10 @@ export class StarRailApiService extends MihoyoApiService {
     opts.extraHeaders = headers;
     // 便笺 / Widget 不自动上报人机验证：降级 Widget 成功则不弹，由 Repository 在两者都失败后上报
     opts.suppressGeetestReport = true;
-    return HttpClient.get(
-      MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.DAILY_NOTE,
-      params,
-      opts,
-    );
+    const url = MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.DAILY_NOTE;
+    const response = await this.get(url, params, opts);
+    this.reportBusinessError(url, response.data, opts, params, undefined, cookie, roleId);
+    return response.data;
   }
 
   /**
@@ -62,11 +52,10 @@ export class StarRailApiService extends MihoyoApiService {
     opts.extraHeaders = headers;
     // 便笺 / Widget 不自动上报人机验证：降级 Widget 成功则不弹，由 Repository 在两者都失败后上报
     opts.suppressGeetestReport = true;
-    return HttpClient.get(
-      MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.DAILY_NOTE_WIDGET,
-      undefined,
-      opts,
-    );
+    const url = MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.DAILY_NOTE_WIDGET;
+    const response = await this.get(url, undefined, opts);
+    this.reportBusinessError(url, response.data, opts, undefined, undefined, widgetCookie, '');
+    return response.data;
   }
 
   /** 角色列表 — GET，Domain=TAKUMI_RECORD，Profile=GAME_RECORD */
@@ -80,11 +69,10 @@ export class StarRailApiService extends MihoyoApiService {
     headers.set(HKey.PAGE, ApiConfig.PAGE_STARRAIL_ROLES);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
-    return HttpClient.get(
-      MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.AVATAR_BASIC,
-      params,
-      opts,
-    );
+    const url = MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.AVATAR_BASIC;
+    const response = await this.get(url, params, opts);
+    this.reportBusinessError(url, response.data, opts, params, undefined, cookie, roleId);
+    return response.data;
   }
 
   /** 角色详情 — GET，Domain=TAKUMI_RECORD，Profile=GAME_RECORD */
@@ -100,11 +88,10 @@ export class StarRailApiService extends MihoyoApiService {
     headers.set(HKey.PAGE, ApiConfig.PAGE_STARRAIL_ROLE);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
-    return HttpClient.get(
-      MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.AVATAR_INFO,
-      params,
-      opts,
-    );
+    const url = MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.AVATAR_INFO;
+    const response = await this.get(url, params, opts);
+    this.reportBusinessError(url, response.data, opts, params, undefined, cookie, roleId);
+    return response.data;
   }
 
   /**
@@ -140,7 +127,9 @@ export class StarRailApiService extends MihoyoApiService {
     Logger.info(SR_CALC_TAG, `[Compute] avatarId=${avatarId} URL: ${url}`);
     StarRailApiService.logLong(`[Compute] avatarId=${avatarId} REQUEST body`, bodyStr);
     const startTime = Date.now();
-    const resp = await HttpClient.post(url, bodyStr, opts);
+    const response = await this.post(url, bodyStr, opts);
+    const resp = response.data;
+    this.reportBusinessError(url, resp, opts, undefined, bodyStr, cookie, uid);
     const r = resp as Record<string, Object>;
     Logger.info(SR_CALC_TAG, `[Compute] avatarId=${avatarId} RESPONSE retcode=${r['retcode']}, message=${r['message']}, cost=${Date.now() - startTime}ms`);
     // 各材料列表的条数，便于确认"已满级仍返回材料"时具体是哪一类

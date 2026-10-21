@@ -81,7 +81,19 @@ public init(retcode: Int, message: String) {
 2. 若 stoken 也已过期，提示用户重新登录
 3. 清除本地存储的 Cookie
 
-> **本项目补充**：`-10001` 也表示 Cookie 无效，应与 `-100` / `10001` 同等处理。
+> **不要混淆**：PizzaHelperUnited 的映射中没有 `-10001`；`mihoyo-api-collect` 将 `-10001` 定义为 `invalid request`（请求头 / DS / 参数错误），**不是** Cookie 失效。本项目将 `-10001` 归类为 `INVALID_REQUEST`，与 `-100` / `10001` 分开处理。
+
+---
+
+### retcode = -10001 → `.other`（请求无效，不是重新登录）
+
+**含义**：`invalid request`，通常是请求头缺失 / 错误、DS 签名或 salt 不匹配、参数不合法。
+
+**处理方式**：
+
+- 显示服务端 `message`，检查 DS / salt / 请求头 / 参数；
+- 不要刷新 Cookie，也不要提示“登录已过期”；
+- PizzaHelperUnited 未把它加入 `.reloginRequired` 分支。
 
 ---
 
@@ -188,7 +200,8 @@ retcode != 0
   │     ├─ Cookie 含 stoken=v2_ → 降级 Widget API
   │     └─ 无 stoken_v2 → 展示 Geetest 验证码
   ├─ 5003 / 10041 → 重新获取 device_fp，重试
-  ├─ -100 / 10001 / -10001 → 刷新 Cookie，失败则提示重新登录
+  ├─ -100 / 10001 → 刷新 Cookie，失败则提示重新登录
+  ├─ -10001 → 请求无效（DS / header / 参数），显示错误，不刷新 Cookie
   ├─ 10102 → 提示用户开启公开战绩
   ├─ 10307 → 提示服务器维护中
   ├─ 403（地区限制） → 提示地区不支持

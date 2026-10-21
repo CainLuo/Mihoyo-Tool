@@ -6,7 +6,6 @@ import { MihoyoHeaderBuilder, HeaderProfile } from './MihoyoHeaderBuilder';
 import { ApiConfig } from './ApiConfig';
 import { HKey } from './MihoyoHeaderKey';
 import { GameFpBiz } from './DeviceFpService';
-import { HttpClient } from './HttpClient';
 import { Logger } from '../utils/Logger';
 
 /** 养成计算链路统一日志 tag，过滤：hilog | grep */
@@ -15,14 +14,6 @@ const CALC_TAG: string = 'GenshinCalc';
 const CALC_LOG_CHUNK: number = 1000;
 
 export class GenshinApiService extends MihoyoApiService {
-
-  async get(path: string, params?: RequestParams, options?: RequestOptions): Promise<object> {
-    return HttpClient.get(path, params, options);
-  }
-
-  async post(path: string, data?: string | RequestParams, options?: RequestOptions): Promise<object> {
-    return HttpClient.post(path, data, options);
-  }
 
   /** 实时便笺 — GET，Domain=TAKUMI_RECORD，Profile=GAME_RECORD */
   async getDailyNote(roleId: string, server: string, cookie: string, geetestChallenge?: string): Promise<object> {
@@ -42,12 +33,10 @@ export class GenshinApiService extends MihoyoApiService {
     opts.extraHeaders = headers;
     // 便笺 / Widget 不自动上报人机验证：降级 Widget 成功则不弹，由 Repository 在两者都失败后上报
     opts.suppressGeetestReport = true;
-    const result = await HttpClient.get(
-      MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE,
-      params,
-      opts,
-    );
-    return result;
+    const url = MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE;
+    const response = await this.get(url, params, opts);
+    this.reportBusinessError(url, response.data, opts, params, undefined, cookie, roleId);
+    return response.data;
   }
 
   /**
@@ -62,12 +51,10 @@ export class GenshinApiService extends MihoyoApiService {
     opts.extraHeaders = headers;
     // 便笺 / Widget 不自动上报人机验证：降级 Widget 成功则不弹，由 Repository 在两者都失败后上报
     opts.suppressGeetestReport = true;
-    const result = await HttpClient.get(
-      MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE_WIDGET,
-      undefined,
-      opts,
-    );
-    return result;
+    const url = MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE_WIDGET;
+    const response = await this.get(url, undefined, opts);
+    this.reportBusinessError(url, response.data, opts, undefined, undefined, cookie, '');
+    return response.data;
   }
 
   /** 角色列表 — POST，Domain=TAKUMI_RECORD，Profile=GAME_RECORD */
@@ -79,7 +66,9 @@ export class GenshinApiService extends MihoyoApiService {
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     const url = MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.CHARACTER_LIST;
-    return HttpClient.post(url, bodyStr, opts);
+    const response = await this.post(url, bodyStr, opts);
+    this.reportBusinessError(url, response.data, opts, undefined, bodyStr, cookie, roleId);
+    return response.data;
   }
 
   /**
@@ -107,7 +96,9 @@ export class GenshinApiService extends MihoyoApiService {
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
     const url = MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.CHARACTER_DETAIL;
-    return HttpClient.post(url, bodyStr, opts);
+    const response = await this.post(url, bodyStr, opts);
+    this.reportBusinessError(url, response.data, opts, undefined, bodyStr, cookie, roleId);
+    return response.data;
   }
 
   /** 养成材料批量计算 — POST，Domain=TAKUMI，Profile=CALCULATE */
@@ -148,7 +139,9 @@ export class GenshinApiService extends MihoyoApiService {
     const startTime = Date.now();
     let result: object;
     try {
-      result = await HttpClient.post(url, bodyStr, opts);
+      const response = await this.post(url, bodyStr, opts);
+      this.reportBusinessError(url, response.data, opts, undefined, bodyStr, enrichedCookie, uid);
+      result = response.data;
     } catch (e) {
       Logger.error(CALC_TAG, `[BatchCompute] HTTP FAILED after ${Date.now() - startTime}ms: ${e instanceof Error ? e.message : `${e}`}`);
       throw e as Error;
@@ -183,7 +176,9 @@ export class GenshinApiService extends MihoyoApiService {
     const startTime = Date.now();
     let result: object;
     try {
-      result = await HttpClient.post(url, bodyStr, opts);
+      const response = await this.post(url, bodyStr, opts);
+      this.reportBusinessError(url, response.data, opts, undefined, bodyStr, enrichedCookie, uid);
+      result = response.data;
     } catch (e) {
       Logger.error(CALC_TAG, `[SyncAvatarList] HTTP FAILED after ${Date.now() - startTime}ms: ${e instanceof Error ? e.message : `${e}`}`);
       throw e as Error;

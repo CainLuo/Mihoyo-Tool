@@ -2,6 +2,8 @@
 
 对比本项目（HarmonyOS）、PizzaHelperUnited（iOS）、TeyvatGuide（TypeScript/Tauri）在 DS 签名、Cookie 字段、请求头、错误处理等方面的实现差异。
 
+> **2026-10-21 更新**：本文保留历史对比结构；BaseApiService 迁移后的当前实现、静态参考矩阵和未决分歧以 [`Core-Kits-Refactor/API-Baseline.md`](Core-Kits-Refactor/API-Baseline.md) §2.2 为准。本轮已修正 `-10001` / `5003` / `10041` / `10102` 的错误描述、当前 App 版本号和 TeyvatGuide 当前 salt；仍标“参考有分歧”的链路需要运行时确认。
+
 ---
 
 ## 一、App 版本号与 Salt
@@ -12,13 +14,13 @@
 
 | 参数                | 值                                                                                                                    |
 | ------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| `x-rpc-app_version` | `2.104.0`                                                                                                             |
+| `x-rpc-app_version` | `2.115.0`（`ApiConfig.APP_VERSION`）                                                                                  |
 | User-Agent          | `Mozilla/5.0 (iPhone; CPU iPhone OS 16_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.104.0` |
-| Widget User-Agent   | `WidgetExtension/550 CFNetwork/1335.0.3 Darwin/21.6.0`                                                                |
-| salt_v1（K2）       | 从 `rawfile/release/salt_config.json` 读取，**不硬编码**                                                              |
-| salt_v2（BBS）      | 同上                                                                                                                  |
-| salt_x4（X4）       | 同上                                                                                                                  |
-| salt_x6（X6）       | 同上                                                                                                                  |
+| 便笺 / Widget UA    | 便笺对齐 PizzaHelperUnited：`miHoYoBBS/2.40.1`；星铁 / 绝区零 Widget：`WidgetExtension/434 ...`                        |
+| salt_v1（旧 K2）    | 从 `rawfile/release/salt_config.json` 读取，**不硬编码**；当前无业务调用方                                             |
+| salt_v2（BBS）      | 同上；当前 `BBS` profile 使用                                                                                         |
+| salt_x4（X4）       | 同上；GAME_RECORD / CALCULATE / passport / Geetest 使用                                                               |
+| salt_x6（X6）       | 同上；SIGN profile 使用                                                                                               |
 
 ### PizzaHelperUnited（iOS）
 
@@ -39,16 +41,18 @@
 
 | 参数                 | 值                                                            |
 | -------------------- | ------------------------------------------------------------- |
-| `x-rpc-app_version`  | `2.102.1`                                                     |
-| User-Agent（移动端） | `Mozilla/5.0 (Linux; Android 12) Mobile miHoYoBBS/2.102.1`    |
-| User-Agent（PC 端）  | `Mozilla/5.0 (Windows NT 10.0; Win64; x64) miHoYoBBS/2.102.1` |
-| K2                   | `lX8m5VO5at5JG7hR8hzqFwzyL5aB1tYo`                            |
-| LK2                  | `yBh10ikxtLPoIhgwgPZSv5dmfaOTSJ6a`                            |
+| `x-rpc-app_version`  | `2.115.0`                                                     |
+| User-Agent（移动端） | `Mozilla/5.0 (Linux; Android 12) Mobile miHoYoBBS/2.115.0`    |
+| User-Agent（PC 端）  | `Mozilla/5.0 (Windows NT 10.0; Win64; x64) miHoYoBBS/2.115.0` |
+| K2                   | `09d39d16528ca0e4900a39ecc07d5062`                            |
+| LK2                  | `b99b74d9023a6511231be2c7209b6fdb`                            |
 | X4                   | `xV8v4Qu54lUKrEYFZkJhB8cuOh9Asafs`                            |
 | X6                   | `t0qEgfub6cvueAPgR5m9aQWWVciEer7v`                            |
 | PROD                 | `t0qEgfub6cvueAPgR5m9aQWWVciEer7v`                            |
 
-> **关键差异**：本项目 salt 从文件读取（不硬编码），PizzaHelperUnited 和 TeyvatGuide 均硬编码。本项目 app_version 是 `2.104.0`，PizzaHelperUnited 国服是 `2.40.1`，TeyvatGuide 是 `2.102.1`。
+> **关键差异**：本项目 salt 从文件读取（不硬编码），PizzaHelperUnited 和 TeyvatGuide 均硬编码。本项目 app_version 是 `2.115.0`，PizzaHelperUnited 国服是 `2.40.1`（本项目便笺 / Widget 另用此 profile），TeyvatGuide 是 `2.115.0`。
+>
+> 本项目 `salt_v1` / `salt_v2` 是 `lX8m...` / `yBh...`，与 TeyvatGuide 当前 K2 / LK2 不同；`generateV1` / `generateK2Sign` / `generateK2` 当前无业务调用方，不能据此推断线上 K2 行为。
 
 ---
 
@@ -58,21 +62,21 @@
 
 来源：`DSUtil.ets`
 
-| DS 类型 | 方法               | Salt           | random 格式                 | 用途                                                |
-| ------- | ------------------ | -------------- | --------------------------- | --------------------------------------------------- |
-| V1      | `generateV1()`     | salt_v1（K2）  | 6 位纯数字（100000-199999） | 游戏记录接口（GAME_RECORD Profile）                 |
-| V2      | `generateV2()`     | salt_v2（BBS） | 6 位字母数字混合            | BBS 接口、Widget 接口                               |
-| X4      | `generateX4()`     | salt_x4（X4）  | 6 位纯数字（100000-199999） | passport 接口（getLToken/getCookieToken）           |
-| X6      | `generateX6()`     | salt_x6（X6）  | 6 位字母数字混合            | 签到接口（SIGN Profile）                            |
-| K2 Sign | `generateK2Sign()` | salt_v1（K2）  | 6 位字母数字混合            | Geetest createVerification（isSign=true，不含 b/q） |
-| K2      | `generateK2()`     | salt_v1（K2）  | 6 位字母数字混合            | Geetest verifyVerification（含 b/q）                |
+| DS 类型 | 方法               | Salt                         | random 格式                 | 用途                                                |
+| ------- | ------------------ | ---------------------------- | --------------------------- | --------------------------------------------------- |
+| V1      | `generateV1()`     | salt_v1（旧 salt，未使用）   | 6 位纯数字（100000-199999） | 当前无业务调用方                                    |
+| V2      | `generateV2()`     | salt_v2（BBS profile）       | 6 位字母数字混合            | BBS 账号 / 角色 / 战绩卡片                          |
+| X4      | `generateX4()`     | salt_x4（X4）                | 6 位纯数字（100000-199999） | GAME_RECORD / CALCULATE / passport / Geetest        |
+| X6      | `generateX6()`     | salt_x6（X6）                | 6 位字母数字混合            | 签到接口（SIGN Profile）                            |
+| K2 Sign | `generateK2Sign()` | salt_v1（旧 salt，未使用）   | 6 位字母数字混合            | 当前无业务调用方；不是 TeyvatGuide 当前 K2 salt     |
+| K2      | `generateK2()`     | salt_v1（旧 salt，未使用）   | 6 位字母数字混合            | 当前无业务调用方；不是 TeyvatGuide 当前 K2 salt     |
 
 **hashStr 格式**：
 
 - 普通（含 b/q）：`salt={salt}&t={timestamp}&r={random}&b={body}&q={query}`
 - Sign（不含 b/q）：`salt={salt}&t={timestamp}&r={random}`
 
-**注意**：本项目 `generateV1` 的 random 是 6 位纯数字（100000-199999），与 PizzaHelperUnited 一致，但与 TeyvatGuide 的 `isSign=true`（6 位字母数字）不同。
+**注意**：本项目数字 random 是 `100000-199999`，与 PizzaHelperUnited 的 `100_000 ..< 200_000` 一致；TeyvatGuide 的数字 random 上界为 `200000`。`GAME_RECORD` 实际使用 X4，不是 V1；`generateV1` / `generateK2*` 当前没有调用方，不能当作已验证的线上签名路径。
 
 ### PizzaHelperUnited（iOS）
 
@@ -115,19 +119,21 @@ salt={salt}&t={timestamp}&r={random}&b={body}&q={query}
 
 ```
 User-Agent:          Mozilla/5.0 (iPhone; CPU iPhone OS 16_3_1 ...) miHoYoBBS/2.104.0
-x-rpc-app_version:   2.104.0
+x-rpc-app_version:   2.115.0
 x-rpc-client_type:   5（Web/PC）
 x-rpc-device_id:     {UUID，持久化}
 x-rpc-device_fp:     {真实设备指纹，通过 DeviceFpService 获取}
 x-rpc-sys_version:   16.3.1
 x-rpc-language:      zh-cn
 x-rpc-tool_verison:  v6.4.2-gr-cn（原神）/ v4.1.1（星铁）
-x-rpc-page:          v6.4.2-gr-cn_#/ys（原神便笺）等
+x-rpc-page:          原神 / 星铁角色列表、详情按接口设置；便笺改用 Pizza profile
 Referer:             https://webstatic.mihoyo.com/
 Origin:              https://webstatic.mihoyo.com
 DS:                  {X4 签名}
 Cookie:              {完整 cookie 字符串}
 ```
+
+> 便笺 / Widget 另走 `buildPizza`：`x-rpc-app_version=2.40.1`、UA `miHoYoBBS/2.40.1`、`x-rpc-page=3.1.3_#/rpg`，与 PizzaHelperUnited 一致。BBS 账号 / 角色 / 战绩卡片另走 `BBS` profile：`client_type=1` + DS v2 + `Referer: app.mihoyo.com`，与下面的 GAME_RECORD 不同。
 
 ### PizzaHelperUnited（国服）
 
@@ -160,8 +166,8 @@ Cookie:              {完整 cookie 字符串}
 来源：`getRequestHeader.ts`
 
 ```
-user-agent:          Mozilla/5.0 (Windows NT 10.0; Win64; x64) miHoYoBBS/2.102.1
-x-rpc-app_version:   2.102.1
+user-agent:          Mozilla/5.0 (Windows NT 10.0; Win64; x64) miHoYoBBS/2.115.0
+x-rpc-app_version:   2.115.0
 x-rpc-client_type:   5
 x-requested-with:    com.mihoyo.hyperion
 referer:             https://webstatic.mihoyo.com
@@ -173,10 +179,10 @@ cookie:              {cookie 字符串}
 
 > **关键差异**：
 >
-> - PizzaHelperUnited 有 `x-rpc-page: 3.1.3_#/rpg`（固定值），本项目按接口类型设置不同的 page 值。
+> - 本项目便笺 / Widget 直接套用 Pizza profile（page `3.1.3_#/rpg`、app_version 2.40.1）；GAME_RECORD 角色接口才使用按游戏设置的 page 和 tool_verison。
 > - PizzaHelperUnited 有 `Sec-Fetch-*` 系列头，本项目和 TeyvatGuide 没有。
 > - 本项目 `x-rpc-sys_version: 16.3.1`，PizzaHelperUnited 没有此字段。
-> - 本项目 User-Agent 模拟 iPhone iOS 16.3.1，PizzaHelperUnited 模拟 iPhone iOS 17.6，TeyvatGuide 模拟 Windows PC。
+> - 本项目 User-Agent 模拟 iPhone iOS 16.3.1（`miHoYoBBS/2.104.0`），PizzaHelperUnited 模拟 iPhone iOS 17.6，TeyvatGuide 模拟 Windows PC；三者的 UA 版本都与各自 `x-rpc-app_version` 不完全一致，服务器目前可接受多种组合。
 
 ---
 
@@ -202,7 +208,7 @@ cookie:              {cookie 字符串}
 - mid：优先取 `mid`，其次取 `account_mid_v2` / `ltmid_v2`
 - 格式：`stuid={stuid};stoken={stoken};mid={mid}`
 
-**触发 AuthExpiredError 的 retcode**：`-100`、`10001`、`-10001`
+**触发 AuthExpiredError 的 retcode**：`-100`、`10001`。`-10001` 是请求无效（DS / header / 参数），不触发刷新。
 
 ### PizzaHelperUnited（iOS）
 
@@ -254,7 +260,7 @@ cookie:              {cookie 字符串}
 account_id={uid}; cookie_token={token}; ltoken={ltoken}; ltuid={uid}; stoken={stoken}; stuid={uid}; mid={mid}
 ```
 
-**Cookie 刷新触发条件**：`retcode=-100`、`10001`、`-10001`（均映射为 `AuthExpiredError`）
+**Cookie 刷新触发条件**：`retcode=-100`、`10001`（映射为 `AuthExpiredError`）。`-10001` 不在此列，按 `INVALID_REQUEST` 处理。
 
 **刷新流程**（`BBSRepository.refreshCookieIfNeeded()`）：
 
@@ -293,16 +299,20 @@ account_id={uid}; cookie_token={token}; ltoken={ltoken}; ltuid={uid}; stoken={st
 
 ### 本项目
 
-来源：`ApiErrors.ets`、`GenshinRepository.ets`
+来源：`ApiErrorHandler.ets`、`ApiErrorCodes.ets`、`ApiErrors.ets`、`GenshinRepository.ets`
 
-| retcode  | 错误类型                              | 处理方式                                      |
-| -------- | ------------------------------------- | --------------------------------------------- |
-| `-100`   | `AuthExpiredError`                    | 尝试用 stoken 刷新 cookie，失败则提示重新登录 |
-| `10001`  | `AuthExpiredError`                    | 同上                                          |
-| `-10001` | `AuthExpiredError`                    | 同上（本项目将 -10001 也视为 auth 失效）      |
-| `1034`   | 降级 Widget 或 `GeetestRequiredError` | 先尝试 Widget 降级，无法降级则触发 Geetest    |
-| `10035`  | 同 1034                               | 同上                                          |
-| `10102`  | `RoleNotPublicError`                  | 提示战绩未公开                                |
+| retcode        | 错误类型                              | 处理方式                                      |
+| -------------- | ------------------------------------- | --------------------------------------------- |
+| `-100`         | `AuthExpiredError`                    | 尝试用 stoken 刷新 cookie，失败则提示重新登录 |
+| `10001`        | `AuthExpiredError`                    | 同上                                          |
+| `-10001`       | `INVALID_REQUEST` / 普通业务错误      | 不刷新 Cookie，检查 DS / header / 参数        |
+| `1034`         | 降级 Widget 或 `GeetestRequiredError` | 先尝试 Widget 降级，无法降级则触发 Geetest    |
+| `10035`        | 同 1034                               | 同上                                          |
+| `5003`/`10041` | `FingerprintReporter` + 同步队列失败  | 上报指纹无效 / 账号异常；`SyncQueueRunner` 归为 `fingerprint` |
+| `10102`        | `RoleNotPublicError`                  | 提示战绩未公开                                |
+| `10307`        | 当前无专门映射                        | 按普通业务错误处理；Pizza 有维护中专门映射    |
+| `-1002`        | `ACCOUNT_NOT_FOUND`（当前未使用）     | 游戏账号未绑定，不是 `1008`，也不是登录失效   |
+| `1008`         | 当前无专门映射                        | 用户信息不匹配（如无效 role_id），不是账号不存在 |
 
 ### PizzaHelperUnited（iOS）
 
@@ -317,7 +327,7 @@ account_id={uid}; cookie_token={token}; ltoken={ltoken}; ltuid={uid}; stoken={st
 | `10307`                 | `.serverUnderMaintenanceUpgrade` | 提示服务器维护                                      |
 | `403`（含特定 message） | `.countryRegionRestriction`      | 提示地区限制                                        |
 
-> **关键差异**：PizzaHelperUnited 没有将 `-10001` 映射为 auth 失效，本项目将 `-10001` 也视为 `AuthExpiredError`。PizzaHelperUnited 有 `5003`/`10041`（设备指纹无效）的专门处理，本项目没有。
+> **关键差异**：PizzaHelperUnited 和本项目都没有把 `-10001` 映射为 auth 失效；本项目使用 `INVALID_REQUEST`。PizzaHelperUnited 有 `5003`/`10041` 的专门错误类型；本项目通过 `FingerprintReporter` 上报、`SyncQueueRunner` 归类为 `fingerprint` 失败，但 `ApiErrorHandler` 仍未单独建错误类型。`10102` 是战绩可见性不足，不是账号封禁。
 
 ### TeyvatGuide（TypeScript）
 
@@ -397,13 +407,14 @@ x-rpc-challenge: {challenge}
 
 ## 九、总结：可能导致 1034 / -10001 的参数差异
 
-| 参数                      | 本项目                         | PizzaHelperUnited  | TeyvatGuide  | 风险说明                               |
-| ------------------------- | ------------------------------ | ------------------ | ------------ | -------------------------------------- |
-| app_version               | `2.104.0`                      | `2.40.1`           | `2.102.1`    | 版本过高或过低可能触发服务器校验       |
-| salt 来源                 | 文件读取                       | 硬编码 X4          | 硬编码各类型 | salt 文件内容是否与 app_version 匹配   |
-| x-rpc-page                | 按接口设置                     | 固定 `3.1.3_#/rpg` | 无此字段     | 错误的 page 值可能触发 1034            |
-| x-rpc-tool_verison        | 按游戏设置                     | 无此字段           | 无此字段     | 拼写错误（verison），缺失可能触发 1034 |
-| x-rpc-challenge_path/game | **缺失**                       | 有                 | 无           | Geetest 验证后重试可能失败             |
-| Widget Cookie 格式        | `stuid=xxx;stoken=xxx;mid=xxx` | 需要 `stoken=v2_`  | 无 Widget    | stoken 非 v2 格式时 Widget 降级失败    |
-| -10001 处理               | 视为 AuthExpiredError          | 不处理             | 不处理       | 本项目额外处理了 -10001                |
-| 5003/10041 处理           | 不处理                         | 视为指纹无效       | 不处理       | 设备指纹问题本项目无专门处理           |
+| 参数                      | 本项目                                                   | PizzaHelperUnited  | TeyvatGuide  | 风险说明                               |
+| ------------------------- | -------------------------------------------------------- | ------------------ | ------------ | -------------------------------------- |
+| app_version               | GAME_RECORD / BBS / passport `2.115.0`；便笺 / Widget `2.40.1` | `2.40.1`           | `2.115.0`    | 版本过高或过低可能触发服务器校验       |
+| salt 来源                 | 文件读取（X4 / V2 / X6）                                 | 硬编码 X4          | 硬编码各类型 | salt 文件内容是否与 app_version 匹配   |
+| x-rpc-page                | 便笺固定 `3.1.3_#/rpg`；角色按接口设置                    | 固定 `3.1.3_#/rpg` | 无此字段     | 错误的 page 值可能触发 1034            |
+| x-rpc-tool_verison        | 原神 / 星铁角色接口按游戏设置                            | 无此字段           | 无此字段     | 拼写错误（verison），缺失可能触发 1034 |
+| x-rpc-challenge_path/game | 便笺 / ZZZ 已实现；其他接口未逐条验证                    | 有                 | 无           | Geetest 验证后重试可能失败             |
+| Widget Cookie 格式        | `stuid=xxx;stoken=xxx;mid=xxx`                           | 需要 `stoken=v2_`  | 无 Widget    | stoken 非 v2 格式时 Widget 降级失败    |
+| -10001 处理               | `INVALID_REQUEST`，不刷新 Cookie                         | 不处理             | 不处理       | 本项目单独识别，避免误判登录失效       |
+| 5003/10041 处理           | `FingerprintReporter` + `SyncQueueRunner`                | 视为指纹无效       | 不处理       | 已上报 / 归队，但未建专门错误类型      |
+| 10102 处理                | `RoleNotPublicError`                                     | 数据可见性不足     | 提示未公开   | 不是账号封禁                           |

@@ -2,7 +2,7 @@
  * DeviceFpCenter — 设备指纹无效 / 账号异常（retcode=5003 / 10041）统一处理
  *
  * PizzaHelperUnited 将 5003 / 10041 归为"设备指纹无效或缺失"，Miao-Yunzai 归为"米游社账号异常"（均不是人机验证），处理方式是让用户重新生成设备指纹。
- * 任何接口返回 5003 / 10041 时，core 的 HttpClient / HttpService 通过 ApiConfig.setFingerprintInvalidListener() 上报，
+ * 任何接口返回 5003 / 10041 时，core 的具体 API 通过 ApiConfig.setFingerprintInvalidListener() 显式上报，
  * 这里通过 DeviceFpInvalidSignal 通知 Main.ets 弹出提示（含"重新生成设备指纹"）：
  * - 提示显示中不重复弹；用户取消、或已经重新生成过一次后，本次启动不再提示（避免重新生成后仍无效时反复弹出）
  * - 重新生成成功后通过 SyncRetrySignal 通知首页 / 角色页重新同步

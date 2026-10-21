@@ -36,7 +36,7 @@ export { SyncTask } from '../models/SyncTask';
 /** 同步完成回调类型 */
 export type SyncCompleteCallback = () => Promise<void>;
 
-/** 本轮同步失败的类型：人机验证 / 设备指纹无效由 HttpClient 统一上报弹框，其他为普通错误 */
+/** 本轮同步失败的类型：人机验证 / 设备指纹无效由具体 API 显式上报弹框，其他为普通错误 */
 const FAILURE_GEETEST: string = 'geetest';
 const FAILURE_FINGERPRINT: string = 'fingerprint';
 const FAILURE_OTHER: string = 'other';
@@ -270,12 +270,12 @@ export class SyncQueueRunner {
     return error instanceof SyncTasksFailedError;
   }
 
-  /** 有任务需要人机验证（已由 HttpClient 统一上报弹框） */
+  /** 有任务需要人机验证（已由具体 API 显式上报弹框） */
   static isGeetestRequired(error: Error | object): boolean {
     return error instanceof SyncTasksFailedError && error.kind === FAILURE_GEETEST;
   }
 
-  /** 有任务返回设备指纹无效（已由 HttpClient 统一上报提示） */
+  /** 有任务返回设备指纹无效（已由具体 API 显式上报提示） */
   static isFingerprintInvalid(error: Error | object): boolean {
     return error instanceof SyncTasksFailedError && error.kind === FAILURE_FINGERPRINT;
   }

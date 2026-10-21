@@ -128,7 +128,7 @@ stuid={uid};stoken=v2_{token};mid={mid}
 
 ## 六、Cookie 刷新机制
 
-当接口返回 `-100` / `10001` / `-10001`（Cookie 失效）时：
+当接口返回 `-100` / `10001`（Cookie 失效）时：
 
 ```
 Cookie 失效
@@ -142,6 +142,8 @@ Cookie 失效
                   ↓
              提示用户重新登录
 ```
+
+> `-10001` **不**触发这套刷新：它是 `invalid request`（DS / header / 参数错误），不是 Cookie 失效。
 
 **刷新并发控制**（`CookieRefreshCoordinator`）：
 

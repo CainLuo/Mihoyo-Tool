@@ -2,7 +2,8 @@
 
 // Network module
 export * from './src/main/ets/network/APIs';
-export * from './src/main/ets/network/NetworkFactory';
+export * from './src/main/ets/network/HttpTypes';
+export * from './src/main/ets/network/BaseApiService';
 export * from './src/main/ets/network/CookieManager';
 export * from './src/main/ets/network/GeetestService';
 

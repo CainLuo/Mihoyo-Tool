@@ -4,9 +4,12 @@
 > 范围：`core/` HAR 内部目录重组、Mock 服务化、DB 归类；不改表结构、不改 entry 的 MVVM 结构、不拆多 HAR。
 > 原则：先移文件（`git mv`，保留历史）→ 再改代码；每个阶段可独立构建、可回滚。
 >
-> 任务总览：[`README.md`](README.md)；公共 APIService 提案：[`APIService.md`](APIService.md)；Mock 专题与缺口：[`Mock.md`](Mock.md)。
+> 任务总览：[`README.md`](README.md)；BaseApiService 方案：[`APIService.md`](APIService.md)；API 基线清单：[`API-Baseline.md`](API-Baseline.md)；Mock 专题与缺口：[`Mock.md`](Mock.md)。
+> 后续公共 Header 合并已记录在 [`APIService.md`](APIService.md) 第 10 节，Phase 5 实施，不阻塞当前 BaseApiService 迁移。
 >
 > **2026-10-20 更新**：独立 `mock/` ArkTS 适配器目录已删除；`mock` product 保留，生成独立 `.mock` 包（`APP_ENV=mock`）。`mock-service/` 与 fixtures 保留，后续用 Swift-Vapor local service 复用。以下涉及 `mock/` 的内容为历史记录。
+>
+> **2026-10-21 更新**：Phase 1.1 BaseApiService 的 Stage 0-3 已完成；`HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService` 已删除；四个 product 和两个测试脚本构建通过。已用 `mihoyo-api-sdk`、TeyvatGuide、PizzaHelperUnited 和本项目历史抓包完成 header / retcode 静态参考对照；运行时基线按用户决定延后到整个任务完成后，不阻塞 Phase 1.2。旧路径基线已无法补采，详见 [`API-Baseline.md`](API-Baseline.md) §2.2。
 
 ---
 
@@ -15,7 +18,7 @@
 把 `core` 从「按文件类型平铺」重组为「按业务域分 Kit」：
 
 1. **四个 Kit**：`MihoyoKit`（米游社自身：账号/登录/BBS/绑定/签到）、`GenshinKit`、`StarRailKit`、`ZZZKit`。
-2. **统一网络封装**：`BaseService` 作为唯一 HTTP 请求入口，四个 Kit 的 ApiService 都只调它。
+2. **统一网络封装**：`BaseApiService` 作为构建链路内唯一 axios 封装层，`MihoyoApiService` 继承它，四个 Kit 的 ApiService 继续继承 `MihoyoApiService`，只负责拼 URL / header / body。
 3. **DB 归类**：与具体游戏相关的 DB 资产全部下沉——DAO、DBManager、**该游戏的表结构片段与列枚举、只改该游戏的迁移**都进对应 Kit 的 `db/`；公共 `db/` 只留库基础设施（连接/事务/查询封装）与跨 Kit 迁移，`sync_meta` 归 `sync/`。
 4. **Mock 服务化**：把 224 个 JSON 从 HAR 资源里挪出去，搭一个本机 mock service（HTTP），Mock 适配器已删除；服务端保留 `mock-service/`，供未来 local service 复用；Core 不再包含 Mock 代码。
 
@@ -24,7 +27,7 @@
 - 不把 `core` 拆成多个 HAR（保持单 `core`，`entry → core` 依赖不变）；不新增独立 `mock` HAR，仅保留 `mock-service/` 作为独立服务。
 - 不改任何数据库表名、不写数据迁移（对已安装用户零影响）。
 - 不改 entry 的页面/组件/ViewModel 结构（`core/Index.ets` 保持导出符号不变）。
-- 不改真实 API 的请求行为（header、DS、路由逻辑原样搬）。
+- 不改业务 Service 现有请求的 URL / header / DS / 路由逻辑；但 **`AuthRepository` / `BBSRepository` 从旧 transport 切到注入的 Service** 会改变 header / DS（尤其是 BBS 的两个非 fallback 方法），自动上报的归属也会从 transport 改为具体 API，按 [`APIService.md`](APIService.md) 第 4.2 / 4.5 节审计。不能当成“零行为变化”。
 
 ---
 
@@ -35,7 +38,7 @@
 ```
 core/src/main/ets/           （约 115 个 .ets）
 ├── network/      36 个：4 套域混在一起
-│   ├── 共享：APIs、HttpClient、HttpService(旧)、ApiConfig、DSUtil、
+│   ├── 共享：APIs、BaseApiService、HttpTypes、ApiConfig、DSUtil、
 │   │        MihoyoDomain、MihoyoHeaderKey/Builder、CookieManager、DeviceFpService、
 │   │        GeetestService/Reporter、FingerprintReporter、MihoyoApiService、Factory
 │   ├── 米游社：MihoyoAccountApiPath/Service、PassportApiPath、QRCodeApiPath、
@@ -93,13 +96,14 @@ core/src/main/ets/           （约 115 个 .ets）
 core/src/main/ets/
 ├── base/                             # ① 与业务域无关的基础设施
 │   ├── network/
-│   │   ├── BaseService.ets           # 统一 HTTP 入口（原 HttpClient 升级而来）
-│   │   ├── APIs.ets                  # RequestParams/RequestOptions/BaseApiService
-│   │   ├── MihoyoApiService.ets      # Kit ApiService 抽象基类
+│   │   ├── BaseApiService.ets        # 构建链路内唯一 axios 封装层（原 HttpClient 升级而来）
+│   │   ├── HttpTypes.ets             # HttpResponse / HttpError，不 import axios
+│   │   ├── APIs.ets                  # RequestValue / RequestParams / RequestOptions
+│   │   ├── MihoyoApiService.ets      # Kit ApiService 抽象基类， extends BaseApiService
 │   │   ├── ApiConfig.ets             # UA/版本/设备字段
 │   │   ├── MihoyoDomain.ets          # 域名枚举
 │   │   ├── MihoyoHeaderKey.ets       # 请求头常量
-│   │   ├── MihoyoHeaderBuilder.ets   # Header Profile 构建
+│   │   ├── MihoyoHeaderBuilder.ets   # Header Profile 构建；Phase 5 再升级/收口为 Header 抽象类
 │   │   ├── DSUtil.ets                # DS 签名（salt 从 rawfile 加载，保留）
 │   │   ├── CookieManager.ets
 │   │   ├── DeviceFpService.ets
@@ -200,7 +204,7 @@ entry
 | 现路径 | 新路径 |
 |---|---|
 | `network/APIs.ets` | `base/network/APIs.ets` |
-| `network/HttpClient.ets` | `base/network/BaseService.ets`（类改名，见 §4） |
+| `network/HttpClient.ets` | 已拆为 `base/network/BaseApiService.ets` + `HttpTypes.ets`（Phase 1.1 完成） |
 | `network/MihoyoApiService.ets` | `base/network/MihoyoApiService.ets` |
 | `network/ApiConfig.ets / MihoyoDomain.ets / MihoyoHeaderKey.ets / MihoyoHeaderBuilder.ets / DSUtil.ets / CookieManager.ets / DeviceFpService.ets` | `base/network/` 同名 |
 | `network/GeetestService.ets / GeetestReporter.ets / FingerprintReporter.ets` | `base/network/` 同名 |
@@ -209,9 +213,9 @@ entry
 | `network/StarRailApiPath.ets / StarRailApiService.ets` | `StarRailKit/api/` 同名 |
 | `network/ZZZApiPath.ets / ZZZApiService.ets / ZZZRecordRequest.ets` | `ZZZKit/api/` 同名 |
 | `network/MihoyoApiServiceFactory.ets` | 根 `ApiServiceFactory.ets` |
-| `network/HttpService.ets` | **Phase 4 删除**（旧 axios 封装，由 BaseService 取代） |
+| `network/HttpService.ets` | **已删除**（旧 axios 封装，由 BaseApiService 取代） |
 | `network/MockService.ets` | 已删除（原 `mock/` 目录已删除） |
-| `network/NetworkFactory.ets` | **Phase 4 删除**（由 ApiServiceFactory 取代） |
+| `network/NetworkFactory.ets` | **已删除**（由 ApiServiceFactory 取代） |
 | `network/mock/`（7 个） | 已删除；服务端路由保留在 `mock-service/router.mjs` |
 
 **repository/ 10 个**
@@ -277,14 +281,14 @@ entry
 
 ### 3.4 整合前后目录树对比
 
-#### 整合前（现状）
+#### 整合前（Phase 1.1 完成后的现状）
 
 ```
 core/src/main/ets/                         # 约 115 个 .ets，按「文件类型」平铺
-├── network/                               # 36
-│   ├── 共享 / 两代旧实现（17）
-│   │   ├── APIs / MihoyoApiService / MihoyoApiServiceFactory
-│   │   ├── HttpClient / HttpService / MockService / NetworkFactory
+├── network/                               # Phase 1.1 已删除旧 transport
+│   ├── 共享网络实现（旧 transport 已清理）
+│   │   ├── APIs / BaseApiService / HttpTypes
+│   │   ├── MihoyoApiService / MihoyoApiServiceFactory
 │   │   ├── ApiConfig / MihoyoDomain / MihoyoHeaderKey / MihoyoHeaderBuilder / DSUtil
 │   │   └── CookieManager / DeviceFpService / GeetestService
 │   │       / GeetestReporter / FingerprintReporter
@@ -332,7 +336,7 @@ core/src/main/ets/                         # 约 115 个 .ets，按「文件类�
 ```
 core/src/main/ets/                         # 按「业务域」垂直切分
 ├── base/                                  # 共享底座（原 network 共享部分 + log/errors/utils/cookie）
-│   ├── network/                           # BaseService、APIs、MihoyoApiService、ApiConfig、DSUtil、
+│   ├── network/                           # BaseApiService、APIs、MihoyoApiService、ApiConfig、DSUtil、
 │   │                                      # Header、Cookie、DeviceFp、Geetest
 │   ├── cookie/（2）  log/（4）  errors/（1）  utils/（4）
 ├── common/                                # 跨 Kit 共享
@@ -395,13 +399,27 @@ mock-service/                              # 新增：HAR 之外
 
 ---
 
-## 4. BaseService 设计
+## 4. BaseApiService 设计
 
-- **定位**：全项目唯一的 HTTP 请求入口；Kit 的 ApiService 只负责「拼 URL + 拼 header + 调 BaseService」。
-- **实现**：由现有 `HttpClient` 升级——保留其全部能力（axios 单例、debug 信任证书、请求/响应日志、retcode 错误日志、Geetest/指纹上报），类名改为 `BaseService`，静态方法 `get / post / put / delete` 签名不变。
-- **兼容**：`Index.ets` 里 `export { BaseService as HttpClient }` 过渡，entry 现有 2 处 `HttpClient` 引用（`DeviceFpCenter`、`GeetestCenter`）可暂时不动，Phase 5 清理。
-- **删除清单（Phase 4）**：`HttpService.ets`（旧 axios 封装）、`MockService.ets`（旧 mock）、`NetworkFactory.ets`（旧兜底工厂）。目前 `AuthRepository / BBSRepository / GeetestService` 对 `NetworkFactory` 的引用改为走注入的 Service 实例。
-- 不在 BaseService 里做重试/缓存/拦截器体系——保持现状能力，只做「收口 + 改名」。
+> 命名已确定：统一用 `BaseApiService`；旧 `APIs.ets` 里的同名抽象类会被替换/改名，详见 [`APIService.md`](APIService.md)。
+
+- **定位**：构建链路内唯一的 axios 封装层；`core/src` + `entry/src` 只有这个文件 import axios。
+- **继承关系**：`MihoyoApiService extends BaseApiService`，所有 `XxxApiService`（含 `core/src/internal` overlay）继续 `extends MihoyoApiService`，不直接继承 Base。
+- **职责边界**：Base 只做 axios 实例、超时、`get / post`、HTTP 非 200 拦截、HTTP 层日志；不做 `response.data` 拆包、业务 `retcode`、Geetest/指纹上报。
+- **响应契约**：Base 返回项目自己的 `HttpResponse { status, data }`；具体 API 自己取 `response.data`，不依赖 axios 类型。
+- **具体 Service**：只负责「拼 URL + 拼 header + 调 `this.get / this.post` + 拆 `response.data` + 业务 `retcode` + 按需显式上报」。
+- **非 Service 调用方**：`DeviceFpService` / `GeetestService` / `ZZZRecordRequest` 使用 `BaseApiService.shared`。
+- **公共 Header（后续）**：Header 的构造/管理放在独立 Header 抽象类；`MihoyoApiService` 负责把公共 header 与具体 Service 提交的 header 合并后交给 Base。本阶段不做，等所有 ApiService 整理完后作为 Phase 5 收尾项实施，详见 [`APIService.md`](APIService.md) 第 10 节。
+- **实现**：由现有 `HttpClient` 升级而来，但只保留 HTTP 层能力：axios 单例、debug 信任证书、`get / post`、HTTP 非 200 拦截、HTTP 层日志。**不保留** `retcode` 错误日志和 Geetest/指纹上报，这些属于具体 API 或后续业务层。
+- **HTTP 错误实现**：axios 默认对非 2xx reject，Base 必须从 `error.response` 提取真实 status / body，或用 `validateStatus` + 显式判断；只有无 response 才是 `statusCode = 0`。不能把所有 `catch` 都当网络错误。旧 `HttpClient` 会把非 2xx 包装成普通 `Error`，新 Base 统一 `HttpError`，错误消息和日志必须脱敏。
+- **拆包审计**：`HttpResponse` 是 `object` 子类型，类型检查不会拦住漏拆包；Stage 1 必须逐方法审计直接 `return this.get/post`。
+- **上报审计**：`suppressGeetestReport` 当前同时抑制 Geetest + 指纹；按 [`APIService.md`](APIService.md) 第 4.5 节逐接口确认，不能只按 Service 名称分类。直接 `return this.get/post` 的方法不能只加 `.data`，还要在 return 前显式调用 helper。
+- **BBS / Auth 差异**：`BBSRepository.getUserGameRoles` / `getGameRecordCard` 原本始终走旧 transport；`AuthRepository` fallback 与 service header 不等价；`HttpService` 非 debug 拦截器会覆盖显式 Cookie。两者要按“切换实现”并分环境验证。
+- **日志与基线**：Base 不打印 Cookie / 完整 header / body；URL query 要脱敏。原计划删除 `HttpClient` 前记录关键接口 header / retcode 基线；该采集已按用户决定延后，旧路径已删除，后续补采新路径。
+- **测试口径**：`test-core.sh` / `test-entry.sh` 只构建 HAP，不是网络测试；Mock / 真机回归另做。
+- **兼容（已完成）**：Stage 0-3 已按“先新增 Base，再逐步迁移，最后删除旧链路”执行；`HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService` 已删除。`entry` 没有直接使用旧类。
+- **删除清单（已完成）**：`HttpClient.ets`、`HttpService.ets`、`NetworkFactory.ets`、`APIs.ets` 里的 `LegacyBaseApiService`，以及 `AuthRepository.getLTokenBySTokenLegacy`。`AuthRepository` 的 fallback 和 `BBSRepository` 的旧 transport 已改为走注入的 Service 实例；`BBSRepository.getBbsAccountDetail` 的 fallback、`getUserGameRoles` / `getGameRecordCard` 的旧 transport 都已移除。`BBSRepository` 增加了 `MihoyoAccountApiService` 类型检查，不再直接强转。根目录 `internal/core` 未改，仍是未参与构建的历史副本。
+- 不在 Base 里做重试/缓存/拦截器体系——只做 axios 收口。
 
 ---
 
@@ -424,7 +442,7 @@ mock-service/                              # 新增：HAR 之外
 - 独立 `mock/` 目录与 ArkTS Mock 适配器已删除，不再有 `MockTransport` / `MockServiceBase` / 游戏 MockService。
 - mock env 构建：`hvigorw assembleHap -p product=mock`（或 `bash run.sh mock`），产物是独立 `.mock` 包。
 - 产品 HAP 中不含 Mock 类；`MihoyoApiServiceFactory` 只创建真实 Service，不再有 MOCK 分支；`CoreInitializer.initCore` 只接收 env/context。
-- `NetworkFactory` 保留，默认 `HttpService`，没有注入入口。
+- 旧 `NetworkFactory` / `HttpService` / `HttpClient` 已删除；非 Service 调用方改走 `BaseApiService.shared`。
 - Core 保留 `AppEnv.MOCK` / `AppEnvManager.isMock()` 枚举与 API，但没有任何逻辑分支使用。
 - Core 的 mock target 已删除；`src/internal` 仅用于 debug/internal overlay。
 - `MihoyoAccountApiService` 自己完成手机号/区号 RSA 加密，`AuthRepository` 不再判断环境。
@@ -486,7 +504,7 @@ mock-service/                              # 新增：HAR 之外
 | 项 | 处理 |
 |---|---|
 | entry 对 core 的 import（全部 `from 'core'`） | `Index.ets` 保持全量重导出，**符号名不变**；entry 零改动 |
-| entry 两处直接 import `HttpClient` | 过渡期 `export { BaseService as HttpClient }` |
+| entry 目前没有直接 import `HttpClient`，只有注释提到旧类 | 不需要过渡别名；直接迁移 core 内部调用方 |
 | core 单测（`core/src/test`、`core/src/ohosTest`） | 更新 import 相对路径；`MockServiceBase.test` 的纯函数用例已迁到 `mock-service/tests/router.test.mjs`（Node），ArkTS 旧测试已删除 |
 | entry ohosTest 的 `MockServiceBase.test.ets` | 已删除（路由测试改由 Node 覆盖） |
 | `core/build-profile.json5` | 无 mock 专属 target；`mock` product 保留（独立 `.mock` 包）；`src/internal` overlay 仅用于 debug/internal |
@@ -501,15 +519,18 @@ mock-service/                              # 新增：HAR 之外
 
 > 每一步单独提交；每步跑完「验证」才进入下一步。改动期间不并行开发同一目录。
 
-**Phase 0 — 基线（0.5 天）**
-- 记录当前四个 product（`default` / `mock` / `debug` / `internal`）构建结果 + `test-core.sh`、`test-entry.sh` 基线。
-- 验证：四个 product 构建通过、测试脚本通过，作为回归基线。
+**Phase 0 — 基线（构建基线完成；业务基线延后）**
+- 记录当前四个 product（`default` / `mock` / `debug` / `internal`）构建结果 + `test-core.sh`、`test-entry.sh` 基线；注意这两个脚本只构建 ohosTest HAP，不是运行测试。**已完成。**
+- 记录关键接口基线（原计划删除 `HttpClient` 前）：脱敏 URL、最终 header 名称/关键值、retcode、当前是否触发 Geetest / 指纹上报。不要把 Cookie / token 原文写进文档或提交。逐接口清单和填写位置见 [`API-Baseline.md`](API-Baseline.md)；当前 **未采集，按用户决定延后**。
+- 确认 `hdc` target；当前环境曾检测到 `127.0.0.1:5555`，可用时做安装/启动验证；**本轮未执行真机回归**。
+- 验证：四个 product 构建通过；业务基线未采集，不再作为 Stage 1 / Stage 2 的 Gate；旧路径基线已无法补采，新路径待任务完成后补采。网络测试另做，不能把“脚本通过”当成完整验证。
 
-**Phase 1 — 底盘（1~2 天）**
-- 先做 Phase 1.1 公共 APIService：抽 `MihoyoApiService` 公共请求基类，清理重复 `get / post`；方案见 [`APIService.md`](APIService.md)。
+**Phase 1 — 底盘（Phase 1.1 已完成；Phase 1.2 待开始）**
+- Phase 1.1 BaseApiService 的 **Stage 0-3 已完成**：抽构建链路内唯一的 axios 封装层，`MihoyoApiService extends BaseApiService`，所有 Service 继续 `extends MihoyoApiService`，重复 `get / post` 已清理；文件级迁移/删除清单见 [`APIService.md`](APIService.md) 第 8 节。原“Stage 1 前完成 P0 / Stage 2 前完成 P1”的 Gate 已被用户的“基线延后”决定覆盖。
+- Base 实现必须处理：axios 非 2xx 的 `error.response`、懒加载 axios、日志脱敏 + try/catch、`HttpResponse` 漏拆包审计、按 §4.5 的上报归属、`BBSRepository` 两个“非 fallback”方法、`AuthRepository` fallback/service header 差异。`suppressGeetestReport`、`baseUrlType`、BBS 三个接口的上报行为本轮保持原样（`APIService.md` §8.7）。
 - 再建 `base/ common/ db/ sync/` 骨架；按 §3.3 移共享文件（`git mv`，`network/` 只移共享部分）。
-- `Index.ets` 改为从新路径重导出；`HttpClient` → `BaseService` + 兼容别名。
-- 验证：四个 product 构建 + 测试脚本 + `grep` 无旧路径残留。
+- `Index.ets` 改为从新路径重导出；旧 `HttpClient` / `HttpService` / `NetworkFactory` 已删除。
+- 验证：四个 product 构建 + 测试脚本 + `grep` 无旧路径残留（**已通过**）；关键接口基线对比和 `hdc` 安装验证按用户决定延后。`test-core.sh` / `test-entry.sh` 只构建 HAP，不能单独作为网络回归结论。
 
 **Phase 2 — 拆 Kit（2~3 天，按 Kit 分 4 次提交）**
 - 顺序：GenshinKit → StarRailKit → ZZZKit → MihoyoKit（先外围后中心，MihoyoKit 被其它 Kit 依赖，最后搬）。
@@ -523,12 +544,15 @@ mock-service/                              # 新增：HAR 之外
 **Phase 4 — Mock 服务（部分完成）**
 - 清理完成：fixtures 迁移、Node router/账号/签到行为、独立 `mock` product、脚本与文档。
 - 未完成：Swift-Vapor local service、App 接入、真机联调、parity 测试。
-- 验证：Node 测试 12/12；mock-service 的 curl 路由抽样；客户端接入后另做全功能手测。
+- App 接入前再决定 `RequestOptions.baseUrlType`：本轮 Phase 1.1 **保持字段原样，不删除、不改造**；等 Phase 4 明确 Mock base URL 方案后，再决定删除或改造。
+- 验证：Node 测试 12/12；mock-service 的 curl 路由抽样；客户端接入后另做全功能手测。当前 mock product 仍走真实 API，不能把 mock 包启动当成 Mock 数据链路可用。
 
 **Phase 5 — 收尾（0.5 天）**
 - 命名统一（如 `APIs.ets`），删除兼容别名，更新 README / Documents / 脚本，CI 加路径检查。
+- `MihoyoApiService` 公共 Header 合并：Header 抽象类负责构造/管理；`MihoyoApiService` 合并具体 Service 提交的 header 后交给 Base。等 Phase 2 所有 ApiService 整理完再实施，详见 [`APIService.md`](APIService.md) 第 10 节。
+- Header 合并前必须先解决：profile 来源（按方法而非按 Service）、raw header escape hatch（ZZZRecordRequest）、Cookie 策略（pizza / BBS / passport / QR）、DS 规则、`GameFpBiz` 从 `DeviceFpService` 移出、passport/QR profile 缺口。
 - README 按约定等全部整合完成后统一更新。
-- 验证：全量构建 + 全量测试 + `git grep` 无死引用。
+- 验证：全量构建 + 全量测试 + `git grep` 无死引用；Header 合并后对关键接口抓包/日志比对，并使用 Phase 0 的基线。
 
 **预估总工时：6~9 天**（不含真实设备联调缓冲）。
 
@@ -538,6 +562,14 @@ mock-service/                              # 新增：HAR 之外
 
 | 风险 | 影响 | 对策 |
 |---|---|---|
+| Base 返回 `HttpResponse` 后漏拆包 | 编译不报错，运行时 `retcode` / `data` 错位 | `HttpResponse` 是 `object` 子类型，类型检查不兜底；逐方法审计 + grep 直接 `return this.get/post` |
+| axios 非 2xx 被当网络错误 | 401 / 500 丢失真实状态和 body | 从 `error.response` 提取，或 `validateStatus` + 显式判断；无 response 才 `statusCode = 0` |
+| 自动上报归属变化 | Geetest / 指纹弹框漏报或误报 | 按 `APIService.md` 第 4.5 节逐接口审计；直接 `return this.get/post` 的方法要在 return 前调用 helper；`suppressGeetestReport` 本轮保持原样（§8.7） |
+| `BBSRepository` 两个方法原本走旧 transport | 切换后 header / DS 变化；`getGameRecordCard` 旧路径还没有 DS | `getUserGameRoles` / `getGameRecordCard` 单独回归；不要当删 fallback；BBS 三个接口的上报按 `APIService.md` §4.7 暂按现状保留 |
+| `AuthRepository` fallback 与 service header 不等价 | service 路径暴露差异 | 以 service 为 canonical；验证 `text/plain` vs `json`、device/UA 字段差异 |
+| Base 日志泄露 Cookie / token | 安全 / 隐私问题 | URL 脱敏，不打印完整 header / body；日志 try/catch |
+| `test-core.sh` / `test-entry.sh` 只构建 HAP | 误以为网络已验证 | 明确“编译验证”；Mock / 真机接口回归另做 |
+| `baseUrlType` 失去读取方 | 死字段或 Mock 接入重复造轮子 | 本轮保留原样；Phase 4 确定 Mock 方案后再删除或改造（`APIService.md` §8.7） |
 | overlay 路径漏改 | internal 包静默缺手机号登录 | 建 overlay 对照表；新增 `scripts/check-overlay.sh`（比对两棵树的相对路径）；internal 包手测登录 |
 | 按 Kit 拆 schema/迁移后版本时序错乱 | `user_version` 错位、老用户升级失败 | 迁移注册表按 version 全局升序合并；禁止把一个版本的迁移拆成多步；跨 Kit 迁移留 `cross/`；升级手测（旧库文件 → 新包首启） |
 | 循环依赖（Kit ↔ common/base） | ArkTS 编译报错或运行时未定义 | DAG 规则 + 提交前 grep 扫描；先移底层再移上层 |
@@ -555,18 +587,21 @@ mock-service/                              # 新增：HAR 之外
 
 1. **Mock 服务技术栈**：现状为 Node `mock-service/`；后续计划 Swift-Vapor local service，是否保留 Node 版本作为 fixtures/路由参考？
 2. **连接方式**：`hdc rport` + `127.0.0.1:8787`（推荐，USB/模拟器通用）还是局域网 IP + App 内配置界面？
-3. **BaseService 命名**：确认类名 `BaseService`、目录 `base/network/`；是否接受兼容别名 `HttpClient` 过渡？
-4. **Kit 依赖**：是否同意「游戏 Kit → MihoyoKit」单向依赖（现状 GenshinRepository 引用 BBSRepository；若要彻底解耦需要额外抽象，建议本次不做）？
-5. **旧测试**：`core/src/test/MockServiceBase.test.ets` 与 entry 同名测试——已删除；路由测试迁移到 `mock-service/tests/router.test.mjs`。
-6. **执行顺序**：先 Kit 拆分（推荐，纯移动风险低）还是先 Mock 服务化？两者仅通过 factory/overlay 相交，可调整。
-7. **schema/迁移的搬迁节奏**：随各 Kit 在 Phase 2 一起搬（推荐，少一轮二次搬运）还是集中放 Phase 3？
+3. **Kit 依赖**：是否同意「游戏 Kit → MihoyoKit」单向依赖（现状 GenshinRepository 引用 BBSRepository；若要彻底解耦需要额外抽象，建议本次不做）？
+4. **旧测试**：`core/src/test/MockServiceBase.test.ets` 与 entry 同名测试——已删除；路由测试迁移到 `mock-service/tests/router.test.mjs`。
+5. **执行顺序**：先 Kit 拆分（推荐，纯移动风险低）还是先 Mock 服务化？两者仅通过 factory/overlay 相交，可调整。
+6. **schema/迁移的搬迁节奏**：随各 Kit 在 Phase 2 一起搬（推荐，少一轮二次搬运）还是集中放 Phase 3？
+7. **Base 非 2xx 实现**：用 `validateStatus` 接受全部状态再判断，还是保留 axios 默认 reject 并在 `catch` 读 `error.response`？两者都可，但必须覆盖 401 / 500 / 超时测试。
+8. **`suppressGeetestReport` 语义**：本轮保持“同时抑制 Geetest + 指纹”，不改名 / 不拆分；后续基线完成后再决定。
+9. **`BBSRepository` 两个方法**：`getUserGameRoles` / `getGameRecordCard` 直接切到 `MihoyoAccountApiService`，还是先保留旧 transport 单独验证？推荐切换并单独回归。
+10. **`baseUrlType`**：本轮保持字段原样，不删除 / 不改造；Phase 4 Mock base URL 方案确定后再决定。
 
 ---
 
 ## 附录 A：本次不动的部分（明确边界）
 
 - `core/Index.ets` 导出符号集（只改内部来源路径）。
-- 所有 API 请求的 URL / header / DS / 轮询行为。
+- 业务 Service 现有 API 请求的 URL / header / DS / 轮询行为。例外有两类：`AuthRepository` / `BBSRepository` 从旧 transport 切到注入的 Service（header / DS 会变，按 [`APIService.md`](APIService.md) 第 4.2 节回归），以及自动上报归属从 transport 改为具体 API 显式上报（按第 4.5 节对齐）。除此之外请求头不得因迁移改变。
 - 数据库文件名、表结构内容、迁移顺序（只拆文件与搬位置，DDL 与 `user_version` 时序不变）。
 - entry 的页面、组件、ViewModel、路由。
 - `src/internal` overlay 机制本身（只改路径，不取消）。

@@ -2,18 +2,8 @@
  * AuthRepository.ets（internal 版，含手机号登录完整功能）
  */
 
-import { NetworkFactory } from '../network/NetworkFactory';
-import { RequestParams, RequestOptions } from '../network/APIs';
-import { RsaUtil } from '../utils/RsaUtil';
-import { HttpClient } from '../network/HttpClient';
 import { MihoyoAccountApiService } from '../network/MihoyoAccountApiService';
-import { ApiConfig } from '../network/ApiConfig';
-import { MihoyoDomain } from '../network/MihoyoDomain';
-import { HKey, HVal } from '../network/MihoyoHeaderKey';
-import { PassportApiPath } from '../network/PassportApiPath';
-import { QRCodeApiPath } from '../network/QRCodeApiPath';
 import {
-  LOGIN_ACTION_TYPE_MOBILE,
   RETCODE_QR_EXPIRED,
   QR_STAT_EXPIRED,
   QR_STAT_CONFIRMED,
@@ -70,40 +60,22 @@ export class AuthRepository {
 
   static accountService: MihoyoAccountApiService | null = null;
 
+  private static requireAccountService(): MihoyoAccountApiService {
+    const svc = AuthRepository.accountService;
+    if (svc === null) {
+      throw new Error('AuthRepository: MihoyoAccountApiService not initialized');
+    }
+    return svc;
+  }
+
   // ── 手机号登录 ────────────────────────────────────────────────
 
   static async createLoginCaptcha(mobile: string, areaCode: string = '+86'): Promise<void> {
-    const svc = AuthRepository.accountService;
-    if (svc !== null) {
-      const resp = await svc.createLoginCaptcha(mobile, areaCode) as Record<string, Object>;
-      const retcode = resp['retcode'] as number;
-      if (retcode !== 0) {
-        throw new Error(`[${retcode}] ${resp['message']}`);
-      }
-      return;
-    }
-    try {
-      const encryptedMobile = await RsaUtil.encrypt(mobile);
-      const encryptedAreaCode = await RsaUtil.encrypt(areaCode);
-      const bodyStr = JSON.stringify({ area_code: encryptedAreaCode, mobile: encryptedMobile });
-      const opts = new RequestOptions();
-      opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.JSON);
-      opts.extraHeaders.set(HKey.APP_ID, ApiConfig.BBS_APP_ID);
-      opts.extraHeaders.set(HKey.CLIENT_TYPE, HVal.CLIENT_ANDROID);
-      opts.extraHeaders.set(HKey.AIGIS, '');
-      opts.extraHeaders.set(HKey.REFERER, HVal.REFERER_USER);
-      const resp = await HttpClient.post(
-        MihoyoDomain.PASSPORT + PassportApiPath.CREATE_LOGIN_CAPTCHA,
-        bodyStr,
-        opts
-      ) as Record<string, Object>;
-      const retcode = resp['retcode'] as number;
-      if (retcode !== 0) {
-        throw new Error(`[${retcode}] ${resp['message']}`);
-      }
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      throw new Error(`AuthRepository.createLoginCaptcha failed: ${msg}`);
+    const svc = AuthRepository.requireAccountService();
+    const resp = await svc.createLoginCaptcha(mobile, areaCode) as Record<string, Object>;
+    const retcode = resp['retcode'] as number;
+    if (retcode !== 0) {
+      throw new Error(`[${retcode}] ${resp['message']}`);
     }
   }
 
@@ -112,107 +84,33 @@ export class AuthRepository {
     captcha: string,
     areaCode: string = '+86'
   ): Promise<LoginMobileResult> {
-    const svc = AuthRepository.accountService;
-    if (svc !== null) {
-      const resp = await svc.loginByMobileCaptcha(mobile, areaCode, captcha) as Record<string, Object>;
-      const retcode = resp['retcode'] as number;
-      if (retcode !== 0) {
-        throw new Error(`[${retcode}] ${resp['message']}`);
-      }
-      return AuthRepository.parseLoginMobileResult(resp['data'] as Record<string, Object>);
+    const svc = AuthRepository.requireAccountService();
+    const resp = await svc.loginByMobileCaptcha(mobile, areaCode, captcha) as Record<string, Object>;
+    const retcode = resp['retcode'] as number;
+    if (retcode !== 0) {
+      throw new Error(`[${retcode}] ${resp['message']}`);
     }
-    try {
-      const encryptedMobile = await RsaUtil.encrypt(mobile);
-      const encryptedAreaCode = await RsaUtil.encrypt(areaCode);
-      const bodyStr = JSON.stringify({
-        area_code: encryptedAreaCode,
-        mobile: encryptedMobile,
-        action_type: LOGIN_ACTION_TYPE_MOBILE,
-        captcha: captcha,
-      });
-      const opts = new RequestOptions();
-      opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.TEXT_PLAIN);
-      opts.extraHeaders.set(HKey.APP_ID, ApiConfig.BBS_APP_ID);
-      opts.extraHeaders.set(HKey.CLIENT_TYPE, HVal.CLIENT_ANDROID);
-      opts.extraHeaders.set(HKey.AIGIS, '');
-      const resp = await HttpClient.post(
-        MihoyoDomain.PASSPORT + PassportApiPath.LOGIN_BY_MOBILE_CAPTCHA,
-        bodyStr,
-        opts
-      ) as Record<string, Object>;
-      const retcode = resp['retcode'] as number;
-      if (retcode !== 0) {
-        throw new Error(`[${retcode}] ${resp['message']}`);
-      }
-      return AuthRepository.parseLoginMobileResult(resp['data'] as Record<string, Object>);
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      throw new Error(`AuthRepository.loginByMobileCaptcha failed: ${msg}`);
-    }
+    return AuthRepository.parseLoginMobileResult(resp['data'] as Record<string, Object>);
   }
 
   // ── Token 换取 ────────────────────────────────────────────────
 
   static async getLTokenBySToken(stoken: string, mid: string): Promise<string> {
-    const svc = AuthRepository.accountService;
-    if (svc !== null) {
-      const resp = await svc.getLTokenBySToken(stoken, mid) as GetLTokenBySTokenResponse;
-      if (resp.retcode !== 0) {
-        throw new Error(`getLTokenBySToken failed: [${resp.retcode}] ${resp.message}`);
-      }
-      return resp.data.ltoken;
+    const svc = AuthRepository.requireAccountService();
+    const resp = await svc.getLTokenBySToken(stoken, mid) as GetLTokenBySTokenResponse;
+    if (resp.retcode !== 0) {
+      throw new Error(`getLTokenBySToken failed: [${resp.retcode}] ${resp.message}`);
     }
-    try {
-      const params = new RequestParams();
-      params.set('stoken', stoken);
-      const opts = new RequestOptions();
-      opts.extraHeaders.set(HKey.COOKIE, `mid=${mid};stoken=${stoken}`);
-      opts.extraHeaders.set(HKey.CLIENT_TYPE, HVal.CLIENT_WEB);
-      opts.extraHeaders.set(HKey.REFERER, HVal.WEBSTATIC);
-      const resp = await NetworkFactory.getInstance().get(
-        MihoyoDomain.PASSPORT + PassportApiPath.GET_LTOKEN_BY_STOKEN,
-        params,
-        opts
-      ) as GetLTokenBySTokenResponse;
-      if (resp.retcode !== 0) {
-        throw new Error(`getLTokenBySToken failed: [${resp.retcode}] ${resp.message}`);
-      }
-      return resp.data.ltoken;
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      throw new Error(`AuthRepository.getLTokenBySToken failed: ${msg}`);
-    }
+    return resp.data.ltoken;
   }
 
   static async getCookieBySToken(stoken: string, mid: string): Promise<string> {
-    const svc = AuthRepository.accountService;
-    if (svc !== null) {
-      const resp = await svc.getCookieTokenBySToken(stoken, mid) as GetCookieBySTokenResponse;
-      if (resp.retcode !== 0) {
-        throw new Error(`getCookieBySToken failed: [${resp.retcode}] ${resp.message}`);
-      }
-      return resp.data.cookie_token;
+    const svc = AuthRepository.requireAccountService();
+    const resp = await svc.getCookieTokenBySToken(stoken, mid) as GetCookieBySTokenResponse;
+    if (resp.retcode !== 0) {
+      throw new Error(`getCookieBySToken failed: [${resp.retcode}] ${resp.message}`);
     }
-    try {
-      const params = new RequestParams();
-      params.set('stoken', stoken);
-      const opts = new RequestOptions();
-      opts.extraHeaders.set(HKey.COOKIE, `mid=${mid};stoken=${stoken}`);
-      opts.extraHeaders.set(HKey.CLIENT_TYPE, HVal.CLIENT_WEB);
-      opts.extraHeaders.set(HKey.REFERER, HVal.WEBSTATIC);
-      const resp = await NetworkFactory.getInstance().get(
-        MihoyoDomain.PASSPORT + PassportApiPath.GET_COOKIE_TOKEN_BY_STOKEN,
-        params,
-        opts
-      ) as GetCookieBySTokenResponse;
-      if (resp.retcode !== 0) {
-        throw new Error(`getCookieBySToken failed: [${resp.retcode}] ${resp.message}`);
-      }
-      return resp.data.cookie_token;
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      throw new Error(`AuthRepository.getCookieBySToken failed: ${msg}`);
-    }
+    return resp.data.cookie_token;
   }
 
   // 原先的 getCookieBySTokenV2（/account/auth/api/getCookieBySToken）在国服 passport 返回 HTTP 404，
@@ -222,19 +120,8 @@ export class AuthRepository {
 
   static async fetchQRCode(deviceId: string): Promise<QRCodeFetchResult> {
     try {
-      let resp: QRCodeFetchResponse;
-      const svc = AuthRepository.accountService;
-      if (svc !== null) {
-        resp = await svc.fetchQRCode(deviceId) as QRCodeFetchResponse;
-      } else {
-        const opts = new RequestOptions();
-        opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.JSON);
-        opts.extraHeaders.set('x-rpc-app_id', 'ddxf5dufpuyo');
-        opts.extraHeaders.set('x-rpc-client_type', '3');
-        opts.extraHeaders.set('x-rpc-device_id', deviceId);
-        opts.extraHeaders.set(HKey.USER_AGENT, 'HYPContainer/1.3.3.182');
-        resp = await HttpClient.post(MihoyoDomain.PASSPORT + QRCodeApiPath.FETCH, '{}', opts) as QRCodeFetchResponse;
-      }
+      const svc = AuthRepository.requireAccountService();
+      const resp = await svc.fetchQRCode(deviceId) as QRCodeFetchResponse;
       if (resp.retcode !== 0) {
         throw new Error(`fetchQRCode failed: [${resp.retcode}] ${resp.message}`);
       }
@@ -250,20 +137,8 @@ export class AuthRepository {
 
   static async queryQRCode(deviceId: string, ticket: string): Promise<QRCodeQueryResult> {
     try {
-      let resp: QRCodeQueryResponse;
-      const svc = AuthRepository.accountService;
-      if (svc !== null) {
-        resp = await svc.queryQRCode(deviceId, ticket) as QRCodeQueryResponse;
-      } else {
-        const bodyStr = JSON.stringify({ ticket: ticket });
-        const opts = new RequestOptions();
-        opts.extraHeaders.set(HKey.CONTENT_TYPE, HVal.JSON);
-        opts.extraHeaders.set('x-rpc-app_id', 'ddxf5dufpuyo');
-        opts.extraHeaders.set('x-rpc-client_type', '3');
-        opts.extraHeaders.set('x-rpc-device_id', deviceId);
-        opts.extraHeaders.set(HKey.USER_AGENT, 'HYPContainer/1.3.3.182');
-        resp = await HttpClient.post(MihoyoDomain.PASSPORT + QRCodeApiPath.QUERY, bodyStr, opts) as QRCodeQueryResponse;
-      }
+      const svc = AuthRepository.requireAccountService();
+      const resp = await svc.queryQRCode(deviceId, ticket) as QRCodeQueryResponse;
       const queryResult = new QRCodeQueryResult();
       if (resp.retcode === RETCODE_QR_EXPIRED) {
         queryResult.stat = QR_STAT_EXPIRED;
@@ -300,25 +175,6 @@ export class AuthRepository {
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       throw new Error(`AuthRepository.queryQRCode failed: ${msg}`);
-    }
-  }
-
-  static async getLTokenBySTokenLegacy(stoken: string, accountId: string): Promise<string> {
-    try {
-      const options = new RequestOptions();
-      options.extraHeaders.set(HKey.COOKIE, `stoken=${stoken};stuid=${accountId}`);
-      const resp = await NetworkFactory.getInstance().get(
-        MihoyoDomain.PASSPORT + PassportApiPath.GET_LTOKEN_BY_STOKEN,
-        new RequestParams(),
-        options
-      ) as GetLTokenBySTokenResponse;
-      if (resp.retcode !== 0) {
-        throw new Error(`getLTokenBySToken failed: [${resp.retcode}] ${resp.message}`);
-      }
-      return resp.data.ltoken;
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      throw new Error(`AuthRepository.getLTokenBySToken failed: ${msg}`);
     }
   }
 

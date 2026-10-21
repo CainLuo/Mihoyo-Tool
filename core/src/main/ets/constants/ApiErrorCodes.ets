@@ -46,7 +46,10 @@ export class ApiErrorCodes {
 
   // ── 账号 / 登录 ──────────────────────────────────────────
 
-  /** 账号不存在 */
+  /**
+   * 游戏账号未绑定当前 Cookie 对应的账号（mihoyo-api-collect: getTokenByGameToken）。
+   * 注意：不是 1008（用户信息不匹配），也不是登录失效；当前无调用方。
+   */
   static readonly ACCOUNT_NOT_FOUND: number = -1002;
 
   /** 验证码错误或已过期 */

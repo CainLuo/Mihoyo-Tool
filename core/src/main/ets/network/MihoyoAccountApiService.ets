@@ -9,20 +9,11 @@ import { PassportApiPath } from './PassportApiPath';
 import { QRCodeApiPath } from './QRCodeApiPath';
 import { MihoyoHeaderBuilder, HeaderProfile } from './MihoyoHeaderBuilder';
 import { HKey, HVal } from './MihoyoHeaderKey';
-import { HttpClient } from './HttpClient';
 import { ApiConfig } from './ApiConfig';
 import { DSUtil } from './DSUtil';
 import { RsaUtil } from '../utils/RsaUtil';
 
 export class MihoyoAccountApiService extends MihoyoApiService {
-
-  async get(path: string, params?: RequestParams, options?: RequestOptions): Promise<object> {
-    return HttpClient.get(path, params, options);
-  }
-
-  async post(path: string, data?: string | RequestParams, options?: RequestOptions): Promise<object> {
-    return HttpClient.post(path, data, options);
-  }
 
   // ── 手机号登录 ────────────────────────────────────────────────
 
@@ -47,11 +38,12 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     h.set(HKey.AIGIS, '');
     h.set(HKey.USER_AGENT, ApiConfig.ANDROID_USER_AGENT);
     h.set(HKey.REFERER, HVal.REFERER_USER);
-    return HttpClient.post(
+    const response = await this.post(
       MihoyoDomain.PASSPORT + PassportApiPath.CREATE_LOGIN_CAPTCHA,
       bodyStr,
       opts,
     );
+    return response.data;
   }
 
   async loginByMobileCaptcha(
@@ -79,11 +71,12 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     h.set(HKey.DEVICE_NAME, ApiConfig.DEVICE_NAME);
     h.set(HKey.AIGIS, '');
     h.set(HKey.USER_AGENT, ApiConfig.ANDROID_USER_AGENT);
-    return HttpClient.post(
+    const response = await this.post(
       MihoyoDomain.PASSPORT + PassportApiPath.LOGIN_BY_MOBILE_CAPTCHA,
       bodyStr,
       opts,
     );
+    return response.data;
   }
 
   // ── Token 换取 ────────────────────────────────────────────────
@@ -102,11 +95,12 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     h.set(HKey.USER_AGENT, ApiConfig.USER_AGENT);
     h.set(HKey.REFERER, HVal.WEBSTATIC);
     h.set(HKey.DS, DSUtil.generateX4(params));
-    return HttpClient.get(
+    const response = await this.get(
       MihoyoDomain.PASSPORT + PassportApiPath.GET_LTOKEN_BY_STOKEN,
       params,
       opts,
     );
+    return response.data;
   }
 
   async getCookieTokenBySToken(stoken: string, mid: string): Promise<object> {
@@ -123,11 +117,12 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     h.set(HKey.USER_AGENT, ApiConfig.USER_AGENT);
     h.set(HKey.REFERER, HVal.WEBSTATIC);
     h.set(HKey.DS, DSUtil.generateX4(params));
-    return HttpClient.get(
+    const response = await this.get(
       MihoyoDomain.PASSPORT + PassportApiPath.GET_COOKIE_TOKEN_BY_STOKEN,
       params,
       opts,
     );
+    return response.data;
   }
 
   // ── 账号相关 ──────────────────────────────────────────────────
@@ -137,7 +132,10 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.BBS, cookie, params);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
-    return HttpClient.get(MihoyoDomain.TAKUMI + MihoyoAccountApiPath.GET_GAME_ROLES, params, opts);
+    const url = MihoyoDomain.TAKUMI + MihoyoAccountApiPath.GET_GAME_ROLES;
+    const response = await this.get(url, params, opts);
+    this.reportBusinessError(url, response.data, opts, params, undefined, cookie, '');
+    return response.data;
   }
 
   async getGameRecordCard(uid: string, cookie: string): Promise<object> {
@@ -146,7 +144,10 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.BBS, cookie, params);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
-    return HttpClient.get(MihoyoDomain.TAKUMI_RECORD + MihoyoAccountApiPath.GET_GAME_RECORD_CARD, params, opts);
+    const url = MihoyoDomain.TAKUMI_RECORD + MihoyoAccountApiPath.GET_GAME_RECORD_CARD;
+    const response = await this.get(url, params, opts);
+    this.reportBusinessError(url, response.data, opts, params, undefined, cookie, '');
+    return response.data;
   }
 
   async getUserFullInfo(uid: string, cookie: string): Promise<object> {
@@ -156,7 +157,10 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.BBS, cookie, params);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
-    return HttpClient.get(MihoyoDomain.BBS + MihoyoAccountApiPath.GET_USER_FULL_INFO, params, opts);
+    const url = MihoyoDomain.BBS + MihoyoAccountApiPath.GET_USER_FULL_INFO;
+    const response = await this.get(url, params, opts);
+    this.reportBusinessError(url, response.data, opts, params, undefined, cookie, '');
+    return response.data;
   }
 
   async createVerification(cookie: string): Promise<object> {
@@ -165,7 +169,8 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.BBS, cookie, params);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
-    return HttpClient.get(MihoyoDomain.BBS + MihoyoAccountApiPath.CREATE_VERIFICATION, params, opts);
+    const response = await this.get(MihoyoDomain.BBS + MihoyoAccountApiPath.CREATE_VERIFICATION, params, opts);
+    return response.data;
   }
 
   async verifyVerification(input: object, cookie: string): Promise<object> {
@@ -173,7 +178,8 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     const headers = MihoyoHeaderBuilder.build(HeaderProfile.BBS, cookie, undefined, bodyStr);
     const opts = new RequestOptions();
     opts.extraHeaders = headers;
-    return HttpClient.post(MihoyoDomain.BBS + MihoyoAccountApiPath.VERIFY_VERIFICATION, bodyStr, opts);
+    const response = await this.post(MihoyoDomain.BBS + MihoyoAccountApiPath.VERIFY_VERIFICATION, bodyStr, opts);
+    return response.data;
   }
 
   // ── 二维码登录 ────────────────────────────────────────────────
@@ -187,7 +193,8 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     h.set('x-rpc-device_id', deviceId);
     h.set(HKey.USER_AGENT, 'HYPContainer/1.3.3.182');
     // 新版 passport API 空请求体，设备 ID 通过 header 传递
-    return HttpClient.post(MihoyoDomain.PASSPORT + QRCodeApiPath.FETCH, '{}', opts);
+    const response = await this.post(MihoyoDomain.PASSPORT + QRCodeApiPath.FETCH, '{}', opts);
+    return response.data;
   }
 
   async queryQRCode(deviceId: string, ticket: string): Promise<object> {
@@ -199,7 +206,8 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     h.set('x-rpc-client_type', '3');
     h.set('x-rpc-device_id', deviceId);
     h.set(HKey.USER_AGENT, 'HYPContainer/1.3.3.182');
-    return HttpClient.post(MihoyoDomain.PASSPORT + QRCodeApiPath.QUERY, bodyStr, opts);
+    const response = await this.post(MihoyoDomain.PASSPORT + QRCodeApiPath.QUERY, bodyStr, opts);
+    return response.data;
   }
 
   // ── Cookie 刷新 ───────────────────────────────────────────────
@@ -209,7 +217,8 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     params.set('stoken', stoken);
     params.set('uid', stuid);
     const opts = new RequestOptions();
-    return HttpClient.get(MihoyoDomain.PASSPORT + PassportApiPath.GET_COOKIE_TOKEN_BY_STOKEN, params, opts);
+    const response = await this.get(MihoyoDomain.PASSPORT + PassportApiPath.GET_COOKIE_TOKEN_BY_STOKEN, params, opts);
+    return response.data;
   }
 
   async refreshLToken(stoken: string, stuid: string): Promise<object> {
@@ -217,12 +226,14 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     params.set('stoken', stoken);
     params.set('uid', stuid);
     const opts = new RequestOptions();
-    return HttpClient.get(MihoyoDomain.PASSPORT + PassportApiPath.GET_LTOKEN_BY_STOKEN, params, opts);
+    const response = await this.get(MihoyoDomain.PASSPORT + PassportApiPath.GET_LTOKEN_BY_STOKEN, params, opts);
+    return response.data;
   }
 
   async verifyLToken(ltoken: string, ltuid: string): Promise<object> {
     const bodyStr = JSON.stringify({ ltoken: ltoken, uid: ltuid });
     const opts = new RequestOptions();
-    return HttpClient.post(MihoyoDomain.PASSPORT_V4 + PassportApiPath.VERIFY_LTOKEN, bodyStr, opts);
+    const response = await this.post(MihoyoDomain.PASSPORT_V4 + PassportApiPath.VERIFY_LTOKEN, bodyStr, opts);
+    return response.data;
   }
 }

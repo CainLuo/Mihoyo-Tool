@@ -1,4 +1,4 @@
-import { RequestParams, RequestOptions } from './APIs';
+import { RequestOptions } from './APIs';
 import { MihoyoApiService } from './MihoyoApiService';
 import { MihoyoDomain } from './MihoyoDomain';
 import { ZZZApiPath } from './ZZZApiPath';
@@ -7,7 +7,6 @@ import { ApiConfig } from './ApiConfig';
 import { HKey, HVal } from './MihoyoHeaderKey';
 import { GameFpBiz } from './DeviceFpService';
 import { ZZZRecordRequest } from './ZZZRecordRequest';
-import { HttpClient } from './HttpClient';
 import { Logger } from '../utils/Logger';
 
 
@@ -15,14 +14,6 @@ import { Logger } from '../utils/Logger';
 const ZZZ_CALC_TAG: string = 'ZZZCalc';
 
 export class ZZZApiService extends MihoyoApiService {
-
-  async get(path: string, params?: RequestParams, options?: RequestOptions): Promise<object> {
-    return HttpClient.get(path, params, options);
-  }
-
-  async post(path: string, data?: string | RequestParams, options?: RequestOptions): Promise<object> {
-    return HttpClient.post(path, data, options);
-  }
 
   /**
    * 实时便笺 — GET。请求照 ZZZ-Plugin（tool.js zzzNote：query=role_id&server），见 ZZZRecordRequest
@@ -36,7 +27,9 @@ export class ZZZApiService extends MihoyoApiService {
     }
     // 便笺 / Widget 不自动上报人机验证：降级 Widget 成功则不弹，由 Repository 在两者都失败后上报
     req.options.suppressGeetestReport = true;
-    return HttpClient.get(req.url, undefined, req.options);
+    const response = await this.get(req.url, undefined, req.options);
+    this.reportBusinessError(req.url, response.data, req.options, undefined, undefined, cookie, roleId);
+    return response.data;
   }
 
   /**
@@ -50,18 +43,19 @@ export class ZZZApiService extends MihoyoApiService {
     opts.extraHeaders = headers;
     // 便笺 / Widget 不自动上报人机验证：降级 Widget 成功则不弹，由 Repository 在两者都失败后上报
     opts.suppressGeetestReport = true;
-    return HttpClient.get(
-      MihoyoDomain.TAKUMI_RECORD + ZZZApiPath.DAILY_NOTE_WIDGET,
-      undefined,
-      opts,
-    );
+    const url = MihoyoDomain.TAKUMI_RECORD + ZZZApiPath.DAILY_NOTE_WIDGET;
+    const response = await this.get(url, undefined, opts);
+    this.reportBusinessError(url, response.data, opts, undefined, undefined, widgetCookie, '');
+    return response.data;
   }
 
   /** 代理人列表 — GET。请求照 ZZZ-Plugin（tool.js zzzAvatarList：query=lang&role_id&server），见 ZZZRecordRequest */
   async getAvatarBasic(roleId: string, server: string, cookie: string): Promise<object> {
     const req = await ZZZRecordRequest.build(cookie, ZZZApiPath.AVATAR_BASIC,
       `lang=zh-cn&role_id=${roleId}&server=${server}`);
-    return HttpClient.get(req.url, undefined, req.options);
+    const response = await this.get(req.url, undefined, req.options);
+    this.reportBusinessError(req.url, response.data, req.options, undefined, undefined, cookie, roleId);
+    return response.data;
   }
 
   /**
@@ -75,14 +69,18 @@ export class ZZZApiService extends MihoyoApiService {
     }
     const req = await ZZZRecordRequest.build(cookie, ZZZApiPath.AVATAR_INFO,
       `lang=zh-cn&role_id=${roleId}&server=${server}&need_wiki=false`, ids.join('&'));
-    return HttpClient.get(req.url, undefined, req.options);
+    const response = await this.get(req.url, undefined, req.options);
+    this.reportBusinessError(req.url, response.data, req.options, undefined, undefined, cookie, roleId);
+    return response.data;
   }
 
   /** 邦布列表 — GET。请求照 ZZZ-Plugin（tool.js zzzBuddyList：query=lang&role_id&server），见 ZZZRecordRequest */
   async getBuddyList(roleId: string, server: string, cookie: string): Promise<object> {
     const req = await ZZZRecordRequest.build(cookie, ZZZApiPath.BUDDY_LIST,
       `lang=zh-cn&role_id=${roleId}&server=${server}`);
-    return HttpClient.get(req.url, undefined, req.options);
+    const response = await this.get(req.url, undefined, req.options);
+    this.reportBusinessError(req.url, response.data, req.options, undefined, undefined, cookie, roleId);
+    return response.data;
   }
 
   /**
@@ -114,7 +112,9 @@ export class ZZZApiService extends MihoyoApiService {
     Logger.info(ZZZ_CALC_TAG, `[Compute] avatarId=${avatarId} URL: ${url}`);
     ZZZApiService.logLong(`[Compute] avatarId=${avatarId} REQUEST body`, bodyStr);
     const startTime = Date.now();
-    const resp = await HttpClient.post(url, bodyStr, opts);
+    const response = await this.post(url, bodyStr, opts);
+    const resp = response.data;
+    this.reportBusinessError(url, resp, opts, undefined, bodyStr, cookie, '');
     const r = resp as Record<string, Object>;
     Logger.info(ZZZ_CALC_TAG, `[Compute] avatarId=${avatarId} RESPONSE retcode=${r['retcode']}, message=${r['message']}, cost=${Date.now() - startTime}ms`);
     // 各材料列表的条数，便于对照页面展示

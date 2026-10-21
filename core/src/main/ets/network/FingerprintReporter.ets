@@ -2,7 +2,7 @@
  * FingerprintReporter — 设备指纹无效 / 账号异常（retcode=5003 / 10041）统一上报
  *
  * PizzaHelperUnited 将 5003 / 10041 归为 fingerPrintInvalidOrMissing，Miao-Yunzai 归为"米游社账号异常"，均与人机验证分开处理。
- * HttpClient / HttpService 收到时调用 report()，由 entry 通过 ApiConfig.setFingerprintInvalidListener() 注册的监听统一提示。
+ * 具体 API 收到时显式调用 report()，由 entry 通过 ApiConfig.setFingerprintInvalidListener() 注册的监听统一提示。
  */
 export type FingerprintInvalidListener = (url: string, retcode: number, roleUid: string) => void;
 

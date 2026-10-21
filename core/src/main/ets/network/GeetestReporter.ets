@@ -1,8 +1,8 @@
 /**
  * GeetestReporter — 人机验证（retcode=1034 / 10035）统一上报
  *
- * HttpClient 收到 1034 / 10035 时调用 report()，由 entry 通过 GeetestService.setRequiredListener() 注册的监听统一弹框。
- * 便笺 / Widget 请求不自动上报（RequestOptions.suppressGeetestReport），由 Repository 在两者都失败后自行上报。
+ * 具体 API 收到 1034 / 10035 时显式调用 report()，由 entry 通过 GeetestService.setRequiredListener() 注册的监听统一弹框。
+ * BaseApiService 不自动上报；便笺 / Widget 请求的 suppressGeetestReport 只由具体 API 判断，由 Repository 在两者都失败后自行上报。
  */
 import { RequestParams, RequestValue } from './APIs';
 
