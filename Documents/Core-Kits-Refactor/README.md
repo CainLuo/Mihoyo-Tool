@@ -2,7 +2,7 @@
 
 > 状态：**Stage 0-3 代码迁移完成；header / retcode 静态参考对照完成，运行时基线延后**
 > 当前阶段：**旧 transport 已删除；四个 product 构建、`test-core.sh` / `test-entry.sh` 通过；已用 mihoyo-api-sdk / TeyvatGuide / PizzaHelperUnited 和本项目历史抓包完成静态对照；运行时 baseline 未采集（用户明确推迟到整个任务完成后）**
-> 下一步：**真实设备 / Mock 回归；任务完成后统一补采运行时基线；不再以基线阻塞代码迁移**
+> 下一步：**进入 Phase 1.2 目录骨架整理；已知问题和运行时候补项见 [`Known-Issues.md`](Known-Issues.md)**
 > 更新时间：2026-10-21
 
 本目录集中存放整个 Core Kits 重构任务的规划、阶段记录和专题文档，避免 Mock、Kit、DB 等子任务的文档散落在仓库各处。
@@ -30,6 +30,7 @@
 | [`Plan.md`](Plan.md) | 完整重构方案：目标结构、BaseApiService、DB 归类、阶段计划、风险 |
 | [`APIService.md`](APIService.md) | `BaseApiService` 抽离方案：axios 唯一封装层、继承关系、HTTP 状态边界、已确认事项、文件级迁移/删除清单、上报审计表、直接 return 上报漏点、Cookie 覆盖、实施陷阱；第 10 节记录后续公共 Header 合并 |
 | [`API-Baseline.md`](API-Baseline.md) | 旧 transport 迁移前后的 API header / retcode 基线清单：按登录、BBS、三游戏、签到、设备指纹 / Geetest 分组，列出触发入口、当前 header、待填字段和完成标准；§2.2 已补三个项目 + 历史抓包的静态对照；运行时 **未采集（延后）** |
+| [`Known-Issues.md`](Known-Issues.md) | 已知问题与暂缓项：header / retcode 未采集、参考冲突、当前不改的参考差异、Phase 1.2 边界与真机回归清单 |
 | [`Mock.md`](Mock.md) | Mock 部分：当前配置、已删除/保留内容、`mock-service` 契约、Swift-Vapor 迁移方案、缺口清单 |
 
 后续如果新增 Kit / DB / 迁移记录，也放在本目录，不单独建 `Documents/Mock/` 之类的子任务目录。
@@ -41,7 +42,7 @@
 | 阶段 | 状态 | 说明 |
 | --- | --- | --- |
 | Phase 0 — 基线 | 🟡 构建基线完成；静态参考完成；运行时基线延后 | 四个 product（`default` / `mock` / `debug` / `internal`）构建通过；`test-core.sh` / `test-entry.sh` 通过（仅构建 ohosTest HAP，不是网络测试）；header / retcode 清单和 §2.2 静态参考矩阵已建在 [`API-Baseline.md`](API-Baseline.md)，运行时 **未采集（用户决定延后，不阻塞迁移）** |
-| Phase 1 — 底盘 | ✅ Stage 0-3 代码迁移完成 | 新增 `HttpTypes` / `BaseApiService`；5 个业务 Service + internal overlay 已继承并完成 `.data` 拆包；`AuthRepository` / `BBSRepository` / `DeviceFpService` / `GeetestService` / `ZZZRecordRequest` 已迁移；旧 `HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService` 已删除；四产品和两个测试脚本构建通过；基线 / 真机回归待补 |
+| Phase 1 — 底盘 | ✅ Stage 0-3 代码迁移完成；Phase 1.2 待开始 | 新增 `HttpTypes` / `BaseApiService`；5 个业务 Service + internal overlay 已继承并完成 `.data` 拆包；`AuthRepository` / `BBSRepository` / `DeviceFpService` / `GeetestService` / `ZZZRecordRequest` 已迁移；旧 `HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService` 已删除；四产品和两个测试脚本构建通过；基线 / 真机回归待补，见 [`Known-Issues.md`](Known-Issues.md) |
 | Phase 2 — 拆 Kit | ⏳ 未开始 | 按 Genshin → StarRail → ZZZ → Mihoyo 顺序拆 Kit |
 | Phase 3 — DB 收尾 | ⏳ 未开始 | `TableName` 抽离、跨 Kit 迁移、`SchemaRegistry` 聚合 |
 | Phase 4 — Mock | 🟡 部分完成 | 清理、独立 mock product、脚本、Node mock-service 已完成；Swift-Vapor local service 与 App 接入未完成 |
@@ -133,7 +134,7 @@
   - BBS 三个接口继续保留现状上报行为（迁移后用显式 helper 复刻，旧 transport 已删除），待真实 retcode 基线后再决定。
 - **不在本次实施**：`MihoyoApiService` 公共 Header 合并。Header 由独立 Header 抽象类（名称待定）管理，`MihoyoApiService` 负责合并公共 header + 具体 Service header；等所有 ApiService 整理完后作为 Phase 5 收尾项做，详见 [`APIService.md`](APIService.md) 第 10 节
 
-代码迁移和旧链路删除已完成；基线 / 真机 / Mock 回归按用户决定延后到整个任务完成后补做。下一步进入 Phase 1.2：建 `base/ common/ db/ sync/` 骨架、迁移共享文件。
+代码迁移和旧链路删除已完成；基线 / 真机 / Mock 回归按用户决定延后到整个任务完成后补做。已知问题和暂缓项已统一记录在 [`Known-Issues.md`](Known-Issues.md)，不阻塞后续结构整理。下一步进入 **Phase 1.2**：先建 `base/ common/ db/ sync/` 骨架，再按 `Plan.md` §3.3 的共享文件清单用 `git mv` 迁移；先不改业务请求行为。
 
 ---
 
