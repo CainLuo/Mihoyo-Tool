@@ -23,8 +23,8 @@ export * from './src/main/ets/GenshinKit/parser/GenshinDailyNoteParser';
 export * from './src/main/ets/GenshinKit/parser/GenshinComputeParser';
 export * from './src/main/ets/StarRailKit/parser/StarRailDailyNoteParser';
 export * from './src/main/ets/StarRailKit/parser/StarRailComputeParser';
-export * from './src/main/ets/parsers/zzz/ZZZDailyNoteParser';
-export * from './src/main/ets/parsers/zzz/ZZZComputeParser';
+export * from './src/main/ets/ZZZKit/parser/ZZZDailyNoteParser';
+export * from './src/main/ets/ZZZKit/parser/ZZZComputeParser';
 
 // ── 核心导出 ──────────────────────────────────────────────────
 
@@ -37,7 +37,7 @@ export * from './src/main/ets/database/BBSDao';
 export * from './src/main/ets/GenshinKit/db/GenshinDao';
 export * from './src/main/ets/StarRailKit/db/StarRailDao';
 export * from './src/main/ets/StarRailKit/db/StarRailDBManager';
-export * from './src/main/ets/database/ZZZDao';
+export * from './src/main/ets/ZZZKit/db/ZZZDao';
 export * from './src/main/ets/database/SyncMetaDao';
 export * from './src/main/ets/database/MaterialBagDao';
 export * from './src/main/ets/database/MaterialTargetConfigDao';
@@ -46,13 +46,13 @@ export * from './src/main/ets/models/AccountRow';
 export * from './src/main/ets/models/GameRoleRow';
 export * from './src/main/ets/GenshinKit/model/GenshinRows';
 export * from './src/main/ets/StarRailKit/model/StarRailRows';
-export * from './src/main/ets/models/ZZZRows';
+export * from './src/main/ets/ZZZKit/model/ZZZRows';
 export * from './src/main/ets/models/GameDataSummary';
 export * from './src/main/ets/models/SyncMetaRow';
 export * from './src/main/ets/models/SyncTask';
 export * from './src/main/ets/GenshinKit/model/GenshinCharacterDetailRaw';
 export * from './src/main/ets/StarRailKit/model/StarRailAvatarDetailRaw';
-export * from './src/main/ets/models/ZZZAvatarDetailRaw';
+export * from './src/main/ets/ZZZKit/model/ZZZAvatarDetailRaw';
 export * from './src/main/ets/models/MaterialBagRow';
 export * from './src/main/ets/models/MaterialTargetConfigRow';
 // Repository 层
@@ -60,7 +60,7 @@ export * from './src/main/ets/repository/GameRepository';
 export * from './src/main/ets/repository/BBSRepository';
 export * from './src/main/ets/GenshinKit/repository/GenshinRepository';
 export * from './src/main/ets/StarRailKit/repository/StarRailRepository';
-export * from './src/main/ets/repository/ZZZRepository';
+export * from './src/main/ets/ZZZKit/repository/ZZZRepository';
 export * from './src/main/ets/repository/SignRepository';
 export * from './src/main/ets/repository/SyncQueueRunner';
 export * from './src/main/ets/repository/MaterialBagRepository';
@@ -89,14 +89,14 @@ export * from './src/main/ets/base/log/LogExporter';
 export * from './src/main/ets/common/constants/SyncDataType';
 export * from './src/main/ets/GenshinKit/constants/GenshinPropertyType';
 export * from './src/main/ets/StarRailKit/constants/StarRailPropertyType';
-export * from './src/main/ets/constants/ZZZPropertyId';
+export * from './src/main/ets/ZZZKit/constants/ZZZPropertyId';
 export * from './src/main/ets/common/constants/GameServer';
 export * from './src/main/ets/common/constants/GameId';
 export * from './src/main/ets/common/constants/ApiConstants';
 export * from './src/main/ets/GenshinKit/constants/GenshinElement';
 export * from './src/main/ets/StarRailKit/constants/StarRailElement';
-export * from './src/main/ets/constants/ZZZElement';
-export * from './src/main/ets/constants/ZZZEnums';
+export * from './src/main/ets/ZZZKit/constants/ZZZElement';
+export * from './src/main/ets/ZZZKit/constants/ZZZEnums';
 export * from './src/main/ets/database/TableSchema';
 
 // ── 网络层完整导出 ──────────────────────────────────────────
@@ -111,7 +111,7 @@ export * from './src/main/ets/network/PassportApiPath';
 export * from './src/main/ets/network/QRCodeApiPath';
 export * from './src/main/ets/GenshinKit/api/GenshinApiPath';
 export * from './src/main/ets/StarRailKit/api/StarRailApiPath';
-export * from './src/main/ets/network/ZZZApiPath';
+export * from './src/main/ets/ZZZKit/api/ZZZApiPath';
 export * from './src/main/ets/network/SignApiPath';
 
 // 请求头构建器
@@ -128,7 +128,7 @@ export * from './src/main/ets/network/MihoyoApiServiceFactory';
 export * from './src/main/ets/network/MihoyoAccountApiService';
 export * from './src/main/ets/GenshinKit/api/GenshinApiService';
 export * from './src/main/ets/StarRailKit/api/StarRailApiService';
-export * from './src/main/ets/network/ZZZApiService';
+export * from './src/main/ets/ZZZKit/api/ZZZApiService';
 export * from './src/main/ets/network/SignApiService';
 
 // 业务错误类型（新的统一错误类）

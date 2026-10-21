@@ -8,14 +8,14 @@ import { DSUtil } from './base/network/DSUtil';
 import { BBSRepository } from './repository/BBSRepository';
 import { GenshinRepository } from './GenshinKit/repository/GenshinRepository';
 import { StarRailRepository } from './StarRailKit/repository/StarRailRepository';
-import { ZZZRepository } from './repository/ZZZRepository';
+import { ZZZRepository } from './ZZZKit/repository/ZZZRepository';
 import { SignRepository } from './repository/SignRepository';
 import { SyncQueueRunner } from './repository/SyncQueueRunner';
 import { MaterialTargetConfigRepository } from './repository/MaterialTargetConfigRepository';
 import { ApiLogSystem } from './base/log/ApiLogSystem';
 import { LogEventType } from './base/log/ApiLogEntry';
 import { Logger } from './base/utils/Logger';
-import { ZZZRecordRequest } from './network/ZZZRecordRequest';
+import { ZZZRecordRequest } from './ZZZKit/api/ZZZRecordRequest';
 
 export interface CoreConfig {
   env: AppEnv;

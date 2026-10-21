@@ -2,14 +2,14 @@ import { describe, it, expect, beforeAll, beforeEach } from '@ohos/hypium';
 import { common } from '@kit.AbilityKit';
 import { RdbManager } from '../../../main/ets/database/RdbManager';
 import { BBSRepository } from '../../../main/ets/repository/BBSRepository';
-import { ZZZRepository } from '../../../main/ets/repository/ZZZRepository';
+import { ZZZRepository } from '../../../main/ets/ZZZKit/repository/ZZZRepository';
 import { AccountRow } from '../../../main/ets/models/AccountRow';
 import {
   ZZZAvatarBasicRow,
   ZZZDailyNoteRow,
   ZZZAvatarInfoRow,
   ZZZAvatarComputeRow
-} from '../../../main/ets/models/ZZZRows';
+} from '../../../main/ets/ZZZKit/model/ZZZRows';
 import { SyncMetaDao } from '../../../main/ets/database/SyncMetaDao';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 

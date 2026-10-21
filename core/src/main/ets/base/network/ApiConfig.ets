@@ -4,7 +4,7 @@ import { util } from '@kit.ArkTS';
 import deviceInfo from '@ohos.deviceInfo';
 import { DeviceFpService, GameFpBiz } from './DeviceFpService';
 import { FingerprintReporter, FingerprintInvalidListener } from './FingerprintReporter';
-import { ZZZRecordRequest } from '../../network/ZZZRecordRequest';
+import { ZZZRecordRequest } from '../../ZZZKit/api/ZZZRecordRequest';
 
 const PREFS_NAME: string = 'mihoyo_device_config';
 const KEY_DEVICE_ID: string = 'device_id';

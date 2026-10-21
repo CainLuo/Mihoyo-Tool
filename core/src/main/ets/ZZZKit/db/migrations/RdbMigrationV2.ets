@@ -5,7 +5,7 @@
  * - 为 zzz_daily_note 表添加 widget_raw_json 列
  */
 
-import { RdbManager } from './RdbManager';
+import { RdbManager } from '../../../database/RdbManager';
 
 export class RdbMigrationV2 {
   /**

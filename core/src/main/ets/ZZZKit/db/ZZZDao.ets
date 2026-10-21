@@ -15,21 +15,21 @@
  * upsertAll 时调用 .toString() 转换，mapRow 时调用 parseInt() 还原。
  */
 import { relationalStore } from '@kit.ArkData';
-import { RdbManager } from './RdbManager';
-import { RsReader } from './RsReader';
+import { RdbManager } from '../../database/RdbManager';
+import { RsReader } from '../../database/RsReader';
 import {
   TableName, CommonCol, ComputeStateCol,
   ZZZAvatarBasicCol, ZZZDailyNoteCol, ZZZAvatarInfoCol, ZZZAvatarComputeCol, ZZZBuddyCol,
   ZZZ_AVATAR_BASIC_TABLE, ZZZ_DAILY_NOTE_TABLE,
   ZZZ_AVATAR_INFO_TABLE, ZZZ_AVATAR_COMPUTE_TABLE, ZZZ_BUDDY_TABLE
-} from './TableSchema';
+} from '../../database/TableSchema';
 import {
   ZZZAvatarBasicRow,
   ZZZDailyNoteRow,
   ZZZAvatarInfoRow,
   ZZZAvatarComputeRow,
   ZZZBuddyRow
-} from '../models/ZZZRows';
+} from '../model/ZZZRows';
 
 // ─────────────────────────────────────────────
 // ZZZAvatarBasicDao：操作 zzz_avatar_basic

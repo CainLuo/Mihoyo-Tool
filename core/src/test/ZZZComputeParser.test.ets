@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from '@ohos/hypium';
-import { ZZZComputeParser, ZZZComputeData, ZZZMaterialItem } from '../main/ets/parsers/zzz/ZZZComputeParser';
+import { ZZZComputeParser, ZZZComputeData, ZZZMaterialItem } from '../main/ets/ZZZKit/parser/ZZZComputeParser';
 
 // 标准测试 JSON（基于真实 API 响应结构）
 const VALID_JSON = `{

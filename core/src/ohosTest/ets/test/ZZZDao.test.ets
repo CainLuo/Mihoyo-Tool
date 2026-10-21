@@ -7,13 +7,13 @@ import {
   ZZZDailyNoteDao,
   ZZZAvatarInfoDao,
   ZZZAvatarComputeDao
-} from '../../../main/ets/database/ZZZDao';
+} from '../../../main/ets/ZZZKit/db/ZZZDao';
 import {
   ZZZAvatarBasicRow,
   ZZZDailyNoteRow,
   ZZZAvatarInfoRow,
   ZZZAvatarComputeRow
-} from '../../../main/ets/models/ZZZRows';
+} from '../../../main/ets/ZZZKit/model/ZZZRows';
 import { AccountRow } from '../../../main/ets/models/AccountRow';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 

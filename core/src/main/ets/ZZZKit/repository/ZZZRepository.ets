@@ -1,12 +1,12 @@
-import { GameRepository } from './GameRepository';
-import { SyncDataType } from '../common/constants/SyncDataType';
+import { GameRepository } from '../../repository/GameRepository';
+import { SyncDataType } from '../../common/constants/SyncDataType';
 import {
   ZZZAvatarBasicDao,
   ZZZDailyNoteDao,
   ZZZAvatarInfoDao,
   ZZZAvatarComputeDao,
   ZZZBuddyDao
-} from '../database/ZZZDao';
+} from '../db/ZZZDao';
 import {
   ZZZAvatarBasicRow,
   ZZZDailyNoteRow,
@@ -15,23 +15,23 @@ import {
   ZZZBuddyRow,
   ZZZAvatarItem,
   ZZZAvatarListData,
-} from '../models/ZZZRows';
-import { ZZZApiService } from '../network/ZZZApiService';
-import { GeetestService } from '../base/network/GeetestService';
-import { MihoyoDomain } from '../base/network/MihoyoDomain';
-import { ZZZApiPath } from '../network/ZZZApiPath';
-import { AuthExpiredError } from '../base/errors/ApiErrors';
-import { CookieRefreshCoordinator } from '../base/cookie/CookieRefreshCoordinator';
-import { CoreInitializer } from '../CoreInitializer';
-import { BBSRepository } from './BBSRepository';
-import { MaterialBagRepository } from './MaterialBagRepository';
-import { MaterialBagRow } from '../models/MaterialBagRow';
-import { ZZZComputeParser, ZZZMaterialItem } from '../parsers/zzz/ZZZComputeParser';
-import { GameId } from '../common/constants/GameId';
-import { Logger } from '../base/utils/Logger';
-import { CookieDebug } from '../base/utils/CookieDebug';
-import { ApiErrorCodes } from '../common/constants/ApiErrorCodes';
-import { ApiErrorHandler } from '../base/utils/ApiErrorHandler';
+} from '../model/ZZZRows';
+import { ZZZApiService } from '../api/ZZZApiService';
+import { GeetestService } from '../../base/network/GeetestService';
+import { MihoyoDomain } from '../../base/network/MihoyoDomain';
+import { ZZZApiPath } from '../api/ZZZApiPath';
+import { AuthExpiredError } from '../../base/errors/ApiErrors';
+import { CookieRefreshCoordinator } from '../../base/cookie/CookieRefreshCoordinator';
+import { CoreInitializer } from '../../CoreInitializer';
+import { BBSRepository } from '../../repository/BBSRepository';
+import { MaterialBagRepository } from '../../repository/MaterialBagRepository';
+import { MaterialBagRow } from '../../models/MaterialBagRow';
+import { ZZZComputeParser, ZZZMaterialItem } from '../parser/ZZZComputeParser';
+import { GameId } from '../../common/constants/GameId';
+import { Logger } from '../../base/utils/Logger';
+import { CookieDebug } from '../../base/utils/CookieDebug';
+import { ApiErrorCodes } from '../../common/constants/ApiErrorCodes';
+import { ApiErrorHandler } from '../../base/utils/ApiErrorHandler';
 
 
 /** tryWidgetFallback 结果 */

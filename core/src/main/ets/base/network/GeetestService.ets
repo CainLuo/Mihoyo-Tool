@@ -9,9 +9,9 @@ import { ApiConfig } from './ApiConfig';
 import { GameId } from '../../common/constants/GameId';
 import { GenshinApiPath } from '../../GenshinKit/api/GenshinApiPath';
 import { StarRailApiPath } from '../../StarRailKit/api/StarRailApiPath';
-import { ZZZApiPath } from '../../network/ZZZApiPath';
+import { ZZZApiPath } from '../../ZZZKit/api/ZZZApiPath';
 import { GeetestReporter, GeetestRequiredListener } from './GeetestReporter';
-import { ZZZRecordRequest } from '../../network/ZZZRecordRequest';
+import { ZZZRecordRequest } from '../../ZZZKit/api/ZZZRecordRequest';
 
 /**
  * ============================================================

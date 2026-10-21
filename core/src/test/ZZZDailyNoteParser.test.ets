@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from '@ohos/hypium';
-import { ZZZDailyNoteParser } from '../main/ets/parsers/zzz/ZZZDailyNoteParser';
+import { ZZZDailyNoteParser } from '../main/ets/ZZZKit/parser/ZZZDailyNoteParser';
 
 const VALID_JSON =
   '{"energy":{"progress":{"current":180,"max":240},"restore":3600},"vitality":{"current":300,"max":400},"card_sign":"CardSignDone","vhs_sale":{"sale_state":"SaleStateDoing"},"abyss_refresh":86400,"member_card":{"is_open":true,"member_card_state":"active"}}';

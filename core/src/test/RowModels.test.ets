@@ -24,7 +24,7 @@ import {
   ZZZDailyNoteRow,
   ZZZAvatarInfoRow,
   ZZZAvatarComputeRow
-} from '../main/ets/models/ZZZRows';
+} from '../main/ets/ZZZKit/model/ZZZRows';
 import { SyncMetaRow } from '../main/ets/models/SyncMetaRow';
 
 export default function rowModelsTest() {

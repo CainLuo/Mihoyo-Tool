@@ -9,7 +9,7 @@
 >
 > **2026-10-20 更新**：独立 `mock/` ArkTS 适配器目录已删除；`mock` product 保留，生成独立 `.mock` 包（`APP_ENV=mock`）。`mock-service/` 与 fixtures 保留，后续用 Swift-Vapor local service 复用。以下涉及 `mock/` 的内容为历史记录。
 >
-> **2026-10-21 更新**：Phase 1.1 BaseApiService 的 Stage 0-3 已完成；`HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService` 已删除。Phase 1.2 第一批已将 32 个共享文件迁到 `base/` / `common/constants/`；Phase 2 GenshinKit / StarRailKit 已分别将 13 / 11 个专属文件迁入对应 Kit，只改路径与 import。`default` / `debug` / `mock` 构建和两个测试脚本通过，`internal` 编译通过但 `SignHap` 因开发证书过期失败。已用 `mihoyo-api-sdk`、TeyvatGuide、PizzaHelperUnited 和本项目历史抓包完成 header / retcode 静态参考对照；运行时基线按用户决定延后到整个任务完成后，不阻塞后续 Kit。旧路径基线已无法补采，详见 [`API-Baseline.md`](API-Baseline.md) §2.2。
+> **2026-10-21 更新**：Phase 1.1 BaseApiService 的 Stage 0-3 已完成；`HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService` 已删除。Phase 1.2 第一批已将 32 个共享文件迁到 `base/` / `common/constants/`；Phase 2 GenshinKit / StarRailKit / ZZZKit 已分别将 13 / 11 / 14 个专属文件迁入对应 Kit，只改路径与 import。`default` / `debug` / `mock` 构建和两个测试脚本通过，`internal` 编译通过但 `SignHap` 因开发证书过期失败。已用 `mihoyo-api-sdk`、TeyvatGuide、PizzaHelperUnited 和本项目历史抓包完成 header / retcode 静态参考对照；运行时基线按用户决定延后到整个任务完成后，不阻塞后续 Kit。旧路径基线已无法补采，详见 [`API-Baseline.md`](API-Baseline.md) §2.2。
 
 ---
 
@@ -204,6 +204,8 @@ entry
 > **Phase 2 GenshinKit 进度（2026-10-21）**：Genshin 专属的 `api`（2）、`model`（3）、`parser`（2）、`constants`（2）、`db`（GenshinDao + V4/V5 migrations，3）、`repository`（1）共 13 个文件已迁入 `GenshinKit/`。Genshin 的 `TableSchema` 片段、material DAO 子类、material model/repository 仍留在原目录，按 Phase 3 拆分。`base/network/GeetestService` 暂时 import `GenshinKit/api/GenshinApiPath`，`database/RdbManager` 暂时 import GenshinKit migrations，属于 S-01 临时反向依赖。
 >
 > **Phase 2 StarRailKit 进度（2026-10-21）**：StarRail 专属的 `api`（2）、`model`（2）、`parser`（2）、`constants`（2）、`db`（StarRailDao + StarRailDBManager，2）、`repository`（1）共 11 个文件已迁入 `StarRailKit/`。StarRail 的 `TableSchema` 片段、material DAO 子类、material model/repository 仍留在原目录，按 Phase 3 拆分。`base/network/GeetestService` 现在同时 import GenshinKit / StarRailKit 的 ApiPath，属于 S-01 临时反向依赖；StarRail 没有独立的 V2/V6 迁移文件，V4 中的星铁 material target config 变更随 GenshinKit 迁移，Phase 3 再收口。
+>
+> **Phase 2 ZZZKit 进度（2026-10-21）**：ZZZ 专属的 `api`（3）、`model`（2）、`parser`（2）、`constants`（3）、`db`（ZZZDao + V2/V6 migrations，3）、`repository`（1）共 14 个文件已迁入 `ZZZKit/`。ZZZ 的 `TableSchema` 片段、material DAO 子类、material model/repository 仍留在原目录，按 Phase 3 拆分。`base/network/ApiConfig` / `GeetestService` 现在 import ZZZKit 的 `ZZZRecordRequest` / `ZZZApiPath`，`database/RdbManager` import ZZZKit 的 V2/V6 migrations，属于 S-01 临时反向依赖。
 
 **network/ 36 个**
 
@@ -538,11 +540,12 @@ mock-service/                              # 新增：HAR 之外
 - `Index.ets` 已改为从新路径重导出；旧 `HttpClient` / `HttpService` / `NetworkFactory` 已删除。
 - 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，但 `SignHap` 因开发证书过期失败（见 `Known-Issues.md` E-01）；524 个相对 import 解析检查 0 缺失；关键接口基线对比和 `hdc` 安装验证按用户决定延后。`test-core.sh` / `test-entry.sh` 只构建 HAP，不能单独作为网络回归结论。
 
-**Phase 2 — 拆 Kit（GenshinKit / StarRailKit 完成；ZZZ / Mihoyo 待做）**
+**Phase 2 — 拆 Kit（GenshinKit / StarRailKit / ZZZKit 完成；Mihoyo 待做）**
 - 顺序：GenshinKit → StarRailKit → ZZZKit → MihoyoKit（先外围后中心，MihoyoKit 被其它 Kit 依赖，最后搬）。
 - GenshinKit 已完成（2026-10-21）：api / model / parser / constants / db DAO + V4/V5 migrations / repository 共 13 个文件；53 处 import、Index、工厂、CoreInitializer 和测试路径已更新；`default` / `debug` / `mock` 与两个测试脚本通过；`base/network/GeetestService` 和 `database/RdbManager` 暂时反向依赖 GenshinKit，记录为 S-01。
 - StarRailKit 已完成（2026-10-21）：api / model / parser / constants / db（StarRailDao + StarRailDBManager）/ repository 共 11 个文件；63 处 import、Index、工厂、CoreInitializer 和测试路径已更新；构建与测试通过；`base/network/GeetestService` 暂时反向依赖 StarRailKit，记录为 S-01。
-- 每 Kit：api / model / parser / **db（DAO + 该 Kit 的 schema 片段 + 专属迁移 + material 子类 DAO）** / repository / constants + overlay 同步。Genshin / StarRail 的 `TableSchema` 拆分、material DAO 子类和 material model/repository 按 Phase 3 处理。
+- ZZZKit 已完成（2026-10-21）：api / model / parser / constants / db（ZZZDao + V2/V6 migrations）/ repository 共 14 个文件；67 处 import、Index、工厂、CoreInitializer 和测试路径已更新；构建与测试通过；`base/network/ApiConfig` / `GeetestService` 和 `database/RdbManager` 暂时反向依赖 ZZZKit，记录为 S-01。
+- 每 Kit：api / model / parser / **db（DAO + 该 Kit 的 schema 片段 + 专属迁移 + material 子类 DAO）** / repository / constants + overlay 同步。Genshin / StarRail / ZZZ 的 `TableSchema` 拆分、material DAO 子类和 material model/repository 按 Phase 3 处理。
 - 验证：每搬一个 Kit，`default` / `debug` / `mock` 构建 + 两个测试脚本 + 相对 import 解析检查；`internal` 只验证到 `CompileArkTS`（E-01）。
 
 **Phase 3 — DB 收尾（0.5~1 天）**
