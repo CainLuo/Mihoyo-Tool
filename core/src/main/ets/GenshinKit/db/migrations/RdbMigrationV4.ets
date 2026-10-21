@@ -13,16 +13,12 @@
  */
 
 import { relationalStore } from '@kit.ArkData';
-import { RdbManager } from '../../../database/RdbManager';
-import { RsReader } from '../../../database/RsReader';
-import {
-  TableName,
-  CommonCol,
-  MaterialTargetConfigCol,
-  GENSHIN_CHARACTER_COMPUTE_TABLE,
-  GENSHIN_CALC_AVATAR_TABLE,
-  ALL_INDEXES,
-} from '../../../database/TableSchema';
+import { RdbManager } from '../../../db/RdbManager';
+import { RsReader } from '../../../db/RsReader';
+import { TableName } from '../../../db/TableName';
+import { CommonCol } from '../../../db/TableSchema';
+import { MaterialTargetConfigCol } from '../../../common/material/db/schema';
+import { GENSHIN_CHARACTER_COMPUTE_TABLE, GENSHIN_CALC_AVATAR_TABLE, GENSHIN_INDEXES } from '../schema';
 
 /** config_json 迁移用的行 */
 class ConfigJsonRow {
@@ -54,8 +50,8 @@ export class RdbMigrationV4 {
     await RdbManager.executeSql(GENSHIN_CALC_AVATAR_TABLE.buildCreateSql(), []);
 
     // 1 / 2 涉及的索引（IF NOT EXISTS 幂等）
-    for (let i = 0; i < ALL_INDEXES.length; i++) {
-      const index = ALL_INDEXES[i];
+    for (let i = 0; i < GENSHIN_INDEXES.length; i++) {
+      const index = GENSHIN_INDEXES[i];
       if (index.tableName === TableName.GENSHIN_CHARACTER_COMPUTE || index.tableName === TableName.GENSHIN_CALC_AVATAR) {
         await RdbManager.executeSql(index.buildCreateSql(), []);
       }

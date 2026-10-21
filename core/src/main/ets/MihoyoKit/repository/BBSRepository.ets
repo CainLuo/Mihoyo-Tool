@@ -1,7 +1,7 @@
 import { MihoyoApiService } from '../../base/network/MihoyoApiService';
 import { MihoyoAccountApiService } from '../api/MihoyoAccountApiService';
 import { AccountDao, GameRoleDao } from '../db/BBSDao';
-import { RdbManager } from '../../database/RdbManager';
+import { RdbManager } from '../../db/RdbManager';
 import { AccountRow } from '../model/AccountRow';
 import { GameRoleRow } from '../model/GameRoleRow';
 import { AuthRepository } from './AuthRepository';

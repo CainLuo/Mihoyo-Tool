@@ -8,9 +8,11 @@
  * 通过 SyncDataType（即 TableName 的别名）引用，禁止直接写字符串。
  */
 import { relationalStore } from '@kit.ArkData';
-import { RdbManager } from '../../database/RdbManager';
-import { RsReader } from '../../database/RsReader';
-import { TableName, CommonCol, SyncMetaCol, SYNC_META_TABLE } from '../../database/TableSchema';
+import { RdbManager } from '../../db/RdbManager';
+import { RsReader } from '../../db/RsReader';
+import { TableName } from '../../db/TableName';
+import { CommonCol } from '../../db/TableSchema';
+import { SyncMetaCol, SYNC_META_TABLE } from './schema';
 import { SyncMetaRow } from '../model/SyncMetaRow';
 
 // ─────────────────────────────────────────────

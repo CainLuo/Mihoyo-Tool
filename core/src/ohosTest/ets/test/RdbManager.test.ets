@@ -1,8 +1,9 @@
 import { describe, it, expect, beforeAll } from '@ohos/hypium';
 import { common } from '@kit.AbilityKit';
 import { relationalStore } from '@kit.ArkData';
-import { RdbManager } from '../../../main/ets/database/RdbManager';
-import { TableName } from '../../../main/ets/database/TableSchema';
+import { RdbManager } from '../../../main/ets/db/RdbManager';
+import { SCHEMA_REGISTRY } from '../../../main/ets/SchemaRegistry';
+import { TableName } from '../../../main/ets/db/TableName';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 
 async function getContext(): Promise<common.UIAbilityContext> {
@@ -33,7 +34,7 @@ export default function rdbManagerTest() {
 
     beforeAll(async () => {
       try {
-        await RdbManager.init(await getContext());
+        await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
         console.info('[RdbManager.test] beforeAll init SUCCESS');
       } catch (error) {
         const msg = error instanceof Error ? error.message : `${error}`;
@@ -51,7 +52,7 @@ export default function rdbManagerTest() {
     it('init_idempotent_noException', 0, async () => {
       let threw = false;
       try {
-        await RdbManager.init(await getContext());
+        await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
       } catch (_) {
         threw = true;
       }

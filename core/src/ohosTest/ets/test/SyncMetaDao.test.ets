@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, beforeEach } from '@ohos/hypium';
 import { common } from '@kit.AbilityKit';
-import { RdbManager } from '../../../main/ets/database/RdbManager';
+import { RdbManager } from '../../../main/ets/db/RdbManager';
+import { SCHEMA_REGISTRY } from '../../../main/ets/SchemaRegistry';
 import { AccountDao } from '../../../main/ets/MihoyoKit/db/BBSDao';
 import { SyncMetaDao } from '../../../main/ets/sync/db/SyncMetaDao';
 import { SyncMetaRow } from '../../../main/ets/sync/model/SyncMetaRow';
@@ -33,7 +34,7 @@ export default function syncMetaDaoTest() {
   const syncMetaDao = new SyncMetaDao();
 
   beforeAll(async () => {
-    await RdbManager.init(await getContext());
+    await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
     const acc = new AccountRow();
     acc.id = 10004;
     acc.username = 'sync_dao_test_account';

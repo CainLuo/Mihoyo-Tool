@@ -3,7 +3,9 @@
  */
 
 import { BaseMaterialTargetConfigDao } from '../../common/material/db/MaterialTargetConfigDao';
-import { TableName, TableDef, ZZZ_MATERIAL_TARGET_CONFIG_TABLE } from '../../database/TableSchema';
+import { TableName } from '../../db/TableName';
+import { TableDef } from '../../db/TableSchema';
+import { ZZZ_MATERIAL_TARGET_CONFIG_TABLE } from './schema';
 
 /**
  * 绝区零养成目标配置 DAO

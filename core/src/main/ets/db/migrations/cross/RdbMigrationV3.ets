@@ -7,7 +7,7 @@
  * 3. 创建 material_target_config 表（三张独立表，存储养成目标配置）
  */
 
-import { RdbManager } from './RdbManager';
+import { RdbManager } from '../../RdbManager';
 
 export class RdbMigrationV3 {
   /**

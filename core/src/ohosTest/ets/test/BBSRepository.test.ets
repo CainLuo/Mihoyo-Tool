@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, beforeEach } from '@ohos/hypium';
 import { common } from '@kit.AbilityKit';
-import { RdbManager } from '../../../main/ets/database/RdbManager';
+import { RdbManager } from '../../../main/ets/db/RdbManager';
+import { SCHEMA_REGISTRY } from '../../../main/ets/SchemaRegistry';
 import { BBSRepository } from '../../../main/ets/MihoyoKit/repository/BBSRepository';
 import { AccountRow } from '../../../main/ets/MihoyoKit/model/AccountRow';
 import { GameRoleRow } from '../../../main/ets/MihoyoKit/model/GameRoleRow';
@@ -53,7 +54,7 @@ export default function bbsRepositoryTest() {
   const gameRoleDao = new GameRoleDao();
 
   beforeAll(async () => {
-    await RdbManager.init(await getContext());
+    await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
   });
 
   beforeEach(async () => {

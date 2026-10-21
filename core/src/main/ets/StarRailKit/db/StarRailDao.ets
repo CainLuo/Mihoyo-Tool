@@ -11,14 +11,11 @@
  * 所有读取操作通过 RdbManager.queryFirst/queryAll 封装，自动管理 ResultSet 生命周期。
  */
 import { relationalStore } from '@kit.ArkData';
-import { RdbManager } from '../../database/RdbManager';
-import { RsReader } from '../../database/RsReader';
-import {
-  TableName, CommonCol, ComputeStateCol,
-  StarRailAvatarBasicCol, StarRailDailyNoteCol, StarRailAvatarInfoCol, StarRailAvatarComputeCol,
-  STARRAIL_AVATAR_BASIC_TABLE, STARRAIL_DAILY_NOTE_TABLE,
-  STARRAIL_AVATAR_INFO_TABLE, STARRAIL_AVATAR_COMPUTE_TABLE
-} from '../../database/TableSchema';
+import { RdbManager } from '../../db/RdbManager';
+import { RsReader } from '../../db/RsReader';
+import { TableName } from '../../db/TableName';
+import { CommonCol, ComputeStateCol } from '../../db/TableSchema';
+import { StarRailAvatarBasicCol, StarRailDailyNoteCol, StarRailAvatarInfoCol, StarRailAvatarComputeCol, STARRAIL_AVATAR_BASIC_TABLE, STARRAIL_DAILY_NOTE_TABLE, STARRAIL_AVATAR_INFO_TABLE, STARRAIL_AVATAR_COMPUTE_TABLE } from './schema';
 import {
   StarRailAvatarBasicRow,
   StarRailDailyNoteRow,

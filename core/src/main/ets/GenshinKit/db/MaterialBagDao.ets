@@ -3,7 +3,9 @@
  */
 
 import { BaseMaterialBagDao } from '../../common/material/db/MaterialBagDao';
-import { TableName, TableDef, GENSHIN_MATERIAL_BAG_TABLE } from '../../database/TableSchema';
+import { TableName } from '../../db/TableName';
+import { TableDef } from '../../db/TableSchema';
+import { GENSHIN_MATERIAL_BAG_TABLE } from './schema';
 
 /**
  * 原神材料背包 DAO

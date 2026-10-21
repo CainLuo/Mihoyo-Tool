@@ -26,7 +26,7 @@ import {
 } from '../model/StarRailRows';
 import { MaterialBagRow } from '../../common/material/model/MaterialBagRow';
 import { SyncMetaRow } from '../../sync/model/SyncMetaRow';
-import { RdbManager } from '../../database/RdbManager';
+import { RdbManager } from '../../db/RdbManager';
 import { SyncDataType } from '../../common/constants/SyncDataType';
 import { MaterialBagRepository } from '../../common/material/repository/MaterialBagRepository';
 import { GameId } from '../../common/constants/GameId';

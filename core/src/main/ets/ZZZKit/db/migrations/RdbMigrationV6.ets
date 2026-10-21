@@ -9,9 +9,11 @@
  */
 
 import { relationalStore } from '@kit.ArkData';
-import { RdbManager } from '../../../database/RdbManager';
-import { RsReader } from '../../../database/RsReader';
-import { TableName, CommonCol, MaterialTargetConfigCol } from '../../../database/TableSchema';
+import { RdbManager } from '../../../db/RdbManager';
+import { RsReader } from '../../../db/RsReader';
+import { TableName } from '../../../db/TableName';
+import { CommonCol } from '../../../db/TableSchema';
+import { MaterialTargetConfigCol } from '../../../common/material/db/schema';
 
 /** 绝区零核心技 skill_type 与最高等级（与 entry ZZZSkillType 一致） */
 const ZZZ_CORE_SKILL_TYPE: number = 5;

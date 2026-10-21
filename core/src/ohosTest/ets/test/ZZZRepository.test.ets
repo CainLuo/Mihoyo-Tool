@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeAll, beforeEach } from '@ohos/hypium';
 import { common } from '@kit.AbilityKit';
-import { RdbManager } from '../../../main/ets/database/RdbManager';
+import { RdbManager } from '../../../main/ets/db/RdbManager';
+import { SCHEMA_REGISTRY } from '../../../main/ets/SchemaRegistry';
 import { BBSRepository } from '../../../main/ets/MihoyoKit/repository/BBSRepository';
 import { ZZZRepository } from '../../../main/ets/ZZZKit/repository/ZZZRepository';
 import { AccountRow } from '../../../main/ets/MihoyoKit/model/AccountRow';
@@ -95,7 +96,7 @@ export default function zzzRepositoryTest() {
   const syncMetaDao = new SyncMetaDao();
 
   beforeAll(async () => {
-    await RdbManager.init(await getContext());
+    await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
     const acc = new AccountRow();
     acc.id = 20003;
     acc.username = 'zzz_repo_test_account';

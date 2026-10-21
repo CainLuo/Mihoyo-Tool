@@ -1,7 +1,9 @@
 import { relationalStore } from '@kit.ArkData';
-import { RdbManager } from '../../database/RdbManager';
-import { RsReader } from '../../database/RsReader';
-import { TableName, CommonCol, AccountCol, GameRoleCol, ACCOUNT_TABLE, GAME_ROLE_TABLE } from '../../database/TableSchema';
+import { RdbManager } from '../../db/RdbManager';
+import { RsReader } from '../../db/RsReader';
+import { TableName } from '../../db/TableName';
+import { CommonCol } from '../../db/TableSchema';
+import { AccountCol, GameRoleCol, ACCOUNT_TABLE, GAME_ROLE_TABLE } from './schema';
 import { AccountRow } from '../model/AccountRow';
 import { GameRoleRow } from '../model/GameRoleRow';
 import { GameId } from '../../common/constants/GameId';

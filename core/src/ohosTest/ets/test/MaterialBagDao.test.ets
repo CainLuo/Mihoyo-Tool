@@ -10,7 +10,8 @@ import { GenshinMaterialBagDao } from '../../../main/ets/GenshinKit/db/MaterialB
 import { StarRailMaterialBagDao } from '../../../main/ets/StarRailKit/db/MaterialBagDao';
 import { ZZZMaterialBagDao } from '../../../main/ets/ZZZKit/db/MaterialBagDao';
 import { MaterialBagRow } from '../../../main/ets/common/material/model/MaterialBagRow';
-import { RdbManager } from '../../../main/ets/database/RdbManager';
+import { RdbManager } from '../../../main/ets/db/RdbManager';
+import { SCHEMA_REGISTRY } from '../../../main/ets/SchemaRegistry';
 import { AccountDao } from '../../../main/ets/MihoyoKit/db/BBSDao';
 import { AccountRow } from '../../../main/ets/MihoyoKit/model/AccountRow';
 import { GameId } from '../../../main/ets/common/constants/GameId';
@@ -29,7 +30,7 @@ export default function materialBagDaoTest() {
     beforeAll(async () => {
       // 确保 RDB 已初始化
       const context = getContext(this) as UIAbilityContext;
-      await RdbManager.init(context);
+      await RdbManager.init(context, SCHEMA_REGISTRY);
       genshinDao = new GenshinMaterialBagDao();
       starrailDao = new StarRailMaterialBagDao();
       zzzDao = new ZZZMaterialBagDao();

@@ -11,8 +11,9 @@
  */
 
 import { relationalStore } from '@kit.ArkData';
-import { RdbManager } from './RdbManager';
-import { TableName, ComputeStateCol } from './TableSchema';
+import { RdbManager } from '../../RdbManager';
+import { TableName } from '../../TableName';
+import { ComputeStateCol } from '../../TableSchema';
 
 const COMPUTE_TABLES: TableName[] = [
   TableName.GENSHIN_CHARACTER_COMPUTE,

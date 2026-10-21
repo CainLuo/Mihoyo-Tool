@@ -3,7 +3,9 @@
  */
 
 import { BaseMaterialTargetConfigDao } from '../../common/material/db/MaterialTargetConfigDao';
-import { TableName, TableDef, STARRAIL_MATERIAL_TARGET_CONFIG_TABLE } from '../../database/TableSchema';
+import { TableName } from '../../db/TableName';
+import { TableDef } from '../../db/TableSchema';
+import { STARRAIL_MATERIAL_TARGET_CONFIG_TABLE } from './schema';
 
 /**
  * 星穹铁道养成目标配置 DAO

@@ -3,7 +3,9 @@
  */
 
 import { BaseMaterialBagDao } from '../../common/material/db/MaterialBagDao';
-import { TableName, TableDef, STARRAIL_MATERIAL_BAG_TABLE } from '../../database/TableSchema';
+import { TableName } from '../../db/TableName';
+import { TableDef } from '../../db/TableSchema';
+import { STARRAIL_MATERIAL_BAG_TABLE } from './schema';
 
 /**
  * 星穹铁道材料背包 DAO

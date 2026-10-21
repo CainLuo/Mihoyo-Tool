@@ -13,14 +13,11 @@
  * 所有读取操作通过 RdbManager.queryFirst/queryAll 封装，自动管理 ResultSet 生命周期。
  */
 import { relationalStore } from '@kit.ArkData';
-import { RdbManager } from '../../database/RdbManager';
-import { RsReader } from '../../database/RsReader';
-import {
-  TableName, CommonCol, ComputeStateCol,
-  GenshinCharListCol, GenshinDailyNoteCol, GenshinCharDetailCol, GenshinCharComputeCol, GenshinCalcAvatarCol, GenshinComputeSummaryCol,
-  GENSHIN_CHARACTER_LIST_TABLE, GENSHIN_DAILY_NOTE_TABLE,
-  GENSHIN_CHARACTER_DETAIL_TABLE, GENSHIN_CHARACTER_COMPUTE_TABLE, GENSHIN_CALC_AVATAR_TABLE, GENSHIN_COMPUTE_SUMMARY_TABLE
-} from '../../database/TableSchema';
+import { RdbManager } from '../../db/RdbManager';
+import { RsReader } from '../../db/RsReader';
+import { TableName } from '../../db/TableName';
+import { CommonCol, ComputeStateCol } from '../../db/TableSchema';
+import { GenshinCharListCol, GenshinDailyNoteCol, GenshinCharDetailCol, GenshinCharComputeCol, GenshinCalcAvatarCol, GenshinComputeSummaryCol, GENSHIN_CHARACTER_LIST_TABLE, GENSHIN_DAILY_NOTE_TABLE, GENSHIN_CHARACTER_DETAIL_TABLE, GENSHIN_CHARACTER_COMPUTE_TABLE, GENSHIN_CALC_AVATAR_TABLE, GENSHIN_COMPUTE_SUMMARY_TABLE } from './schema';
 import {
   GenshinCharacterListRow,
   GenshinDailyNoteRow,

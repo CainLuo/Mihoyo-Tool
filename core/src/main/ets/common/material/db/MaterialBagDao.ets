@@ -22,9 +22,11 @@
  */
 
 import { relationalStore } from '@kit.ArkData';
-import { RdbManager } from '../../../database/RdbManager';
-import { TableName, CommonCol, MaterialBagCol, TableDef } from '../../../database/TableSchema';
-import { RsReader } from '../../../database/RsReader';
+import { RdbManager } from '../../../db/RdbManager';
+import { TableName } from '../../../db/TableName';
+import { CommonCol, TableDef } from '../../../db/TableSchema';
+import { MaterialBagCol } from './schema';
+import { RsReader } from '../../../db/RsReader';
 import { MaterialBagRow } from '../model/MaterialBagRow';
 
 /**

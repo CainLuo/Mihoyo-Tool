@@ -1,5 +1,6 @@
 import { common } from '@kit.AbilityKit';
-import { RdbManager } from './database/RdbManager';
+import { RdbManager } from './db/RdbManager';
+import { SCHEMA_REGISTRY } from './SchemaRegistry';
 import { AppEnv } from './common/constants/AppEnv';
 import { AppEnvManager } from './common/constants/AppEnvManager';
 import { MihoyoApiServiceFactory } from './ApiServiceFactory';
@@ -104,7 +105,7 @@ export class CoreInitializer {
     );
 
     // 1. 初始化数据库
-    await RdbManager.init(config.context);
+    await RdbManager.init(config.context, SCHEMA_REGISTRY);
 
     // 2. 初始化日志系统（DB 之后，pendingQueue 中的日志批量写入）
     // 即使 DB 初始化失败，日志系统也应该独立初始化

@@ -32,7 +32,7 @@ export * from './src/main/ets/ZZZKit/parser/ZZZComputeParser';
 export * from './src/main/ets/CoreInitializer';
 
 // 数据库层
-export * from './src/main/ets/database/RdbManager';
+export * from './src/main/ets/db/RdbManager';
 export * from './src/main/ets/MihoyoKit/db/BBSDao';
 export * from './src/main/ets/GenshinKit/db/GenshinDao';
 export * from './src/main/ets/StarRailKit/db/StarRailDao';
@@ -103,7 +103,15 @@ export * from './src/main/ets/GenshinKit/constants/GenshinElement';
 export * from './src/main/ets/StarRailKit/constants/StarRailElement';
 export * from './src/main/ets/ZZZKit/constants/ZZZElement';
 export * from './src/main/ets/ZZZKit/constants/ZZZEnums';
-export * from './src/main/ets/database/TableSchema';
+export * from './src/main/ets/db/TableName';
+export * from './src/main/ets/db/TableSchema';
+export * from './src/main/ets/common/material/db/schema';
+export * from './src/main/ets/MihoyoKit/db/schema';
+export * from './src/main/ets/GenshinKit/db/schema';
+export * from './src/main/ets/StarRailKit/db/schema';
+export * from './src/main/ets/ZZZKit/db/schema';
+export * from './src/main/ets/sync/db/schema';
+export * from './src/main/ets/SchemaRegistry';
 
 // ── 网络层完整导出 ──────────────────────────────────────────
 
