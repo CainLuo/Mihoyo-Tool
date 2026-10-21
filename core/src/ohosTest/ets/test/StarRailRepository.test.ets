@@ -10,7 +10,7 @@ import {
   StarRailAvatarInfoRow,
   StarRailAvatarComputeRow
 } from '../../../main/ets/StarRailKit/model/StarRailRows';
-import { SyncMetaDao } from '../../../main/ets/database/SyncMetaDao';
+import { SyncMetaDao } from '../../../main/ets/sync/db/SyncMetaDao';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 
 async function getContext(): Promise<common.UIAbilityContext> {

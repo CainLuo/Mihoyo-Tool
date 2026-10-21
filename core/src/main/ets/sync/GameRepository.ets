@@ -1,6 +1,6 @@
 import { MihoyoApiService } from '../base/network/MihoyoApiService';
-import { SyncMetaDao } from '../database/SyncMetaDao';
-import { SyncMetaRow } from '../models/SyncMetaRow';
+import { SyncMetaDao } from './db/SyncMetaDao';
+import { SyncMetaRow } from './model/SyncMetaRow';
 import { RdbManager } from '../database/RdbManager';
 import {
   SYNC_STATUS_SYNCING,

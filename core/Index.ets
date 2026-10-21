@@ -38,7 +38,7 @@ export * from './src/main/ets/GenshinKit/db/GenshinDao';
 export * from './src/main/ets/StarRailKit/db/StarRailDao';
 export * from './src/main/ets/StarRailKit/db/StarRailDBManager';
 export * from './src/main/ets/ZZZKit/db/ZZZDao';
-export * from './src/main/ets/database/SyncMetaDao';
+export * from './src/main/ets/sync/db/SyncMetaDao';
 export * from './src/main/ets/database/MaterialBagDao';
 export * from './src/main/ets/database/MaterialTargetConfigDao';
 // 数据模型
@@ -47,24 +47,24 @@ export * from './src/main/ets/MihoyoKit/model/GameRoleRow';
 export * from './src/main/ets/GenshinKit/model/GenshinRows';
 export * from './src/main/ets/StarRailKit/model/StarRailRows';
 export * from './src/main/ets/ZZZKit/model/ZZZRows';
-export * from './src/main/ets/models/GameDataSummary';
-export * from './src/main/ets/models/SyncMetaRow';
-export * from './src/main/ets/models/SyncTask';
+export * from './src/main/ets/sync/model/GameDataSummary';
+export * from './src/main/ets/sync/model/SyncMetaRow';
+export * from './src/main/ets/sync/model/SyncTask';
 export * from './src/main/ets/GenshinKit/model/GenshinCharacterDetailRaw';
 export * from './src/main/ets/StarRailKit/model/StarRailAvatarDetailRaw';
 export * from './src/main/ets/ZZZKit/model/ZZZAvatarDetailRaw';
-export * from './src/main/ets/models/MaterialBagRow';
-export * from './src/main/ets/models/MaterialTargetConfigRow';
+export * from './src/main/ets/common/material/model/MaterialBagRow';
+export * from './src/main/ets/common/material/model/MaterialTargetConfigRow';
 // Repository 层
-export * from './src/main/ets/repository/GameRepository';
+export * from './src/main/ets/sync/GameRepository';
 export * from './src/main/ets/MihoyoKit/repository/BBSRepository';
 export * from './src/main/ets/GenshinKit/repository/GenshinRepository';
 export * from './src/main/ets/StarRailKit/repository/StarRailRepository';
 export * from './src/main/ets/ZZZKit/repository/ZZZRepository';
 export * from './src/main/ets/MihoyoKit/repository/SignRepository';
-export * from './src/main/ets/repository/SyncQueueRunner';
-export * from './src/main/ets/repository/MaterialBagRepository';
-export * from './src/main/ets/repository/MaterialTargetConfigRepository';
+export * from './src/main/ets/sync/SyncQueueRunner';
+export * from './src/main/ets/common/material/repository/MaterialBagRepository';
+export * from './src/main/ets/common/material/repository/MaterialTargetConfigRepository';
 
 // 网络层（抽象基类）
 export * from './src/main/ets/base/network/MihoyoApiService';

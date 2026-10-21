@@ -26,7 +26,7 @@ import { relationalStore } from '@kit.ArkData';
 import { RdbManager } from './RdbManager';
 import { TableName, CommonCol, MaterialTargetConfigCol, TableDef, GENSHIN_MATERIAL_TARGET_CONFIG_TABLE, STARRAIL_MATERIAL_TARGET_CONFIG_TABLE, ZZZ_MATERIAL_TARGET_CONFIG_TABLE } from './TableSchema';
 import { RsReader } from './RsReader';
-import { MaterialTargetConfigRow } from '../models/MaterialTargetConfigRow';
+import { MaterialTargetConfigRow } from '../common/material/model/MaterialTargetConfigRow';
 
 /**
  * 养成目标配置 DAO 基类

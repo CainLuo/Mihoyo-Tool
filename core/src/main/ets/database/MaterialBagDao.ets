@@ -26,7 +26,7 @@ import { relationalStore } from '@kit.ArkData';
 import { RdbManager } from './RdbManager';
 import { TableName, CommonCol, MaterialBagCol, TableDef, GENSHIN_MATERIAL_BAG_TABLE, STARRAIL_MATERIAL_BAG_TABLE, ZZZ_MATERIAL_BAG_TABLE } from './TableSchema';
 import { RsReader } from './RsReader';
-import { MaterialBagRow } from '../models/MaterialBagRow';
+import { MaterialBagRow } from '../common/material/model/MaterialBagRow';
 
 /**
  * 材料背包 DAO 基类

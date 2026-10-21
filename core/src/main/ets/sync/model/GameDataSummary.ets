@@ -21,7 +21,7 @@
  *   weaponAffix = 武器精炼/星级
  *   weaponRarity = 武器稀有度
  */
-import { GameId } from '../common/constants/GameId';
+import { GameId } from '../../common/constants/GameId';
 export class GameDataSummary {
   /** 游戏 ID */
   gameId: GameId = GameId.GENSHIN;

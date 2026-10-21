@@ -1,4 +1,4 @@
-import { GameRepository } from '../../repository/GameRepository';
+import { GameRepository } from '../../sync/GameRepository';
 import { SyncDataType } from '../../common/constants/SyncDataType';
 import { StarRailDBManager } from '../db/StarRailDBManager';
 import {
@@ -23,7 +23,7 @@ import { AuthExpiredError } from '../../base/errors/ApiErrors';
 import { CookieRefreshCoordinator } from '../../base/cookie/CookieRefreshCoordinator';
 import { CoreInitializer } from '../../CoreInitializer';
 import { BBSRepository } from '../../MihoyoKit/repository/BBSRepository';
-import { MaterialBagRow } from '../../models/MaterialBagRow';
+import { MaterialBagRow } from '../../common/material/model/MaterialBagRow';
 import { StarRailComputeParser, StarRailMaterialItem } from '../parser/StarRailComputeParser';
 import { GameId } from '../../common/constants/GameId';
 import { Logger } from '../../base/utils/Logger';

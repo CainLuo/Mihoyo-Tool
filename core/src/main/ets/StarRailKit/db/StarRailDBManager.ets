@@ -17,18 +17,18 @@ import {
   StarRailAvatarInfoDao,
   StarRailAvatarComputeDao
 } from './StarRailDao';
-import { SyncMetaDao } from '../../database/SyncMetaDao';
+import { SyncMetaDao } from '../../sync/db/SyncMetaDao';
 import {
   StarRailAvatarBasicRow,
   StarRailDailyNoteRow,
   StarRailAvatarInfoRow,
   StarRailAvatarComputeRow
 } from '../model/StarRailRows';
-import { MaterialBagRow } from '../../models/MaterialBagRow';
-import { SyncMetaRow } from '../../models/SyncMetaRow';
+import { MaterialBagRow } from '../../common/material/model/MaterialBagRow';
+import { SyncMetaRow } from '../../sync/model/SyncMetaRow';
 import { RdbManager } from '../../database/RdbManager';
 import { SyncDataType } from '../../common/constants/SyncDataType';
-import { MaterialBagRepository } from '../../repository/MaterialBagRepository';
+import { MaterialBagRepository } from '../../common/material/repository/MaterialBagRepository';
 import { GameId } from '../../common/constants/GameId';
 
 export class StarRailDBManager {

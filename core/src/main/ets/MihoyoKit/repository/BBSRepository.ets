@@ -5,7 +5,7 @@ import { RdbManager } from '../../database/RdbManager';
 import { AccountRow } from '../model/AccountRow';
 import { GameRoleRow } from '../model/GameRoleRow';
 import { AuthRepository } from './AuthRepository';
-import { SyncQueueRunner } from '../../repository/SyncQueueRunner';
+import { SyncQueueRunner } from '../../sync/SyncQueueRunner';
 import { GameId, isGameSupported, gameIdFromMihoyo } from '../../common/constants/GameId';
 import { gameBizToGameId } from '../../common/constants/GameServer';
 import {

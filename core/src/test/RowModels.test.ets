@@ -25,7 +25,7 @@ import {
   ZZZAvatarInfoRow,
   ZZZAvatarComputeRow
 } from '../main/ets/ZZZKit/model/ZZZRows';
-import { SyncMetaRow } from '../main/ets/models/SyncMetaRow';
+import { SyncMetaRow } from '../main/ets/sync/model/SyncMetaRow';
 
 export default function rowModelsTest() {
   describe('AccountRowV2', () => {

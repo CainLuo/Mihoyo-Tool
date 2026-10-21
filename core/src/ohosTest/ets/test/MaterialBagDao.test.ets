@@ -7,7 +7,7 @@
 
 import { describe, it, expect, beforeAll, afterAll } from '@ohos/hypium';
 import { GenshinMaterialBagDao, StarRailMaterialBagDao, ZZZMaterialBagDao } from '../../../main/ets/database/MaterialBagDao';
-import { MaterialBagRow } from '../../../main/ets/models/MaterialBagRow';
+import { MaterialBagRow } from '../../../main/ets/common/material/model/MaterialBagRow';
 import { RdbManager } from '../../../main/ets/database/RdbManager';
 import { AccountDao } from '../../../main/ets/MihoyoKit/db/BBSDao';
 import { AccountRow } from '../../../main/ets/MihoyoKit/model/AccountRow';

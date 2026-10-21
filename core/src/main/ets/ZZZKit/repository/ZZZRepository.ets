@@ -1,4 +1,4 @@
-import { GameRepository } from '../../repository/GameRepository';
+import { GameRepository } from '../../sync/GameRepository';
 import { SyncDataType } from '../../common/constants/SyncDataType';
 import {
   ZZZAvatarBasicDao,
@@ -24,8 +24,8 @@ import { AuthExpiredError } from '../../base/errors/ApiErrors';
 import { CookieRefreshCoordinator } from '../../base/cookie/CookieRefreshCoordinator';
 import { CoreInitializer } from '../../CoreInitializer';
 import { BBSRepository } from '../../MihoyoKit/repository/BBSRepository';
-import { MaterialBagRepository } from '../../repository/MaterialBagRepository';
-import { MaterialBagRow } from '../../models/MaterialBagRow';
+import { MaterialBagRepository } from '../../common/material/repository/MaterialBagRepository';
+import { MaterialBagRow } from '../../common/material/model/MaterialBagRow';
 import { ZZZComputeParser, ZZZMaterialItem } from '../parser/ZZZComputeParser';
 import { GameId } from '../../common/constants/GameId';
 import { Logger } from '../../base/utils/Logger';

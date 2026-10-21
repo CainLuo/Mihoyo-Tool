@@ -16,13 +16,13 @@
  *   - zzz_avatar_info_{avatarId} 绝区零单个角色详情（真实环境，每个角色一条记录）
  */
 
-import { SyncMetaDao } from '../database/SyncMetaDao';
-import { SyncMetaRow } from '../models/SyncMetaRow';
+import { SyncMetaDao } from './db/SyncMetaDao';
+import { SyncMetaRow } from './model/SyncMetaRow';
 import { SyncDataType } from '../common/constants/SyncDataType';
 import { CoreInitializer } from '../CoreInitializer';
 import { GameRoleRow } from '../MihoyoKit/model/GameRoleRow';
 import { GameId } from '../common/constants/GameId';
-import { SyncTask } from '../models/SyncTask';
+import { SyncTask } from './model/SyncTask';
 import { Logger } from '../base/utils/Logger';
 import { GeetestRequiredError } from '../base/errors/ApiErrors';
 import { ApiErrorCodes } from '../common/constants/ApiErrorCodes';
@@ -31,7 +31,7 @@ import { ApiErrorCodes } from '../common/constants/ApiErrorCodes';
 /** 绝区零逐个请求代理人详情的间隔（ZZZ-Plugin panel.roleInterval 默认 3000ms） */
 const ZZZ_AVATAR_INFO_INTERVAL_MS: number = 3000;
 
-export { SyncTask } from '../models/SyncTask';
+export { SyncTask } from './model/SyncTask';
 
 /** 同步完成回调类型 */
 export type SyncCompleteCallback = () => Promise<void>;
