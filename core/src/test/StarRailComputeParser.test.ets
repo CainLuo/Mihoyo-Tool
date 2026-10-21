@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from '@ohos/hypium';
-import { StarRailComputeParser, StarRailComputeData, StarRailMaterialItem } from '../main/ets/parsers/starrail/StarRailComputeParser';
+import { StarRailComputeParser, StarRailComputeData, StarRailMaterialItem } from '../main/ets/StarRailKit/parser/StarRailComputeParser';
 
 // 标准测试 JSON（基于真实 API 响应结构）
 const VALID_JSON = `{

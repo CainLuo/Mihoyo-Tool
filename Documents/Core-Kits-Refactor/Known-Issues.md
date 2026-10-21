@@ -1,6 +1,6 @@
 # Core Kits 已知问题与暂缓项
 
-> 状态：**已记录，暂不改代码；Phase 1.2 第一批完成，Phase 2 GenshinKit 完成**
+> 状态：**已记录，暂不改代码；Phase 1.2 第一批完成，Phase 2 GenshinKit / StarRailKit 完成**
 > 更新时间：2026-10-21
 > 原则：当前构建和既有功能可运行；header / retcode 未采集项保持现状，不用静态推断修改行为。任何修复必须等真机、抓包或明确需求，不把“参考项目这样做”直接当成线上结论。
 >
@@ -47,7 +47,7 @@
 
 | ID | 项目 | 当前状态 | 当前决定 |
 | --- | --- | --- | --- |
-| S-01 | 基础层仍有反向依赖 | `base/cookie` 依赖 `repository/BBSRepository`、`models/AccountRow`；`base/network` 依赖 `GenshinKit/api/GenshinApiPath`、`network/StarRailApiPath` / `ZZZApiPath` / `ZZZRecordRequest` 和根 `CoreInitializer`；`database/RdbManager` 依赖 `GenshinKit/db/migrations/RdbMigrationV4/V5` | 本轮只搬位置，不改依赖方向；后续 Kit 迁移 / Phase 3 DB 收口 / Phase 5 时通过接口、注入、SchemaRegistry 或下沉解耦，避免继续扩大 |
+| S-01 | 基础层仍有反向依赖 | `base/cookie` 依赖 `repository/BBSRepository`、`models/AccountRow`；`base/network` 依赖 `GenshinKit/api/GenshinApiPath`、`StarRailKit/api/StarRailApiPath`、`network/ZZZApiPath` / `ZZZRecordRequest` 和根 `CoreInitializer`；`database/RdbManager` 依赖 `GenshinKit/db/migrations/RdbMigrationV4/V5` | 本轮只搬位置，不改依赖方向；后续 Kit 迁移 / Phase 3 DB 收口 / Phase 5 时通过接口、注入、SchemaRegistry 或下沉解耦，避免继续扩大 |
 
 ---
 
@@ -92,6 +92,20 @@
 4. `base/network/GeetestService` 现在 import `GenshinKit/api/GenshinApiPath`，`database/RdbManager` import GenshinKit migrations，已并入 S-01；后续 Kit 迁移会继续扩大，必须在 Phase 3 / Phase 5 收口。
 5. 未迁移：Genshin 的 `TableSchema` 片段、`GenshinMaterialBagDao` / `GenshinMaterialTargetConfigDao` 子类、material model/repository；V4 还包含星铁 material target config 的跨 Kit 迁移，按 Phase 3 处理。
 
+### 3.5 Phase 2 StarRailKit（已完成）
+
+1. 11 个 StarRail 专属文件已迁入 `StarRailKit/`：
+   - `api`（StarRailApiPath / StarRailApiService）；
+   - `model`（StarRailRows / StarRailAvatarDetailRaw）；
+   - `parser`（StarRailDailyNoteParser / StarRailComputeParser）；
+   - `constants`（StarRailElement / StarRailPropertyType）；
+   - `db`（StarRailDao / StarRailDBManager）；
+   - `repository`（StarRailRepository）。
+2. 63 处相对 import、`core/Index.ets`、`MihoyoApiServiceFactory`、`CoreInitializer` 和测试 import 已更新；只改路径，不改请求行为。
+3. 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，`SignHap` 因 E-01 失败；相对 import 解析检查 0 缺失。
+4. `base/network/GeetestService` 现在同时 import `GenshinKit/api/GenshinApiPath` 和 `StarRailKit/api/StarRailApiPath`，已并入 S-01；后续 ZZZKit 迁移还会加入 `ZZZApiPath`，必须在 Phase 3 / Phase 5 收口。
+5. 未迁移：StarRail 的 `TableSchema` 片段、`StarRailMaterialBagDao` / `StarRailMaterialTargetConfigDao` 子类、material model/repository；按 Phase 3 处理。
+
 ---
 
 ## 4. Phase 1.2 第一批检查
@@ -108,6 +122,16 @@
 
 - [x] 13 个 Genshin 专属文件只在 `GenshinKit/` 出现，没有重复副本
 - [x] `core/Index.ets` 导出的 Genshin 符号不变
+- [x] `default` / `debug` / `mock` 构建通过；`internal` 编译通过，`SignHap` 因 E-01 失败
+- [x] `test-core.sh` / `test-entry.sh` 通过
+- [x] 相对 import 解析检查 0 缺失
+- [x] diff 仅包含路径和 import 变更，没有修改业务请求行为
+- [x] `TableSchema` / material DAO / material model/repository 的延后项已记录
+
+### 4.2 Phase 2 StarRailKit 检查
+
+- [x] 11 个 StarRail 专属文件只在 `StarRailKit/` 出现，没有重复副本
+- [x] `core/Index.ets` 导出的 StarRail 符号不变
 - [x] `default` / `debug` / `mock` 构建通过；`internal` 编译通过，`SignHap` 因 E-01 失败
 - [x] `test-core.sh` / `test-entry.sh` 通过
 - [x] 相对 import 解析检查 0 缺失

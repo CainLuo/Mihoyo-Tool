@@ -1,7 +1,7 @@
 import { MihoyoApiService } from '../base/network/MihoyoApiService';
 import { MihoyoAccountApiService } from './MihoyoAccountApiService';
 import { GenshinApiService } from '../GenshinKit/api/GenshinApiService';
-import { StarRailApiService } from './StarRailApiService';
+import { StarRailApiService } from '../StarRailKit/api/StarRailApiService';
 import { ZZZApiService } from './ZZZApiService';
 import { SignApiService } from './SignApiService';
 

@@ -1,13 +1,13 @@
-import { RequestParams, RequestOptions } from '../base/network/APIs';
-import { MihoyoApiService } from '../base/network/MihoyoApiService';
-import { MihoyoDomain } from '../base/network/MihoyoDomain';
+import { RequestParams, RequestOptions } from '../../base/network/APIs';
+import { MihoyoApiService } from '../../base/network/MihoyoApiService';
+import { MihoyoDomain } from '../../base/network/MihoyoDomain';
 import { StarRailApiPath } from './StarRailApiPath';
-import { MihoyoHeaderBuilder, HeaderProfile } from '../base/network/MihoyoHeaderBuilder';
-import { ApiConfig } from '../base/network/ApiConfig';
-import { HKey, HVal } from '../base/network/MihoyoHeaderKey';
-import { GameFpBiz } from '../base/network/DeviceFpService';
-import { Logger } from '../base/utils/Logger';
-import { StarRailComputeAvatar, StarRailComputeEquipment, StarRailComputeSkill } from '../models/StarRailRows';
+import { MihoyoHeaderBuilder, HeaderProfile } from '../../base/network/MihoyoHeaderBuilder';
+import { ApiConfig } from '../../base/network/ApiConfig';
+import { HKey, HVal } from '../../base/network/MihoyoHeaderKey';
+import { GameFpBiz } from '../../base/network/DeviceFpService';
+import { Logger } from '../../base/utils/Logger';
+import { StarRailComputeAvatar, StarRailComputeEquipment, StarRailComputeSkill } from '../model/StarRailRows';
 
 const WIDGET_EXTENSION_UA: string = 'WidgetExtension/434 CFNetwork/1492.0.1 Darwin/23.3.0';
 

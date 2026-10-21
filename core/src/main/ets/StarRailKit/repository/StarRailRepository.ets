@@ -1,6 +1,6 @@
-import { GameRepository } from './GameRepository';
-import { SyncDataType } from '../common/constants/SyncDataType';
-import { StarRailDBManager } from '../database/StarRailDBManager';
+import { GameRepository } from '../../repository/GameRepository';
+import { SyncDataType } from '../../common/constants/SyncDataType';
+import { StarRailDBManager } from '../db/StarRailDBManager';
 import {
   StarRailAvatarBasicRow,
   StarRailDailyNoteRow,
@@ -14,22 +14,22 @@ import {
   StarRailComputeSkill,
   StarRailAvatarInfoItem,
   StarRailAvatarSkill,
-} from '../models/StarRailRows';
-import { StarRailApiService } from '../network/StarRailApiService';
-import { GeetestService } from '../base/network/GeetestService';
-import { MihoyoDomain } from '../base/network/MihoyoDomain';
-import { StarRailApiPath } from '../network/StarRailApiPath';
-import { AuthExpiredError } from '../base/errors/ApiErrors';
-import { CookieRefreshCoordinator } from '../base/cookie/CookieRefreshCoordinator';
-import { CoreInitializer } from '../CoreInitializer';
-import { BBSRepository } from './BBSRepository';
-import { MaterialBagRow } from '../models/MaterialBagRow';
-import { StarRailComputeParser, StarRailMaterialItem } from '../parsers/starrail/StarRailComputeParser';
-import { GameId } from '../common/constants/GameId';
-import { Logger } from '../base/utils/Logger';
-import { CookieDebug } from '../base/utils/CookieDebug';
-import { ApiErrorCodes } from '../common/constants/ApiErrorCodes';
-import { ApiErrorHandler } from '../base/utils/ApiErrorHandler';
+} from '../model/StarRailRows';
+import { StarRailApiService } from '../api/StarRailApiService';
+import { GeetestService } from '../../base/network/GeetestService';
+import { MihoyoDomain } from '../../base/network/MihoyoDomain';
+import { StarRailApiPath } from '../api/StarRailApiPath';
+import { AuthExpiredError } from '../../base/errors/ApiErrors';
+import { CookieRefreshCoordinator } from '../../base/cookie/CookieRefreshCoordinator';
+import { CoreInitializer } from '../../CoreInitializer';
+import { BBSRepository } from '../../repository/BBSRepository';
+import { MaterialBagRow } from '../../models/MaterialBagRow';
+import { StarRailComputeParser, StarRailMaterialItem } from '../parser/StarRailComputeParser';
+import { GameId } from '../../common/constants/GameId';
+import { Logger } from '../../base/utils/Logger';
+import { CookieDebug } from '../../base/utils/CookieDebug';
+import { ApiErrorCodes } from '../../common/constants/ApiErrorCodes';
+import { ApiErrorHandler } from '../../base/utils/ApiErrorHandler';
 
 
 /** tryWidgetFallback 结果 */

@@ -8,7 +8,7 @@ import { HKey, HVal } from './MihoyoHeaderKey';
 import { ApiConfig } from './ApiConfig';
 import { GameId } from '../../common/constants/GameId';
 import { GenshinApiPath } from '../../GenshinKit/api/GenshinApiPath';
-import { StarRailApiPath } from '../../network/StarRailApiPath';
+import { StarRailApiPath } from '../../StarRailKit/api/StarRailApiPath';
 import { ZZZApiPath } from '../../network/ZZZApiPath';
 import { GeetestReporter, GeetestRequiredListener } from './GeetestReporter';
 import { ZZZRecordRequest } from '../../network/ZZZRecordRequest';

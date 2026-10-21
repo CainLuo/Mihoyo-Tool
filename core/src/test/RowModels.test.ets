@@ -18,7 +18,7 @@ import {
   StarRailDailyNoteRow,
   StarRailAvatarInfoRow,
   StarRailAvatarComputeRow
-} from '../main/ets/models/StarRailRows';
+} from '../main/ets/StarRailKit/model/StarRailRows';
 import {
   ZZZAvatarBasicRow,
   ZZZDailyNoteRow,

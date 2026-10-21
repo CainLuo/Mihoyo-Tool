@@ -7,13 +7,13 @@ import {
   StarRailDailyNoteDao,
   StarRailAvatarInfoDao,
   StarRailAvatarComputeDao
-} from '../../../main/ets/database/StarRailDao';
+} from '../../../main/ets/StarRailKit/db/StarRailDao';
 import {
   StarRailAvatarBasicRow,
   StarRailDailyNoteRow,
   StarRailAvatarInfoRow,
   StarRailAvatarComputeRow
-} from '../../../main/ets/models/StarRailRows';
+} from '../../../main/ets/StarRailKit/model/StarRailRows';
 import { AccountRow } from '../../../main/ets/models/AccountRow';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 

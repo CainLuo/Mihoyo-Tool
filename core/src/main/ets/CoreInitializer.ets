@@ -7,7 +7,7 @@ import { ApiConfig } from './base/network/ApiConfig';
 import { DSUtil } from './base/network/DSUtil';
 import { BBSRepository } from './repository/BBSRepository';
 import { GenshinRepository } from './GenshinKit/repository/GenshinRepository';
-import { StarRailRepository } from './repository/StarRailRepository';
+import { StarRailRepository } from './StarRailKit/repository/StarRailRepository';
 import { ZZZRepository } from './repository/ZZZRepository';
 import { SignRepository } from './repository/SignRepository';
 import { SyncQueueRunner } from './repository/SyncQueueRunner';

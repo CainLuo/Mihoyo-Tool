@@ -11,20 +11,20 @@
  * 所有读取操作通过 RdbManager.queryFirst/queryAll 封装，自动管理 ResultSet 生命周期。
  */
 import { relationalStore } from '@kit.ArkData';
-import { RdbManager } from './RdbManager';
-import { RsReader } from './RsReader';
+import { RdbManager } from '../../database/RdbManager';
+import { RsReader } from '../../database/RsReader';
 import {
   TableName, CommonCol, ComputeStateCol,
   StarRailAvatarBasicCol, StarRailDailyNoteCol, StarRailAvatarInfoCol, StarRailAvatarComputeCol,
   STARRAIL_AVATAR_BASIC_TABLE, STARRAIL_DAILY_NOTE_TABLE,
   STARRAIL_AVATAR_INFO_TABLE, STARRAIL_AVATAR_COMPUTE_TABLE
-} from './TableSchema';
+} from '../../database/TableSchema';
 import {
   StarRailAvatarBasicRow,
   StarRailDailyNoteRow,
   StarRailAvatarInfoRow,
   StarRailAvatarComputeRow
-} from '../models/StarRailRows';
+} from '../model/StarRailRows';
 
 // ─────────────────────────────────────────────
 // StarRailAvatarBasicDao：操作 starrail_avatar_basic

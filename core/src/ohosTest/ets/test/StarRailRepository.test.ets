@@ -2,14 +2,14 @@ import { describe, it, expect, beforeAll, beforeEach } from '@ohos/hypium';
 import { common } from '@kit.AbilityKit';
 import { RdbManager } from '../../../main/ets/database/RdbManager';
 import { BBSRepository } from '../../../main/ets/repository/BBSRepository';
-import { StarRailRepository } from '../../../main/ets/repository/StarRailRepository';
+import { StarRailRepository } from '../../../main/ets/StarRailKit/repository/StarRailRepository';
 import { AccountRow } from '../../../main/ets/models/AccountRow';
 import {
   StarRailAvatarBasicRow,
   StarRailDailyNoteRow,
   StarRailAvatarInfoRow,
   StarRailAvatarComputeRow
-} from '../../../main/ets/models/StarRailRows';
+} from '../../../main/ets/StarRailKit/model/StarRailRows';
 import { SyncMetaDao } from '../../../main/ets/database/SyncMetaDao';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 
