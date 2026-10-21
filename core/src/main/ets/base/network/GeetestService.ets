@@ -7,7 +7,7 @@ import { MihoyoAccountApiPath } from '../../network/MihoyoAccountApiPath';
 import { HKey, HVal } from './MihoyoHeaderKey';
 import { ApiConfig } from './ApiConfig';
 import { GameId } from '../../common/constants/GameId';
-import { GenshinApiPath } from '../../network/GenshinApiPath';
+import { GenshinApiPath } from '../../GenshinKit/api/GenshinApiPath';
 import { StarRailApiPath } from '../../network/StarRailApiPath';
 import { ZZZApiPath } from '../../network/ZZZApiPath';
 import { GeetestReporter, GeetestRequiredListener } from './GeetestReporter';

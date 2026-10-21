@@ -2,14 +2,14 @@ import { describe, it, expect, beforeAll, beforeEach } from '@ohos/hypium';
 import { common } from '@kit.AbilityKit';
 import { RdbManager } from '../../../main/ets/database/RdbManager';
 import { BBSRepository } from '../../../main/ets/repository/BBSRepository';
-import { GenshinRepository } from '../../../main/ets/repository/GenshinRepository';
+import { GenshinRepository } from '../../../main/ets/GenshinKit/repository/GenshinRepository';
 import { AccountRow } from '../../../main/ets/models/AccountRow';
 import {
   GenshinCharacterListRow,
   GenshinDailyNoteRow,
   GenshinCharacterDetailRow,
   GenshinCharacterComputeRow
-} from '../../../main/ets/models/GenshinRows';
+} from '../../../main/ets/GenshinKit/model/GenshinRows';
 import { SyncMetaDao } from '../../../main/ets/database/SyncMetaDao';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 

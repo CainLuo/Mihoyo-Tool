@@ -8,8 +8,8 @@
  * 迁移在事务外执行，失败后下次启动会整体重跑，每一步必须幂等（IF NOT EXISTS）。
  */
 
-import { RdbManager } from './RdbManager';
-import { TableName, GENSHIN_COMPUTE_SUMMARY_TABLE, ALL_INDEXES } from './TableSchema';
+import { RdbManager } from '../../../database/RdbManager';
+import { TableName, GENSHIN_COMPUTE_SUMMARY_TABLE, ALL_INDEXES } from '../../../database/TableSchema';
 
 export class RdbMigrationV5 {
   /**

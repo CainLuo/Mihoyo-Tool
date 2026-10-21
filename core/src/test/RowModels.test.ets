@@ -12,7 +12,7 @@ import {
   GenshinDailyNoteRow,
   GenshinCharacterDetailRow,
   GenshinCharacterComputeRow
-} from '../main/ets/models/GenshinRows';
+} from '../main/ets/GenshinKit/model/GenshinRows';
 import {
   StarRailAvatarBasicRow,
   StarRailDailyNoteRow,

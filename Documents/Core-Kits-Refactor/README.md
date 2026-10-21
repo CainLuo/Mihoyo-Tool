@@ -1,8 +1,8 @@
 # Core Kits 重构任务总览
 
-> 状态：**Phase 1.1 完成；Phase 1.2 第一批共享基础设施迁移完成；header / retcode 静态参考对照完成，运行时基线延后**
-> 当前阶段：**32 个共享文件已移到 `base/` / `common/constants/`，只改路径与 import；`default` / `debug` / `mock` 完整构建通过；`internal` 编译通过但 `SignHap` 因证书过期失败；`test-core.sh` / `test-entry.sh` 通过**
-> 下一步：**进入 Phase 2（Genshin → StarRail → ZZZ → Mihoyo）；`db/` / `sync/` / `common/material` 随对应文件迁移落位；已知问题和暂缓项见 [`Known-Issues.md`](Known-Issues.md)**
+> 状态：**Phase 1.2 第一批完成；Phase 2 GenshinKit 代码层完成；header / retcode 静态参考对照完成，运行时基线延后**
+> 当前阶段：**GenshinKit 已迁移 13 个文件（api / model / parser / constants / db DAO + V4/V5 migrations / repository）；`default` / `debug` / `mock` 构建和 `test-core.sh` / `test-entry.sh` 通过；`internal` 编译通过但 `SignHap` 因证书过期失败；`base/network/GeetestService` 暂时 import `GenshinKit/api/GenshinApiPath`（S-01）**
+> 下一步：**Phase 2 继续 StarRailKit → ZZZKit → MihoyoKit；Genshin 的 `TableSchema` 拆分、material DAO 拆分留到 Phase 3；已知问题和暂缓项见 [`Known-Issues.md`](Known-Issues.md)**
 > 更新时间：2026-10-21
 
 本目录集中存放整个 Core Kits 重构任务的规划、阶段记录和专题文档，避免 Mock、Kit、DB 等子任务的文档散落在仓库各处。
@@ -43,7 +43,7 @@
 | --- | --- | --- |
 | Phase 0 — 基线 | 🟡 构建基线完成；静态参考完成；运行时基线延后 | 四个 product（`default` / `mock` / `debug` / `internal`）构建通过；`test-core.sh` / `test-entry.sh` 通过（仅构建 ohosTest HAP，不是网络测试）；header / retcode 清单和 §2.2 静态参考矩阵已建在 [`API-Baseline.md`](API-Baseline.md)，运行时 **未采集（用户决定延后，不阻塞迁移）** |
 | Phase 1 — 底盘 | 🟡 Phase 1.1 完成；Phase 1.2 第一批完成 | 新增 `HttpTypes` / `BaseApiService`；5 个业务 Service + internal overlay 已继承并完成 `.data` 拆包；`AuthRepository` / `BBSRepository` / `DeviceFpService` / `GeetestService` / `ZZZRecordRequest` 已迁移；旧 `HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService` 已删除；Phase 1.2 第一批已迁移 32 个共享文件并只改 import；`default` / `debug` / `mock` 构建和 `test-core.sh` / `test-entry.sh` 通过，`internal` 编译通过但证书过期导致 `SignHap` 失败；基线 / 真机回归待补，见 [`Known-Issues.md`](Known-Issues.md) |
-| Phase 2 — 拆 Kit | ⏳ 未开始 | 按 Genshin → StarRail → ZZZ → Mihoyo 顺序拆 Kit |
+| Phase 2 — 拆 Kit | 🟡 GenshinKit 完成；StarRail / ZZZ / Mihoyo 未开始 | GenshinKit 已迁移 api / model / parser / constants / db DAO + V4/V5 migrations / repository 共 13 个文件；`TableSchema` 拆分和 material DAO 拆分按 Phase 3；`base/network/GeetestService` 暂时反向 import `GenshinKit/api/GenshinApiPath`，见 S-01 |
 | Phase 3 — DB 收尾 | ⏳ 未开始 | `TableName` 抽离、跨 Kit 迁移、`SchemaRegistry` 聚合 |
 | Phase 4 — Mock | 🟡 部分完成 | 清理、独立 mock product、脚本、Node mock-service 已完成；Swift-Vapor local service 与 App 接入未完成 |
 | Phase 5 — 收尾 | ⏳ 未开始 | 命名统一、删除兼容别名、最终更新 README / 文档 / CI |
@@ -142,7 +142,15 @@
 - 169 处相对 import 与 `core/Index.ets` 导出已更新；`core/src/internal` overlay import 同步更新；仅路径 / import 变更，不改 URL、header、DS、Cookie、retcode 或上报逻辑。
 - 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，`SignHap` 因开发证书过期失败（见 `Known-Issues.md` E-01）；全量相对 import 解析检查 524 个、0 缺失。
 - 仍留在 `network/`：游戏 / 账号专属 Service、Path 和 `MihoyoApiServiceFactory`，等 Phase 2 再拆；`base/cookie` 与 `base/network` 仍有既存反向依赖，本轮只搬位置，见 `Known-Issues.md` S-01。
-- 下一步：Phase 2 按 Genshin → StarRail → ZZZ → Mihoyo 拆 Kit；`db/`、`sync/`、`common/material` 随对应文件迁移落位，不单独提交空目录。
+- 下一步：Phase 2 继续 StarRailKit → ZZZKit → MihoyoKit；`db/`、`sync/`、`common/material` 随对应文件迁移落位，不单独提交空目录。
+
+**Phase 2 GenshinKit 代码层已完成（2026-10-21）**：
+
+- 13 个 Genshin 专属文件已用 `git mv` 迁入 `GenshinKit/`：`api`（ApiPath / ApiService）、`model`（Rows / CalcModels / CharacterDetailRaw）、`parser`（DailyNote / Compute）、`constants`（Element / PropertyType）、`db`（GenshinDao + RdbMigrationV4/V5）、`repository`（GenshinRepository）。
+- 更新 53 处相对 import、`core/Index.ets` 导出、`MihoyoApiServiceFactory`、`CoreInitializer` 和测试 import；仅路径变更，不改请求行为。
+- 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，`SignHap` 仍因 E-01 失败；相对 import 解析检查 0 缺失。
+- `base/network/GeetestService` 现在 import `GenshinKit/api/GenshinApiPath`，`database/RdbManager` import GenshinKit 的 V4/V5 migrations，属于暂时反向依赖，已记录为 S-01。
+- 未迁移：Genshin 的 `TableSchema` 片段、`GenshinMaterialBagDao` / `GenshinMaterialTargetConfigDao` 子类、material repository/model；按 Plan Phase 3 处理。V4 还包含星铁 material target config 的跨 Kit 迁移，Phase 3 再收口。
 
 ---
 

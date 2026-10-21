@@ -13,14 +13,14 @@
  * 所有读取操作通过 RdbManager.queryFirst/queryAll 封装，自动管理 ResultSet 生命周期。
  */
 import { relationalStore } from '@kit.ArkData';
-import { RdbManager } from './RdbManager';
-import { RsReader } from './RsReader';
+import { RdbManager } from '../../database/RdbManager';
+import { RsReader } from '../../database/RsReader';
 import {
   TableName, CommonCol, ComputeStateCol,
   GenshinCharListCol, GenshinDailyNoteCol, GenshinCharDetailCol, GenshinCharComputeCol, GenshinCalcAvatarCol, GenshinComputeSummaryCol,
   GENSHIN_CHARACTER_LIST_TABLE, GENSHIN_DAILY_NOTE_TABLE,
   GENSHIN_CHARACTER_DETAIL_TABLE, GENSHIN_CHARACTER_COMPUTE_TABLE, GENSHIN_CALC_AVATAR_TABLE, GENSHIN_COMPUTE_SUMMARY_TABLE
-} from './TableSchema';
+} from '../../database/TableSchema';
 import {
   GenshinCharacterListRow,
   GenshinDailyNoteRow,
@@ -28,7 +28,7 @@ import {
   GenshinCharacterComputeRow,
   GenshinCalcAvatarRow,
   GenshinComputeSummaryRow
-} from '../models/GenshinRows';
+} from '../model/GenshinRows';
 
 // ─────────────────────────────────────────────
 // GenshinCharacterListDao：操作 genshin_character_list

@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect } from '@ohos/hypium';
-import { GenshinComputeParser, GenshinComputeItem, GenshinMaterialItem } from '../main/ets/parsers/genshin/GenshinComputeParser';
+import { GenshinComputeParser, GenshinComputeItem, GenshinMaterialItem } from '../main/ets/GenshinKit/parser/GenshinComputeParser';
 
 // ─── 批量 API 响应格式测试数据 ────────────────────────────────────────
 

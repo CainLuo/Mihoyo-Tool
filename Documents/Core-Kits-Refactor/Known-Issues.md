@@ -1,6 +1,6 @@
 # Core Kits 已知问题与暂缓项
 
-> 状态：**已记录，暂不改代码；Phase 1.2 第一批完成**
+> 状态：**已记录，暂不改代码；Phase 1.2 第一批完成，Phase 2 GenshinKit 完成**
 > 更新时间：2026-10-21
 > 原则：当前构建和既有功能可运行；header / retcode 未采集项保持现状，不用静态推断修改行为。任何修复必须等真机、抓包或明确需求，不把“参考项目这样做”直接当成线上结论。
 >
@@ -47,7 +47,7 @@
 
 | ID | 项目 | 当前状态 | 当前决定 |
 | --- | --- | --- | --- |
-| S-01 | `base/` 仍有反向依赖 | `base/cookie` 依赖 `repository/BBSRepository`、`models/AccountRow`；`base/network` 依赖游戏专属 `network/ZZZRecordRequest` / `*ApiPath` 和根 `CoreInitializer` | 本轮只搬位置，不改依赖方向；Phase 2 拆 Kit / Phase 5 收口时通过接口、注入或下沉解耦，避免继续扩大 |
+| S-01 | 基础层仍有反向依赖 | `base/cookie` 依赖 `repository/BBSRepository`、`models/AccountRow`；`base/network` 依赖 `GenshinKit/api/GenshinApiPath`、`network/StarRailApiPath` / `ZZZApiPath` / `ZZZRecordRequest` 和根 `CoreInitializer`；`database/RdbManager` 依赖 `GenshinKit/db/migrations/RdbMigrationV4/V5` | 本轮只搬位置，不改依赖方向；后续 Kit 迁移 / Phase 3 DB 收口 / Phase 5 时通过接口、注入、SchemaRegistry 或下沉解耦，避免继续扩大 |
 
 ---
 
@@ -76,7 +76,21 @@
 - 不动业务 Service 的 URL / header / DS / Cookie / 上报逻辑。
 - 不动 `Mock.md` 涉及的 base URL 方案；`baseUrlType` 继续保持 no-op。
 - 根目录 `internal/core` 历史副本不动。
-- 已知问题 R-01 ~ R-08、D-01 ~ D-07、E-01、S-01 继续挂起，不阻塞 Phase 2。
+- 已知问题 R-01 ~ R-08、D-01 ~ D-07、E-01、S-01 继续挂起，不阻塞后续 Kit。
+
+### 3.4 Phase 2 GenshinKit（已完成）
+
+1. 13 个 Genshin 专属文件已迁入 `GenshinKit/`：
+   - `api`（GenshinApiPath / GenshinApiService）；
+   - `model`（GenshinRows / GenshinCalcModels / GenshinCharacterDetailRaw）；
+   - `parser`（GenshinDailyNoteParser / GenshinComputeParser）；
+   - `constants`（GenshinElement / GenshinPropertyType）；
+   - `db`（GenshinDao + RdbMigrationV4 / V5）；
+   - `repository`（GenshinRepository）。
+2. 53 处相对 import、`core/Index.ets`、`MihoyoApiServiceFactory`、`CoreInitializer` 和测试 import 已更新；只改路径，不改请求行为。
+3. 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，`SignHap` 因 E-01 失败；相对 import 解析检查 0 缺失。
+4. `base/network/GeetestService` 现在 import `GenshinKit/api/GenshinApiPath`，`database/RdbManager` import GenshinKit migrations，已并入 S-01；后续 Kit 迁移会继续扩大，必须在 Phase 3 / Phase 5 收口。
+5. 未迁移：Genshin 的 `TableSchema` 片段、`GenshinMaterialBagDao` / `GenshinMaterialTargetConfigDao` 子类、material model/repository；V4 还包含星铁 material target config 的跨 Kit 迁移，按 Phase 3 处理。
 
 ---
 
@@ -89,6 +103,16 @@
 - [x] 524 个相对 import 解析检查 0 缺失；无旧路径 / 旧 transport 引用
 - [x] diff 仅包含路径和 import 变更，没有修改业务请求行为
 - [x] 已知问题仍保留在本文件，未因搬文件而丢失
+
+### 4.1 Phase 2 GenshinKit 检查
+
+- [x] 13 个 Genshin 专属文件只在 `GenshinKit/` 出现，没有重复副本
+- [x] `core/Index.ets` 导出的 Genshin 符号不变
+- [x] `default` / `debug` / `mock` 构建通过；`internal` 编译通过，`SignHap` 因 E-01 失败
+- [x] `test-core.sh` / `test-entry.sh` 通过
+- [x] 相对 import 解析检查 0 缺失
+- [x] diff 仅包含路径和 import 变更，没有修改业务请求行为
+- [x] `TableSchema` / material DAO / material model/repository 的延后项已记录
 
 ---
 

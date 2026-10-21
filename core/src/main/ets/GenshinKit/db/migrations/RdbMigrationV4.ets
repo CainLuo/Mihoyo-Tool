@@ -13,8 +13,8 @@
  */
 
 import { relationalStore } from '@kit.ArkData';
-import { RdbManager } from './RdbManager';
-import { RsReader } from './RsReader';
+import { RdbManager } from '../../../database/RdbManager';
+import { RsReader } from '../../../database/RsReader';
 import {
   TableName,
   CommonCol,
@@ -22,7 +22,7 @@ import {
   GENSHIN_CHARACTER_COMPUTE_TABLE,
   GENSHIN_CALC_AVATAR_TABLE,
   ALL_INDEXES,
-} from './TableSchema';
+} from '../../../database/TableSchema';
 
 /** config_json 迁移用的行 */
 class ConfigJsonRow {

@@ -1,5 +1,5 @@
-import { GameRepository } from './GameRepository';
-import { SyncDataType } from '../common/constants/SyncDataType';
+import { GameRepository } from '../../repository/GameRepository';
+import { SyncDataType } from '../../common/constants/SyncDataType';
 import {
   GenshinCharacterListDao,
   GenshinDailyNoteDao,
@@ -7,7 +7,7 @@ import {
   GenshinCharacterComputeDao,
   GenshinCalcAvatarDao,
   GenshinComputeSummaryDao
-} from '../database/GenshinDao';
+} from '../db/GenshinDao';
 import {
   GenshinCharacterListRow,
   GenshinDailyNoteRow,
@@ -18,29 +18,29 @@ import {
   GenshinWeaponItem,
   GenshinCharacterItem,
   GenshinCharacterListData,
-} from '../models/GenshinRows';
-import { GenshinApiService } from '../network/GenshinApiService';
-import { GeetestService } from '../base/network/GeetestService';
-import { MihoyoDomain } from '../base/network/MihoyoDomain';
-import { GenshinApiPath } from '../network/GenshinApiPath';
-import { SyncError, SyncErrorKind, SyncErrorFactory, AuthExpiredError } from '../base/errors/ApiErrors';
-import { CookieRefreshCoordinator } from '../base/cookie/CookieRefreshCoordinator';
-import { Logger } from '../base/utils/Logger';
-import { ApiErrorHandler } from '../base/utils/ApiErrorHandler';
-import { ApiErrorCodes } from '../common/constants/ApiErrorCodes';
-import { CoreInitializer } from '../CoreInitializer';
-import { BBSRepository } from './BBSRepository';
-import { MaterialBagRepository } from './MaterialBagRepository';
-import { MaterialBagRow } from '../models/MaterialBagRow';
-import { GameId } from '../common/constants/GameId';
-import { CookieDebug } from '../base/utils/CookieDebug';
+} from '../model/GenshinRows';
+import { GenshinApiService } from '../api/GenshinApiService';
+import { GeetestService } from '../../base/network/GeetestService';
+import { MihoyoDomain } from '../../base/network/MihoyoDomain';
+import { GenshinApiPath } from '../api/GenshinApiPath';
+import { SyncError, SyncErrorKind, SyncErrorFactory, AuthExpiredError } from '../../base/errors/ApiErrors';
+import { CookieRefreshCoordinator } from '../../base/cookie/CookieRefreshCoordinator';
+import { Logger } from '../../base/utils/Logger';
+import { ApiErrorHandler } from '../../base/utils/ApiErrorHandler';
+import { ApiErrorCodes } from '../../common/constants/ApiErrorCodes';
+import { CoreInitializer } from '../../CoreInitializer';
+import { BBSRepository } from '../../repository/BBSRepository';
+import { MaterialBagRepository } from '../../repository/MaterialBagRepository';
+import { MaterialBagRow } from '../../models/MaterialBagRow';
+import { GameId } from '../../common/constants/GameId';
+import { CookieDebug } from '../../base/utils/CookieDebug';
 import {
   GENSHIN_TALENT_SLOT_COUNT,
   GenshinCalcTargets,
   GenshinCalcAvatarParam,
   GenshinCalcSkillParam,
   GenshinCalcWeaponParam,
-} from '../models/GenshinCalcModels';
+} from '../model/GenshinCalcModels';
 
 /** 计算器不支持的角色（奇偶·男/女），与 TeyvatGuide EXCLUDED_CHARACTER_IDS 一致 */
 const CALC_EXCLUDED_AVATAR_IDS: number[] = [10000117, 10000118];

@@ -7,13 +7,13 @@ import {
   GenshinDailyNoteDao,
   GenshinCharacterDetailDao,
   GenshinCharacterComputeDao
-} from '../../../main/ets/database/GenshinDao';
+} from '../../../main/ets/GenshinKit/db/GenshinDao';
 import {
   GenshinCharacterListRow,
   GenshinDailyNoteRow,
   GenshinCharacterDetailRow,
   GenshinCharacterComputeRow
-} from '../../../main/ets/models/GenshinRows';
+} from '../../../main/ets/GenshinKit/model/GenshinRows';
 import { AccountRow } from '../../../main/ets/models/AccountRow';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 

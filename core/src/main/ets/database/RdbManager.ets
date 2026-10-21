@@ -3,8 +3,8 @@ import { common } from '@kit.AbilityKit';
 import { ALL_TABLES, ALL_INDEXES, TableName } from './TableSchema';
 import { RdbMigrationV2 } from './RdbMigrationV2';
 import { RdbMigrationV3 } from './RdbMigrationV3';
-import { RdbMigrationV4 } from './RdbMigrationV4';
-import { RdbMigrationV5 } from './RdbMigrationV5';
+import { RdbMigrationV4 } from '../GenshinKit/db/migrations/RdbMigrationV4';
+import { RdbMigrationV5 } from '../GenshinKit/db/migrations/RdbMigrationV5';
 import { RdbMigrationV6 } from './RdbMigrationV6';
 import { RdbMigrationV7 } from './RdbMigrationV7';
 
