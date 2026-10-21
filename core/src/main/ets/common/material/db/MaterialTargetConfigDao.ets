@@ -1,8 +1,7 @@
 /**
- * MaterialTargetConfigDao — 养成目标配置数据访问对象
+ * MaterialTargetConfigDao — 养成目标配置 DAO 基类
  *
- * 提供对三个游戏养成目标配置表的 CRUD 操作。
- * 每个游戏有独立的表，通过继承 BaseMaterialTargetConfigDao 实现。
+ * 养成目标配置 DAO 基类；三个游戏的子类分别位于各自 Kit 的 db/ 目录。
  *
  * 唯一键：(account_id, role_uid)
  * 同一个米游社账号下，不同游戏角色的配置是独立的。
@@ -23,10 +22,10 @@
  */
 
 import { relationalStore } from '@kit.ArkData';
-import { RdbManager } from './RdbManager';
-import { TableName, CommonCol, MaterialTargetConfigCol, TableDef, GENSHIN_MATERIAL_TARGET_CONFIG_TABLE, STARRAIL_MATERIAL_TARGET_CONFIG_TABLE, ZZZ_MATERIAL_TARGET_CONFIG_TABLE } from './TableSchema';
-import { RsReader } from './RsReader';
-import { MaterialTargetConfigRow } from '../common/material/model/MaterialTargetConfigRow';
+import { RdbManager } from '../../../database/RdbManager';
+import { TableName, CommonCol, MaterialTargetConfigCol, TableDef } from '../../../database/TableSchema';
+import { RsReader } from '../../../database/RsReader';
+import { MaterialTargetConfigRow } from '../model/MaterialTargetConfigRow';
 
 /**
  * 养成目标配置 DAO 基类
@@ -120,28 +119,4 @@ export abstract class BaseMaterialTargetConfigDao {
       throw new Error(`MaterialTargetConfigDao.mapRow failed: ${e instanceof Error ? e.message : e}`);
     }
   }
-}
-
-/**
- * 原神养成目标配置 DAO
- */
-export class GenshinMaterialTargetConfigDao extends BaseMaterialTargetConfigDao {
-  protected tableName: TableName = TableName.GENSHIN_MATERIAL_TARGET_CONFIG;
-  protected tableDef: TableDef = GENSHIN_MATERIAL_TARGET_CONFIG_TABLE;
-}
-
-/**
- * 星穹铁道养成目标配置 DAO
- */
-export class StarRailMaterialTargetConfigDao extends BaseMaterialTargetConfigDao {
-  protected tableName: TableName = TableName.STARRAIL_MATERIAL_TARGET_CONFIG;
-  protected tableDef: TableDef = STARRAIL_MATERIAL_TARGET_CONFIG_TABLE;
-}
-
-/**
- * 绝区零养成目标配置 DAO
- */
-export class ZZZMaterialTargetConfigDao extends BaseMaterialTargetConfigDao {
-  protected tableName: TableName = TableName.ZZZ_MATERIAL_TARGET_CONFIG;
-  protected tableDef: TableDef = ZZZ_MATERIAL_TARGET_CONFIG_TABLE;
 }

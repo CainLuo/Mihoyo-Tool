@@ -39,8 +39,14 @@ export * from './src/main/ets/StarRailKit/db/StarRailDao';
 export * from './src/main/ets/StarRailKit/db/StarRailDBManager';
 export * from './src/main/ets/ZZZKit/db/ZZZDao';
 export * from './src/main/ets/sync/db/SyncMetaDao';
-export * from './src/main/ets/database/MaterialBagDao';
-export * from './src/main/ets/database/MaterialTargetConfigDao';
+export * from './src/main/ets/common/material/db/MaterialBagDao';
+export * from './src/main/ets/GenshinKit/db/MaterialBagDao';
+export * from './src/main/ets/StarRailKit/db/MaterialBagDao';
+export * from './src/main/ets/ZZZKit/db/MaterialBagDao';
+export * from './src/main/ets/common/material/db/MaterialTargetConfigDao';
+export * from './src/main/ets/GenshinKit/db/MaterialTargetConfigDao';
+export * from './src/main/ets/StarRailKit/db/MaterialTargetConfigDao';
+export * from './src/main/ets/ZZZKit/db/MaterialTargetConfigDao';
 // 数据模型
 export * from './src/main/ets/MihoyoKit/model/AccountRow';
 export * from './src/main/ets/MihoyoKit/model/GameRoleRow';

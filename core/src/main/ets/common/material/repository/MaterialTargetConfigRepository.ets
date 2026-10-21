@@ -19,12 +19,10 @@
  * ```
  */
 
-import {
-  GenshinMaterialTargetConfigDao,
-  StarRailMaterialTargetConfigDao,
-  ZZZMaterialTargetConfigDao,
-  BaseMaterialTargetConfigDao
-} from '../../../database/MaterialTargetConfigDao';
+import { BaseMaterialTargetConfigDao } from '../db/MaterialTargetConfigDao';
+import { GenshinMaterialTargetConfigDao } from '../../../GenshinKit/db/MaterialTargetConfigDao';
+import { StarRailMaterialTargetConfigDao } from '../../../StarRailKit/db/MaterialTargetConfigDao';
+import { ZZZMaterialTargetConfigDao } from '../../../ZZZKit/db/MaterialTargetConfigDao';
 import {
   MaterialTargetConfigRow,
   GenshinMaterialTargetConfigJson,

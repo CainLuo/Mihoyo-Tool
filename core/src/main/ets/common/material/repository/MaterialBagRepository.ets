@@ -17,12 +17,10 @@
  * ```
  */
 
-import {
-  GenshinMaterialBagDao,
-  StarRailMaterialBagDao,
-  ZZZMaterialBagDao,
-  BaseMaterialBagDao
-} from '../../../database/MaterialBagDao';
+import { BaseMaterialBagDao } from '../db/MaterialBagDao';
+import { GenshinMaterialBagDao } from '../../../GenshinKit/db/MaterialBagDao';
+import { StarRailMaterialBagDao } from '../../../StarRailKit/db/MaterialBagDao';
+import { ZZZMaterialBagDao } from '../../../ZZZKit/db/MaterialBagDao';
 import { MaterialBagRow } from '../model/MaterialBagRow';
 import { GameId } from '../../constants/GameId';
 import { Logger } from '../../../base/utils/Logger';

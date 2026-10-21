@@ -1,8 +1,7 @@
 /**
- * MaterialBagDao — 材料背包数据访问对象
+ * MaterialBagDao — 材料背包 DAO 基类
  *
- * 提供对三个游戏材料背包表的 CRUD 操作。
- * 每个游戏有独立的表，通过继承 BaseMaterialBagDao 实现。
+ * 材料背包 DAO 基类；三个游戏的子类分别位于各自 Kit 的 db/ 目录。
  *
  * 唯一键：(account_id, role_uid, material_id)
  * 同一个米游社账号下，不同游戏角色的背包是独立的。
@@ -23,10 +22,10 @@
  */
 
 import { relationalStore } from '@kit.ArkData';
-import { RdbManager } from './RdbManager';
-import { TableName, CommonCol, MaterialBagCol, TableDef, GENSHIN_MATERIAL_BAG_TABLE, STARRAIL_MATERIAL_BAG_TABLE, ZZZ_MATERIAL_BAG_TABLE } from './TableSchema';
-import { RsReader } from './RsReader';
-import { MaterialBagRow } from '../common/material/model/MaterialBagRow';
+import { RdbManager } from '../../../database/RdbManager';
+import { TableName, CommonCol, MaterialBagCol, TableDef } from '../../../database/TableSchema';
+import { RsReader } from '../../../database/RsReader';
+import { MaterialBagRow } from '../model/MaterialBagRow';
 
 /**
  * 材料背包 DAO 基类
@@ -190,28 +189,4 @@ export abstract class BaseMaterialBagDao {
       throw new Error(`MaterialBagDao.mapRow failed: ${e instanceof Error ? e.message : e}`);
     }
   }
-}
-
-/**
- * 原神材料背包 DAO
- */
-export class GenshinMaterialBagDao extends BaseMaterialBagDao {
-  protected tableName: TableName = TableName.GENSHIN_MATERIAL_BAG;
-  protected tableDef: TableDef = GENSHIN_MATERIAL_BAG_TABLE;
-}
-
-/**
- * 星穹铁道材料背包 DAO
- */
-export class StarRailMaterialBagDao extends BaseMaterialBagDao {
-  protected tableName: TableName = TableName.STARRAIL_MATERIAL_BAG;
-  protected tableDef: TableDef = STARRAIL_MATERIAL_BAG_TABLE;
-}
-
-/**
- * 绝区零材料背包 DAO
- */
-export class ZZZMaterialBagDao extends BaseMaterialBagDao {
-  protected tableName: TableName = TableName.ZZZ_MATERIAL_BAG;
-  protected tableDef: TableDef = ZZZ_MATERIAL_BAG_TABLE;
 }
