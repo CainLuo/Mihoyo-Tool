@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeAll, beforeEach } from '@ohos/hypium';
 import { common } from '@kit.AbilityKit';
 import { RdbManager } from '../../../main/ets/database/RdbManager';
-import { BBSRepository } from '../../../main/ets/repository/BBSRepository';
-import { AccountRow } from '../../../main/ets/models/AccountRow';
-import { GameRoleRow } from '../../../main/ets/models/GameRoleRow';
-import { GameRoleDao } from '../../../main/ets/database/BBSDao';
+import { BBSRepository } from '../../../main/ets/MihoyoKit/repository/BBSRepository';
+import { AccountRow } from '../../../main/ets/MihoyoKit/model/AccountRow';
+import { GameRoleRow } from '../../../main/ets/MihoyoKit/model/GameRoleRow';
+import { GameRoleDao } from '../../../main/ets/MihoyoKit/db/BBSDao';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 
 async function getContext(): Promise<common.UIAbilityContext> {

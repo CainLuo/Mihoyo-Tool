@@ -1,9 +1,9 @@
-import { RequestParams, RequestOptions } from '../base/network/APIs';
-import { MihoyoApiService } from '../base/network/MihoyoApiService';
-import { MihoyoDomain } from '../base/network/MihoyoDomain';
+import { RequestParams, RequestOptions } from '../../base/network/APIs';
+import { MihoyoApiService } from '../../base/network/MihoyoApiService';
+import { MihoyoDomain } from '../../base/network/MihoyoDomain';
 import { SignApiPath, SIGN_GAME_ACT_ID, gameBizToSignHost } from './SignApiPath';
-import { MihoyoHeaderBuilder, HeaderProfile } from '../base/network/MihoyoHeaderBuilder';
-import { HKey } from '../base/network/MihoyoHeaderKey';
+import { MihoyoHeaderBuilder, HeaderProfile } from '../../base/network/MihoyoHeaderBuilder';
+import { HKey } from '../../base/network/MihoyoHeaderKey';
 
 export class SignApiService extends MihoyoApiService {
 

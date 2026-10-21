@@ -1,10 +1,10 @@
 import { relationalStore } from '@kit.ArkData';
-import { RdbManager } from './RdbManager';
-import { RsReader } from './RsReader';
-import { TableName, CommonCol, AccountCol, GameRoleCol, ACCOUNT_TABLE, GAME_ROLE_TABLE } from './TableSchema';
-import { AccountRow } from '../models/AccountRow';
-import { GameRoleRow } from '../models/GameRoleRow';
-import { GameId } from '../common/constants/GameId';
+import { RdbManager } from '../../database/RdbManager';
+import { RsReader } from '../../database/RsReader';
+import { TableName, CommonCol, AccountCol, GameRoleCol, ACCOUNT_TABLE, GAME_ROLE_TABLE } from '../../database/TableSchema';
+import { AccountRow } from '../model/AccountRow';
+import { GameRoleRow } from '../model/GameRoleRow';
+import { GameId } from '../../common/constants/GameId';
 
 // ─────────────────────────────────────────────
 // AccountDao：操作 account_table

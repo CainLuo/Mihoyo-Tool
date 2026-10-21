@@ -20,7 +20,7 @@ import { SyncMetaDao } from '../database/SyncMetaDao';
 import { SyncMetaRow } from '../models/SyncMetaRow';
 import { SyncDataType } from '../common/constants/SyncDataType';
 import { CoreInitializer } from '../CoreInitializer';
-import { GameRoleRow } from '../models/GameRoleRow';
+import { GameRoleRow } from '../MihoyoKit/model/GameRoleRow';
 import { GameId } from '../common/constants/GameId';
 import { SyncTask } from '../models/SyncTask';
 import { Logger } from '../base/utils/Logger';

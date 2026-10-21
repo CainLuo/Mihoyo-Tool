@@ -1,9 +1,9 @@
 import { describe, it, expect, beforeAll, beforeEach } from '@ohos/hypium';
 import { common } from '@kit.AbilityKit';
 import { RdbManager } from '../../../main/ets/database/RdbManager';
-import { BBSRepository } from '../../../main/ets/repository/BBSRepository';
+import { BBSRepository } from '../../../main/ets/MihoyoKit/repository/BBSRepository';
 import { ZZZRepository } from '../../../main/ets/ZZZKit/repository/ZZZRepository';
-import { AccountRow } from '../../../main/ets/models/AccountRow';
+import { AccountRow } from '../../../main/ets/MihoyoKit/model/AccountRow';
 import {
   ZZZAvatarBasicRow,
   ZZZDailyNoteRow,

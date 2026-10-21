@@ -1,38 +1,38 @@
-import { MihoyoApiService } from '../base/network/MihoyoApiService';
-import { MihoyoAccountApiService } from '../network/MihoyoAccountApiService';
-import { AccountDao, GameRoleDao } from '../database/BBSDao';
-import { RdbManager } from '../database/RdbManager';
-import { AccountRow } from '../models/AccountRow';
-import { GameRoleRow } from '../models/GameRoleRow';
+import { MihoyoApiService } from '../../base/network/MihoyoApiService';
+import { MihoyoAccountApiService } from '../api/MihoyoAccountApiService';
+import { AccountDao, GameRoleDao } from '../db/BBSDao';
+import { RdbManager } from '../../database/RdbManager';
+import { AccountRow } from '../model/AccountRow';
+import { GameRoleRow } from '../model/GameRoleRow';
 import { AuthRepository } from './AuthRepository';
-import { SyncQueueRunner } from './SyncQueueRunner';
-import { GameId, isGameSupported, gameIdFromMihoyo } from '../common/constants/GameId';
-import { gameBizToGameId } from '../common/constants/GameServer';
+import { SyncQueueRunner } from '../../repository/SyncQueueRunner';
+import { GameId, isGameSupported, gameIdFromMihoyo } from '../../common/constants/GameId';
+import { gameBizToGameId } from '../../common/constants/GameServer';
 import {
   BbsAccountDetailResult,
   BbsAccountDetailResponse,
-} from '../models/BbsAccountModels';
+} from '../model/BbsAccountModels';
 import {
   GameRoleRecord,
   GameRolesResponse,
   GameRecordCardResponse,
-} from '../models/GameRoleModels';
-import { ApiLogSystem } from '../base/log/ApiLogSystem';
-import { LogEventType } from '../base/log/ApiLogEntry';
-import { Logger } from '../base/utils/Logger';
-import { AuthExpiredError, GeetestRequiredError } from '../base/errors/ApiErrors';
+} from '../model/GameRoleModels';
+import { ApiLogSystem } from '../../base/log/ApiLogSystem';
+import { LogEventType } from '../../base/log/ApiLogEntry';
+import { Logger } from '../../base/utils/Logger';
+import { AuthExpiredError, GeetestRequiredError } from '../../base/errors/ApiErrors';
 
 export {
   GameRoleRecord,
   RoleStatItem,
-} from '../models/GameRoleModels';
+} from '../model/GameRoleModels';
 export {
   BbsAccountDetailResult,
-} from '../models/BbsAccountModels';
+} from '../model/BbsAccountModels';
 export {
   GameRoleApiInfo,
   GameRolesResponse,
-} from '../models/GameRoleModels';
+} from '../model/GameRoleModels';
 
 /** login() 方法的返回值，供 entry 层组装 AccountVM */
 export class LoginResult {

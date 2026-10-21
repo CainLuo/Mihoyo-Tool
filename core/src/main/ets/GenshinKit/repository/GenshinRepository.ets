@@ -29,7 +29,7 @@ import { Logger } from '../../base/utils/Logger';
 import { ApiErrorHandler } from '../../base/utils/ApiErrorHandler';
 import { ApiErrorCodes } from '../../common/constants/ApiErrorCodes';
 import { CoreInitializer } from '../../CoreInitializer';
-import { BBSRepository } from '../../repository/BBSRepository';
+import { BBSRepository } from '../../MihoyoKit/repository/BBSRepository';
 import { MaterialBagRepository } from '../../repository/MaterialBagRepository';
 import { MaterialBagRow } from '../../models/MaterialBagRow';
 import { GameId } from '../../common/constants/GameId';

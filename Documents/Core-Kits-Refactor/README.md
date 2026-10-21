@@ -1,8 +1,8 @@
 # Core Kits 重构任务总览
 
-> 状态：**Phase 1.2 第一批完成；Phase 2 GenshinKit / StarRailKit / ZZZKit 代码层完成；header / retcode 静态参考对照完成，运行时基线延后**
-> 当前阶段：**GenshinKit 已迁移 13 个文件，StarRailKit 11 个，ZZZKit 14 个；`default` / `debug` / `mock` 构建和 `test-core.sh` / `test-entry.sh` 通过；`internal` 编译通过但 `SignHap` 因证书过期失败；`base/network` 暂时 import 三个 Kit 的 ApiPath / ZZZRecordRequest（S-01）**
-> 下一步：**Phase 2 继续 MihoyoKit；三个游戏 Kit 的 `TableSchema` 拆分、material DAO 拆分留到 Phase 3；已知问题和暂缓项见 [`Known-Issues.md`](Known-Issues.md)**
+> 状态：**Phase 1.2 第一批完成；Phase 2 GenshinKit / StarRailKit / ZZZKit / MihoyoKit 代码层完成；header / retcode 静态参考对照完成，运行时基线延后**
+> 当前阶段：**GenshinKit 已迁移 13 个文件，StarRailKit 11 个，ZZZKit 14 个；Mihoyo 账号域迁移 18 个主文件（17 个入 MihoyoKit，工厂文件迁根）+ 3 个 internal overlay；`default` / `debug` / `mock` 构建和 `test-core.sh` / `test-entry.sh` 通过；`internal` 编译通过但 `SignHap` 因证书过期失败；工厂文件已改为根 `ApiServiceFactory.ets`（类名暂不变）**
+> 下一步：**Phase 3 拆分各 Kit 的 `TableSchema`、material DAO / model / repository，并收口 `db/` / `sync/` / `common/material`；运行时 header / retcode、真机与 Mock 回归仍延后；已知问题和暂缓项见 [`Known-Issues.md`](Known-Issues.md)**
 > 更新时间：2026-10-21
 
 本目录集中存放整个 Core Kits 重构任务的规划、阶段记录和专题文档，避免 Mock、Kit、DB 等子任务的文档散落在仓库各处。
@@ -43,7 +43,7 @@
 | --- | --- | --- |
 | Phase 0 — 基线 | 🟡 构建基线完成；静态参考完成；运行时基线延后 | 四个 product（`default` / `mock` / `debug` / `internal`）构建通过；`test-core.sh` / `test-entry.sh` 通过（仅构建 ohosTest HAP，不是网络测试）；header / retcode 清单和 §2.2 静态参考矩阵已建在 [`API-Baseline.md`](API-Baseline.md)，运行时 **未采集（用户决定延后，不阻塞迁移）** |
 | Phase 1 — 底盘 | 🟡 Phase 1.1 完成；Phase 1.2 第一批完成 | 新增 `HttpTypes` / `BaseApiService`；5 个业务 Service + internal overlay 已继承并完成 `.data` 拆包；`AuthRepository` / `BBSRepository` / `DeviceFpService` / `GeetestService` / `ZZZRecordRequest` 已迁移；旧 `HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService` 已删除；Phase 1.2 第一批已迁移 32 个共享文件并只改 import；`default` / `debug` / `mock` 构建和 `test-core.sh` / `test-entry.sh` 通过，`internal` 编译通过但证书过期导致 `SignHap` 失败；基线 / 真机回归待补，见 [`Known-Issues.md`](Known-Issues.md) |
-| Phase 2 — 拆 Kit | 🟡 GenshinKit / StarRailKit / ZZZKit 完成；Mihoyo 未开始 | GenshinKit / StarRailKit / ZZZKit 分别迁移 13 / 11 / 14 个文件（api / model / parser / constants / db / repository）；`TableSchema` 拆分和 material DAO 拆分按 Phase 3；`base/network` 暂时反向 import 三个 Kit 的 ApiPath / ZZZRecordRequest，见 S-01 |
+| Phase 2 — 拆 Kit | 🟡 GenshinKit / StarRailKit / ZZZKit / MihoyoKit 完成；Phase 3 未开始 | GenshinKit / StarRailKit / ZZZKit 分别迁移 13 / 11 / 14 个文件；Mihoyo 账号域迁移 18 个主文件（17 个入 MihoyoKit，工厂文件迁根），另有 3 个 internal overlay；`MihoyoApiServiceFactory` 文件迁到根 `ApiServiceFactory.ets`，类名暂不变；`TableSchema` 拆分和 material DAO 拆分按 Phase 3；`base` / 其他 Kit 仍有反向依赖，见 S-01 |
 | Phase 3 — DB 收尾 | ⏳ 未开始 | `TableName` 抽离、跨 Kit 迁移、`SchemaRegistry` 聚合 |
 | Phase 4 — Mock | 🟡 部分完成 | 清理、独立 mock product、脚本、Node mock-service 已完成；Swift-Vapor local service 与 App 接入未完成 |
 | Phase 5 — 收尾 | ⏳ 未开始 | 命名统一、删除兼容别名、最终更新 README / 文档 / CI |
@@ -83,9 +83,9 @@
 
 ---
 
-## 6. 下一步
+## 6. 实施记录
 
-按 `Plan.md` 的阶段顺序，Mock 清理完成后先做 **Phase 1.1 BaseApiService**：
+按 `Plan.md` 的阶段顺序，**Phase 1.1 BaseApiService** 已完成；以下保留实施记录：
 
 **Phase 1.1 — BaseApiService（Stage 0-3 已完成；基线 / 真机回归延后）**
 
@@ -141,8 +141,8 @@
 - 32 个共享文件已用 `git mv` 迁移：`base/network`（14）、`base/log`（4）、`base/errors`（1）、`base/utils`（4）、`base/cookie`（2）、`common/constants`（7）。
 - 169 处相对 import 与 `core/Index.ets` 导出已更新；`core/src/internal` overlay import 同步更新；仅路径 / import 变更，不改 URL、header、DS、Cookie、retcode 或上报逻辑。
 - 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，`SignHap` 因开发证书过期失败（见 `Known-Issues.md` E-01）；全量相对 import 解析检查 524 个、0 缺失。
-- 仍留在 `network/`：游戏 / 账号专属 Service、Path 和 `MihoyoApiServiceFactory`，等 Phase 2 再拆；`base/cookie` 与 `base/network` 仍有既存反向依赖，本轮只搬位置，见 `Known-Issues.md` S-01。
-- 下一步：Phase 2 继续 MihoyoKit；`db/`、`sync/`、`common/material` 随对应文件迁移落位，不单独提交空目录。
+- 原留在 `network/` 的游戏 / 账号专属 Service、Path 和 `MihoyoApiServiceFactory` 已在 Phase 2 迁入各 Kit / 根 `ApiServiceFactory.ets`，`network/` 目录已删除；`base/cookie` 与 `base/network` 仍有既存反向依赖，见 `Known-Issues.md` S-01。
+- 后续：Phase 2 已完成；`db/`、`sync/`、`common/material` 随 Phase 3 文件迁移落位，不单独提交空目录。
 
 **Phase 2 GenshinKit 代码层已完成（2026-10-21）**：
 
@@ -167,6 +167,16 @@
 - 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，`SignHap` 仍因 E-01 失败；相对 import 解析检查 0 缺失。
 - `base/network/ApiConfig` 和 `GeetestService` 现在 import `ZZZKit/api/ZZZRecordRequest` / `ZZZApiPath`，`database/RdbManager` import ZZZKit 的 V2/V6 migrations，属于 S-01 暂时反向依赖；`MihoyoApiServiceFactory` 已指向新路径。
 - 未迁移：ZZZ 的 `TableSchema` 片段、`ZZZMaterialBagDao` / `ZZZMaterialTargetConfigDao` 子类、material repository/model；按 Plan Phase 3 处理。下一步 MihoyoKit。
+
+**Phase 2 MihoyoKit 代码层已完成（2026-10-21）**：
+
+- Mihoyo 账号域 18 个主文件已迁移：17 个用 `git mv` 迁入 `MihoyoKit/`——`api`（MihoyoAccountApiPath / MihoyoAccountApiService / PassportApiPath / QRCodeApiPath / SignApiPath / SignApiService，6）、`model`（AccountRow / GameRoleRow / BbsAccountModels / GameRoleModels / TokenModels / PhoneLoginModels / QRCodeLoginModels，7）、`db`（BBSDao，1）、`repository`（AuthRepository / BBSRepository / SignRepository，3）；另 1 个工厂文件迁到根。
+- `network/MihoyoApiServiceFactory.ets` 已用 `git mv` 迁为根 `ApiServiceFactory.ets`；类名 `MihoyoApiServiceFactory` 暂不改，留给 Phase 5 统一命名。
+- 3 个 internal overlay 已同步镜像到 `internal/ets/MihoyoKit/{api,repository,model}/`，与 main 保持相同相对路径；overlay import 按 main 路径计算，继续依赖 overlay 的同路径 fallback。
+- 更新 123 处相对 import、`core/Index.ets` 导出、`CoreInitializer`、Genshin / StarRail / ZZZ 三个 Repository、base cookie / network 和测试 import；仅路径变更，不改 URL、header、DS、Cookie、retcode 或上报逻辑。
+- 反向依赖（S-01）：`base/cookie` 现在 import `MihoyoKit/repository/BBSRepository` / `MihoyoKit/model/AccountRow`；`base/network/GeetestService` import `MihoyoKit/api/MihoyoAccountApiPath`；`repository/SyncQueueRunner` import `MihoyoKit/model/GameRoleRow`；三个游戏 Repository 也 import `MihoyoKit/repository/BBSRepository`。留待 Phase 3 / Phase 5 收口。
+- 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，`SignHap` 仍因 E-01 失败；相对 import 解析检查 0 缺失。
+- 未迁移：`TableSchema` 中的账号 / role 片段、material DAO 子类、material repository/model；按 Plan Phase 3 处理。Phase 2 代码层完成。
 
 ---
 

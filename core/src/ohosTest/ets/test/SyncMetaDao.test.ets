@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeAll, beforeEach } from '@ohos/hypium';
 import { common } from '@kit.AbilityKit';
 import { RdbManager } from '../../../main/ets/database/RdbManager';
-import { AccountDao } from '../../../main/ets/database/BBSDao';
+import { AccountDao } from '../../../main/ets/MihoyoKit/db/BBSDao';
 import { SyncMetaDao } from '../../../main/ets/database/SyncMetaDao';
 import { SyncMetaRow } from '../../../main/ets/models/SyncMetaRow';
-import { AccountRow } from '../../../main/ets/models/AccountRow';
+import { AccountRow } from '../../../main/ets/MihoyoKit/model/AccountRow';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 
 async function getContext(): Promise<common.UIAbilityContext> {

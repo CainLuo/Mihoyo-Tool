@@ -12,7 +12,7 @@ export * from './src/main/ets/base/network/GeetestService';
 // Models
 
 // Repository
-export * from './src/main/ets/repository/AuthRepository';
+export * from './src/main/ets/MihoyoKit/repository/AuthRepository';
 
 // Constants
 export * from './src/main/ets/common/constants/ApiErrorCodes';
@@ -33,7 +33,7 @@ export * from './src/main/ets/CoreInitializer';
 
 // 数据库层
 export * from './src/main/ets/database/RdbManager';
-export * from './src/main/ets/database/BBSDao';
+export * from './src/main/ets/MihoyoKit/db/BBSDao';
 export * from './src/main/ets/GenshinKit/db/GenshinDao';
 export * from './src/main/ets/StarRailKit/db/StarRailDao';
 export * from './src/main/ets/StarRailKit/db/StarRailDBManager';
@@ -42,8 +42,8 @@ export * from './src/main/ets/database/SyncMetaDao';
 export * from './src/main/ets/database/MaterialBagDao';
 export * from './src/main/ets/database/MaterialTargetConfigDao';
 // 数据模型
-export * from './src/main/ets/models/AccountRow';
-export * from './src/main/ets/models/GameRoleRow';
+export * from './src/main/ets/MihoyoKit/model/AccountRow';
+export * from './src/main/ets/MihoyoKit/model/GameRoleRow';
 export * from './src/main/ets/GenshinKit/model/GenshinRows';
 export * from './src/main/ets/StarRailKit/model/StarRailRows';
 export * from './src/main/ets/ZZZKit/model/ZZZRows';
@@ -57,11 +57,11 @@ export * from './src/main/ets/models/MaterialBagRow';
 export * from './src/main/ets/models/MaterialTargetConfigRow';
 // Repository 层
 export * from './src/main/ets/repository/GameRepository';
-export * from './src/main/ets/repository/BBSRepository';
+export * from './src/main/ets/MihoyoKit/repository/BBSRepository';
 export * from './src/main/ets/GenshinKit/repository/GenshinRepository';
 export * from './src/main/ets/StarRailKit/repository/StarRailRepository';
 export * from './src/main/ets/ZZZKit/repository/ZZZRepository';
-export * from './src/main/ets/repository/SignRepository';
+export * from './src/main/ets/MihoyoKit/repository/SignRepository';
 export * from './src/main/ets/repository/SyncQueueRunner';
 export * from './src/main/ets/repository/MaterialBagRepository';
 export * from './src/main/ets/repository/MaterialTargetConfigRepository';
@@ -106,13 +106,13 @@ export * from './src/main/ets/base/network/MihoyoHeaderKey';
 
 // Domain 和 Path 枚举
 export * from './src/main/ets/base/network/MihoyoDomain';
-export * from './src/main/ets/network/MihoyoAccountApiPath';
-export * from './src/main/ets/network/PassportApiPath';
-export * from './src/main/ets/network/QRCodeApiPath';
+export * from './src/main/ets/MihoyoKit/api/MihoyoAccountApiPath';
+export * from './src/main/ets/MihoyoKit/api/PassportApiPath';
+export * from './src/main/ets/MihoyoKit/api/QRCodeApiPath';
 export * from './src/main/ets/GenshinKit/api/GenshinApiPath';
 export * from './src/main/ets/StarRailKit/api/StarRailApiPath';
 export * from './src/main/ets/ZZZKit/api/ZZZApiPath';
-export * from './src/main/ets/network/SignApiPath';
+export * from './src/main/ets/MihoyoKit/api/SignApiPath';
 
 // 请求头构建器
 export * from './src/main/ets/base/network/MihoyoHeaderBuilder';
@@ -122,14 +122,14 @@ export * from './src/main/ets/base/network/ApiConfig';
 export * from './src/main/ets/base/network/DSUtil';
 
 // Service 工厂
-export * from './src/main/ets/network/MihoyoApiServiceFactory';
+export * from './src/main/ets/ApiServiceFactory';
 
 // Release Service 实现
-export * from './src/main/ets/network/MihoyoAccountApiService';
+export * from './src/main/ets/MihoyoKit/api/MihoyoAccountApiService';
 export * from './src/main/ets/GenshinKit/api/GenshinApiService';
 export * from './src/main/ets/StarRailKit/api/StarRailApiService';
 export * from './src/main/ets/ZZZKit/api/ZZZApiService';
-export * from './src/main/ets/network/SignApiService';
+export * from './src/main/ets/MihoyoKit/api/SignApiService';
 
 // 业务错误类型（新的统一错误类）
 export {

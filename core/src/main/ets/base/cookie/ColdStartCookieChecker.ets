@@ -10,8 +10,8 @@
  * - 不阻塞调用方，由调用方异步触发
  */
 
-import { BBSRepository } from '../../repository/BBSRepository';
-import { AccountRow } from '../../models/AccountRow';
+import { BBSRepository } from '../../MihoyoKit/repository/BBSRepository';
+import { AccountRow } from '../../MihoyoKit/model/AccountRow';
 import { AuthExpiredError } from '../errors/ApiErrors';
 import { ApiLogSystem } from '../log/ApiLogSystem';
 import { Logger } from '../utils/Logger';

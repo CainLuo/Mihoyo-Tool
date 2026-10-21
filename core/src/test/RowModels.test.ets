@@ -5,8 +5,8 @@
  */
 
 import { describe, it, expect } from '@ohos/hypium';
-import { AccountRow } from '../main/ets/models/AccountRow';
-import { GameRoleRow } from '../main/ets/models/GameRoleRow';
+import { AccountRow } from '../main/ets/MihoyoKit/model/AccountRow';
+import { GameRoleRow } from '../main/ets/MihoyoKit/model/GameRoleRow';
 import {
   GenshinCharacterListRow,
   GenshinDailyNoteRow,

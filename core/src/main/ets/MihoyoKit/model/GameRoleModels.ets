@@ -6,7 +6,7 @@
  *   GET /binding/api/getUserGameRolesByCookie       — 获取绑定的游戏角色列表
  *   GET /game_record/app/card/wapi/getGameRecordCard — 获取角色详情（含背景图和统计数据）
  */
-import { GameId } from '../common/constants/GameId';
+import { GameId } from '../../common/constants/GameId';
 
 // ─── getUserGameRolesByCookie ─────────────────────────────────────
 

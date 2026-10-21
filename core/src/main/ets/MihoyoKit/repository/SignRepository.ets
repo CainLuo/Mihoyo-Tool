@@ -1,5 +1,5 @@
-import { MihoyoApiService } from '../base/network/MihoyoApiService';
-import { SignApiService } from '../network/SignApiService';
+import { MihoyoApiService } from '../../base/network/MihoyoApiService';
+import { SignApiService } from '../api/SignApiService';
 
 /**
  * SignRepository 签到功能仓库

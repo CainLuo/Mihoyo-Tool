@@ -2,13 +2,11 @@
  * AuthRepository.ets（internal 版，含手机号登录完整功能）
  */
 
-import { MihoyoAccountApiService } from '../network/MihoyoAccountApiService';
-import { Logger } from '../base/utils/Logger';
+import { MihoyoAccountApiService } from '../api/MihoyoAccountApiService';
 import {
   RETCODE_QR_EXPIRED,
   QR_STAT_EXPIRED,
   QR_STAT_CONFIRMED,
-  QR_PROTO_ACCOUNT,
   RESP_FIELD_TOKEN,
   RESP_FIELD_USER_INFO,
   RESP_FIELD_AID,
@@ -17,22 +15,23 @@ import {
   COOKIE_FIELD_COOKIE_TOKEN,
   COOKIE_FIELD_LTOKEN,
   COOKIE_FIELD_LTUID,
-} from '../common/constants/ApiConstants';
-import { LoginMobileResult } from '../models/PhoneLoginModels';
+} from '../../common/constants/ApiConstants';
+import { LoginMobileResult } from '../model/PhoneLoginModels';
 import {
   QRCodeFetchResult,
   QRCodeFetchResponse,
   QRCodeQueryResult,
   QRCodeQueryResponse,
   QRCodeConfirmedData,
-} from '../models/QRCodeLoginModels';
+} from '../model/QRCodeLoginModels';
+import { Logger } from '../../base/utils/Logger';
 import {
   GetLTokenBySTokenResponse,
   GetCookieBySTokenResponse,
   LoginCookieFields,
   GetCookieBySTokenV2Response,
   GetCookieAccountInfoBySTokenV2Response,
-} from '../models/TokenModels';
+} from '../model/TokenModels';
 
 
 export {
@@ -42,12 +41,12 @@ export {
   GeetestV4Data,
   PhoneLoginAccountInfo,
   PhoneLoginResponse,
-} from '../models/PhoneLoginModels';
+} from '../model/PhoneLoginModels';
 export {
   QRCodeFetchResult,
   QRCodeQueryResult,
   QRCodeConfirmedData,
-} from '../models/QRCodeLoginModels';
+} from '../model/QRCodeLoginModels';
 export {
   LoginCookieFields,
   UserInfo,
@@ -55,7 +54,7 @@ export {
   GetCookieBySTokenResponse,
   GetCookieBySTokenV2Response,
   GetCookieAccountInfoBySTokenV2Response,
-} from '../models/TokenModels';
+} from '../model/TokenModels';
 
 export class AuthRepository {
 

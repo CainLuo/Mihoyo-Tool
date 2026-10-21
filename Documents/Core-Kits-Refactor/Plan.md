@@ -1,6 +1,6 @@
 # Core 模块重构方案：Kits 化 + Mock 本地服务
 
-> 状态：**进行中；Mock 清理已完成，local service 接入未完成；Kit 重构待开始**
+> 状态：**进行中；Mock 清理已完成，local service 接入未完成；Phase 2 Kit 拆分完成，Phase 3 未开始**
 > 范围：`core/` HAR 内部目录重组、Mock 服务化、DB 归类；不改表结构、不改 entry 的 MVVM 结构、不拆多 HAR。
 > 原则：先移文件（`git mv`，保留历史）→ 再改代码；每个阶段可独立构建、可回滚。
 >
@@ -9,7 +9,7 @@
 >
 > **2026-10-20 更新**：独立 `mock/` ArkTS 适配器目录已删除；`mock` product 保留，生成独立 `.mock` 包（`APP_ENV=mock`）。`mock-service/` 与 fixtures 保留，后续用 Swift-Vapor local service 复用。以下涉及 `mock/` 的内容为历史记录。
 >
-> **2026-10-21 更新**：Phase 1.1 BaseApiService 的 Stage 0-3 已完成；`HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService` 已删除。Phase 1.2 第一批已将 32 个共享文件迁到 `base/` / `common/constants/`；Phase 2 GenshinKit / StarRailKit / ZZZKit 已分别将 13 / 11 / 14 个专属文件迁入对应 Kit，只改路径与 import。`default` / `debug` / `mock` 构建和两个测试脚本通过，`internal` 编译通过但 `SignHap` 因开发证书过期失败。已用 `mihoyo-api-sdk`、TeyvatGuide、PizzaHelperUnited 和本项目历史抓包完成 header / retcode 静态参考对照；运行时基线按用户决定延后到整个任务完成后，不阻塞后续 Kit。旧路径基线已无法补采，详见 [`API-Baseline.md`](API-Baseline.md) §2.2。
+> **2026-10-21 更新**：Phase 1.1 BaseApiService 的 Stage 0-3 已完成；`HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService` 已删除。Phase 1.2 第一批已将 32 个共享文件迁到 `base/` / `common/constants/`；Phase 2 GenshinKit / StarRailKit / ZZZKit 已分别将 13 / 11 / 14 个专属文件迁入对应 Kit；Mihoyo 账号域迁移 18 个主文件（17 个入 MihoyoKit，工厂文件迁为根 `ApiServiceFactory.ets`），另有 3 个 internal overlay，只改路径与 import。`default` / `debug` / `mock` 构建和两个测试脚本通过，`internal` 编译通过但 `SignHap` 因开发证书过期失败。已用 `mihoyo-api-sdk`、TeyvatGuide、PizzaHelperUnited 和本项目历史抓包完成 header / retcode 静态参考对照；运行时基线按用户决定延后到整个任务完成后，不阻塞后续 Kit。旧路径基线已无法补采，详见 [`API-Baseline.md`](API-Baseline.md) §2.2。
 
 ---
 
@@ -199,13 +199,15 @@ entry
 
 > 阶段 1~2 以移动为主、尽量不改文件名；schema/迁移拆分与命名统一分别放在 Phase 3 / Phase 5。
 >
-> **Phase 1.2 进度（2026-10-21）**：`network/` 共享部分 14 个、`log/` 4 个、`errors/` 1 个、`utils/` 4 个、`cookie/` 2 个、公共 `constants/` 7 个已完成 `git mv`；`database/`、`repository/`、`models/`、`parsers/`、游戏专属 `network/`、`MihoyoApiServiceFactory` 尚未移动。`db/` / `sync/` / `common/material` 随 Phase 2/3 文件迁移落位，不单独提交空目录。
+> **Phase 1.2 进度（2026-10-21）**：`network/` 共享部分 14 个、`log/` 4 个、`errors/` 1 个、`utils/` 4 个、`cookie/` 2 个、公共 `constants/` 7 个已完成 `git mv`；当时 `database/`、`repository/`、`models/`、`parsers/`、游戏专属 `network/`、`MihoyoApiServiceFactory` 尚未移动，Phase 2 已完成这些迁移，`network/` 目录已删除。`db/` / `sync/` / `common/material` 随 Phase 2/3 文件迁移落位，不单独提交空目录。
 >
 > **Phase 2 GenshinKit 进度（2026-10-21）**：Genshin 专属的 `api`（2）、`model`（3）、`parser`（2）、`constants`（2）、`db`（GenshinDao + V4/V5 migrations，3）、`repository`（1）共 13 个文件已迁入 `GenshinKit/`。Genshin 的 `TableSchema` 片段、material DAO 子类、material model/repository 仍留在原目录，按 Phase 3 拆分。`base/network/GeetestService` 暂时 import `GenshinKit/api/GenshinApiPath`，`database/RdbManager` 暂时 import GenshinKit migrations，属于 S-01 临时反向依赖。
 >
 > **Phase 2 StarRailKit 进度（2026-10-21）**：StarRail 专属的 `api`（2）、`model`（2）、`parser`（2）、`constants`（2）、`db`（StarRailDao + StarRailDBManager，2）、`repository`（1）共 11 个文件已迁入 `StarRailKit/`。StarRail 的 `TableSchema` 片段、material DAO 子类、material model/repository 仍留在原目录，按 Phase 3 拆分。`base/network/GeetestService` 现在同时 import GenshinKit / StarRailKit 的 ApiPath，属于 S-01 临时反向依赖；StarRail 没有独立的 V2/V6 迁移文件，V4 中的星铁 material target config 变更随 GenshinKit 迁移，Phase 3 再收口。
 >
 > **Phase 2 ZZZKit 进度（2026-10-21）**：ZZZ 专属的 `api`（3）、`model`（2）、`parser`（2）、`constants`（3）、`db`（ZZZDao + V2/V6 migrations，3）、`repository`（1）共 14 个文件已迁入 `ZZZKit/`。ZZZ 的 `TableSchema` 片段、material DAO 子类、material model/repository 仍留在原目录，按 Phase 3 拆分。`base/network/ApiConfig` / `GeetestService` 现在 import ZZZKit 的 `ZZZRecordRequest` / `ZZZApiPath`，`database/RdbManager` import ZZZKit 的 V2/V6 migrations，属于 S-01 临时反向依赖。
+>
+> **Phase 2 MihoyoKit 进度（2026-10-21）**：Mihoyo 账号域共迁移 18 个主文件：`api`（6：MihoyoAccountApiPath / MihoyoAccountApiService / PassportApiPath / QRCodeApiPath / SignApiPath / SignApiService）、`model`（7：AccountRow / GameRoleRow / BbsAccountModels / GameRoleModels / TokenModels / PhoneLoginModels / QRCodeLoginModels）、`db`（BBSDao，1）、`repository`（AuthRepository / BBSRepository / SignRepository，3）共 17 个迁入 `MihoyoKit/`；`network/MihoyoApiServiceFactory.ets` 迁为根 `ApiServiceFactory.ets`（类名暂不变）。3 个 internal overlay（MihoyoAccountApiService / AuthRepository / PhoneLoginModels）已镜像到 `internal/ets/MihoyoKit/{api,repository,model}/`。123 处 import 已更新；`base/cookie`、`base/network/GeetestService`、`repository/SyncQueueRunner` 和三个游戏 Repository 暂时反向依赖 MihoyoKit，属于 S-01；`TableSchema` 账号 / role 片段、material DAO 子类和 material repository/model 按 Phase 3 处理。
 
 **network/ 36 个**
 
@@ -536,19 +538,20 @@ mock-service/                              # 新增：HAR 之外
 **Phase 1 — 底盘（Phase 1.1 完成；Phase 1.2 第一批完成）**
 - Phase 1.1 BaseApiService 的 **Stage 0-3 已完成**：抽构建链路内唯一的 axios 封装层，`MihoyoApiService extends BaseApiService`，所有 Service 继续 `extends MihoyoApiService`，重复 `get / post` 已清理；文件级迁移/删除清单见 [`APIService.md`](APIService.md) 第 8 节。原“Stage 1 前完成 P0 / Stage 2 前完成 P1”的 Gate 已被用户的“基线延后”决定覆盖。
 - Base 实现必须处理：axios 非 2xx 的 `error.response`、懒加载 axios、日志脱敏 + try/catch、`HttpResponse` 漏拆包审计、按 §4.5 的上报归属、`BBSRepository` 两个“非 fallback”方法、`AuthRepository` fallback/service header 差异。`suppressGeetestReport`、`baseUrlType`、BBS 三个接口的上报行为本轮保持原样（`APIService.md` §8.7）。
-- Phase 1.2 第一批已完成（2026-10-21）：`base/network` 14 个、`base/log` 4 个、`base/errors` 1 个、`base/utils` 4 个、`base/cookie` 2 个、`common/constants` 7 个，共 32 个共享文件用 `git mv` 迁移；169 处相对 import 和 `Index.ets` 导出已更新，internal overlay import 同步更新；旧顶层 `log/ errors/ utils/ cookie/` 空目录已移除，`network/` 仅余游戏 / 账号专属 Service、Path 和 `MihoyoApiServiceFactory`。
+- Phase 1.2 第一批已完成（2026-10-21）：`base/network` 14 个、`base/log` 4 个、`base/errors` 1 个、`base/utils` 4 个、`base/cookie` 2 个、`common/constants` 7 个，共 32 个共享文件用 `git mv` 迁移；169 处相对 import 和 `Index.ets` 导出已更新，internal overlay import 同步更新；旧顶层 `log/ errors/ utils/ cookie/` 空目录已移除；当时 `network/` 仅余游戏 / 账号专属 Service、Path 和 `MihoyoApiServiceFactory`，Phase 2 已全部迁走并删除该目录。
 - `Index.ets` 已改为从新路径重导出；旧 `HttpClient` / `HttpService` / `NetworkFactory` 已删除。
 - 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，但 `SignHap` 因开发证书过期失败（见 `Known-Issues.md` E-01）；524 个相对 import 解析检查 0 缺失；关键接口基线对比和 `hdc` 安装验证按用户决定延后。`test-core.sh` / `test-entry.sh` 只构建 HAP，不能单独作为网络回归结论。
 
-**Phase 2 — 拆 Kit（GenshinKit / StarRailKit / ZZZKit 完成；Mihoyo 待做）**
+**Phase 2 — 拆 Kit（GenshinKit / StarRailKit / ZZZKit / MihoyoKit 完成；Phase 3 未开始）**
 - 顺序：GenshinKit → StarRailKit → ZZZKit → MihoyoKit（先外围后中心，MihoyoKit 被其它 Kit 依赖，最后搬）。
 - GenshinKit 已完成（2026-10-21）：api / model / parser / constants / db DAO + V4/V5 migrations / repository 共 13 个文件；53 处 import、Index、工厂、CoreInitializer 和测试路径已更新；`default` / `debug` / `mock` 与两个测试脚本通过；`base/network/GeetestService` 和 `database/RdbManager` 暂时反向依赖 GenshinKit，记录为 S-01。
 - StarRailKit 已完成（2026-10-21）：api / model / parser / constants / db（StarRailDao + StarRailDBManager）/ repository 共 11 个文件；63 处 import、Index、工厂、CoreInitializer 和测试路径已更新；构建与测试通过；`base/network/GeetestService` 暂时反向依赖 StarRailKit，记录为 S-01。
 - ZZZKit 已完成（2026-10-21）：api / model / parser / constants / db（ZZZDao + V2/V6 migrations）/ repository 共 14 个文件；67 处 import、Index、工厂、CoreInitializer 和测试路径已更新；构建与测试通过；`base/network/ApiConfig` / `GeetestService` 和 `database/RdbManager` 暂时反向依赖 ZZZKit，记录为 S-01。
-- 每 Kit：api / model / parser / **db（DAO + 该 Kit 的 schema 片段 + 专属迁移 + material 子类 DAO）** / repository / constants + overlay 同步。Genshin / StarRail / ZZZ 的 `TableSchema` 拆分、material DAO 子类和 material model/repository 按 Phase 3 处理。
-- 验证：每搬一个 Kit，`default` / `debug` / `mock` 构建 + 两个测试脚本 + 相对 import 解析检查；`internal` 只验证到 `CompileArkTS`（E-01）。
+- MihoyoKit 已完成（2026-10-21）：账号域共 18 个主文件，其中 17 个迁入 MihoyoKit（api / model / db / repository），`MihoyoApiServiceFactory.ets` 迁为根 `ApiServiceFactory.ets`；另有 3 个 internal overlay；123 处 import、Index、工厂、CoreInitializer 和测试路径已更新，类名暂不变；构建与测试通过；`base/cookie`、`base/network/GeetestService`、`repository/SyncQueueRunner` 和三个游戏 Repository 暂时反向依赖 MihoyoKit，记录为 S-01。
+- 每 Kit：api / model / parser / **db（DAO + 该 Kit 的 schema 片段 + 专属迁移 + material 子类 DAO）** / repository / constants + overlay 同步。各 Kit 的 `TableSchema` 拆分、material DAO 子类和 material model/repository 按 Phase 3 处理。
+- 验证：每搬一个 Kit，`default` / `debug` / `mock` 构建 + 两个测试脚本 + 相对 import 解析检查；`internal` 只验证到 `CompileArkTS`（E-01）。Phase 2 四个 Kit 均通过；运行时 / 真机 / Mock 回归仍未执行。
 
-**Phase 3 — DB 收尾（0.5~1 天）**
+**Phase 3 — DB 收尾（未开始，0.5~1 天）**
 - `db/TableName.ets` 抽离；跨 Kit 迁移（V3/V7）归入 `db/migrations/cross/`；根 `SchemaRegistry.ets` 聚合并让 `RdbManager.init` 接收注册表（schema 片段若未随 Phase 2 一起搬，在这里补齐）。
 - 验证：`RdbManager.test`、三个 Dao test、升级路径手测（旧版本 DB 文件 → 新包首启）。
 
@@ -560,7 +563,7 @@ mock-service/                              # 新增：HAR 之外
 
 **Phase 5 — 收尾（0.5 天）**
 - 命名统一（如 `APIs.ets`），删除兼容别名，更新 README / Documents / 脚本，CI 加路径检查。
-- `MihoyoApiService` 公共 Header 合并：Header 抽象类负责构造/管理；`MihoyoApiService` 合并具体 Service 提交的 header 后交给 Base。等 Phase 2 所有 ApiService 整理完再实施，详见 [`APIService.md`](APIService.md) 第 10 节。
+- `MihoyoApiService` 公共 Header 合并：Header 抽象类负责构造/管理；`MihoyoApiService` 合并具体 Service 提交的 header 后交给 Base。Phase 2 已完成 ApiService 整理，按 Phase 5 实施，详见 [`APIService.md`](APIService.md) 第 10 节。
 - Header 合并前必须先解决：profile 来源（按方法而非按 Service）、raw header escape hatch（ZZZRecordRequest）、Cookie 策略（pizza / BBS / passport / QR）、DS 规则、`GameFpBiz` 从 `DeviceFpService` 移出、passport/QR profile 缺口。
 - README 按约定等全部整合完成后统一更新。
 - 验证：全量构建 + 全量测试 + `git grep` 无死引用；Header 合并后对关键接口抓包/日志比对，并使用 Phase 0 的基线。

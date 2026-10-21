@@ -10,7 +10,7 @@
  * - 账号删除时调用 clearLock 清除状态
  */
 
-import { BBSRepository } from '../../repository/BBSRepository';
+import { BBSRepository } from '../../MihoyoKit/repository/BBSRepository';
 import { AuthExpiredError } from '../errors/ApiErrors';
 import { ApiLogSystem } from '../log/ApiLogSystem';
 import { Logger } from '../utils/Logger';

@@ -1,17 +1,17 @@
 /**
  * MihoyoAccountApiService（internal 版，含手机号 API 方法）
  */
-import { RequestParams, RequestOptions } from '../base/network/APIs';
-import { MihoyoApiService } from '../base/network/MihoyoApiService';
-import { MihoyoDomain } from '../base/network/MihoyoDomain';
+import { RequestParams, RequestOptions } from '../../base/network/APIs';
+import { MihoyoApiService } from '../../base/network/MihoyoApiService';
+import { MihoyoDomain } from '../../base/network/MihoyoDomain';
 import { MihoyoAccountApiPath } from './MihoyoAccountApiPath';
 import { PassportApiPath } from './PassportApiPath';
 import { QRCodeApiPath } from './QRCodeApiPath';
-import { MihoyoHeaderBuilder, HeaderProfile } from '../base/network/MihoyoHeaderBuilder';
-import { HKey, HVal } from '../base/network/MihoyoHeaderKey';
-import { ApiConfig } from '../base/network/ApiConfig';
-import { DSUtil } from '../base/network/DSUtil';
-import { RsaUtil } from '../base/utils/RsaUtil';
+import { MihoyoHeaderBuilder, HeaderProfile } from '../../base/network/MihoyoHeaderBuilder';
+import { HKey, HVal } from '../../base/network/MihoyoHeaderKey';
+import { ApiConfig } from '../../base/network/ApiConfig';
+import { DSUtil } from '../../base/network/DSUtil';
+import { RsaUtil } from '../../base/utils/RsaUtil';
 
 export class MihoyoAccountApiService extends MihoyoApiService {
 
@@ -182,7 +182,7 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     return response.data;
   }
 
-  // ── 二维码登录 ────────────────────────────────────────────────
+  // ── 二维码登录（新版 passport API）────────────────────────────────
 
   async fetchQRCode(deviceId: string): Promise<object> {
     const opts = new RequestOptions();

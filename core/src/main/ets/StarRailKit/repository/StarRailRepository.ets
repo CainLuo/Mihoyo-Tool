@@ -22,7 +22,7 @@ import { StarRailApiPath } from '../api/StarRailApiPath';
 import { AuthExpiredError } from '../../base/errors/ApiErrors';
 import { CookieRefreshCoordinator } from '../../base/cookie/CookieRefreshCoordinator';
 import { CoreInitializer } from '../../CoreInitializer';
-import { BBSRepository } from '../../repository/BBSRepository';
+import { BBSRepository } from '../../MihoyoKit/repository/BBSRepository';
 import { MaterialBagRow } from '../../models/MaterialBagRow';
 import { StarRailComputeParser, StarRailMaterialItem } from '../parser/StarRailComputeParser';
 import { GameId } from '../../common/constants/GameId';

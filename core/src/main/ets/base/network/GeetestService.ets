@@ -3,7 +3,7 @@ import { GeetestCreateResult, GeetestVerifyInput } from '../errors/ApiErrors';
 import { DSUtil } from './DSUtil';
 import { BaseApiService } from './BaseApiService';
 import { MihoyoDomain } from './MihoyoDomain';
-import { MihoyoAccountApiPath } from '../../network/MihoyoAccountApiPath';
+import { MihoyoAccountApiPath } from '../../MihoyoKit/api/MihoyoAccountApiPath';
 import { HKey, HVal } from './MihoyoHeaderKey';
 import { ApiConfig } from './ApiConfig';
 import { GameId } from '../../common/constants/GameId';
