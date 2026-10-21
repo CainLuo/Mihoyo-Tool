@@ -271,13 +271,16 @@ export struct MyCard {
 
 ## 七、构建与运行规范
 
-**每次修改代码后，必须在前台执行 `run-mock.sh` 验证构建结果，不得跳过：**
+**每次修改代码后，必须在前台执行 `bash run.sh debug` 验证构建结果，不得跳过：**
 
 ```bash
-bash run-mock.sh
+bash run.sh debug
 ```
 
-脚本会依次执行：Clean → Build(mock) → 安装到模拟器 → 启动 App。
+脚本会依次执行：Clean → Build(debug) → 安装到模拟器 → 启动 App。
+Mock env 构建：`bash run.sh mock`（独立 `.mock` 包，`APP_ENV=mock`）。
+`mock-service/` 当前不参与构建、App 也未接入；如需 Mock 联调见
+`.kiro/steering/07-env-and-mock.md`。
 
 **必须等待脚本执行完毕，检查输出结果：**
 
@@ -291,10 +294,11 @@ bash run-mock.sh
 
 ```bash
 export DEVECO_SDK_HOME='/Applications/DevEco-Studio.app/Contents/sdk'
-/Applications/DevEco-Studio.app/Contents/tools/hvigor/bin/hvigorw assembleHap -p product=mock
+/Applications/DevEco-Studio.app/Contents/tools/hvigor/bin/hvigorw assembleHap -p product=debug
 ```
 
 - 模拟器连接地址：`127.0.0.1:5555`
+- Bundle ID（debug）：`com.cainluo.miyoyo.tools.debug`
 - Bundle ID（mock）：`com.cainluo.miyoyo.tools.mock`
-- **禁止**使用 `-p buildMode=mock`（正确参数是 `-p product=mock`）
+- 构建 App 使用 `-p product=debug` / `mock` / `internal` / `default`；mock env 用 `-p product=mock`。`-p buildMode=mock` 仅用于 `test-core.sh` / `test-entry.sh` 的 ohosTest 构建
 - **禁止**跳过安装步骤直接启动

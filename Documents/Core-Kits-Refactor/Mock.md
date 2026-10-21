@@ -168,7 +168,7 @@ DevEco Studio 中也可以直接选择 `mock` product 运行。
 同时删除了：
 
 - `MihoyoApiServiceFactory` 的 MOCK 分支
-- `CoreInitializer` / `NetworkFactory` 的 Service 注入入口
+- `CoreInitializer` 的 Mock Service 注入入口；`NetworkFactory` / `HttpService` 也会在 BaseApiService 迁移完成后删除，后续不再有这条注入路径
 - entry 启动时按环境选择 Mock Service 的逻辑
 - `mock` product 曾经依赖的 `mock` 模块注册
 
@@ -606,7 +606,7 @@ RPC 可以保留为调试接口，但不要作为 App 的唯一接入方式。
 未来建议：
 
 - 在 API base URL 配置处判断 `APP_ENV=mock`，把域名替换为 `http://127.0.0.1:8787`。
-- 具体落点优先评估 `core` 的 `ApiConfig` / `BaseService`，不要在 entry 页面里散落判断。
+- 具体落点优先评估 `core` 的 `ApiConfig` / `MihoyoDomain` / 具体 API 调用点，不要在 entry 页面里散落判断。
 - 不要改真实 API 的 header、DS、Cookie 逻辑；local service 应接受并忽略不需要的签名。
 - 如果必须按域名分别配置，做一个集中映射表，不要在多个 Repository 里重复判断。
 
@@ -630,7 +630,7 @@ RPC 可以保留为调试接口，但不要作为 App 的唯一接入方式。
 2. Swift-Vapor 服务目录名（建议 `local-service/` 或 `mock-service-vapor/`）。
 3. fixtures 放在 Swift Package resource 还是共享目录。
 4. Node `mock-service/` 是否保留为 parity 测试参考。
-5. App 侧 base URL 覆盖的准确落点（`ApiConfig` / `BaseService` / 其他）。
+5. App 侧 base URL 覆盖的准确落点（`ApiConfig` / `MihoyoDomain` / `BaseApiService` / 具体 API 调用点）。Phase 1.1 **保持 `RequestOptions.baseUrlType` 原样，不删除、不改造**；等这里方案确定后再决定删除或改造。
 6. 是否需要脚本自动启动 Swift-Vapor。
 7. 真机明文 HTTP 是否需要额外配置。
 

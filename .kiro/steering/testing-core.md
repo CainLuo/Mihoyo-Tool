@@ -395,9 +395,13 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 | 空 body 字符串 | `body = ''`                    | DS 正常生成 |
 | undefined body | `undefined`                    | DS 正常生成 |
 
-### 3.2 MockServiceBase 静态方法（MockServiceBase.test.ets）
+### 3.2 Mock 路由纯函数（已迁移到 mock-service）
 
-被测类：`core/src/main/ets/network/mock/MockServiceBase.ets`
+> 2026-10 起 `MockServiceBase` 及独立 `mock/` 目录已删除；路由纯函数测试保留在
+> `mock-service/tests/router.test.mjs`（Node test runner）。以下用例保留为历史参考，
+> 不再对应 ArkTS 单元测试文件。
+
+被测实现：`mock-service/router.mjs` 的 `pathToFileName` / `extractAccountId` 等纯函数
 
 **pathToFileName — 通用规则**
 
@@ -624,7 +628,7 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 | getAvatarCompute 空表               | `getAvatarCompute(1, 'uid1', 'avatarId1')` | 返回 null                                   |
 | upsertAvatarCompute 写入            | `upsertAvatarCompute(1, 'uid1', row)`      | `getAvatarCompute` 返回对应行               |
 
-> 注：`syncDailyNote(accountId, roleUid, server, cookie)` 和 `syncAvatarList(accountId, roleUid, server, cookie)` 是高层方法，内部调用 ApiService + 写 DB，需要注入 MockService 才能测试，属于集成测试范畴，在 `ohosTest` 中通过 `setService(mockService)` 注入后验证 DB 写入结果。
+> 注：`syncDailyNote(accountId, roleUid, server, cookie)` 和 `syncAvatarList(accountId, roleUid, server, cookie)` 是高层方法，内部调用 ApiService + 写 DB，属于集成测试范畴；原 `MockService` 注入方案已随 `mock/` 目录删除，相关用例暂不执行。
 
 ### 4.3 StarRailRepository（StarRailRepository.test.ets）
 
@@ -655,8 +659,8 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 
 示例（本地单元测试）：
   parse_currentResin_isCorrect
-  pathToFileName_batchCompute_usesSpecialMapping
-  extractAccountId_emptyCookie_returns1AsFallback
+  parseGenshinDailyNote_currentResin_isCorrect
+  extractCookieField_stoken_returnsValue
   generateV1_format_isTimestampRandomMd5
 
 示例（设备端测试）：
@@ -672,7 +676,6 @@ core 模块测试严格按层级隔离，DB 层和 API 层不混用。
 
 ```typescript
 import dsUtilTest from "./DSUtil.test";
-import mockServiceBaseTest from "./MockServiceBase.test";
 import genshinDailyNoteParserTest from "./GenshinDailyNoteParser.test";
 import starRailDailyNoteParserTest from "./StarRailDailyNoteParser.test";
 import zzzDailyNoteParserTest from "./ZZZDailyNoteParser.test";
@@ -682,7 +685,6 @@ import starRailAvatarBasicParserTest from "./StarRailAvatarBasicParser.test";
 
 export default function testsuite() {
   dsUtilTest();
-  mockServiceBaseTest();
   genshinDailyNoteParserTest();
   starRailDailyNoteParserTest();
   zzzDailyNoteParserTest();
@@ -756,7 +758,7 @@ export default function testsuite() {
 
 ---
 
-### 6.4 API 层 — MockServiceBase.pathToFileName 边界场景
+### 6.4 Mock 路由 — pathToFileName 边界场景
 
 | 用例                       | 输入 path                  | 预期结果                                                   |
 | -------------------------- | -------------------------- | ---------------------------------------------------------- |
@@ -914,7 +916,7 @@ export default function testsuite() {
 
 ---
 
-### 8.2 MockServiceBase.pathToFileName 极端场景
+### 8.2 Mock 路由 — pathToFileName 极端场景
 
 | 用例                    | 输入 path                                   | 预期结果                                           |
 | ----------------------- | ------------------------------------------- | -------------------------------------------------- |
@@ -929,7 +931,7 @@ export default function testsuite() {
 
 ---
 
-### 8.3 MockServiceBase.extractAccountId 极端场景
+### 8.3 Mock 路由 — extractAccountId 极端场景
 
 | 用例                   | 输入 cookie                    | 预期结果                                                                     |
 | ---------------------- | ------------------------------ | ---------------------------------------------------------------------------- |

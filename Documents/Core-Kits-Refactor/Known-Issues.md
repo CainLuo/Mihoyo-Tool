@@ -1,6 +1,6 @@
 # Core Kits 已知问题与暂缓项
 
-> 状态：**已记录，暂不改代码；Phase 1.2 第一批完成，Phase 2 GenshinKit / StarRailKit / ZZZKit / MihoyoKit 完成**
+> 状态：**已记录，暂不改代码；Phase 1.2 第一批完成，Phase 2 GenshinKit / StarRailKit / ZZZKit / MihoyoKit 完成，Phase 3 DB 收尾代码层完成；运行时迁移验证延后**
 > 更新时间：2026-10-21
 > 原则：当前构建和既有功能可运行；header / retcode 未采集项保持现状，不用静态推断修改行为。任何修复必须等真机、抓包或明确需求，不把“参考项目这样做”直接当成线上结论。
 >
@@ -47,7 +47,7 @@
 
 | ID | 项目 | 当前状态 | 当前决定 |
 | --- | --- | --- | --- |
-| S-01 | 基础层仍有反向依赖 | `base/cookie` 依赖 `MihoyoKit/repository/BBSRepository`、`MihoyoKit/model/AccountRow`；`base/network` 依赖 `GenshinKit/api/GenshinApiPath`、`StarRailKit/api/StarRailApiPath`、`ZZZKit/api/ZZZApiPath` / `ZZZRecordRequest`、`MihoyoKit/api/MihoyoAccountApiPath` 和根 `CoreInitializer`；`database/RdbManager` 依赖 `GenshinKit/db/migrations/RdbMigrationV4/V5` 与 `ZZZKit/db/migrations/RdbMigrationV2/V6`；`repository/SyncQueueRunner` 依赖 `MihoyoKit/model/GameRoleRow` | 本轮只搬位置，不改依赖方向；后续 Phase 3 DB 收口 / Phase 5 时通过接口、注入、SchemaRegistry 或下沉解耦，避免继续扩大 |
+| S-01 | 基础层仍有反向依赖（Phase 3C 已缩小） | `base/cookie` 依赖 `MihoyoKit/repository/BBSRepository`、`MihoyoKit/model/AccountRow`；`base/network` 依赖 `GenshinKit/api/GenshinApiPath`、`StarRailKit/api/StarRailApiPath`、`ZZZKit/api/ZZZApiPath` / `ZZZRecordRequest`、`MihoyoKit/api/MihoyoAccountApiPath` 和根 `CoreInitializer`；`sync/SyncQueueRunner` 依赖 `MihoyoKit/model/GameRoleRow`。`db/RdbManager` 已不再 import 任何 Kit；根 `SchemaRegistry` import 各 Kit schema 是组装点，不属于反向依赖。`common/material/repository` → 各 Kit material DAO 是保留门面签名的受控例外 | Phase 3C 已移除 `RdbManager → Kit` 反向依赖；剩余项在 Phase 5 通过接口、注入或下沉解耦，避免继续扩大 |
 
 ---
 
@@ -89,8 +89,8 @@
    - `repository`（GenshinRepository）。
 2. 53 处相对 import、`core/Index.ets`、`MihoyoApiServiceFactory`、`CoreInitializer` 和测试 import 已更新；只改路径，不改请求行为。
 3. 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，`SignHap` 因 E-01 失败；相对 import 解析检查 0 缺失。
-4. `base/network/GeetestService` 现在 import `GenshinKit/api/GenshinApiPath`，`database/RdbManager` import GenshinKit migrations，已并入 S-01；后续 Kit 迁移会继续扩大，必须在 Phase 3 / Phase 5 收口。
-5. 未迁移：Genshin 的 `TableSchema` 片段、`GenshinMaterialBagDao` / `GenshinMaterialTargetConfigDao` 子类、material model/repository；V4 还包含星铁 material target config 的跨 Kit 迁移，按 Phase 3 处理。
+4. `base/network/GeetestService` 现在 import `GenshinKit/api/GenshinApiPath`，已并入 S-01；`database/RdbManager` 曾 import GenshinKit migrations，该反向依赖已在 Phase 3C 移除。
+5. Genshin 的 `TableSchema` 片段、`GenshinMaterialBagDao` / `GenshinMaterialTargetConfigDao` 子类、material model/repository；V4 还包含星铁 material target config 的跨 Kit 迁移，均已在 Phase 3 完成。
 
 ### 3.5 Phase 2 StarRailKit（已完成）
 
@@ -103,8 +103,8 @@
    - `repository`（StarRailRepository）。
 2. 63 处相对 import、`core/Index.ets`、`MihoyoApiServiceFactory`、`CoreInitializer` 和测试 import 已更新；只改路径，不改请求行为。
 3. 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，`SignHap` 因 E-01 失败；相对 import 解析检查 0 缺失。
-4. `base/network/GeetestService` 现在同时 import `GenshinKit/api/GenshinApiPath` 和 `StarRailKit/api/StarRailApiPath`，已并入 S-01；ZZZKit 迁移后也加入了 `ZZZApiPath`，必须在 Phase 3 / Phase 5 收口。
-5. 未迁移：StarRail 的 `TableSchema` 片段、`StarRailMaterialBagDao` / `StarRailMaterialTargetConfigDao` 子类、material model/repository；按 Phase 3 处理。
+4. `base/network/GeetestService` 现在同时 import `GenshinKit/api/GenshinApiPath` 和 `StarRailKit/api/StarRailApiPath`，已并入 S-01；ZZZKit 迁移后也加入了 `ZZZApiPath`，剩余项在 Phase 5 收口。
+5. StarRail 的 `TableSchema` 片段、`StarRailMaterialBagDao` / `StarRailMaterialTargetConfigDao` 子类、material model/repository 已在 Phase 3 完成。
 
 ### 3.6 Phase 2 ZZZKit（已完成）
 
@@ -117,8 +117,8 @@
    - `repository`（ZZZRepository）。
 2. 67 处相对 import、`core/Index.ets`、`MihoyoApiServiceFactory`、`CoreInitializer` 和测试 import 已更新；只改路径，不改请求行为。
 3. 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，`SignHap` 因 E-01 失败；相对 import 解析检查 0 缺失。
-4. `base/network/ApiConfig` / `GeetestService` 现在 import `ZZZKit/api/ZZZRecordRequest` / `ZZZApiPath`，`database/RdbManager` import ZZZKit 的 V2/V6 migrations，已并入 S-01；MihoyoKit 迁移后又加入 `MihoyoAccountApiPath`、`BBSRepository` / `AccountRow` 等反向依赖，必须在 Phase 3 / Phase 5 收口。
-5. 未迁移：ZZZ 的 `TableSchema` 片段、`ZZZMaterialBagDao` / `ZZZMaterialTargetConfigDao` 子类、material model/repository；按 Phase 3 处理。
+4. `base/network/ApiConfig` / `GeetestService` 现在 import `ZZZKit/api/ZZZRecordRequest` / `ZZZApiPath`，已并入 S-01；`database/RdbManager` 曾 import ZZZKit 的 V2/V6 migrations，该反向依赖已在 Phase 3C 移除；MihoyoKit 迁移后又加入 `MihoyoAccountApiPath`、`BBSRepository` / `AccountRow` 等反向依赖，剩余项在 Phase 5 收口。
+5. ZZZ 的 `TableSchema` 片段、`ZZZMaterialBagDao` / `ZZZMaterialTargetConfigDao` 子类、material model/repository 已在 Phase 3 完成。
 
 ### 3.7 Phase 2 MihoyoKit（已完成）
 
@@ -131,12 +131,34 @@
 3. 3 个 internal overlay（MihoyoAccountApiService / AuthRepository / PhoneLoginModels）已镜像到 `internal/ets/MihoyoKit/{api,repository,model}/`；overlay import 按 main 路径计算，保持同路径 fallback。
 4. 123 处相对 import、`core/Index.ets`、`CoreInitializer`、Genshin / StarRail / ZZZ 三个 Repository、base cookie / network 和测试 import 已更新；只改路径，不改 URL、header、DS、Cookie、retcode 或上报逻辑。
 5. 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，`SignHap` 因 E-01 失败；相对 import 解析检查 0 缺失。
-6. 反向依赖：`base/cookie` → `MihoyoKit/repository/BBSRepository` / `MihoyoKit/model/AccountRow`；`base/network/GeetestService` → `MihoyoKit/api/MihoyoAccountApiPath`；`repository/SyncQueueRunner` → `MihoyoKit/model/GameRoleRow`；Genshin / StarRail / ZZZ 三个 Repository → `MihoyoKit/repository/BBSRepository`（Kit → MihoyoKit 是既定单向例外）。`MihoyoKit/db/BBSDao` 仍依赖 `database/TableSchema` / `RdbManager` / `RsReader`，`BBSRepository` 仍依赖 `repository/SyncQueueRunner`，留到 Phase 3 收口。
-7. 未迁移：`TableSchema` 中的账号 / role 片段、material DAO 子类、material model/repository；按 Phase 3 处理。Phase 2 代码层完成。
+6. 反向依赖：`base/cookie` → `MihoyoKit/repository/BBSRepository` / `MihoyoKit/model/AccountRow`；`base/network/GeetestService` → `MihoyoKit/api/MihoyoAccountApiPath`；`sync/SyncQueueRunner` → `MihoyoKit/model/GameRoleRow`；Genshin / StarRail / ZZZ 三个 Repository → `MihoyoKit/repository/BBSRepository`（Kit → MihoyoKit 是既定单向例外）。`MihoyoKit/db/BBSDao` 已改为依赖 `db/TableSchema` / `db/RdbManager` / `db/RsReader`（Kit → 共享底层），`BBSRepository` 已改为依赖 `sync/SyncQueueRunner`。
+7. `TableSchema` 中的账号 / role 片段、material DAO 子类、material model/repository 已在 Phase 3 完成；Phase 2 代码层完成。
+
+### 3.8 Phase 3A — sync / material 路径迁移（已完成，`5aff4e4`）
+
+1. `GameRepository` / `SyncQueueRunner` 迁入 `sync/`；sync 模型迁入 `sync/model/`，`SyncMetaDao` 迁入 `sync/db/`。
+2. material 模型迁入 `common/material/model/`，`MaterialBagRepository` / `MaterialTargetConfigRepository` 迁入 `common/material/repository/`；空的顶层 `models/` / `repository/` 移除。
+3. 更新 53 处相对 import、`core/Index.ets` 和测试路径；未改 URL、header、DS、Cookie、retcode、表结构或迁移。
+4. 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，`SignHap` 因 E-01 失败；524 个相对 import 解析 0 缺失。
+
+### 3.9 Phase 3B — material DAO 拆分（已完成，`1fd097e`）
+
+1. `BaseMaterialBagDao` / `BaseMaterialTargetConfigDao` 留 `common/material/db/`；GenshinKit / StarRailKit / ZZZKit 各新增两个 material DAO 子类。
+2. material repository、`MaterialBagDao.test` 和 `core/Index.ets` 改为从基类 / 对应 Kit 子类导入；删除旧 `database/MaterialBagDao.ets` / `MaterialTargetConfigDao.ets`。
+3. 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，`SignHap` 因 E-01 失败；550 个相对 import 解析 0 缺失。
+
+### 3.10 Phase 3C — TableSchema 拆分与 SchemaRegistry（已完成代码层，`47135c1`）
+
+1. `RdbManager` / `RsReader` 迁入 `db/`；V3 / V7 跨 Kit 迁移迁入 `db/migrations/cross/`。
+2. `TableSchema` 拆为 `db/TableName.ets`、`db/TableSchema.ets`（通用 `TableDef` / `IndexDef` / `ColumnDef` / `CommonCol` / `ComputeStateCol` / `FK_ACCOUNT`）、各 Kit `db/schema.ets`、`sync/db/schema.ets` 和 `common/material/db/schema.ets`（material 列枚举）。
+3. 根 `SchemaRegistry.ets` 聚合 24 张表、30 个索引和 V2~V7 迁移；`RdbManager.init(context, SchemaRegistry)` 改为接收注册表，`db/` 不再 import 任何 Kit；`CoreInitializer` 和 11 个测试调用同步更新。
+4. 静态等价：`ALL_TABLES` / `ALL_INDEXES` 顺序与旧 `TableSchema` 一致；24 个表定义、23 个列枚举、30 个索引定义逐项比对无差异；V4 / V5 使用 `GENSHIN_INDEXES` 按原条件筛选，执行的 DDL 与顺序不变。
+5. 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，`SignHap` 因 E-01 失败；621 个相对 import 解析 0 缺失。
+6. 未验证：`RdbManager.test` / DAO 测试实际运行、旧版本 DB 文件升级路径、真机与 Mock 回归。两个测试脚本只构建 ohosTest HAP，不是运行测试。
 
 ---
 
-## 4. Phase 1.2 / Phase 2 检查
+## 4. Phase 1.2 / Phase 2 / Phase 3 检查
 
 - [x] 本批共享文件只在 `base/` / `common/constants/` 出现，没有重复副本
 - [x] `core/Index.ets` 导出符号不变
@@ -185,6 +207,33 @@
 - [x] 相对 import 解析检查 0 缺失
 - [x] diff 仅包含路径、import 和工厂文件改名，没有修改业务请求行为
 - [x] `TableSchema` / material DAO / material model/repository 的延后项已记录
+
+### 4.5 Phase 3A 检查
+
+- [x] `sync/`、`common/material/model/`、`common/material/repository/` 路径落位，没有重复副本
+- [x] `core/Index.ets` 和 53 处 import 更新，业务请求行为未改
+- [x] `default` / `debug` / `mock` 构建通过；`internal` 编译通过，`SignHap` 因 E-01 失败
+- [x] `test-core.sh` / `test-entry.sh` 通过；524 个相对 import 解析 0 缺失
+- [x] 空的顶层 `models/` / `repository/` 已移除
+
+### 4.6 Phase 3B 检查
+
+- [x] material 基类只在 `common/material/db/`，三个 Kit 子类只在各自 `db/`，没有重复副本
+- [x] material repository 签名保持不变，测试与 `Index.ets` 导出更新
+- [x] `default` / `debug` / `mock` 构建通过；`internal` 编译通过，`SignHap` 因 E-01 失败
+- [x] `test-core.sh` / `test-entry.sh` 通过；550 个相对 import 解析 0 缺失
+- [x] 旧 `database/MaterialBagDao.ets` / `MaterialTargetConfigDao.ets` 已删除
+
+### 4.7 Phase 3C 检查
+
+- [x] `db/RdbManager` / `db/RsReader` / `db/migrations/cross/` 落位；`db/` 不 import 任何 Kit
+- [x] 根 `SchemaRegistry.ets` 聚合 24 张表、30 个索引和 V2~V7 迁移，`RdbManager.init` 接收注册表
+- [x] `ALL_TABLES` / `ALL_INDEXES` 顺序、24 个表定义、23 个列枚举、30 个索引定义与旧 `TableSchema` 静态比对无差异
+- [x] `default` / `debug` / `mock` 构建通过；`internal` 编译通过，`SignHap` 因 E-01 失败
+- [x] `test-core.sh` / `test-entry.sh` 通过；621 个相对 import 解析 0 缺失
+- [ ] `RdbManager.test` / DAO 测试实际运行
+- [ ] 旧版本 DB 文件 → 新包首启升级路径手测
+- [ ] 真机与 Mock 回归
 
 ---
 
