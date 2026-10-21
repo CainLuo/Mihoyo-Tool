@@ -1,13 +1,13 @@
-import { RequestOptions } from './APIs';
-import { MihoyoApiService } from './MihoyoApiService';
-import { MihoyoDomain } from './MihoyoDomain';
+import { RequestOptions } from '../base/network/APIs';
+import { MihoyoApiService } from '../base/network/MihoyoApiService';
+import { MihoyoDomain } from '../base/network/MihoyoDomain';
 import { ZZZApiPath } from './ZZZApiPath';
-import { MihoyoHeaderBuilder, HeaderProfile } from './MihoyoHeaderBuilder';
-import { ApiConfig } from './ApiConfig';
-import { HKey, HVal } from './MihoyoHeaderKey';
-import { GameFpBiz } from './DeviceFpService';
+import { MihoyoHeaderBuilder, HeaderProfile } from '../base/network/MihoyoHeaderBuilder';
+import { ApiConfig } from '../base/network/ApiConfig';
+import { HKey, HVal } from '../base/network/MihoyoHeaderKey';
+import { GameFpBiz } from '../base/network/DeviceFpService';
 import { ZZZRecordRequest } from './ZZZRecordRequest';
-import { Logger } from '../utils/Logger';
+import { Logger } from '../base/utils/Logger';
 
 
 /** 养成计算链路统一日志 tag，过滤：hilog | grep */

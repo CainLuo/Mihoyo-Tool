@@ -27,9 +27,9 @@ import {
 import { MaterialBagRow } from '../models/MaterialBagRow';
 import { SyncMetaRow } from '../models/SyncMetaRow';
 import { RdbManager } from './RdbManager';
-import { SyncDataType } from '../constants/SyncDataType';
+import { SyncDataType } from '../common/constants/SyncDataType';
 import { MaterialBagRepository } from '../repository/MaterialBagRepository';
-import { GameId } from '../constants/GameId';
+import { GameId } from '../common/constants/GameId';
 
 export class StarRailDBManager {
   private avatarBasicDao: StarRailAvatarBasicDao = new StarRailAvatarBasicDao();

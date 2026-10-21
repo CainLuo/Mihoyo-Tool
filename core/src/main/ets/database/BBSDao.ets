@@ -4,7 +4,7 @@ import { RsReader } from './RsReader';
 import { TableName, CommonCol, AccountCol, GameRoleCol, ACCOUNT_TABLE, GAME_ROLE_TABLE } from './TableSchema';
 import { AccountRow } from '../models/AccountRow';
 import { GameRoleRow } from '../models/GameRoleRow';
-import { GameId } from '../constants/GameId';
+import { GameId } from '../common/constants/GameId';
 
 // ─────────────────────────────────────────────
 // AccountDao：操作 account_table

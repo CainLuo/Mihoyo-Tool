@@ -24,8 +24,8 @@ import {
   BaseMaterialBagDao
 } from '../database/MaterialBagDao';
 import { MaterialBagRow } from '../models/MaterialBagRow';
-import { GameId } from '../constants/GameId';
-import { Logger } from '../utils/Logger';
+import { GameId } from '../common/constants/GameId';
+import { Logger } from '../base/utils/Logger';
 
 const TAG = 'MaterialBagRepository';
 

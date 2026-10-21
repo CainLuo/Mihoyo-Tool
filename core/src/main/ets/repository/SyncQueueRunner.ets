@@ -18,14 +18,14 @@
 
 import { SyncMetaDao } from '../database/SyncMetaDao';
 import { SyncMetaRow } from '../models/SyncMetaRow';
-import { SyncDataType } from '../constants/SyncDataType';
+import { SyncDataType } from '../common/constants/SyncDataType';
 import { CoreInitializer } from '../CoreInitializer';
 import { GameRoleRow } from '../models/GameRoleRow';
-import { GameId } from '../constants/GameId';
+import { GameId } from '../common/constants/GameId';
 import { SyncTask } from '../models/SyncTask';
-import { Logger } from '../utils/Logger';
-import { GeetestRequiredError } from '../errors/ApiErrors';
-import { ApiErrorCodes } from '../constants/ApiErrorCodes';
+import { Logger } from '../base/utils/Logger';
+import { GeetestRequiredError } from '../base/errors/ApiErrors';
+import { ApiErrorCodes } from '../common/constants/ApiErrorCodes';
 
 
 /** 绝区零逐个请求代理人详情的间隔（ZZZ-Plugin panel.roleInterval 默认 3000ms） */

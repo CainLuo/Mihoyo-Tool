@@ -1,5 +1,5 @@
 import { preferences } from '@kit.ArkData';
-import { CoreInitializer } from '../CoreInitializer';
+import { CoreInitializer } from '../../CoreInitializer';
 import { Logger } from '../utils/Logger';
 
 /**

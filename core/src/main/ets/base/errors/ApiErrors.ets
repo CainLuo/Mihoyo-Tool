@@ -8,7 +8,7 @@
  * - 使用 kind 字段匹配错误类型，替代 instanceof 判断
  */
 
-import { ApiErrorCodes } from '../constants/ApiErrorCodes';
+import { ApiErrorCodes } from '../../common/constants/ApiErrorCodes';
 
 // ═══════════════════════════════════════════════════════════════
 // 错误类型常量（kind 字段值）

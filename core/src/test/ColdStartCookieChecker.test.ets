@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect } from '@ohos/hypium';
-import { ColdStartCookieChecker } from '../main/ets/cookie/ColdStartCookieChecker';
+import { ColdStartCookieChecker } from '../main/ets/base/cookie/ColdStartCookieChecker';
 import { BBSRepository } from '../main/ets/repository/BBSRepository';
 
 export default function coldStartCookieCheckerTest() {

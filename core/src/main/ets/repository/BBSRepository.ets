@@ -1,4 +1,4 @@
-import { MihoyoApiService } from '../network/MihoyoApiService';
+import { MihoyoApiService } from '../base/network/MihoyoApiService';
 import { MihoyoAccountApiService } from '../network/MihoyoAccountApiService';
 import { AccountDao, GameRoleDao } from '../database/BBSDao';
 import { RdbManager } from '../database/RdbManager';
@@ -6,8 +6,8 @@ import { AccountRow } from '../models/AccountRow';
 import { GameRoleRow } from '../models/GameRoleRow';
 import { AuthRepository } from './AuthRepository';
 import { SyncQueueRunner } from './SyncQueueRunner';
-import { GameId, isGameSupported, gameIdFromMihoyo } from '../constants/GameId';
-import { gameBizToGameId } from '../constants/GameServer';
+import { GameId, isGameSupported, gameIdFromMihoyo } from '../common/constants/GameId';
+import { gameBizToGameId } from '../common/constants/GameServer';
 import {
   BbsAccountDetailResult,
   BbsAccountDetailResponse,
@@ -17,10 +17,10 @@ import {
   GameRolesResponse,
   GameRecordCardResponse,
 } from '../models/GameRoleModels';
-import { ApiLogSystem } from '../log/ApiLogSystem';
-import { LogEventType } from '../log/ApiLogEntry';
-import { Logger } from '../utils/Logger';
-import { AuthExpiredError, GeetestRequiredError } from '../errors/ApiErrors';
+import { ApiLogSystem } from '../base/log/ApiLogSystem';
+import { LogEventType } from '../base/log/ApiLogEntry';
+import { Logger } from '../base/utils/Logger';
+import { AuthExpiredError, GeetestRequiredError } from '../base/errors/ApiErrors';
 
 export {
   GameRoleRecord,

@@ -8,8 +8,8 @@
  */
 
 import { describe, it, expect } from '@ohos/hypium';
-import { DSUtil } from '../main/ets/network/DSUtil';
-import { RequestParams } from '../main/ets/network/APIs';
+import { DSUtil } from '../main/ets/base/network/DSUtil';
+import { RequestParams } from '../main/ets/base/network/APIs';
 
 export default function dsUtilV2Test() {
   describe('DSUtilV2', () => {

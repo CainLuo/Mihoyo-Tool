@@ -3,15 +3,15 @@ import { GeetestCreateResult, GeetestVerifyInput } from '../errors/ApiErrors';
 import { DSUtil } from './DSUtil';
 import { BaseApiService } from './BaseApiService';
 import { MihoyoDomain } from './MihoyoDomain';
-import { MihoyoAccountApiPath } from './MihoyoAccountApiPath';
+import { MihoyoAccountApiPath } from '../../network/MihoyoAccountApiPath';
 import { HKey, HVal } from './MihoyoHeaderKey';
 import { ApiConfig } from './ApiConfig';
-import { GameId } from '../constants/GameId';
-import { GenshinApiPath } from './GenshinApiPath';
-import { StarRailApiPath } from './StarRailApiPath';
-import { ZZZApiPath } from './ZZZApiPath';
+import { GameId } from '../../common/constants/GameId';
+import { GenshinApiPath } from '../../network/GenshinApiPath';
+import { StarRailApiPath } from '../../network/StarRailApiPath';
+import { ZZZApiPath } from '../../network/ZZZApiPath';
 import { GeetestReporter, GeetestRequiredListener } from './GeetestReporter';
-import { ZZZRecordRequest } from './ZZZRecordRequest';
+import { ZZZRecordRequest } from '../../network/ZZZRecordRequest';
 
 /**
  * ============================================================

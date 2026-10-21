@@ -1,4 +1,4 @@
-import { MihoyoApiService } from '../network/MihoyoApiService';
+import { MihoyoApiService } from '../base/network/MihoyoApiService';
 import { SyncMetaDao } from '../database/SyncMetaDao';
 import { SyncMetaRow } from '../models/SyncMetaRow';
 import { RdbManager } from '../database/RdbManager';
@@ -6,8 +6,8 @@ import {
   SYNC_STATUS_SYNCING,
   SYNC_STATUS_SUCCESS,
   SYNC_STATUS_FAILED,
-} from '../constants/ApiConstants';
-import { SyncError, SyncErrorKind } from '../errors/ApiErrors';
+} from '../common/constants/ApiConstants';
+import { SyncError, SyncErrorKind } from '../base/errors/ApiErrors';
 
 export abstract class GameRepository {
   // 同步间隔阈值（秒）

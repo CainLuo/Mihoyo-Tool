@@ -1,5 +1,5 @@
 import { GameRepository } from './GameRepository';
-import { SyncDataType } from '../constants/SyncDataType';
+import { SyncDataType } from '../common/constants/SyncDataType';
 import {
   GenshinCharacterListDao,
   GenshinDailyNoteDao,
@@ -20,20 +20,20 @@ import {
   GenshinCharacterListData,
 } from '../models/GenshinRows';
 import { GenshinApiService } from '../network/GenshinApiService';
-import { GeetestService } from '../network/GeetestService';
-import { MihoyoDomain } from '../network/MihoyoDomain';
+import { GeetestService } from '../base/network/GeetestService';
+import { MihoyoDomain } from '../base/network/MihoyoDomain';
 import { GenshinApiPath } from '../network/GenshinApiPath';
-import { SyncError, SyncErrorKind, SyncErrorFactory, AuthExpiredError } from '../errors/ApiErrors';
-import { CookieRefreshCoordinator } from '../cookie/CookieRefreshCoordinator';
-import { Logger } from '../utils/Logger';
-import { ApiErrorHandler } from '../utils/ApiErrorHandler';
-import { ApiErrorCodes } from '../constants/ApiErrorCodes';
+import { SyncError, SyncErrorKind, SyncErrorFactory, AuthExpiredError } from '../base/errors/ApiErrors';
+import { CookieRefreshCoordinator } from '../base/cookie/CookieRefreshCoordinator';
+import { Logger } from '../base/utils/Logger';
+import { ApiErrorHandler } from '../base/utils/ApiErrorHandler';
+import { ApiErrorCodes } from '../common/constants/ApiErrorCodes';
 import { CoreInitializer } from '../CoreInitializer';
 import { BBSRepository } from './BBSRepository';
 import { MaterialBagRepository } from './MaterialBagRepository';
 import { MaterialBagRow } from '../models/MaterialBagRow';
-import { GameId } from '../constants/GameId';
-import { CookieDebug } from '../utils/CookieDebug';
+import { GameId } from '../common/constants/GameId';
+import { CookieDebug } from '../base/utils/CookieDebug';
 import {
   GENSHIN_TALENT_SLOT_COUNT,
   GenshinCalcTargets,

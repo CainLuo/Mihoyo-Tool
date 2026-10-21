@@ -4,7 +4,7 @@
  * 游戏角色数据库行模型，对应 game_role_table 表。
  * 一个账号可绑定多个游戏的多个角色，每行对应一个游戏角色。
  */
-import { GameId } from '../constants/GameId';
+import { GameId } from '../common/constants/GameId';
 export class GameRoleRow {
   /** 本地数据库自增 ID */
   id: number = 0;

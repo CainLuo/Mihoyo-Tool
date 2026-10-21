@@ -1,4 +1,4 @@
-import { AppEnvManager } from '../constants/AppEnvManager';
+import { AppEnvManager } from '../../common/constants/AppEnvManager';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 
 /**

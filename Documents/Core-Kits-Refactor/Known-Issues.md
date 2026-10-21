@@ -1,6 +1,6 @@
 # Core Kits 已知问题与暂缓项
 
-> 状态：**已记录，暂不改代码**
+> 状态：**已记录，暂不改代码；Phase 1.2 第一批完成**
 > 更新时间：2026-10-21
 > 原则：当前构建和既有功能可运行；header / retcode 未采集项保持现状，不用静态推断修改行为。任何修复必须等真机、抓包或明确需求，不把“参考项目这样做”直接当成线上结论。
 >
@@ -37,38 +37,58 @@
 
 > 这些问题只记录，不在 Phase 1.2 目录重组时顺手修改。目录重组必须保持请求行为不变。
 
+### 2.1 构建环境已知问题
+
+| ID | 项目 | 当前状态 | 当前决定 |
+| --- | --- | --- | --- |
+| E-01 | `internal` 开发签名证书过期 | `Certificates/dev/miyoyo-dev.cer` 与 `miyoyo-profileDebug.p7b` 于 `2026-10-21 13:15:20 CST` 过期；`default` 使用的 release 证书有效期到 2029-04-24；`debug` 当前跳过签名 | 不通过改 `signingConfig` 绕过；由用户续签 Huawei AGC Development 证书和 Debug Profile。当前用 `default` / `debug` 验证代码；`internal` 只验证到 `CompileArkTS`，`SignHap` 失败不阻塞 Phase 2 |
+
+### 2.2 结构性暂缓（Phase 1.2 搬位置后暴露）
+
+| ID | 项目 | 当前状态 | 当前决定 |
+| --- | --- | --- | --- |
+| S-01 | `base/` 仍有反向依赖 | `base/cookie` 依赖 `repository/BBSRepository`、`models/AccountRow`；`base/network` 依赖游戏专属 `network/ZZZRecordRequest` / `*ApiPath` 和根 `CoreInitializer` | 本轮只搬位置，不改依赖方向；Phase 2 拆 Kit / Phase 5 收口时通过接口、注入或下沉解耦，避免继续扩大 |
+
 ---
 
-## 3. 下一步：Phase 1.2（目录骨架，不改业务行为）
+## 3. Phase 1.2 进度（第一批完成，不改业务行为）
 
-按 `Plan.md` 的顺序，Phase 1.1 BaseApiService 已收尾；下一步不是继续改 header / retcode，而是做 **Phase 1.2 结构整理**：
+### 3.1 已完成
 
-1. 建 `base/`、`common/`、`db/`、`sync/` 目录骨架。
-2. 按 `Plan.md` §3.3 的共享文件清单，用 `git mv` 迁移网络基础设施、`log/`、`errors/`、`utils/`、`cookie/` 等公共文件。
-3. 更新相对 import 和 `core/Index.ets`，不改 URL / header / DS / retcode / 上报逻辑。
-4. 每迁移一组就构建四个 product；最后跑 `test-core.sh` / `test-entry.sh`。
-5. 用 `git grep` 检查旧路径 / 旧 transport 残留。
-6. Phase 1.2 完成后再进入 Phase 2：Genshin → StarRail → ZZZ → Mihoyo 拆 Kit。
+1. 用 `git mv` 迁移 32 个共享文件：
+   - `base/network` 14 个：`APIs`、`BaseApiService`、`HttpTypes`、`MihoyoApiService`、`ApiConfig`、`MihoyoDomain`、`MihoyoHeaderKey`、`MihoyoHeaderBuilder`、`DSUtil`、`CookieManager`、`DeviceFpService`、`GeetestService`、`GeetestReporter`、`FingerprintReporter`；
+   - `base/log` 4 个、`base/errors` 1 个、`base/utils` 4 个、`base/cookie` 2 个；
+   - `common/constants` 7 个：`AppEnv`、`AppEnvManager`、`GameId`、`GameServer`、`ApiConstants`、`ApiErrorCodes`、`SyncDataType`。
+2. 更新 169 处相对 import、`core/Index.ets` 导出和 `core/src/internal` overlay import；只改路径，不改业务逻辑。
+3. 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，`SignHap` 因 E-01 失败；524 个相对 import 解析检查 0 缺失。
+4. 旧顶层 `log/`、`errors/`、`utils/`、`cookie/` 空目录已移除；`network/` 仅余游戏 / 账号专属 Service、Path 和 `MihoyoApiServiceFactory`。
 
-### Phase 1.2 的边界
+### 3.2 剩余
+
+- `db/`、`sync/`、`common/material` 不单独提交空目录，随 Phase 2/3 的对应文件迁移落位。
+- 游戏 / 账号专属 Service、Path、`MihoyoApiServiceFactory` 留在 `network/`，Phase 2 再拆。
+- internal overlay 的 `MihoyoKit/api`、`MihoyoKit/model`、`MihoyoKit/repository` 镜像路径在 Phase 2 同步调整。
+- E-01 证书续签后再补跑 `internal` 构建与安装验证。
+
+### 3.3 边界
 
 - 不动 `entry` 页面 / ViewModel / 路由。
 - 不动业务 Service 的 URL / header / DS / Cookie / 上报逻辑。
 - 不动 `Mock.md` 涉及的 base URL 方案；`baseUrlType` 继续保持 no-op。
 - 根目录 `internal/core` 历史副本不动。
-- 已知问题 R-01 ~ R-08、D-01 ~ D-07 继续挂起，不阻塞目录整理。
+- 已知问题 R-01 ~ R-08、D-01 ~ D-07、E-01、S-01 继续挂起，不阻塞 Phase 2。
 
 ---
 
-## 4. 完成 Phase 1.2 后的检查
+## 4. Phase 1.2 第一批检查
 
-- [ ] `core/src` 下共享文件只在 `base/`（或约定目录）出现，没有重复副本
-- [ ] `core/Index.ets` 导出符号不变
-- [ ] 四个 product 构建通过
-- [ ] `test-core.sh` / `test-entry.sh` 通过
-- [ ] `grep` 无旧路径 / 旧 transport 引用
-- [ ] 没有修改业务请求行为
-- [ ] 已知问题仍保留在本文件，未因搬文件而丢失
+- [x] 本批共享文件只在 `base/` / `common/constants/` 出现，没有重复副本
+- [x] `core/Index.ets` 导出符号不变
+- [x] `default` / `debug` / `mock` 构建通过；`internal` 编译通过，`SignHap` 因 E-01 失败
+- [x] `test-core.sh` / `test-entry.sh` 通过
+- [x] 524 个相对 import 解析检查 0 缺失；无旧路径 / 旧 transport 引用
+- [x] diff 仅包含路径和 import 变更，没有修改业务请求行为
+- [x] 已知问题仍保留在本文件，未因搬文件而丢失
 
 ---
 

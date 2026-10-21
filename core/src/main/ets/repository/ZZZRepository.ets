@@ -1,5 +1,5 @@
 import { GameRepository } from './GameRepository';
-import { SyncDataType } from '../constants/SyncDataType';
+import { SyncDataType } from '../common/constants/SyncDataType';
 import {
   ZZZAvatarBasicDao,
   ZZZDailyNoteDao,
@@ -17,21 +17,21 @@ import {
   ZZZAvatarListData,
 } from '../models/ZZZRows';
 import { ZZZApiService } from '../network/ZZZApiService';
-import { GeetestService } from '../network/GeetestService';
-import { MihoyoDomain } from '../network/MihoyoDomain';
+import { GeetestService } from '../base/network/GeetestService';
+import { MihoyoDomain } from '../base/network/MihoyoDomain';
 import { ZZZApiPath } from '../network/ZZZApiPath';
-import { AuthExpiredError } from '../errors/ApiErrors';
-import { CookieRefreshCoordinator } from '../cookie/CookieRefreshCoordinator';
+import { AuthExpiredError } from '../base/errors/ApiErrors';
+import { CookieRefreshCoordinator } from '../base/cookie/CookieRefreshCoordinator';
 import { CoreInitializer } from '../CoreInitializer';
 import { BBSRepository } from './BBSRepository';
 import { MaterialBagRepository } from './MaterialBagRepository';
 import { MaterialBagRow } from '../models/MaterialBagRow';
 import { ZZZComputeParser, ZZZMaterialItem } from '../parsers/zzz/ZZZComputeParser';
-import { GameId } from '../constants/GameId';
-import { Logger } from '../utils/Logger';
-import { CookieDebug } from '../utils/CookieDebug';
-import { ApiErrorCodes } from '../constants/ApiErrorCodes';
-import { ApiErrorHandler } from '../utils/ApiErrorHandler';
+import { GameId } from '../common/constants/GameId';
+import { Logger } from '../base/utils/Logger';
+import { CookieDebug } from '../base/utils/CookieDebug';
+import { ApiErrorCodes } from '../common/constants/ApiErrorCodes';
+import { ApiErrorHandler } from '../base/utils/ApiErrorHandler';
 
 
 /** tryWidgetFallback 结果 */

@@ -5,7 +5,7 @@
  * 星铁 API 特有：返回 user_owns_materials 字段，包含玩家真实背包数据。
  */
 
-import { Logger } from '../../utils/Logger';
+import { Logger } from '../../base/utils/Logger';
 
 // ─── 纯数据模型（core 对外暴露）────────────────────────────────
 

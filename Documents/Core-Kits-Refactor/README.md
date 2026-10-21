@@ -1,8 +1,8 @@
 # Core Kits 重构任务总览
 
-> 状态：**Stage 0-3 代码迁移完成；header / retcode 静态参考对照完成，运行时基线延后**
-> 当前阶段：**旧 transport 已删除；四个 product 构建、`test-core.sh` / `test-entry.sh` 通过；已用 mihoyo-api-sdk / TeyvatGuide / PizzaHelperUnited 和本项目历史抓包完成静态对照；运行时 baseline 未采集（用户明确推迟到整个任务完成后）**
-> 下一步：**进入 Phase 1.2 目录骨架整理；已知问题和运行时候补项见 [`Known-Issues.md`](Known-Issues.md)**
+> 状态：**Phase 1.1 完成；Phase 1.2 第一批共享基础设施迁移完成；header / retcode 静态参考对照完成，运行时基线延后**
+> 当前阶段：**32 个共享文件已移到 `base/` / `common/constants/`，只改路径与 import；`default` / `debug` / `mock` 完整构建通过；`internal` 编译通过但 `SignHap` 因证书过期失败；`test-core.sh` / `test-entry.sh` 通过**
+> 下一步：**进入 Phase 2（Genshin → StarRail → ZZZ → Mihoyo）；`db/` / `sync/` / `common/material` 随对应文件迁移落位；已知问题和暂缓项见 [`Known-Issues.md`](Known-Issues.md)**
 > 更新时间：2026-10-21
 
 本目录集中存放整个 Core Kits 重构任务的规划、阶段记录和专题文档，避免 Mock、Kit、DB 等子任务的文档散落在仓库各处。
@@ -42,7 +42,7 @@
 | 阶段 | 状态 | 说明 |
 | --- | --- | --- |
 | Phase 0 — 基线 | 🟡 构建基线完成；静态参考完成；运行时基线延后 | 四个 product（`default` / `mock` / `debug` / `internal`）构建通过；`test-core.sh` / `test-entry.sh` 通过（仅构建 ohosTest HAP，不是网络测试）；header / retcode 清单和 §2.2 静态参考矩阵已建在 [`API-Baseline.md`](API-Baseline.md)，运行时 **未采集（用户决定延后，不阻塞迁移）** |
-| Phase 1 — 底盘 | ✅ Stage 0-3 代码迁移完成；Phase 1.2 待开始 | 新增 `HttpTypes` / `BaseApiService`；5 个业务 Service + internal overlay 已继承并完成 `.data` 拆包；`AuthRepository` / `BBSRepository` / `DeviceFpService` / `GeetestService` / `ZZZRecordRequest` 已迁移；旧 `HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService` 已删除；四产品和两个测试脚本构建通过；基线 / 真机回归待补，见 [`Known-Issues.md`](Known-Issues.md) |
+| Phase 1 — 底盘 | 🟡 Phase 1.1 完成；Phase 1.2 第一批完成 | 新增 `HttpTypes` / `BaseApiService`；5 个业务 Service + internal overlay 已继承并完成 `.data` 拆包；`AuthRepository` / `BBSRepository` / `DeviceFpService` / `GeetestService` / `ZZZRecordRequest` 已迁移；旧 `HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService` 已删除；Phase 1.2 第一批已迁移 32 个共享文件并只改 import；`default` / `debug` / `mock` 构建和 `test-core.sh` / `test-entry.sh` 通过，`internal` 编译通过但证书过期导致 `SignHap` 失败；基线 / 真机回归待补，见 [`Known-Issues.md`](Known-Issues.md) |
 | Phase 2 — 拆 Kit | ⏳ 未开始 | 按 Genshin → StarRail → ZZZ → Mihoyo 顺序拆 Kit |
 | Phase 3 — DB 收尾 | ⏳ 未开始 | `TableName` 抽离、跨 Kit 迁移、`SchemaRegistry` 聚合 |
 | Phase 4 — Mock | 🟡 部分完成 | 清理、独立 mock product、脚本、Node mock-service 已完成；Swift-Vapor local service 与 App 接入未完成 |
@@ -134,7 +134,15 @@
   - BBS 三个接口继续保留现状上报行为（迁移后用显式 helper 复刻，旧 transport 已删除），待真实 retcode 基线后再决定。
 - **不在本次实施**：`MihoyoApiService` 公共 Header 合并。Header 由独立 Header 抽象类（名称待定）管理，`MihoyoApiService` 负责合并公共 header + 具体 Service header；等所有 ApiService 整理完后作为 Phase 5 收尾项做，详见 [`APIService.md`](APIService.md) 第 10 节
 
-代码迁移和旧链路删除已完成；基线 / 真机 / Mock 回归按用户决定延后到整个任务完成后补做。已知问题和暂缓项已统一记录在 [`Known-Issues.md`](Known-Issues.md)，不阻塞后续结构整理。下一步进入 **Phase 1.2**：先建 `base/ common/ db/ sync/` 骨架，再按 `Plan.md` §3.3 的共享文件清单用 `git mv` 迁移；先不改业务请求行为。
+代码迁移和旧链路删除已完成；基线 / 真机 / Mock 回归按用户决定延后到整个任务完成后补做。已知问题和暂缓项已统一记录在 [`Known-Issues.md`](Known-Issues.md)，不阻塞后续结构整理。
+
+**Phase 1.2 第一批已完成（2026-10-21）**：
+
+- 32 个共享文件已用 `git mv` 迁移：`base/network`（14）、`base/log`（4）、`base/errors`（1）、`base/utils`（4）、`base/cookie`（2）、`common/constants`（7）。
+- 169 处相对 import 与 `core/Index.ets` 导出已更新；`core/src/internal` overlay import 同步更新；仅路径 / import 变更，不改 URL、header、DS、Cookie、retcode 或上报逻辑。
+- 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，`SignHap` 因开发证书过期失败（见 `Known-Issues.md` E-01）；全量相对 import 解析检查 524 个、0 缺失。
+- 仍留在 `network/`：游戏 / 账号专属 Service、Path 和 `MihoyoApiServiceFactory`，等 Phase 2 再拆；`base/cookie` 与 `base/network` 仍有既存反向依赖，本轮只搬位置，见 `Known-Issues.md` S-01。
+- 下一步：Phase 2 按 Genshin → StarRail → ZZZ → Mihoyo 拆 Kit；`db/`、`sync/`、`common/material` 随对应文件迁移落位，不单独提交空目录。
 
 ---
 

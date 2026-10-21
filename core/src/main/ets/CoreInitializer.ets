@@ -1,10 +1,10 @@
 import { common } from '@kit.AbilityKit';
 import { RdbManager } from './database/RdbManager';
-import { AppEnv } from './constants/AppEnv';
-import { AppEnvManager } from './constants/AppEnvManager';
+import { AppEnv } from './common/constants/AppEnv';
+import { AppEnvManager } from './common/constants/AppEnvManager';
 import { MihoyoApiServiceFactory } from './network/MihoyoApiServiceFactory';
-import { ApiConfig } from './network/ApiConfig';
-import { DSUtil } from './network/DSUtil';
+import { ApiConfig } from './base/network/ApiConfig';
+import { DSUtil } from './base/network/DSUtil';
 import { BBSRepository } from './repository/BBSRepository';
 import { GenshinRepository } from './repository/GenshinRepository';
 import { StarRailRepository } from './repository/StarRailRepository';
@@ -12,9 +12,9 @@ import { ZZZRepository } from './repository/ZZZRepository';
 import { SignRepository } from './repository/SignRepository';
 import { SyncQueueRunner } from './repository/SyncQueueRunner';
 import { MaterialTargetConfigRepository } from './repository/MaterialTargetConfigRepository';
-import { ApiLogSystem } from './log/ApiLogSystem';
-import { LogEventType } from './log/ApiLogEntry';
-import { Logger } from './utils/Logger';
+import { ApiLogSystem } from './base/log/ApiLogSystem';
+import { LogEventType } from './base/log/ApiLogEntry';
+import { Logger } from './base/utils/Logger';
 import { ZZZRecordRequest } from './network/ZZZRecordRequest';
 
 export interface CoreConfig {

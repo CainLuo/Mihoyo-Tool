@@ -1,4 +1,4 @@
-import { MihoyoApiService } from '../network/MihoyoApiService';
+import { MihoyoApiService } from '../base/network/MihoyoApiService';
 import { SignApiService } from '../network/SignApiService';
 
 /**

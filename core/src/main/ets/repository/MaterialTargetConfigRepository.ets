@@ -33,8 +33,8 @@ import {
   LevelConfig,
   SkillLevelConfig
 } from '../models/MaterialTargetConfigRow';
-import { GameId } from '../constants/GameId';
-import { Logger } from '../utils/Logger';
+import { GameId } from '../common/constants/GameId';
+import { Logger } from '../base/utils/Logger';
 
 const TAG = 'MaterialTargetConfigRepository';
 

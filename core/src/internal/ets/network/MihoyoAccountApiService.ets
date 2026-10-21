@@ -1,17 +1,17 @@
 /**
  * MihoyoAccountApiService（internal 版，含手机号 API 方法）
  */
-import { RequestParams, RequestOptions } from './APIs';
-import { MihoyoApiService } from './MihoyoApiService';
-import { MihoyoDomain } from './MihoyoDomain';
+import { RequestParams, RequestOptions } from '../base/network/APIs';
+import { MihoyoApiService } from '../base/network/MihoyoApiService';
+import { MihoyoDomain } from '../base/network/MihoyoDomain';
 import { MihoyoAccountApiPath } from './MihoyoAccountApiPath';
 import { PassportApiPath } from './PassportApiPath';
 import { QRCodeApiPath } from './QRCodeApiPath';
-import { MihoyoHeaderBuilder, HeaderProfile } from './MihoyoHeaderBuilder';
-import { HKey, HVal } from './MihoyoHeaderKey';
-import { ApiConfig } from './ApiConfig';
-import { DSUtil } from './DSUtil';
-import { RsaUtil } from '../utils/RsaUtil';
+import { MihoyoHeaderBuilder, HeaderProfile } from '../base/network/MihoyoHeaderBuilder';
+import { HKey, HVal } from '../base/network/MihoyoHeaderKey';
+import { ApiConfig } from '../base/network/ApiConfig';
+import { DSUtil } from '../base/network/DSUtil';
+import { RsaUtil } from '../base/utils/RsaUtil';
 
 export class MihoyoAccountApiService extends MihoyoApiService {
 

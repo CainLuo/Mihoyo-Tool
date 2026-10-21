@@ -11,7 +11,7 @@ import { MaterialBagRow } from '../../../main/ets/models/MaterialBagRow';
 import { RdbManager } from '../../../main/ets/database/RdbManager';
 import { AccountDao } from '../../../main/ets/database/BBSDao';
 import { AccountRow } from '../../../main/ets/models/AccountRow';
-import { GameId } from '../../../main/ets/constants/GameId';
+import { GameId } from '../../../main/ets/common/constants/GameId';
 import UIAbility from '@ohos.app.ability.UIAbility';
 import AbilityConstant from '@ohos.app.ability.AbilityConstant';
 

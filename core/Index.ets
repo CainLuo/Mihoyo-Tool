@@ -1,11 +1,11 @@
 // Core library export file
 
 // Network module
-export * from './src/main/ets/network/APIs';
-export * from './src/main/ets/network/HttpTypes';
-export * from './src/main/ets/network/BaseApiService';
-export * from './src/main/ets/network/CookieManager';
-export * from './src/main/ets/network/GeetestService';
+export * from './src/main/ets/base/network/APIs';
+export * from './src/main/ets/base/network/HttpTypes';
+export * from './src/main/ets/base/network/BaseApiService';
+export * from './src/main/ets/base/network/CookieManager';
+export * from './src/main/ets/base/network/GeetestService';
 
 // Database module
 
@@ -15,7 +15,7 @@ export * from './src/main/ets/network/GeetestService';
 export * from './src/main/ets/repository/AuthRepository';
 
 // Constants
-export * from './src/main/ets/constants/ApiErrorCodes';
+export * from './src/main/ets/common/constants/ApiErrorCodes';
 export * from './src/main/ets/constants/GenshinPropertyType';
 
 // Parsers
@@ -67,32 +67,32 @@ export * from './src/main/ets/repository/MaterialBagRepository';
 export * from './src/main/ets/repository/MaterialTargetConfigRepository';
 
 // 网络层（抽象基类）
-export * from './src/main/ets/network/MihoyoApiService';
+export * from './src/main/ets/base/network/MihoyoApiService';
 
 // 环境枚举和管理器（统一入口）
-export * from './src/main/ets/constants/AppEnv';
-export * from './src/main/ets/constants/AppEnvManager';
+export * from './src/main/ets/common/constants/AppEnv';
+export * from './src/main/ets/common/constants/AppEnvManager';
 
 // 日志工具（core/entry 共用）
-export * from './src/main/ets/utils/Logger';
+export * from './src/main/ets/base/utils/Logger';
 
 // API 错误处理工具
-export * from './src/main/ets/utils/ApiErrorHandler';
+export * from './src/main/ets/base/utils/ApiErrorHandler';
 
 // 日志系统
-export * from './src/main/ets/log/ApiLogEntry';
-export * from './src/main/ets/log/ApiLogSystem';
-export * from './src/main/ets/log/LogFileManager';
-export * from './src/main/ets/log/LogExporter';
+export * from './src/main/ets/base/log/ApiLogEntry';
+export * from './src/main/ets/base/log/ApiLogSystem';
+export * from './src/main/ets/base/log/LogFileManager';
+export * from './src/main/ets/base/log/LogExporter';
 
 // 常量
-export * from './src/main/ets/constants/SyncDataType';
+export * from './src/main/ets/common/constants/SyncDataType';
 export * from './src/main/ets/constants/GenshinPropertyType';
 export * from './src/main/ets/constants/StarRailPropertyType';
 export * from './src/main/ets/constants/ZZZPropertyId';
-export * from './src/main/ets/constants/GameServer';
-export * from './src/main/ets/constants/GameId';
-export * from './src/main/ets/constants/ApiConstants';
+export * from './src/main/ets/common/constants/GameServer';
+export * from './src/main/ets/common/constants/GameId';
+export * from './src/main/ets/common/constants/ApiConstants';
 export * from './src/main/ets/constants/GenshinElement';
 export * from './src/main/ets/constants/StarRailElement';
 export * from './src/main/ets/constants/ZZZElement';
@@ -102,10 +102,10 @@ export * from './src/main/ets/database/TableSchema';
 // ── 网络层完整导出 ──────────────────────────────────────────
 
 // 请求头常量
-export * from './src/main/ets/network/MihoyoHeaderKey';
+export * from './src/main/ets/base/network/MihoyoHeaderKey';
 
 // Domain 和 Path 枚举
-export * from './src/main/ets/network/MihoyoDomain';
+export * from './src/main/ets/base/network/MihoyoDomain';
 export * from './src/main/ets/network/MihoyoAccountApiPath';
 export * from './src/main/ets/network/PassportApiPath';
 export * from './src/main/ets/network/QRCodeApiPath';
@@ -115,11 +115,11 @@ export * from './src/main/ets/network/ZZZApiPath';
 export * from './src/main/ets/network/SignApiPath';
 
 // 请求头构建器
-export * from './src/main/ets/network/MihoyoHeaderBuilder';
+export * from './src/main/ets/base/network/MihoyoHeaderBuilder';
 
 // 配置和工具
-export * from './src/main/ets/network/ApiConfig';
-export * from './src/main/ets/network/DSUtil';
+export * from './src/main/ets/base/network/ApiConfig';
+export * from './src/main/ets/base/network/DSUtil';
 
 // Service 工厂
 export * from './src/main/ets/network/MihoyoApiServiceFactory';
@@ -136,7 +136,7 @@ export {
   SyncErrorKind,
   SyncError,
   SyncErrorFactory
-} from './src/main/ets/errors/ApiErrors';
+} from './src/main/ets/base/errors/ApiErrors';
 
 // 旧的错误类（deprecated，保留兼容）
 export {
@@ -148,9 +148,9 @@ export {
   GeetestRequiredError,
   RoleNotPublicErrorClass,
   RoleNotPublicError
-} from './src/main/ets/errors/ApiErrors';
+} from './src/main/ets/base/errors/ApiErrors';
 
 // Cookie 刷新
-export * from './src/main/ets/cookie/ColdStartCookieChecker';
-export * from './src/main/ets/cookie/CookieRefreshCoordinator';
+export * from './src/main/ets/base/cookie/ColdStartCookieChecker';
+export * from './src/main/ets/base/cookie/CookieRefreshCoordinator';
 

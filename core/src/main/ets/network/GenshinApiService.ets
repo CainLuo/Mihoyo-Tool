@@ -1,12 +1,12 @@
-import { RequestParams, RequestOptions } from './APIs';
-import { MihoyoApiService } from './MihoyoApiService';
-import { MihoyoDomain } from './MihoyoDomain';
+import { RequestParams, RequestOptions } from '../base/network/APIs';
+import { MihoyoApiService } from '../base/network/MihoyoApiService';
+import { MihoyoDomain } from '../base/network/MihoyoDomain';
 import { GenshinApiPath } from './GenshinApiPath';
-import { MihoyoHeaderBuilder, HeaderProfile } from './MihoyoHeaderBuilder';
-import { ApiConfig } from './ApiConfig';
-import { HKey } from './MihoyoHeaderKey';
-import { GameFpBiz } from './DeviceFpService';
-import { Logger } from '../utils/Logger';
+import { MihoyoHeaderBuilder, HeaderProfile } from '../base/network/MihoyoHeaderBuilder';
+import { ApiConfig } from '../base/network/ApiConfig';
+import { HKey } from '../base/network/MihoyoHeaderKey';
+import { GameFpBiz } from '../base/network/DeviceFpService';
+import { Logger } from '../base/utils/Logger';
 
 /** 养成计算链路统一日志 tag，过滤：hilog | grep */
 const CALC_TAG: string = 'GenshinCalc';

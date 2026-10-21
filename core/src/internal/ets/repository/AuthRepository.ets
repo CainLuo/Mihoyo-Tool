@@ -15,7 +15,7 @@ import {
   COOKIE_FIELD_COOKIE_TOKEN,
   COOKIE_FIELD_LTOKEN,
   COOKIE_FIELD_LTUID,
-} from '../constants/ApiConstants';
+} from '../common/constants/ApiConstants';
 import { LoginMobileResult } from '../models/PhoneLoginModels';
 import {
   QRCodeFetchResult,
@@ -24,7 +24,7 @@ import {
   QRCodeQueryResponse,
   QRCodeConfirmedData,
 } from '../models/QRCodeLoginModels';
-import { Logger } from '../utils/Logger';
+import { Logger } from '../base/utils/Logger';
 import {
   GetLTokenBySTokenResponse,
   GetCookieBySTokenResponse,

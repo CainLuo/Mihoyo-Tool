@@ -7,7 +7,7 @@
  * 错误码参考：UIGF-org/mihoyo-api-collect
  */
 import { AuthExpiredError, GeetestRequiredError, GeetestCreateResult } from '../errors/ApiErrors';
-import { ApiErrorCodes } from '../constants/ApiErrorCodes';
+import { ApiErrorCodes } from '../../common/constants/ApiErrorCodes';
 
 /**
  * API 响应基础结构

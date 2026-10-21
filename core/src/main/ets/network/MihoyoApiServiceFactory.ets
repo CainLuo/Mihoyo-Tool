@@ -1,4 +1,4 @@
-import { MihoyoApiService } from './MihoyoApiService';
+import { MihoyoApiService } from '../base/network/MihoyoApiService';
 import { MihoyoAccountApiService } from './MihoyoAccountApiService';
 import { GenshinApiService } from './GenshinApiService';
 import { StarRailApiService } from './StarRailApiService';

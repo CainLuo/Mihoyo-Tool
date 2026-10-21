@@ -18,11 +18,11 @@
 import { common } from '@kit.AbilityKit';
 import { preferences } from '@kit.ArkData';
 import { util } from '@kit.ArkTS';
-import { RequestOptions } from './APIs';
-import { BaseApiService } from './BaseApiService';
-import { DSUtil } from './DSUtil';
-import { MihoyoDomain } from './MihoyoDomain';
-import { GeetestCreateResult, GeetestVerifyInput } from '../errors/ApiErrors';
+import { RequestOptions } from '../base/network/APIs';
+import { BaseApiService } from '../base/network/BaseApiService';
+import { DSUtil } from '../base/network/DSUtil';
+import { MihoyoDomain } from '../base/network/MihoyoDomain';
+import { GeetestCreateResult, GeetestVerifyInput } from '../base/errors/ApiErrors';
 
 
 const PREFS_NAME: string = 'mihoyo_device_config';

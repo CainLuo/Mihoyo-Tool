@@ -9,7 +9,7 @@
 >
 > **2026-10-20 更新**：独立 `mock/` ArkTS 适配器目录已删除；`mock` product 保留，生成独立 `.mock` 包（`APP_ENV=mock`）。`mock-service/` 与 fixtures 保留，后续用 Swift-Vapor local service 复用。以下涉及 `mock/` 的内容为历史记录。
 >
-> **2026-10-21 更新**：Phase 1.1 BaseApiService 的 Stage 0-3 已完成；`HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService` 已删除；四个 product 和两个测试脚本构建通过。已用 `mihoyo-api-sdk`、TeyvatGuide、PizzaHelperUnited 和本项目历史抓包完成 header / retcode 静态参考对照；运行时基线按用户决定延后到整个任务完成后，不阻塞 Phase 1.2。旧路径基线已无法补采，详见 [`API-Baseline.md`](API-Baseline.md) §2.2。
+> **2026-10-21 更新**：Phase 1.1 BaseApiService 的 Stage 0-3 已完成；`HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService` 已删除。Phase 1.2 第一批已将 32 个共享文件迁到 `base/` / `common/constants/`，只改路径与 import；`default` / `debug` / `mock` 构建和两个测试脚本通过，`internal` 编译通过但 `SignHap` 因开发证书过期失败。已用 `mihoyo-api-sdk`、TeyvatGuide、PizzaHelperUnited 和本项目历史抓包完成 header / retcode 静态参考对照；运行时基线按用户决定延后到整个任务完成后，不阻塞 Phase 2。旧路径基线已无法补采，详见 [`API-Baseline.md`](API-Baseline.md) §2.2。
 
 ---
 
@@ -198,6 +198,8 @@ entry
 ### 3.3 文件搬迁总表（现路径 → 新路径）
 
 > 阶段 1~2 以移动为主、尽量不改文件名；schema/迁移拆分与命名统一分别放在 Phase 3 / Phase 5。
+>
+> **Phase 1.2 进度（2026-10-21）**：`network/` 共享部分 14 个、`log/` 4 个、`errors/` 1 个、`utils/` 4 个、`cookie/` 2 个、公共 `constants/` 7 个已完成 `git mv`；`database/`、`repository/`、`models/`、`parsers/`、游戏专属 `network/`、`MihoyoApiServiceFactory` 尚未移动。`db/` / `sync/` / `common/material` 随 Phase 2/3 文件迁移落位，不单独提交空目录。
 
 **network/ 36 个**
 
@@ -525,12 +527,12 @@ mock-service/                              # 新增：HAR 之外
 - 确认 `hdc` target；当前环境曾检测到 `127.0.0.1:5555`，可用时做安装/启动验证；**本轮未执行真机回归**。
 - 验证：四个 product 构建通过；业务基线未采集，不再作为 Stage 1 / Stage 2 的 Gate；旧路径基线已无法补采，新路径待任务完成后补采。网络测试另做，不能把“脚本通过”当成完整验证。
 
-**Phase 1 — 底盘（Phase 1.1 已完成；Phase 1.2 待开始）**
+**Phase 1 — 底盘（Phase 1.1 完成；Phase 1.2 第一批完成）**
 - Phase 1.1 BaseApiService 的 **Stage 0-3 已完成**：抽构建链路内唯一的 axios 封装层，`MihoyoApiService extends BaseApiService`，所有 Service 继续 `extends MihoyoApiService`，重复 `get / post` 已清理；文件级迁移/删除清单见 [`APIService.md`](APIService.md) 第 8 节。原“Stage 1 前完成 P0 / Stage 2 前完成 P1”的 Gate 已被用户的“基线延后”决定覆盖。
 - Base 实现必须处理：axios 非 2xx 的 `error.response`、懒加载 axios、日志脱敏 + try/catch、`HttpResponse` 漏拆包审计、按 §4.5 的上报归属、`BBSRepository` 两个“非 fallback”方法、`AuthRepository` fallback/service header 差异。`suppressGeetestReport`、`baseUrlType`、BBS 三个接口的上报行为本轮保持原样（`APIService.md` §8.7）。
-- 再建 `base/ common/ db/ sync/` 骨架；按 §3.3 移共享文件（`git mv`，`network/` 只移共享部分）。
-- `Index.ets` 改为从新路径重导出；旧 `HttpClient` / `HttpService` / `NetworkFactory` 已删除。
-- 验证：四个 product 构建 + 测试脚本 + `grep` 无旧路径残留（**已通过**）；关键接口基线对比和 `hdc` 安装验证按用户决定延后。`test-core.sh` / `test-entry.sh` 只构建 HAP，不能单独作为网络回归结论。
+- Phase 1.2 第一批已完成（2026-10-21）：`base/network` 14 个、`base/log` 4 个、`base/errors` 1 个、`base/utils` 4 个、`base/cookie` 2 个、`common/constants` 7 个，共 32 个共享文件用 `git mv` 迁移；169 处相对 import 和 `Index.ets` 导出已更新，internal overlay import 同步更新；旧顶层 `log/ errors/ utils/ cookie/` 空目录已移除，`network/` 仅余游戏 / 账号专属 Service、Path 和 `MihoyoApiServiceFactory`。
+- `Index.ets` 已改为从新路径重导出；旧 `HttpClient` / `HttpService` / `NetworkFactory` 已删除。
+- 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，但 `SignHap` 因开发证书过期失败（见 `Known-Issues.md` E-01）；524 个相对 import 解析检查 0 缺失；关键接口基线对比和 `hdc` 安装验证按用户决定延后。`test-core.sh` / `test-entry.sh` 只构建 HAP，不能单独作为网络回归结论。
 
 **Phase 2 — 拆 Kit（2~3 天，按 Kit 分 4 次提交）**
 - 顺序：GenshinKit → StarRailKit → ZZZKit → MihoyoKit（先外围后中心，MihoyoKit 被其它 Kit 依赖，最后搬）。

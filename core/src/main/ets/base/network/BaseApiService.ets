@@ -3,7 +3,7 @@ import { RequestParams, RequestOptions, RequestValue } from './APIs';
 import { HttpError, HttpResponse } from './HttpTypes';
 import { ApiLogSystem } from '../log/ApiLogSystem';
 import { LogEventType } from '../log/ApiLogEntry';
-import { AppEnvManager } from '../constants/AppEnvManager';
+import { AppEnvManager } from '../../common/constants/AppEnvManager';
 import certFramework from '@ohos.security.cert';
 
 interface X509TrustManager {
