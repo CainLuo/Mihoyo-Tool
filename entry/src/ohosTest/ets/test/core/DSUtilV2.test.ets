@@ -57,6 +57,36 @@ export default function dsUtilV2Test() {
       expect(parts.length).assertEqual(3);
     });
 
+    it('generateX6_random_isNumeric', 0, () => {
+      const random = DSUtil.generateX6().split(',')[1];
+      expect(/^[0-9]{6}$/.test(random)).assertTrue();
+    });
+
+    // ── 固定输入签名向量（与 TeyvatGuide / Pizza 算法对齐） ──────
+
+    it('generateWith_sign_noBodyQuery_matchesFixedMd5', 0, () => {
+      const ds = DSUtil.generateWith('test-salt', 1700000000, 'abc123', undefined, undefined, false);
+      expect(ds).assertEqual('1700000000,abc123,a2c6027b208308b5562d43fa3b7adb5e');
+    });
+
+    it('generateWith_sortsQuery_matchesFixedMd5', 0, () => {
+      const params = new RequestParams();
+      params.set('server', 'cn_gf01');
+      params.set('role_id', '12345678');
+      const ds = DSUtil.generateWith('test-salt', 1700000000, '123456', params, undefined, true);
+      expect(ds).assertEqual('1700000000,123456,c3d513a431a4674dbff43c81325ee6cd');
+    });
+
+    it('generateWith_includesExactBody_matchesFixedMd5', 0, () => {
+      const ds = DSUtil.generateWith('test-salt', 1700000000, '123456', undefined, '{"a":1,"b":2}', true);
+      expect(ds).assertEqual('1700000000,123456,5fe9ffd9228356a7b8086e067f825913');
+    });
+
+    it('generateV2_random_isAlphanumeric', 0, () => {
+      const random = DSUtil.generateV2().split(',')[1];
+      expect(/^[A-Za-z0-9]{6}$/.test(random)).assertTrue();
+    });
+
     // ── query 参数序列化 ─────────────────────────────────────────
 
     it('generateV1_withParams_queryIsSorted', 0, () => {

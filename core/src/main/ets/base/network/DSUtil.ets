@@ -7,7 +7,8 @@ import { util } from '@kit.ArkTS';
  * DSUtil — 米游社 DS 动态签名生成
  *
  * DS 格式：{timestamp},{random},{md5}
- * md5 内容：salt={salt}&t={timestamp}&r={random}&b={body}&q={query}
+ * 普通请求 md5 内容：salt={salt}&t={timestamp}&r={random}&b={body}&q={query}
+ * Sign 请求 md5 内容：salt={salt}&t={timestamp}&r={random}
  *
  * salt 从 rawfile/release/salt_config.json 读取，禁止硬编码。
  * 使用前必须调用 preloadSalts(context) 完成预加载。
@@ -42,8 +43,9 @@ export class DSUtil {
   }
 
   /**
-   * 生成 V1 DS（游戏记录接口，GAME_RECORD Profile）
-   * random 为 6 位纯数字（与米游社 App 一致）
+   * 生成 V1 DS（旧 salt，当前无业务调用方）
+   * GAME_RECORD 实际使用 X4，不要用本方法代替。
+   * random 为 6 位纯数字
    * @param params GET 请求参数（用于 query 部分）
    * @param body   POST 请求 body 字符串（GET 请求传 undefined）
    */
@@ -52,7 +54,8 @@ export class DSUtil {
   }
 
   /**
-   * 生成 DS（BBS 接口，BBS Profile）
+   * 生成 V2 DS（BBS Profile）
+   * 历史 App 抓包变体：salt_v2 + 字母数字 random，保留与 BBS header 整套一致。
    * @param params GET 请求参数
    * @param body   POST 请求 body 字符串
    */
@@ -107,26 +110,46 @@ export class DSUtil {
 
   /**
    * 生成 X6 DS（签到接口，SIGN Profile）
+   * 对应 TeyvatGuide 的 X6 salt + isSign=false（含 b/q）
+   * random 为 6 位纯数字
    * @param params GET 请求参数
    * @param body   POST 请求 body 字符串
    */
   static generateX6(params?: RequestParams, body?: string): string {
-    return DSUtil.generate(DSUtil.saltX6, params, body);
+    return DSUtil.generate(DSUtil.saltX6, params, body, true);
+  }
+
+  /**
+   * 使用固定 timestamp / random 生成 DS，供测试与内部复用。
+   * includeBodyQuery=false 时生成 Sign 形式（仅 salt/t/r）。
+   */
+  static generateWith(
+    salt: string,
+    timestamp: number,
+    random: string,
+    params?: RequestParams,
+    body?: string,
+    includeBodyQuery: boolean = true
+  ): string {
+    if (!includeBodyQuery) {
+      const signContent = `salt=${salt}&t=${timestamp}&r=${random}`;
+      return `${timestamp},${random},${crypto.MD5(signContent).toString()}`;
+    }
+    const b = body !== undefined ? body : '';
+    const q = DSUtil.serializeParams(params);
+    const signContent = `salt=${salt}&t=${timestamp}&r=${random}&b=${b}&q=${q}`;
+    return `${timestamp},${random},${crypto.MD5(signContent).toString()}`;
   }
 
   /**
    * 核心签名逻辑
    * query 参数按字典序排列（ArkTS 严格模式：用 for 循环替代 Array.sort()）
-   * @param numericRandom 是否使用纯数字 random（V1/X4 用纯数字，V2/X6 用字母数字混合）
+   * @param numericRandom 是否使用纯数字 random（V1/X4/X6/K2 用纯数字，V2 用字母数字混合）
    */
   private static generate(salt: string, params?: RequestParams, body?: string, numericRandom: boolean = false): string {
     const timestamp = Math.floor(Date.now() / 1000);
     const random = numericRandom ? DSUtil.generateNumericRandom(6) : DSUtil.generateRandom(6);
-    const b = body !== undefined ? body : '';
-    const q = DSUtil.serializeParams(params);
-    const signContent = `salt=${salt}&t=${timestamp}&r=${random}&b=${b}&q=${q}`;
-    const md5Hash = crypto.MD5(signContent).toString();
-    return `${timestamp},${random},${md5Hash}`;
+    return DSUtil.generateWith(salt, timestamp, random, params, body);
   }
 
   /**
@@ -162,7 +185,7 @@ export class DSUtil {
     return parts.join('&');
   }
 
-  /** 生成 n 位随机字母数字字符串（V2/X6 DS 使用） */
+  /** 生成 n 位随机字母数字字符串（V2 DS 使用） */
   private static generateRandom(n: number): string {
     const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
     let result = '';
@@ -172,7 +195,7 @@ export class DSUtil {
     return result;
   }
 
-  /** 生成 n 位随机纯数字字符串（V1/X4 DS 使用），范围 100000-199999 */
+  /** 生成 n 位随机纯数字字符串（V1/X4/X6/K2 DS 使用），范围 100000-199999 */
   private static generateNumericRandom(_n: number): string {
     // 范围 100000-199999，与 GenshinPizzaHelper/HSRPizzaHelper 一致
     // Int.random(in: 100_000 ..< 200_000)

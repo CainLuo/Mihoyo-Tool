@@ -67,7 +67,7 @@
 | V1      | `generateV1()`     | salt_v1（旧 salt，未使用）   | 6 位纯数字（100000-199999） | 当前无业务调用方                                    |
 | V2      | `generateV2()`     | salt_v2（BBS profile）       | 6 位字母数字混合            | BBS 账号 / 角色 / 战绩卡片                          |
 | X4      | `generateX4()`     | salt_x4（X4）                | 6 位纯数字（100000-199999） | GAME_RECORD / CALCULATE / passport / Geetest        |
-| X6      | `generateX6()`     | salt_x6（X6）                | 6 位字母数字混合            | 签到接口（SIGN Profile）                            |
+| X6      | `generateX6()`     | salt_x6（X6）                | 6 位纯数字（100000-199999） | 签到接口（SIGN Profile）                            |
 | K2 Sign | `generateK2Sign()` | salt_v1（旧 salt，未使用）   | 6 位字母数字混合            | 当前无业务调用方；不是 TeyvatGuide 当前 K2 salt     |
 | K2      | `generateK2()`     | salt_v1（旧 salt，未使用）   | 6 位字母数字混合            | 当前无业务调用方；不是 TeyvatGuide 当前 K2 salt     |
 
@@ -107,7 +107,7 @@ salt={salt}&t={timestamp}&r={random}&b={body}&q={query}
 >
 > - PizzaHelperUnited 只用 X4 salt，random 纯数字，所有接口统一。
 > - TeyvatGuide 区分 K2/X4/X6/LK2，isSign=true 时 random 是字母数字混合。
-> - 本项目区分 V1/V2/X4/X6/K2，V1/X4 用纯数字 random，V2/X6/K2 用字母数字混合。
+> - 本项目区分 V1/V2/X4/X6/K2：V1/X4/X6 用纯数字 random，V2/K2 用字母数字混合；K2 Sign 用字母数字混合且不含 b/q。
 
 ---
 
