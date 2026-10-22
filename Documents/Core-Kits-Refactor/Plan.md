@@ -1,20 +1,20 @@
 # Core 模块重构方案：Kits 化 + Mock 本地服务
 
-> 状态：**进行中；Phase 2 Kit 拆分、Phase 3 DB 收尾、Phase 5 依赖反转与清理代码层完成；2026-10-22 环境收敛完成；Mock local service 直连路由未完成；公共 Header 合并与运行时迁移验证延后**
+> 状态：**进行中；Phase 2 Kit 拆分、Phase 3 DB 收尾、Phase 5 依赖反转与清理代码层完成；2026-10-22 环境收敛完成；Mock local service 直连路由未完成；公共 Header 合并已完成；运行时迁移验证延后**
 > 范围：`core/` HAR 内部目录重组、Mock 服务化、DB 归类、运行环境收敛；不改表结构、不改 entry 的 MVVM 结构、不拆多 HAR。
 > 原则：先移文件（`git mv`，保留历史）→ 再改代码；每个阶段可独立构建、可回滚。
 >
 > **2026-10-22 环境收敛**：`core/src/internal` 与 `entry/src/internal` 已删除；手机号登录 UI 合并进 `entry/src/main`，默认 Tab 为 `PHONE`。运行环境只保留 `mock` / `uat` / `release`，分别对应 `com.cainluo.miyoyo.tools.mock` / `.uat` / 无后缀包名；`default` 仅作为 Hvigor / DevEco 技术兜底，不是第四个运行环境。`AppEnv` 只保留 `MOCK` / `UAT` / `RELEASE`；UAT / Mock 保留 Debug 能力；Mock 域名切到 `http://127.0.0.1:8787`，UAT / Release 使用官方域名。Release 已签名，UAT / Mock 需独立 AGC 调试证书和 Profile。
 >
 > 任务总览：[`README.md`](README.md)；BaseApiService 方案：[`APIService.md`](APIService.md)；API 基线清单：[`API-Baseline.md`](API-Baseline.md)；Mock 专题与缺口：[`Mock.md`](Mock.md)。
-> 后续公共 Header 合并已记录在 [`APIService.md`](APIService.md) 第 10 节，Phase 5 实施，不阻塞当前 BaseApiService 迁移。
+> 公共 Header 合并已在 Phase 5 实施，设计与结果见 [`APIService.md`](APIService.md) 第 10 节。
 >
 > **2026-10-20 更新**：独立 `mock/` ArkTS 适配器目录已删除；`mock` product 保留，生成独立 `.mock` 包（`APP_ENV=mock`）。`mock-service/` 与 fixtures 保留，后续用 Swift-Vapor local service 复用。以下涉及 `mock/` 的内容为历史记录。
 >
 > **2026-10-21 更新**：Phase 1.1 BaseApiService 的 Stage 0-3 已完成；`HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService` 已删除。Phase 1.2 第一批已将 32 个共享文件迁到 `base/` / `common/constants/`；Phase 2 GenshinKit / StarRailKit / ZZZKit 已分别将 13 / 11 / 14 个专属文件迁入对应 Kit；Mihoyo 账号域迁移 18 个主文件（17 个入 MihoyoKit，工厂文件迁为根 `ApiServiceFactory.ets`），另有 3 个 internal overlay，只改路径与 import。`default` / `debug` / `mock` 构建和两个测试脚本通过，`internal` 编译通过但 `SignHap` 因开发证书过期失败。已用 `mihoyo-api-sdk`、TeyvatGuide、PizzaHelperUnited 和本项目历史抓包完成 header / retcode 静态参考对照；运行时基线按用户决定延后到整个任务完成后，不阻塞后续 Kit。旧路径基线已无法补采，详见 [`API-Baseline.md`](API-Baseline.md) §2.2。Phase 3A / 3B / 3C 代码层已完成：sync / material 路径迁移（`5aff4e4`）、material DAO 基类与三 Kit 子类拆分（`1fd097e`）、`TableSchema` 拆分与根 `SchemaRegistry` 聚合（`47135c1`）；静态比对确认 24 张表、30 个索引的顺序与 DDL 和旧 `TableSchema` 一致，运行时 DB 测试与旧库升级路径仍未执行。
 
 >
-> **2026-10-22 Phase 5 更新**：`S-01` 已解决。`ColdStartCookieChecker` / `CookieRefreshCoordinator` 迁入 `MihoyoKit/cookie`，`CookieRefreshCoordinator.init(BBSRepository)` 由 `CoreInitializer` 注入；新增 `sync/SyncPorts.ets`，`SyncQueueRunner` 通过 `SyncDependencies` 获取账号与三游戏能力；`GeetestService` 改为由 `CoreInitializer` 注册游戏配置和 ZZZ `GeetestRecordHandler`；`ApiConfig` 不再 import `ZZZRecordRequest`，ZZZ 指纹清理移到 entry `DeviceFpCenter`；`GameFpBiz` 移到 `base/network/GameFpBiz.ets`。`MihoyoApiServiceFactory` 类名统一为 `ApiServiceFactory`，删除 `RequestOptions.baseUrlType`，`core/BuildProfile.ets` 改为生成物并在 `.gitignore` 排除。`core` 当前 0 import cycle、0 `base → Kit` 边；`core@default`、`entry@ohosTest`、`mock` / `uat` / `release` 构建通过。公共 Header 合并、UAT / Mock 签名、Mock REST 路由和运行时回归仍延后。
+> **2026-10-22 Phase 5 更新**：`S-01` 已解决。`ColdStartCookieChecker` / `CookieRefreshCoordinator` 迁入 `MihoyoKit/cookie`，`CookieRefreshCoordinator.init(BBSRepository)` 由 `CoreInitializer` 注入；新增 `sync/SyncPorts.ets`，`SyncQueueRunner` 通过 `SyncDependencies` 获取账号与三游戏能力；`GeetestService` 改为由 `CoreInitializer` 注册游戏配置和 ZZZ `GeetestRecordHandler`；`ApiConfig` 不再 import `ZZZRecordRequest`，ZZZ 指纹清理移到 entry `DeviceFpCenter`；`GameFpBiz` 移到 `base/network/GameFpBiz.ets`。`MihoyoApiServiceFactory` 类名统一为 `ApiServiceFactory`，删除 `RequestOptions.baseUrlType`，`core/BuildProfile.ets` 改为生成物并在 `.gitignore` 排除。`core` 当前 0 import cycle、0 `base → Kit` 边；`core@default`、`entry@ohosTest`、`mock` / `uat` / `release` 构建通过。公共 Header 合并已完成；UAT / Mock 签名、Mock REST 路由和运行时回归仍延后。
 
 ---
 
@@ -431,7 +431,7 @@ mock-service/                              # 新增：HAR 之外
 - **响应契约**：Base 返回项目自己的 `HttpResponse { status, data }`；具体 API 自己取 `response.data`，不依赖 axios 类型。
 - **具体 Service**：只负责「拼 URL + 拼 header + 调 `this.get / this.post` + 拆 `response.data` + 业务 `retcode` + 按需显式上报」。
 - **非 Service 调用方**：`DeviceFpService` / `GeetestService` / `ZZZRecordRequest` 使用 `BaseApiService.shared`。
-- **公共 Header（后续）**：Header 的构造/管理放在独立 Header 抽象类；`MihoyoApiService` 负责把公共 header 与具体 Service 提交的 header 合并后交给 Base。本阶段不做，等所有 ApiService 整理完后作为 Phase 5 收尾项实施，详见 [`APIService.md`](APIService.md) 第 10 节。
+- **公共 Header（已实施）**：Header 的构造/管理由 `MihoyoHeaderBuilder` 负责；`MihoyoApiService` 通过 `HeaderContext` + `prepareOptions` / `getWithProfile` / `postWithProfile` 合并公共 header 与具体 Service header 后交给 Base。详见 [`APIService.md`](APIService.md) 第 10 节。
 - **实现**：由现有 `HttpClient` 升级而来，但只保留 HTTP 层能力：axios 单例、debug 信任证书、`get / post`、HTTP 非 200 拦截、HTTP 层日志。**不保留** `retcode` 错误日志和 Geetest/指纹上报，这些属于具体 API 或后续业务层。
 - **HTTP 错误实现**：axios 默认对非 2xx reject，Base 必须从 `error.response` 提取真实 status / body，或用 `validateStatus` + 显式判断；只有无 response 才是 `statusCode = 0`。不能把所有 `catch` 都当网络错误。旧 `HttpClient` 会把非 2xx 包装成普通 `Error`，新 Base 统一 `HttpError`，错误消息和日志必须脱敏。
 - **拆包审计**：`HttpResponse` 是 `object` 子类型，类型检查不会拦住漏拆包；Stage 1 必须逐方法审计直接 `return this.get/post`。
@@ -576,10 +576,10 @@ mock-service/                              # 新增：HAR 之外
 - `RequestOptions.baseUrlType` 已确认无读取方，Phase 5 删除；Mock 仅通过 `MihoyoDomain` 切换域名，不再保留客户端 Mock 业务分支。
 - 验证：Node 测试 12/12；mock-service 的 curl 路由抽样；客户端接入后另做全功能手测。当前 Mock 包已把域名切到 `127.0.0.1:8787`，但 mock-service 尚未实现直接 REST 路由，不能把 Mock 包启动当成 Mock 数据链路可用。
 
-**Phase 5 — 收尾（代码层完成；Header 合并延后）**
+**Phase 5 — 收尾（代码层完成；Header 合并已完成）**
 - 已完成（2026-10-22）：`MihoyoApiServiceFactory` → `ApiServiceFactory`；删除 `RequestOptions.baseUrlType`；Cookie 服务迁入 `MihoyoKit/cookie` 并注入；新增 `sync/SyncPorts`，`SyncQueueRunner` 改为注入；`GeetestService` 游戏配置 / ZZZ handler 改为 `CoreInitializer` 注册；`GameFpBiz` 移出 `DeviceFpService`；`ApiConfig` 不再 import `ZZZRecordRequest`，ZZZ 指纹清理移到 entry `DeviceFpCenter`；删除 `CookieManager`、12 个不可达 entry 文件与空源码目录；`core/BuildProfile.ets` 改为生成物并加入 `.gitignore`。
 - 已完成验证：`core@default`、`entry@ohosTest`、`mock` / `uat` / `release` 构建通过；新增 `MihoyoDomain.test.ets`；`node scripts/check-architecture.mjs` 0 import cycle、0 `base → Kit` 边；`git grep` 无旧符号。
-- 仍延后：`MihoyoApiService` 公共 Header 合并。Header 合并前必须先解决 profile 来源（按方法而非按 Service）、raw header escape hatch（ZZZRecordRequest）、Cookie 策略（pizza / BBS / passport / QR）、DS 规则、passport/QR profile 缺口，详见 [`APIService.md`](APIService.md) 第 10 节。
+- 已完成：`MihoyoApiService` 公共 Header 合并。profile 通过 `HeaderContext` 显式提供；raw header 通过保留 plain `get/post` 不被合并；Cookie 由上下文传入；DS 使用与 Base 相同的 params / body；passport / QR / device / Geetest 继续手写 header。详见 [`APIService.md`](APIService.md) 第 10 节。
 - 仍延后：UAT / Mock 签名与安装、Mock REST 路由 / Swift-Vapor、真机 header / retcode、DB 升级与三环境回归。
 
 **预估总工时：6~9 天**（不含真实设备联调缓冲）。

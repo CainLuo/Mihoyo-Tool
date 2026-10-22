@@ -1,6 +1,6 @@
 # Core Kits 已知问题与暂缓项
 
-> 状态：**Phase 1.2 / Phase 2 / Phase 3 / Phase 5 代码层完成；S-01 已解决；公共 Header 合并、UAT / Mock 签名与运行时迁移验证延后**
+> 状态：**Phase 1.2 / Phase 2 / Phase 3 / Phase 5 代码层完成；S-01 已解决；公共 Header 合并已完成；UAT / Mock 签名与运行时迁移验证延后**
 > 更新时间：2026-10-22
 > 原则：当前构建和既有功能可运行；header / retcode 未采集项保持现状，不用静态推断修改行为。任何修复必须等真机、抓包或明确需求，不把“参考项目这样做”直接当成线上结论。
 >
@@ -33,7 +33,7 @@
 | D-04 | 指纹错误类型 | `ApiErrorHandler` 没有专门的指纹错误类型；`FingerprintReporter` + `SyncQueueRunner` 已处理 5003 / 10041 | 保持现状；不在迁移收尾阶段扩展错误体系 |
 | D-05 | `getGameRecordCard` 路径 | 当前用 SDK 的 `/game_record/app/card/wapi/...`；历史 App 抓包是 `/game_record/card/api/...` | 保留 SDK 路径；只记录，不改 |
 | D-06 | `addNoteCaptureHeaders` | 方法存在但未被调用 | 保留为后续真机对照项；不要因静态参考直接启用 |
-| D-07 | `HttpService` 默认 header / Cookie 覆盖 | 旧 transport 已删除；现在由具体 API 显式设置 header | 以 service 显式 header 为准；真机验证账号 / BBS 路径 |
+| D-07 | `HttpService` 默认 header / Cookie 覆盖 | 旧 transport 已删除；现在由 `MihoyoApiService` 按 profile 合并公共 header，具体 API 只提供专属 header | 以合并后的最终 header 为准；真机验证账号 / BBS 路径 |
 
 > 这些问题只记录，不在 Phase 1.2 目录重组时顺手修改。目录重组必须保持请求行为不变。
 
@@ -165,8 +165,8 @@
 4. **设备指纹收口**：`GameFpBiz` 从 `DeviceFpService` 移到 `base/network/GameFpBiz.ets`；`ApiConfig.regenerateDeviceFp()` 不再 import `ZZZRecordRequest`，ZZZ 指纹清理改由 entry `DeviceFpCenter.regenerate()` 调用 `ZZZRecordRequest.clearAll()`。
 5. **命名 / 死字段**：`MihoyoApiServiceFactory` 类名改为 `ApiServiceFactory`；删除 `RequestOptions.baseUrlType`；移除 `core/Index.ets` 中重复的 `GenshinPropertyType` 导出；`core/BuildProfile.ets` 改为 Hvigor 生成物，从 Git 移除并加入 `.gitignore`。
 6. **删除未使用文件**：`CookieManager`、12 个不可达 entry 组件 / 工具文件、`core/src/main/ets/{constants,database,parsers}` 空目录；`entry/src/main/ets/components/main` 空目录一并移除。根目录历史 `internal/core` 未动。
-7. **验证**：`core@default assembleHar`、`entry@ohosTest`、`mock` debug、`uat` debug、`release` release 构建通过；`bash test-core.sh` 编译通过（只构建 HAP，不执行测试）；新增 `MihoyoDomain.test.ets`；`node scripts/check-architecture.mjs` 输出 0 import cycle、0 `base → Kit` 边。
-8. **仍延后**：公共 Header 合并、UAT / Mock 签名与安装、Mock REST 路由 / Swift-Vapor、真机 header / retcode 与 DB 升级回归。
+7. **验证**：`core@default assembleHar`、`entry@ohosTest`、`mock` debug、`uat` debug、`release` release 构建通过；`bash test-core.sh` 编译通过（只构建 HAP，不执行测试）；新增 `MihoyoDomain.test.ets` / `HeaderBuilder.test.ets`；`node scripts/check-architecture.mjs` 输出 0 import cycle、0 `base → Kit` 边、业务 Service 无直接 header builder 调用。
+8. **公共 Header 合并已完成**：`HeaderContext` + `prepareOptions` / `getWithProfile` / `postWithProfile`；raw / passport / QR / 设备指纹 / Geetest 路径保持原 header。**仍延后**：UAT / Mock 签名与安装、Mock REST 路由 / Swift-Vapor、真机 header / retcode 与 DB 升级回归。
 
 ---
 
@@ -257,7 +257,7 @@
 - [x] `ApiServiceFactory` 命名统一；`RequestOptions.baseUrlType` 已删除；`MihoyoDomain` Mock 契约测试已注册
 - [x] `core@default assembleHar`、`entry@ohosTest`、`mock` / `uat` / `release` 构建通过
 - [x] `node scripts/check-architecture.mjs`：0 import cycle、0 `base → Kit` 边
-- [ ] 公共 Header 合并
+- [x] 公共 Header 合并（5 个业务 Service；raw / passport / QR 保留原路径）
 - [ ] UAT / Mock 签名、安装与 Mock REST 数据链路
 - [ ] 真机 header / retcode、DB 升级与三环境回归
 

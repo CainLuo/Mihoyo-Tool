@@ -1,8 +1,8 @@
 # Core Kits 重构任务总览
 
-> 状态：**Phase 1.2 / Phase 2 / Phase 3 / Phase 5 代码层完成；S-01 已解决；2026-10-22 环境收敛完成；release 构建与测试脚本通过；uat / mock 可编译但签名待配置；公共 Header 合并与运行时回归延后**
+> 状态：**Phase 1.2 / Phase 2 / Phase 3 / Phase 5 代码层完成；S-01 已解决；2026-10-22 环境收敛完成；release 构建与测试脚本通过；uat / mock 可编译但签名待配置；公共 Header 合并已完成；运行时回归延后**
 > 当前阶段：**`internal` overlay 与手机号登录 UI 已合并到 main；运行环境收敛为 `mock` / `uat` / `release`；`base → Kit` 反向依赖为 0、core import cycle 为 0；三套 product 可独立构建，release 已签名，uat / mock 需独立 AGC 调试证书和 Profile**
-> 下一步：**补齐 uat / mock 签名材料；Phase 4 Mock local service 直连路由；公共 Header 合并（Phase 5 剩余项）；运行时 header / retcode、真机与 Mock 回归仍延后**
+> 下一步：**补齐 uat / mock 签名材料；Phase 4 Mock local service 直连路由；运行时 header / retcode、真机与 Mock 回归仍延后**
 > 更新时间：2026-10-22
 
 本目录集中存放整个 Core Kits 重构任务的规划、阶段记录和专题文档，避免 Mock、Kit、DB 等子任务的文档散落在仓库各处。
@@ -46,7 +46,7 @@
 | 文档 | 内容 |
 | --- | --- |
 | [`Plan.md`](Plan.md) | 完整重构方案：目标结构、BaseApiService、DB 归类、阶段计划、风险 |
-| [`APIService.md`](APIService.md) | `BaseApiService` 抽离方案：axios 唯一封装层、继承关系、HTTP 状态边界、已确认事项、文件级迁移/删除清单、上报审计表、直接 return 上报漏点、Cookie 覆盖、实施陷阱；第 10 节记录后续公共 Header 合并 |
+| [`APIService.md`](APIService.md) | `BaseApiService` 抽离方案：axios 唯一封装层、继承关系、HTTP 状态边界、已确认事项、文件级迁移/删除清单、上报审计表、直接 return 上报漏点、Cookie 覆盖、实施陷阱；第 10 节记录已实施的公共 Header 合并 |
 | [`API-Baseline.md`](API-Baseline.md) | 旧 transport 迁移前后的 API header / retcode 基线清单：按登录、BBS、三游戏、签到、设备指纹 / Geetest 分组，列出触发入口、当前 header、待填字段和完成标准；§2.2 已补三个项目 + 历史抓包的静态对照；运行时 **未采集（延后）** |
 | [`Known-Issues.md`](Known-Issues.md) | 已知问题与暂缓项：header / retcode 未采集、参考冲突、当前不改的参考差异、Phase 1.2 边界与真机回归清单 |
 | [`Mock.md`](Mock.md) | Mock 部分：当前配置、已删除/保留内容、`mock-service` 契约、Swift-Vapor 迁移方案、缺口清单 |
@@ -64,7 +64,7 @@
 | Phase 2 — 拆 Kit | ✅ 代码层完成 | GenshinKit / StarRailKit / ZZZKit 分别迁移 13 / 11 / 14 个文件；Mihoyo 账号域迁移 18 个主文件（17 个入 MihoyoKit，工厂文件迁根），另有 3 个 internal overlay；`MihoyoApiServiceFactory` 文件迁到根 `ApiServiceFactory.ets`，Phase 5 类名统一为 `ApiServiceFactory`；Phase 3 已补齐 `TableSchema`、material DAO / model / repository；原有反向依赖已在 Phase 5 解决 |
 | Phase 3 — DB 收尾 | 🟡 代码层完成；运行时迁移验证延后 | Phase 3A 将 sync / material 框架路径落位；Phase 3B 拆分 material DAO 基类与三个 Kit 子类；Phase 3C 抽离 `db/TableName.ets`，拆分各 Kit `db/schema.ets` / `sync/db/schema.ets`，V3/V7 归入 `db/migrations/cross/`，根 `SchemaRegistry.ets` 聚合 `ALL_TABLES` / `ALL_INDEXES` / 迁移，`RdbManager.init(context, SchemaRegistry)`；构建与编译检查通过，运行时 DB 测试和旧库升级路径未执行 |
 | Phase 4 — Mock | 🟡 部分完成 | 清理、独立 mock product、脚本、Node mock-service 已完成；Swift-Vapor local service 与 App 接入未完成 |
-| Phase 5 — 收尾 | 🟡 代码层完成；Header 合并延后 | `ApiServiceFactory` 命名统一、删除 `baseUrlType` / `CookieManager`、Cookie 与 Sync 依赖注入、Geetest / GameFpBiz / ZZZ 指纹清理收口、删除 12 个不可达 entry 文件、`BuildProfile.ets` 转为生成物；新增架构守卫与 Mock 域名测试。公共 Header 合并、运行时回归仍延后 |
+| Phase 5 — 收尾 | 🟡 代码层完成；Header 合并已完成 | `ApiServiceFactory` 命名统一、删除 `baseUrlType` / `CookieManager`、Cookie 与 Sync 依赖注入、Geetest / GameFpBiz / ZZZ 指纹清理收口、删除 12 个不可达 entry 文件、`BuildProfile.ets` 转为生成物；新增架构守卫与 Mock 域名测试。公共 Header 合并已完成；运行时回归仍延后 |
 
 > Phase 4 的“完成”只代表 **Mock 清理和构建配置完成**，不代表 mock 数据链路已经可用。详见 [`Mock.md`](Mock.md)。
 
@@ -152,7 +152,7 @@
   - `suppressGeetestReport` 继续同时抑制 Geetest + 指纹，不改名 / 不拆分；
   - BBS 三个接口继续保留现状上报行为（迁移后用显式 helper 复刻，旧 transport 已删除），待真实 retcode 基线后再决定。
   - `baseUrlType` 在 Phase 5 已确认无读取方并删除，不再属于保留项。
-- **不在本次实施**：`MihoyoApiService` 公共 Header 合并。Header 由独立 Header 抽象类（名称待定）管理，`MihoyoApiService` 负责合并公共 header + 具体 Service header；等所有 ApiService 整理完后作为 Phase 5 收尾项做，详见 [`APIService.md`](APIService.md) 第 10 节
+- **公共 Header 合并已实施**：`MihoyoHeaderBuilder` 管理 profile，`MihoyoApiService` 通过 `HeaderContext` + `prepareOptions` / `getWithProfile` / `postWithProfile` 合并公共 header 与具体 Service header；raw / passport / QR / 设备指纹 / Geetest 路径保持原 header。详见 [`APIService.md`](APIService.md) 第 10 节
 
 代码迁移和旧链路删除已完成；基线 / 真机 / Mock 回归按用户决定延后到整个任务完成后补做。已知问题和暂缓项已统一记录在 [`Known-Issues.md`](Known-Issues.md)，不阻塞后续结构整理。
 
@@ -232,7 +232,7 @@
 4. `DeviceFpService` / `GeetestService` / `ZZZRecordRequest` 统一使用 `BaseApiService.shared`。
 5. 非 200 统一抛 `HttpError`；网络错误 `statusCode = 0`，保留可读的 `message`。实现必须从 `error.response` 提取真实 HTTP 状态 / body，不能把所有 axios `catch` 都当网络错误。
 6. `core/src/internal` overlay 同步修改；根目录 `internal/core` 是未参与构建的历史副本，本次不混改，建议迁移完成后单独清理。
-7. 本次只做 BaseApiService 和旧链路清理；`MihoyoApiService` 公共 Header 合并延后，等所有 ApiService 整理完再做。
+7. BaseApiService 和旧链路清理已完成；`MihoyoApiService` 公共 Header 合并也已实施，具体见 [`APIService.md`](APIService.md) 第 10 节。
 8. `HttpResponse` 漏拆包不能靠类型检查发现，Stage 1 必须逐方法审计并 grep 直接 `return this.get/post`。
 9. `suppressGeetestReport` 当前同时抑制 Geetest + 指纹，且不抑制 retcode / 业务日志；Base 不再读取它。**本轮保持原样，不改名 / 不拆分**，后续再改（见 `APIService.md` §8.7）。上报归属按第 4.5 节逐接口确认。
 10. `BBSRepository.getUserGameRoles` / `getGameRecordCard` 原本一直走旧 transport，切换到 account service 后要单独回归请求头 / DS；`mihoyo-api-sdk` 没有说明 BBS 三个接口需要 Geetest / 指纹，暂按现状保留上报行为（迁移后显式复刻），详见第 4.7 节。
@@ -267,6 +267,6 @@
 **验证**
 
 - `core@default assembleHar`、`entry@ohosTest`、`mock` debug、`uat` debug、`release` release 构建通过。
-- `bash test-core.sh` 编译通过（只构建 ohosTest HAP，不执行测试）；新增 `core/src/test/MihoyoDomain.test.ets`，锁定 Mock `http://127.0.0.1:8787` / `BBS_APIHUB` `/apihub` 与 UAT / Release 官方域名契约。
-- `node scripts/check-architecture.mjs`：0 import cycle、0 `base → Kit` 边、无旧符号 / 旧路径、无空源码目录。
-- 仍未验证：公共 Header 合并、UAT / Mock 签名与安装、Mock REST 路由 / Swift-Vapor、真机 header / retcode、DB 升级与三环境回归。
+- `bash test-core.sh` 编译通过（只构建 ohosTest HAP，不执行测试）；新增 `core/src/test/MihoyoDomain.test.ets`，锁定 Mock `http://127.0.0.1:8787` / `BBS_APIHUB` `/apihub` 与 UAT / Release 官方域名契约；新增 `HeaderBuilder.test.ets`，覆盖 profile、覆盖、删除和不污染调用方 options 的合并规则。
+- `node scripts/check-architecture.mjs`：0 import cycle、0 `base → Kit` 边、无旧符号 / 旧路径、无空源码目录、业务 Service 无直接 header builder 调用。
+- 仍未验证：UAT / Mock 签名与安装、Mock REST 路由 / Swift-Vapor、真机 header / retcode、DB 升级与三环境回归。

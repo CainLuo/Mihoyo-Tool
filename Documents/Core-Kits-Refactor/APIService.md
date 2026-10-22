@@ -1,6 +1,6 @@
 # BaseApiService 抽离方案（Axios 封装层）
 
-> 状态：**Stage 0-3 已完成（代码迁移 + 旧链路删除 + 三环境构建通过）；header / retcode 基线未采集，按用户决定延后**
+> 状态：**Stage 0-3 + 公共 Header 合并已完成（5 个业务 Service）；三环境构建通过；header / retcode 基线未采集，按用户决定延后**
 > 归属：Core Kits 重构 / Phase 1.1
 > 更新时间：2026-10-22
 >
@@ -8,7 +8,7 @@
 >
 > **执行决定（2026-10-21）**：用户明确要求先完成整个 BaseApiService 迁移，header / retcode 基线采集推迟到整个任务完成后；本文中原先所有“Stage 1 / Stage 2 前必须完成基线”的 Gate 均被该决定覆盖，不再阻塞代码迁移。基线清单仍保留在 [`API-Baseline.md`](API-Baseline.md)，状态仍为 **未采集（NOT DONE）**。
 >
-> 后续的「`MihoyoApiService` 公共 Header 合并」已记录在第 10 节；本次 BaseApiService 迁移**不实施**，等所有 API Service 整理完后再做。
+> 「`MihoyoApiService` 公共 Header 合并」已按第 10 节实施：业务 Service 通过 `HeaderContext` + `getWithProfile/postWithProfile` 合并；raw / passport / QR / 设备指纹 / Geetest 路径继续使用原 header。
 >
 > `suppressGeetestReport`、BBS 三个接口是否显式上报 Geetest / 指纹：**本轮保持原样，不做改名 / 删除 / 行为调整**，统一记录在 §8.7，后续再改。`baseUrlType` 已在 Phase 5 删除。
 >
@@ -560,7 +560,7 @@ core/Index.ets           # 最终删除 NetworkFactory 导出，新增 BaseApiSe
 3. **迁移范围**：迁移并删除构建链路内的多余网络实现，最终 `core/src` + `entry/src` 只有 `BaseApiService` import axios；根目录 `internal/core` 历史副本单独确认。
 4. **非 Service 调用方**：`DeviceFpService` / `GeetestService` / `ZZZRecordRequest` 使用 `BaseApiService.shared`，不要求继承。
 5. **HTTP 错误**：非 200 统一抛 `HttpError`，带 `statusCode` / `body`；网络错误 `statusCode = 0`，保留可读的 `message`。
-6. **公共 Header 合并**：本次不做；Header 抽象类负责管理，`MihoyoApiService` 负责合并，等所有 ApiService 整理完后作为后续项实施，详见第 10 节。
+6. **公共 Header 合并**：已作为后续项实施；Header 抽象类负责管理，`MihoyoApiService` 负责合并，详见第 10 节。
 
 ### 8.1.1 实现约束（不改变上面的决定）
 
@@ -861,7 +861,7 @@ Proxyman 只能覆盖 debug 的证书信任；`core/src/internal` overlay 和 re
 
 - 不抽每日便笺 / 角色列表 / 养成计算的通用业务模板；
 - 不重新设计业务 Service 的 URL / header / DS / Cookie；但 `AuthRepository` / `BBSRepository` 从旧 transport 切到注入的 Service 后，实际发送的 header / DS 会变成 Service 现有的那套，必须按 §4.2 回归；
-- 不做 `MihoyoApiService` 公共 Header 合并（见第 10 节，后续单独实施）；
+- ~~不做 `MihoyoApiService` 公共 Header 合并~~（已实施，见第 10 节；本条为当时的非目标记录）；
 - 不移动文件到 Kit 目录；
 - 不改数据库、Repository 业务逻辑；
 - 不处理 release/internal 手机号登录隔离；
@@ -871,9 +871,27 @@ Proxyman 只能覆盖 debug 的证书信任；`core/src/internal` overlay 和 re
 
 ---
 
-## 10. 后续工作（本次不做）：MihoyoApiService 公共 Header 合并
+## 10. MihoyoApiService 公共 Header 合并（已实施）
 
-> 已记录，待所有 API Service 整理完成后实施。当前 Stage 0-3 不实现，避免和 BaseApiService 迁移、API 整理混在一起。
+> 2026-10-22 实施。`BaseApiService` 仍然只接收最终 header；`MihoyoApiService` 是唯一合并点；公共 header 仍由 `MihoyoHeaderBuilder` 统一构造。业务 Service 通过 `HeaderContext` 显式选择 profile，不根据 URL 推断。
+
+### 10.0 实施结果
+
+- 新增 `HeaderProfile.PIZZA_RECORD`、`HeaderContext`、`MihoyoHeaderBuilder.buildFor(context, params?, body?)`。
+- 新增 `MihoyoApiService.prepareOptions()` / `getWithProfile()` / `postWithProfile()`：
+  - 公共 header 先写入，具体 Service 的 `RequestOptions.extraHeaders` 后写入，同名覆盖；
+  - `RequestOptions.removeHeaders` 在合并后删除指定 key；
+  - 总是创建新的 `RequestOptions`，不修改调用方对象；
+  - `suppressGeetestReport` 原样保留。
+- 已迁移：
+  - `SignApiService`：BBS / 游戏签到的 SIGN profile；`x-rpc-signgame` 作为专属 header。
+  - `GenshinApiService`：便笺 / Widget 的 PIZZA_RECORD，角色接口的 GAME_RECORD，养成计算的 CALCULATE；`syncAvatarList` 用 `removeHeaders` 删除 `x-rpc-cal_type`。
+  - `StarRailApiService`：便笺 / Widget 的 PIZZA_RECORD，角色的 GAME_RECORD，养成计算的 CALCULATE；Widget UA 通过 `HeaderContext.userAgent` 注入。
+  - `ZZZApiService`：Widget 的 PIZZA_RECORD，养成计算的 ZZZ_GAME_RECORD；For daily note / avatar / buddy 的 `ZZZRecordRequest` raw header 继续走原 `get()`。
+  - `MihoyoAccountApiService`：BBS 账号 / 角色 / 战绩 / 验证接口；passport、二维码、Cookie 刷新继续走手写 header。
+- 未纳入合并、保持原样的路径：`MihoyoAccountApiService` 的手机号 / passport / QR / `refreshCookieToken` / `refreshLToken` / `verifyLToken`、`DeviceFpService`、`GeetestService`、`ZZZRecordRequest`。
+- `scripts/check-architecture.mjs` 新增业务 Service 直接调用 `MihoyoHeaderBuilder.build*()` 的守卫；`core/src/test/HeaderBuilder.test.ets` 覆盖 profile、覆盖、删除和不污染调用方 options 的规则。
+- 养成计算 `batchCompute` / `syncCalcAvatarList` 需要打印最终 header，因此先用 `prepareOptions()` 合并、记录日志，再交给 Base 发送；普通路径仍使用 `getWithProfile/postWithProfile`。
 
 ### 10.1 目标
 
@@ -897,7 +915,7 @@ Header 抽象类                 具体 API Service
 - **具体 API Service**：只提交接口专属 header / 覆盖项，不再重复拼整套公共 header。
 - **`BaseApiService`**：继续只接收最终 header，不 import Header 抽象类，不判断 header 内容。
 
-实现形态上，未来由 `MihoyoApiService` 重写 `get/post`（或提供一个统一的 `request` 方法），在调用 `super.get/post` 前完成 header 合并；具体 API 仍然调用 `this.get/post`，不直接碰 Base。
+实现形态：`MihoyoApiService` 提供受保护的 `getWithProfile` / `postWithProfile`，在调用 Base 前完成 header 合并；普通 `get/post` 保持原样，供 raw / passport / QR 等路径使用。具体 API 不直接碰 Builder。
 
 ### 10.2 边界
 
@@ -929,24 +947,26 @@ Header 抽象类                 具体 API Service
 - 合并时创建新的 `Map` / `RequestOptions`，不要原地修改调用方传入的 `extraHeaders`。
 - Header 抽象类拿到的 `params` / `body` 必须与 Base 实际发送的一致，否则 DS 会算错。
 
-### 10.4 当前现状与整理前提
+### 10.4 实施前的现状与整理前提
 
-- 当前 header 由 `MihoyoHeaderBuilder.build()` / `buildPizza()` 加上各 Service 手动 `set()` 组成，公共 header 和接口专属 header 混在一起。
+> 以下为实施前记录，用于解释为什么采用 `HeaderContext` + opt-in 合并，而不是重写全局 `get/post`。
+
+- 实施前 header 由 `MihoyoHeaderBuilder.build()` / `buildPizza()` 加上各 Service 手动 `set()` 组成，公共 header 和接口专属 header 混在一起。
 - `HeaderProfile` 目前只覆盖 `GAME_RECORD` / `ZZZ_GAME_RECORD` / `CALCULATE` / `BBS` / `SIGN`；passport / 二维码等仍是手写 header。
-- `MihoyoHeaderBuilder` 可以作为 Header 抽象类的基础，但需要补齐 profile 和覆盖能力；本次不重构它。
-- `MihoyoHeaderBuilder` 目前为了 `GameFpBiz` 反向 import `DeviceFpService`，而 `DeviceFpService` 自己会发 HTTP 请求；Header 抽象类落地前应把 `GameFpBiz` 移到中立的 model / constants，避免 header 层依赖 service。
-- 先完成所有 ApiService 的 Base 迁移和接口整理，再统一做 Header 合并；否则会一边改迁移、一边改 header 规则，难以定位回归。
+- 已以 `MihoyoHeaderBuilder` 为基础补充 `PIZZA_RECORD`、`HeaderContext`、`buildFor()`；覆盖 / 删除由 `RequestOptions.extraHeaders` + `removeHeaders` 处理。
+- `GameFpBiz` 已独立，`MihoyoHeaderBuilder` 不再需要为了指纹依赖某个会发请求的 Service。
+- 先完成所有 ApiService 的 Base 迁移和接口整理，再统一做 Header 合并；实施顺序即按此执行。
 
-### 10.5 落地前必须先定的机制
+### 10.5 实施前确定、现已落地的机制
 
 1. **profile 从哪里来**：header profile 是按方法变化的（便笺、角色、养成、签到、BBS、passport、QR），不是按 Service 固定的。`MihoyoApiService` 只重写 `get/post` 无法知道本次该用哪个 profile；需要：
    - `RequestOptions` 增加 header profile / context；或
    - `MihoyoApiService` 提供受保护的 `getWithProfile` / `postWithProfile`；或
    - 具体 Service 在调用前设置一个明确的 profile 字段。
 
-   不能靠 URL 猜 profile。
+   本轮选择第二种：`HeaderContext` + `getWithProfile` / `postWithProfile`；不能靠 URL 猜 profile。
 
-2. **raw header escape hatch**：`ZZZRecordRequest` 已经生成整套 raw header（含自己的 DS / device_fp），`ZZZApiService` 的便笺 / 角色 / 邦布都走它。Header 合并必须支持“本次跳过公共 header”或“使用 raw headers 原样发送”，否则以后会把公共 header 又塞回去，破坏 ZZZ 签名。
+2. **raw header escape hatch**：`ZZZRecordRequest` 已经生成整套 raw header（含自己的 DS / device_fp），`ZZZApiService` 的便笺 / 角色 / 邦布都走它。本轮通过保留 plain `get()` 实现“本次跳过公共 header”：raw 路径不调用 profile 方法，不会被公共 header 污染。
 
 3. **Cookie 策略不能统一**：
    - `buildPizza()` 会重建 PizzaHelper 格式 Cookie；
@@ -958,18 +978,18 @@ Header 抽象类                 具体 API Service
 
 4. **DS 规则按 profile 不同**：GAME_RECORD 用 X4，BBS 用 V2，SIGN 用 X6，CALCULATE 用 X4 + `x-rpc-cal_type`，ZZZ raw 用 X4 raw query。合并层必须拿到与 Base 完全一致的 params / body；具体 Service 不能再手写一套 DS 覆盖公共 DS。
 
-5. **profile 缺口**：`HeaderProfile` 目前没有 passport / QR / device / geetest；账号 Service 里有大量手写 header。落地时要补 profile，或允许这些接口显式声明的“无公共 header / 全量覆盖”。
+5. **profile 缺口**：`HeaderProfile` 没有 passport / QR / device / geetest；本轮不补这些 profile，相关接口继续使用 plain `get/post` 和手写 header，避免在缺少运行时基线时改变登录链路。
 
 6. **测试与基线**：Header 合并完成后不能只靠“能编译”。需要对比关键接口的最终 header（脱敏）、DS、Cookie、UA、profile 差异。原计划在删除 `HttpClient` 前记录基线；该采集已按用户决定延后，旧路径已删除。Header 合并前应先补采新路径基线，或在临时构建中记录合并前后差异。
 
 ### 10.6 实施时机与验收
 
-- **时机**：Phase 2 所有 ApiService 整理完成后，作为 Phase 5 收尾项实施；不阻塞当前 Phase 1.1。
-- 验收：
-  - 具体 Service 不再构造整套公共 header，只保留接口专属 header / 覆盖项；
-  - `MihoyoApiService` 是唯一 header 合并点；
-  - Header 抽象类是唯一公共 header 管理点；
-  - `BaseApiService` 仍不 import Header 抽象类；
-  - `ZZZRecordRequest` 等 raw header 路径有明确 escape hatch；
-  - 四个 product 构建通过；
-  - 抓包 / 日志对比关键接口的最终 header 与基线一致，重点验证 DS、Cookie、UA、profile 差异；基线尚未采集时先补采新路径，不能把“未采集”当成通过。
+- **时机**：Phase 2 所有 ApiService 整理完成后实施；代码已在 2026-10-22 完成。
+- 代码验收：
+  - [x] 具体 Service 不再构造整套公共 header，只保留接口专属 header / 覆盖项；
+  - [x] `MihoyoApiService` 是唯一 header 合并点；
+  - [x] `MihoyoHeaderBuilder` 是唯一公共 header 管理点；
+  - [x] `BaseApiService` 不 import Header 抽象类；
+  - [x] `ZZZRecordRequest` 等 raw header 路径保留 plain `get/post` escape hatch；
+  - [x] 架构守卫禁止业务 Service 直接调用 `MihoyoHeaderBuilder.build*()`；
+  - [ ] 抓包 / 日志对比关键接口的最终 header 与基线一致，重点验证 DS、Cookie、UA、profile 差异。按用户决定延后，不能把“未采集”当成运行时验收通过。
