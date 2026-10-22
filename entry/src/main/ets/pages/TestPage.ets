@@ -1,5 +1,5 @@
 /**
- * TestPage — 测试工具页（仅 Debug 环境可见，BuildProfile.DEBUG）
+ * TestPage — 测试工具页（UAT / Mock 可见，BuildProfile.DEBUG）
  *
  * 集中所有手动测试场景，通过 My 页右上角入口进入。
  */

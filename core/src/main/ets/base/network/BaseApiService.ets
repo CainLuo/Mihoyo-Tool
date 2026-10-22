@@ -15,7 +15,7 @@ interface X509TrustManager {
  * BaseApiService — 构建链路内唯一的 axios 封装层。
  *
  * 只负责：
- *   - axios 单例、超时、debug 证书信任
+ *   - axios 单例、超时、Mock / UAT 证书信任
  *   - get / post
  *   - HTTP 非 200 拦截
  *   - HTTP 层日志（脱敏 URL、状态码、耗时、错误类型；不打印 header / body）
@@ -48,7 +48,7 @@ export class BaseApiService {
 
   private static getAxiosInstance(): AxiosInstance {
     if (BaseApiService.instance === null) {
-      if (AppEnvManager.isDebug()) {
+      if (AppEnvManager.isDebugCapable()) {
         class TrustAllManager implements X509TrustManager {
           checkClientTrusted(_data: certFramework.X509Cert): void {}
           checkServerTrusted(_data: certFramework.X509Cert): void {}

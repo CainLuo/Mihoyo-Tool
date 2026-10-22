@@ -10,6 +10,6 @@ HVIGOR='/Applications/DevEco-Studio.app/Contents/tools/hvigor/bin/hvigorw'
 export DEVECO_SDK_HOME='/Applications/DevEco-Studio.app/Contents/sdk'
 
 echo "▶ 构建 entry@ohosTest（含 core 单元测试）..."
-"$HVIGOR" --mode module -p module=entry@ohosTest assembleHap -p buildMode=mock --parallel --incremental
+"$HVIGOR" --mode module -p module=entry@ohosTest assembleHap -p buildMode=debug --parallel --incremental
 
 echo "✅ 完成，HAP 位于 entry/build/default/outputs/ohosTest/"

@@ -11,7 +11,7 @@
  */
 import { AppEnv } from './AppEnv';
 export class AppEnvManager {
-  private static currentEnv: AppEnv = AppEnv.DEBUG;
+  private static currentEnv: AppEnv = AppEnv.UAT;
 
   /**
    * 由 CoreInitializer 在启动时调用，设置当前环境。
@@ -26,18 +26,23 @@ export class AppEnvManager {
     return AppEnvManager.currentEnv;
   }
 
-  /** 是否为 Mock 环境（枚举值保留；当前无逻辑分支使用） */
+  /** 是否为 Mock 环境 */
   static isMock(): boolean {
     return AppEnvManager.currentEnv === AppEnv.MOCK;
   }
 
-  /** 是否为 Debug 环境 */
-  static isDebug(): boolean {
-    return AppEnvManager.currentEnv === AppEnv.DEBUG;
+  /** 是否为 UAT 环境 */
+  static isUat(): boolean {
+    return AppEnvManager.currentEnv === AppEnv.UAT;
   }
 
   /** 是否为 Release 环境 */
   static isRelease(): boolean {
     return AppEnvManager.currentEnv === AppEnv.RELEASE;
+  }
+
+  /** Mock / UAT 保留 Debug 能力（日志、TestPage、抓包） */
+  static isDebugCapable(): boolean {
+    return AppEnvManager.currentEnv !== AppEnv.RELEASE;
   }
 }

@@ -26,16 +26,13 @@
       name: "default",
     },
     {
-      name: "debug",
-      source: {
-        sourceRoots: ["./src/internal"],
-      },
+      name: "release",
     },
     {
-      name: "internal",
-      source: {
-        sourceRoots: ["./src/internal"],
-      },
+      name: "uat",
+    },
+    {
+      name: "mock",
     },
     {
       name: "ohosTest",

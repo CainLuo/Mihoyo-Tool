@@ -1,22 +1,22 @@
 #!/bin/bash
 # 从模拟器拉取 App 日志文件到本地
 # 用法：
-#   bash pull-logs.sh           # 拉取 debug 包日志（默认）
+#   bash pull-logs.sh           # 拉取 uat 包日志（默认）
 #   bash pull-logs.sh mock      # 拉取 mock 包日志
-#   bash pull-logs.sh debug     # 拉取 debug 包日志
+#   bash pull-logs.sh uat       # 拉取 uat 包日志
 #   bash pull-logs.sh release   # 拉取 release 包日志
 
 HDC='/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/toolchains/hdc'
 TARGET='127.0.0.1:5555'
 
-ENV="${1:-debug}"
+ENV="${1:-uat}"
 
 case "$ENV" in
   mock)    BUNDLE='com.cainluo.miyoyo.tools.mock' ;;
-  debug)   BUNDLE='com.cainluo.miyoyo.tools.debug' ;;
+  uat)     BUNDLE='com.cainluo.miyoyo.tools.uat' ;;
   release) BUNDLE='com.cainluo.miyoyo.tools' ;;
   *)
-    echo "✗ 未知环境：$ENV（可选：mock / debug / release）"
+    echo "✗ 未知环境：$ENV（可选：mock / uat / release）"
     exit 1
     ;;
 esac

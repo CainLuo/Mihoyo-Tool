@@ -1,12 +1,10 @@
 /**
- * LoginViewModel.ets（release 版，仅支持二维码和 Cookie 登录）
- *
- * 手机号登录相关代码已物理隔离至 src/internal/ets/，
- * 本文件不包含任何手机号字段、方法或 API 调用。
+ * LoginViewModel.ets（手机号 / 二维码 / Cookie 登录）
  */
 
 import {
   AuthRepository,
+  LoginMobileResult,
   QRCodeConfirmedData,
   LoginCookieFields,
   RoleStatItem,
@@ -16,13 +14,13 @@ import {
   ApiConfig
 } from 'core';
 import { Logger } from 'core';
-import { LoginTab, QRCodeStat } from '../constants/LoginTabEnum';
+import { LoginTab, PhoneStep, QRCodeStat } from '../constants/LoginTabEnum';
 import { MyAccountVM, MyGameRoleVM, GameStatItem } from '../models/MyModels';
 import { serverDisplayName } from '../utils/ServerNameUtil';
 import { CookieExpiredSignal } from '../utils/CookieExpiredSignal';
 import { gameIdToName, gameIdToColor } from '../utils/GameIdUtil';
 
-export { LoginTab, QRCodeStat };
+export { LoginTab, PhoneStep, QRCodeStat };
 
 const TAG: string = 'LoginViewModel';
 
@@ -41,14 +39,22 @@ export const LOGIN_VM_NO_STOKEN = 'vm.showNoStokenDialog';
 export class LoginViewModel {
 
   // ── 通用状态 ──────────────────────────────────────────────────
-  /** release 版默认 Tab 为二维码 */
-  @Trace activeTab: LoginTab = LoginTab.QRCODE;
+  /** 所有环境默认手机号登录 */
+  @Trace activeTab: LoginTab = LoginTab.PHONE;
   @Trace isLoading: boolean = false;
   @Trace errorMsg: string = '';
   @Trace showNoStokenDialog: boolean = false;
   @Trace loginSuccess: boolean = false;
   @Trace loginedAccountId: string = '';
   @Trace loginedAccountVM: MyAccountVM | null = null;
+
+  // ── 手机号登录状态 ────────────────────────────────────────────
+  @Trace phoneStep: PhoneStep = PhoneStep.INPUT_PHONE;
+  @Trace phoneNumber: string = '';
+  @Trace smsCode: string = '';
+  @Trace smsCooldown: number = 0;
+
+  private cooldownTimer: number = -1;
 
   // ── 二维码登录状态 ────────────────────────────────────────────
   @Trace qrCodeUrl: string = '';
@@ -82,6 +88,79 @@ export class LoginViewModel {
 
   dispose(): void {
     this.stopQRCodePoll();
+    this.stopCooldown();
+  }
+
+  // ─── 手机号登录 ───────────────────────────────────────────────
+
+  async sendSmsCode(): Promise<void> {
+    if (this.phoneNumber.length === 0) {
+      this.errorMsg = 'phone_empty';
+      return;
+    }
+    this.isLoading = true;
+    this.errorMsg = '';
+    try {
+      await AuthRepository.createLoginCaptcha(this.phoneNumber);
+      this.phoneStep = PhoneStep.INPUT_CODE;
+      this.startCooldown(60);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      Logger.error(TAG, `sendSmsCode failed: ${msg}`);
+      this.errorMsg = msg;
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async loginByPhone(): Promise<void> {
+    if (this.smsCode.length === 0) {
+      this.errorMsg = 'code_empty';
+      return;
+    }
+    this.isLoading = true;
+    this.errorMsg = '';
+    try {
+      const loginResult: LoginMobileResult = await AuthRepository.loginByMobileCaptcha(this.phoneNumber, this.smsCode);
+      const stoken = loginResult.stoken;
+      const aid = loginResult.aid;
+      const mid = loginResult.mid;
+
+      // ltoken 和 cookie_token 通过 stoken 换取（V1 接口）。
+      // 原先 v2 stoken 会先调用 V2 接口 getCookieBySToken，国服返回 404 后才退回 V1，现已去掉 V2 调用。
+      const fields = new LoginCookieFields();
+      fields.accountId = aid;
+      fields.ltoken = await AuthRepository.getLTokenBySToken(stoken, mid);
+      fields.cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
+      fields.ltuid = aid;
+      fields.stoken = stoken;
+      fields.mid = mid;
+      // v2 Cookie 字段（设备指纹）
+      fields.deviceFp = ApiConfig.getDeviceFp();
+      fields.mhyUuid = ApiConfig.getDeviceIdSync();
+      const cookie = AuthRepository.buildCookieString(fields);
+      await this.finalizeLogin(aid, cookie);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      Logger.error(TAG, `loginByPhone failed: ${msg}`);
+      this.errorMsg = msg;
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  get maskedPhone(): string {
+    const p = this.phoneNumber;
+    if (p.length < 7) {
+      return p;
+    }
+    return p.substring(0, 3) + '****' + p.substring(p.length - 4);
+  }
+
+  backToPhoneInput(): void {
+    this.phoneStep = PhoneStep.INPUT_PHONE;
+    this.smsCode = '';
+    this.errorMsg = '';
   }
 
   // ─── 二维码登录 ───────────────────────────────────────────────
@@ -261,5 +340,25 @@ export class LoginViewModel {
     // 重新登录成功：移除该账号的过期标记（账号详情页的"重新登录 / 刷新 Cookie"随之隐藏）
     CookieExpiredSignal.instance().clearExpired(loginResult.username);
     this.loginSuccess = true;
+  }
+
+  // ─── 工具方法 ─────────────────────────────────────────────────
+
+  private startCooldown(seconds: number): void {
+    this.smsCooldown = seconds;
+    this.cooldownTimer = setInterval(() => {
+      this.smsCooldown -= 1;
+      if (this.smsCooldown <= 0) {
+        this.smsCooldown = 0;
+        this.stopCooldown();
+      }
+    }, 1000) as number;
+  }
+
+  private stopCooldown(): void {
+    if (this.cooldownTimer !== -1) {
+      clearInterval(this.cooldownTimer);
+      this.cooldownTimer = -1;
+    }
   }
 }

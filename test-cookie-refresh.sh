@@ -20,10 +20,10 @@ echo "║  T1：update_time 超 7 天，有 stoken → 触发冷启动刷新 ║
 echo "║  T3：update_time 超 7 天，无 stoken → 静默跳过       ║"
 echo "╠══════════════════════════════════════════════════════╣"
 echo "║  1) T1 场景 (Mock)                                   ║"
-echo "║  2) T1 场景 (Debug)                                  ║"
+echo "║  2) T1 场景 (UAT)                                    ║"
 echo "║  3) T1 场景 (Release)                                ║"
 echo "║  4) T3 场景 (Mock)                                   ║"
-echo "║  5) T3 场景 (Debug)                                  ║"
+echo "║  5) T3 场景 (UAT)                                    ║"
 echo "║  6) T3 场景 (Release)                                ║"
 echo "║  0) 退出                                             ║"
 echo "╚══════════════════════════════════════════════════════╝"
@@ -34,10 +34,10 @@ read -r CHOICE
 # ── 根据选择确定场景和环境 ────────────────────────────────────
 case "$CHOICE" in
   1) SCENARIO="t1"; ENV="mock" ;;
-  2) SCENARIO="t1"; ENV="debug" ;;
+  2) SCENARIO="t1"; ENV="uat" ;;
   3) SCENARIO="t1"; ENV="release" ;;
   4) SCENARIO="t3"; ENV="mock" ;;
-  5) SCENARIO="t3"; ENV="debug" ;;
+  5) SCENARIO="t3"; ENV="uat" ;;
   6) SCENARIO="t3"; ENV="release" ;;
   0) echo "已退出"; exit 0 ;;
   *)
@@ -49,7 +49,7 @@ esac
 # ── 根据 env 确定 bundle id ───────────────────────────────────
 case "$ENV" in
   mock)    BUNDLE='com.cainluo.miyoyo.tools.mock' ;;
-  debug)   BUNDLE='com.cainluo.miyoyo.tools.debug' ;;
+  uat)     BUNDLE='com.cainluo.miyoyo.tools.uat' ;;
   release) BUNDLE='com.cainluo.miyoyo.tools' ;;
 esac
 

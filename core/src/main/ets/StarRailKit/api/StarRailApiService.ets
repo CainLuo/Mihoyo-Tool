@@ -28,7 +28,7 @@ export class StarRailApiService extends MihoyoApiService {
     const headers = MihoyoHeaderBuilder.buildPizza(cookie, GameFpBiz.STARRAIL, params);
     if (geetestChallenge) {
       headers.set(HKey.CHALLENGE, geetestChallenge);
-      headers.set(HKey.CHALLENGE_PATH, 'https://api-takumi-record.mihoyo.com' + StarRailApiPath.DAILY_NOTE);
+      headers.set(HKey.CHALLENGE_PATH, MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.DAILY_NOTE);
       headers.set(HKey.CHALLENGE_GAME, '6');
     }
     const opts = new RequestOptions();

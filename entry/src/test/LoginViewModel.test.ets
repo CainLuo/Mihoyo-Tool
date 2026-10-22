@@ -1,11 +1,16 @@
 import { describe, it, expect } from '@ohos/hypium';
-import { LoginViewModel, LoginViewModelKeys } from '../main/ets/viewmodel/LoginViewModel';
+import {
+  LoginViewModel,
+  LOGIN_VM_SUCCESS,
+  LOGIN_VM_ACCOUNT_ID,
+  LOGIN_VM_ACCOUNT_VM,
+} from '../main/ets/viewmodel/LoginViewModel';
 import { LoginTab, PhoneStep } from '../main/ets/constants/LoginTabEnum';
 
 /**
  * LoginViewModel 单元测试
  *
- * 只测试纯逻辑（初始状态、纯函数、KEYS 常量），
+ * 只测试纯逻辑（初始状态、纯函数、路径常量），
  * 不依赖设备、不调用 Repository 或 ApiService。
  * 使用 main source set 的 LoginViewModel。
  */
@@ -34,9 +39,9 @@ export default function loginViewModelTest() {
       expect(vm.errorMsg).assertEqual('');
     });
 
-    it('初始 loginedAccountId 为 -1', 0, () => {
+    it('初始 loginedAccountId 为空字符串', 0, () => {
       const vm = new LoginViewModel();
-      expect(vm.loginedAccountId).assertEqual(-1);
+      expect(vm.loginedAccountId).assertEqual('');
     });
 
     it('初始 loginedAccountVM 为 null', 0, () => {
@@ -57,6 +62,25 @@ export default function loginViewModelTest() {
       vm.errorMsg = 'some_error';
       vm.switchTab(LoginTab.COOKIE);
       expect(vm.errorMsg).assertEqual('');
+    });
+
+    // ─── 手机号登录状态 ──────────────────────────────────────────
+
+    it('初始 phoneStep 为 INPUT_PHONE', 0, () => {
+      const vm = new LoginViewModel();
+      expect(vm.phoneStep).assertEqual(PhoneStep.INPUT_PHONE);
+    });
+
+    it('sendSmsCode 空手机号设置 errorMsg', 0, async () => {
+      const vm = new LoginViewModel();
+      await vm.sendSmsCode();
+      expect(vm.errorMsg).assertEqual('phone_empty');
+    });
+
+    it('loginByPhone 空验证码设置 errorMsg', 0, async () => {
+      const vm = new LoginViewModel();
+      await vm.loginByPhone();
+      expect(vm.errorMsg).assertEqual('code_empty');
     });
 
     // ─── maskedPhone ─────────────────────────────────────────────
@@ -120,18 +144,18 @@ export default function loginViewModelTest() {
       expect(vm.errorMsg).assertEqual('cookie_empty');
     });
 
-    // ─── KEYS 路径常量 ───────────────────────────────────────────
+    // ─── @Monitor 路径常量 ───────────────────────────────────────
 
-    it('KEYS.loginSuccess 路径正确', 0, () => {
-      expect(LoginViewModel.KEYS.loginSuccess).assertEqual('vm.loginSuccess');
+    it('LOGIN_VM_SUCCESS 路径正确', 0, () => {
+      expect(LOGIN_VM_SUCCESS).assertEqual('vm.loginSuccess');
     });
 
-    it('KEYS.loginedAccountId 路径正确', 0, () => {
-      expect(LoginViewModel.KEYS.loginedAccountId).assertEqual('vm.loginedAccountId');
+    it('LOGIN_VM_ACCOUNT_ID 路径正确', 0, () => {
+      expect(LOGIN_VM_ACCOUNT_ID).assertEqual('vm.loginedAccountId');
     });
 
-    it('KEYS.loginedAccountVM 路径正确', 0, () => {
-      expect(LoginViewModel.KEYS.loginedAccountVM).assertEqual('vm.loginedAccountVM');
+    it('LOGIN_VM_ACCOUNT_VM 路径正确', 0, () => {
+      expect(LOGIN_VM_ACCOUNT_VM).assertEqual('vm.loginedAccountVM');
     });
 
   });

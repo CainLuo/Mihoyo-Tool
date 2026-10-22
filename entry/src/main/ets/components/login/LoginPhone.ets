@@ -1,12 +1,12 @@
 /**
- * LoginPhone.ets — 手机号 + 短信验证码登录组件（仅 internal）
+ * LoginPhone.ets — 手机号 + 短信验证码登录组件
  */
-import { LoginViewModel } from 'entry/ets/viewmodel/LoginViewModel';
-import { ThemeFonts } from 'entry/ets/theme/ThemeFonts'
-import { PhoneStep } from 'entry/ets/constants/LoginTabEnum';
-import { themeManager, ThemeManager } from 'entry/ets/theme/ThemeManager';
-import { LoginPhoneInput } from 'entry/ets/components/login/LoginPhoneInput';
-import { LoginCodeInput } from 'entry/ets/components/login/LoginCodeInput';
+import { LoginViewModel } from '../../viewmodel/LoginViewModel';
+import { ThemeFonts } from '../../theme/ThemeFonts'
+import { PhoneStep } from '../../constants/LoginTabEnum';
+import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { LoginPhoneInput } from './LoginPhoneInput';
+import { LoginCodeInput } from './LoginCodeInput';
 
 @ComponentV2
 export struct LoginPhone {

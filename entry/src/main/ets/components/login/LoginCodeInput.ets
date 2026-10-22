@@ -1,9 +1,9 @@
 /**
- * LoginCodeInput — 验证码输入步骤 UI（仅 internal）
+ * LoginCodeInput — 验证码输入步骤 UI
  */
-import { themeManager, ThemeManager } from 'entry/ets/theme/ThemeManager';
-import { ThemeFonts } from 'entry/ets/theme/ThemeFonts'
-import { LoginViewModel } from 'entry/ets/viewmodel/LoginViewModel';
+import { themeManager, ThemeManager } from '../../theme/ThemeManager';
+import { ThemeFonts } from '../../theme/ThemeFonts'
+import { LoginViewModel } from '../../viewmodel/LoginViewModel';
 
 @ComponentV2
 export struct LoginCodeInput {

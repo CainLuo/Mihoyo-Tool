@@ -21,7 +21,7 @@ fi
 
 HVIGOR='/Applications/DevEco-Studio.app/Contents/tools/hvigor/bin/hvigorw'
 export DEVECO_SDK_HOME='/Applications/DevEco-Studio.app/Contents/sdk'
-APP_PATH='build/outputs/default/Mihoyo-Tool-default-unsigned.app'
+APP_PATH='build/outputs/release/Mihoyo-Tool-release-signed.app'
 
 echo ""
 echo "▶ 准备发布 $TAG"
@@ -36,9 +36,9 @@ fi
 echo "✓ CHANGELOG.md 包含 $TAG 的记录"
 
 # ── 2. 构建 App 包 ───────────────────────────────────────────────
-echo "▶ 构建 App 包（product=default）..."
+echo "▶ 构建 App 包（product=release，buildMode=release）..."
 "$HVIGOR" clean
-"$HVIGOR" assembleApp -p product=default
+"$HVIGOR" assembleApp -p product=release -p buildMode=release
 
 if [ ! -f "$APP_PATH" ]; then
   echo "✗ 构建失败，未找到 App 包：$APP_PATH"

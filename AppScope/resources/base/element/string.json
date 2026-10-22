@@ -5,16 +5,16 @@
       "value": "米悠悠"
     },
     {
-      "name": "app_name_debug",
-      "value": "米悠悠-debug"
+      "name": "app_name_release",
+      "value": "米悠悠"
+    },
+    {
+      "name": "app_name_uat",
+      "value": "米悠悠-UAT"
     },
     {
       "name": "app_name_mock",
-      "value": "米悠悠-mock"
-    },
-    {
-      "name": "app_name_internal",
-      "value": "米悠悠-internal"
+      "value": "米悠悠-Mock"
     }
   ]
 }

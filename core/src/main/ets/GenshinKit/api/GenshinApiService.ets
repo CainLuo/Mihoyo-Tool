@@ -26,7 +26,7 @@ export class GenshinApiService extends MihoyoApiService {
     // 参考 PizzaHelperUnited URLRequestConfig.writeXRPCChallengeHeaders4DailyNote
     if (geetestChallenge) {
       headers.set(HKey.CHALLENGE, geetestChallenge);
-      headers.set(HKey.CHALLENGE_PATH, 'https://api-takumi-record.mihoyo.com' + GenshinApiPath.DAILY_NOTE);
+      headers.set(HKey.CHALLENGE_PATH, MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE);
       headers.set(HKey.CHALLENGE_GAME, '2');
     }
     const opts = new RequestOptions();
