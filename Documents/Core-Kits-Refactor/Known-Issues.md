@@ -1,7 +1,7 @@
 # Core Kits 已知问题与暂缓项
 
-> 状态：**已记录，暂不改代码；Phase 1.2 第一批完成，Phase 2 GenshinKit / StarRailKit / ZZZKit / MihoyoKit 完成，Phase 3 DB 收尾代码层完成；运行时迁移验证延后**
-> 更新时间：2026-10-21
+> 状态：**已记录，暂不改代码；Phase 1.2 / Phase 2 / Phase 3 代码层完成；2026-10-22 环境收敛完成；UAT / Mock 签名待配置；运行时迁移验证延后**
+> 更新时间：2026-10-22
 > 原则：当前构建和既有功能可运行；header / retcode 未采集项保持现状，不用静态推断修改行为。任何修复必须等真机、抓包或明确需求，不把“参考项目这样做”直接当成线上结论。
 >
 > 相关文档：[`API-Baseline.md`](API-Baseline.md) §2.2 静态参考矩阵、[`APIService.md`](APIService.md) §8.6 / §8.7、[`Mock.md`](Mock.md)。
@@ -18,7 +18,7 @@
 | R-04 | `cookie_token` 的 client_type | 当前 `getCookieAccountInfoBySToken` 用 `5` | TeyvatGuide 默认 `2`，Pizza 用 `5`；两边都有依据 | 失败时再对比；暂不改 |
 | R-05 | 便笺 / Widget header | `buildPizza`：app 2.40.1、UA 2.40.1、page `3.1.3_#/rpg` | 与 Pizza 一致；历史 App 抓包是 2.102.0 / 2.115.0 + tool_verison / 按游戏 page + device_name | 真机确认便笺和 Widget；`addNoteCaptureHeaders` 当前未调用，不要顺手启用 |
 | R-06 | HTTP 非 200 / 超时 | `HttpError` 已实现；`statusCode=0` 表示无响应 | 没有真实 401/500/断网记录 | 在真机或本地代理制造 401/500/超时各一次 |
-| R-07 | Mock 数据链路 | `mock` product 可构建，但仍走真实 API | Swift-Vapor local service / base URL 覆盖未实现 | 见 `Mock.md`；Phase 4 处理，不要误判为已可用 |
+| R-07 | Mock 数据链路 | `mock` product 可构建；`MihoyoDomain` 已切到 `http://127.0.0.1:8787`，但 `mock-service` 只有 `/__health`、`/`、`POST /__mock/rpc` | 直接 REST 路由未实现，App 请求会 404；UAT / Mock 签名也未配置 | 先补签名，再实现 local service 直连路由并做真机 / 模拟器回归；见 `Mock.md`，不要误判为已可用 |
 | R-08 | 真机功能回归 | 登录、便笺、角色、养成计算、签到未在本轮真机验证 | 只有构建和 grep 验收 | 有 `hdc` target 时按第 5 节清单跑一轮 |
 
 ---
@@ -41,7 +41,8 @@
 
 | ID | 项目 | 当前状态 | 当前决定 |
 | --- | --- | --- | --- |
-| E-01 | `internal` 开发签名证书过期 | `Certificates/dev/miyoyo-dev.cer` 与 `miyoyo-profileDebug.p7b` 于 `2026-10-21 13:15:20 CST` 过期；`default` 使用的 release 证书有效期到 2029-04-24；`debug` 当前跳过签名 | 不通过改 `signingConfig` 绕过；由用户续签 Huawei AGC Development 证书和 Debug Profile。当前用 `default` / `debug` 验证代码；`internal` 只验证到 `CompileArkTS`，`SignHap` 失败不阻塞 Phase 2 / Phase 3 代码迁移 |
+| E-01 | 旧开发签名证书过期 / `internal` 已移除 | `Certificates/dev/miyoyo-dev.cer` 与 `miyoyo-profileDebug.p7b` 于 `2026-10-21 13:15:20 CST` 过期；`core/src/internal` / `entry/src/internal` 已合并删除；release 证书有效期到 `2029-04-24` | 不再使用旧 dev 材料；`internal` product 已移除。不要通过修改证书或复用 release 来绕过签名 |
+| E-02 | UAT / Mock 签名未配置 | `build-profile.json5` 中 `uat` / `mock` 引用了 `signingConfigs`，但当前只有 release 配置；两者构建产物为 unsigned HAP，不能安装 | 在 AGC 为 `com.cainluo.miyoyo.tools.uat` / `.mock` 创建独立调试证书和调试 Profile，填入 `signingConfigs`；禁止复用 release 或共享同一环境的签名 |
 
 ### 2.2 结构性暂缓（Phase 1.2 搬位置后暴露）
 

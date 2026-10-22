@@ -15,7 +15,7 @@ HarmonyOS NEXT 米游社工具箱，支持原神、崩坏：星穹铁道、绝�
 > **当前支持的游戏**：原神、崩坏：星穹铁道、绝区零
 >
 > 崩坏3 等其他游戏的角色数据会正常写入数据库，但暂不在 UI 中展示。
-> 如需启用，在 `core/src/main/ets/constants/GameId.ets` 的 `SUPPORTED` 数组中添加对应的 `GameId` 即可。
+> 如需启用，在 `core/src/main/ets/common/constants/GameId.ets` 的 `SUPPORTED` 数组中添加对应的 `GameId` 即可。
 
 ---
 
@@ -73,35 +73,38 @@ ohpm.cmd install
 
 ### 第四步：选择构建环境
 
-项目有三个 product，在 DevEco Studio 右上角点击 product 选择器切换：
+运行环境只有三个：`release`、`uat`、`mock`。DevEco Studio 还会显示一个 `default` product，它是 Hvigor / DevEco 要求的技术兜底产品，身份等同 `release`，不是第四个运行环境。
 
-| Product   | Bundle ID                        | App 名称     | 说明                         |
-| --------- | -------------------------------- | ------------ | ---------------------------- |
-| `default` | `com.cainluo.miyoyo.tools`       | 米悠悠       | 正式发布，连接真实 API       |
-| `mock`    | `com.cainluo.miyoyo.tools.mock`  | 米悠悠-mock  | 本地 Mock 数据，日常开发首选 |
-| `debug`   | `com.cainluo.miyoyo.tools.debug` | 米悠悠-debug | 真实 API，可配合抓包工具调试 |
+| 运行环境  | Product   | Bundle ID                       | APP_ENV   | Build mode | API                        | 调试能力                     |
+| --------- | --------- | ------------------------------- | --------- | ---------- | -------------------------- | ---------------------------- |
+| Release   | `release` | `com.cainluo.miyoyo.tools`      | `release` | `release`  | 官方 API                   | 关闭日志 / TestPage / 抓包   |
+| UAT       | `uat`     | `com.cainluo.miyoyo.tools.uat`  | `uat`     | `debug`    | 官方 API                   | 保留日志 / TestPage / 抓包   |
+| Mock      | `mock`    | `com.cainluo.miyoyo.tools.mock` | `mock`    | `debug`    | `http://127.0.0.1:8787`    | 保留日志 / TestPage / 抓包   |
 
-三个环境可以同时安装在设备上，互不干扰。
+三个环境使用不同 Bundle ID，可以同时安装、互不覆盖。手机号 / 二维码 / Cookie 登录在三个环境中都可用，默认 Tab 为手机号登录。
 
-**日常开发推荐使用 `mock` product**，无需真实账号即可看到完整 UI。
+> `default` 主要用于 IDE 兜底和 `ohosTest`，不要用它区分运行环境。
+
+**签名说明**：`release` 使用 `Certificates/release/` 下的正式材料。`uat` / `mock` 必须在 AGC 为对应 Bundle ID 创建独立的调试证书和调试 Profile，并填入 `build-profile.json5` 的 `signingConfigs`；不能复用 release 签名。材料补齐前，`uat` / `mock` 只能构建出 unsigned HAP，不能安装。
 
 ### 第五步：运行
 
 **方式一：DevEco Studio 直接运行（所有平台通用）**
 
 1. 连接模拟器或真机
-2. 右上角选择目标 product（推荐 `mock`）
+2. 右上角选择目标 product（`uat` / `mock` / `release`）
 3. 点击 Run 按钮
 
 **方式二：命令行脚本（仅 macOS）**
 
 ```bash
-bash run-mock.sh      # mock 环境（日常开发）
-bash run-debug.sh     # debug 环境（真实 API 调试）
-bash run.sh           # release 环境（正式发布）
+bash run.sh uat       # UAT：官方 API，Debug 能力
+bash run.sh mock      # Mock：本机 local-service
+bash run.sh release   # Release：正式包
+bash run.sh           # 交互选择（5 秒无输入默认 uat）
 ```
 
-脚本会自动启动模拟器（如未运行）、Clean、Build、安装、启动，一步到位。
+脚本会自动启动模拟器（如未运行）、Clean、Build、安装、启动，一步到位。`uat` / `mock` 缺少签名材料时会在构建前直接报错，避免误装 unsigned 包。
 
 ---
 
@@ -112,23 +115,30 @@ Mihoyo-Tool/
 ├── entry/                          # UI 层
 │   └── src/main/ets/
 │       ├── pages/                  # 页面（Home、Characters、My、Login 等）
-│       ├── components/             # 可复用 UI 组件
+│       ├── components/             # 可复用 UI 组件（含 login/ 手机号登录）
 │       ├── viewmodel/              # ViewModel（UI 状态 + 业务逻辑）
 │       ├── theme/                  # 主题系统（AppTheme、DefaultTheme）
 │       └── constants/              # 路由常量、枚举
-├── core/                           # 基础设施层
+├── core/                           # 基础设施层（HAR）
 │   └── src/main/ets/
-│       ├── network/                # 网络层（ApiService、MockService、DSUtil）
-│       ├── database/               # 数据库层（RdbManager、DAO）
-│       ├── repository/             # Repository 层（BBSRepository、GenshinRepository 等）
-│       ├── models/                 # 数据模型（Row 模型、原始数据模型）
-│       ├── parsers/                # JSON 解析器（便笺、角色数据）
-│       └── constants/              # 常量（GameId、GameServer、ApiErrorCodes 等）
+│       ├── MihoyoKit/              # 账号 / 登录 / BBS / 签到
+│       ├── GenshinKit/             # 原神
+│       ├── StarRailKit/            # 崩坏：星穹铁道
+│       ├── ZZZKit/                 # 绝区零
+│       ├── base/                   # network / log / errors / utils / cookie
+│       ├── common/                 # constants / material
+│       ├── db/                     # RdbManager、SchemaRegistry、迁移基础设施
+│       └── sync/                   # 同步队列与同步模型
+├── mock-service/                   # 本地 Node Mock 服务（fixtures + RPC）
+├── Certificates/                   # 签名材料（release / uat / mock 分开）
 ├── AppScope/                       # 应用级资源（图标、应用名）
-├── build-profile.json5             # 构建配置（product / buildMode）
-├── run.sh                          # release 构建脚本（macOS）
-├── run-mock.sh                     # mock 构建脚本（macOS）
-└── run-debug.sh                    # debug 构建脚本（macOS）
+├── build-profile.json5             # 构建配置（product / buildMode / signingConfigs）
+├── run.sh                          # 三环境构建安装脚本（macOS）
+├── pull-logs.sh                    # 拉取 mock / uat / release 日志
+├── test-core.sh                    # 构建 core + entry 单元测试 HAP
+├── test-entry.sh                   # 构建 entry 单元测试 HAP
+├── test-cookie-refresh.sh          # Cookie 刷新场景测试
+└── tag-release.sh                  # 打 release tag / 构建 APP
 ```
 
 ---
@@ -138,37 +148,38 @@ Mihoyo-Tool/
 项目采用 **MVVM + 分层架构**，严格隔离 UI 层和数据层：
 
 ```
-entry（UI 层）                    core（基础设施层）
-─────────────────────────────    ──────────────────────────────
-pages / components               network（ApiService / MockService）
-       ↕ @Param / @Trace                  ↕
-    ViewModel                    repository（BBSRepository 等）
-       ↕ 调用                             ↕
-    （禁止直接访问 DB）           database（RdbManager / DAO）
+entry（UI 层）                         core（基础设施层）
+─────────────────────────────         ──────────────────────────────
+pages / components                    Kit Repository / ApiService
+       ↕ @Param / @Trace                       ↕
+    ViewModel                         base/network（BaseApiService / DS / Cookie）
+       ↕ 调用                                  ↕
+    （禁止直接访问 DB）                db（RdbManager / DAO / SchemaRegistry）
 ```
 
 - **entry** 只调用 `core` 的 Repository 高层方法，不直接操作数据库或网络
-- **mock / release 切换**通过 product 的 `APP_ENV` 字段控制，entry 层无感知
+- **环境切换**通过 product 的 `APP_ENV` 字段控制，entry 层无感知；域名统一由 `MihoyoDomain` 解析
+- **UAT / Release** 使用官方 API；**Mock** 使用本机 `http://127.0.0.1:8787`，并保留 `/apihub` 前缀
 - **多账号隔离**通过 `accountId + roleUid` 在数据库层实现
 
 ---
 
 ## Mock 数据说明
 
-`mock` product 使用本地 JSON 文件模拟 API 响应，数据文件位于：
+Mock 数据已移出 HAP，放在独立服务目录：
 
 ```
-core/src/main/resources/rawfile/mock/
-└── {accountId}/
-    └── {roleUid}/
-        ├── game_record_app_genshin_api_dailyNote.json
-        ├── game_record_app_genshin_api_character_list.json
-        └── ...
+mock-service/
+├── fixtures/
+│   └── {accountId}/
+│       └── {roleUid}/
+│           ├── game_record_app_genshin_api_dailyNote.json
+│           └── ...
+├── router.mjs
+└── server.mjs
 ```
 
-文件命名规则：将 API 路径中的 `/` 替换为 `_`，例如：
-
-- `/game_record/app/genshin/api/dailyNote` → `game_record_app_genshin_api_dailyNote.json`
+`mock` product 当前只把 API 域名切到 `http://127.0.0.1:8787`；`mock-service/server.mjs` 目前仅提供 `/__health`、`/` 和 `POST /__mock/rpc`，直接 REST 路由尚未实现。因此 **Mock 数据链路仍未完成**，不能把 Mock 包当成已可用的离线数据版本。
 
 ---
 

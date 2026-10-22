@@ -1,11 +1,29 @@
 # Core Kits 重构任务总览
 
-> 状态：**Phase 1.2 第一批完成；Phase 2 GenshinKit / StarRailKit / ZZZKit / MihoyoKit 完成；Phase 3 DB 收尾代码层完成；header / retcode 静态参考对照完成，运行时基线延后**
-> 当前阶段：**Phase 3A / 3B / 3C 代码层已完成：sync / material 路径迁移、material DAO 拆分、`TableSchema` 拆分与根 `SchemaRegistry` 聚合；`default` / `debug` / `mock` 构建和 `test-core.sh` / `test-entry.sh` 通过；`internal` 编译通过但 `SignHap` 因证书过期失败；运行时 DB / 真机 / Mock 回归仍延后**
-> 下一步：**Phase 4 Mock local service 接入，以及 Phase 5 命名 / 兼容清理；运行时 header / retcode、真机与 Mock 回归仍延后；已知问题和暂缓项见 [`Known-Issues.md`](Known-Issues.md)**
-> 更新时间：2026-10-21
+> 状态：**Phase 1.2 / Phase 2 / Phase 3 代码层完成；2026-10-22 环境收敛完成；release 构建与测试脚本通过；uat / mock 可编译但签名待配置；运行时回归延后**
+> 当前阶段：**`internal` overlay 与手机号登录 UI 已合并到 main；运行环境收敛为 `mock` / `uat` / `release`；三套 product 可独立构建，release 已签名，uat / mock 需独立 AGC 调试证书和 Profile**
+> 下一步：**补齐 uat / mock 签名材料；Phase 4 Mock local service 直连路由；Phase 5 命名 / 兼容清理；运行时 header / retcode、真机与 Mock 回归仍延后**
+> 更新时间：2026-10-22
 
 本目录集中存放整个 Core Kits 重构任务的规划、阶段记录和专题文档，避免 Mock、Kit、DB 等子任务的文档散落在仓库各处。
+
+---
+
+## 0. 当前环境模型（2026-10-22）
+
+运行环境只有三个，`default` 是 Hvigor / DevEco 要求的技术兜底 product，不是第四个运行环境：
+
+| 运行环境 | Product | Bundle ID | APP_ENV | Build mode | API | 调试能力 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Release | `release` | `com.cainluo.miyoyo.tools` | `release` | `release` | 官方 API | 关闭日志 / TestPage / 抓包 |
+| UAT | `uat` | `com.cainluo.miyoyo.tools.uat` | `uat` | `debug` | 官方 API | 保留日志 / TestPage / 抓包 |
+| Mock | `mock` | `com.cainluo.miyoyo.tools.mock` | `mock` | `debug` | `http://127.0.0.1:8787` | 保留日志 / TestPage / 抓包 |
+
+- `core/src/internal` 与 `entry/src/internal` 已删除；手机号登录 UI 合并进 `entry/src/main`，默认 Tab 为 `PHONE`。
+- `AppEnv` 只保留 `MOCK` / `UAT` / `RELEASE`，未知值回退到 `UAT`；`AppEnvManager.isDebugCapable()` 对 Mock / UAT 返回 true。
+- `MihoyoDomain` 按 `AppEnvManager.isMock()` 切换域名；Mock 下 `BBS_APIHUB` 保留 `/apihub`。
+- Release 使用 `Certificates/release/` 的正式签名；UAT / Mock 必须使用各自 Bundle ID 的独立调试证书和 Profile，不能复用 release。
+- 当前 UAT / Mock 只构建出 unsigned HAP，尚未安装验证；`run.sh` 在签名材料缺失时会提前报错。
 
 ---
 
@@ -41,7 +59,7 @@
 
 | 阶段 | 状态 | 说明 |
 | --- | --- | --- |
-| Phase 0 — 基线 | 🟡 构建基线完成；静态参考完成；运行时基线延后 | 四个 product（`default` / `mock` / `debug` / `internal`）构建通过；`test-core.sh` / `test-entry.sh` 通过（仅构建 ohosTest HAP，不是网络测试）；header / retcode 清单和 §2.2 静态参考矩阵已建在 [`API-Baseline.md`](API-Baseline.md)，运行时 **未采集（用户决定延后，不阻塞迁移）** |
+| Phase 0 — 基线 | 🟡 构建基线完成；静态参考完成；运行时基线延后 | 当时四个 product（`default` / `mock` / `debug` / `internal`）构建通过；2026-10-22 已收敛为 `mock` / `uat` / `release`。`test-core.sh` / `test-entry.sh` 通过（仅构建 ohosTest HAP，不是网络测试）；header / retcode 清单和 §2.2 静态参考矩阵已建在 [`API-Baseline.md`](API-Baseline.md)，运行时 **未采集（用户决定延后，不阻塞迁移）** |
 | Phase 1 — 底盘 | 🟡 Phase 1.1 完成；Phase 1.2 第一批完成 | 新增 `HttpTypes` / `BaseApiService`；5 个业务 Service + internal overlay 已继承并完成 `.data` 拆包；`AuthRepository` / `BBSRepository` / `DeviceFpService` / `GeetestService` / `ZZZRecordRequest` 已迁移；旧 `HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService` 已删除；Phase 1.2 第一批已迁移 32 个共享文件并只改 import；`default` / `debug` / `mock` 构建和 `test-core.sh` / `test-entry.sh` 通过，`internal` 编译通过但证书过期导致 `SignHap` 失败；基线 / 真机回归待补，见 [`Known-Issues.md`](Known-Issues.md) |
 | Phase 2 — 拆 Kit | ✅ 代码层完成 | GenshinKit / StarRailKit / ZZZKit 分别迁移 13 / 11 / 14 个文件；Mihoyo 账号域迁移 18 个主文件（17 个入 MihoyoKit，工厂文件迁根），另有 3 个 internal overlay；`MihoyoApiServiceFactory` 文件迁到根 `ApiServiceFactory.ets`，类名暂不变；Phase 3 已补齐 `TableSchema`、material DAO / model / repository；剩余反向依赖见 S-01 |
 | Phase 3 — DB 收尾 | 🟡 代码层完成；运行时迁移验证延后 | Phase 3A 将 sync / material 框架路径落位；Phase 3B 拆分 material DAO 基类与三个 Kit 子类；Phase 3C 抽离 `db/TableName.ets`，拆分各 Kit `db/schema.ets` / `sync/db/schema.ets`，V3/V7 归入 `db/migrations/cross/`，根 `SchemaRegistry.ets` 聚合 `ALL_TABLES` / `ALL_INDEXES` / 迁移，`RdbManager.init(context, SchemaRegistry)`；构建与编译检查通过，运行时 DB 测试和旧库升级路径未执行 |
@@ -63,7 +81,8 @@
 - `run.sh mock`、`pull-logs.sh mock`、Cookie 测试脚本的 Mock 选项均指向 `.mock` 包
 - 224 个 fixture 迁移到 `mock-service/fixtures/`（约 27 MB）
 - `mock-service` Node 服务保留，12 个测试通过
-- 四个 product 构建通过，`test-core.sh` / `test-entry.sh` 通过
+- 2026-10-22：`internal` 已合并，`mock` / `uat` / `release` 三个 product 可独立构建；release 已签名，uat / mock 待独立 AGC 签名
+- `test-core.sh` / `test-entry.sh` 通过
 
 ---
 
@@ -72,14 +91,15 @@
 以下内容尚未完成，已记录在 [`Mock.md`](Mock.md)，后续不能误认为 mock 数据链路已经可用：
 
 - [ ] **Swift-Vapor local service 未实现**
-- [ ] **App 未连接 local service**：当前 mock 包仍走真实 API，不返回 fixture 数据
+- [x] **App 侧域名覆盖点已实现**：`MihoyoDomain` 在 `APP_ENV=mock` 时切到 `http://127.0.0.1:8787`，`BBS_APIHUB` 保留 `/apihub`
+- [ ] **Mock 直接 REST 路由未实现**：`mock-service/server.mjs` 目前只有 `/__health`、`/`、`POST /__mock/rpc`，App 请求会 404
 - [ ] **接入方案未最终确定**：直连路径代理 vs RPC（推荐直连路径代理）
-- [ ] **App 侧 base URL 覆盖点未实现**：预计在 `ApiConfig` / `BaseApiService` 集中处理
+- [ ] **uat / mock 签名未配置**：必须为对应 Bundle ID 创建独立 AGC 调试证书和 Profile，不能复用 release
 - [ ] **真机 / 模拟器 mock 数据联调未做**
 - [ ] **Swift-Vapor 与 Node 的 parity 测试未建立**
 - [ ] **fixture 缺口未补**：签到、ZZZ `avatar_compute`、原神/星铁账号级 Widget
 - [ ] **local service 启动 / 停止脚本未做**
-- [ ] **最终 README 未更新**：按约定等全部整合完成后统一更新
+- [x] **最终 README 已按三环境模型更新**
 
 ---
 
@@ -94,7 +114,7 @@
 - 新增 `core/src/main/ets/network/HttpTypes.ets`、`BaseApiService.ets`；
 - `APIs.ets` 旧抽象临时改名 `LegacyBaseApiService`，`HttpService` / `NetworkFactory` 引用已切换；
 - `core/Index.ets` 已导出 `HttpTypes` / `BaseApiService`；
-- 四个 product 构建通过，`test-core.sh` / `test-entry.sh` 通过（仅构建 HAP）；
+- 当时四个 product 构建通过，`test-core.sh` / `test-entry.sh` 通过（仅构建 HAP）；2026-10-22 已收敛为三环境；
 - Stage 0 当时未迁移业务 Service、未删除旧 transport、未改 `HttpClient` / `HttpService` 行为。
 
 **Stage 1-3 已完成（2026-10-21）**：
@@ -104,7 +124,7 @@
 - `AuthRepository` / `BBSRepository` 删除旧 transport fallback；`BBSRepository` 两个账号接口切到 `MihoyoAccountApiService`；
 - `DeviceFpService` / `GeetestService` / `ZZZRecordRequest` 改用 `BaseApiService.shared`；
 - 删除 `HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService`；
-- 四个 product 构建、`test-core.sh` / `test-entry.sh` 通过；
+- 当时四个 product 构建、`test-core.sh` / `test-entry.sh` 通过；2026-10-22 已收敛为三环境；
 - `grep` 验收：axios 仅命中 `BaseApiService.ets`，无旧 transport 代码引用，无直接 `return this.get/post`；
 - header / retcode 基线、真实设备与 Mock 回归 **延后**，不阻塞本轮代码迁移。
 

@@ -1,8 +1,10 @@
 # Core 模块重构方案：Kits 化 + Mock 本地服务
 
-> 状态：**进行中；Mock 清理已完成，local service 接入未完成；Phase 2 Kit 拆分完成，Phase 3 DB 收尾代码层完成，运行时迁移验证延后**
-> 范围：`core/` HAR 内部目录重组、Mock 服务化、DB 归类；不改表结构、不改 entry 的 MVVM 结构、不拆多 HAR。
+> 状态：**进行中；Phase 2 Kit 拆分、Phase 3 DB 收尾代码层完成；2026-10-22 环境收敛完成；Mock local service 直连路由未完成；运行时迁移验证延后**
+> 范围：`core/` HAR 内部目录重组、Mock 服务化、DB 归类、运行环境收敛；不改表结构、不改 entry 的 MVVM 结构、不拆多 HAR。
 > 原则：先移文件（`git mv`，保留历史）→ 再改代码；每个阶段可独立构建、可回滚。
+>
+> **2026-10-22 环境收敛**：`core/src/internal` 与 `entry/src/internal` 已删除；手机号登录 UI 合并进 `entry/src/main`，默认 Tab 为 `PHONE`。运行环境只保留 `mock` / `uat` / `release`，分别对应 `com.cainluo.miyoyo.tools.mock` / `.uat` / 无后缀包名；`default` 仅作为 Hvigor / DevEco 技术兜底，不是第四个运行环境。`AppEnv` 只保留 `MOCK` / `UAT` / `RELEASE`；UAT / Mock 保留 Debug 能力；Mock 域名切到 `http://127.0.0.1:8787`，UAT / Release 使用官方域名。Release 已签名，UAT / Mock 需独立 AGC 调试证书和 Profile。
 >
 > 任务总览：[`README.md`](README.md)；BaseApiService 方案：[`APIService.md`](APIService.md)；API 基线清单：[`API-Baseline.md`](API-Baseline.md)；Mock 专题与缺口：[`Mock.md`](Mock.md)。
 > 后续公共 Header 合并已记录在 [`APIService.md`](APIService.md) 第 10 节，Phase 5 实施，不阻塞当前 BaseApiService 迁移。
@@ -62,13 +64,15 @@ core/src/main/ets/           （约 115 个 .ets）
 - 数据：`mock-service/fixtures/`，**224 个 JSON**，按 `{accountId}/{roleId}/` 分层。
 - 服务端：`mock-service/`（零依赖 Node HTTP 服务）负责 fixture 路由、手机号登录、验证码、二维码与签到行为。
 - 客户端：Mock 适配器已删除，不再有独立 `mock/` 目录；`mock-service/` 仅作为独立数据服务保留。
-- Core 不再包含 Mock 适配器或 Mock 逻辑分支；`AppEnv.MOCK` 与 `AppEnvManager.isMock()` 保留枚举/API，但无任何使用。
+- Core 不再包含 Mock 适配器；`AppEnv.MOCK` 与 `AppEnvManager.isMock()` 仅用于 `MihoyoDomain` 切换本机域名，不包含 fixture 适配逻辑。
 - entry 不做任何 Service 注入；`CoreInitializer.initCore` 只接收 env/context，Service 全部由 `MihoyoApiServiceFactory` 创建。
 
-### 2.3 构建与 overlay（重构最大雷区）
+### 2.3 构建与 overlay（以下为 2026-10-22 收敛前的历史状态）
 
-- `core/build-profile.json5` 的 target：`default / debug / internal / ohosTest`（不再有 mock target）。
-- `src/internal/ets/` 是 **overlay 目录**，按「相对路径相同则覆盖 `src/main`」参与 debug/internal 构建，现有 3 个文件：
+> 当前已删除 `core/src/internal` / `entry/src/internal`，target 为 `default / release / uat / mock / ohosTest`，详见 [`README.md`](README.md) §0。
+
+- `core/build-profile.json5` 的 target：`default / debug / internal / ohosTest`（历史状态，已不再适用）。
+- `src/internal/ets/` 是 **overlay 目录**，按「相对路径相同则覆盖 `src/main`」参与 debug/internal 构建，历史上有 3 个文件：
   - `network/MihoyoAccountApiService.ets`
   - `repository/AuthRepository.ets`
   - `models/PhoneLoginModels.ets`
@@ -454,7 +458,7 @@ mock-service/                              # 新增：HAR 之外
 - mock env 构建：`hvigorw assembleHap -p product=mock`（或 `bash run.sh mock`），产物是独立 `.mock` 包。
 - 产品 HAP 中不含 Mock 类；`MihoyoApiServiceFactory` 只创建真实 Service，不再有 MOCK 分支；`CoreInitializer.initCore` 只接收 env/context。
 - 旧 `NetworkFactory` / `HttpService` / `HttpClient` 已删除；非 Service 调用方改走 `BaseApiService.shared`。
-- Core 保留 `AppEnv.MOCK` / `AppEnvManager.isMock()` 枚举与 API，但没有任何逻辑分支使用。
+- Core 保留 `AppEnv.MOCK` / `AppEnvManager.isMock()` 枚举与 API；`MihoyoDomain` 在 Mock 下切换到 `http://127.0.0.1:8787`，但不包含 fixture 适配逻辑。
 - Core 的 mock target 已删除；`src/internal` 仅用于 debug/internal overlay。
 - `MihoyoAccountApiService` 自己完成手机号/区号 RSA 加密，`AuthRepository` 不再判断环境。
 - 地址配置：`mock-service` 默认 `http://127.0.0.1:8787`；App 当前未接入，客户端接入方案待定（计划 Swift-Vapor local service）。
@@ -531,10 +535,10 @@ mock-service/                              # 新增：HAR 之外
 > 每一步单独提交；每步跑完「验证」才进入下一步。改动期间不并行开发同一目录。
 
 **Phase 0 — 基线（构建基线完成；业务基线延后）**
-- 记录当前四个 product（`default` / `mock` / `debug` / `internal`）构建结果 + `test-core.sh`、`test-entry.sh` 基线；注意这两个脚本只构建 ohosTest HAP，不是运行测试。**已完成。**
+- 记录当时四个 product（`default` / `mock` / `debug` / `internal`）构建结果 + `test-core.sh`、`test-entry.sh` 基线；注意这两个脚本只构建 ohosTest HAP，不是运行测试。**已完成；2026-10-22 已收敛为 `mock` / `uat` / `release`。**
 - 记录关键接口基线（原计划删除 `HttpClient` 前）：脱敏 URL、最终 header 名称/关键值、retcode、当前是否触发 Geetest / 指纹上报。不要把 Cookie / token 原文写进文档或提交。逐接口清单和填写位置见 [`API-Baseline.md`](API-Baseline.md)；当前 **未采集，按用户决定延后**。
 - 确认 `hdc` target；当前环境曾检测到 `127.0.0.1:5555`，可用时做安装/启动验证；**本轮未执行真机回归**。
-- 验证：四个 product 构建通过；业务基线未采集，不再作为 Stage 1 / Stage 2 的 Gate；旧路径基线已无法补采，新路径待任务完成后补采。网络测试另做，不能把“脚本通过”当成完整验证。
+- 验证：当时四个 product 构建通过；业务基线未采集，不再作为 Stage 1 / Stage 2 的 Gate；旧路径基线已无法补采，新路径待任务完成后补采。网络测试另做，不能把“脚本通过”当成完整验证。
 
 **Phase 1 — 底盘（Phase 1.1 完成；Phase 1.2 第一批完成）**
 - Phase 1.1 BaseApiService 的 **Stage 0-3 已完成**：抽构建链路内唯一的 axios 封装层，`MihoyoApiService extends BaseApiService`，所有 Service 继续 `extends MihoyoApiService`，重复 `get / post` 已清理；文件级迁移/删除清单见 [`APIService.md`](APIService.md) 第 8 节。原“Stage 1 前完成 P0 / Stage 2 前完成 P1”的 Gate 已被用户的“基线延后”决定覆盖。
@@ -563,7 +567,7 @@ mock-service/                              # 新增：HAR 之外
 - 清理完成：fixtures 迁移、Node router/账号/签到行为、独立 `mock` product、脚本与文档。
 - 未完成：Swift-Vapor local service、App 接入、真机联调、parity 测试。
 - App 接入前再决定 `RequestOptions.baseUrlType`：本轮 Phase 1.1 **保持字段原样，不删除、不改造**；等 Phase 4 明确 Mock base URL 方案后，再决定删除或改造。
-- 验证：Node 测试 12/12；mock-service 的 curl 路由抽样；客户端接入后另做全功能手测。当前 mock product 仍走真实 API，不能把 mock 包启动当成 Mock 数据链路可用。
+- 验证：Node 测试 12/12；mock-service 的 curl 路由抽样；客户端接入后另做全功能手测。当前 Mock 包已把域名切到 `127.0.0.1:8787`，但 mock-service 尚未实现直接 REST 路由，不能把 Mock 包启动当成 Mock 数据链路可用。
 
 **Phase 5 — 收尾（0.5 天）**
 - 命名统一（如 `APIs.ets`），删除兼容别名，更新 README / Documents / 脚本，CI 加路径检查。
