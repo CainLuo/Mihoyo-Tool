@@ -17,9 +17,39 @@ export enum HeaderProfile {
   /**
    * 签到接口（大别野 + 各游戏）
    * 使用 X6 salt，client_type=2，Referer=act
-   * 游戏签到额外需要 x-rpc-signgame 头（由调用方在 build() 后手动 set）
+   * 游戏签到额外需要 x-rpc-signgame 头（由调用方通过 RequestOptions.extraHeaders 补充）
    */
   SIGN = 'SIGN',
+  /**
+   * PizzaHelperUnited 便笺 / Widget 请求头（buildPizza）：
+   * 游戏专属指纹、X4 DS、可选 Widget User-Agent
+   */
+  PIZZA_RECORD = 'PIZZA_RECORD',
+}
+
+/**
+ * 请求头上下文：由业务 Service 提供身份信息，MihoyoApiService 负责实际合并。
+ * 不根据 URL 推断 Profile，避免 URL 变化时悄悄改变请求头。
+ */
+export class HeaderContext {
+  profile: HeaderProfile;
+  cookie: string;
+  /** 仅 PIZZA_RECORD 使用，决定游戏专属 device_fp */
+  gameBiz: GameFpBiz | null;
+  /** 仅 PIZZA_RECORD 使用；空字符串表示使用 PizzaHelperUnited 默认 UA */
+  userAgent: string;
+
+  constructor(
+    profile: HeaderProfile,
+    cookie: string,
+    gameBiz: GameFpBiz | null = null,
+    userAgent: string = '',
+  ) {
+    this.profile = profile;
+    this.cookie = cookie;
+    this.gameBiz = gameBiz;
+    this.userAgent = userAgent;
+  }
 }
 
 /** PizzaHelperUnited 国服 x-rpc-app_version 与 User-Agent */
@@ -27,6 +57,11 @@ const PZ_APP_VERSION: string = '2.40.1';
 const PZ_USER_AGENT: string =
   `Mozilla/5.0 (iPhone; CPU iPhone OS 17_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/${PZ_APP_VERSION}`;
 
+/**
+ * 米游社公共请求头构造器。
+ * 业务 Service 通过 MihoyoApiService 的 getWithProfile / postWithProfile 间接使用，
+ * 不要直接调用 build() / buildPizza()。
+ */
 export class MihoyoHeaderBuilder {
   /**
    * 整套对齐 PizzaHelperUnited（generateRecordAPIRequest + URLRequestConfig.defaultHeaders）：
@@ -105,6 +140,21 @@ export class MihoyoHeaderBuilder {
   }
 
   /**
+   * 按 HeaderContext 构建公共请求头。
+   * 业务 Service 不应直接调用 build() / buildPizza()，统一经由 MihoyoApiService 合并。
+   */
+  static buildFor(context: HeaderContext, params?: RequestParams, body?: string): Map<string, string> {
+    if (context.profile === HeaderProfile.PIZZA_RECORD) {
+      if (context.gameBiz === null) {
+        throw new Error('PIZZA_RECORD requires gameBiz');
+      }
+      const userAgent = context.userAgent.length > 0 ? context.userAgent : undefined;
+      return MihoyoHeaderBuilder.buildPizza(context.cookie, context.gameBiz, params, userAgent);
+    }
+    return MihoyoHeaderBuilder.build(context.profile, context.cookie, params, body);
+  }
+
+  /**
    * 构建请求头 Map
    * @param profile  请求头 Profile
    * @param cookie   登录 Cookie
@@ -117,6 +167,10 @@ export class MihoyoHeaderBuilder {
     params?: RequestParams,
     body?: string,
   ): Map<string, string> {
+    if (profile === HeaderProfile.PIZZA_RECORD) {
+      throw new Error('PIZZA_RECORD must be built via buildFor');
+    }
+
     // ── CALCULATE Profile 特殊处理：独立构建，不走共有逻辑 ───────────
     if (profile === HeaderProfile.CALCULATE) {
       // 养成计算接口（原神/星铁）

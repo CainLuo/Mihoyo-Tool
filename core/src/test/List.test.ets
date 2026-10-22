@@ -10,6 +10,7 @@ import genshinComputeParserTest from './GenshinComputeParser.test';
 import starRailComputeParserTest from './StarRailComputeParser.test';
 import zzzComputeParserTest from './ZZZComputeParser.test';
 import mihoyoDomainTest from './MihoyoDomain.test';
+import headerBuilderTest from './HeaderBuilder.test';
 
 export default function testsuite() {
   dsUtilTest();
@@ -24,4 +25,5 @@ export default function testsuite() {
   starRailComputeParserTest();
   zzzComputeParserTest();
   mihoyoDomainTest();
+  headerBuilderTest();
 }

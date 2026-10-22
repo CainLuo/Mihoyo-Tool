@@ -7,7 +7,7 @@ import { MihoyoDomain } from '../../base/network/MihoyoDomain';
 import { MihoyoAccountApiPath } from './MihoyoAccountApiPath';
 import { PassportApiPath } from './PassportApiPath';
 import { QRCodeApiPath } from './QRCodeApiPath';
-import { MihoyoHeaderBuilder, HeaderProfile } from '../../base/network/MihoyoHeaderBuilder';
+import { HeaderContext, HeaderProfile } from '../../base/network/MihoyoHeaderBuilder';
 import { HKey, HVal } from '../../base/network/MihoyoHeaderKey';
 import { ApiConfig } from '../../base/network/ApiConfig';
 import { DSUtil } from '../../base/network/DSUtil';
@@ -129,24 +129,20 @@ export class MihoyoAccountApiService extends MihoyoApiService {
 
   async getGameRoles(cookie: string): Promise<object> {
     const params = new RequestParams();
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.BBS, cookie, params);
-    const opts = new RequestOptions();
-    opts.extraHeaders = headers;
+    const context = new HeaderContext(HeaderProfile.BBS, cookie);
     const url = MihoyoDomain.TAKUMI + MihoyoAccountApiPath.GET_GAME_ROLES;
-    const response = await this.get(url, params, opts);
-    this.reportBusinessError(url, response.data, opts, params, undefined, cookie, '');
+    const response = await this.getWithProfile(url, context, params);
+    this.reportBusinessError(url, response.data, undefined, params, undefined, cookie, '');
     return response.data;
   }
 
   async getGameRecordCard(uid: string, cookie: string): Promise<object> {
     const params = new RequestParams();
     params.set('uid', uid);
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.BBS, cookie, params);
-    const opts = new RequestOptions();
-    opts.extraHeaders = headers;
+    const context = new HeaderContext(HeaderProfile.BBS, cookie);
     const url = MihoyoDomain.TAKUMI_RECORD + MihoyoAccountApiPath.GET_GAME_RECORD_CARD;
-    const response = await this.get(url, params, opts);
-    this.reportBusinessError(url, response.data, opts, params, undefined, cookie, '');
+    const response = await this.getWithProfile(url, context, params);
+    this.reportBusinessError(url, response.data, undefined, params, undefined, cookie, '');
     return response.data;
   }
 
@@ -154,31 +150,33 @@ export class MihoyoAccountApiService extends MihoyoApiService {
     const params = new RequestParams();
     params.set('uid', uid);
     params.set('gids', '2');
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.BBS, cookie, params);
-    const opts = new RequestOptions();
-    opts.extraHeaders = headers;
+    const context = new HeaderContext(HeaderProfile.BBS, cookie);
     const url = MihoyoDomain.BBS + MihoyoAccountApiPath.GET_USER_FULL_INFO;
-    const response = await this.get(url, params, opts);
-    this.reportBusinessError(url, response.data, opts, params, undefined, cookie, '');
+    const response = await this.getWithProfile(url, context, params);
+    this.reportBusinessError(url, response.data, undefined, params, undefined, cookie, '');
     return response.data;
   }
 
   async createVerification(cookie: string): Promise<object> {
     const params = new RequestParams();
     params.set('is_high', 'true');
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.BBS, cookie, params);
-    const opts = new RequestOptions();
-    opts.extraHeaders = headers;
-    const response = await this.get(MihoyoDomain.BBS + MihoyoAccountApiPath.CREATE_VERIFICATION, params, opts);
+    const context = new HeaderContext(HeaderProfile.BBS, cookie);
+    const response = await this.getWithProfile(
+      MihoyoDomain.BBS + MihoyoAccountApiPath.CREATE_VERIFICATION,
+      context,
+      params,
+    );
     return response.data;
   }
 
   async verifyVerification(input: object, cookie: string): Promise<object> {
     const bodyStr = JSON.stringify(input);
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.BBS, cookie, undefined, bodyStr);
-    const opts = new RequestOptions();
-    opts.extraHeaders = headers;
-    const response = await this.post(MihoyoDomain.BBS + MihoyoAccountApiPath.VERIFY_VERIFICATION, bodyStr, opts);
+    const context = new HeaderContext(HeaderProfile.BBS, cookie);
+    const response = await this.postWithProfile(
+      MihoyoDomain.BBS + MihoyoAccountApiPath.VERIFY_VERIFICATION,
+      context,
+      bodyStr,
+    );
     return response.data;
   }
 

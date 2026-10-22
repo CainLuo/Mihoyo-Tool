@@ -5,12 +5,65 @@
  */
 import { BaseApiService } from './BaseApiService';
 import { RequestParams, RequestOptions, RequestValue } from './APIs';
+import { HeaderContext, MihoyoHeaderBuilder } from './MihoyoHeaderBuilder';
+import { HttpResponse } from './HttpTypes';
 import { ApiLogSystem } from '../log/ApiLogSystem';
 import { LogEventType } from '../log/ApiLogEntry';
 import { GeetestReporter } from './GeetestReporter';
 import { FingerprintReporter } from './FingerprintReporter';
 
 export abstract class MihoyoApiService extends BaseApiService {
+
+  /**
+   * 合并请求头：公共 Profile header 先写入，请求特定的 extraHeaders 后写入（同名覆盖），
+   * 最后按 removeHeaders 删除。不会修改调用方传入的 options。
+   */
+  protected prepareOptions(
+    context: HeaderContext,
+    params?: RequestParams,
+    body?: string,
+    options?: RequestOptions,
+  ): RequestOptions {
+    const merged = new RequestOptions();
+    if (options !== undefined) {
+      merged.suppressGeetestReport = options.suppressGeetestReport;
+    }
+
+    const common = MihoyoHeaderBuilder.buildFor(context, params, body);
+    common.forEach((value: string, key: string) => {
+      merged.extraHeaders.set(key, value);
+    });
+
+    if (options !== undefined) {
+      options.extraHeaders.forEach((value: string, key: string) => {
+        merged.extraHeaders.set(key, value);
+      });
+      for (let i = 0; i < options.removeHeaders.length; i++) {
+        merged.extraHeaders.delete(options.removeHeaders[i]);
+      }
+    }
+    return merged;
+  }
+
+  /** 使用公共 header Profile 发起 GET；需要完全自定义 header 的接口继续使用 get()。 */
+  protected async getWithProfile(
+    url: string,
+    context: HeaderContext,
+    params?: RequestParams,
+    options?: RequestOptions,
+  ): Promise<HttpResponse> {
+    return super.get(url, params, this.prepareOptions(context, params, undefined, options));
+  }
+
+  /** 使用公共 header Profile 发起 POST；body 为 JSON 字符串。 */
+  protected async postWithProfile(
+    url: string,
+    context: HeaderContext,
+    body?: string,
+    options?: RequestOptions,
+  ): Promise<HttpResponse> {
+    return super.post(url, body, this.prepareOptions(context, undefined, body, options));
+  }
 
   /**
    * 具体 API 在自己的请求返回后显式调用。

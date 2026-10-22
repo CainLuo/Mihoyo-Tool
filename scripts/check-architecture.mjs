@@ -9,6 +9,7 @@
  * 4. 源码中不存在已删除的旧符号 / 旧路径
  * 5. Mock 域名契约（MihoyoDomain.ets）
  * 6. 不存在空源码目录
+ * 7. 业务 Service 不直接构建公共 header
  *
  * 用法：node scripts/check-architecture.mjs
  */
@@ -152,6 +153,20 @@ for (const file of sourceFiles) {
       errors.push(`stale symbol "${label}" in ${relative(file)}`);
     }
     pattern.lastIndex = 0;
+  }
+}
+
+// 业务 Service 只能通过 MihoyoApiService 的 getWithProfile / postWithProfile
+// （或需要检查最终 header 时通过 prepareOptions）合并公共 header，不能自己调用 Builder。
+const serviceApiPattern = /^(MihoyoKit|GenshinKit|StarRailKit|ZZZKit)\/api\//;
+const headerBypassPattern = /MihoyoHeaderBuilder\.(build|buildFor|buildPizza)\s*\(/;
+for (const file of coreFiles) {
+  const rel = path.relative(CORE_ETS, file);
+  if (!serviceApiPattern.test(rel)) {
+    continue;
+  }
+  if (headerBypassPattern.test(fs.readFileSync(file, 'utf8'))) {
+    errors.push(`header bypass in ${relative(file)}`);
   }
 }
 

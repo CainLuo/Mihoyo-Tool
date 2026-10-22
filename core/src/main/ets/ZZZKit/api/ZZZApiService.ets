@@ -2,7 +2,7 @@ import { RequestOptions } from '../../base/network/APIs';
 import { MihoyoApiService } from '../../base/network/MihoyoApiService';
 import { MihoyoDomain } from '../../base/network/MihoyoDomain';
 import { ZZZApiPath } from './ZZZApiPath';
-import { MihoyoHeaderBuilder, HeaderProfile } from '../../base/network/MihoyoHeaderBuilder';
+import { HeaderContext, HeaderProfile } from '../../base/network/MihoyoHeaderBuilder';
 import { ApiConfig } from '../../base/network/ApiConfig';
 import { HKey, HVal } from '../../base/network/MihoyoHeaderKey';
 import { GameFpBiz } from '../../base/network/GameFpBiz';
@@ -34,17 +34,21 @@ export class ZZZApiService extends MihoyoApiService {
 
   /**
    * Widget 实时便笺 — GET，Domain=TAKUMI_RECORD
-   * 参考 PizzaHelperUnited widgetNote4ZZZ：覆盖 User-Agent 为 WidgetExtension/434，其余用 ZZZ_GAME_RECORD 默认 header
+   * 参考 PizzaHelperUnited widgetNote4ZZZ：覆盖 User-Agent 为 WidgetExtension/434，其余用 PIZZA_RECORD 默认 header
    */
   async getDailyNoteWidget(widgetCookie: string): Promise<object> {
     // 请求头整套对齐 PizzaHelperUnited widgetNote4ZZZ（绝区零指纹 nap_cn，User-Agent 为 WidgetExtension）
-    const headers = MihoyoHeaderBuilder.buildPizza(widgetCookie, GameFpBiz.ZZZ, undefined, 'WidgetExtension/434 CFNetwork/1492.0.1 Darwin/23.3.0');
+    const context = new HeaderContext(
+      HeaderProfile.PIZZA_RECORD,
+      widgetCookie,
+      GameFpBiz.ZZZ,
+      'WidgetExtension/434 CFNetwork/1492.0.1 Darwin/23.3.0',
+    );
     const opts = new RequestOptions();
-    opts.extraHeaders = headers;
     // 便笺 / Widget 不自动上报人机验证：降级 Widget 成功则不弹，由 Repository 在两者都失败后上报
     opts.suppressGeetestReport = true;
     const url = MihoyoDomain.TAKUMI_RECORD + ZZZApiPath.DAILY_NOTE_WIDGET;
-    const response = await this.get(url, undefined, opts);
+    const response = await this.getWithProfile(url, context, undefined, opts);
     this.reportBusinessError(url, response.data, opts, undefined, undefined, widgetCookie, '');
     return response.data;
   }
@@ -104,15 +108,14 @@ export class ZZZApiService extends MihoyoApiService {
       avatar_current_promotes: avatarCurrentPromotes,
       skills: skills,
     });
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.ZZZ_GAME_RECORD, cookie, undefined, bodyStr);
-    headers.set(HKey.CULTIVATE_SOURCE, 'bbs');
+    const context = new HeaderContext(HeaderProfile.ZZZ_GAME_RECORD, cookie);
     const opts = new RequestOptions();
-    opts.extraHeaders = headers;
+    opts.extraHeaders.set(HKey.CULTIVATE_SOURCE, 'bbs');
     const url = `${MihoyoDomain.ACT_TAKUMI}${ZZZApiPath.COMPUTE}?uid=${uid}&region=${region}`;
     Logger.info(ZZZ_CALC_TAG, `[Compute] avatarId=${avatarId} URL: ${url}`);
     ZZZApiService.logLong(`[Compute] avatarId=${avatarId} REQUEST body`, bodyStr);
     const startTime = Date.now();
-    const response = await this.post(url, bodyStr, opts);
+    const response = await this.postWithProfile(url, context, bodyStr, opts);
     const resp = response.data;
     this.reportBusinessError(url, resp, opts, undefined, bodyStr, cookie, '');
     const r = resp as Record<string, Object>;

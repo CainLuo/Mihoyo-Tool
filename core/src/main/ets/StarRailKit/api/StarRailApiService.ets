@@ -2,7 +2,7 @@ import { RequestParams, RequestOptions } from '../../base/network/APIs';
 import { MihoyoApiService } from '../../base/network/MihoyoApiService';
 import { MihoyoDomain } from '../../base/network/MihoyoDomain';
 import { StarRailApiPath } from './StarRailApiPath';
-import { MihoyoHeaderBuilder, HeaderProfile } from '../../base/network/MihoyoHeaderBuilder';
+import { HeaderContext, HeaderProfile } from '../../base/network/MihoyoHeaderBuilder';
 import { ApiConfig } from '../../base/network/ApiConfig';
 import { HKey, HVal } from '../../base/network/MihoyoHeaderKey';
 import { GameFpBiz } from '../../base/network/GameFpBiz';
@@ -17,7 +17,7 @@ const SR_CALC_TAG: string = 'StarRailCalc';
 export class StarRailApiService extends MihoyoApiService {
 
   /**
-   * 实时便笺 — GET，Domain=TAKUMI_RECORD，Profile=GAME_RECORD
+   * 实时便笺 — GET，Domain=TAKUMI_RECORD，Profile=PIZZA_RECORD
    * 需要有效的 x-rpc-device_fp（通过 DeviceFpService 获取真实指纹）
    */
   async getDailyNote(roleId: string, server: string, cookie: string, geetestChallenge?: string): Promise<object> {
@@ -25,35 +25,33 @@ export class StarRailApiService extends MihoyoApiService {
     params.set('role_id', roleId);
     params.set('server', server);
     // 请求头整套对齐 PizzaHelperUnited fullNote4HSR（星铁指纹 hkrpg_cn）
-    const headers = MihoyoHeaderBuilder.buildPizza(cookie, GameFpBiz.STARRAIL, params);
-    if (geetestChallenge) {
-      headers.set(HKey.CHALLENGE, geetestChallenge);
-      headers.set(HKey.CHALLENGE_PATH, MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.DAILY_NOTE);
-      headers.set(HKey.CHALLENGE_GAME, '6');
-    }
+    const context = new HeaderContext(HeaderProfile.PIZZA_RECORD, cookie, GameFpBiz.STARRAIL);
     const opts = new RequestOptions();
-    opts.extraHeaders = headers;
+    if (geetestChallenge) {
+      opts.extraHeaders.set(HKey.CHALLENGE, geetestChallenge);
+      opts.extraHeaders.set(HKey.CHALLENGE_PATH, MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.DAILY_NOTE);
+      opts.extraHeaders.set(HKey.CHALLENGE_GAME, '6');
+    }
     // 便笺 / Widget 不自动上报人机验证：降级 Widget 成功则不弹，由 Repository 在两者都失败后上报
     opts.suppressGeetestReport = true;
     const url = MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.DAILY_NOTE;
-    const response = await this.get(url, params, opts);
+    const response = await this.getWithProfile(url, context, params, opts);
     this.reportBusinessError(url, response.data, opts, params, undefined, cookie, roleId);
     return response.data;
   }
 
   /**
    * Widget 实时便笺 — GET，Domain=TAKUMI_RECORD
-   * 参考 PizzaHelperUnited widgetNote4HSR：覆盖 User-Agent 为 WidgetExtension/434，其余用 GAME_RECORD 默认 header
+   * 参考 PizzaHelperUnited widgetNote4HSR：覆盖 User-Agent 为 WidgetExtension/434，其余用 PIZZA_RECORD 默认 header
    */
   async getDailyNoteWidget(widgetCookie: string): Promise<object> {
     // 请求头整套对齐 PizzaHelperUnited widgetNote4HSR（User-Agent 为 WidgetExtension）
-    const headers = MihoyoHeaderBuilder.buildPizza(widgetCookie, GameFpBiz.STARRAIL, undefined, WIDGET_EXTENSION_UA);
+    const context = new HeaderContext(HeaderProfile.PIZZA_RECORD, widgetCookie, GameFpBiz.STARRAIL, WIDGET_EXTENSION_UA);
     const opts = new RequestOptions();
-    opts.extraHeaders = headers;
     // 便笺 / Widget 不自动上报人机验证：降级 Widget 成功则不弹，由 Repository 在两者都失败后上报
     opts.suppressGeetestReport = true;
     const url = MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.DAILY_NOTE_WIDGET;
-    const response = await this.get(url, undefined, opts);
+    const response = await this.getWithProfile(url, context, undefined, opts);
     this.reportBusinessError(url, response.data, opts, undefined, undefined, widgetCookie, '');
     return response.data;
   }
@@ -63,14 +61,13 @@ export class StarRailApiService extends MihoyoApiService {
     const params = new RequestParams();
     params.set('role_id', roleId);
     params.set('server', server);
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, params);
-    headers.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_STARRAIL);
-    headers.set(HKey.PLATFORM, HVal.PLATFORM_WEB);
-    headers.set(HKey.PAGE, ApiConfig.PAGE_STARRAIL_ROLES);
+    const context = new HeaderContext(HeaderProfile.GAME_RECORD, cookie);
     const opts = new RequestOptions();
-    opts.extraHeaders = headers;
+    opts.extraHeaders.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_STARRAIL);
+    opts.extraHeaders.set(HKey.PLATFORM, HVal.PLATFORM_WEB);
+    opts.extraHeaders.set(HKey.PAGE, ApiConfig.PAGE_STARRAIL_ROLES);
     const url = MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.AVATAR_BASIC;
-    const response = await this.get(url, params, opts);
+    const response = await this.getWithProfile(url, context, params, opts);
     this.reportBusinessError(url, response.data, opts, params, undefined, cookie, roleId);
     return response.data;
   }
@@ -82,14 +79,13 @@ export class StarRailApiService extends MihoyoApiService {
     params.set('server', server);
     params.set('id', id);
     params.set('need_wiki', 'true');
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, params);
-    headers.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_STARRAIL);
-    headers.set(HKey.PLATFORM, HVal.PLATFORM_WEB);
-    headers.set(HKey.PAGE, ApiConfig.PAGE_STARRAIL_ROLE);
+    const context = new HeaderContext(HeaderProfile.GAME_RECORD, cookie);
     const opts = new RequestOptions();
-    opts.extraHeaders = headers;
+    opts.extraHeaders.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_STARRAIL);
+    opts.extraHeaders.set(HKey.PLATFORM, HVal.PLATFORM_WEB);
+    opts.extraHeaders.set(HKey.PAGE, ApiConfig.PAGE_STARRAIL_ROLE);
     const url = MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.AVATAR_INFO;
-    const response = await this.get(url, params, opts);
+    const response = await this.getWithProfile(url, context, params, opts);
     this.reportBusinessError(url, response.data, opts, params, undefined, cookie, roleId);
     return response.data;
   }
@@ -118,16 +114,15 @@ export class StarRailApiService extends MihoyoApiService {
       region: region,
     });
     const url = MihoyoDomain.TAKUMI + StarRailApiPath.COMPUTE + '?game=hkrpg';
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.CALCULATE, cookie, undefined, bodyStr);
-    // 星铁养成计算 Referer 是 webstatic.mihoyo.com，与原神不同
-    headers.set('Referer', 'https://webstatic.mihoyo.com/');
-    headers.set('Origin', 'https://webstatic.mihoyo.com');
+    const context = new HeaderContext(HeaderProfile.CALCULATE, cookie);
     const opts = new RequestOptions();
-    opts.extraHeaders = headers;
+    // 星铁养成计算 Referer 是 webstatic.mihoyo.com，与原神不同
+    opts.extraHeaders.set('Referer', 'https://webstatic.mihoyo.com/');
+    opts.extraHeaders.set('Origin', 'https://webstatic.mihoyo.com');
     Logger.info(SR_CALC_TAG, `[Compute] avatarId=${avatarId} URL: ${url}`);
     StarRailApiService.logLong(`[Compute] avatarId=${avatarId} REQUEST body`, bodyStr);
     const startTime = Date.now();
-    const response = await this.post(url, bodyStr, opts);
+    const response = await this.postWithProfile(url, context, bodyStr, opts);
     const resp = response.data;
     this.reportBusinessError(url, resp, opts, undefined, bodyStr, cookie, uid);
     const r = resp as Record<string, Object>;

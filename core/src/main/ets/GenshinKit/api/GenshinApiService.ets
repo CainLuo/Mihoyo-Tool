@@ -2,7 +2,7 @@ import { RequestParams, RequestOptions } from '../../base/network/APIs';
 import { MihoyoApiService } from '../../base/network/MihoyoApiService';
 import { MihoyoDomain } from '../../base/network/MihoyoDomain';
 import { GenshinApiPath } from './GenshinApiPath';
-import { MihoyoHeaderBuilder, HeaderProfile } from '../../base/network/MihoyoHeaderBuilder';
+import { HeaderContext, HeaderProfile } from '../../base/network/MihoyoHeaderBuilder';
 import { ApiConfig } from '../../base/network/ApiConfig';
 import { HKey } from '../../base/network/MihoyoHeaderKey';
 import { GameFpBiz } from '../../base/network/GameFpBiz';
@@ -15,44 +15,42 @@ const CALC_LOG_CHUNK: number = 1000;
 
 export class GenshinApiService extends MihoyoApiService {
 
-  /** 实时便笺 — GET，Domain=TAKUMI_RECORD，Profile=GAME_RECORD */
+  /** 实时便笺 — GET，Domain=TAKUMI_RECORD，Profile=PIZZA_RECORD */
   async getDailyNote(roleId: string, server: string, cookie: string, geetestChallenge?: string): Promise<object> {
     const params = new RequestParams();
     params.set('role_id', roleId);
     params.set('server', server);
     // 请求头整套对齐 PizzaHelperUnited fullNote4GI（原神指纹 hk4e_cn）
-    const headers = MihoyoHeaderBuilder.buildPizza(cookie, GameFpBiz.GENSHIN, params);
+    const context = new HeaderContext(HeaderProfile.PIZZA_RECORD, cookie, GameFpBiz.GENSHIN);
     // Geetest 验证通过后，注入 challenge + challenge_path + challenge_game
     // 参考 PizzaHelperUnited URLRequestConfig.writeXRPCChallengeHeaders4DailyNote
-    if (geetestChallenge) {
-      headers.set(HKey.CHALLENGE, geetestChallenge);
-      headers.set(HKey.CHALLENGE_PATH, MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE);
-      headers.set(HKey.CHALLENGE_GAME, '2');
-    }
     const opts = new RequestOptions();
-    opts.extraHeaders = headers;
+    if (geetestChallenge) {
+      opts.extraHeaders.set(HKey.CHALLENGE, geetestChallenge);
+      opts.extraHeaders.set(HKey.CHALLENGE_PATH, MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE);
+      opts.extraHeaders.set(HKey.CHALLENGE_GAME, '2');
+    }
     // 便笺 / Widget 不自动上报人机验证：降级 Widget 成功则不弹，由 Repository 在两者都失败后上报
     opts.suppressGeetestReport = true;
     const url = MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE;
-    const response = await this.get(url, params, opts);
+    const response = await this.getWithProfile(url, context, params, opts);
     this.reportBusinessError(url, response.data, opts, params, undefined, cookie, roleId);
     return response.data;
   }
 
   /**
    * Widget 实时便笺 — GET，Domain=TAKUMI_RECORD
-   * 参考 PizzaHelperUnited 抓包：Widget 接口用普通 GAME_RECORD profile（miHoYoBBS UA、client_type=5、Referer=webstatic）
+   * 参考 PizzaHelperUnited 抓包：Widget 接口用 PIZZA_RECORD 默认 header（miHoYoBBS UA、client_type=5、Referer=webstatic）
    * Cookie 传完整 cookie（含 ltuid/ltoken），不是精简的 stuid+stoken+mid
    */
   async getDailyNoteWidget(cookie: string): Promise<object> {
     // 请求头整套对齐 PizzaHelperUnited widgetNote4GI
-    const headers = MihoyoHeaderBuilder.buildPizza(cookie, GameFpBiz.GENSHIN);
+    const context = new HeaderContext(HeaderProfile.PIZZA_RECORD, cookie, GameFpBiz.GENSHIN);
     const opts = new RequestOptions();
-    opts.extraHeaders = headers;
     // 便笺 / Widget 不自动上报人机验证：降级 Widget 成功则不弹，由 Repository 在两者都失败后上报
     opts.suppressGeetestReport = true;
     const url = MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE_WIDGET;
-    const response = await this.get(url, undefined, opts);
+    const response = await this.getWithProfile(url, context, undefined, opts);
     this.reportBusinessError(url, response.data, opts, undefined, undefined, cookie, '');
     return response.data;
   }
@@ -60,13 +58,12 @@ export class GenshinApiService extends MihoyoApiService {
   /** 角色列表 — POST，Domain=TAKUMI_RECORD，Profile=GAME_RECORD */
   async getCharacterList(roleId: string, server: string, cookie: string): Promise<object> {
     const bodyStr = JSON.stringify({ role_id: roleId, server: server });
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, undefined, bodyStr);
-    headers.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_GENSHIN);
-    headers.set(HKey.PAGE, ApiConfig.PAGE_GENSHIN_ROLES);
+    const context = new HeaderContext(HeaderProfile.GAME_RECORD, cookie);
     const opts = new RequestOptions();
-    opts.extraHeaders = headers;
+    opts.extraHeaders.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_GENSHIN);
+    opts.extraHeaders.set(HKey.PAGE, ApiConfig.PAGE_GENSHIN_ROLES);
     const url = MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.CHARACTER_LIST;
-    const response = await this.post(url, bodyStr, opts);
+    const response = await this.postWithProfile(url, context, bodyStr, opts);
     this.reportBusinessError(url, response.data, opts, undefined, bodyStr, cookie, roleId);
     return response.data;
   }
@@ -86,17 +83,16 @@ export class GenshinApiService extends MihoyoApiService {
       server: server,
       character_ids: characterIds,
     });
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.GAME_RECORD, cookie, undefined, bodyStr);
-    headers.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_GENSHIN);
+    const context = new HeaderContext(HeaderProfile.GAME_RECORD, cookie);
+    const opts = new RequestOptions();
+    opts.extraHeaders.set(HKey.TOOL_VERSION, ApiConfig.TOOL_VERSION_GENSHIN);
     // x-rpc-page 需要拼接第一个 avatarId，无 avatarId 时用通用页面
     const pageId = characterIds.length > 0 ? characterIds[0] : '';
-    headers.set(HKey.PAGE, pageId.length > 0
+    opts.extraHeaders.set(HKey.PAGE, pageId.length > 0
       ? ApiConfig.PAGE_GENSHIN_ROLE_DETAIL_PREFIX + pageId
       : ApiConfig.PAGE_GENSHIN_ROLES);
-    const opts = new RequestOptions();
-    opts.extraHeaders = headers;
     const url = MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.CHARACTER_DETAIL;
-    const response = await this.post(url, bodyStr, opts);
+    const response = await this.postWithProfile(url, context, bodyStr, opts);
     this.reportBusinessError(url, response.data, opts, undefined, bodyStr, cookie, roleId);
     return response.data;
   }
@@ -129,18 +125,19 @@ export class GenshinApiService extends MihoyoApiService {
       region: region,
       uid: uid,
     });
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.CALCULATE, enrichedCookie, undefined, bodyStr);
-    headers.set(HKey.CAL_TYPE, '0');  // TeyvatGuide 使用 "0"
-    const url = MihoyoDomain.TAKUMI + GenshinApiPath.BATCH_COMPUTE;
-    GenshinApiService.logRequest('BatchCompute', url, headers, bodyStr);
-
+    const context = new HeaderContext(HeaderProfile.CALCULATE, enrichedCookie);
     const opts = new RequestOptions();
-    opts.extraHeaders = headers;
+    opts.extraHeaders.set(HKey.CAL_TYPE, '0');  // TeyvatGuide 使用 "0"
+    const url = MihoyoDomain.TAKUMI + GenshinApiPath.BATCH_COMPUTE;
+    // 养成计算链路需要打印最终 header：先合并，再直接交给 Base 发送。
+    const prepared = this.prepareOptions(context, undefined, bodyStr, opts);
+    GenshinApiService.logRequest('BatchCompute', url, prepared.extraHeaders, bodyStr);
+
     const startTime = Date.now();
     let result: object;
     try {
-      const response = await this.post(url, bodyStr, opts);
-      this.reportBusinessError(url, response.data, opts, undefined, bodyStr, enrichedCookie, uid);
+      const response = await super.post(url, bodyStr, prepared);
+      this.reportBusinessError(url, response.data, prepared, undefined, bodyStr, enrichedCookie, uid);
       result = response.data;
     } catch (e) {
       Logger.error(CALC_TAG, `[BatchCompute] HTTP FAILED after ${Date.now() - startTime}ms: ${e instanceof Error ? e.message : `${e}`}`);
@@ -165,19 +162,20 @@ export class GenshinApiService extends MihoyoApiService {
     body.region = region;
     body.uid = uid;
     const bodyStr = JSON.stringify(body);
-    const headers = MihoyoHeaderBuilder.build(HeaderProfile.CALCULATE, enrichedCookie, undefined, bodyStr);
+    const context = new HeaderContext(HeaderProfile.CALCULATE, enrichedCookie);
     // TeyvatGuide 的 sync 请求不带 cal_type
-    headers.delete(HKey.CAL_TYPE);
-    const url = MihoyoDomain.TAKUMI + GenshinApiPath.SYNC_AVATAR_LIST;
-    GenshinApiService.logRequest('SyncAvatarList', url, headers, bodyStr);
-
     const opts = new RequestOptions();
-    opts.extraHeaders = headers;
+    opts.removeHeaders = [HKey.CAL_TYPE];
+    const url = MihoyoDomain.TAKUMI + GenshinApiPath.SYNC_AVATAR_LIST;
+    // 养成计算链路需要打印最终 header：先合并，再直接交给 Base 发送。
+    const prepared = this.prepareOptions(context, undefined, bodyStr, opts);
+    GenshinApiService.logRequest('SyncAvatarList', url, prepared.extraHeaders, bodyStr);
+
     const startTime = Date.now();
     let result: object;
     try {
-      const response = await this.post(url, bodyStr, opts);
-      this.reportBusinessError(url, response.data, opts, undefined, bodyStr, enrichedCookie, uid);
+      const response = await super.post(url, bodyStr, prepared);
+      this.reportBusinessError(url, response.data, prepared, undefined, bodyStr, enrichedCookie, uid);
       result = response.data;
     } catch (e) {
       Logger.error(CALC_TAG, `[SyncAvatarList] HTTP FAILED after ${Date.now() - startTime}ms: ${e instanceof Error ? e.message : `${e}`}`);

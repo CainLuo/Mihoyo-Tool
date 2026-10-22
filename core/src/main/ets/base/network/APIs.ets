@@ -27,13 +27,19 @@ export class RequestParams extends Map<string, RequestValue> {}
 export class RequestOptions {
   /**
    * 额外请求头（Map 形式），由 BaseApiService 透传给 axios。
-   * BaseApiService 不设置默认请求头；Cookie / User-Agent / DS 等由具体 Service 显式设置。
+   * BaseApiService 不设置默认请求头；Cookie / User-Agent / DS 等由 MihoyoApiService 合并或具体 Service 显式设置。
    * 主要用途：Geetest 验证通过后注入：
    *   x-rpc-challenge / x-rpc-validate / x-rpc-seccode
    * 以及覆盖 Cookie：
    *   Cookie: <指定账号的 cookie>
    */
   extraHeaders: Map<string, string> = new Map();
+
+  /**
+   * 合并公共 header 后需要删除的 key。
+   * 仅用于极少数需要移除 Profile 默认头的请求（如原神 syncAvatarList 不带 x-rpc-cal_type）。
+   */
+  removeHeaders: string[] = [];
 
   /** 具体 API 显式上报时读取；当前同时抑制 Geetest + 指纹上报（便笺 / Widget：降级成功则不弹，由 Repository 自行上报） */
   suppressGeetestReport: boolean = false;
