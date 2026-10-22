@@ -22,6 +22,7 @@ import { ApiLogSystem } from '../../base/log/ApiLogSystem';
 import { LogEventType } from '../../base/log/ApiLogEntry';
 import { Logger } from '../../base/utils/Logger';
 import { AuthExpiredError, GeetestRequiredError } from '../../base/errors/ApiErrors';
+import { RetcodeRegistry } from '../../base/errors/RetcodeRegistry';
 
 export {
   GameRoleRecord,
@@ -477,7 +478,7 @@ export class BBSRepository implements SyncAccountStore {
       const uid = BBSRepository.extractCookieField(cookie, 'account_id');
       const account = this.requireAccountService();
       const resp = await account.getUserFullInfo(uid, cookie) as BbsAccountDetailResponse;
-      if (resp.retcode !== 0) {
+      if (!RetcodeRegistry.isSuccess(resp.retcode)) {
         throw new Error(`getBbsAccountDetail failed: [${resp.retcode}] ${resp.message}`);
       }
       const result = new BbsAccountDetailResult();
@@ -509,7 +510,7 @@ export class BBSRepository implements SyncAccountStore {
     try {
       const account = this.requireAccountService();
       const resp = await account.getGameRoles(cookie) as GameRolesResponse;
-      if (resp.retcode !== 0) {
+      if (!RetcodeRegistry.isSuccess(resp.retcode)) {
         throw new Error(`getUserGameRoles failed: [${resp.retcode}] ${resp.message}`);
       }
       const rows: GameRoleRecord[] = [];
@@ -547,7 +548,7 @@ export class BBSRepository implements SyncAccountStore {
     try {
       const account = this.requireAccountService();
       const resp = await account.getGameRecordCard(uid, cookie) as GameRecordCardResponse;
-      if (resp.retcode !== 0) {
+      if (!RetcodeRegistry.isSuccess(resp.retcode)) {
         throw new Error(`getGameRecordCard failed: [${resp.retcode}] ${resp.message}`);
       }
       const rows: GameRoleRecord[] = [];

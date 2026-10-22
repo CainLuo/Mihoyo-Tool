@@ -24,6 +24,8 @@ import { DSUtil } from '../../base/network/DSUtil';
 import { MihoyoDomain } from '../../base/network/MihoyoDomain';
 import { GeetestRecordHandler } from '../../base/network/GeetestService';
 import { GeetestCreateResult, GeetestVerifyInput } from '../../base/errors/ApiErrors';
+import { RetcodeRegistry } from '../../base/errors/RetcodeRegistry';
+import { MihoyoRetcode } from '../../common/constants/MihoyoRetcode';
 
 
 const PREFS_NAME: string = 'mihoyo_device_config';
@@ -129,7 +131,7 @@ export class ZZZRecordRequest {
    * - 1034 ：GET api-takumi-record/game_record/app/card/wapi/createVerification?is_high=true
    */
   static async createGeetest(cookie: string, retcode: number): Promise<GeetestCreateResult> {
-    const useGeetest = retcode === 10035;
+    const useGeetest = retcode === MihoyoRetcode.CAPTCHA_REQUIRED_GAME_RECORD;
     const query = useGeetest ? `is_high=true&app_key=${GEETEST_APP_KEY}` : 'is_high=true';
     const url = useGeetest
       ? `${MihoyoDomain.TAKUMI}/event/toolcomsrv/risk/createGeetest?${query}`
@@ -139,7 +141,7 @@ export class ZZZRecordRequest {
     const resp = response.data;
     const r = resp as Record<string, Object>;
     const data = r['data'] as Record<string, Object> | null | undefined;
-    if (Number(r['retcode']) !== 0 || data === null || data === undefined) {
+    if (!RetcodeRegistry.isSuccess(Number(r['retcode'])) || data === null || data === undefined) {
       throw new Error(`createGeetest failed: retcode=${r['retcode']}, message=${r['message']}`);
     }
     const result = new GeetestCreateResult();
@@ -155,7 +157,7 @@ export class ZZZRecordRequest {
    * 下一次请求 challengePath 对应接口时带上 x-rpc-challenge 重放（loveMys.js getvali）
    */
   static async verifyGeetest(cookie: string, input: GeetestVerifyInput, challengePath: string, retcode: number): Promise<string> {
-    const useGeetest = retcode === 10035;
+    const useGeetest = retcode === MihoyoRetcode.CAPTCHA_REQUIRED_GAME_RECORD;
     let bodyStr: string;
     if (useGeetest) {
       const body = new VerifyGeetestBody();
@@ -180,7 +182,7 @@ export class ZZZRecordRequest {
     const r = resp as Record<string, Object>;
     const data = r['data'] as Record<string, Object> | null | undefined;
     const challenge = data !== null && data !== undefined ? `${data['challenge'] ?? ''}` : '';
-    if (Number(r['retcode']) !== 0 || challenge.length === 0) {
+    if (!RetcodeRegistry.isSuccess(Number(r['retcode'])) || challenge.length === 0) {
       throw new Error(`verifyGeetest failed: retcode=${r['retcode']}, message=${r['message']}`);
     }
     const q = challengePath.indexOf('?');

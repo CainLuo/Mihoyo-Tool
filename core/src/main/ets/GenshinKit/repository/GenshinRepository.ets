@@ -28,12 +28,11 @@ import { SyncError, SyncErrorKind, SyncErrorFactory, AuthExpiredError } from '..
 import { CookieRefreshCoordinator } from '../../MihoyoKit/cookie/CookieRefreshCoordinator';
 import { Logger } from '../../base/utils/Logger';
 import { ApiErrorHandler } from '../../base/utils/ApiErrorHandler';
-import { ApiErrorCodes } from '../../common/constants/ApiErrorCodes';
+import { RetcodeRegistry } from '../../base/errors/RetcodeRegistry';
 import { BBSRepository } from '../../MihoyoKit/repository/BBSRepository';
 import { MaterialBagRepository } from '../../common/material/repository/MaterialBagRepository';
 import { MaterialBagRow } from '../../common/material/model/MaterialBagRow';
 import { GameId } from '../../common/constants/GameId';
-import { CookieDebug } from '../../base/utils/CookieDebug';
 import {
   GENSHIN_TALENT_SLOT_COUNT,
   GenshinCalcTargets,
@@ -190,13 +189,13 @@ export class GenshinRepository extends GameRepository implements GenshinSyncPort
     const retcode = Number(respData['retcode'] ?? 0);
     const message: string = `${respData['message'] ?? 'no data'}`;
 
-    if (retcode !== ApiErrorCodes.SUCCESS) {
+    if (!RetcodeRegistry.isSuccess(retcode)) {
       const fallback = await this.tryWidgetFallback(accountId, roleUid, cookie, `retcode=${retcode}: ${message}`);
       if (fallback === WIDGET_FALLBACK_SUCCESS) {
         return;
       }
       // 便笺与 Widget 都没拿到数据且便笺需要人机验证：统一上报弹框（便笺请求本身不自动上报）
-      if (GeetestService.isGeetestRetcode(retcode)) {
+      if (RetcodeRegistry.isVerificationRequired(retcode)) {
         GeetestService.reportRequired(MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE, cookie, roleUid, retcode);
       }
       if (fallback === WIDGET_FALLBACK_REJECTED) {
@@ -206,7 +205,7 @@ export class GenshinRepository extends GameRepository implements GenshinSyncPort
         throw SyncErrorFactory.authExpired(`note ${reason4Expire}`);
       }
       // Widget 不可用 / 返回其他错误：按便笺接口原本的错误处理（1034 仍会触发人机验证）
-      if (ApiErrorHandler.isAuthExpired(retcode)) {
+      if (RetcodeRegistry.isAuthExpired(retcode)) {
         throw SyncErrorFactory.authExpired(`retcode=${retcode}: ${message}`);
       }
       throw SyncErrorFactory.normal(retcode, message);
@@ -239,8 +238,8 @@ export class GenshinRepository extends GameRepository implements GenshinSyncPort
       const msg = widgetError instanceof Error ? widgetError.message : String(widgetError);
       // doSyncDailyNoteWidget 在接口返回 retcode ≠ 0 时抛出 "Widget API failed: retcode=..."
       // 只有 Widget 自己返回登录过期（-100 / 10001）才视为过期；其他错误（如 -10001）按便笺接口原错误处理
-      const m = msg.match(/retcode=(-?\d+)/);
-      const rejected = m !== null && CookieDebug.isAuthExpiredCode(Number(m[1]));
+      const rejectCode = RetcodeRegistry.retcodeFromMessage(msg);
+      const rejected = rejectCode !== null && RetcodeRegistry.isAuthExpired(rejectCode);
       Logger.error('GenshinRepository', `[Fallback] genshin widget FAILED (${rejected ? 'rejected' : 'unavailable'}): ${msg}`);
       return rejected ? WIDGET_FALLBACK_REJECTED : WIDGET_FALLBACK_UNAVAILABLE;
     }
@@ -258,7 +257,7 @@ export class GenshinRepository extends GameRepository implements GenshinSyncPort
     const retcode = Number(respData['retcode'] ?? 0);
     const message: string = `${respData['message'] ?? 'no data'}`;
 
-    if (retcode !== ApiErrorCodes.SUCCESS) {
+    if (!RetcodeRegistry.isSuccess(retcode)) {
       throw new Error(`Widget API failed: retcode=${retcode}: ${message}`);
     }
     if (respData['data'] === null || respData['data'] === undefined) {
@@ -677,11 +676,11 @@ export class GenshinRepository extends GameRepository implements GenshinSyncPort
         .syncCalcAvatarList(uid, region, cookie, page, SYNC_AVATAR_PAGE_SIZE);
       const respRecord = resp as Record<string, Object>;
       const retcode = GenshinRepository.toNum(respRecord['retcode']);
-      if (retcode !== 0) {
+      if (!RetcodeRegistry.isSuccess(retcode)) {
         Logger.error(CALC_TAG, `[Fetch] page=${page} FAILED retcode=${retcode}, message=${respRecord['message'] ?? ''}`);
       }
       ApiErrorHandler.checkResponse(resp);
-      if (retcode !== 0) {
+      if (!RetcodeRegistry.isSuccess(retcode)) {
         throw new Error(`sync/avatar/list retcode=${retcode}: ${respRecord['message'] ?? ''}`);
       }
       const data = respRecord['data'] as Record<string, Object> | null;

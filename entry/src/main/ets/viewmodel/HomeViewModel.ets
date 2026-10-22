@@ -32,7 +32,8 @@ import {
   StarRailDailyNoteParser,
   ZZZDailyNoteParser,
   Logger,
-  ApiErrorCodes,
+  RetcodeKind,
+  RetcodeRegistry,
 } from 'core';
 import { serverDisplayName } from '../utils/ServerNameUtil';
 import { CookieExpiredSignal } from '../utils/CookieExpiredSignal';
@@ -351,8 +352,7 @@ export class HomeViewModel {
         info.isNetworkError = false;
         CookieExpiredSignal.instance().push(info, `Home.syncDailyNote ${role.gameId}/${role.roleId}: ${msg}`);
         Logger.warn(TAG, `Cookie expired for ${account.username} (${role.gameId}/${role.roleId}): ${msg}`);
-      } else if (msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED}`) !== -1 ||
-          msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED_GENERAL}`) !== -1) {
+      } else if (RetcodeRegistry.messageHasKind(msg, RetcodeKind.VERIFICATION_REQUIRED)) {
         // 人机验证已由 Repository 上报、GeetestCenter 统一弹框，这里不再提示错误
         Logger.warn(TAG, `syncDailyNote needs geetest for ${role.gameId}/${role.roleId}: ${msg}`);
       } else {

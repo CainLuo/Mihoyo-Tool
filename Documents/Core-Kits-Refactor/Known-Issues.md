@@ -48,7 +48,7 @@
 
 | ID | 项目 | 当前状态 | 当前决定 |
 | --- | --- | --- | --- |
-| S-01 | 基础层反向依赖（已解决） | Phase 5 后 `base/` 到各 Kit / `CoreInitializer` 的依赖为 0；`CookieRefreshCoordinator` / `ColdStartCookieChecker` 已迁入 `MihoyoKit/cookie`；`GeetestService` 改为由 `CoreInitializer` 注册游戏配置和 `ZZZRecordRequest` handler；`ApiConfig` 不再 import `ZZZRecordRequest`；`SyncQueueRunner` 改为通过 `sync/SyncPorts` 注入 `BBSRepository` / 三个游戏 Repository。`sync/SyncPorts` 仍引用 `AccountRow` / `GameRoleRow` / `ZZZAvatarBasicRow` 行模型，`base/` 仍引用 `common/constants`（`ApiErrorCodes` / `AppEnvManager` / `GameId`）——均不构成对 Kit 控制层的反向依赖 | 已通过 `node scripts/check-architecture.mjs`：0 import cycle、0 `base → Kit` 边；后续新增 `base` 代码继续遵守该守卫 |
+| S-01 | 基础层反向依赖（已解决） | Phase 5 后 `base/` 到各 Kit / `CoreInitializer` 的依赖为 0；`CookieRefreshCoordinator` / `ColdStartCookieChecker` 已迁入 `MihoyoKit/cookie`；`GeetestService` 改为由 `CoreInitializer` 注册游戏配置和 `ZZZRecordRequest` handler；`ApiConfig` 不再 import `ZZZRecordRequest`；`SyncQueueRunner` 改为通过 `sync/SyncPorts` 注入 `BBSRepository` / 三个游戏 Repository。`sync/SyncPorts` 仍引用 `AccountRow` / `GameRoleRow` / `ZZZAvatarBasicRow` 行模型，`base/` 仍引用 `common/constants`（`MihoyoRetcode` / `AppEnvManager` / `GameId`）——均不构成对 Kit 控制层的反向依赖 | 已通过 `node scripts/check-architecture.mjs`：0 import cycle、0 `base → Kit` 边；后续新增 `base` 代码继续遵守该守卫 |
 
 ---
 

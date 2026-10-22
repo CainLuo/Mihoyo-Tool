@@ -8,7 +8,7 @@
  * - 使用 kind 字段匹配错误类型，替代 instanceof 判断
  */
 
-import { ApiErrorCodes } from '../../common/constants/ApiErrorCodes';
+import { RetcodeKind, RetcodeRegistry } from './RetcodeRegistry';
 
 // ═══════════════════════════════════════════════════════════════
 // 错误类型常量（kind 字段值）
@@ -165,19 +165,20 @@ export class SyncErrorFactory {
     const message = (resp['message'] as string) ?? 'Unknown error';
 
     // 成功
-    if (retcode === ApiErrorCodes.SUCCESS) {
+    if (RetcodeRegistry.isSuccess(retcode)) {
       return null;
     }
 
-    // Cookie 失效（-100, 10001）；-10001 是请求无效，不属于登录失效
-    if (retcode === ApiErrorCodes.AUTH_INVALID ||
-        retcode === ApiErrorCodes.AUTH_INVALID_ALT1) {
+    // 统一从 RetcodeRegistry 取语义，避免与 ApiErrorHandler 各写一套判断
+    const kind = RetcodeRegistry.kindOf(retcode);
+
+    // Cookie 失效（-100 / 10001 / -111）；-10001 是请求无效，不属于登录失效
+    if (kind === RetcodeKind.AUTH_EXPIRED) {
       return SyncErrorFactory.authExpired(message);
     }
 
-    // Geetest 验证（1034, 10035）
-    if (retcode === ApiErrorCodes.GEETEST_REQUIRED_GENERAL ||
-        retcode === ApiErrorCodes.GEETEST_REQUIRED) {
+    // Geetest 验证（1034 / 10035）
+    if (kind === RetcodeKind.VERIFICATION_REQUIRED) {
       const data = resp['data'] as Record<string, Object> | undefined;
       if (data !== undefined && data !== null) {
         return SyncErrorFactory.geetest(

@@ -4,8 +4,8 @@
 
 import { MihoyoAccountApiService } from '../api/MihoyoAccountApiService';
 import { Logger } from '../../base/utils/Logger';
+import { RetcodeRegistry } from '../../base/errors/RetcodeRegistry';
 import {
-  RETCODE_QR_EXPIRED,
   QR_STAT_EXPIRED,
   QR_STAT_CONFIRMED,
   QR_PROTO_ACCOUNT,
@@ -75,7 +75,7 @@ export class AuthRepository {
     const svc = AuthRepository.requireAccountService();
     const resp = await svc.createLoginCaptcha(mobile, areaCode) as Record<string, Object>;
     const retcode = resp['retcode'] as number;
-    if (retcode !== 0) {
+    if (!RetcodeRegistry.isSuccess(retcode)) {
       throw new Error(`[${retcode}] ${resp['message']}`);
     }
   }
@@ -88,7 +88,7 @@ export class AuthRepository {
     const svc = AuthRepository.requireAccountService();
     const resp = await svc.loginByMobileCaptcha(mobile, areaCode, captcha) as Record<string, Object>;
     const retcode = resp['retcode'] as number;
-    if (retcode !== 0) {
+    if (!RetcodeRegistry.isSuccess(retcode)) {
       throw new Error(`[${retcode}] ${resp['message']}`);
     }
     return AuthRepository.parseLoginMobileResult(resp['data'] as Record<string, Object>);
@@ -99,7 +99,7 @@ export class AuthRepository {
   static async getLTokenBySToken(stoken: string, mid: string): Promise<string> {
     const svc = AuthRepository.requireAccountService();
     const resp = await svc.getLTokenBySToken(stoken, mid) as GetLTokenBySTokenResponse;
-    if (resp.retcode !== 0) {
+    if (!RetcodeRegistry.isSuccess(resp.retcode)) {
       throw new Error(`getLTokenBySToken failed: [${resp.retcode}] ${resp.message}`);
     }
     return resp.data.ltoken;
@@ -108,7 +108,7 @@ export class AuthRepository {
   static async getCookieBySToken(stoken: string, mid: string): Promise<string> {
     const svc = AuthRepository.requireAccountService();
     const resp = await svc.getCookieTokenBySToken(stoken, mid) as GetCookieBySTokenResponse;
-    if (resp.retcode !== 0) {
+    if (!RetcodeRegistry.isSuccess(resp.retcode)) {
       throw new Error(`getCookieBySToken failed: [${resp.retcode}] ${resp.message}`);
     }
     return resp.data.cookie_token;
@@ -123,7 +123,7 @@ export class AuthRepository {
     try {
       const svc = AuthRepository.requireAccountService();
       const resp = await svc.fetchQRCode(deviceId) as QRCodeFetchResponse;
-      if (resp.retcode !== 0) {
+      if (!RetcodeRegistry.isSuccess(resp.retcode)) {
         throw new Error(`fetchQRCode failed: [${resp.retcode}] ${resp.message}`);
       }
       const result = new QRCodeFetchResult();
@@ -141,11 +141,11 @@ export class AuthRepository {
       const svc = AuthRepository.requireAccountService();
       const resp = await svc.queryQRCode(deviceId, ticket) as QRCodeQueryResponse;
       const queryResult = new QRCodeQueryResult();
-      if (resp.retcode === RETCODE_QR_EXPIRED) {
+      if (RetcodeRegistry.isQrExpired(resp.retcode)) {
         queryResult.stat = QR_STAT_EXPIRED;
         return queryResult;
       }
-      if (resp.retcode !== 0 || resp.data === null) {
+      if (!RetcodeRegistry.isSuccess(resp.retcode) || resp.data === null) {
         throw new Error(`queryQRCode failed: [${resp.retcode}] ${resp.message}`);
       }
       // 新版 API 使用 status 字段，转换为小写

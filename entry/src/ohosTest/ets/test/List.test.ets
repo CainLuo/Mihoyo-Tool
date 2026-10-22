@@ -11,6 +11,7 @@ import genshinComputeParserTest from './core/GenshinComputeParser.test';
 import starRailComputeParserTest from './core/StarRailComputeParser.test';
 import zzzComputeParserTest from './core/ZZZComputeParser.test';
 import headerBuilderTest from './core/HeaderBuilder.test';
+import retcodeRegistryTest from './core/RetcodeRegistry.test';
 
 export default function testsuite() {
   abilityTest();
@@ -25,4 +26,5 @@ export default function testsuite() {
   starRailComputeParserTest();
   zzzComputeParserTest();
   headerBuilderTest();
+  retcodeRegistryTest();
 }

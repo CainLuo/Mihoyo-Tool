@@ -7,6 +7,7 @@ import { RequestOptions } from './APIs';
 import { HKey, HVal } from './MihoyoHeaderKey';
 import { GameFpBiz } from './GameFpBiz';
 import { Logger } from '../utils/Logger';
+import { RetcodeRegistry } from '../errors/RetcodeRegistry';
 
 const PREFS_NAME: string = 'mihoyo_device_config';
 const KEY_DEVICE_FP: string = 'device_fp';
@@ -125,7 +126,7 @@ export class DeviceFpService {
       opts,
     );
     const resp = response.data as FpApiOuterResponse;
-    if (resp.retcode !== 0 || !resp.data || !resp.data.device_fp || resp.data.device_fp.length < 13) {
+    if (!RetcodeRegistry.isSuccess(resp.retcode) || !resp.data || !resp.data.device_fp || resp.data.device_fp.length < 13) {
       throw new Error(`getFp(${biz}) failed: retcode=${resp.retcode}, msg=${resp.message}, code=${resp.data?.code}, data.msg=${resp.data?.msg}`);
     }
     return resp.data.device_fp;
@@ -241,7 +242,7 @@ export class DeviceFpService {
     );
     const resp = response.data as FpApiOuterResponse;
 
-    if (resp.retcode !== 0 || !resp.data || !resp.data.device_fp || resp.data.device_fp.length < 13) {
+    if (!RetcodeRegistry.isSuccess(resp.retcode) || !resp.data || !resp.data.device_fp || resp.data.device_fp.length < 13) {
       throw new Error(`getFp failed: retcode=${resp.retcode}, msg=${resp.message}`);
     }
     return resp.data.device_fp;

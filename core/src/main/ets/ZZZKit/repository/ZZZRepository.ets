@@ -29,8 +29,7 @@ import { MaterialBagRow } from '../../common/material/model/MaterialBagRow';
 import { ZZZComputeParser, ZZZMaterialItem } from '../parser/ZZZComputeParser';
 import { GameId } from '../../common/constants/GameId';
 import { Logger } from '../../base/utils/Logger';
-import { CookieDebug } from '../../base/utils/CookieDebug';
-import { ApiErrorCodes } from '../../common/constants/ApiErrorCodes';
+import { RetcodeRegistry } from '../../base/errors/RetcodeRegistry';
 import { ApiErrorHandler } from '../../base/utils/ApiErrorHandler';
 
 
@@ -160,13 +159,13 @@ export class ZZZRepository extends GameRepository implements ZZYSyncPort {
     const retcode = Number(respData['retcode'] ?? 0);
     const message: string = `${respData['message'] ?? 'no data'}`;
 
-    if (retcode !== ApiErrorCodes.SUCCESS) {
+    if (!RetcodeRegistry.isSuccess(retcode)) {
       const fallback = await this.tryWidgetFallback(accountId, roleUid, cookie, `retcode=${retcode}: ${message}`);
       if (fallback === WIDGET_FALLBACK_SUCCESS) {
         return;
       }
       // 便笺与 Widget 都没拿到数据且便笺需要人机验证：统一上报弹框（便笺请求本身不自动上报）
-      if (GeetestService.isGeetestRetcode(retcode)) {
+      if (RetcodeRegistry.isVerificationRequired(retcode)) {
         GeetestService.reportRequired(MihoyoDomain.TAKUMI_RECORD + ZZZApiPath.DAILY_NOTE, cookie, roleUid, retcode);
       }
       if (fallback === WIDGET_FALLBACK_REJECTED) {
@@ -176,7 +175,7 @@ export class ZZZRepository extends GameRepository implements ZZYSyncPort {
         throw new AuthExpiredError(`note ${reason4Expire}`);
       }
       // Widget 不可用 / 返回其他错误：按便笺接口原本的错误处理（1034 仍会触发人机验证）
-      if (ApiErrorHandler.isAuthExpired(retcode)) {
+      if (RetcodeRegistry.isAuthExpired(retcode)) {
         throw new AuthExpiredError(`retcode=${retcode}: ${message}`);
       }
       throw new Error(`retcode=${retcode}: ${message}`);
@@ -210,8 +209,8 @@ export class ZZZRepository extends GameRepository implements ZZYSyncPort {
       const msg = widgetError instanceof Error ? widgetError.message : String(widgetError);
       // doSyncDailyNoteWidget 在接口返回 retcode ≠ 0 时抛出 "Widget API failed: retcode=..."
       // 只有 Widget 自己返回登录过期（-100 / 10001）才视为过期；其他错误（如 -10001）按便笺接口原错误处理
-      const m = msg.match(/retcode=(-?\d+)/);
-      const rejected = m !== null && CookieDebug.isAuthExpiredCode(Number(m[1]));
+      const rejectCode = RetcodeRegistry.retcodeFromMessage(msg);
+      const rejected = rejectCode !== null && RetcodeRegistry.isAuthExpired(rejectCode);
       Logger.error('ZZZRepository', `[Fallback] zzz widget FAILED (${rejected ? 'rejected' : 'unavailable'}): ${msg}`);
       return rejected ? WIDGET_FALLBACK_REJECTED : WIDGET_FALLBACK_UNAVAILABLE;
     }

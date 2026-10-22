@@ -18,9 +18,6 @@ export const RESP_FIELD_MID = 'mid';
 
 // ─── 二维码登录 ───────────────────────────────────────────────────
 
-/** queryQRCode retcode：二维码已过期 */
-export const RETCODE_QR_EXPIRED = -106;
-
 /** queryQRCode 响应 stat 字段值 */
 export const QR_STAT_INIT = 'init';
 export const QR_STAT_SCANNED = 'scanned';

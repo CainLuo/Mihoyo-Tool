@@ -25,7 +25,7 @@ import { GameId } from '../common/constants/GameId';
 import { SyncTask } from './model/SyncTask';
 import { Logger } from '../base/utils/Logger';
 import { GeetestRequiredError } from '../base/errors/ApiErrors';
-import { ApiErrorCodes } from '../common/constants/ApiErrorCodes';
+import { RetcodeKind, RetcodeRegistry } from '../base/errors/RetcodeRegistry';
 
 
 /** 绝区零逐个请求代理人详情的间隔（ZZZ-Plugin panel.roleInterval 默认 3000ms） */
@@ -250,7 +250,7 @@ export class SyncQueueRunner {
           const msg = error instanceof Error ? error.message : `${error}`;
           if (SyncQueueRunner.isGeetestError(error)) {
             geetestMsg = geetestMsg ?? msg;
-          } else if (SyncQueueRunner.hasRetcode(msg, 5003) || SyncQueueRunner.hasRetcode(msg, 10041)) {
+          } else if (RetcodeRegistry.messageHasKind(msg, RetcodeKind.FINGERPRINT_INVALID)) {
             fingerprintMsg = fingerprintMsg ?? msg;
           } else {
             otherMsg = otherMsg ?? msg;
@@ -295,18 +295,13 @@ export class SyncQueueRunner {
     return error instanceof SyncTasksFailedError && error.kind === FAILURE_FINGERPRINT;
   }
 
-  private static hasRetcode(msg: string, retcode: number): boolean {
-    return msg.indexOf(`retcode=${retcode}`) !== -1;
-  }
-
   /** 1034 / 10035：部分 Repository 会把 GeetestRequiredError 包成普通 Error，因此同时按消息里的 retcode 判断 */
   private static isGeetestError(error: Error | object): boolean {
     if (error instanceof GeetestRequiredError) {
       return true;
     }
     const msg = error instanceof Error ? error.message : `${error}`;
-    return msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED}`) !== -1 ||
-      msg.indexOf(`retcode=${ApiErrorCodes.GEETEST_REQUIRED_GENERAL}`) !== -1;
+    return RetcodeRegistry.messageHasKind(msg, RetcodeKind.VERIFICATION_REQUIRED);
   }
 
   /**

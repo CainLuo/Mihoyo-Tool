@@ -24,7 +24,7 @@ import { rpc } from '@kit.IPCKit';
 import { formProvider } from '@kit.FormKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { preferences } from '@kit.ArkData';
-import { CoreInitializer, Logger, GameId } from 'core';
+import { CoreInitializer, Logger, GameId, RetcodeKind, RetcodeRegistry } from 'core';
 import { APP_ENV } from '../config/RuntimeConfig';
 import { WidgetDataStoreBuilder } from '../widget/utils/WidgetDataStoreBuilder';
 import { WidgetUpdateNotifier } from '../widget/utils/WidgetUpdateNotifier';
@@ -161,7 +161,7 @@ async function syncDailyNoteQuietly(
     }
   } catch (e) {
     const msg = e instanceof Error ? e.message : `${e}`;
-    if (msg.includes('10035') || msg.includes('geetest')) {
+    if (RetcodeRegistry.messageHasKind(msg, RetcodeKind.VERIFICATION_REQUIRED) || msg.includes('geetest')) {
       Logger.info(TAG, `syncDailyNoteQuietly: geetest required for ${roleId}, skipping`);
     } else {
       Logger.warn(TAG, `syncDailyNoteQuietly: error for ${roleId}: ${msg}`);

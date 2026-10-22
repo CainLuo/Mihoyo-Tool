@@ -109,7 +109,8 @@ API 返回的字符串必须在边界处（Repository 或 ViewModel）转换为 
 | 跨组件复用的断点数组     | `AppConstants.ets`  | `GRID_BREAKPOINTS`               |
 | 骨架屏占位索引等通用数组 | `AppConstants.ets`  | `SKELETON_CHARACTER_INDICES`     |
 | 路由 path 字符串         | `AppRoutes.ets`     | `AppRoutes.LOGIN`                |
-| API retcode 错误码       | `ApiErrorCodes.ets` | `ApiErrorCodes.GEETEST_REQUIRED` |
+| API retcode 原始码      | `MihoyoRetcode.ets` | `MihoyoRetcode.CAPTCHA_REQUIRED_GAME_RECORD` |
+| retcode 语义 / 判断     | `RetcodeRegistry.ets` | `RetcodeRegistry.isVerificationRequired()` |
 | 游戏业务阈值             | `XxxConstants.ets`  | `GenshinConstants.RESIN_MAX`     |
 
 **禁止**在组件或 ViewModel 文件中直接写字面量。

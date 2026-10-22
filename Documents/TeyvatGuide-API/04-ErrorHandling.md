@@ -33,7 +33,7 @@ TeyvatGuide 没有统一的 retcode → 错误类型映射；除极验外，多�
 | `5003`   | TeyvatGuide 没有统一映射                                 | 本项目按设备指纹无效 / 账号异常单独处理                      |
 | `10041`  | TeyvatGuide 没有统一映射                                 | 同上                                                         |
 
-> `-10001` **不是**登录失效。把它和 `-100` / `10001` 一起刷新 Cookie，会在 Cookie 实际有效时误弹“登录已过期”。本项目已单独使用 `ApiErrorCodes.INVALID_REQUEST`。
+> `-10001` **不是**登录失效。把它和 `-100` / `10001` 一起刷新 Cookie，会在 Cookie 实际有效时误弹“登录已过期”。本项目通过 `MihoyoRetcode.INVALID_REQUEST` + `RetcodeKind.INVALID_REQUEST` 单独处理。
 
 ---
 

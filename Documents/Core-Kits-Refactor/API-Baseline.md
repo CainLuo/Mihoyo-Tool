@@ -88,18 +88,22 @@
 
 | retcode | 参考结论 | 当前实现 | 静态结论 |
 | --- | --- | --- | --- |
-| `0` | 成功 | `ApiErrorCodes.SUCCESS` | 一致 |
-| `-100` / `10001` | Cookie 失效，需要重新登录（PizzaHelperUnited、TeyvatGuide、`mihoyo-api-collect`） | `AUTH_INVALID` / `AUTH_INVALID_ALT1`；`ApiErrorHandler.isAuthExpired()` 抛 `AuthExpiredError`，`BBSRepository` 尝试刷新 | 一致 |
-| `-10001` | 请求无效 / header / DS 错误，不是登录失效（`mihoyo-api-collect`；Pizza 不映射为 relogin） | `INVALID_REQUEST`；`ApiErrorHandler` 只按普通错误处理，不刷新 Cookie | 一致；旧文档已修正 |
-| `1034` / `10035` | Geetest 验证 | `GEETEST_REQUIRED_GENERAL` / `GEETEST_REQUIRED`；`GeetestReporter` + Repository 降级 / 上报 | 一致 |
-| `5003` / `10041` | 设备指纹无效 / 账号异常 | `FingerprintReporter` 统一上报；`SyncQueueRunner` 归为 `fingerprint` failure；`ApiErrorHandler` 仍按普通错误抛出 | 上报和队列一致；`ApiErrorHandler` 未单独建类型，属现状 |
-| `10102` | 战绩数据可见性不足 / 角色未公开 | `ROLE_NOT_PUBLIC` | 一致 |
-| `10307` | 服务器维护（PizzaHelperUnited 有专门映射） | 未定义专门常量，按普通业务错误处理 | 参考有差距；当前未改，不影响 Base 迁移 |
-| `-1002` | 游戏账号未绑定 Cookie 对应账号（`mihoyo-api-collect`） | `ACCOUNT_NOT_FOUND = -1002`，当前无调用方 | 值正确但命名 / 注释有误导；不是 `1008`，也不是登录失效 |
-| `1008` | 用户信息不匹配（例如无效 `role_id` / UID） | 无专门常量，按普通业务错误处理 | 未专门映射；不能当成“账号不存在” |
-| `-106` | 二维码已过期（`mihoyo-api-collect`） | `QRCODE_EXPIRED = -106`，当前无调用方 | 常量存在；未使用 |
+| `0` | 成功 | `MihoyoRetcode.SUCCESS`；统一用 `RetcodeRegistry.isSuccess()` 判断 | 一致 |
+| `-100` / `10001` / `-111` | Cookie 失效，需要重新登录（PizzaHelperUnited、TeyvatGuide、`mihoyo-api-collect`） | `RetcodeKind.AUTH_EXPIRED`；`ApiErrorHandler` 抛 `AuthExpiredError`，`BBSRepository` 尝试刷新 | 一致；`-111` 来自 `mihoyo-api-collect` |
+| `-10001` | 请求无效 / header / DS 错误，不是登录失效（`mihoyo-api-collect`；Pizza 不映射为 relogin） | `RetcodeKind.INVALID_REQUEST`；不刷新 Cookie、不弹登录过期 | 一致；`-100` 与 `-10001` 精确区分 |
+| `1034` / `10035` | Geetest 验证 | `RetcodeKind.VERIFICATION_REQUIRED`；`GeetestReporter` + Repository 降级 / 上报；ZZZ 战绩按 `10035` 走专用接口 | 一致 |
+| `5003` / `10041` | 设备指纹无效 / 账号异常 | `RetcodeKind.FINGERPRINT_INVALID`；`FingerprintReporter` 统一上报；`SyncQueueRunner` 归为 `fingerprint` failure；`ApiErrorHandler` 仍按普通错误抛出 | 上报和队列一致；错误类型保持现状 |
+| `10102` | 战绩数据可见性不足 / 角色未公开 | `MihoyoRetcode.ROLE_NOT_PUBLIC` / `RetcodeKind.ROLE_NOT_PUBLIC` | 一致 |
+| `10307` | 服务器维护（PizzaHelperUnited 有专门映射） | `MihoyoRetcode.MAINTENANCE` / `RetcodeKind.MAINTENANCE`；当前仍按普通错误展示 | 已登记；UI 专用提示待后续接入 |
+| `-1002` | 游戏账号未绑定 Cookie 对应账号（`mihoyo-api-collect`） | `MihoyoRetcode.ACCOUNT_NOT_FOUND` / `RetcodeKind.ACCOUNT_NOT_FOUND`，当前无调用方 | 值正确；不是 `1008`，也不是登录失效 |
+| `1008` | 用户信息不匹配（例如无效 `role_id` / UID） | `MihoyoRetcode.USER_INFO_MISMATCH`，归为参数错误 | 已映射；不能当成“账号不存在” |
+| `-106` | 二维码已过期（`mihoyo-api-collect`） | `MihoyoRetcode.QR_EXPIRED`；`AuthRepository` 用 `RetcodeRegistry.isQrExpired()` 转成 `expired` 状态 | 已使用 |
+| `-110` / `-502` / `1002` | 限流 / 服务端异常 | `RATE_LIMITED` / `SERVER_ERROR`；提供 `isRetryable()` | 已登记；是否重试仍由调用方决定 |
+| `-1` / `-101` / `1000` | 参数错误 | `INVALID_PARAM` 系列 | 已登记 |
+| `-3208` | 短信 / 登录验证码错误或过期 | `MihoyoRetcode.CAPTCHA_INVALID` | 已登记 |
+| `403` | HTTP 403 + 地区限制 message（PizzaHelperUnited） | `MihoyoRetcode.HTTP_REGION_RESTRICTED` + `RetcodeRegistry.isRegionRestricted()` | 语义已登记；当前无调用方 |
 
-> 结论：迁移后 Base / `MihoyoApiService` 不解析 `retcode`、不自动上报；具体 API 显式调用 `reportBusinessError`，Repository 继续用 `ApiErrorHandler` / `GeetestReporter` / `FingerprintReporter` 处理。静态参考未发现 `-10001` 被误判为登录失效；历史文档中的错误描述已在本轮修正。
+> 结论：`MihoyoRetcode` 是唯一数字来源，`RetcodeRegistry` 是唯一语义/处理说明来源；`ApiErrorCodes` 仅作为旧 import 的 deprecated 转发层。`MihoyoApiService` 只通过 `RetcodeRegistry` 做成功判断和 Geetest / 指纹上报分派，不再硬编码码值；具体业务错误仍由 Repository 转换。静态参考未发现 `-10001` 被误判为登录失效。
 
 ---
 

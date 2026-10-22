@@ -7,6 +7,8 @@ import { HKey, HVal } from './MihoyoHeaderKey';
 import { ApiConfig } from './ApiConfig';
 import { GameId } from '../../common/constants/GameId';
 import { GeetestReporter, GeetestRequiredListener } from './GeetestReporter';
+import { MihoyoRetcode } from '../../common/constants/MihoyoRetcode';
+import { RetcodeRegistry } from '../errors/RetcodeRegistry';
 
 /** card/wapi 验证端点（所有游戏共用）；各游戏 challenge 配置由 CoreInitializer 注册 */
 const CREATE_VERIFICATION_PATH: string = '/game_record/app/card/wapi/createVerification';
@@ -127,7 +129,7 @@ export class GeetestService {
 
   /** 是否为需要人机验证的返回码（1034 / 10035） */
   public static isGeetestRetcode(retcode: number): boolean {
-    return GeetestReporter.isGeetestRetcode(retcode);
+    return RetcodeRegistry.isVerificationRequired(retcode);
   }
 
   /** Repository 主动上报（便笺与 Widget 都失败时） */
@@ -149,7 +151,7 @@ export class GeetestService {
     cookie: string,
     gameId: GameId,
     challengePathOverride?: string,
-    retcode: number = 1034,
+    retcode: number = MihoyoRetcode.CAPTCHA_REQUIRED,
   ): Promise<GeetestCreateResult> {
     // 绝区零战绩接口：照 Axiu-Plugin（10035 → createGeetest，1034 → card/wapi/createVerification），用该账号的设备指纹
     const recordHandler = GeetestService.recordHandler;
@@ -186,7 +188,7 @@ export class GeetestService {
     );
     const resp = response.data as CreateVerificationResponse;
 
-    if (resp.retcode !== 0) {
+    if (!RetcodeRegistry.isSuccess(resp.retcode)) {
       throw new Error(`createVerification failed: [${resp.retcode}] ${resp.message}`);
     }
     return resp.data;
@@ -207,7 +209,7 @@ export class GeetestService {
     cookie: string,
     gameId: GameId,
     challengePathOverride?: string,
-    retcode: number = 1034,
+    retcode: number = MihoyoRetcode.CAPTCHA_REQUIRED,
   ): Promise<string> {
     // 绝区零战绩接口：照 Axiu-Plugin（10035 → verifyGeetest，1034 → card/wapi/verifyVerification），返回的 challenge 用于重放原请求
     const recordHandler = GeetestService.recordHandler;
@@ -249,7 +251,7 @@ export class GeetestService {
     );
     const resp = response.data as VerifyVerificationResponse;
 
-    if (resp.retcode !== 0) {
+    if (!RetcodeRegistry.isSuccess(resp.retcode)) {
       throw new Error(`verifyVerification failed: [${resp.retcode}] ${resp.message}`);
     }
     return resp.data.challenge;

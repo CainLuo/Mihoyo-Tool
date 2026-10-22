@@ -5,6 +5,7 @@
  * BaseApiService 不自动上报；便笺 / Widget 请求的 suppressGeetestReport 只由具体 API 判断，由 Repository 在两者都失败后自行上报。
  */
 import { RequestParams, RequestValue } from './APIs';
+import { RetcodeRegistry } from '../errors/RetcodeRegistry';
 
 /** url 已去掉 query；roleUid 为该请求的游戏 UID（取不到时为空字符串）；retcode 为 1034 / 10035（决定验证接口） */
 export type GeetestRequiredListener = (url: string, cookie: string, roleUid: string, retcode: number) => void;
@@ -59,6 +60,6 @@ export class GeetestReporter {
    * 10041 与 5003 同类（"米游社账号异常" / 设备指纹无效），见 FingerprintReporter。
    */
   static isGeetestRetcode(retcode: number | undefined): boolean {
-    return retcode === 1034 || retcode === 10035;
+    return RetcodeRegistry.isVerificationRequired(retcode);
   }
 }

@@ -1,68 +1,49 @@
 /**
- * ApiErrorCodes — 米游社 / HoYoLAB API 错误码常量
+ * ApiErrorCodes — 兼容层。
  *
- * 所有 retcode 判断必须从此处引用，禁止在业务代码中直接写数字字面量。
- * 来源：UIGF-org/mihoyo-api-collect
+ * @deprecated 使用 `MihoyoRetcode`（原始码）+ `RetcodeRegistry`（语义分类）。
+ * 这里仅保留旧 import 的兼容性，所有值都转发到 MihoyoRetcode，避免出现第二份数字来源。
+ * 新代码禁止再引用本文件。
  */
+import { MihoyoRetcode } from './MihoyoRetcode';
+
 export class ApiErrorCodes {
-  // ── 通用 ────────────────────────────────────────────────────
+  /** @deprecated 使用 MihoyoRetcode.SUCCESS */
+  static readonly SUCCESS: number = MihoyoRetcode.SUCCESS;
 
-  /** 成功 */
-  static readonly SUCCESS: number = 0;
+  /** @deprecated 使用 MihoyoRetcode.LOGIN_EXPIRED */
+  static readonly AUTH_INVALID: number = MihoyoRetcode.LOGIN_EXPIRED;
 
-  /** 登录已过期 / Cookie 无效 */
-  static readonly AUTH_INVALID: number = -100;
+  /** @deprecated 使用 MihoyoRetcode.LOGIN_EXPIRED_PLEASE_LOGIN */
+  static readonly AUTH_INVALID_ALT1: number = MihoyoRetcode.LOGIN_EXPIRED_PLEASE_LOGIN;
 
-  /** 登录已过期 / Cookie 无效（备用码 1）*/
-  static readonly AUTH_INVALID_ALT1: number = 10001;
+  /** @deprecated 使用 MihoyoRetcode.INVALID_REQUEST */
+  static readonly INVALID_REQUEST: number = MihoyoRetcode.INVALID_REQUEST;
 
-  /**
-   * 请求无效（message 为 "invalid request"）。
-   * 不是登录过期：通常是 DS 签名、请求头或参数不正确，刷新 Cookie 无法解决，不能按登录失效处理。
-   * （原名 AUTH_INVALID_ALT2，曾被误当作 Cookie 失效，导致 Cookie 有效时也弹"登录已过期"）
-   */
-  static readonly INVALID_REQUEST: number = -10001;
+  /** @deprecated 使用 MihoyoRetcode.RATE_LIMITED */
+  static readonly RATE_LIMITED: number = MihoyoRetcode.RATE_LIMITED;
 
-  /** 请求频率过高，触发限流 */
-  static readonly RATE_LIMITED: number = -110;
+  /** @deprecated 使用 MihoyoRetcode.INVALID_PARAM */
+  static readonly INVALID_PARAM: number = MihoyoRetcode.INVALID_PARAM;
 
-  /** 参数错误 */
-  static readonly INVALID_PARAM: number = -1;
+  /** @deprecated 使用 MihoyoRetcode.CAPTCHA_REQUIRED_GAME_RECORD */
+  static readonly GEETEST_REQUIRED: number = MihoyoRetcode.CAPTCHA_REQUIRED_GAME_RECORD;
 
-  // ── 人机验证（Geetest）────────────────────────────────────
+  /** @deprecated 使用 MihoyoRetcode.CAPTCHA_REQUIRED */
+  static readonly GEETEST_REQUIRED_GENERAL: number = MihoyoRetcode.CAPTCHA_REQUIRED;
 
-  /**
-   * 需要 Geetest 人机验证（game_record 接口触发）
-   * 触发场景：实时便笺、角色详情等接口在短时间内频繁请求时
-   */
-  static readonly GEETEST_REQUIRED: number = 10035;
+  /** @deprecated 使用 MihoyoRetcode.ACCOUNT_NOT_FOUND */
+  static readonly ACCOUNT_NOT_FOUND: number = MihoyoRetcode.ACCOUNT_NOT_FOUND;
 
-  /**
-   * 需要 Geetest 人机验证（通用接口触发）
-   * 触发场景：登录、发送验证码等接口频繁请求时
-   * 来源：mihoyo-api-collect error_code.md
-   */
-  static readonly GEETEST_REQUIRED_GENERAL: number = 1034;
+  /** @deprecated 使用 MihoyoRetcode.CAPTCHA_INVALID */
+  static readonly CAPTCHA_INVALID: number = MihoyoRetcode.CAPTCHA_INVALID;
 
-  // ── 账号 / 登录 ──────────────────────────────────────────
+  /** @deprecated 使用 MihoyoRetcode.QR_EXPIRED */
+  static readonly QRCODE_EXPIRED: number = MihoyoRetcode.QR_EXPIRED;
 
-  /**
-   * 游戏账号未绑定当前 Cookie 对应的账号（mihoyo-api-collect: getTokenByGameToken）。
-   * 注意：不是 1008（用户信息不匹配），也不是登录失效；当前无调用方。
-   */
-  static readonly ACCOUNT_NOT_FOUND: number = -1002;
+  /** @deprecated 使用 MihoyoRetcode.ROLE_NOT_PUBLIC */
+  static readonly ROLE_NOT_PUBLIC: number = MihoyoRetcode.ROLE_NOT_PUBLIC;
 
-  /** 验证码错误或已过期 */
-  static readonly CAPTCHA_INVALID: number = -3208;
-
-  /** 二维码已过期 */
-  static readonly QRCODE_EXPIRED: number = -106;
-
-  // ── 游戏角色 ─────────────────────────────────────────────
-
-  /** 角色未公开展示战绩 */
-  static readonly ROLE_NOT_PUBLIC: number = 10102;
-
-  /** 角色不存在或 UID 错误 */
-  static readonly ROLE_NOT_FOUND: number = 10103;
+  /** @deprecated 使用 MihoyoRetcode.ROLE_NOT_FOUND */
+  static readonly ROLE_NOT_FOUND: number = MihoyoRetcode.ROLE_NOT_FOUND;
 }

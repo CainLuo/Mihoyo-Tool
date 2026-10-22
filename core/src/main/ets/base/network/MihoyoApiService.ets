@@ -11,6 +11,7 @@ import { ApiLogSystem } from '../log/ApiLogSystem';
 import { LogEventType } from '../log/ApiLogEntry';
 import { GeetestReporter } from './GeetestReporter';
 import { FingerprintReporter } from './FingerprintReporter';
+import { RetcodeRegistry } from '../errors/RetcodeRegistry';
 
 export abstract class MihoyoApiService extends BaseApiService {
 
@@ -97,7 +98,7 @@ export abstract class MihoyoApiService extends BaseApiService {
     }
 
     // 业务错误日志与上报开关无关，保持旧 transport 的日志行为
-    if (retcode !== 0) {
+    if (!RetcodeRegistry.isSuccess(retcode)) {
       try {
         const message = body['message'] as string ?? '';
         ApiLogSystem.getInstance().warning(
@@ -117,9 +118,9 @@ export abstract class MihoyoApiService extends BaseApiService {
     const actualRoleUid = roleUid !== undefined
       ? roleUid
       : GeetestReporter.roleUidOf(url, params, requestBody);
-    if (GeetestReporter.isGeetestRetcode(retcode)) {
+    if (RetcodeRegistry.isVerificationRequired(retcode)) {
       GeetestReporter.report(url, actualCookie, actualRoleUid, retcode);
-    } else if (FingerprintReporter.isFingerprintRetcode(retcode)) {
+    } else if (RetcodeRegistry.isFingerprintInvalid(retcode)) {
       FingerprintReporter.report(url, retcode, actualRoleUid);
     }
   }

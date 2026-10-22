@@ -4,6 +4,8 @@
  * PizzaHelperUnited 将 5003 / 10041 归为 fingerPrintInvalidOrMissing，Miao-Yunzai 归为"米游社账号异常"，均与人机验证分开处理。
  * 具体 API 收到时显式调用 report()，由 entry 通过 ApiConfig.setFingerprintInvalidListener() 注册的监听统一提示。
  */
+import { RetcodeRegistry } from '../errors/RetcodeRegistry';
+
 export type FingerprintInvalidListener = (url: string, retcode: number, roleUid: string) => void;
 
 export class FingerprintReporter {
@@ -34,6 +36,6 @@ export class FingerprintReporter {
    * PizzaHelperUnited 归为 fingerPrintInvalidOrMissing；都不走人机验证
    */
   static isFingerprintRetcode(retcode: number | undefined): boolean {
-    return retcode === 5003 || retcode === 10041;
+    return RetcodeRegistry.isFingerprintInvalid(retcode);
   }
 }

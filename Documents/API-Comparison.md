@@ -299,20 +299,24 @@ account_id={uid}; cookie_token={token}; ltoken={ltoken}; ltuid={uid}; stoken={st
 
 ### 本项目
 
-来源：`ApiErrorHandler.ets`、`ApiErrorCodes.ets`、`ApiErrors.ets`、`GenshinRepository.ets`
+来源：`MihoyoRetcode.ets`、`RetcodeRegistry.ets`、`ApiErrorHandler.ets`、`ApiErrors.ets`、`GenshinRepository.ets`
 
-| retcode        | 错误类型                              | 处理方式                                      |
+| retcode        | 语义分类 / 错误类型                    | 处理方式                                      |
 | -------------- | ------------------------------------- | --------------------------------------------- |
-| `-100`         | `AuthExpiredError`                    | 尝试用 stoken 刷新 cookie，失败则提示重新登录 |
-| `10001`        | `AuthExpiredError`                    | 同上                                          |
+| `-100`         | `AUTH_EXPIRED` / `AuthExpiredError`   | 尝试用 stoken 刷新 cookie，失败则提示重新登录 |
+| `10001`        | `AUTH_EXPIRED` / `AuthExpiredError`   | 同上                                          |
+| `-111`         | `AUTH_EXPIRED`                        | 同上；来自 `api-takumi.mihoyo.com` 旧接口     |
 | `-10001`       | `INVALID_REQUEST` / 普通业务错误      | 不刷新 Cookie，检查 DS / header / 参数        |
-| `1034`         | 降级 Widget 或 `GeetestRequiredError` | 先尝试 Widget 降级，无法降级则触发 Geetest    |
-| `10035`        | 同 1034                               | 同上                                          |
-| `5003`/`10041` | `FingerprintReporter` + 同步队列失败  | 上报指纹无效 / 账号异常；`SyncQueueRunner` 归为 `fingerprint` |
-| `10102`        | `RoleNotPublicError`                  | 提示战绩未公开                                |
-| `10307`        | 当前无专门映射                        | 按普通业务错误处理；Pizza 有维护中专门映射    |
+| `1034`         | `VERIFICATION_REQUIRED`               | 先尝试 Widget 降级，无法降级则触发 Geetest    |
+| `10035`        | `VERIFICATION_REQUIRED`               | 同上；绝区零战绩走 `createGeetest` / `verifyGeetest` |
+| `5003`/`10041` | `FINGERPRINT_INVALID`                 | 上报指纹无效 / 账号异常；`SyncQueueRunner` 归为 `fingerprint` |
+| `10102`        | `ROLE_NOT_PUBLIC`                     | 提示战绩未公开                                |
+| `10307`        | `MAINTENANCE`                         | 已登记；当前仍按普通业务错误展示，后续可接维护提示 |
 | `-1002`        | `ACCOUNT_NOT_FOUND`（当前未使用）     | 游戏账号未绑定，不是 `1008`，也不是登录失效   |
-| `1008`         | 当前无专门映射                        | 用户信息不匹配（如无效 role_id），不是账号不存在 |
+| `1008`         | `USER_INFO_MISMATCH` / 参数错误        | 用户信息不匹配（如无效 role_id），不是账号不存在 |
+| `-106`         | `QR_EXPIRED`                          | 二维码登录轮询转成 `expired` 状态             |
+| `-110`/`-502`/`1002` | `RATE_LIMITED` / `SERVER_ERROR`  | 已登记；是否重试由调用方决定                  |
+| `-1`/`-101`/`1000` | `INVALID_PARAM`                    | 参数错误，展示服务端 message                  |
 
 ### PizzaHelperUnited（iOS）
 

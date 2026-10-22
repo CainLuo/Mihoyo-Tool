@@ -4,7 +4,7 @@
  * 任何接口返回 retcode=1034 / 10035 时，GeetestCenter 构造此对象推入 GeetestSignal，
  * Main.ets 弹出 GeetestDialog；验证通过后 GeetestCenter 用同一 challengePath 提交验证。
  */
-import { GeetestCreateResult, GameId } from 'core';
+import { GeetestCreateResult, GameId, MihoyoRetcode } from 'core';
 
 export class GeetestTrigger {
   /** Geetest 创建结果（含 gt、challenge 等验证参数） */
@@ -22,7 +22,7 @@ export class GeetestTrigger {
   /** 失败接口的完整地址（x-rpc-challenge_path）；为空时使用该游戏的便笺接口 */
   challengePath: string = '';
   /** 触发验证的返回码（1034 / 10035），绝区零战绩接口据此选择验证接口 */
-  retcode: number = 1034;
+  retcode: number = MihoyoRetcode.CAPTCHA_REQUIRED;
 
   constructor(
     createResult: GeetestCreateResult,

@@ -14,6 +14,7 @@ export * from './src/main/ets/base/network/GeetestService';
 export * from './src/main/ets/MihoyoKit/repository/AuthRepository';
 
 // Constants
+export * from './src/main/ets/common/constants/MihoyoRetcode';
 export * from './src/main/ets/common/constants/ApiErrorCodes';
 export * from './src/main/ets/GenshinKit/constants/GenshinPropertyType';
 
@@ -144,6 +145,9 @@ export * from './src/main/ets/StarRailKit/api/StarRailApiService';
 export * from './src/main/ets/ZZZKit/api/ZZZApiService';
 export * from './src/main/ets/ZZZKit/api/ZZZRecordRequest';
 export * from './src/main/ets/MihoyoKit/api/SignApiService';
+
+// Retcode 语义注册表
+export * from './src/main/ets/base/errors/RetcodeRegistry';
 
 // 业务错误类型（新的统一错误类）
 export {
