@@ -7,7 +7,7 @@
  *   ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET → 跟随系统（默认）
  *
  * 切换方式：UIAbilityContext.setColorMode(colorMode)
- * 持久化：Preferences（与 CookieManager 共用同一个 store）
+ * 持久化：Preferences（沿用旧 store 名，保留已有设置）
  */
 
 import { ConfigurationConstant } from '@kit.AbilityKit';
