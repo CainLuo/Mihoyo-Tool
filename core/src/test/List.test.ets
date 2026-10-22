@@ -9,6 +9,7 @@ import coldStartCookieCheckerTest from './ColdStartCookieChecker.test';
 import genshinComputeParserTest from './GenshinComputeParser.test';
 import starRailComputeParserTest from './StarRailComputeParser.test';
 import zzzComputeParserTest from './ZZZComputeParser.test';
+import mihoyoDomainTest from './MihoyoDomain.test';
 
 export default function testsuite() {
   dsUtilTest();
@@ -22,4 +23,5 @@ export default function testsuite() {
   genshinComputeParserTest();
   starRailComputeParserTest();
   zzzComputeParserTest();
+  mihoyoDomainTest();
 }
