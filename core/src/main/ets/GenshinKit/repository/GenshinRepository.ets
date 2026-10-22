@@ -1,4 +1,5 @@
 import { GameRepository } from '../../sync/GameRepository';
+import { GenshinSyncPort } from '../../sync/SyncPorts';
 import { SyncDataType } from '../../common/constants/SyncDataType';
 import {
   GenshinCharacterListDao,
@@ -24,11 +25,10 @@ import { GeetestService } from '../../base/network/GeetestService';
 import { MihoyoDomain } from '../../base/network/MihoyoDomain';
 import { GenshinApiPath } from '../api/GenshinApiPath';
 import { SyncError, SyncErrorKind, SyncErrorFactory, AuthExpiredError } from '../../base/errors/ApiErrors';
-import { CookieRefreshCoordinator } from '../../base/cookie/CookieRefreshCoordinator';
+import { CookieRefreshCoordinator } from '../../MihoyoKit/cookie/CookieRefreshCoordinator';
 import { Logger } from '../../base/utils/Logger';
 import { ApiErrorHandler } from '../../base/utils/ApiErrorHandler';
 import { ApiErrorCodes } from '../../common/constants/ApiErrorCodes';
-import { CoreInitializer } from '../../CoreInitializer';
 import { BBSRepository } from '../../MihoyoKit/repository/BBSRepository';
 import { MaterialBagRepository } from '../../common/material/repository/MaterialBagRepository';
 import { MaterialBagRow } from '../../common/material/model/MaterialBagRow';
@@ -54,7 +54,7 @@ const WIDGET_FALLBACK_UNAVAILABLE: string = 'unavailable';
 /** 养成计算链路统一日志 tag，过滤：hilog | grep */
 const CALC_TAG: string = 'GenshinCalc';
 
-export class GenshinRepository extends GameRepository {
+export class GenshinRepository extends GameRepository implements GenshinSyncPort {
   private characterListDao: GenshinCharacterListDao = new GenshinCharacterListDao();
   private dailyNoteDao: GenshinDailyNoteDao = new GenshinDailyNoteDao();
   private characterDetailDao: GenshinCharacterDetailDao = new GenshinCharacterDetailDao();
@@ -157,7 +157,6 @@ export class GenshinRepository extends GameRepository {
           const newCookie = await CookieRefreshCoordinator.instance.refreshWithLock(
             accountId,
             cookie,
-            CoreInitializer.bbsRepository,
           );
           await this.doSyncDailyNote(accountId, roleUid, server, newCookie);
           return;

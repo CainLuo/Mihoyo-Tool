@@ -5,7 +5,7 @@ import { GenshinApiPath } from './GenshinApiPath';
 import { MihoyoHeaderBuilder, HeaderProfile } from '../../base/network/MihoyoHeaderBuilder';
 import { ApiConfig } from '../../base/network/ApiConfig';
 import { HKey } from '../../base/network/MihoyoHeaderKey';
-import { GameFpBiz } from '../../base/network/DeviceFpService';
+import { GameFpBiz } from '../../base/network/GameFpBiz';
 import { Logger } from '../../base/utils/Logger';
 
 /** 养成计算链路统一日志 tag，过滤：hilog | grep */

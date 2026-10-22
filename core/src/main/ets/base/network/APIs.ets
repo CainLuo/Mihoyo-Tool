@@ -25,9 +25,6 @@ export class RequestParams extends Map<string, RequestValue> {}
  * extraHeaders 使用 Map<string, string>，避免 Record 字面量问题。
  */
 export class RequestOptions {
-  /** BaseURL 类型，对应 ApiConfig 中的枚举值，不传时默认 PUBLIC_DATA */
-  baseUrlType: string = '';
-
   /**
    * 额外请求头（Map 形式），由 BaseApiService 透传给 axios。
    * BaseApiService 不设置默认请求头；Cookie / User-Agent / DS 等由具体 Service 显式设置。

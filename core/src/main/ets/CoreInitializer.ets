@@ -3,20 +3,28 @@ import { RdbManager } from './db/RdbManager';
 import { SCHEMA_REGISTRY } from './SchemaRegistry';
 import { AppEnv } from './common/constants/AppEnv';
 import { AppEnvManager } from './common/constants/AppEnvManager';
-import { MihoyoApiServiceFactory } from './ApiServiceFactory';
+import { ApiServiceFactory } from './ApiServiceFactory';
 import { ApiConfig } from './base/network/ApiConfig';
 import { DSUtil } from './base/network/DSUtil';
+import { GeetestService } from './base/network/GeetestService';
+import { MihoyoDomain } from './base/network/MihoyoDomain';
+import { GameId } from './common/constants/GameId';
+import { GenshinApiPath } from './GenshinKit/api/GenshinApiPath';
+import { StarRailApiPath } from './StarRailKit/api/StarRailApiPath';
+import { ZZZApiPath } from './ZZZKit/api/ZZZApiPath';
 import { BBSRepository } from './MihoyoKit/repository/BBSRepository';
 import { GenshinRepository } from './GenshinKit/repository/GenshinRepository';
 import { StarRailRepository } from './StarRailKit/repository/StarRailRepository';
 import { ZZZRepository } from './ZZZKit/repository/ZZZRepository';
 import { SignRepository } from './MihoyoKit/repository/SignRepository';
 import { SyncQueueRunner } from './sync/SyncQueueRunner';
+import { SyncDependencies } from './sync/SyncPorts';
+import { CookieRefreshCoordinator } from './MihoyoKit/cookie/CookieRefreshCoordinator';
 import { MaterialTargetConfigRepository } from './common/material/repository/MaterialTargetConfigRepository';
 import { ApiLogSystem } from './base/log/ApiLogSystem';
 import { LogEventType } from './base/log/ApiLogEntry';
 import { Logger } from './base/utils/Logger';
-import { ZZZRecordRequest } from './ZZZKit/api/ZZZRecordRequest';
+import { ZZZGeetestRecordHandler, ZZZRecordRequest } from './ZZZKit/api/ZZZRecordRequest';
 
 export interface CoreConfig {
   env: AppEnv;
@@ -121,19 +129,31 @@ export class CoreInitializer {
     await DSUtil.preloadSalts(config.context);
     // 绝区零战绩接口（ZZZ-Plugin 方式）：每个账号的设备指纹缓存
     ZZZRecordRequest.init(config.context, ApiConfig.getDeviceIdSync());
+    GeetestService.registerGame(GameId.GENSHIN, MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE, '2');
+    GeetestService.registerGame(GameId.STARRAIL, MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.DAILY_NOTE, '6');
+    GeetestService.registerGame(GameId.ZZZ, MihoyoDomain.TAKUMI_RECORD + ZZZApiPath.DAILY_NOTE, '8');
+    GeetestService.setRecordHandler(new ZZZGeetestRecordHandler());
 
     // 3. 创建 Service 实例并注入到各 Repository
-    const accountService = MihoyoApiServiceFactory.createAccountService();
-    const genshinService = MihoyoApiServiceFactory.createGenshinService();
-    const starRailService = MihoyoApiServiceFactory.createStarRailService();
-    const zzzService = MihoyoApiServiceFactory.createZZZService();
-    const signService = MihoyoApiServiceFactory.createSignService();
+    const accountService = ApiServiceFactory.createAccountService();
+    const genshinService = ApiServiceFactory.createGenshinService();
+    const starRailService = ApiServiceFactory.createStarRailService();
+    const zzzService = ApiServiceFactory.createZZZService();
+    const signService = ApiServiceFactory.createSignService();
 
     CoreInitializer.bbsRepository.setService(accountService);
+    CookieRefreshCoordinator.init(CoreInitializer.bbsRepository);
     CoreInitializer.genshinRepository.setService(genshinService);
     CoreInitializer.starRailRepository.setService(starRailService);
     CoreInitializer.zzzRepository.setService(zzzService);
     CoreInitializer.signRepository.setService(signService);
+
+    SyncQueueRunner.init(new SyncDependencies(
+      CoreInitializer.bbsRepository,
+      CoreInitializer.genshinRepository,
+      CoreInitializer.starRailRepository,
+      CoreInitializer.zzzRepository,
+    ));
 
     CoreInitializer.initialized = true;
 

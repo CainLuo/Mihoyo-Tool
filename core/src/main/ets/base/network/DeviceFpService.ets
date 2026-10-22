@@ -5,6 +5,7 @@ import { BaseApiService } from './BaseApiService';
 import { MihoyoDomain } from './MihoyoDomain';
 import { RequestOptions } from './APIs';
 import { HKey, HVal } from './MihoyoHeaderKey';
+import { GameFpBiz } from './GameFpBiz';
 import { Logger } from '../utils/Logger';
 
 const PREFS_NAME: string = 'mihoyo_device_config';
@@ -52,12 +53,6 @@ class FpRequestBody {
  * 2. 后续启动：从 Preferences 读取缓存，直接使用
  * 3. 获取失败：回退到基于 deviceId MD5 的初始指纹（13位）
  */
-/** 按游戏申请的指纹（PizzaHelperUnited 每个游戏账号单独申请）：app_name 与缓存 key */
-export enum GameFpBiz {
-  GENSHIN = 'hk4e_cn',
-  STARRAIL = 'hkrpg_cn',
-  ZZZ = 'nap_cn',
-}
 const KEY_GAME_FP_PREFIX: string = 'device_fp_game_';
 const ALL_GAME_FP_BIZ: GameFpBiz[] = [GameFpBiz.GENSHIN, GameFpBiz.STARRAIL, GameFpBiz.ZZZ];
 

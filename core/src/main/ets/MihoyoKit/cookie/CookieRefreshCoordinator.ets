@@ -10,11 +10,11 @@
  * - 账号删除时调用 clearLock 清除状态
  */
 
-import { BBSRepository } from '../../MihoyoKit/repository/BBSRepository';
-import { AuthExpiredError } from '../errors/ApiErrors';
-import { ApiLogSystem } from '../log/ApiLogSystem';
-import { Logger } from '../utils/Logger';
-import { LogEventType } from '../log/ApiLogEntry';
+import { BBSRepository } from '../repository/BBSRepository';
+import { AuthExpiredError } from '../../base/errors/ApiErrors';
+import { ApiLogSystem } from '../../base/log/ApiLogSystem';
+import { Logger } from '../../base/utils/Logger';
+import { LogEventType } from '../../base/log/ApiLogEntry';
 
 /** 60 秒内同一账号不重复刷新 */
 const REFRESH_COOLDOWN_SECONDS: number = 60;
@@ -22,6 +22,12 @@ const REFRESH_COOLDOWN_SECONDS: number = 60;
 export class CookieRefreshCoordinator {
 
   private static _instance: CookieRefreshCoordinator | null = null;
+  private static bbsRepository: BBSRepository | null = null;
+
+  /** 由 CoreInitializer 在启动时注入账号仓库 */
+  static init(bbsRepository: BBSRepository): void {
+    CookieRefreshCoordinator.bbsRepository = bbsRepository;
+  }
 
   /** 单例入口 */
   static get instance(): CookieRefreshCoordinator {
@@ -29,6 +35,13 @@ export class CookieRefreshCoordinator {
       CookieRefreshCoordinator._instance = new CookieRefreshCoordinator();
     }
     return CookieRefreshCoordinator._instance;
+  }
+
+  private static requireRepository(): BBSRepository {
+    if (CookieRefreshCoordinator.bbsRepository === null) {
+      throw new Error('CookieRefreshCoordinator: BBSRepository not initialized');
+    }
+    return CookieRefreshCoordinator.bbsRepository;
   }
 
   /** 进行中的刷新 Promise，key=username */
@@ -42,17 +55,16 @@ export class CookieRefreshCoordinator {
   /**
    * 带锁的刷新：同一账号 60 秒内只发起一次网络请求，并发调用复用结果。
    *
-   * @param username       账号 username
-   * @param cookie         当前 cookie 字符串
-   * @param bbsRepository  BBSRepository 实例
+   * @param username  账号 username
+   * @param cookie    当前 cookie 字符串
    * @returns 刷新后的新 cookie 字符串
    * @throws AuthExpiredError  stoken 不存在或已过期
    */
   async refreshWithLock(
     username: string,
     cookie: string,
-    bbsRepository: BBSRepository,
   ): Promise<string> {
+    const bbsRepository = CookieRefreshCoordinator.requireRepository();
     // 60 秒内已完成刷新，从 DB 读取最新 cookie 返回
     const lastTime = this.lastRefreshTime.get(username);
     if (lastTime !== undefined) {

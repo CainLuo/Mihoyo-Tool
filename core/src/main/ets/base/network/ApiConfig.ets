@@ -2,9 +2,9 @@ import { common } from '@kit.AbilityKit';
 import { preferences } from '@kit.ArkData';
 import { util } from '@kit.ArkTS';
 import deviceInfo from '@ohos.deviceInfo';
-import { DeviceFpService, GameFpBiz } from './DeviceFpService';
+import { DeviceFpService } from './DeviceFpService';
+import { GameFpBiz } from './GameFpBiz';
 import { FingerprintReporter, FingerprintInvalidListener } from './FingerprintReporter';
-import { ZZZRecordRequest } from '../../ZZZKit/api/ZZZRecordRequest';
 
 const PREFS_NAME: string = 'mihoyo_device_config';
 const KEY_DEVICE_ID: string = 'device_id';
@@ -152,8 +152,6 @@ export class ApiConfig {
    */
   static async regenerateDeviceFp(context: common.UIAbilityContext): Promise<void> {
     await DeviceFpService.regenerateAll(context, ApiConfig.cachedDeviceId);
-    // 绝区零：清空各账号的指纹，下次请求重新申请并登记设备（ZZZ-Plugin 方式）
-    await ZZZRecordRequest.clearAll();
   }
 
   /** 注册设备指纹无效 / 账号异常（5003 / 10041）统一处理：任何接口返回时回调 */

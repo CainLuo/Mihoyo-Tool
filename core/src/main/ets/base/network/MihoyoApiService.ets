@@ -1,7 +1,7 @@
 /**
  * MihoyoApiService 抽象基类
  * 所有游戏 API Service 的公共接口。
- * 通过 MihoyoApiServiceFactory 创建具体实现。
+ * 通过 ApiServiceFactory 创建具体实现。
  */
 import { BaseApiService } from './BaseApiService';
 import { RequestParams, RequestOptions, RequestValue } from './APIs';

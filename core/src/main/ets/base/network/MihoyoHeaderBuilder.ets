@@ -2,7 +2,7 @@ import { RequestParams } from './APIs';
 import { ApiConfig } from './ApiConfig';
 import { DSUtil } from './DSUtil';
 import { HKey, HVal } from './MihoyoHeaderKey';
-import { GameFpBiz } from './DeviceFpService';
+import { GameFpBiz } from './GameFpBiz';
 
 /** 请求头 Profile 枚举 */
 export enum HeaderProfile {

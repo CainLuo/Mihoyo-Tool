@@ -1,4 +1,5 @@
 import { GameRepository } from '../../sync/GameRepository';
+import { StarRailSyncPort } from '../../sync/SyncPorts';
 import { SyncDataType } from '../../common/constants/SyncDataType';
 import { StarRailDBManager } from '../db/StarRailDBManager';
 import {
@@ -20,8 +21,7 @@ import { GeetestService } from '../../base/network/GeetestService';
 import { MihoyoDomain } from '../../base/network/MihoyoDomain';
 import { StarRailApiPath } from '../api/StarRailApiPath';
 import { AuthExpiredError } from '../../base/errors/ApiErrors';
-import { CookieRefreshCoordinator } from '../../base/cookie/CookieRefreshCoordinator';
-import { CoreInitializer } from '../../CoreInitializer';
+import { CookieRefreshCoordinator } from '../../MihoyoKit/cookie/CookieRefreshCoordinator';
 import { BBSRepository } from '../../MihoyoKit/repository/BBSRepository';
 import { MaterialBagRow } from '../../common/material/model/MaterialBagRow';
 import { StarRailComputeParser, StarRailMaterialItem } from '../parser/StarRailComputeParser';
@@ -37,7 +37,7 @@ const WIDGET_FALLBACK_SUCCESS: string = 'success';
 const WIDGET_FALLBACK_REJECTED: string = 'rejected';
 const WIDGET_FALLBACK_UNAVAILABLE: string = 'unavailable';
 
-export class StarRailRepository extends GameRepository {
+export class StarRailRepository extends GameRepository implements StarRailSyncPort {
   private dbManager: StarRailDBManager = new StarRailDBManager();
 
   // ── 角色基础列表 ──────────────────────────────────────────────
@@ -90,7 +90,6 @@ export class StarRailRepository extends GameRepository {
           const newCookie = await CookieRefreshCoordinator.instance.refreshWithLock(
             accountId,
             cookie,
-            CoreInitializer.bbsRepository,
           );
           await this.doSyncDailyNote(accountId, roleUid, server, newCookie);
           return;

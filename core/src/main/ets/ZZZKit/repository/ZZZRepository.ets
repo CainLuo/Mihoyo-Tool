@@ -1,4 +1,5 @@
 import { GameRepository } from '../../sync/GameRepository';
+import { ZZYSyncPort } from '../../sync/SyncPorts';
 import { SyncDataType } from '../../common/constants/SyncDataType';
 import {
   ZZZAvatarBasicDao,
@@ -21,8 +22,7 @@ import { GeetestService } from '../../base/network/GeetestService';
 import { MihoyoDomain } from '../../base/network/MihoyoDomain';
 import { ZZZApiPath } from '../api/ZZZApiPath';
 import { AuthExpiredError } from '../../base/errors/ApiErrors';
-import { CookieRefreshCoordinator } from '../../base/cookie/CookieRefreshCoordinator';
-import { CoreInitializer } from '../../CoreInitializer';
+import { CookieRefreshCoordinator } from '../../MihoyoKit/cookie/CookieRefreshCoordinator';
 import { BBSRepository } from '../../MihoyoKit/repository/BBSRepository';
 import { MaterialBagRepository } from '../../common/material/repository/MaterialBagRepository';
 import { MaterialBagRow } from '../../common/material/model/MaterialBagRow';
@@ -39,7 +39,7 @@ const WIDGET_FALLBACK_SUCCESS: string = 'success';
 const WIDGET_FALLBACK_REJECTED: string = 'rejected';
 const WIDGET_FALLBACK_UNAVAILABLE: string = 'unavailable';
 
-export class ZZZRepository extends GameRepository {
+export class ZZZRepository extends GameRepository implements ZZYSyncPort {
   private avatarBasicDao: ZZZAvatarBasicDao = new ZZZAvatarBasicDao();
   private dailyNoteDao: ZZZDailyNoteDao = new ZZZDailyNoteDao();
   private avatarInfoDao: ZZZAvatarInfoDao = new ZZZAvatarInfoDao();
@@ -131,7 +131,6 @@ export class ZZZRepository extends GameRepository {
           const newCookie = await CookieRefreshCoordinator.instance.refreshWithLock(
             accountId,
             cookie,
-            CoreInitializer.bbsRepository,
           );
           await this.doSyncDailyNote(accountId, roleUid, server, newCookie);
           return;

@@ -19,7 +19,7 @@
 import { SyncMetaDao } from './db/SyncMetaDao';
 import { SyncMetaRow } from './model/SyncMetaRow';
 import { SyncDataType } from '../common/constants/SyncDataType';
-import { CoreInitializer } from '../CoreInitializer';
+import { SyncDependencies } from './SyncPorts';
 import { GameRoleRow } from '../MihoyoKit/model/GameRoleRow';
 import { GameId } from '../common/constants/GameId';
 import { SyncTask } from './model/SyncTask';
@@ -56,12 +56,26 @@ export class SyncTasksFailedError extends Error {
 
 export class SyncQueueRunner {
   private static syncMetaDao: SyncMetaDao = new SyncMetaDao();
+  /** 由 CoreInitializer 在启动时注入，避免 sync 反向依赖根初始化器 */
+  private static dependencies: SyncDependencies | null = null;
   /** 防止并发执行 */
   private static isRunning: boolean = false;
   /** 正在执行的一轮任务；新的 runTasks 会等它结束后再执行 */
   private static currentRun: Promise<void> | null = null;
   /** 同步完成回调列表（用于 Widget 数据刷新等） */
   private static onCompleteCallbacks: SyncCompleteCallback[] = [];
+
+  /** 由 CoreInitializer 在启动时注入 Repository */
+  static init(dependencies: SyncDependencies): void {
+    SyncQueueRunner.dependencies = dependencies;
+  }
+
+  private static requireDependencies(): SyncDependencies {
+    if (SyncQueueRunner.dependencies === null) {
+      throw new Error('SyncQueueRunner: dependencies not initialized');
+    }
+    return SyncQueueRunner.dependencies;
+  }
 
   /**
    * 注册同步完成回调
@@ -162,15 +176,16 @@ export class SyncQueueRunner {
   static async resumeOnStartup(): Promise<void> {
     if (SyncQueueRunner.isRunning) { return; }
     try {
+      const dependencies = SyncQueueRunner.requireDependencies();
       const pendingRows = await SyncQueueRunner.syncMetaDao.findAllPending();
       if (pendingRows.length === 0) { return; }
       // 从 DB 读取账号 cookie，重建任务列表
       const tasks: SyncTask[] = [];
       for (let i = 0; i < pendingRows.length; i++) {
         const row = pendingRows[i];
-        const account = await CoreInitializer.bbsRepository.getAccountByUid(row.accountId);
+        const account = await dependencies.accountStore.getAccountByUid(row.accountId);
         if (account === null) { continue; }
-        const roles = await CoreInitializer.bbsRepository.getGameRoles(row.accountId);
+        const roles = await dependencies.accountStore.getGameRoles(row.accountId);
         let server = '';
         for (let j = 0; j < roles.length; j++) {
           if (roles[j].roleId === row.roleUid) {
@@ -303,36 +318,36 @@ export class SyncQueueRunner {
     const server = task.server;
     const cookie = task.cookie;
     const dataType = task.dataType;
-    
-    
+    const dependencies = SyncQueueRunner.requireDependencies();
+
     if (dataType === SyncDataType.GENSHIN_CHARACTER_LIST) {
-      await CoreInitializer.genshinRepository.syncAvatarList(accountId, roleUid, server, cookie);
+      await dependencies.genshin.syncAvatarList(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.GENSHIN_CHARACTER_DETAIL) {
-      await CoreInitializer.genshinRepository.syncAvatarDetail(accountId, roleUid, server, cookie);
+      await dependencies.genshin.syncAvatarDetail(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.GENSHIN_DAILY_NOTE) {
-      await CoreInitializer.genshinRepository.syncDailyNote(accountId, roleUid, server, cookie);
+      await dependencies.genshin.syncDailyNote(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.STARRAIL_AVATAR_BASIC) {
-      await CoreInitializer.starRailRepository.syncAvatarList(accountId, roleUid, server, cookie);
+      await dependencies.starRail.syncAvatarList(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.STARRAIL_AVATAR_INFO) {
-      await CoreInitializer.starRailRepository.syncAvatarInfo(accountId, roleUid, server, cookie);
+      await dependencies.starRail.syncAvatarInfo(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.STARRAIL_DAILY_NOTE) {
-      await CoreInitializer.starRailRepository.syncDailyNote(accountId, roleUid, server, cookie);
+      await dependencies.starRail.syncDailyNote(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.ZZZ_AVATAR_BASIC) {
-      await CoreInitializer.zzzRepository.syncAvatarList(accountId, roleUid, server, cookie);
+      await dependencies.zzz.syncAvatarList(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.ZZZ_AVATAR_INFO) {
       // 绝区零：先拿基础列表，再逐个 avatarId 请求详情。
       // 照 ZZZ-Plugin（dist/lib/avatar.js getAvatarInfoList）：每次请求间隔 roleInterval（默认 3000ms），出错即停止（任务失败）
-      const basicList = await CoreInitializer.zzzRepository.getAvatarList(accountId, roleUid);
+      const basicList = await dependencies.zzz.getAvatarList(accountId, roleUid);
       for (let i = 0; i < basicList.length; i++) {
         if (i > 0) {
           await new Promise<void>((resolve: () => void) => setTimeout(resolve, ZZZ_AVATAR_INFO_INTERVAL_MS));
         }
-        await CoreInitializer.zzzRepository.syncAvatarInfo(accountId, roleUid, server, cookie, basicList[i].avatarId);
+        await dependencies.zzz.syncAvatarInfo(accountId, roleUid, server, cookie, basicList[i].avatarId);
       }
     } else if (dataType === SyncDataType.ZZZ_BUDDY) {
-      await CoreInitializer.zzzRepository.syncBuddyList(accountId, roleUid, server, cookie);
+      await dependencies.zzz.syncBuddyList(accountId, roleUid, server, cookie);
     } else if (dataType === SyncDataType.ZZZ_DAILY_NOTE) {
-      await CoreInitializer.zzzRepository.syncDailyNote(accountId, roleUid, server, cookie);
+      await dependencies.zzz.syncDailyNote(accountId, roleUid, server, cookie);
     }
   }
 }

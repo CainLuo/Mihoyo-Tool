@@ -5,7 +5,7 @@ import { StarRailApiPath } from './StarRailApiPath';
 import { MihoyoHeaderBuilder, HeaderProfile } from '../../base/network/MihoyoHeaderBuilder';
 import { ApiConfig } from '../../base/network/ApiConfig';
 import { HKey, HVal } from '../../base/network/MihoyoHeaderKey';
-import { GameFpBiz } from '../../base/network/DeviceFpService';
+import { GameFpBiz } from '../../base/network/GameFpBiz';
 import { Logger } from '../../base/utils/Logger';
 import { StarRailComputeAvatar, StarRailComputeEquipment, StarRailComputeSkill } from '../model/StarRailRows';
 

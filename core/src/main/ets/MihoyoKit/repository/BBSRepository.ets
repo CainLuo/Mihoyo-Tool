@@ -6,6 +6,7 @@ import { AccountRow } from '../model/AccountRow';
 import { GameRoleRow } from '../model/GameRoleRow';
 import { AuthRepository } from './AuthRepository';
 import { SyncQueueRunner } from '../../sync/SyncQueueRunner';
+import { SyncAccountStore } from '../../sync/SyncPorts';
 import { GameId, isGameSupported, gameIdFromMihoyo } from '../../common/constants/GameId';
 import { gameBizToGameId } from '../../common/constants/GameServer';
 import {
@@ -44,7 +45,7 @@ export class LoginResult {
   roles: GameRoleRow[] = [];
 }
 
-export class BBSRepository {
+export class BBSRepository implements SyncAccountStore {
   private service: MihoyoApiService | null = null;
   private accountDao: AccountDao = new AccountDao();
   private gameRoleDao: GameRoleDao = new GameRoleDao();

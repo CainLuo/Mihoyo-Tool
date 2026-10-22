@@ -3,15 +3,14 @@ import { GeetestCreateResult, GeetestVerifyInput } from '../errors/ApiErrors';
 import { DSUtil } from './DSUtil';
 import { BaseApiService } from './BaseApiService';
 import { MihoyoDomain } from './MihoyoDomain';
-import { MihoyoAccountApiPath } from '../../MihoyoKit/api/MihoyoAccountApiPath';
 import { HKey, HVal } from './MihoyoHeaderKey';
 import { ApiConfig } from './ApiConfig';
 import { GameId } from '../../common/constants/GameId';
-import { GenshinApiPath } from '../../GenshinKit/api/GenshinApiPath';
-import { StarRailApiPath } from '../../StarRailKit/api/StarRailApiPath';
-import { ZZZApiPath } from '../../ZZZKit/api/ZZZApiPath';
 import { GeetestReporter, GeetestRequiredListener } from './GeetestReporter';
-import { ZZZRecordRequest } from '../../ZZZKit/api/ZZZRecordRequest';
+
+/** card/wapi 验证端点（所有游戏共用）；各游戏 challenge 配置由 CoreInitializer 注册 */
+const CREATE_VERIFICATION_PATH: string = '/game_record/app/card/wapi/createVerification';
+const VERIFY_VERIFICATION_PATH: string = '/game_record/app/card/wapi/verifyVerification';
 
 /**
  * ============================================================
@@ -66,25 +65,47 @@ interface VerifyVerificationResponse extends MysBaseResponse {
   data: GeetestVerifyResult;
 }
 
+/** 各游戏的 Geetest challenge_path / challenge_game 配置 */
+export class GeetestGameConfig {
+  challengePath: string = '';
+  challengeGame: string = '';
+
+  constructor(challengePath: string, challengeGame: string) {
+    this.challengePath = challengePath;
+    this.challengeGame = challengeGame;
+  }
+}
+
+/** 特殊战绩接口（当前为绝区零）的 Geetest 实现，由 CoreInitializer 注入 */
+export interface GeetestRecordHandler {
+  isRecordUrl(url: string): boolean;
+  create(cookie: string, retcode: number): Promise<GeetestCreateResult>;
+  verify(cookie: string, input: GeetestVerifyInput, challengePath: string, retcode: number): Promise<string>;
+}
+
 // ---- 服务实现 ----
 
 export class GeetestService {
+  private static gameConfigs: Map<GameId, GeetestGameConfig> = new Map<GameId, GeetestGameConfig>();
+  private static recordHandler: GeetestRecordHandler | null = null;
+
+  /** 由 CoreInitializer 注册各游戏的便笺地址与 challenge_game */
+  static registerGame(gameId: GameId, challengePath: string, challengeGame: string): void {
+    GeetestService.gameConfigs.set(gameId, new GeetestGameConfig(challengePath, challengeGame));
+  }
+
+  /** 由 CoreInitializer 注册特殊战绩接口处理器 */
+  static setRecordHandler(handler: GeetestRecordHandler | null): void {
+    GeetestService.recordHandler = handler;
+  }
 
   /**
    * 根据 gameId 返回对应的 x-rpc-challenge_path 值
    * 参考 PizzaHelperUnited URLRequestConfig.writeXRPCChallengeHeaders4DailyNote
    */
   static getChallengePath(gameId: GameId): string {
-    if (gameId === GameId.GENSHIN) {
-      return MihoyoDomain.TAKUMI_RECORD + GenshinApiPath.DAILY_NOTE;
-    }
-    if (gameId === GameId.STARRAIL) {
-      return MihoyoDomain.TAKUMI_RECORD + StarRailApiPath.DAILY_NOTE;
-    }
-    if (gameId === GameId.ZZZ) {
-      return MihoyoDomain.TAKUMI_RECORD + ZZZApiPath.DAILY_NOTE;
-    }
-    return '';
+    const config = GeetestService.gameConfigs.get(gameId);
+    return config !== undefined ? config.challengePath : '';
   }
 
   /**
@@ -93,10 +114,8 @@ export class GeetestService {
    * 参考 PizzaHelperUnited URLRequestConfig.writeXRPCChallengeHeaders4DailyNote
    */
   static getChallengeGame(gameId: GameId): string {
-    if (gameId === GameId.GENSHIN) { return '2'; }
-    if (gameId === GameId.STARRAIL) { return '6'; }
-    if (gameId === GameId.ZZZ) { return '8'; }
-    return '';
+    const config = GeetestService.gameConfigs.get(gameId);
+    return config !== undefined ? config.challengeGame : '';
   }
 
   /**
@@ -133,8 +152,9 @@ export class GeetestService {
     retcode: number = 1034,
   ): Promise<GeetestCreateResult> {
     // 绝区零战绩接口：照 Axiu-Plugin（10035 → createGeetest，1034 → card/wapi/createVerification），用该账号的设备指纹
-    if (challengePathOverride !== undefined && ZZZRecordRequest.isZZZRecordUrl(challengePathOverride)) {
-      return ZZZRecordRequest.createGeetest(cookie, retcode);
+    const recordHandler = GeetestService.recordHandler;
+    if (challengePathOverride !== undefined && recordHandler !== null && recordHandler.isRecordUrl(challengePathOverride)) {
+      return recordHandler.create(cookie, retcode);
     }
     const createParams = new RequestParams();
     createParams.set('is_high', 'true');
@@ -160,7 +180,7 @@ export class GeetestService {
     opts.extraHeaders.set(HKey.DS, DSUtil.generateX4(createParams));
 
     const response = await BaseApiService.shared.get(
-      MihoyoDomain.TAKUMI_RECORD + MihoyoAccountApiPath.CREATE_VERIFICATION,
+      MihoyoDomain.TAKUMI_RECORD + CREATE_VERIFICATION_PATH,
       createParams,
       opts
     );
@@ -190,8 +210,9 @@ export class GeetestService {
     retcode: number = 1034,
   ): Promise<string> {
     // 绝区零战绩接口：照 Axiu-Plugin（10035 → verifyGeetest，1034 → card/wapi/verifyVerification），返回的 challenge 用于重放原请求
-    if (challengePathOverride !== undefined && ZZZRecordRequest.isZZZRecordUrl(challengePathOverride)) {
-      return ZZZRecordRequest.verifyGeetest(cookie, verifyInput, challengePathOverride, retcode);
+    const recordHandler = GeetestService.recordHandler;
+    if (challengePathOverride !== undefined && recordHandler !== null && recordHandler.isRecordUrl(challengePathOverride)) {
+      return recordHandler.verify(cookie, verifyInput, challengePathOverride, retcode);
     }
     // geetest_seccode 格式：validate + "|jordan"
     // 参考 PizzaHelperUnited VerifyVerificationBody：geetestSeccode = "\(validate)|jordan"
@@ -222,7 +243,7 @@ export class GeetestService {
     opts.extraHeaders.set(HKey.DS, DSUtil.generateX4(undefined, bodyStr));
 
     const response = await BaseApiService.shared.post(
-      MihoyoDomain.TAKUMI_RECORD + MihoyoAccountApiPath.VERIFY_VERIFICATION,
+      MihoyoDomain.TAKUMI_RECORD + VERIFY_VERIFICATION_PATH,
       bodyStr,
       opts
     );

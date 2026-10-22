@@ -4,7 +4,6 @@
 export * from './src/main/ets/base/network/APIs';
 export * from './src/main/ets/base/network/HttpTypes';
 export * from './src/main/ets/base/network/BaseApiService';
-export * from './src/main/ets/base/network/CookieManager';
 export * from './src/main/ets/base/network/GeetestService';
 
 // Database module
@@ -93,7 +92,6 @@ export * from './src/main/ets/base/log/LogExporter';
 
 // 常量
 export * from './src/main/ets/common/constants/SyncDataType';
-export * from './src/main/ets/GenshinKit/constants/GenshinPropertyType';
 export * from './src/main/ets/StarRailKit/constants/StarRailPropertyType';
 export * from './src/main/ets/ZZZKit/constants/ZZZPropertyId';
 export * from './src/main/ets/common/constants/GameServer';
@@ -133,6 +131,7 @@ export * from './src/main/ets/base/network/MihoyoHeaderBuilder';
 
 // 配置和工具
 export * from './src/main/ets/base/network/ApiConfig';
+export * from './src/main/ets/base/network/GameFpBiz';
 export * from './src/main/ets/base/network/DSUtil';
 
 // Service 工厂
@@ -143,6 +142,7 @@ export * from './src/main/ets/MihoyoKit/api/MihoyoAccountApiService';
 export * from './src/main/ets/GenshinKit/api/GenshinApiService';
 export * from './src/main/ets/StarRailKit/api/StarRailApiService';
 export * from './src/main/ets/ZZZKit/api/ZZZApiService';
+export * from './src/main/ets/ZZZKit/api/ZZZRecordRequest';
 export * from './src/main/ets/MihoyoKit/api/SignApiService';
 
 // 业务错误类型（新的统一错误类）
@@ -165,6 +165,6 @@ export {
 } from './src/main/ets/base/errors/ApiErrors';
 
 // Cookie 刷新
-export * from './src/main/ets/base/cookie/ColdStartCookieChecker';
-export * from './src/main/ets/base/cookie/CookieRefreshCoordinator';
+export * from './src/main/ets/MihoyoKit/cookie/ColdStartCookieChecker';
+export * from './src/main/ets/MihoyoKit/cookie/CookieRefreshCoordinator';
 

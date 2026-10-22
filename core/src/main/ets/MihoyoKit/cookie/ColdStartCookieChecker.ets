@@ -10,12 +10,12 @@
  * - 不阻塞调用方，由调用方异步触发
  */
 
-import { BBSRepository } from '../../MihoyoKit/repository/BBSRepository';
-import { AccountRow } from '../../MihoyoKit/model/AccountRow';
-import { AuthExpiredError } from '../errors/ApiErrors';
-import { ApiLogSystem } from '../log/ApiLogSystem';
-import { Logger } from '../utils/Logger';
-import { LogEventType } from '../log/ApiLogEntry';
+import { BBSRepository } from '../repository/BBSRepository';
+import { AccountRow } from '../model/AccountRow';
+import { AuthExpiredError } from '../../base/errors/ApiErrors';
+import { ApiLogSystem } from '../../base/log/ApiLogSystem';
+import { Logger } from '../../base/utils/Logger';
+import { LogEventType } from '../../base/log/ApiLogEntry';
 
 /** 7 天阈值（秒） */
 const COLD_START_REFRESH_THRESHOLD_SECONDS: number = 604800;

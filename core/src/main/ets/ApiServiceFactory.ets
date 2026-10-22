@@ -8,7 +8,7 @@ import { SignApiService } from './MihoyoKit/api/SignApiService';
 /**
  * 真实 API Service 工厂。
  */
-export class MihoyoApiServiceFactory {
+export class ApiServiceFactory {
   static createAccountService(): MihoyoApiService {
     return new MihoyoAccountApiService();
   }

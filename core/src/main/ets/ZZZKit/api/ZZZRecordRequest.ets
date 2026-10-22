@@ -22,6 +22,7 @@ import { RequestOptions } from '../../base/network/APIs';
 import { BaseApiService } from '../../base/network/BaseApiService';
 import { DSUtil } from '../../base/network/DSUtil';
 import { MihoyoDomain } from '../../base/network/MihoyoDomain';
+import { GeetestRecordHandler } from '../../base/network/GeetestService';
 import { GeetestCreateResult, GeetestVerifyInput } from '../../base/errors/ApiErrors';
 
 
@@ -412,4 +413,19 @@ export class ZZZRequest {
   options: RequestOptions = new RequestOptions();
   /** 本次使用的设备指纹（排查日志用） */
   deviceFp: string = '';
+}
+
+/** 把绝区零战绩接口的 Geetest 实现注入 base/network/GeetestService */
+export class ZZZGeetestRecordHandler implements GeetestRecordHandler {
+  isRecordUrl(url: string): boolean {
+    return ZZZRecordRequest.isZZZRecordUrl(url);
+  }
+
+  create(cookie: string, retcode: number): Promise<GeetestCreateResult> {
+    return ZZZRecordRequest.createGeetest(cookie, retcode);
+  }
+
+  verify(cookie: string, input: GeetestVerifyInput, challengePath: string, retcode: number): Promise<string> {
+    return ZZZRecordRequest.verifyGeetest(cookie, input, challengePath, retcode);
+  }
 }
