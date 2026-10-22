@@ -1,14 +1,16 @@
 # BaseApiService 抽离方案（Axios 封装层）
 
-> 状态：**Stage 0-3 已完成（代码迁移 + 旧链路删除 + 四产品 / 两个测试脚本构建通过）；header / retcode 基线未采集，按用户决定延后**
+> 状态：**Stage 0-3 已完成（代码迁移 + 旧链路删除 + 三环境构建通过）；header / retcode 基线未采集，按用户决定延后**
 > 归属：Core Kits 重构 / Phase 1.1
-> 更新时间：2026-10-21
+> 更新时间：2026-10-22
+>
+> **Phase 5 更新（2026-10-22）**：`RequestOptions.baseUrlType` 已确认无读取方并删除；`MihoyoApiServiceFactory` 类名统一为 `ApiServiceFactory`；`CookieManager` 已删除。本文中所有“`baseUrlType` 本轮保留 / 后续再处理”的描述均为历史设计记录，以本条为准。
 >
 > **执行决定（2026-10-21）**：用户明确要求先完成整个 BaseApiService 迁移，header / retcode 基线采集推迟到整个任务完成后；本文中原先所有“Stage 1 / Stage 2 前必须完成基线”的 Gate 均被该决定覆盖，不再阻塞代码迁移。基线清单仍保留在 [`API-Baseline.md`](API-Baseline.md)，状态仍为 **未采集（NOT DONE）**。
 >
 > 后续的「`MihoyoApiService` 公共 Header 合并」已记录在第 10 节；本次 BaseApiService 迁移**不实施**，等所有 API Service 整理完后再做。
 >
-> `suppressGeetestReport`、`baseUrlType`、BBS 三个接口是否显式上报 Geetest / 指纹：**本轮保持原样，不做改名 / 删除 / 行为调整**，统一记录在 §8.7，后续再改。
+> `suppressGeetestReport`、BBS 三个接口是否显式上报 Geetest / 指纹：**本轮保持原样，不做改名 / 删除 / 行为调整**，统一记录在 §8.7，后续再改。`baseUrlType` 已在 Phase 5 删除。
 >
 > 本次补充的重点：非 2xx 的 axios 错误路径、`HttpResponse` 漏拆包无法靠类型检查、直接 `return this.get/post` 的上报漏点、逐接口上报审计、BBS / Auth 的行为差异、`HttpService` 非 debug 覆盖显式 Cookie、旧错误形态差异、日志脱敏与基线、测试脚本只是构建、`baseUrlType` 的去留。
 >
@@ -105,7 +107,7 @@ MihoyoApiService（保留，抽象/公共类型）
 这样：
 
 - 业务 Service 的 `extends MihoyoApiService` 不用改；
-- `MihoyoApiServiceFactory`、`GameRepository`、`SignRepository` 等现有类型不用大改；
+- `MihoyoApiServiceFactory`（Phase 5 已改名 `ApiServiceFactory`）、`GameRepository`、`SignRepository` 等现有类型不用大改；
 - `BaseApiService` 只负责 HTTP；
 - `MihoyoApiService` 继续作为米游社 API 的稳定抽象边界，后续可以放米游社公共逻辑，但本次不塞业务逻辑。
 
@@ -848,7 +850,7 @@ Proxyman 只能覆盖 debug 的证书信任；`core/src/internal` overlay 和 re
 | 项目 | 当前行为 | 本轮处理 | 后续 |
 | --- | --- | --- | --- |
 | `RequestOptions.suppressGeetestReport` | 同时抑制 Geetest + 指纹上报；不影响请求、retcode 和业务日志 | 保持字段名和语义不变；具体 API 的 helper 继续读取它 | 基线完成后决定改名 / 拆分；见 §4.6 |
-| `RequestOptions.baseUrlType` | no-op；`HttpService` 删除后已没有读取方 | 保留字段和现有调用，不删除、不改造 | Mock base URL 方案确定后再处理；见 §4.6、Plan Phase 4 |
+| `RequestOptions.baseUrlType` | no-op；`HttpService` 删除后已没有读取方 | Phase 5 已删除字段和现有调用 | 已完成；Mock 只通过 `MihoyoDomain` 切换域名 |
 | BBS 账号详情 / 角色列表 / 战绩卡片是否显式上报 Geetest / 指纹 | 迁移后用 account service + 显式 helper 复刻；旧 transport 已删除 | `roleUid` 显式传空字符串，不用 BBS `uid` 冒充 | 真机 retcode / 基线完成后决定是否只保留必要上报；见 §4.7 |
 
 > 这三项不阻塞本轮代码迁移。header / retcode 基线按用户决定延后到整个任务完成后补采；旧 transport 已删除，旧路径相关基线只能记录为“旧路径已删除 / 未覆盖”，新路径仍可在后续补采。
@@ -906,7 +908,7 @@ Header 抽象类                 具体 API Service
 - `MihoyoApiService` 负责：
   - 调用 Header 抽象类；
   - 与具体 Service 传入的 `RequestOptions.extraHeaders` 合并；
-  - 保留 `RequestOptions` 的其他字段（`baseUrlType`、`suppressGeetestReport` 等）；
+  - 保留 `RequestOptions` 的其他字段（如 `suppressGeetestReport`；`baseUrlType` 已删除）；
   - 调 `BaseApiService.get/post`。
 - 具体 API Service 负责：
   - 选择 / 提供本次请求的 header profile 或上下文；
