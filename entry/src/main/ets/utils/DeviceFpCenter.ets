@@ -10,7 +10,7 @@
  */
 import { common } from '@kit.AbilityKit'
 import { AppStorageV2 } from '@kit.ArkUI'
-import { ApiConfig, GameId } from 'core'
+import { ApiConfig, GameId, ZZZRecordRequest } from 'core'
 import { SyncRetrySignal } from './SyncRetrySignal'
 import { gameIdFromApiUrl } from './GameIdUtil'
 
@@ -76,6 +76,8 @@ export class DeviceFpCenter {
   static async regenerate(context: common.UIAbilityContext): Promise<void> {
     DeviceFpCenter.dismiss()
     await ApiConfig.regenerateDeviceFp(context)
+    // 绝区零：清空各账号的指纹，下次请求重新申请并登记设备（ZZZ-Plugin 方式）
+    await ZZZRecordRequest.clearAll()
     SyncRetrySignal.instance().notify('')
   }
 }
