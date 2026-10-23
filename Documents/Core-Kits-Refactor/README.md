@@ -48,7 +48,7 @@
 | [`Plan.md`](Plan.md) | 完整重构方案：目标结构、BaseApiService、DB 归类、阶段计划、风险 |
 | [`APIService.md`](APIService.md) | `BaseApiService` 抽离方案：axios 唯一封装层、继承关系、HTTP 状态边界、已确认事项、文件级迁移/删除清单、上报审计表、直接 return 上报漏点、Cookie 覆盖、实施陷阱；第 10 节记录已实施的公共 Header 合并 |
 | [`API-Baseline.md`](API-Baseline.md) | 旧 transport 迁移前后的 API header / retcode 基线清单：按登录、BBS、三游戏、签到、设备指纹 / Geetest 分组，列出触发入口、当前 header、待填字段和完成标准；§2.2 已补三个项目 + 历史抓包的静态对照；运行时 **未采集（延后）** |
-| [`Runtime-Acceptance-Checklist.md`](Runtime-Acceptance-Checklist.md) | 运行时手工验收清单：环境记录、QR / 手机号 / Cookie / BBS / 便笺 / 角色 / 签到 / 错误路径，含勾选项、待填结果和失败记录模板 |
+| [`Runtime-Acceptance-Checklist.md`](Runtime-Acceptance-Checklist.md) | 运行时手工验收清单：按登录 / BBS / 便笺 / 角色 / 签到 / 错误路径列出测试点，含勾选项和 Header / Response 填写栏 |
 | [`Known-Issues.md`](Known-Issues.md) | 已知问题与暂缓项：header / retcode 未采集、参考冲突、当前不改的参考差异、Phase 1.2 边界与真机回归清单 |
 | [`Mock.md`](Mock.md) | Mock 部分：当前配置、已删除/保留内容、`mock-service` 契约、Swift-Vapor 迁移方案、缺口清单 |
 
