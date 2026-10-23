@@ -1,99 +1,79 @@
 # 签名材料说明
 
-本项目有三个运行环境，签名必须彼此独立：
+## 环境与构建方式
 
-| 环境 | Bundle ID | signingConfig | 当前状态 |
+| 环境 | Bundle ID | 构建产物 | 签名材料 |
 | --- | --- | --- | --- |
-| Release | `com.cainluo.miyoyo.tools` | `release` | 已有正式证书 / Profile，可构建签名 HAP |
-| UAT | `com.cainluo.miyoyo.tools.uat` | `uat` | **缺失**，构建为 unsigned |
-| Mock | `com.cainluo.miyoyo.tools.mock` | `mock` | **缺失**，构建为 unsigned |
+| Release | `com.cainluo.miyoyo.tools` | signed HAP | `Certificates/release/` |
+| UAT | `com.cainluo.miyoyo.tools.uat` | unsigned HAP | 模拟器不需要 |
+| Mock | `com.cainluo.miyoyo.tools.mock` | unsigned HAP | 模拟器不需要 |
 
-> 不允许把 `uat` / `mock` 指向 `release`，也不允许用修改旧证书、旧 Profile 的方式绕过签名。
+UAT / Mock 保留自己的后缀包名，`run.sh` 会优先找 signed HAP；没有时回退到 `*-unsigned.hap`。当前模拟器允许直接安装 unsigned HAP。
 
-## 1. 在 AGC 创建 UAT / Mock 材料
+> 一套 `.p7b` 只能对应一个 `bundleName`。如果 UAT / Mock 要装到真机，必须为每个后缀包名单独准备调试 Profile；证书和私钥可以共用一套。
 
-对 `com.cainluo.miyoyo.tools.uat` 和 `com.cainluo.miyoyo.tools.mock` 分别执行：
-
-1. 在 Huawei AGC 创建对应 Bundle ID 的应用。
-2. 创建 **调试证书**（Debug Certificate）。可以上传新的 CSR，也可以使用 DevEco Studio 生成的调试证书。
-3. 创建 **调试 Profile**（Debug Profile），绑定：
-   - 对应 Bundle ID；
-   - 对应调试证书；
-   - 需要安装的模拟器 / 真机 UDID。
-4. 下载 `.cer` 和 `.p7b`，放到：
-   - `Certificates/uat/`
-   - `Certificates/mock/`
-
-模拟器 UDID 可通过以下命令获取：
+## 1. 模拟器运行
 
 ```bash
-hdc shell bm get -u
+bash run.sh uat
+bash run.sh mock
 ```
 
-## 2. 填写 build-profile.json5
+预期产物：
 
-在根目录 `build-profile.json5` 的 `app.signingConfigs` 中补入 `uat` / `mock`。字段与现有 `release` 配置一致：
+```text
+entry/build/uat/outputs/uat/entry-uat-unsigned.hap
+entry/build/mock/outputs/mock/entry-mock-unsigned.hap
+```
+
+## 2. Release
+
+```bash
+bash run.sh release
+```
+
+Release 必须生成签名 HAP：
+
+```text
+entry/build/release/outputs/release/entry-release-signed.hap
+```
+
+签名材料在 `Certificates/release/`，不要指向 UAT / Mock 的 Profile。
+
+## 3. 真机安装 UAT / Mock（可选）
+
+模拟器可以 unsigned 安装，真机通常不行。需要签名时：
+
+1. 在 AGC 为对应后缀 Bundle ID 创建调试 Profile。
+2. Profile 绑定同一套调试证书和真机 UDID（`hdc shell bm get -u`）。
+3. 下载 `.p7b` 放到 `Certificates/dev/`，例如 `uat.p7b`、`mock.p7b`。
+4. 在 `build-profile.json5` 给对应 product 增加 `signingConfig`，每个 product 指向自己的 `.p7b`。
+
+示例：
 
 ```json5
 {
   name: "uat",
   type: "HarmonyOS",
   material: {
-    certpath: "/绝对路径/Certificates/uat/<uat>.cer",
-    keyAlias: "<keyAlias>",
+    certpath: "/绝对路径/Certificates/dev/miyoyo-dev.cer",
+    keyAlias: "Miyoyo",
     keyPassword: "<DevEco 加密后的密码>",
-    profile: "/绝对路径/Certificates/uat/<uat>.p7b",
+    profile: "/绝对路径/Certificates/dev/uat.p7b",
     signAlg: "SHA256withECDSA",
-    storeFile: "/绝对路径/Certificates/uat/<uat>.p12",
+    storeFile: "/绝对路径/Certificates/Miyoyo.p12",
     storePassword: "<DevEco 加密后的密码>",
   },
-},
-{
-  name: "mock",
-  type: "HarmonyOS",
-  material: {
-    certpath: "/绝对路径/Certificates/mock/<mock>.cer",
-    keyAlias: "<keyAlias>",
-    keyPassword: "<DevEco 加密后的密码>",
-    profile: "/绝对路径/Certificates/mock/<mock>.p7b",
-    signAlg: "SHA256withECDSA",
-    storeFile: "/绝对路径/Certificates/mock/<mock>.p12",
-    storePassword: "<DevEco 加密后的密码>",
-  },
-},
+}
 ```
 
-`keyPassword` / `storePassword` 是 DevEco Studio 生成的加密值，不要手写明文密码。最稳妥的方式是在 DevEco Studio 的 **File → Project Structure → Signing Configs** 中为 `uat` / `mock` 分别配置，让 IDE 写入这两个条目。
-
-## 3. 验证
-
-```bash
-# UAT
-bash run.sh uat
-# 期望：entry/build/uat/outputs/uat/entry-uat-signed.hap
-
-# Mock
-bash run.sh mock
-# 期望：entry/build/mock/outputs/mock/entry-mock-signed.hap
-
-# Release
-bash run.sh release
-# 期望：entry/build/release/outputs/release/entry-release-signed.hap
-```
-
-安装后确认三个包的 Bundle ID 分别为：
-
-```bash
-hdc shell bm dump -n com.cainluo.miyoyo.tools.uat
-hdc shell bm dump -n com.cainluo.miyoyo.tools.mock
-hdc shell bm dump -n com.cainluo.miyoyo.tools
-```
+Mock 同理，只改 `name` 和 `profile`。一套 Profile 不能同时给 `.uat` 和 `.mock` 使用。
 
 ## 4. 常见错误
 
 | 现象 | 原因 |
 | --- | --- |
-| `Will skip sign 'hos_hap'` | 对应 `signingConfigs` 条目不存在，Hvigor 生成 unsigned HAP |
-| `The bundleName in the profile does not match` | Profile 绑定的 Bundle ID 与 product 不一致 |
-| `The device is not in the profile` | Profile 没有加入当前模拟器 / 真机 UDID |
+| `Will skip sign` / `No signingConfig found` | 当前 product 没有配置签名，生成 unsigned HAP；UAT / Mock 模拟器运行属正常 |
+| `The bundleName ... does not match` | Profile 的 `bundle-name` 与 product 的 `bundleName` 不一致 |
+| 真机安装 unsigned HAP 失败 | 真机需要签名；按第 3 节准备对应 Profile |
 | `Signature verification failed` | `.cer`、`.p7b`、`.p12` 不是同一套材料，或 keyAlias 填错 |

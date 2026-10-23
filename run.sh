@@ -85,50 +85,34 @@ case "$PRODUCT" in
     BUILD_PRODUCT='mock'
     BUILD_MODE='debug'
     BUNDLE='com.cainluo.miyoyo.tools.mock'
-    HAP='entry/build/mock/outputs/mock/entry-mock-signed.hap'
-    SIGNING_DIR='Certificates/mock'
+    HAP_SIGNED='entry/build/mock/outputs/mock/entry-mock-signed.hap'
+    HAP_UNSIGNED='entry/build/mock/outputs/mock/entry-mock-unsigned.hap'
+    ALLOW_UNSIGNED=1
     ;;
   uat)
     BUILD_PRODUCT='uat'
     BUILD_MODE='debug'
     BUNDLE='com.cainluo.miyoyo.tools.uat'
-    HAP='entry/build/uat/outputs/uat/entry-uat-signed.hap'
-    SIGNING_DIR='Certificates/uat'
+    HAP_SIGNED='entry/build/uat/outputs/uat/entry-uat-signed.hap'
+    HAP_UNSIGNED='entry/build/uat/outputs/uat/entry-uat-unsigned.hap'
+    ALLOW_UNSIGNED=1
     ;;
   release)
     BUILD_PRODUCT='release'
     BUILD_MODE='release'
     BUNDLE='com.cainluo.miyoyo.tools'
-    HAP='entry/build/release/outputs/release/entry-release-signed.hap'
-    SIGNING_DIR='Certificates/release'
+    HAP_SIGNED='entry/build/release/outputs/release/entry-release-signed.hap'
+    HAP_UNSIGNED=''
+    ALLOW_UNSIGNED=0
     ;;
 esac
+HAP="$HAP_SIGNED"
 
-# ── 签名材料预检 ──────────────────────────────────────────────
-# release 已有可用材料；uat / mock 需在 AGC 为对应包名创建调试证书和调试 Profile。
-if [ "$PRODUCT" != "release" ]; then
-  if [ ! -d "$SIGNING_DIR" ]; then
-    echo "✗ 缺少 $PRODUCT 签名材料目录：$SIGNING_DIR"
-    echo "  不能复用 release 签名。请先为 $BUNDLE 创建独立调试证书和 Profile。"
-    echo "  步骤见 Certificates/README.md。"
-    exit 1
-  fi
-  if ! find "$SIGNING_DIR" -maxdepth 1 -name '*.cer' -print -quit | grep -q . \
-     || ! find "$SIGNING_DIR" -maxdepth 1 -name '*.p7b' -print -quit | grep -q .; then
-    echo "✗ $SIGNING_DIR 缺少 .cer 或 .p7b"
-    echo "  步骤见 Certificates/README.md。"
-    exit 1
-  fi
-  if ! sed -n '/signingConfigs:/,/^[[:space:]]*],/p' build-profile.json5 | grep -q "name: \"$PRODUCT\""; then
-    echo "✗ build-profile.json5 缺少 signingConfigs: $PRODUCT"
-    echo "  仅放文件不够，还必须填写 signingConfigs；不能复用 release。"
-    echo "  步骤见 Certificates/README.md。"
-    exit 1
-  fi
-fi
+# UAT / Mock 在模拟器上允许安装 unsigned HAP；release 必须使用签名 HAP。
+
 
 echo ""
-echo "▶ 构建目标：$PRODUCT（bundle=$BUNDLE，buildMode=$BUILD_MODE）"
+echo "▶ 构建目标: $PRODUCT (bundle=$BUNDLE, buildMode=$BUILD_MODE)"
 
 # ── 1. 启动模拟器（如果还没运行）──────────────────────────────
 if "$HDC" list targets 2>/dev/null | grep -q "$TARGET"; then
@@ -166,9 +150,14 @@ echo "▶ Build ($PRODUCT)..."
 "$HVIGOR" assembleHap -p product="$BUILD_PRODUCT" -p buildMode="$BUILD_MODE"
 
 # ── 5. 安装 ──────────────────────────────────────────────────
+if [ ! -f "$HAP" ] && [ "$ALLOW_UNSIGNED" = "1" ] && [ -f "$HAP_UNSIGNED" ]; then
+  HAP="$HAP_UNSIGNED"
+  echo "⚠ 未生成签名 HAP，使用 unsigned HAP（模拟器可安装）"
+fi
+
 if [ ! -f "$HAP" ]; then
-  echo "✗ 未找到签名 HAP：$HAP"
-  echo "  如果只生成了 *-unsigned.hap，说明 $PRODUCT 的 signingConfig 尚未配置。"
+  echo "✗ 未找到 HAP：$HAP"
+  echo "  release 需要签名 HAP；uat / mock 允许 unsigned HAP。"
   exit 1
 fi
 
@@ -180,8 +169,8 @@ echo "▶ 启动..."
 "$HDC" -t "$TARGET" shell aa start -b "$BUNDLE" -a EntryAbility
 
 if [ -n "$PROXY_HOST" ]; then
-  echo "✅ 完成（$PRODUCT，代理：$PROXY_HOST）"
+  echo "✅ 完成 ($PRODUCT, 代理: $PROXY_HOST)"
   echo "   清除代理：bash run.sh --clear-proxy"
 else
-  echo "✅ 完成（$PRODUCT）"
+  echo "✅ 完成 ($PRODUCT)"
 fi

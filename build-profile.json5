@@ -14,8 +14,8 @@
           storePassword: "0000001F344D3647F7C00157797DB0933A8C1E1757426AEDA09C3E8FFAD589CC54ECC488AEDCC5AFBEE35E106E95FF",
         },
       },
-      // UAT / Mock 的 signingConfigs 必须在 AGC 创建对应包名的调试证书和调试 Profile 后补入。
-      // 不能复用 release 的证书 / Profile；在材料补齐前，uat / mock 构建为 unsigned，不能安装。
+      // UAT / Mock 在模拟器上使用 unsigned HAP；如需真机安装，再为对应包名配置 p7b。
+      // 一套 p7b 只能对应一个 bundleName，不能复用给多个后缀包名。
     ],
     products: [
       // default 是 Hvigor / DevEco 要求的技术兜底产品，不是第四个运行环境。
@@ -61,7 +61,6 @@
       },
       {
         name: "uat",
-        signingConfig: "uat",
         bundleName: "com.cainluo.miyoyo.tools.uat",
         label: "$string:app_name_uat",
         targetSdkVersion: "6.0.2(22)",
@@ -81,7 +80,6 @@
       },
       {
         name: "mock",
-        signingConfig: "mock",
         bundleName: "com.cainluo.miyoyo.tools.mock",
         label: "$string:app_name_mock",
         targetSdkVersion: "6.0.2(22)",
