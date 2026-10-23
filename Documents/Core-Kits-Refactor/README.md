@@ -1,9 +1,9 @@
 # Core Kits 重构任务总览
 
-> 状态：**Phase 1.2 / Phase 2 / Phase 3 / Phase 5 代码层完成；S-01 已解决；2026-10-22 环境收敛完成；release 构建与测试脚本通过；uat / mock 可编译但签名待配置；公共 Header 合并已完成；运行时回归延后**
+> 状态：**Phase 1.2 / Phase 2 / Phase 3 / Phase 5 代码层完成；S-01 已解决；2026-10-22 环境收敛完成；release 构建与测试脚本通过；uat / mock 可编译但签名待配置；公共 Header 合并已完成；运行时验收清单已建立，待执行**
 > 当前阶段：**`internal` overlay 与手机号登录 UI 已合并到 main；运行环境收敛为 `mock` / `uat` / `release`；`base → Kit` 反向依赖为 0、core import cycle 为 0；三套 product 可独立构建，release 已签名，uat / mock 需独立 AGC 调试证书和 Profile**
-> 下一步：**补齐 uat / mock 签名材料；Phase 4 Mock local service 直连路由；运行时 header / retcode、真机与 Mock 回归仍延后**
-> 更新时间：2026-10-22
+> 下一步：**补齐 uat / mock 签名材料；按 [`Runtime-Acceptance-Checklist.md`](Runtime-Acceptance-Checklist.md) 执行运行时验收；Phase 4 Mock local service 直连路由**
+> 更新时间：2026-10-23
 
 本目录集中存放整个 Core Kits 重构任务的规划、阶段记录和专题文档，避免 Mock、Kit、DB 等子任务的文档散落在仓库各处。
 
@@ -48,6 +48,7 @@
 | [`Plan.md`](Plan.md) | 完整重构方案：目标结构、BaseApiService、DB 归类、阶段计划、风险 |
 | [`APIService.md`](APIService.md) | `BaseApiService` 抽离方案：axios 唯一封装层、继承关系、HTTP 状态边界、已确认事项、文件级迁移/删除清单、上报审计表、直接 return 上报漏点、Cookie 覆盖、实施陷阱；第 10 节记录已实施的公共 Header 合并 |
 | [`API-Baseline.md`](API-Baseline.md) | 旧 transport 迁移前后的 API header / retcode 基线清单：按登录、BBS、三游戏、签到、设备指纹 / Geetest 分组，列出触发入口、当前 header、待填字段和完成标准；§2.2 已补三个项目 + 历史抓包的静态对照；运行时 **未采集（延后）** |
+| [`Runtime-Acceptance-Checklist.md`](Runtime-Acceptance-Checklist.md) | 运行时手工验收清单：环境记录、QR / 手机号 / Cookie / BBS / 便笺 / 角色 / 签到 / 错误路径，含勾选项、待填结果和失败记录模板 |
 | [`Known-Issues.md`](Known-Issues.md) | 已知问题与暂缓项：header / retcode 未采集、参考冲突、当前不改的参考差异、Phase 1.2 边界与真机回归清单 |
 | [`Mock.md`](Mock.md) | Mock 部分：当前配置、已删除/保留内容、`mock-service` 契约、Swift-Vapor 迁移方案、缺口清单 |
 

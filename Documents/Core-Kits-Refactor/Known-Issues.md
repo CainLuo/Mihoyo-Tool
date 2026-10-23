@@ -265,6 +265,8 @@
 
 ## 5. 真机回归清单（有设备时执行）
 
+> 详细步骤、勾选项和待填结果见 [`Runtime-Acceptance-Checklist.md`](Runtime-Acceptance-Checklist.md)。
+
 - [ ] 手机号登录 / 二维码登录 / Cookie 登录
 - [ ] 账号详情、游戏角色列表、战绩卡片
 - [ ] 原神 / 星铁 / 绝区零便笺与 Widget
