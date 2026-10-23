@@ -17,8 +17,7 @@
 | `x-rpc-app_version` | `2.115.0`（`ApiConfig.APP_VERSION`）                                                                                  |
 | User-Agent          | `Mozilla/5.0 (iPhone; CPU iPhone OS 16_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) miHoYoBBS/2.104.0` |
 | 便笺 / Widget UA    | 便笺对齐 PizzaHelperUnited：`miHoYoBBS/2.40.1`；星铁 / 绝区零 Widget：`WidgetExtension/434 ...`                        |
-| salt_v1（旧 K2）    | 从 `rawfile/release/salt_config.json` 读取，**不硬编码**；当前无业务调用方                                             |
-| salt_v2（BBS）      | 同上；当前 `BBS` profile 使用                                                                                         |
+| salt_v2（BBS）      | 从 `rawfile/release/salt_config.json` 读取，**不硬编码**；当前 `BBS` profile 使用                                    |
 | salt_x4（X4）       | 同上；GAME_RECORD / CALCULATE / passport / Geetest 使用                                                               |
 | salt_x6（X6）       | 同上；SIGN profile 使用                                                                                               |
 
@@ -52,7 +51,7 @@
 
 > **关键差异**：本项目 salt 从文件读取（不硬编码），PizzaHelperUnited 和 TeyvatGuide 均硬编码。本项目 app_version 是 `2.115.0`，PizzaHelperUnited 国服是 `2.40.1`（本项目便笺 / Widget 另用此 profile），TeyvatGuide 是 `2.115.0`。
 >
-> 本项目 `salt_v1` / `salt_v2` 是 `lX8m...` / `yBh...`，与 TeyvatGuide 当前 K2 / LK2 不同；`generateV1` / `generateK2Sign` / `generateK2` 当前无业务调用方，不能据此推断线上 K2 行为。
+> 本项目 `salt_v2` 是 `yBh...`，与 TeyvatGuide 当前 K2 / LK2 不同；BBS 使用 salt_v2，不复用 TeyvatGuide 的 K2。
 
 ---
 
@@ -64,19 +63,15 @@
 
 | DS 类型 | 方法               | Salt                         | random 格式                 | 用途                                                |
 | ------- | ------------------ | ---------------------------- | --------------------------- | --------------------------------------------------- |
-| V1      | `generateV1()`     | salt_v1（旧 salt，未使用）   | 6 位纯数字（100000-199999） | 当前无业务调用方                                    |
 | V2      | `generateV2()`     | salt_v2（BBS profile）       | 6 位字母数字混合            | BBS 账号 / 角色 / 战绩卡片                          |
 | X4      | `generateX4()`     | salt_x4（X4）                | 6 位纯数字（100000-199999） | GAME_RECORD / CALCULATE / passport / Geetest        |
 | X6      | `generateX6()`     | salt_x6（X6）                | 6 位纯数字（100000-199999） | 签到接口（SIGN Profile）                            |
-| K2 Sign | `generateK2Sign()` | salt_v1（旧 salt，未使用）   | 6 位字母数字混合            | 当前无业务调用方；不是 TeyvatGuide 当前 K2 salt     |
-| K2      | `generateK2()`     | salt_v1（旧 salt，未使用）   | 6 位字母数字混合            | 当前无业务调用方；不是 TeyvatGuide 当前 K2 salt     |
 
 **hashStr 格式**：
 
-- 普通（含 b/q）：`salt={salt}&t={timestamp}&r={random}&b={body}&q={query}`
-- Sign（不含 b/q）：`salt={salt}&t={timestamp}&r={random}`
+- `salt={salt}&t={timestamp}&r={random}&b={body}&q={query}`
 
-**注意**：本项目数字 random 是 `100000-199999`，与 PizzaHelperUnited 的 `100_000 ..< 200_000` 一致；TeyvatGuide 的数字 random 上界为 `200000`。`GAME_RECORD` 实际使用 X4，不是 V1；`generateV1` / `generateK2*` 当前没有调用方，不能当作已验证的线上签名路径。
+**注意**：本项目数字 random 是 `100000-199999`，与 PizzaHelperUnited 的 `100_000 ..< 200_000` 一致；TeyvatGuide 的数字 random 上界为 `200000`。`GAME_RECORD` 使用 X4，签到使用 X6；当前没有 V1/K2 业务路径。
 
 ### PizzaHelperUnited（iOS）
 

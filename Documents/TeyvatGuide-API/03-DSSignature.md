@@ -18,7 +18,7 @@ DS（Dynamic Secret）是米游社 API 的请求签名，用于防止接口被�
 | `X6`      | `t0qEgfub6cvueAPgR5m9aQWWVciEer7v` | 签到接口、社区签到                     |
 | `PROD`    | `t0qEgfub6cvueAPgR5m9aQWWVciEer7v` | 与 X6 相同                             |
 
-> 本项目 `salt_config.json` 里的 `salt_v1=lX8m5VO5at5JG7hR8hzqFwzyL5aB1tYo`、`salt_v2=yBh10ikxtLPoIhgwgPZSv5dmfaOTSJ6a` **不是** TeyvatGuide 当前的 K2 / LK2；它们对应的 `generateV1` / `generateK2*` 当前也没有业务调用方。不要把这两组值混用。
+> 本项目 `salt_config.json` 只保留 `salt_v2` / `salt_x4` / `salt_x6`；BBS 使用 `salt_v2`，不复用 TeyvatGuide 的 K2 / LK2。
 
 ---
 

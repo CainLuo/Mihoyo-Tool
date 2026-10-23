@@ -7,14 +7,12 @@ import { util } from '@kit.ArkTS';
  * DSUtil — 米游社 DS 动态签名生成
  *
  * DS 格式：{timestamp},{random},{md5}
- * 普通请求 md5 内容：salt={salt}&t={timestamp}&r={random}&b={body}&q={query}
- * Sign 请求 md5 内容：salt={salt}&t={timestamp}&r={random}
+ * md5 内容：salt={salt}&t={timestamp}&r={random}&b={body}&q={query}
  *
  * salt 从 rawfile/release/salt_config.json 读取，禁止硬编码。
  * 使用前必须调用 preloadSalts(context) 完成预加载。
  */
 export class DSUtil {
-  private static saltV1: string = '';
   private static saltV2: string = '';
   private static saltX4: string = '';
   private static saltX6: string = '';
@@ -29,28 +27,15 @@ export class DSUtil {
       const decoder = new util.TextDecoder('utf-8');
       const jsonStr = decoder.decodeToString(new Uint8Array(raw.buffer));
       const config = JSON.parse(jsonStr) as Record<string, string>;
-      const v1 = config['salt_v1'];
       const v2 = config['salt_v2'];
       const x4 = config['salt_x4'];
       const x6 = config['salt_x6'];
-      if (typeof v1 === 'string') { DSUtil.saltV1 = v1; }
       if (typeof v2 === 'string') { DSUtil.saltV2 = v2; }
       if (typeof x4 === 'string') { DSUtil.saltX4 = x4; }
       if (typeof x6 === 'string') { DSUtil.saltX6 = x6; }
     } catch (e) {
       // salt 加载失败时保持空字符串，DS 签名会失效但不崩溃
     }
-  }
-
-  /**
-   * 生成 V1 DS（旧 salt，当前无业务调用方）
-   * GAME_RECORD 实际使用 X4，不要用本方法代替。
-   * random 为 6 位纯数字
-   * @param params GET 请求参数（用于 query 部分）
-   * @param body   POST 请求 body 字符串（GET 请求传 undefined）
-   */
-  static generateV1(params?: RequestParams, body?: string): string {
-    return DSUtil.generate(DSUtil.saltV1, params, body, true);
   }
 
   /**
@@ -85,30 +70,6 @@ export class DSUtil {
   }
 
   /**
-   * 生成 K2 Sign DS（Geetest createVerification 接口）
-   * 对应 TeyvatGuide 的 K2 salt + isSign=true
-   * 格式：salt={salt}&t={t}&r={r}（不含 b/q）
-   * random 为 6 位字母数字混合
-   */
-  static generateK2Sign(): string {
-    const salt = DSUtil.saltV1; // K2 = salt_v1
-    const timestamp = Math.floor(Date.now() / 1000);
-    const random = DSUtil.generateRandom(6);
-    const signContent = `salt=${salt}&t=${timestamp}&r=${random}`;
-    const md5Hash = crypto.MD5(signContent).toString();
-    return `${timestamp},${random},${md5Hash}`;
-  }
-
-  /**
-   * 生成 K2 DS（Geetest verifyVerification 接口）
-   * 对应 TeyvatGuide 的 K2 salt + isSign=false（含 b/q）
-   * random 为 6 位字母数字混合
-   */
-  static generateK2(params?: RequestParams, body?: string): string {
-    return DSUtil.generate(DSUtil.saltV1, params, body, false);
-  }
-
-  /**
    * 生成 X6 DS（签到接口，SIGN Profile）
    * 对应 TeyvatGuide 的 X6 salt + isSign=false（含 b/q）
    * random 为 6 位纯数字
@@ -121,20 +82,14 @@ export class DSUtil {
 
   /**
    * 使用固定 timestamp / random 生成 DS，供测试与内部复用。
-   * includeBodyQuery=false 时生成 Sign 形式（仅 salt/t/r）。
    */
   static generateWith(
     salt: string,
     timestamp: number,
     random: string,
     params?: RequestParams,
-    body?: string,
-    includeBodyQuery: boolean = true
+    body?: string
   ): string {
-    if (!includeBodyQuery) {
-      const signContent = `salt=${salt}&t=${timestamp}&r=${random}`;
-      return `${timestamp},${random},${crypto.MD5(signContent).toString()}`;
-    }
     const b = body !== undefined ? body : '';
     const q = DSUtil.serializeParams(params);
     const signContent = `salt=${salt}&t=${timestamp}&r=${random}&b=${b}&q=${q}`;
@@ -144,7 +99,7 @@ export class DSUtil {
   /**
    * 核心签名逻辑
    * query 参数按字典序排列（ArkTS 严格模式：用 for 循环替代 Array.sort()）
-   * @param numericRandom 是否使用纯数字 random（V1/X4/X6/K2 用纯数字，V2 用字母数字混合）
+   * @param numericRandom 是否使用纯数字 random（X4/X6 用纯数字，V2 用字母数字混合）
    */
   private static generate(salt: string, params?: RequestParams, body?: string, numericRandom: boolean = false): string {
     const timestamp = Math.floor(Date.now() / 1000);
@@ -195,7 +150,7 @@ export class DSUtil {
     return result;
   }
 
-  /** 生成 n 位随机纯数字字符串（V1/X4/X6/K2 DS 使用），范围 100000-199999 */
+  /** 生成 n 位随机纯数字字符串（X4/X6 DS 使用），范围 100000-199999 */
   private static generateNumericRandom(_n: number): string {
     // 范围 100000-199999，与 GenshinPizzaHelper/HSRPizzaHelper 一致
     // Int.random(in: 100_000 ..< 200_000)
