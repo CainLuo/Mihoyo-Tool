@@ -230,18 +230,19 @@ export class LoginViewModel {
   private async handleQRCodeConfirmed(confirmed: QRCodeConfirmedData): Promise<void> {
     this.isLoading = true;
     try {
-      // 新版 passport API 直接返回 stoken、ltoken、mid，无需 getTokenByGameToken 转换
+      // 新版 passport API 直接返回 stoken、mid，无需 getTokenByGameToken 转换。
+      // ltoken 和 cookie_token 通过 stoken 换取（与 TeyvatGuide 扫码流程一致）。
       const stoken = confirmed.stoken;
       const mid = confirmed.mid.length > 0 ? confirmed.mid : confirmed.uid;
+      const ltoken = await AuthRepository.getLTokenBySToken(stoken, mid);
 
-      // cookie_token 通过 stoken 换取（passport getCookieAccountInfoBySToken）。
       // 原先会先调用 V2 接口 /account/auth/api/getCookieBySToken，国服返回 404 后才退回此接口，现已去掉 V2 调用。
       const cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
 
       const fields = new LoginCookieFields();
       fields.accountId = confirmed.uid;
       fields.cookieToken = cookieToken;
-      fields.ltoken = confirmed.ltoken;
+      fields.ltoken = ltoken;
       fields.ltuid = confirmed.uid;
       fields.stoken = stoken;
       fields.mid = mid;

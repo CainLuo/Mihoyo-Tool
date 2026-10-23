@@ -14,7 +14,7 @@
 | --- | --- | --- | --- | --- |
 | R-01 | header / DS / retcode 实际抓包 | 只有静态参考；`API-Baseline.md` 仍为“运行时未采集” | 当前代码可运行，静态参考存在冲突 | 任务完成后用 Proxyman + debug 包补采；见 `APIService.md` §8.6 |
 | R-02 | BBS 账号 / 角色 / 战绩卡片 header | `client_type=1` + DS v2 + `Referer: app.mihoyo.com` | 本项目历史 App 抓包支持 `client_type=1`；TeyvatGuide / Pizza 用 `5` + X4 | 真机确认 `getUserFullInfo` / `getGameRoles` / `getGameRecordCard`；不要仅凭 SDK 推断 |
-| R-03 | 二维码登录 header | 已切到 TeyvatGuide 变体：`bll8iq97cem8` + Capture/2.2.0 + `client_type=3` + X4 DS | 静态 header 已对齐；扫码得到的 stoken 能否用于米游社尚未真机验证 | 真机扫码验证；不要再混用 Pizza / HYPContainer 变体 |
+| R-03 | 二维码登录 header / token | 已切到 TeyvatGuide 变体：`bll8iq97cem8` + Capture/2.2.0 + `client_type=3` + X4 DS；确认后调用 `getLTokenBySToken` 再取 `cookie_token` | 静态 header 和 token 流程已对齐；扫码得到的 stoken 能否用于米游社尚未真机验证 | 真机扫码验证；不要再混用 Pizza / HYPContainer 变体 |
 | R-04 | `cookie_token` 的 client_type | 当前 `getCookieAccountInfoBySToken` 用 `5` | TeyvatGuide 默认 `2`，Pizza 用 `5`；两边都有依据 | 失败时再对比；暂不改 |
 | R-05 | 便笺 / Widget header | `buildPizza`：app 2.40.1、UA 2.40.1、page `3.1.3_#/rpg` | 与 Pizza 一致；历史 App 抓包是 2.102.0 / 2.115.0 + tool_verison / 按游戏 page + device_name | 真机确认便笺和 Widget；`addNoteCaptureHeaders` 当前未调用，不要顺手启用 |
 | R-06 | HTTP 非 200 / 超时 | `HttpError` 已实现；`statusCode=0` 表示无响应 | 没有真实 401/500/断网记录 | 在真机或本地代理制造 401/500/超时各一次 |

@@ -86,7 +86,7 @@
 
 > **QR 参考结论（2026-10-23 核对）**：TeyvatGuide 于 2026-10-01 将 QR 从 Pizza/HYPContainer 变体切到当前变体，提交说明明确“user-agent 需与米游社 App 一致，扫码得到的 stoken 才能用于米社”；其 QR header 是三者中最近一次功能性变更。PizzaHelperUnited 的 QR 网络实现停留在 2026-05-28（2026-09-20 仅修 UI），其最小 header 仍可用于 Pizza 自身流程，但旧 TeyvatGuide 曾注明该变体的 stoken 无法用于米社打卡。`mihoyo-api-sdk` 是 2026-09-13 重新生成的契约/SDK，不是实际客户端；它要求 QR body 带 `app_id`/`DeviceContext`，与 Pizza、TeyvatGuide 两套实际客户端冲突，不能作为 header 参考。因此本项目保留 TeyvatGuide 变体。
 >
-> **Token 流程差异**：TeyvatGuide 扫码确认后再调 `getLTokenBySToken` 获取 ltoken，然后调 `getCookieAccountInfoBySToken`；PizzaHelperUnited 不调 `getLTokenBySToken`，直接把 stoken 当作 ltoken，只调 `getCookieAccountInfoBySToken`；`mihoyo-api-sdk` 只定义这两个 token 接口，不编排登录流程。QR header 选型与 token 交换是两条独立链路；本项目 BBS 层需要 ltoken，不能因为换 QR header 就省略 token 交换。
+> **Token 流程差异**：TeyvatGuide 扫码确认后再调 `getLTokenBySToken` 获取 ltoken，然后调 `getCookieAccountInfoBySToken`；PizzaHelperUnited 不调 `getLTokenBySToken`，直接把 stoken 当作 ltoken，只调 `getCookieAccountInfoBySToken`；`mihoyo-api-sdk` 只定义这两个 token 接口，不编排登录流程。QR header 选型与 token 交换是两条独立链路；本项目 BBS 层需要 ltoken，不能因为换 QR header 就省略 token 交换。当前 QR 登录已按 TeyvatGuide 在确认后调用 `getLTokenBySToken`，再调用 `getCookieAccountInfoBySToken`。
 
 #### 2.2.2 Retcode 静态对照
 

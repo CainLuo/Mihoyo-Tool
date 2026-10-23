@@ -151,24 +151,17 @@ export class AuthRepository {
       // 新版 API 使用 status 字段，转换为小写
       const status = resp.data.status as string;
       queryResult.stat = status.toLowerCase();
-      // Confirmed 状态时解析 tokens 和 user_info
+      // Confirmed 状态时解析 stoken 和 user_info；ltoken 由调用方通过 getLTokenBySToken 换取
       if (queryResult.stat === QR_STAT_CONFIRMED && resp.data.tokens !== undefined && resp.data.user_info !== undefined) {
         const tokens = resp.data.tokens;
         const userInfo = resp.data.user_info;
-        // token_type: 1=stoken, 2=ltoken, 4=cookie_token
-        let stoken = '';
-        let ltoken = '';
-        for (const t of tokens) {
-          if (t.token_type === 1) {
-            stoken = t.token;
-          } else if (t.token_type === 2) {
-            ltoken = t.token;
-          }
+        const stoken = tokens.length > 0 ? tokens[0].token : '';
+        if (stoken.length === 0 || userInfo.aid.length === 0 || userInfo.mid.length === 0) {
+          throw new Error('queryQRCode confirmed response missing stoken or user info');
         }
         const confirmed = new QRCodeConfirmedData();
         confirmed.uid = userInfo.aid;
         confirmed.stoken = stoken;
-        confirmed.ltoken = ltoken;
         confirmed.mid = userInfo.mid;
         queryResult.confirmed = confirmed;
       }

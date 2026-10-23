@@ -6,7 +6,7 @@
  *   POST /account/ma-cn-passport/app/createQRLogin  — 获取二维码 URL
  *   POST /account/ma-cn-passport/app/queryQRLoginStatus  — 轮询扫码状态
  *
- * 新版 passport API 直接返回 stoken，无需 gameToken 转换链。
+ * 新版 passport API 直接返回 stoken，无需 gameToken 转换链；ltoken 通过 stoken 另行换取。
  */
 
 // ─── 获取二维码 ───────────────────────────────────────────────────
@@ -55,8 +55,6 @@ interface QRCodeQueryData {
 interface QRCodeToken {
   /** token 值 */
   token: string;
-  /** token 类型：1=stoken, 2=ltoken, 4=cookie_token */
-  token_type: number;
 }
 
 /** 用户信息 */
@@ -69,14 +67,12 @@ interface QRCodeUserInfo {
   account_name: string;
 }
 
-/** 二维码扫描确认后的数据（新版 passport API 直接返回 token） */
+/** 二维码扫描确认后的数据（新版 passport API 直接返回 stoken；ltoken 另行换取） */
 export class QRCodeConfirmedData {
   /** 米游社账号 UID（aid） */
   uid: string = '';
   /** stoken */
   stoken: string = '';
-  /** ltoken */
-  ltoken: string = '';
   /** mid */
   mid: string = '';
 }
