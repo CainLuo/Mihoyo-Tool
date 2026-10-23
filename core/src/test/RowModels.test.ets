@@ -7,6 +7,7 @@
 import { describe, it, expect } from '@ohos/hypium';
 import { AccountRow } from '../main/ets/MihoyoKit/model/AccountRow';
 import { GameRoleRow } from '../main/ets/MihoyoKit/model/GameRoleRow';
+import { GameId } from '../main/ets/common/constants/GameId';
 import {
   GenshinCharacterListRow,
   GenshinDailyNoteRow,
@@ -46,8 +47,8 @@ export default function rowModelsTest() {
     it('defaultValues_areCorrect', 0, () => {
       const row = new GameRoleRow();
       expect(row.id).assertEqual(0);
-      expect(row.accountId).assertEqual(0);
-      expect(row.gameId).assertEqual('');
+      expect(row.accountId).assertEqual('');
+      expect(row.gameId).assertEqual(GameId.GENSHIN);
       expect(row.roleId).assertEqual('');
       expect(row.level).assertEqual(0);
       expect(row.isChosen).assertEqual(0);
@@ -59,7 +60,7 @@ export default function rowModelsTest() {
     it('defaultValues_areCorrect', 0, () => {
       const row = new GenshinCharacterListRow();
       expect(row.id).assertEqual(0);
-      expect(row.accountId).assertEqual(0);
+      expect(row.accountId).assertEqual('');
       expect(row.roleUid).assertEqual('');
       expect(row.avatarId).assertEqual('');
       expect(row.rarity).assertEqual(0);
@@ -196,7 +197,7 @@ export default function rowModelsTest() {
     it('defaultValues_areCorrect', 0, () => {
       const row = new SyncMetaRow();
       expect(row.id).assertEqual(0);
-      expect(row.accountId).assertEqual(0);
+      expect(row.accountId).assertEqual('');
       expect(row.roleUid).assertEqual('');
       expect(row.dataType).assertEqual('');
       expect(row.lastSyncTime).assertEqual(0);
