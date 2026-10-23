@@ -6,7 +6,7 @@ import { MihoyoApiService } from '../../base/network/MihoyoApiService';
 import { MihoyoDomain } from '../../base/network/MihoyoDomain';
 import { MihoyoAccountApiPath } from './MihoyoAccountApiPath';
 import { PassportApiPath } from './PassportApiPath';
-import { QRCodeApiPath } from './QRCodeApiPath';
+import { QRCodeApiPath, QRCodeConfig } from './QRCodeApiPath';
 import { HeaderContext, HeaderProfile } from '../../base/network/MihoyoHeaderBuilder';
 import { HKey, HVal } from '../../base/network/MihoyoHeaderKey';
 import { ApiConfig } from '../../base/network/ApiConfig';
@@ -183,27 +183,15 @@ export class MihoyoAccountApiService extends MihoyoApiService {
   // ── 二维码登录 ────────────────────────────────────────────────
 
   async fetchQRCode(deviceId: string): Promise<object> {
-    const opts = new RequestOptions();
-    const h = opts.extraHeaders;
-    h.set(HKey.CONTENT_TYPE, HVal.JSON);
-    h.set('x-rpc-app_id', 'ddxf5dufpuyo');
-    h.set('x-rpc-client_type', '3');
-    h.set('x-rpc-device_id', deviceId);
-    h.set(HKey.USER_AGENT, 'HYPContainer/1.3.3.182');
-    // 新版 passport API 空请求体，设备 ID 通过 header 传递
-    const response = await this.post(MihoyoDomain.PASSPORT + QRCodeApiPath.FETCH, '{}', opts);
+    const bodyStr = '{}';
+    const opts = QRCodeConfig.buildOptions(deviceId, bodyStr);
+    const response = await this.post(MihoyoDomain.PASSPORT + QRCodeApiPath.FETCH, bodyStr, opts);
     return response.data;
   }
 
   async queryQRCode(deviceId: string, ticket: string): Promise<object> {
     const bodyStr = JSON.stringify({ ticket: ticket });
-    const opts = new RequestOptions();
-    const h = opts.extraHeaders;
-    h.set(HKey.CONTENT_TYPE, HVal.JSON);
-    h.set('x-rpc-app_id', 'ddxf5dufpuyo');
-    h.set('x-rpc-client_type', '3');
-    h.set('x-rpc-device_id', deviceId);
-    h.set(HKey.USER_AGENT, 'HYPContainer/1.3.3.182');
+    const opts = QRCodeConfig.buildOptions(deviceId, bodyStr);
     const response = await this.post(MihoyoDomain.PASSPORT + QRCodeApiPath.QUERY, bodyStr, opts);
     return response.data;
   }

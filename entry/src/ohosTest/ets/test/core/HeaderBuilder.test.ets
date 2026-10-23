@@ -19,6 +19,7 @@ import {
   HVal,
   GameFpBiz,
   MihoyoApiService,
+  QRCodeConfig,
 } from 'core';
 
 class HeaderProbeService extends MihoyoApiService {
@@ -46,6 +47,25 @@ export default function headerBuilderTest() {
       expect(headers.get(HKey.CLIENT_TYPE)).assertEqual(HVal.CLIENT_IOS);
       expect(headers.get(HKey.COOKIE)).assertEqual('ltuid=1; ltoken=abc');
       expect(headers.has(HKey.DS)).assertTrue();
+    });
+
+    it('qrCode_buildOptions_matchesTeyvatGuide', 0, () => {
+      const opts = QRCodeConfig.buildOptions('device-123', '{}');
+      const headers = opts.extraHeaders;
+      expect(headers.get(HKey.APP_ID)).assertEqual('bll8iq97cem8');
+      expect(headers.get(HKey.CLIENT_TYPE)).assertEqual('3');
+      expect(headers.get(HKey.USER_AGENT)).assertEqual('Mozilla/5.0 miHoYoBBS/2.115.0 Capture/2.2.0');
+      expect(headers.get(HKey.GAME_BIZ)).assertEqual('bbs_cn');
+      expect(headers.get(HKey.APP_VERSION)).assertEqual('2.115.0');
+      expect(headers.get(HKey.SDK_VERSION)).assertEqual('2.115.0');
+      expect(headers.get(HKey.ACCOUNT_VERSION)).assertEqual('2.115.0');
+      expect(headers.get(HKey.DEVICE_ID)).assertEqual('device-123');
+      expect(headers.has(HKey.DEVICE_FP)).assertTrue();
+      expect(headers.has(HKey.DEVICE_NAME)).assertTrue();
+      expect(headers.has(HKey.DEVICE_MODEL)).assertTrue();
+      expect(headers.get(HKey.CONTENT_TYPE)).assertEqual('application/json');
+      const ds = headers.get(HKey.DS) ?? '';
+      expect(ds.split(',').length).assertEqual(3);
     });
 
     it('buildFor_pizzaRecord_appliesGameBizAndWidgetUserAgent', 0, () => {

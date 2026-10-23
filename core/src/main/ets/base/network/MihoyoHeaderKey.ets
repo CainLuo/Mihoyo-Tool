@@ -20,6 +20,8 @@ export enum HKey {
   APP_VERSION         = 'x-rpc-app_version',
   APP_ID              = 'x-rpc-app_id',
   APP_CHANNEL         = 'x-rpc-app_channel',
+  SDK_VERSION         = 'x-rpc-sdk_version',
+  ACCOUNT_VERSION     = 'x-rpc-account_version',
   CLIENT_TYPE         = 'x-rpc-client_type',
   DEVICE_ID           = 'x-rpc-device_id',
   DEVICE_FP           = 'x-rpc-device_fp',
@@ -75,8 +77,12 @@ export enum HVal {
   TEXT_PLAIN          = 'text/plain;charset=UTF-8',
   /** Accept: application/json, text/plain, *\/* */
   ACCEPT_JSON         = 'application/json, text/plain, */*',
+  /** Accept: *\/*（Passport 二维码登录） */
+  ACCEPT_ALL          = '*/*',
   /** Accept-Language: zh-CN,zh-Hans;q=0.9 */
   ACCEPT_LANG_ZH      = 'zh-CN,zh-Hans;q=0.9',
+  /** Accept-Language: zh-cn（TeyvatGuide 二维码登录） */
+  ACCEPT_LANG_ZH_CN   = 'zh-cn',
 
   /** x-rpc-client_type: 1 = iOS */
   CLIENT_IOS          = '1',
@@ -87,6 +93,8 @@ export enum HVal {
 
   /** x-rpc-game_biz: hk4e_cn（原神国服） */
   GAME_BIZ_GENSHIN    = 'hk4e_cn',
+  /** x-rpc-game_biz: bbs_cn（米游社） */
+  GAME_BIZ_BBS        = 'bbs_cn',
 
   /** x-rpc-language: zh-cn */
   LANG_ZH_CN          = 'zh-cn',

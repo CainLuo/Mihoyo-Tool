@@ -143,23 +143,18 @@ TeyvatGuide 当前源码（`getQrHeaders`）：
 
 ```
 user-agent: Mozilla/5.0 miHoYoBBS/2.115.0 Capture/2.2.0
+accept: */*
+accept-language: zh-cn
 x-rpc-app_id: bll8iq97cem8
 x-rpc-client_type: 3
+x-rpc-app_version / x-rpc-sdk_version / x-rpc-account_version: 2.115.0
 x-rpc-game_biz: bbs_cn
 x-rpc-device_id / device_fp / device_name / device_model
 ds: {X4 签名，body 参与}
+content-type: application/json
 ```
 
-PizzaHelperUnited / 本项目当前使用另一组已验证变体：
-
-```
-user-agent: HYPContainer/1.3.3.182
-x-rpc-app_id: ddxf5dufpuyo
-x-rpc-client_type: 3
-ds: absent
-```
-
-两组不要混用；当前项目保留 Pizza / HYPContainer 变体，运行时需确认扫码得到的 stoken 能用于米游社。
+本项目 `QRCodeConfig.buildOptions` 已对齐该变体：同一个 `app_id`、Capture UA、`client_type=3`、完整设备字段和 X4 DS。PizzaHelperUnited 的 HYPContainer 变体不再用于本项目。
 
 ### stoken 换取接口
 

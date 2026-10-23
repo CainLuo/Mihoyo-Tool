@@ -79,7 +79,7 @@
 | BBS 账号详情、角色、战绩卡片 | `mihoyo_apis.md` 历史抓包（BBS 账号详情 / 战绩卡片） vs TeyvatGuide `recordReq.ts`、PizzaHelperUnited `UserGameRolesAPI.swift` | 历史抓包：`client_type=1`、DS、Referer `app.mihoyo.com`、UA `Hyperion/547`、Cookie `stoken/mid`；TeyvatGuide / Pizza：`client_type=5`、DS X4、Referer `webstatic`、Cookie `ltoken/account_id` | `BBS` profile：`client_type=1`、DS v2（当前 `salt_v2`）、Referer `app.mihoyo.com`、完整 Cookie、UA 2.104.0 | 参考有分歧；当前保留历史 App 变体；P0-07 / P0-08 / P0-09 运行时必测 |
 | 手机号验证码 / 登录 | TeyvatGuide `passportReq.ts` | `x-rpc-app_id=bll8iq97cem8`，`client_type=2`，`app_version=2.115.0`，Android UA，Referer `user.miyoushe.com`，设备字段 | 当前手写 header 与参考值一致 | 一致；运行时未采集 |
 | stoken 换 ltoken / cookie_token | TeyvatGuide `passportReq.ts`；PizzaHelperUnited | ltoken：`client_type=5`；cookie_token：TeyvatGuide 默认 `2`，Pizza 当前用 `5`；DS X4，Cookie `mid/stoken`，Referer `webstatic` | 两种换取都用 `client_type=5` + DS X4 | 部分分歧（cookie_token 的 client_type）；运行时未采集 |
-| 二维码创建 / 轮询 | TeyvatGuide `passportReq.ts`（当前源码） vs PizzaHelperUnited / 本项目 | TeyvatGuide：`app_id=bll8iq97cem8`、UA `miHoYoBBS/2.115.0 Capture/2.2.0`、`client_type=3`、DS X4；Pizza / 当前：`app_id=ddxf5dufpuyo`、UA `HYPContainer/1.3.3.182`、`client_type=3`、无 DS | 当前使用 Pizza / HYPContainer 变体 | 参考有分歧；当前不变；运行时必测 |
+| 二维码创建 / 轮询 | TeyvatGuide `passportReq.ts`（当前源码） vs PizzaHelperUnited | TeyvatGuide：`app_id=bll8iq97cem8`、UA `miHoYoBBS/2.115.0 Capture/2.2.0`、`client_type=3`、DS X4；Pizza：`app_id=ddxf5dufpuyo`、UA `HYPContainer/1.3.3.182`、`client_type=3`、无 DS | `QRCodeConfig.buildOptions()` 已切到 TeyvatGuide 变体 | 静态参考已对齐 TeyvatGuide；扫码 stoken 运行时未采集 |
 | 大别野 / 游戏签到 | TeyvatGuide `lunaReq.ts`、`apiHubReq.ts` | DS X6，`client_type=2`，游戏签到 Referer `act.mihoyo.com` + `x-rpc-signgame`；大别野 Referer `app.mihoyo.com` | `SIGN` profile 与参考值一致；`getSignInfo` / `getSignReward` 的参数与参考不同，且当前无业务调用方 | header 一致；参数和调用链未验证 |
 | 绝区零战绩 raw header | ZZZure/ZZZ-Plugin（三个指定项目未覆盖） | `app_version=2.73.1`，`client_type=2`，Android WebView UA，DS X4，Referer `act.mihoyo.com` | `ZZZRecordRequest` 与 ZZZ-Plugin 一致 | 与 ZZZ-Plugin 一致；P0-21 / P0-23 / P0-24 / P0-25 运行时未采集 |
 | 绝区零 Widget / 养成计算 | PizzaHelperUnited `NoteAPI4ZZZ.swift`；TeyvatGuide / ZZZ-Plugin | Widget：`buildPizza` + X4 + WidgetExtension UA；养成计算：无 DS、`x-rpc-cultivate_source=bbs` | 当前与参考一致 | 基本一致；运行时未采集 |
@@ -115,8 +115,8 @@
 | P0-02 | `POST /account/ma-cn-passport/app/loginByMobileCaptcha` | `MihoyoAccountApiService.loginByMobileCaptcha`；登录页提交验证码 | Passport 手写 header；service 路径为 `application/json` | 待填 | 待填 | 待填 | 待填 | 静态参考已核对；运行时未采集 |
 | P0-03 | `GET /account/auth/api/getLTokenBySToken` | `MihoyoAccountApiService.getLTokenBySToken`；手机号/二维码登录后换取 ltoken | 手写 header + Cookie(`mid`,`stoken`) + DS X4 | 待填 | 待填 | 待填 | 待填 | 参考有分歧；运行时未采集 |
 | P0-04 | `GET /account/auth/api/getCookieAccountInfoBySToken` | `MihoyoAccountApiService.getCookieTokenBySToken`；同上换取 cookie_token | 手写 header + Cookie(`mid`,`stoken`) + DS X4 | 待填 | 待填 | 待填 | 待填 | 参考有分歧；运行时未采集 |
-| P0-05 | `POST /account/ma-cn-passport/app/createQRLogin` | `MihoyoAccountApiService.fetchQRCode` / `AuthRepository.fetchQRCode`；登录页二维码 | QR 手写 header：`HYPContainer` UA、`x-rpc-app_id=ddxf5dufpuyo`、`client_type=3`、`device_id` | 待填 | 待填 | 待填 | 待填 | 参考有分歧；运行时未采集 |
-| P0-06 | `POST /account/ma-cn-passport/app/queryQRLoginStatus` | `MihoyoAccountApiService.queryQRCode` / `AuthRepository.queryQRCode`；二维码轮询 | 同 P0-05，POST body `{ticket}` | 待填 | 待填 | 待填 | 待填 | 参考有分歧；运行时未采集 |
+| P0-05 | `POST /account/ma-cn-passport/app/createQRLogin` | `MihoyoAccountApiService.fetchQRCode` / `AuthRepository.fetchQRCode`；登录页二维码 | `QRCodeConfig`：TeyvatGuide 变体（`bll8iq97cem8`、Capture UA、`client_type=3`、X4 DS、设备字段） | 待填 | 待填 | 待填 | 待填 | 静态参考已对齐（TeyvatGuide）；运行时未采集 |
+| P0-06 | `POST /account/ma-cn-passport/app/queryQRLoginStatus` | `MihoyoAccountApiService.queryQRCode` / `AuthRepository.queryQRCode`；二维码轮询 | 同 P0-05，POST body `{ticket}` | 待填 | 待填 | 待填 | 待填 | 静态参考已对齐（TeyvatGuide）；运行时未采集 |
 
 > 登录/Passport 不应触发 Geetest / 指纹上报；如果实际出现，单独记录。
 
