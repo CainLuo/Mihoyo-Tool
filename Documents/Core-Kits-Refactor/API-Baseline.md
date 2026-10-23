@@ -84,6 +84,8 @@
 | 绝区零战绩 raw header | ZZZure/ZZZ-Plugin（三个指定项目未覆盖） | `app_version=2.73.1`，`client_type=2`，Android WebView UA，DS X4，Referer `act.mihoyo.com` | `ZZZRecordRequest` 与 ZZZ-Plugin 一致 | 与 ZZZ-Plugin 一致；P0-21 / P0-23 / P0-24 / P0-25 运行时未采集 |
 | 绝区零 Widget / 养成计算 | PizzaHelperUnited `NoteAPI4ZZZ.swift`；TeyvatGuide / ZZZ-Plugin | Widget：`buildPizza` + X4 + WidgetExtension UA；养成计算：无 DS、`x-rpc-cultivate_source=bbs` | 当前与参考一致 | 基本一致；运行时未采集 |
 
+> **QR 参考结论（2026-10-23 核对）**：TeyvatGuide 于 2026-10-01 将 QR 从 Pizza/HYPContainer 变体切到当前变体，提交说明明确“user-agent 需与米游社 App 一致，扫码得到的 stoken 才能用于米社”；其 QR header 是三者中最近一次功能性变更。PizzaHelperUnited 的 QR 网络实现停留在 2026-05-28（2026-09-20 仅修 UI），其最小 header 仍可用于 Pizza 自身流程，但旧 TeyvatGuide 曾注明该变体的 stoken 无法用于米社打卡。`mihoyo-api-sdk` 是 2026-09-13 重新生成的契约/SDK，不是实际客户端；它要求 QR body 带 `app_id`/`DeviceContext`，与 Pizza、TeyvatGuide 两套实际客户端冲突，不能作为 header 参考。因此本项目保留 TeyvatGuide 变体。
+
 #### 2.2.2 Retcode 静态对照
 
 | retcode | 参考结论 | 当前实现 | 静态结论 |

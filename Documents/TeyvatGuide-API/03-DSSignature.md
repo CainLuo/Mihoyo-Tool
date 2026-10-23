@@ -156,6 +156,8 @@ content-type: application/json
 
 本项目 `QRCodeConfig.buildOptions` 已对齐该变体：同一个 `app_id`、Capture UA、`client_type=3`、完整设备字段和 X4 DS。PizzaHelperUnited 的 HYPContainer 变体不再用于本项目。
 
+> 2026-10-01 TeyvatGuide 才从 Pizza/HYPContainer 变体切到上述变体，提交说明明确“user-agent 需与米游社 App 一致，扫码得到的 stoken 才能用于米社”。这是本项目选择当前 TeyvatGuide 变体的直接原因。
+
 ### stoken 换取接口
 
 `getLTokenBySToken` 使用 `getPassportHeaders(cookie)`：`client_type=5`、DS X4、Cookie `mid/stoken`、Referer `webstatic`。
