@@ -6,12 +6,15 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from '@ohos/hypium';
-import { GenshinMaterialBagDao, StarRailMaterialBagDao, ZZZMaterialBagDao } from '../../../main/ets/database/MaterialBagDao';
-import { MaterialBagRow } from '../../../main/ets/models/MaterialBagRow';
-import { RdbManager } from '../../../main/ets/database/RdbManager';
-import { AccountDao } from '../../../main/ets/database/BBSDao';
-import { AccountRow } from '../../../main/ets/models/AccountRow';
-import { GameId } from '../../../main/ets/constants/GameId';
+import { GenshinMaterialBagDao } from '../../../main/ets/GenshinKit/db/MaterialBagDao';
+import { StarRailMaterialBagDao } from '../../../main/ets/StarRailKit/db/MaterialBagDao';
+import { ZZZMaterialBagDao } from '../../../main/ets/ZZZKit/db/MaterialBagDao';
+import { MaterialBagRow } from '../../../main/ets/common/material/model/MaterialBagRow';
+import { RdbManager } from '../../../main/ets/db/RdbManager';
+import { SCHEMA_REGISTRY } from '../../../main/ets/SchemaRegistry';
+import { AccountDao } from '../../../main/ets/MihoyoKit/db/BBSDao';
+import { AccountRow } from '../../../main/ets/MihoyoKit/model/AccountRow';
+import { GameId } from '../../../main/ets/common/constants/GameId';
 import UIAbility from '@ohos.app.ability.UIAbility';
 import AbilityConstant from '@ohos.app.ability.AbilityConstant';
 
@@ -27,7 +30,7 @@ export default function materialBagDaoTest() {
     beforeAll(async () => {
       // 确保 RDB 已初始化
       const context = getContext(this) as UIAbilityContext;
-      await RdbManager.init(context);
+      await RdbManager.init(context, SCHEMA_REGISTRY);
       genshinDao = new GenshinMaterialBagDao();
       starrailDao = new StarRailMaterialBagDao();
       zzzDao = new ZZZMaterialBagDao();

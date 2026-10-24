@@ -95,7 +95,7 @@
 
 ```bash
 export DEVECO_SDK_HOME='/Applications/DevEco-Studio.app/Contents/sdk'
-/Applications/DevEco-Studio.app/Contents/tools/hvigor/bin/hvigorw assembleHap -p product=mock
+/Applications/DevEco-Studio.app/Contents/tools/hvigor/bin/hvigorw assembleHap -p product=debug
 ```
 
 ---

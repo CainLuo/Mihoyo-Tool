@@ -1,14 +1,10 @@
 /**
  * GeetestTrigger — Geetest 人机验证触发数据
  *
- * 当同步接口返回 retcode=10035（需要 Geetest 验证）时，
- * HomeViewModel 将此对象赋值给 @Trace geetestTrigger，
- * View 层监听到变化后弹出 GeetestDialog。
- *
- * 验证完成后，View 层调用 HomeViewModel.onGeetestResult() 传回验证结果，
- * ViewModel 用 cookie + gameId + roleId + server 重新发起同步请求。
+ * 任何接口返回 retcode=1034 / 10035 时，GeetestCenter 构造此对象推入 GeetestSignal，
+ * Main.ets 弹出 GeetestDialog；验证通过后 GeetestCenter 用同一 challengePath 提交验证。
  */
-import { GeetestCreateResult, GameId } from 'core';
+import { GeetestCreateResult, GameId, MihoyoRetcode } from 'core';
 
 export class GeetestTrigger {
   /** Geetest 创建结果（含 gt、challenge 等验证参数） */
@@ -23,6 +19,10 @@ export class GeetestTrigger {
   server: string;
   /** 触发验证的米游社 UID */
   accountId: string;
+  /** 失败接口的完整地址（x-rpc-challenge_path）；为空时使用该游戏的便笺接口 */
+  challengePath: string = '';
+  /** 触发验证的返回码（1034 / 10035），绝区零战绩接口据此选择验证接口 */
+  retcode: number = MihoyoRetcode.CAPTCHA_REQUIRED;
 
   constructor(
     createResult: GeetestCreateResult,

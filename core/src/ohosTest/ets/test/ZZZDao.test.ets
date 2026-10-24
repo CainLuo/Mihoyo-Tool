@@ -1,20 +1,21 @@
 import { describe, it, expect, beforeAll, beforeEach } from '@ohos/hypium';
 import { common } from '@kit.AbilityKit';
-import { RdbManager } from '../../../main/ets/database/RdbManager';
-import { AccountDao } from '../../../main/ets/database/BBSDao';
+import { RdbManager } from '../../../main/ets/db/RdbManager';
+import { SCHEMA_REGISTRY } from '../../../main/ets/SchemaRegistry';
+import { AccountDao } from '../../../main/ets/MihoyoKit/db/BBSDao';
 import {
   ZZZAvatarBasicDao,
   ZZZDailyNoteDao,
   ZZZAvatarInfoDao,
   ZZZAvatarComputeDao
-} from '../../../main/ets/database/ZZZDao';
+} from '../../../main/ets/ZZZKit/db/ZZZDao';
 import {
   ZZZAvatarBasicRow,
   ZZZDailyNoteRow,
   ZZZAvatarInfoRow,
   ZZZAvatarComputeRow
-} from '../../../main/ets/models/ZZZRows';
-import { AccountRow } from '../../../main/ets/models/AccountRow';
+} from '../../../main/ets/ZZZKit/model/ZZZRows';
+import { AccountRow } from '../../../main/ets/MihoyoKit/model/AccountRow';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 
 async function getContext(): Promise<common.UIAbilityContext> {
@@ -102,7 +103,7 @@ export default function zzzDaoTest() {
   const avatarComputeDao = new ZZZAvatarComputeDao();
 
   beforeAll(async () => {
-    await RdbManager.init(await getContext());
+    await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
     const acc = new AccountRow();
     acc.id = 10003;
     acc.username = 'zzz_dao_test_account';

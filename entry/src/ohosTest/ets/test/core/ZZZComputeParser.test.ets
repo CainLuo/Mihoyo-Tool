@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from '@ohos/hypium';
-import { ZZZComputeParser, ZZZComputeData, ZZZMaterialItem } from '../main/ets/parsers/zzz/ZZZComputeParser';
+import { ZZZComputeParser, ZZZComputeData, ZZZMaterialItem } from 'core';
 
 // 标准测试 JSON（基于真实 API 响应结构）
 const VALID_JSON = `{
@@ -85,7 +85,7 @@ export default function zzzComputeParserTest() {
 
     it('parse_validJson_returnsData', 0, () => {
       const data = ZZZComputeParser.parse(VALID_JSON);
-      expect(data).not.assertNull();
+      expect(data).not().assertNull();
     });
 
     it('parse_avatarConsume_length', 0, () => {

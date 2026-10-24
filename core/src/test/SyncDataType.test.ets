@@ -6,7 +6,7 @@
  */
 
 import { describe, it, expect } from '@ohos/hypium';
-import { SyncDataType } from '../main/ets/constants/SyncDataType';
+import { SyncDataType } from '../main/ets/common/constants/SyncDataType';
 
 export default function syncDataTypeTest() {
   describe('SyncDataType', () => {

@@ -21,12 +21,12 @@
       "value": "米悠悠"
     },
     {
-      "name": "EntryAbility_label_mock",
-      "value": "米悠悠-mock"
+      "name": "EntryAbility_label_uat",
+      "value": "米悠悠-UAT"
     },
     {
-      "name": "EntryAbility_label_debug",
-      "value": "米悠悠-debug"
+      "name": "EntryAbility_label_mock",
+      "value": "米悠悠-Mock"
     },
     {
       "name": "home_title",
@@ -2411,6 +2411,42 @@
     {
       "name": "material_character_select_no_needs",
       "value": "所选角色已全部满级，无需培养材料"
+    },
+    {
+      "name": "device_fp_invalid_title",
+      "value": "设备指纹无效"
+    },
+    {
+      "name": "device_fp_invalid_msg",
+      "value": "%s 的请求返回设备指纹无效（错误码 %d），通常是被米游社风控。可以重新生成设备指纹后重试。"
+    },
+    {
+      "name": "device_fp_regenerate",
+      "value": "重新生成设备指纹"
+    },
+    {
+      "name": "device_fp_regenerating",
+      "value": "重新生成中…"
+    },
+    {
+      "name": "device_fp_regenerate_success",
+      "value": "已重新生成设备指纹，正在重新同步"
+    },
+    {
+      "name": "device_fp_regenerate_failed",
+      "value": "重新生成设备指纹失败，请稍后再试"
+    },
+    {
+      "name": "device_fp_unknown_account",
+      "value": "米游社账号"
+    },
+    {
+      "name": "device_fp_regenerate_short",
+      "value": "重新生成"
+    },
+    {
+      "name": "characters_refresh_busy",
+      "value": "正在刷新，请勿频繁刷新"
     }
   ]
 }

@@ -17,7 +17,8 @@
 ## 测试文件位置
 
 ```
-core/src/test/           ← core 本地单元测试（纯逻辑：Parser、DSUtil、MockServiceBase 静态方法、枚举、Row 模型）
+core/src/test/           ← core 本地单元测试（纯逻辑：Parser、DSUtil、枚举、Row 模型）
+mock-service/tests/      ← Mock 路由与 fixture 选择测试（Node test runner）
 core/src/ohosTest/       ← core 设备端测试（需要真实 RDB：DAO、RdbManager、Repository）
 entry/src/test/          ← entry 本地单元测试（纯逻辑：ViewModel 状态初始化和纯函数）
 entry/src/ohosTest/      ← entry 设备端 UI 测试（需要真机/模拟器：页面交互流程）

@@ -9,7 +9,7 @@
  */
 
 import { describe, it, expect } from '@ohos/hypium';
-import { GenshinComputeParser, GenshinComputeItem, GenshinMaterialItem } from '../main/ets/parsers/genshin/GenshinComputeParser';
+import { GenshinComputeParser, GenshinComputeItem, GenshinMaterialItem } from '../main/ets/GenshinKit/parser/GenshinComputeParser';
 
 // ─── 批量 API 响应格式测试数据 ────────────────────────────────────────
 
@@ -277,7 +277,7 @@ export default function genshinComputeParserTest() {
 
     it('parseItem_withOverallConsume_returnsItem', 0, () => {
       const item = GenshinComputeParser.parseItem(SINGLE_ROLE_WITH_OVERALL_CONSUME);
-      expect(item).assertNotNull();
+      expect(item !== null).assertTrue();
     });
 
     it('parseItem_withOverallConsume_avatarId', 0, () => {
@@ -330,7 +330,7 @@ export default function genshinComputeParserTest() {
 
     it('parseItem_batchFormat_returnsItem', 0, () => {
       const item = GenshinComputeParser.parseItem(BATCH_ROLE_FORMAT);
-      expect(item).assertNotNull();
+      expect(item !== null).assertTrue();
     });
 
     it('parseItem_batchFormat_avatarId', 0, () => {
@@ -372,13 +372,13 @@ export default function genshinComputeParserTest() {
 
     it('parseItem_emptyOverallConsume_returnsEmptyAvatarConsume', 0, () => {
       const item = GenshinComputeParser.parseItem(EMPTY_OVERALL_CONSUME);
-      expect(item).assertNotNull();
+      expect(item !== null).assertTrue();
       expect(item!.avatarConsume.length).assertEqual(0);
     });
 
     it('parseItem_nullOverallConsume_returnsEmptyAvatarConsume', 0, () => {
       const item = GenshinComputeParser.parseItem(NULL_OVERALL_CONSUME);
-      expect(item).assertNotNull();
+      expect(item !== null).assertTrue();
       expect(item!.avatarConsume.length).assertEqual(0);
     });
 

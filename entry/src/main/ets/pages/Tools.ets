@@ -60,6 +60,7 @@ export struct Tools {
             title: $r('app.string.home_placeholder_title'),
             description: $r('app.string.home_placeholder_desc'),
             buttonText: $r('app.string.home_placeholder_button'),
+            buttonEnabled: true,
             onButtonTap: () => {
               if (this.detailStack !== null) {
                 this.detailStack.pushPathByName(AppRoutes.LOGIN, null)

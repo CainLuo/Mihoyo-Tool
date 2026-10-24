@@ -1,7 +1,6 @@
 import abilityTest from './Ability.test';
 // core 本地单元测试（在 entry@ohosTest 中编译验证）
 import dsUtilTest from './core/DSUtilV2.test';
-import mockServiceBaseTest from './core/MockServiceBase.test';
 import syncDataTypeTest from './core/SyncDataType.test';
 import rowModelsTest from './core/RowModels.test';
 import starRailAvatarBasicParserTest from './core/StarRailAvatarBasicParser.test';
@@ -11,11 +10,12 @@ import zzzDailyNoteParserTest from './core/ZZZDailyNoteParser.test';
 import genshinComputeParserTest from './core/GenshinComputeParser.test';
 import starRailComputeParserTest from './core/StarRailComputeParser.test';
 import zzzComputeParserTest from './core/ZZZComputeParser.test';
+import headerBuilderTest from './core/HeaderBuilder.test';
+import retcodeRegistryTest from './core/RetcodeRegistry.test';
 
 export default function testsuite() {
   abilityTest();
   dsUtilTest();
-  mockServiceBaseTest();
   syncDataTypeTest();
   rowModelsTest();
   starRailAvatarBasicParserTest();
@@ -25,4 +25,6 @@ export default function testsuite() {
   genshinComputeParserTest();
   starRailComputeParserTest();
   zzzComputeParserTest();
+  headerBuilderTest();
+  retcodeRegistryTest();
 }

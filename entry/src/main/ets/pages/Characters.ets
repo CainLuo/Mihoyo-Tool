@@ -12,6 +12,7 @@ import { AccountOption } from '../models/AccountOption';
 import { CharactersContent } from '../components/characters/CharactersContent';
 import { Logger, GameDataSummary } from 'core';
 import { AccountSignal } from '../utils/AccountSignal';
+import { SyncRetrySignal } from '../utils/SyncRetrySignal';
 import { showFeedback } from '../utils/FeedbackUtil';
 import { DialogDedup } from '../utils/DialogDedup';
 import { FeedbackType } from '../constants/FeedbackType';
@@ -33,6 +34,7 @@ export struct Characters {
   @Local private tm: ThemeManager = themeManager;
   @Local private vm: CharactersViewModel = new CharactersViewModel();
   @Local private signal: AccountSignal = AccountSignal.instance();
+  @Local private syncRetry: SyncRetrySignal = SyncRetrySignal.instance();
   private uiCtx: UIContext | null = null;
   private scroller: Scroller = new Scroller();
 
@@ -87,6 +89,20 @@ export struct Characters {
     const ctx = this.uiCtx;
     if (ctx === null) { return; }
     showFeedback(ctx, FeedbackType.ERROR, msg);
+  }
+
+  /** 人机验证通过 / 重新生成设备指纹后重新同步角色 */
+  @Monitor('syncRetry.version')
+  onSyncRetry(_monitor: IMonitor): void {
+    this.vm.syncAfterRetrySignal();
+  }
+
+  /** 同步正在进行时点击刷新 */
+  @Monitor('vm.refreshBusy')
+  onRefreshBusy(_monitor: IMonitor): void {
+    const ctx = this.uiCtx;
+    if (ctx === null) { return; }
+    showFeedback(ctx, FeedbackType.INFO, $r('app.string.characters_refresh_busy'));
   }
 
   @Monitor('vm.refreshCoolingDown')

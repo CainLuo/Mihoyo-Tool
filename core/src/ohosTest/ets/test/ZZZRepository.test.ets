@@ -1,16 +1,17 @@
 import { describe, it, expect, beforeAll, beforeEach } from '@ohos/hypium';
 import { common } from '@kit.AbilityKit';
-import { RdbManager } from '../../../main/ets/database/RdbManager';
-import { BBSRepository } from '../../../main/ets/repository/BBSRepository';
-import { ZZZRepository } from '../../../main/ets/repository/ZZZRepository';
-import { AccountRow } from '../../../main/ets/models/AccountRow';
+import { RdbManager } from '../../../main/ets/db/RdbManager';
+import { SCHEMA_REGISTRY } from '../../../main/ets/SchemaRegistry';
+import { BBSRepository } from '../../../main/ets/MihoyoKit/repository/BBSRepository';
+import { ZZZRepository } from '../../../main/ets/ZZZKit/repository/ZZZRepository';
+import { AccountRow } from '../../../main/ets/MihoyoKit/model/AccountRow';
 import {
   ZZZAvatarBasicRow,
   ZZZDailyNoteRow,
   ZZZAvatarInfoRow,
   ZZZAvatarComputeRow
-} from '../../../main/ets/models/ZZZRows';
-import { SyncMetaDao } from '../../../main/ets/database/SyncMetaDao';
+} from '../../../main/ets/ZZZKit/model/ZZZRows';
+import { SyncMetaDao } from '../../../main/ets/sync/db/SyncMetaDao';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 
 async function getContext(): Promise<common.UIAbilityContext> {
@@ -95,7 +96,7 @@ export default function zzzRepositoryTest() {
   const syncMetaDao = new SyncMetaDao();
 
   beforeAll(async () => {
-    await RdbManager.init(await getContext());
+    await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
     const acc = new AccountRow();
     acc.id = 20003;
     acc.username = 'zzz_repo_test_account';

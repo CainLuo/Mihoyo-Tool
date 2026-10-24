@@ -37,6 +37,7 @@ import { SegmentedTabItem } from '../components/common/SegmentedTabBar';
 import { compareCharacter } from '../utils/CharacterSort';
 import { AppRoutes } from '../constants/AppRoutes';
 
+
 const TAG: string = 'CharactersViewModel';
 
 /** 内部游戏 Tab 数据，存储 gameId/roleUid，不暴露给 View 层 */
@@ -100,6 +101,8 @@ export class CharactersViewModel {
   @Trace refreshCoolingDown: boolean = false;
   /** 手动刷新结果信号：'success' | 'error' | ''，View 层监听后调用 showFeedback */
   @Trace refreshResult: string = '';
+  /** 同步正在进行时点击刷新：翻转该值，View 层提示"正在刷新，请勿频繁刷新" */
+  @Trace refreshBusy: boolean = false;
 
   /** LazyForEach 数据源，随 characters 同步更新 */
   readonly dataSource: CharacterDataSource = new CharacterDataSource();
@@ -173,7 +176,12 @@ export class CharactersViewModel {
    * 所有游戏都在 30 分钟冷却内时发出冷却信号，由用户确认后 forceRefresh。
    */
   async refresh(): Promise<void> {
-    if (this.isRefreshing || this.gameTabsInternal.length === 0) {
+    if (this.gameTabsInternal.length === 0) {
+      return;
+    }
+    // 先判断是否正在同步（含后台同步，如绝区零逐个请求角色详情），再判断 30 分钟冷却
+    if (this.isRefreshing || SyncQueueRunner.isBusy()) {
+      this.refreshBusy = !this.refreshBusy;
       return;
     }
     // 冷却：只要有一个游戏需要同步就不算冷却
@@ -200,10 +208,25 @@ export class CharactersViewModel {
 
   /** 强制刷新：跳过冷却检查，由 View 层在用户确认冷却 Dialog 后调用 */
   async forceRefresh(): Promise<void> {
-    if (this.isRefreshing || this.gameTabsInternal.length === 0) {
+    if (this.gameTabsInternal.length === 0) {
+      return;
+    }
+    if (this.isRefreshing || SyncQueueRunner.isBusy()) {
+      this.refreshBusy = !this.refreshBusy;
       return;
     }
     await this.syncAllGamesAndReload('forceRefresh');
+  }
+
+  /**
+   * 人机验证通过 / 重新生成设备指纹后的自动重新同步：不做"正在刷新"与冷却判断，
+   * 有同步在执行时由 SyncQueueRunner 排队，等前一轮结束后执行（不能被丢弃）
+   */
+  async syncAfterRetrySignal(): Promise<void> {
+    if (this.gameTabsInternal.length === 0) {
+      return;
+    }
+    await this.syncAllGamesAndReload('syncRetry');
   }
 
   /** 同步当前账号下所有游戏角色，完成后重新加载当前 Tab */
@@ -223,9 +246,24 @@ export class CharactersViewModel {
       Logger.info(TAG, `${from}: sync all games of account=${account.uid}, roles=${roles.map((r: GameRoleRow) => `${r.gameId}/${r.roleId}`).join(',')}`);
       const tasks = SyncQueueRunner.buildTasksForRoles(account.uid, roles, account.cookie);
       await SyncQueueRunner.enqueue(tasks);
-      await SyncQueueRunner.runTasks(tasks);
-      await this.reloadCharacters();
-      this.refreshResult = 'success';
+      // 有任务失败时不提示"刷新成功"：人机验证 / 设备指纹无效已由 GeetestCenter / DeviceFpCenter 统一弹框，
+      // 其他失败提示"刷新失败"
+      let failure: Error | null = null;
+      try {
+        await SyncQueueRunner.runTasks(tasks);
+      } catch (error) {
+        if (!SyncQueueRunner.isTasksFailed(error)) {
+          throw error as Error;
+        }
+        failure = error as Error;
+        Logger.warn(TAG, `${from}: some sync tasks failed: ${failure.message}`);
+      }
+      await this.reloadCharacters(false);
+      if (failure === null) {
+        this.refreshResult = 'success';
+      } else if (!SyncQueueRunner.isGeetestRequired(failure) && !SyncQueueRunner.isFingerprintInvalid(failure)) {
+        this.refreshResult = 'error';
+      }
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `${from} failed: ${msg}`);
@@ -326,7 +364,10 @@ export class CharactersViewModel {
   }
 
   /** 从 DB 加载当前选中游戏的角色列表，若为空则自动触发一次后台同步 */
-  private async reloadCharacters(): Promise<void> {
+  /**
+   * @param autoSyncIfEmpty 本地没有数据时是否自动同步；刚做完全量同步后传 false，避免对失败的接口立刻重复请求
+   */
+  private async reloadCharacters(autoSyncIfEmpty: boolean = true): Promise<void> {
     if (this.gameTabsInternal.length === 0) {
       this.setCharacters([]);
       this.viewState = ViewState.EMPTY;
@@ -339,9 +380,12 @@ export class CharactersViewModel {
       if (rows.length > 0) {
         this.setCharacters(rows);
         this.viewState = ViewState.DATA;
-      } else {
+      } else if (autoSyncIfEmpty) {
         this.viewState = ViewState.LOADING;
         this.autoSyncCharacters(tab.gameId, tab.roleUid);
+      } else {
+        this.setCharacters([]);
+        this.viewState = ViewState.EMPTY;
       }
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;

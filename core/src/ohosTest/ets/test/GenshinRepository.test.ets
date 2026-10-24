@@ -1,16 +1,17 @@
 import { describe, it, expect, beforeAll, beforeEach } from '@ohos/hypium';
 import { common } from '@kit.AbilityKit';
-import { RdbManager } from '../../../main/ets/database/RdbManager';
-import { BBSRepository } from '../../../main/ets/repository/BBSRepository';
-import { GenshinRepository } from '../../../main/ets/repository/GenshinRepository';
-import { AccountRow } from '../../../main/ets/models/AccountRow';
+import { RdbManager } from '../../../main/ets/db/RdbManager';
+import { SCHEMA_REGISTRY } from '../../../main/ets/SchemaRegistry';
+import { BBSRepository } from '../../../main/ets/MihoyoKit/repository/BBSRepository';
+import { GenshinRepository } from '../../../main/ets/GenshinKit/repository/GenshinRepository';
+import { AccountRow } from '../../../main/ets/MihoyoKit/model/AccountRow';
 import {
   GenshinCharacterListRow,
   GenshinDailyNoteRow,
   GenshinCharacterDetailRow,
   GenshinCharacterComputeRow
-} from '../../../main/ets/models/GenshinRows';
-import { SyncMetaDao } from '../../../main/ets/database/SyncMetaDao';
+} from '../../../main/ets/GenshinKit/model/GenshinRows';
+import { SyncMetaDao } from '../../../main/ets/sync/db/SyncMetaDao';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 
 async function getContext(): Promise<common.UIAbilityContext> {
@@ -101,7 +102,7 @@ export default function genshinRepositoryTest() {
   const syncMetaDao = new SyncMetaDao();
 
   beforeAll(async () => {
-    await RdbManager.init(await getContext());
+    await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
     const acc = new AccountRow();
     acc.id = 20001;
     acc.username = 'genshin_repo_test_account';

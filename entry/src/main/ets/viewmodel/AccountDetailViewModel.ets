@@ -6,6 +6,8 @@ import { Logger } from 'core';
 import { WidgetFormIdStore } from '../widget/utils/WidgetFormIdStore';
 import { CookieExpiredSignal } from '../utils/CookieExpiredSignal';
 import { AccountSignal } from '../utils/AccountSignal';
+import { DeviceFpCenter } from '../utils/DeviceFpCenter';
+import { common } from '@kit.AbilityKit';
 
 const TAG: string = 'AccountDetailViewModel';
 
@@ -35,6 +37,31 @@ export class AccountDetailViewModel {
   @Trace refreshCookieResult: RefreshCookieResult = RefreshCookieResult.NONE;
   /** 刷新失败原因（用于提示） */
   @Trace refreshCookieError: string = '';
+  /** 是否正在重新生成设备指纹 */
+  @Trace isRegeneratingFp: boolean = false;
+  /** 重新生成设备指纹结果信号（复用 RefreshCookieResult 的取值），View 层监听后提示 */
+  @Trace regenerateFpResult: RefreshCookieResult = RefreshCookieResult.NONE;
+
+  /**
+   * 重新生成设备指纹（与 PizzaHelperUnited「重新生成设备指纹」一致），用于 5003 / 10041。
+   * 设备指纹全 App 共用，对所有账号生效；成功后首页 / 角色页会重新同步。
+   */
+  async regenerateDeviceFp(context: common.UIAbilityContext): Promise<void> {
+    if (this.isRegeneratingFp) {
+      return;
+    }
+    this.isRegeneratingFp = true;
+    try {
+      await DeviceFpCenter.regenerate(context);
+      this.regenerateFpResult = RefreshCookieResult.SUCCESS;
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      Logger.error(TAG, `regenerateDeviceFp failed: ${msg}`);
+      this.regenerateFpResult = RefreshCookieResult.FAILED;
+    } finally {
+      this.isRegeneratingFp = false;
+    }
+  }
 
   /**
    * 刷新 Cookie：用 stoken 重新获取 ltoken / cookie_token 并写回 DB（BBSRepository.refreshCookieIfNeeded，

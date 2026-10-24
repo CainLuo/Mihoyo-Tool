@@ -25,6 +25,20 @@
       name: "default",
     },
     {
+      name: "release",
+    },
+    {
+      name: "uat",
+      source: {
+        abilities: [
+          {
+            name: "EntryAbility",
+            label: "$string:EntryAbility_label_uat",
+          },
+        ],
+      },
+    },
+    {
       name: "mock",
       source: {
         abilities: [
@@ -34,20 +48,6 @@
           },
         ],
       },
-    },
-    {
-      name: "debug",
-      source: {
-        abilities: [
-          {
-            name: "EntryAbility",
-            label: "$string:EntryAbility_label_debug",
-          },
-        ],
-      },
-    },
-    {
-      name: "internal",
     },
     {
       name: "ohosTest",

@@ -2,13 +2,12 @@
 # 构建并安装到模拟器
 #
 # 用法：
-#   bash run.sh                            # 交互选择（5 秒无输入默认 mock）
-#   bash run.sh mock                       # 直接指定 product
-#   bash run.sh debug
-#   bash run.sh internal
-#   bash run.sh release
-#   bash run.sh release --proxy 192.168.1.x:9090   # release + Proxyman 代理
-#   bash run.sh --clear-proxy              # 清除模拟器代理设置
+#   bash run.sh                            # 交互选择（5 秒无输入默认 uat）
+#   bash run.sh uat                        # UAT：官方 API，Debug 能力，bundle .uat
+#   bash run.sh mock                       # Mock：本机 local-service，bundle .mock
+#   bash run.sh release                    # Release：官方 API，bundle 正式包名
+#   bash run.sh uat --proxy 192.168.1.x:9090
+#   bash run.sh --clear-proxy
 
 set -e
 
@@ -23,33 +22,29 @@ AVD_PATH="$HOME/.Huawei/Emulator/deployed/$AVD"
 IMAGE_ROOT="$HOME/Library/Huawei/Sdk"
 
 PRODUCT=''
+BUILD_PRODUCT=''
+BUILD_MODE=''
 PROXY_HOST=''
 CLEAR_PROXY=false
 
 # ── 解析参数 ──────────────────────────────────────────────────
-for arg in "$@"; do
-  case "$arg" in
-    mock|debug|internal|release)
-      PRODUCT="$arg"
-      ;;
-    --proxy)
-      # 下一个参数是代理地址，用 shift 处理
-      ;;
-    --clear-proxy)
-      CLEAR_PROXY=true
-      ;;
-  esac
-done
-
-# 单独处理 --proxy 的值（需要位置参数）
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    mock|uat|release)
+      PRODUCT="$1"
+      shift
+      ;;
     --proxy)
       PROXY_HOST="$2"
       shift 2
       ;;
-    *)
+    --clear-proxy)
+      CLEAR_PROXY=true
       shift
+      ;;
+    *)
+      echo "未知参数：$1"
+      exit 1
       ;;
   esac
 done
@@ -65,50 +60,59 @@ fi
 # ── 交互选择 product（未通过参数指定时）──────────────────────
 if [ -z "$PRODUCT" ]; then
   echo ""
-  echo "  选择构建目标（5 秒无输入默认 mock）："
-  echo "  [1] mock     — 本地 mock 数据，手机号登录"
-  echo "  [2] debug    — 真实 API，手机号登录，可抓包"
-  echo "  [3] internal — 真实 API，手机号登录，正式签名"
-  echo "  [4] release  — 上架包，无手机号登录"
+  echo "  选择构建目标（5 秒无输入默认 uat）："
+  echo "  [1] uat      — 官方 API，手机号登录，Debug 能力"
+  echo "  [2] mock     — 本机 local-service（127.0.0.1:8787）"
+  echo "  [3] release  — 上架包，官方 API"
   echo ""
 
-  # read -t 5 在 bash 中支持超时
-  if read -t 5 -p "  输入 1/2/3/4 或直接回车：" choice 2>/dev/null; then
+  if read -t 5 -p "  输入 1/2/3 或直接回车：" choice 2>/dev/null; then
     case "$choice" in
-      2) PRODUCT='debug' ;;
-      3) PRODUCT='internal' ;;
-      4) PRODUCT='release' ;;
-      *) PRODUCT='mock' ;;
+      2) PRODUCT='mock' ;;
+      3) PRODUCT='release' ;;
+      *) PRODUCT='uat' ;;
     esac
   else
     echo ""
-    echo "  ⏱ 超时，使用默认：mock"
-    PRODUCT='mock'
+    echo "  ⏱ 超时，使用默认：uat"
+    PRODUCT='uat'
   fi
 fi
 
-# ── 根据 product 设置 bundle 和 HAP 路径 ─────────────────────
+# ── 根据 product 设置 bundle、buildMode 和 HAP 路径 ───────────
 case "$PRODUCT" in
   mock)
+    BUILD_PRODUCT='mock'
+    BUILD_MODE='debug'
     BUNDLE='com.cainluo.miyoyo.tools.mock'
-    HAP='entry/build/mock/outputs/mock/entry-mock-unsigned.hap'
+    HAP_SIGNED='entry/build/mock/outputs/mock/entry-mock-signed.hap'
+    HAP_UNSIGNED='entry/build/mock/outputs/mock/entry-mock-unsigned.hap'
+    ALLOW_UNSIGNED=1
     ;;
-  debug)
-    BUNDLE='com.cainluo.miyoyo.tools.debug'
-    HAP='entry/build/debug/outputs/debug/entry-debug-unsigned.hap'
-    ;;
-  internal)
-    BUNDLE='com.cainluo.miyoyo.tools'
-    HAP='entry/build/internal/outputs/internal/entry-internal-signed.hap'
+  uat)
+    BUILD_PRODUCT='uat'
+    BUILD_MODE='debug'
+    BUNDLE='com.cainluo.miyoyo.tools.uat'
+    HAP_SIGNED='entry/build/uat/outputs/uat/entry-uat-signed.hap'
+    HAP_UNSIGNED='entry/build/uat/outputs/uat/entry-uat-unsigned.hap'
+    ALLOW_UNSIGNED=1
     ;;
   release)
+    BUILD_PRODUCT='release'
+    BUILD_MODE='release'
     BUNDLE='com.cainluo.miyoyo.tools'
-    HAP='entry/build/default/outputs/default/entry-default-unsigned.hap'
+    HAP_SIGNED='entry/build/release/outputs/release/entry-release-signed.hap'
+    HAP_UNSIGNED=''
+    ALLOW_UNSIGNED=0
     ;;
 esac
+HAP="$HAP_SIGNED"
+
+# UAT / Mock 在模拟器上允许安装 unsigned HAP；release 必须使用签名 HAP。
+
 
 echo ""
-echo "▶ 构建目标：$PRODUCT"
+echo "▶ 构建目标: $PRODUCT (bundle=$BUNDLE, buildMode=$BUILD_MODE)"
 
 # ── 1. 启动模拟器（如果还没运行）──────────────────────────────
 if "$HDC" list targets 2>/dev/null | grep -q "$TARGET"; then
@@ -130,7 +134,7 @@ else
   done
 fi
 
-# ── 2. 代理设置（仅 release/debug 有意义）────────────────────
+# ── 2. 代理设置 ───────────────────────────────────────────────
 if [ -n "$PROXY_HOST" ]; then
   echo "▶ 设置模拟器代理 → $PROXY_HOST"
   "$HDC" -t "$TARGET" shell param set persist.netmanager.http_proxy "$PROXY_HOST"
@@ -143,9 +147,20 @@ echo "▶ Clean..."
 
 # ── 4. Build ──────────────────────────────────────────────────
 echo "▶ Build ($PRODUCT)..."
-"$HVIGOR" assembleHap -p product="$PRODUCT"
+"$HVIGOR" assembleHap -p product="$BUILD_PRODUCT" -p buildMode="$BUILD_MODE"
 
 # ── 5. 安装 ──────────────────────────────────────────────────
+if [ ! -f "$HAP" ] && [ "$ALLOW_UNSIGNED" = "1" ] && [ -f "$HAP_UNSIGNED" ]; then
+  HAP="$HAP_UNSIGNED"
+  echo "⚠ 未生成签名 HAP，使用 unsigned HAP（模拟器可安装）"
+fi
+
+if [ ! -f "$HAP" ]; then
+  echo "✗ 未找到 HAP：$HAP"
+  echo "  release 需要签名 HAP；uat / mock 允许 unsigned HAP。"
+  exit 1
+fi
+
 echo "▶ 安装..."
 "$HDC" -t "$TARGET" install "$HAP"
 
@@ -154,8 +169,8 @@ echo "▶ 启动..."
 "$HDC" -t "$TARGET" shell aa start -b "$BUNDLE" -a EntryAbility
 
 if [ -n "$PROXY_HOST" ]; then
-  echo "✅ 完成（$PRODUCT，代理：$PROXY_HOST）"
+  echo "✅ 完成 ($PRODUCT, 代理: $PROXY_HOST)"
   echo "   清除代理：bash run.sh --clear-proxy"
 else
-  echo "✅ 完成（$PRODUCT）"
+  echo "✅ 完成 ($PRODUCT)"
 fi

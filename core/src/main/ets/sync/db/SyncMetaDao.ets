@@ -1,0 +1,155 @@
+/**
+ * SyncMetaDao — sync_meta 表的 DAO
+ *
+ * sync_meta 表记录每个角色（account_id + role_uid）每种数据类型（data_type）
+ * 的最后同步时间和同步状态，供 Repository 层判断是否需要重新同步。
+ *
+ * data_type 的值与 TableName enum 对齐（如 'genshin_character_list'），
+ * 通过 SyncDataType（即 TableName 的别名）引用，禁止直接写字符串。
+ */
+import { relationalStore } from '@kit.ArkData';
+import { RdbManager } from '../../db/RdbManager';
+import { RsReader } from '../../db/RsReader';
+import { TableName } from '../../db/TableName';
+import { CommonCol } from '../../db/TableSchema';
+import { SyncMetaCol, SYNC_META_TABLE } from './schema';
+import { SyncMetaRow } from '../model/SyncMetaRow';
+
+// ─────────────────────────────────────────────
+// SyncMetaDao：操作 sync_meta
+// ─────────────────────────────────────────────
+export class SyncMetaDao {
+
+  /**
+   * INSERT OR REPLACE
+   */
+  async upsert(row: SyncMetaRow): Promise<void> {
+    const idVal: relationalStore.ValueType = row.id > 0 ? row.id : null;
+    try {
+      await RdbManager.upsertRow(TableName.SYNC_META, SYNC_META_TABLE.columnNames(), [
+        idVal, row.accountId, row.roleUid, row.dataType,
+        row.lastSyncTime, row.syncStatus, row.errorMsg
+      ]);
+    } catch (e) {
+      throw new Error(`SyncMetaDao.upsert failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /**
+   * 查询单条同步状态记录
+   */
+  async findOne(accountId: string, roleUid: string, dataType: string): Promise<SyncMetaRow | null> {
+    const predicates = new relationalStore.RdbPredicates(TableName.SYNC_META);
+    predicates.equalTo(CommonCol.ACCOUNT_ID, accountId);
+    predicates.and();
+    predicates.equalTo(CommonCol.ROLE_UID, roleUid);
+    predicates.and();
+    predicates.equalTo(CommonCol.DATA_TYPE, dataType);
+    try {
+      return await RdbManager.queryFirst(predicates, SYNC_META_TABLE.columnNames(), (rs) => SyncMetaDao.mapRow(rs));
+    } catch (e) {
+      throw new Error(`SyncMetaDao.findOne failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /**
+   * 查询所有 pending 状态的任务（App 启动时恢复用）
+   */
+  async findAllPending(): Promise<SyncMetaRow[]> {
+    const predicates = new relationalStore.RdbPredicates(TableName.SYNC_META);
+    predicates.equalTo(SyncMetaCol.SYNC_STATUS, 'pending');
+    try {
+      return await RdbManager.queryAll(predicates, SYNC_META_TABLE.columnNames(), (rs) => SyncMetaDao.mapRow(rs));
+    } catch (e) {
+      throw new Error(`SyncMetaDao.findAllPending failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /**
+   * 标记任务为 pending（写入队列）
+   * 若记录不存在则插入，已存在则更新状态为 pending
+   */
+  async markPending(accountId: string, roleUid: string, dataType: string): Promise<void> {
+    const existing = await this.findOne(accountId, roleUid, dataType);
+    if (existing === null) {
+      const row = new SyncMetaRow();
+      row.accountId = accountId;
+      row.roleUid = roleUid;
+      row.dataType = dataType;
+      row.lastSyncTime = 0;
+      row.syncStatus = 'pending';
+      row.errorMsg = '';
+      await this.upsert(row);
+    } else {
+      const whereCols = [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, CommonCol.DATA_TYPE];
+      const whereVals: Array<relationalStore.ValueType> = [accountId, roleUid, dataType];
+      await RdbManager.updateRows(TableName.SYNC_META,
+        [SyncMetaCol.SYNC_STATUS, SyncMetaCol.ERROR_MSG],
+        ['pending', ''],
+        whereCols, whereVals
+      );
+    }
+  }
+
+  /**
+   * 更新同步状态。
+   * - status='syncing'：标记同步开始，不更新 last_sync_time
+   * - status='success'：标记同步成功，同时将 last_sync_time 更新为当前 Unix 秒
+   * - status='failed'：标记同步失败，记录错误信息，不更新 last_sync_time
+   *
+   * 若记录不存在（UPDATE 0 行），不抛异常，由调用方决定是否先 upsert。
+   *
+   * @param accountId 米游社账号 ID
+   * @param roleUid   游戏角色 UID
+   * @param dataType  数据类型（使用 SyncDataType enum 值）
+   * @param status    同步状态字符串（'syncing' | 'success' | 'failed'）
+   * @param errorMsg  失败时的错误信息（可选，默认为空字符串）
+   */
+  async updateStatus(
+    accountId: string,
+    roleUid: string,
+    dataType: string,
+    status: string,
+    errorMsg?: string
+  ): Promise<void> {
+    const now = Math.floor(Date.now() / 1000);
+    const msg = errorMsg !== undefined ? errorMsg : '';
+    const whereCols = [CommonCol.ACCOUNT_ID, CommonCol.ROLE_UID, CommonCol.DATA_TYPE];
+    const whereVals: Array<relationalStore.ValueType> = [accountId, roleUid, dataType];
+    try {
+      if (status === 'success') {
+        await RdbManager.updateRows(TableName.SYNC_META,
+          [SyncMetaCol.SYNC_STATUS, SyncMetaCol.ERROR_MSG, SyncMetaCol.LAST_SYNC_TIME],
+          [status, msg, now],
+          whereCols, whereVals
+        );
+      } else {
+        await RdbManager.updateRows(TableName.SYNC_META,
+          [SyncMetaCol.SYNC_STATUS, SyncMetaCol.ERROR_MSG],
+          [status, msg],
+          whereCols, whereVals
+        );
+      }
+    } catch (e) {
+      throw new Error(`SyncMetaDao.updateStatus failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+
+  /** 将 ResultSet 当前行映射为 SyncMetaRow */
+  private static mapRow(rs: relationalStore.ResultSet): SyncMetaRow {
+    try {
+      const r = new RsReader(rs);
+      const row = new SyncMetaRow();
+      row.id           = r.num(CommonCol.ID);
+      row.accountId    = r.str(CommonCol.ACCOUNT_ID);
+      row.roleUid      = r.str(CommonCol.ROLE_UID);
+      row.dataType     = r.str(CommonCol.DATA_TYPE);
+      row.lastSyncTime = r.num(SyncMetaCol.LAST_SYNC_TIME);
+      row.syncStatus   = r.str(SyncMetaCol.SYNC_STATUS);
+      row.errorMsg     = r.str(SyncMetaCol.ERROR_MSG);
+      return row;
+    } catch (e) {
+      throw new Error(`SyncMetaDao.mapRow failed: ${e instanceof Error ? e.message : e}`);
+    }
+  }
+}

@@ -27,7 +27,7 @@
 - 格式：`v2_` 开头的字符串
 - 来源：
   - `getMultiTokenByLoginTicket` 接口（WebView 登录方式）
-  - `getTokenByGameToken` 接口（二维码登录确认后）
+  - passport `queryQRLoginStatus` 确认响应直接返回 stoken（当前 QR 流程；不再走 `getTokenByGameToken`；该接口仍存在于 PZKit，但当前 QR UI 未调用）
 - 用途：**Widget API 必须使用 stoken_v2**
 
 ### 判断方式
@@ -68,16 +68,16 @@ if cookie.contains("stoken=v2_") {
 > **本项目问题**：手机号登录后 Widget 降级会失败，因为 stoken_v1 不被 Widget API 接受。
 > **解决方案**：手机号登录后，额外调用 `getTokenByGameToken` 或其他接口升级为 stoken_v2。
 
-### 方式 3：二维码登录
+### 方式 3：二维码登录（当前实现）
 
-1. 调用 `fetchQRCode` → 获得二维码 URL（含 ticket）
-2. 轮询 `queryQRCode` → 等待用户扫码确认
-3. 确认后调用 `getTokenByGameToken` → 直接获得 **stoken_v2**
-4. 调用 `getLTokenBySToken` → 获得 ltoken
+1. 调用 passport `createQRLogin` → 获得二维码 URL（含 ticket）
+2. 轮询 `queryQRLoginStatus` → 等待用户扫码确认
+3. 确认响应直接返回 stoken；Pizza 取 `tokens.first.token`，用户信息取 `aid ?? uid ?? account_id` 和 `mid`
+4. **不调用** `getTokenByGameToken`，也**不调用** `getLTokenBySToken`；Pizza 将 `ltoken` 直接设为 stoken（参照 TRSS-Plugin）
 5. 调用 `getCookieAccountInfoBySToken` → 获得 cookie_token
-6. 组装完整 Cookie
+6. 组装完整 Cookie，其中 `ltoken` 与 `stoken` 相同
 
-**优点**：直接获得 stoken_v2，Widget API 可用
+**说明**：这是 Pizza 的捷径，不等于“新版 QR 一定不需要 ltoken”。TeyvatGuide 在 QR 确认后会显式调用 `getLTokenBySToken`；本项目采用 TeyvatGuide 流程。
 
 ### 方式 4：手动输入 Cookie
 
@@ -128,7 +128,7 @@ stuid={uid};stoken=v2_{token};mid={mid}
 
 ## 六、Cookie 刷新机制
 
-当接口返回 `-100` / `10001` / `-10001`（Cookie 失效）时：
+当接口返回 `-100` / `10001`（Cookie 失效）时：
 
 ```
 Cookie 失效
@@ -142,6 +142,8 @@ Cookie 失效
                   ↓
              提示用户重新登录
 ```
+
+> `-10001` **不**触发这套刷新：它是 `invalid request`（DS / header / 参数错误），不是 Cookie 失效。
 
 **刷新并发控制**（`CookieRefreshCoordinator`）：
 

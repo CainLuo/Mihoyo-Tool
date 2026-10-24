@@ -12,3 +12,5 @@
 /.appanalyzer
 **/hm_*
 /logs
+# Hvigor generated HAR profile
+/core/BuildProfile.ets

@@ -21,6 +21,8 @@ export class PlaceholderState {
   @Trace buttonText: ResourceStr = '';
   /** 按钮点击回调 */
   @Trace onButtonTap: () => void = () => {};
+  /** 按钮是否可点击（如刷新进行中时为 false，按钮置灰禁用，防止重复点击） */
+  @Trace buttonEnabled: boolean = true;
 }
 
 @ComponentV2
@@ -59,6 +61,8 @@ export struct PlaceholderView {
         Button(this.state.buttonText, { type: ButtonType.Normal })
           .attributeModifier(this.buttonModifier)
           .width(this.tm.current.pct90)
+          // 与其他页面的禁用按钮一致：保持主按钮样式，由系统 enabled(false) 统一置灰（浅色 / 深色模式都可见）
+          .enabled(this.state.buttonEnabled)
           .onClick(() => {
             this.state.onButtonTap();
           })

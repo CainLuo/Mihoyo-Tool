@@ -15,7 +15,7 @@
 ## 数据来源
 
 - 源码路径：`TeyvatGuide/src/request/`、`TeyvatGuide/src/utils/`
-- BBS App 版本：`2.102.1`
+- BBS App 版本：`2.115.0`
 - 技术栈：TypeScript + Vue 3 + Tauri（桌面端）
 
 ## 覆盖的 request 文件

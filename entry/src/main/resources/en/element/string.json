@@ -2267,6 +2267,42 @@
     {
       "name": "material_character_select_no_needs",
       "value": "Selected characters are already maxed out"
+    },
+    {
+      "name": "device_fp_invalid_title",
+      "value": "Device fingerprint invalid"
+    },
+    {
+      "name": "device_fp_invalid_msg",
+      "value": "A request for %s returned an invalid device fingerprint (error %d), usually due to miHoYo risk control. Regenerate the device fingerprint and try again."
+    },
+    {
+      "name": "device_fp_regenerate",
+      "value": "Regenerate device fingerprint"
+    },
+    {
+      "name": "device_fp_regenerating",
+      "value": "Regenerating…"
+    },
+    {
+      "name": "device_fp_regenerate_success",
+      "value": "Device fingerprint regenerated. Syncing again."
+    },
+    {
+      "name": "device_fp_regenerate_failed",
+      "value": "Failed to regenerate the device fingerprint. Please try again later."
+    },
+    {
+      "name": "device_fp_unknown_account",
+      "value": "miHoYo account"
+    },
+    {
+      "name": "device_fp_regenerate_short",
+      "value": "Regenerate"
+    },
+    {
+      "name": "characters_refresh_busy",
+      "value": "Refreshing in progress. Please don't refresh repeatedly."
     }
   ]
 }

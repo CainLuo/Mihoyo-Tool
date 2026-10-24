@@ -19,11 +19,18 @@ import { Tools } from './Tools'
 import { AppRoutes } from '../constants/AppRoutes'
 import { splitPlaceholderBuilder } from '../components/SplitPlaceholder'
 import { CookieExpiredSignal } from '../utils/CookieExpiredSignal'
-import { GeetestSignal } from '../utils/GeetestSignal'
+import { GeetestSignal, GeetestQueueItem } from '../utils/GeetestSignal'
+import { gameIdToName } from '../utils/GameIdUtil'
 import { showGeetestDialog } from '../components/GeetestDialogHelper'
-import { FailedAccountInfo, Logger } from 'core'
+import { FailedAccountInfo, GameId, GeetestVerifyInput, Logger } from 'core'
 import { DialogDedup } from '../utils/DialogDedup'
+import { GeetestCenter } from '../utils/GeetestCenter'
+import { DeviceFpCenter, DeviceFpInvalidSignal } from '../utils/DeviceFpCenter'
+import { showFeedback } from '../utils/FeedbackUtil'
+import { FeedbackType } from '../constants/FeedbackType'
+import { common } from '@kit.AbilityKit'
 import BuildProfile from 'BuildProfile'
+
 
 @Builder
 function accountSwitchDialogBuilder(params: AccountSwitchDialogParams) {
@@ -55,8 +62,17 @@ export struct Main {
   private uiCtx: UIContext | null = null
   @Local private cookieExpiredSignal: CookieExpiredSignal = CookieExpiredSignal.instance()
   @Local private geetestSignal: GeetestSignal = GeetestSignal.instance()
+  @Local private deviceFpInvalidSignal: DeviceFpInvalidSignal = DeviceFpInvalidSignal.instance()
   /** 用户是否请求取消全部验证队列 */
   private geetestCancelAllRequested: boolean = false
+  /**
+   * 人机验证框与"设备指纹无效"提示排队显示，同一时间只显示一个：
+   * 一方显示中时另一方先挂起，关闭后再弹（指纹提示等人机验证队列全部处理完）
+   */
+  private geetestShowing: boolean = false
+  private geetestPending: boolean = false
+  private fpPromptShowing: boolean = false
+  private fpPromptPending: boolean = false
 
   // ── Home 标题栏状态（由 Home 页通过 @Param 回调上报）──────────
   @Local private homeShowRefresh: boolean = false
@@ -74,6 +90,10 @@ export struct Main {
 
   aboutToAppear(): void {
     this.uiCtx = this.getUIContext()
+    // 人机验证（1034 / 10035）统一处理：任何接口遇到都推入 geetestSignal，由本页弹框
+    GeetestCenter.init()
+    // 设备指纹无效（5003 / 10041）统一处理：任何接口遇到都由本页提示，可重新生成设备指纹
+    DeviceFpCenter.init()
     this.placeholder = new ComponentContent(this.uiCtx, wrapBuilder(splitPlaceholderBuilder))
     // 初始化窗口宽度和模式
     const ctx = this.uiCtx
@@ -183,10 +203,96 @@ export struct Main {
     })
   }
 
+  /** 验证框标题栏：多账号排队时提示是哪个游戏账号（游戏名 · UID）；取不到游戏 UID 时显示米游社昵称 */
+  private geetestLabel(item: GeetestQueueItem): string {
+    return this.gameAccountLabel(item.trigger.gameId, item.trigger.roleId, item.accountName)
+  }
+
+  /** "游戏名 · UID xxx"；roleId 为空时返回 fallback */
+  private gameAccountLabel(gameId: GameId, roleId: string, fallback: string): string {
+    if (roleId.length === 0) {
+      return fallback
+    }
+    let gameName = ''
+    try {
+      gameName = this.uiCtx?.getHostContext()?.resourceManager.getStringSync(gameIdToName(gameId).id) ?? ''
+    } catch (_) {
+    }
+    return gameName.length > 0 ? `${gameName} · UID ${roleId}` : `UID ${roleId}`
+  }
+
+  /** 设备指纹无效（5003 / 10041）：统一提示，可直接重新生成设备指纹 */
+  @Monitor('deviceFpInvalidSignal.version')
+  onDeviceFpInvalid(_monitor: IMonitor): void {
+    // 人机验证框显示中或还有排队项：等验证队列处理完再提示
+    if (this.geetestShowing || this.geetestSignal.queueLength > 0) {
+      this.fpPromptPending = true
+      return
+    }
+    this.showDeviceFpPrompt()
+  }
+
+  private showDeviceFpPrompt(): void {
+    const ctx = this.uiCtx
+    if (ctx === null) {
+      DeviceFpCenter.dismiss()
+      return
+    }
+    const signal = this.deviceFpInvalidSignal
+    let fallback = ''
+    try {
+      fallback = ctx.getHostContext()?.resourceManager.getStringSync($r('app.string.device_fp_unknown_account').id) ?? ''
+    } catch (_) {
+    }
+    const label = this.gameAccountLabel(signal.gameId, signal.roleUid, fallback)
+    this.fpPromptShowing = true
+    ctx.getPromptAction().showDialog({
+      title: $r('app.string.device_fp_invalid_title'),
+      message: $r('app.string.device_fp_invalid_msg', label, signal.retcode),
+      buttons: [
+        { text: $r('app.string.dialog_cancel'), color: '#999999' },
+        // 弹框按钮宽度有限，用短文案（完整文案"重新生成设备指纹"会被截断）
+        { text: $r('app.string.device_fp_regenerate_short'), color: '#E8534A' },
+      ],
+    }).then((result: promptAction.ShowDialogSuccessResponse) => {
+      this.onDeviceFpPromptClosed()
+      if (result.index !== 1) {
+        DeviceFpCenter.dismiss()
+        return
+      }
+      DeviceFpCenter.regenerate(ctx.getHostContext() as common.UIAbilityContext).then(() => {
+        showFeedback(ctx, FeedbackType.SUCCESS, $r('app.string.device_fp_regenerate_success'))
+      }).catch((e: Error | object) => {
+        Logger.error('Main', `regenerate device fp failed: ${e instanceof Error ? e.message : String(e)}`)
+        showFeedback(ctx, FeedbackType.ERROR, $r('app.string.device_fp_regenerate_failed'))
+      })
+    }).catch((_: Error | object) => {
+      this.onDeviceFpPromptClosed()
+      DeviceFpCenter.dismiss()
+    })
+  }
+
+  /** "设备指纹无效"提示关闭：弹出挂起的人机验证框 */
+  private onDeviceFpPromptClosed(): void {
+    this.fpPromptShowing = false
+    if (this.geetestPending) {
+      this.geetestPending = false
+      this.showCurrentGeetest()
+    }
+  }
+
   @Monitor('geetestSignal.trigger')
   async onGeetestTriggered(_monitor: IMonitor): Promise<void> {
     if (this.geetestSignal.trigger === 0) { return }
+    // "设备指纹无效"提示显示中：等它关闭后再弹验证框
+    if (this.fpPromptShowing) {
+      this.geetestPending = true
+      return
+    }
+    await this.showCurrentGeetest()
+  }
 
+  private async showCurrentGeetest(): Promise<void> {
     const item = this.geetestSignal.getCurrentItem()
     if (item === null) { return }
 
@@ -198,12 +304,18 @@ export struct Main {
     this.geetestCancelAllRequested = false
 
     // 弹出 Geetest 验证对话框
-    const result = await showGeetestDialog(
-      ctx,
-      item.trigger.createResult,
-      progress,
-      item.accountName
-    )
+    this.geetestShowing = true
+    let result: GeetestVerifyInput | null = null
+    try {
+      result = await showGeetestDialog(
+        ctx,
+        item.trigger.createResult,
+        progress,
+        this.geetestLabel(item)
+      )
+    } finally {
+      this.geetestShowing = false
+    }
 
     // 处理结果
     if (result !== null) {
@@ -221,6 +333,11 @@ export struct Main {
     } else {
       // 用户只取消当前项
       this.geetestSignal.resolveCancelCurrent()
+    }
+    // 人机验证队列全部处理完：弹出挂起的"设备指纹无效"提示
+    if (this.geetestSignal.queueLength === 0 && this.fpPromptPending) {
+      this.fpPromptPending = false
+      this.showDeviceFpPrompt()
     }
   }
 

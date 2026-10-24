@@ -38,12 +38,12 @@
 ## 三、签到请求 Header
 
 ```
-user-agent:        Mozilla/5.0 (Linux; Android 12) Mobile miHoYoBBS/2.102.1
+user-agent:        Mozilla/5.0 (Linux; Android 12) Mobile miHoYoBBS/2.115.0
 referer:           https://act.mihoyo.com
 cookie:            {完整 cookie 字符串}
 x-rpc-signgame:    {host}   ← 游戏标识
-x-rpc-client_type: 2        ← 签到接口固定为 2
-ds:                {X6 签名}
+x-rpc-client_type: 2        ← luna/sign 固定为 2；info/home 使用默认值
+ds:                {X6 签名}   ← luna/sign 使用；info/home 当前源码不强制
 x-rpc-challenge:   {challenge}   ← 极验验证后附加（可选）
 ```
 

@@ -87,6 +87,7 @@ export struct MaterialCharacterSelect {
               title: $r('app.string.material_character_select_empty_title'),
               description: $r('app.string.material_character_select_empty_desc'),
               buttonText: '',
+              buttonEnabled: true,
               onButtonTap: () => {}
             } as PlaceholderState
           })
@@ -304,11 +305,19 @@ export struct MaterialCharacterSelect {
     if (result === MaterialComputeResult.SUCCESS) {
       stack.replacePathByName(materialListRoute(selection.gameId), selection)
     } else if (result === MaterialComputeResult.NO_NEEDS) {
-      this.getUIContext().getPromptAction().showToast({ message: $r('app.string.material_character_select_no_needs') })
+      try {
+        this.getUIContext().getPromptAction().showToast({ message: $r('app.string.material_character_select_no_needs') })
+      } catch (_) {
+        // 提示失败不影响后续流程
+      }
     } else if (result === MaterialComputeResult.NO_CONFIG) {
       this.showConfigRequiredDialog(stack, selection)
     } else if (result === MaterialComputeResult.FAILED) {
-      this.getUIContext().getPromptAction().showToast({ message: $r('app.string.material_character_select_failed') })
+      try {
+        this.getUIContext().getPromptAction().showToast({ message: $r('app.string.material_character_select_failed') })
+      } catch (_) {
+        // 提示失败不影响后续流程
+      }
     }
   }
 

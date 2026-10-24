@@ -25,11 +25,11 @@
 | ----------------------------- | ---- | ------------------------------------------------------ | ----------------- | ------------------- | ----------------- |
 | 创建游戏 auth ticket          | POST | `account/ma-cn-verifier/app/createAuthTicketByGameBiz` | `stoken`, `mid`   | 无（自定义 header） | 需要 stoken       |
 | 发送短信验证码                | POST | `account/ma-cn-verifier/verifier/createLoginCaptcha`   | 无                | 无（自定义 header） | 手机号 RSA 加密   |
-| 创建二维码登录                | POST | `account/ma-cn-passport/app/createQRLogin`             | 无                | 无                  | `@deprecated`     |
+| 创建二维码登录                | POST | `account/ma-cn-passport/app/createQRLogin`             | 无                | X4（body）          | 当前实现（2026-10-01） |
 | 通过 stoken 获取 cookie_token | GET  | `account/auth/api/getCookieAccountInfoBySToken`        | `stoken`, `mid`   | X4（默认）          | 刷新 cookie_token |
 | 通过 stoken 获取 ltoken       | GET  | `account/auth/api/getLTokenBySToken`                   | `stoken`, `mid`   | X4（默认）          | 刷新 ltoken       |
 | 短信验证码登录                | POST | `account/ma-cn-passport/app/loginByMobileCaptcha`      | 无                | 无（自定义 header） | 手机号 RSA 加密   |
-| 查询二维码登录状态            | POST | `account/ma-cn-passport/app/queryQRLoginStatus`        | 无                | 无                  | `@deprecated`     |
+| 查询二维码登录状态            | POST | `account/ma-cn-passport/app/queryQRLoginStatus`        | 无                | X4（body）          | 当前实现（2026-10-01） |
 | 验证 ltoken 有效性            | POST | `account/ma-cn-session/web/verifyLtoken`（v4）         | `ltoken`, `ltuid` | X4（默认）          | 返回 mid          |
 
 ---

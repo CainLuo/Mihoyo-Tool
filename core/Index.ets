@@ -1,29 +1,30 @@
 // Core library export file
 
 // Network module
-export * from './src/main/ets/network/APIs';
-export * from './src/main/ets/network/NetworkFactory';
-export * from './src/main/ets/network/CookieManager';
-export * from './src/main/ets/network/GeetestService';
+export * from './src/main/ets/base/network/APIs';
+export * from './src/main/ets/base/network/HttpTypes';
+export * from './src/main/ets/base/network/BaseApiService';
+export * from './src/main/ets/base/network/GeetestService';
 
 // Database module
 
 // Models
 
 // Repository
-export * from './src/main/ets/repository/AuthRepository';
+export * from './src/main/ets/MihoyoKit/repository/AuthRepository';
 
 // Constants
-export * from './src/main/ets/constants/ApiErrorCodes';
-export * from './src/main/ets/constants/GenshinPropertyType';
+export * from './src/main/ets/common/constants/MihoyoRetcode';
+export * from './src/main/ets/common/constants/ApiErrorCodes';
+export * from './src/main/ets/GenshinKit/constants/GenshinPropertyType';
 
 // Parsers
-export * from './src/main/ets/parsers/genshin/GenshinDailyNoteParser';
-export * from './src/main/ets/parsers/genshin/GenshinComputeParser';
-export * from './src/main/ets/parsers/starrail/StarRailDailyNoteParser';
-export * from './src/main/ets/parsers/starrail/StarRailComputeParser';
-export * from './src/main/ets/parsers/zzz/ZZZDailyNoteParser';
-export * from './src/main/ets/parsers/zzz/ZZZComputeParser';
+export * from './src/main/ets/GenshinKit/parser/GenshinDailyNoteParser';
+export * from './src/main/ets/GenshinKit/parser/GenshinComputeParser';
+export * from './src/main/ets/StarRailKit/parser/StarRailDailyNoteParser';
+export * from './src/main/ets/StarRailKit/parser/StarRailComputeParser';
+export * from './src/main/ets/ZZZKit/parser/ZZZDailyNoteParser';
+export * from './src/main/ets/ZZZKit/parser/ZZZComputeParser';
 
 // ── 核心导出 ──────────────────────────────────────────────────
 
@@ -31,111 +32,129 @@ export * from './src/main/ets/parsers/zzz/ZZZComputeParser';
 export * from './src/main/ets/CoreInitializer';
 
 // 数据库层
-export * from './src/main/ets/database/RdbManager';
-export * from './src/main/ets/database/BBSDao';
-export * from './src/main/ets/database/GenshinDao';
-export * from './src/main/ets/database/StarRailDao';
-export * from './src/main/ets/database/StarRailDBManager';
-export * from './src/main/ets/database/ZZZDao';
-export * from './src/main/ets/database/SyncMetaDao';
-export * from './src/main/ets/database/MaterialBagDao';
-export * from './src/main/ets/database/MaterialTargetConfigDao';
+export * from './src/main/ets/db/RdbManager';
+export * from './src/main/ets/MihoyoKit/db/BBSDao';
+export * from './src/main/ets/GenshinKit/db/GenshinDao';
+export * from './src/main/ets/StarRailKit/db/StarRailDao';
+export * from './src/main/ets/StarRailKit/db/StarRailDBManager';
+export * from './src/main/ets/ZZZKit/db/ZZZDao';
+export * from './src/main/ets/sync/db/SyncMetaDao';
+export * from './src/main/ets/common/material/db/MaterialBagDao';
+export * from './src/main/ets/GenshinKit/db/MaterialBagDao';
+export * from './src/main/ets/StarRailKit/db/MaterialBagDao';
+export * from './src/main/ets/ZZZKit/db/MaterialBagDao';
+export * from './src/main/ets/common/material/db/MaterialTargetConfigDao';
+export * from './src/main/ets/GenshinKit/db/MaterialTargetConfigDao';
+export * from './src/main/ets/StarRailKit/db/MaterialTargetConfigDao';
+export * from './src/main/ets/ZZZKit/db/MaterialTargetConfigDao';
 // 数据模型
-export * from './src/main/ets/models/AccountRow';
-export * from './src/main/ets/models/GameRoleRow';
-export * from './src/main/ets/models/GenshinRows';
-export * from './src/main/ets/models/StarRailRows';
-export * from './src/main/ets/models/ZZZRows';
-export * from './src/main/ets/models/GameDataSummary';
-export * from './src/main/ets/models/SyncMetaRow';
-export * from './src/main/ets/models/SyncTask';
-export * from './src/main/ets/models/GenshinCharacterDetailRaw';
-export * from './src/main/ets/models/StarRailAvatarDetailRaw';
-export * from './src/main/ets/models/ZZZAvatarDetailRaw';
-export * from './src/main/ets/models/MaterialBagRow';
-export * from './src/main/ets/models/MaterialTargetConfigRow';
+export * from './src/main/ets/MihoyoKit/model/AccountRow';
+export * from './src/main/ets/MihoyoKit/model/GameRoleRow';
+export * from './src/main/ets/GenshinKit/model/GenshinRows';
+export * from './src/main/ets/StarRailKit/model/StarRailRows';
+export * from './src/main/ets/ZZZKit/model/ZZZRows';
+export * from './src/main/ets/sync/model/GameDataSummary';
+export * from './src/main/ets/sync/model/SyncMetaRow';
+export * from './src/main/ets/sync/model/SyncTask';
+export * from './src/main/ets/GenshinKit/model/GenshinCharacterDetailRaw';
+export * from './src/main/ets/StarRailKit/model/StarRailAvatarDetailRaw';
+export * from './src/main/ets/ZZZKit/model/ZZZAvatarDetailRaw';
+export * from './src/main/ets/common/material/model/MaterialBagRow';
+export * from './src/main/ets/common/material/model/MaterialTargetConfigRow';
 // Repository 层
-export * from './src/main/ets/repository/GameRepository';
-export * from './src/main/ets/repository/BBSRepository';
-export * from './src/main/ets/repository/GenshinRepository';
-export * from './src/main/ets/repository/StarRailRepository';
-export * from './src/main/ets/repository/ZZZRepository';
-export * from './src/main/ets/repository/SignRepository';
-export * from './src/main/ets/repository/SyncQueueRunner';
-export * from './src/main/ets/repository/MaterialBagRepository';
-export * from './src/main/ets/repository/MaterialTargetConfigRepository';
+export * from './src/main/ets/sync/GameRepository';
+export * from './src/main/ets/MihoyoKit/repository/BBSRepository';
+export * from './src/main/ets/GenshinKit/repository/GenshinRepository';
+export * from './src/main/ets/StarRailKit/repository/StarRailRepository';
+export * from './src/main/ets/ZZZKit/repository/ZZZRepository';
+export * from './src/main/ets/MihoyoKit/repository/SignRepository';
+export * from './src/main/ets/sync/SyncQueueRunner';
+export * from './src/main/ets/common/material/repository/MaterialBagRepository';
+export * from './src/main/ets/common/material/repository/MaterialTargetConfigRepository';
 
 // 网络层（抽象基类）
-export * from './src/main/ets/network/MihoyoApiService';
+export * from './src/main/ets/base/network/MihoyoApiService';
 
 // 环境枚举和管理器（统一入口）
-export * from './src/main/ets/constants/AppEnv';
-export * from './src/main/ets/constants/AppEnvManager';
+export * from './src/main/ets/common/constants/AppEnv';
+export * from './src/main/ets/common/constants/AppEnvManager';
 
 // 日志工具（core/entry 共用）
-export * from './src/main/ets/utils/Logger';
+export * from './src/main/ets/base/utils/Logger';
 
 // API 错误处理工具
-export * from './src/main/ets/utils/ApiErrorHandler';
+export * from './src/main/ets/base/utils/ApiErrorHandler';
 
 // 日志系统
-export * from './src/main/ets/log/ApiLogEntry';
-export * from './src/main/ets/log/ApiLogSystem';
-export * from './src/main/ets/log/LogFileManager';
-export * from './src/main/ets/log/LogExporter';
+export * from './src/main/ets/base/log/ApiLogEntry';
+export * from './src/main/ets/base/log/ApiLogSystem';
+export * from './src/main/ets/base/log/LogFileManager';
+export * from './src/main/ets/base/log/LogExporter';
 
 // 常量
-export * from './src/main/ets/constants/SyncDataType';
-export * from './src/main/ets/constants/GenshinPropertyType';
-export * from './src/main/ets/constants/StarRailPropertyType';
-export * from './src/main/ets/constants/ZZZPropertyId';
-export * from './src/main/ets/constants/GameServer';
-export * from './src/main/ets/constants/GameId';
-export * from './src/main/ets/constants/ApiConstants';
-export * from './src/main/ets/constants/GenshinElement';
-export * from './src/main/ets/constants/StarRailElement';
-export * from './src/main/ets/constants/ZZZElement';
-export * from './src/main/ets/constants/ZZZEnums';
-export * from './src/main/ets/database/TableSchema';
+export * from './src/main/ets/common/constants/SyncDataType';
+export * from './src/main/ets/StarRailKit/constants/StarRailPropertyType';
+export * from './src/main/ets/ZZZKit/constants/ZZZPropertyId';
+export * from './src/main/ets/common/constants/GameServer';
+export * from './src/main/ets/common/constants/GameId';
+export * from './src/main/ets/common/constants/ApiConstants';
+export * from './src/main/ets/GenshinKit/constants/GenshinElement';
+export * from './src/main/ets/StarRailKit/constants/StarRailElement';
+export * from './src/main/ets/ZZZKit/constants/ZZZElement';
+export * from './src/main/ets/ZZZKit/constants/ZZZEnums';
+export * from './src/main/ets/db/TableName';
+export * from './src/main/ets/db/TableSchema';
+export * from './src/main/ets/common/material/db/schema';
+export * from './src/main/ets/MihoyoKit/db/schema';
+export * from './src/main/ets/GenshinKit/db/schema';
+export * from './src/main/ets/StarRailKit/db/schema';
+export * from './src/main/ets/ZZZKit/db/schema';
+export * from './src/main/ets/sync/db/schema';
+export * from './src/main/ets/SchemaRegistry';
 
 // ── 网络层完整导出 ──────────────────────────────────────────
 
 // 请求头常量
-export * from './src/main/ets/network/MihoyoHeaderKey';
+export * from './src/main/ets/base/network/MihoyoHeaderKey';
 
 // Domain 和 Path 枚举
-export * from './src/main/ets/network/MihoyoDomain';
-export * from './src/main/ets/network/MihoyoAccountApiPath';
-export * from './src/main/ets/network/PassportApiPath';
-export * from './src/main/ets/network/QRCodeApiPath';
-export * from './src/main/ets/network/GenshinApiPath';
-export * from './src/main/ets/network/StarRailApiPath';
-export * from './src/main/ets/network/ZZZApiPath';
-export * from './src/main/ets/network/SignApiPath';
+export * from './src/main/ets/base/network/MihoyoDomain';
+export * from './src/main/ets/MihoyoKit/api/MihoyoAccountApiPath';
+export * from './src/main/ets/MihoyoKit/api/PassportApiPath';
+export * from './src/main/ets/MihoyoKit/api/QRCodeApiPath';
+export * from './src/main/ets/GenshinKit/api/GenshinApiPath';
+export * from './src/main/ets/StarRailKit/api/StarRailApiPath';
+export * from './src/main/ets/ZZZKit/api/ZZZApiPath';
+export * from './src/main/ets/MihoyoKit/api/SignApiPath';
 
 // 请求头构建器
-export * from './src/main/ets/network/MihoyoHeaderBuilder';
+export * from './src/main/ets/base/network/MihoyoHeaderBuilder';
 
 // 配置和工具
-export * from './src/main/ets/network/ApiConfig';
-export * from './src/main/ets/network/DSUtil';
+export * from './src/main/ets/base/network/ApiConfig';
+export * from './src/main/ets/base/network/GameFpBiz';
+export * from './src/main/ets/base/network/DSUtil';
 
 // Service 工厂
-export * from './src/main/ets/network/MihoyoApiServiceFactory';
+export * from './src/main/ets/ApiServiceFactory';
 
 // Release Service 实现
-export * from './src/main/ets/network/MihoyoAccountApiService';
-export * from './src/main/ets/network/GenshinApiService';
-export * from './src/main/ets/network/StarRailApiService';
-export * from './src/main/ets/network/ZZZApiService';
-export * from './src/main/ets/network/SignApiService';
+export * from './src/main/ets/MihoyoKit/api/MihoyoAccountApiService';
+export * from './src/main/ets/GenshinKit/api/GenshinApiService';
+export * from './src/main/ets/StarRailKit/api/StarRailApiService';
+export * from './src/main/ets/ZZZKit/api/ZZZApiService';
+export * from './src/main/ets/ZZZKit/api/ZZZRecordRequest';
+export * from './src/main/ets/MihoyoKit/api/SignApiService';
+
+// Retcode 语义注册表
+export * from './src/main/ets/base/errors/RetcodeRegistry';
 
 // 业务错误类型（新的统一错误类）
 export {
   SyncErrorKind,
   SyncError,
   SyncErrorFactory
-} from './src/main/ets/errors/ApiErrors';
+} from './src/main/ets/base/errors/ApiErrors';
 
 // 旧的错误类（deprecated，保留兼容）
 export {
@@ -147,16 +166,9 @@ export {
   GeetestRequiredError,
   RoleNotPublicErrorClass,
   RoleNotPublicError
-} from './src/main/ets/errors/ApiErrors';
+} from './src/main/ets/base/errors/ApiErrors';
 
 // Cookie 刷新
-export * from './src/main/ets/cookie/ColdStartCookieChecker';
-export * from './src/main/ets/cookie/CookieRefreshCoordinator';
+export * from './src/main/ets/MihoyoKit/cookie/ColdStartCookieChecker';
+export * from './src/main/ets/MihoyoKit/cookie/CookieRefreshCoordinator';
 
-// Mock Service 实现
-export * from './src/main/ets/network/mock/MockServiceBase';
-export * from './src/main/ets/network/mock/MihoyoAccountMockService';
-export * from './src/main/ets/network/mock/GenshinMockService';
-export * from './src/main/ets/network/mock/StarRailMockService';
-export * from './src/main/ets/network/mock/ZZZMockService';
-export * from './src/main/ets/network/mock/SignMockService';

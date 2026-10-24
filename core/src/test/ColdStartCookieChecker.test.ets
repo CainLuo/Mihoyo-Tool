@@ -6,8 +6,8 @@
  */
 
 import { describe, it, expect } from '@ohos/hypium';
-import { ColdStartCookieChecker } from '../main/ets/cookie/ColdStartCookieChecker';
-import { BBSRepository } from '../main/ets/repository/BBSRepository';
+import { ColdStartCookieChecker } from '../main/ets/MihoyoKit/cookie/ColdStartCookieChecker';
+import { BBSRepository } from '../main/ets/MihoyoKit/repository/BBSRepository';
 
 export default function coldStartCookieCheckerTest() {
   describe('ColdStartCookieChecker.needsColdStartRefresh', () => {

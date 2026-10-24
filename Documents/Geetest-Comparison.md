@@ -22,12 +22,12 @@
 | 字段                   | 本项目                                        | PizzaHelperUnited                                | TeyvatGuide                                        |
 | ---------------------- | --------------------------------------------- | ------------------------------------------------ | -------------------------------------------------- |
 | `x-rpc-app_version`    | `2.104.0`                                     | `2.40.1`                                         | `2.102.1`                                          |
-| `x-rpc-client_type`    | `2`（CLIENT_ANDROID）                         | `5`（defaultHeaders 默认）                       | `2`（覆盖）                                        |
+| `x-rpc-client_type`    | `5`（CLIENT_WEB）                             | `5`（defaultHeaders 默认）                       | `2`（覆盖）                                        |
 | `x-rpc-device_fp`      | ✅ 有                                         | ✅ 有（additionalHeaders）                       | ✅ 有                                              |
 | `x-rpc-device_id`      | ✅ 有                                         | ✅ 有（additionalHeaders）                       | ✅ 有                                              |
 | `x-rpc-challenge_path` | ❌ 无                                         | ✅ 有（writeXRPCChallengeHeaders4DailyNote）     | ❌ 无                                              |
 | `x-rpc-challenge_game` | ❌ 无                                         | ✅ 有（writeXRPCChallengeHeaders4DailyNote）     | ❌ 无                                              |
-| `DS`                   | K2 Sign（salt_v1，不含 b/q，字母数字 random） | X4（defaultHeaders 生成，含 b/q，纯数字 random） | K2（isSign=true，不含 b/q，字母数字 random）       |
+| `DS`                   | X4（含 b/q，纯数字 random）                   | X4（defaultHeaders 生成，含 b/q，纯数字 random） | K2（isSign=true，不含 b/q，字母数字 random）       |
 | `User-Agent`           | `miHoYoBBS/2.104.0`（iPhone iOS 16.3.1）      | `miHoYoBBS/2.40.1`（iPhone iOS 17.6）            | `miHoYoBBS/2.102.1`（Linux Android 12，移动端 UA） |
 | `Referer`              | 无                                            | `https://webstatic.mihoyo.com`                   | 无                                                 |
 | `query`                | `is_high=true`                                | `is_high=true`                                   | `is_high=true`                                     |
@@ -72,7 +72,7 @@
 | ---------------------- | --------------------------------------- | ----------------- | -------------------------- |
 | `x-rpc-challenge_path` | ❌ 无                                   | ✅ 有             | ❌ 无                      |
 | `x-rpc-challenge_game` | ❌ 无                                   | ✅ 有             | ❌ 无                      |
-| `DS`                   | K2（salt_v1，含 body，字母数字 random） | X4（含 body）     | K2（isSign=false，含 b/q） |
+| `DS`                   | X4（含 body，纯数字 random）            | X4（含 body）     | K2（isSign=false，含 b/q） |
 
 ### 2.4 verifyVerification 返回值
 
@@ -95,14 +95,14 @@
 2. HomeViewModel.handleGeetest()
    → GeetestService.createVerification(cookie)
      → GET bbs-api.miyoushe.com/misc/api/createVerification
-     → DS: K2 Sign（不含 b/q）
+     → DS: X4（含 b/q，纯数字 random）
    → 设置 geetestTrigger，View 层弹 GeetestDialog
 3. 用户完成验证，GeetestDialog 回调 onResult(GeetestVerifyInput)
 4. HomeViewModel.onGeetestResult(result)
    → GeetestService.verifyVerification(result, cookie)
      → POST bbs-api.miyoushe.com/misc/api/verifyVerification
      → body: { geetest_challenge, geetest_validate, geetest_seccode }（SDK 原始值）
-     → DS: K2（含 body）
+     → DS: X4（含 body，纯数字 random）
    → 用新 challenge 重试便笺接口
      → headers 注入: x-rpc-challenge + x-rpc-challenge_path + x-rpc-challenge_game ✅
 ```
@@ -158,8 +158,8 @@
 | create 时携带 challenge_path/game | ❌                               | ✅                                                        | ❌                               |
 | verify 时携带 challenge_path/game | ❌                               | ✅                                                        | ❌                               |
 | geetest_seccode 格式              | SDK 原始值                       | `validate + "\|jordan"`                                   | SDK 原始值                       |
-| create DS salt                    | K2 Sign（不含 b/q）              | X4（含 b/q）                                              | X4（isSign=true，不含 b/q）      |
-| verify DS salt                    | K2（含 body）                    | X4（含 body）                                             | X4（含 body）                    |
+| create DS salt                    | X4（含 b/q）                     | X4（含 b/q）                                              | X4（isSign=true，不含 b/q）      |
+| verify DS salt                    | X4（含 body）                    | X4（含 body）                                             | X4（含 body）                    |
 | Geetest 触发时机                  | 便笺返回 1034/10035              | 用户手动触发（便笺失败走 Widget 降级）                    | 便笺返回 1034                    |
 | 触发后先尝试 Widget 降级          | ✅                               | 不适用（Widget 在 Geetest 之前）                          | ❌                               |
 

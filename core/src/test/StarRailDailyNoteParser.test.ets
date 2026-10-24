@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect } from '@ohos/hypium';
-import { StarRailDailyNoteParser } from '../main/ets/parsers/starrail/StarRailDailyNoteParser';
+import { StarRailDailyNoteParser } from '../main/ets/StarRailKit/parser/StarRailDailyNoteParser';
 
 const VALID_JSON =
   '{"current_stamina":180,"max_stamina":300,"stamina_recover_time":1800,"stamina_full_ts":1700000000,"current_reserve_stamina":2400,"is_reserve_stamina_full":true,"current_train_score":400,"max_train_score":500,"current_rogue_score":10000,"max_rogue_score":14000,"weekly_cocoon_cnt":2,"weekly_cocoon_limit":3,"rogue_tourn_weekly_cur":800,"rogue_tourn_weekly_max":1000,"rogue_tourn_exp_is_full":false,"grid_fight_weekly_cur":1,"grid_fight_weekly_max":3,"current_ts":1700000100}';

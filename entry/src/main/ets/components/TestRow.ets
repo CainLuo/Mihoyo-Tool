@@ -1,5 +1,5 @@
 /**
- * TestRow — 测试页操作行（仅 Mock/Debug 环境使用）
+ * TestRow — 测试页操作行（仅 Debug 环境使用）
  */
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { ThemeFonts } from '../theme/ThemeFonts'

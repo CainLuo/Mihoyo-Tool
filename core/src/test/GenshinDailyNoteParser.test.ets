@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from '@ohos/hypium';
-import { GenshinDailyNoteParser } from '../main/ets/parsers/genshin/GenshinDailyNoteParser';
+import { GenshinDailyNoteParser } from '../main/ets/GenshinKit/parser/GenshinDailyNoteParser';
 
 // 标准测试 JSON（来自真实 API 响应结构）
 const VALID_JSON =

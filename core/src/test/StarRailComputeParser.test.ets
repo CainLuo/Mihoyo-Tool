@@ -5,7 +5,7 @@
  */
 
 import { describe, it, expect } from '@ohos/hypium';
-import { StarRailComputeParser, StarRailComputeData, StarRailMaterialItem } from '../main/ets/parsers/starrail/StarRailComputeParser';
+import { StarRailComputeParser, StarRailComputeData, StarRailMaterialItem } from '../main/ets/StarRailKit/parser/StarRailComputeParser';
 
 // 标准测试 JSON（基于真实 API 响应结构）
 const VALID_JSON = `{
@@ -64,7 +64,7 @@ export default function starRailComputeParserTest() {
 
     it('parse_validJson_returnsData', 0, () => {
       const data = StarRailComputeParser.parse(VALID_JSON);
-      expect(data).not.assertNull();
+      expect(data).not().assertNull();
     });
 
     it('parse_avatarConsume_length', 0, () => {

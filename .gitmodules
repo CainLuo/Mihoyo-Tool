@@ -7,3 +7,9 @@
 [submodule "mihoyo-api-sdk"]
 	path = mihoyo-api-sdk
 	url = https://github.com/UIGF-org/mihoyo-api-sdk.git
+[submodule "harmonyos-ai-skill"]
+	path = harmonyos-ai-skill
+	url = https://github.com/DengShiyingA/harmonyos-ai-skill
+[submodule "harmonyos-ai-workspace"]
+	path = harmonyos-ai-workspace
+	url = https://github.com/Octo-o-o-o/harmonyos-ai-workspace

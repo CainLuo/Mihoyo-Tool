@@ -5,8 +5,8 @@
  * 重点验证 API 响应使用 avatar_list 字段（而非 list），确保解析正确。
  */
 import { describe, it, expect } from '@ohos/hypium';
-import { StarRailRepository } from '../main/ets/repository/StarRailRepository';
-import { StarRailEquipItem, StarRailAvatarItem, StarRailAvatarListData } from '../main/ets/models/StarRailRows';
+import { StarRailRepository } from '../main/ets/StarRailKit/repository/StarRailRepository';
+import { StarRailEquipItem, StarRailAvatarItem, StarRailAvatarListData } from '../main/ets/StarRailKit/model/StarRailRows';
 
 const TEST_ACCOUNT_ID = '30001';
 const TEST_ROLE_UID = 'sr_parse_uid';

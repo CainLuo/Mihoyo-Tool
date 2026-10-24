@@ -6,7 +6,7 @@
  * 环境判断：
  * - 通过 BuildProfile.APP_ENV 读取环境（编译时常量）
  * - Release 环境下禁用 debug/trace 级别日志
- * - Mock/Debug 环境下输出所有日志
+ * - 非 Release 环境下输出所有日志
  *
  * 使用方式：
  * ```ts

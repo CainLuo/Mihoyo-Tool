@@ -75,15 +75,15 @@
 | `/auth/api/getCookieAccountInfoBySToken` | GET  | `api-takumi.mihoyo.com`   | 用 stoken 换取 cookie_token                                 |
 | `/account/auth/api/getLTokenBySToken`    | GET  | `passport-api.mihoyo.com` | 用 stoken 换取 ltoken                                       |
 
-### 二维码登录
+### 二维码登录（当前实现，passport App API）
 
-| 路径                                             | 方法 | 域名                    | 说明                                             |
-| ------------------------------------------------ | ---- | ----------------------- | ------------------------------------------------ |
-| `/bh2_cn/combo/panda/qrcode/fetch`               | POST | `hk4e-sdk.mihoyo.com`   | 获取二维码 URL（含 ticket）                      |
-| `/bh2_cn/combo/panda/qrcode/query`               | POST | `hk4e-sdk.mihoyo.com`   | 轮询扫码状态                                     |
-| `/account/ma-cn-session/app/getTokenByGameToken` | POST | `api-takumi.mihoyo.com` | 用 game_token 换取 stoken_v2（二维码确认后调用） |
+| 路径                                               | 方法 | 域名                      | 说明                                                         |
+| -------------------------------------------------- | ---- | ------------------------- | ------------------------------------------------------------ |
+| `/account/ma-cn-passport/app/createQRLogin`        | POST | `passport-api.mihoyo.com` | 创建二维码，空 body；`x-rpc-app_id=ddxf5dufpuyo`、`client_type=3` |
+| `/account/ma-cn-passport/app/queryQRLoginStatus`   | POST | `passport-api.mihoyo.com` | 轮询扫码状态，body `{ticket}`                                |
+| `/auth/api/getCookieAccountInfoBySToken`           | GET  | `api-takumi.mihoyo.com`   | 用 stoken 获取 cookie_token（Pizza 的 `cookieToken`）        |
 
-> **重要**：PizzaHelperUnited 二维码登录使用 `appTag = "bh2_cn"`，而非 `hk4e_cn`。
+> **重要**：当前 PizzaHelperUnited 的 QR 不使用 `bh2_cn` / `hk4e_cn` 的 `combo/panda/qrcode` 接口，也不在 QR 确认后调用 `getTokenByGameToken`；确认响应直接返回 stoken。Pizza 随后把 stoken 同时写入 ltoken，不调用 `getLTokenBySToken`。
 
 ---
 

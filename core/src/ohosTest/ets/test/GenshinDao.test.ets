@@ -1,20 +1,21 @@
 import { describe, it, expect, beforeAll, beforeEach } from '@ohos/hypium';
 import { common } from '@kit.AbilityKit';
-import { RdbManager } from '../../../main/ets/database/RdbManager';
-import { AccountDao } from '../../../main/ets/database/BBSDao';
+import { RdbManager } from '../../../main/ets/db/RdbManager';
+import { SCHEMA_REGISTRY } from '../../../main/ets/SchemaRegistry';
+import { AccountDao } from '../../../main/ets/MihoyoKit/db/BBSDao';
 import {
   GenshinCharacterListDao,
   GenshinDailyNoteDao,
   GenshinCharacterDetailDao,
   GenshinCharacterComputeDao
-} from '../../../main/ets/database/GenshinDao';
+} from '../../../main/ets/GenshinKit/db/GenshinDao';
 import {
   GenshinCharacterListRow,
   GenshinDailyNoteRow,
   GenshinCharacterDetailRow,
   GenshinCharacterComputeRow
-} from '../../../main/ets/models/GenshinRows';
-import { AccountRow } from '../../../main/ets/models/AccountRow';
+} from '../../../main/ets/GenshinKit/model/GenshinRows';
+import { AccountRow } from '../../../main/ets/MihoyoKit/model/AccountRow';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 
 async function getContext(): Promise<common.UIAbilityContext> {
@@ -109,7 +110,7 @@ export default function genshinDaoTest() {
   const charComputeDao = new GenshinCharacterComputeDao();
 
   beforeAll(async () => {
-    await RdbManager.init(await getContext());
+    await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
     // 确保测试账号存在（外键约束）
     const acc = new AccountRow();
     acc.id = 10001;

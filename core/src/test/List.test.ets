@@ -1,5 +1,4 @@
 import dsUtilTest from './DSUtilV2.test';
-import mockServiceBaseTest from './MockServiceBase.test';
 import syncDataTypeTest from './SyncDataType.test';
 import rowModelsTest from './RowModels.test';
 import starRailAvatarBasicParserTest from './StarRailAvatarBasicParser.test';
@@ -10,10 +9,12 @@ import coldStartCookieCheckerTest from './ColdStartCookieChecker.test';
 import genshinComputeParserTest from './GenshinComputeParser.test';
 import starRailComputeParserTest from './StarRailComputeParser.test';
 import zzzComputeParserTest from './ZZZComputeParser.test';
+import mihoyoDomainTest from './MihoyoDomain.test';
+import headerBuilderTest from './HeaderBuilder.test';
+import retcodeRegistryTest from './RetcodeRegistry.test';
 
 export default function testsuite() {
   dsUtilTest();
-  mockServiceBaseTest();
   syncDataTypeTest();
   rowModelsTest();
   starRailAvatarBasicParserTest();
@@ -24,4 +25,7 @@ export default function testsuite() {
   genshinComputeParserTest();
   starRailComputeParserTest();
   zzzComputeParserTest();
+  mihoyoDomainTest();
+  headerBuilderTest();
+  retcodeRegistryTest();
 }

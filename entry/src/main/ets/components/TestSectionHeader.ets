@@ -1,5 +1,5 @@
 /**
- * TestSectionHeader — 测试页分区标题（仅 Mock/Debug 环境使用）
+ * TestSectionHeader — 测试页分区标题（仅 Debug 环境使用）
  */
 import { themeManager, ThemeManager } from '../theme/ThemeManager'
 import { ThemeFonts } from '../theme/ThemeFonts'
