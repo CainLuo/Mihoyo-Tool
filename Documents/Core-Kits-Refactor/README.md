@@ -1,9 +1,9 @@
 # Core Kits 重构任务总览
 
-> 状态：**Phase 1.2 / Phase 2 / Phase 3 / Phase 5 代码层完成；S-01 已解决；2026-10-22 环境收敛完成；release 构建与测试脚本通过；uat / mock 可编译但签名待配置；公共 Header 合并已完成；运行时验收清单已建立，待执行**
-> 当前阶段：**`internal` overlay 与手机号登录 UI 已合并到 main；运行环境收敛为 `mock` / `uat` / `release`；`base → Kit` 反向依赖为 0、core import cycle 为 0；三套 product 可独立构建，release 已签名，uat / mock 需独立 AGC 调试证书和 Profile**
-> 下一步：**补齐 uat / mock 签名材料；按 [`Runtime-Acceptance-Checklist.md`](Runtime-Acceptance-Checklist.md) 执行运行时验收；Phase 4 Mock local service 直连路由**
-> 更新时间：2026-10-23
+> 状态：**Phase 1.2 / Phase 2 / Phase 3 / Phase 5 代码层完成；S-01 已解决；2026-10-22 环境收敛完成；release 构建与测试脚本通过；uat / mock 以 unsigned HAP 在模拟器完成安装与启动；公共 Header 合并已完成；真机 API 回归第 1～28 项通过（签到除外）**
+> 当前阶段：**`internal` overlay 与手机号登录 UI 已合并到 main；运行环境收敛为 `mock` / `uat` / `release`；`base → Kit` 反向依赖为 0、core import cycle 为 0；三套 product 可独立构建；release 使用正式签名，uat / mock 在模拟器使用 unsigned HAP 并保留后缀包名；真机功能回归已完成**
+> 下一步：**签到功能后续实现（API 保留）；header / retcode 抓包与 DB 升级回归；UAT / Mock 真机签名；Mock local service 本轮暂缓**
+> 更新时间：2026-10-24
 
 本目录集中存放整个 Core Kits 重构任务的规划、阶段记录和专题文档，避免 Mock、Kit、DB 等子任务的文档散落在仓库各处。
 
@@ -22,8 +22,9 @@
 - `core/src/internal` 与 `entry/src/internal` 已删除；手机号登录 UI 合并进 `entry/src/main`，默认 Tab 为 `PHONE`。
 - `AppEnv` 只保留 `MOCK` / `UAT` / `RELEASE`，未知值回退到 `UAT`；`AppEnvManager.isDebugCapable()` 对 Mock / UAT 返回 true。
 - `MihoyoDomain` 按 `AppEnvManager.isMock()` 切换域名；Mock 下 `BBS_APIHUB` 保留 `/apihub`。
-- Release 使用 `Certificates/release/` 的正式签名；UAT / Mock 必须使用各自 Bundle ID 的独立调试证书和 Profile，不能复用 release。
-- 当前 UAT / Mock 只构建出 unsigned HAP，尚未安装验证；`run.sh` 在签名材料缺失时会提前报错。
+- Release 使用 `Certificates/release/` 的正式签名；UAT / Mock 保留各自 Bundle ID，在模拟器上使用 unsigned HAP。
+- UAT / Mock 的 unsigned HAP 已在模拟器完成安装与启动验证（`APP_ENV=uat` / `mock`，bundle 分别为 `.uat` / `.mock`）；`run.sh` 优先使用 signed HAP，缺失时回退 unsigned HAP。
+- 2026-10-24：真机 API 回归第 1～28 项通过（二维码 / 手机号 / Cookie 登录、账号与角色、三游戏便笺与 Widget、角色与养成计算）；签到功能未实现，第 29～33 项未验收。
 
 ---
 
@@ -48,9 +49,9 @@
 | [`Plan.md`](Plan.md) | 完整重构方案：目标结构、BaseApiService、DB 归类、阶段计划、风险 |
 | [`APIService.md`](APIService.md) | `BaseApiService` 抽离方案：axios 唯一封装层、继承关系、HTTP 状态边界、已确认事项、文件级迁移/删除清单、上报审计表、直接 return 上报漏点、Cookie 覆盖、实施陷阱；第 10 节记录已实施的公共 Header 合并 |
 | [`API-Baseline.md`](API-Baseline.md) | 旧 transport 迁移前后的 API header / retcode 基线清单：按登录、BBS、三游戏、签到、设备指纹 / Geetest 分组，列出触发入口、当前 header、待填字段和完成标准；§2.2 已补三个项目 + 历史抓包的静态对照；运行时 **未采集（延后）** |
-| [`Runtime-Acceptance-Checklist.md`](Runtime-Acceptance-Checklist.md) | 运行时手工验收清单：按登录 / BBS / 便笺 / 角色 / 签到 / 错误路径列出测试点，含勾选项和 Header / Response 填写栏 |
-| [`Known-Issues.md`](Known-Issues.md) | 已知问题与暂缓项：header / retcode 未采集、参考冲突、当前不改的参考差异、Phase 1.2 边界与真机回归清单 |
-| [`Mock.md`](Mock.md) | Mock 部分：当前配置、已删除/保留内容、`mock-service` 契约、Swift-Vapor 迁移方案、缺口清单 |
+| [`Runtime-Acceptance-Checklist.md`](Runtime-Acceptance-Checklist.md) | 运行时手工验收清单：按登录 / BBS / 便笺 / 角色 / 签到 / 错误路径列出测试点；2026-10-24 真机第 1～28 项通过，签到与错误路径未验收 |
+| [`Known-Issues.md`](Known-Issues.md) | 已知问题与暂缓项：header / retcode 未采集、参考冲突、当前不改的参考差异、Phase 1.2 边界与真机回归结果 |
+| [`Mock.md`](Mock.md) | Mock 部分（本轮暂缓）：当前配置、已删除/保留内容、`mock-service` 契约、Swift-Vapor 迁移方案、缺口清单 |
 
 后续如果新增 Kit / DB / 迁移记录，也放在本目录，不单独建 `Documents/Mock/` 之类的子任务目录。
 
@@ -61,17 +62,17 @@
 | 阶段 | 状态 | 说明 |
 | --- | --- | --- |
 | Phase 0 — 基线 | 🟡 构建基线完成；静态参考完成；运行时基线延后 | 当时四个 product（`default` / `mock` / `debug` / `internal`）构建通过；2026-10-22 已收敛为 `mock` / `uat` / `release`。`test-core.sh` / `test-entry.sh` 通过（仅构建 ohosTest HAP，不是网络测试）；header / retcode 清单和 §2.2 静态参考矩阵已建在 [`API-Baseline.md`](API-Baseline.md)，运行时 **未采集（用户决定延后，不阻塞迁移）** |
-| Phase 1 — 底盘 | 🟡 Phase 1.1 完成；Phase 1.2 第一批完成 | 新增 `HttpTypes` / `BaseApiService`；5 个业务 Service + internal overlay 已继承并完成 `.data` 拆包；`AuthRepository` / `BBSRepository` / `DeviceFpService` / `GeetestService` / `ZZZRecordRequest` 已迁移；旧 `HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService` 已删除；Phase 1.2 第一批已迁移 32 个共享文件并只改 import；`default` / `debug` / `mock` 构建和 `test-core.sh` / `test-entry.sh` 通过，`internal` 编译通过但证书过期导致 `SignHap` 失败；基线 / 真机回归待补，见 [`Known-Issues.md`](Known-Issues.md) |
+| Phase 1 — 底盘 | 🟡 Phase 1.1 完成；Phase 1.2 第一批完成 | 新增 `HttpTypes` / `BaseApiService`；5 个业务 Service + internal overlay 已继承并完成 `.data` 拆包；`AuthRepository` / `BBSRepository` / `DeviceFpService` / `GeetestService` / `ZZZRecordRequest` 已迁移；旧 `HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService` 已删除；Phase 1.2 第一批已迁移 32 个共享文件并只改 import；`default` / `debug` / `mock` 构建和 `test-core.sh` / `test-entry.sh` 通过，`internal` 编译通过但证书过期导致 `SignHap` 失败；header 基线仍延后，真机 API 回归已通过，见 [`Known-Issues.md`](Known-Issues.md) |
 | Phase 2 — 拆 Kit | ✅ 代码层完成 | GenshinKit / StarRailKit / ZZZKit 分别迁移 13 / 11 / 14 个文件；Mihoyo 账号域迁移 18 个主文件（17 个入 MihoyoKit，工厂文件迁根），另有 3 个 internal overlay；`MihoyoApiServiceFactory` 文件迁到根 `ApiServiceFactory.ets`，Phase 5 类名统一为 `ApiServiceFactory`；Phase 3 已补齐 `TableSchema`、material DAO / model / repository；原有反向依赖已在 Phase 5 解决 |
-| Phase 3 — DB 收尾 | 🟡 代码层完成；运行时迁移验证延后 | Phase 3A 将 sync / material 框架路径落位；Phase 3B 拆分 material DAO 基类与三个 Kit 子类；Phase 3C 抽离 `db/TableName.ets`，拆分各 Kit `db/schema.ets` / `sync/db/schema.ets`，V3/V7 归入 `db/migrations/cross/`，根 `SchemaRegistry.ets` 聚合 `ALL_TABLES` / `ALL_INDEXES` / 迁移，`RdbManager.init(context, SchemaRegistry)`；构建与编译检查通过，运行时 DB 测试和旧库升级路径未执行 |
-| Phase 4 — Mock | 🟡 部分完成 | 清理、独立 mock product、脚本、Node mock-service 已完成；Swift-Vapor local service 与 App 接入未完成 |
-| Phase 5 — 收尾 | 🟡 代码层完成；Header 合并已完成 | `ApiServiceFactory` 命名统一、删除 `baseUrlType` / `CookieManager`、Cookie 与 Sync 依赖注入、Geetest / GameFpBiz / ZZZ 指纹清理收口、删除 12 个不可达 entry 文件、`BuildProfile.ets` 转为生成物；新增架构守卫与 Mock 域名测试。公共 Header 合并已完成；运行时回归仍延后 |
+| Phase 3 — DB 收尾 | 🟡 代码层完成；运行时 DB 验证延后 | Phase 3A 将 sync / material 框架路径落位；Phase 3B 拆分 material DAO 基类与三个 Kit 子类；Phase 3C 抽离 `db/TableName.ets`，拆分各 Kit `db/schema.ets` / `sync/db/schema.ets`，V3/V7 归入 `db/migrations/cross/`，根 `SchemaRegistry.ets` 聚合 `ALL_TABLES` / `ALL_INDEXES` / 迁移，`RdbManager.init(context, SchemaRegistry)`；构建与编译检查通过；真机 API 回归通过，但 `RdbManager.test` / DAO 测试实际运行和旧库升级路径仍未执行 |
+| Phase 4 — Mock | ⏸ 本轮暂缓 | 清理、独立 mock product、脚本、Node mock-service 已完成；Swift-Vapor local service、REST 路由与 App 接入按用户决定暂缓 |
+| Phase 5 — 收尾 | 🟡 代码层完成；Header 合并已完成 | `ApiServiceFactory` 命名统一、删除 `baseUrlType` / `CookieManager`、Cookie 与 Sync 依赖注入、Geetest / GameFpBiz / ZZZ 指纹清理收口、删除 12 个不可达 entry 文件、`BuildProfile.ets` 转为生成物；新增架构守卫与 Mock 域名测试。公共 Header 合并已完成；真机 API 回归通过；header / retcode 与 DB 升级仍延后 |
 
-> Phase 4 的“完成”只代表 **Mock 清理和构建配置完成**，不代表 mock 数据链路已经可用。详见 [`Mock.md`](Mock.md)。
+> Phase 4 的“暂缓”只代表 **Mock 数据链路本轮不做**；Mock 清理和构建配置仍已完成，不代表 mock 数据链路已经可用。详见 [`Mock.md`](Mock.md)。
 
 ---
 
-## 4. Mock 部分已完成
+## 4. Mock 部分已完成（本轮暂缓后续接入）
 
 - 删除 `mock/` ArkTS 源码目录
 - 删除 Core/entry 中的 MockService、Mock 适配器、工厂分支、注入入口
@@ -82,12 +83,12 @@
 - `run.sh mock`、`pull-logs.sh mock`、Cookie 测试脚本的 Mock 选项均指向 `.mock` 包
 - 224 个 fixture 迁移到 `mock-service/fixtures/`（约 27 MB）
 - `mock-service` Node 服务保留，12 个测试通过
-- 2026-10-22：`internal` 已合并，`mock` / `uat` / `release` 三个 product 可独立构建；release 已签名，uat / mock 待独立 AGC 签名
+- 2026-10-22：`internal` 已合并，`mock` / `uat` / `release` 三个 product 可独立构建；release 已签名，uat / mock 在模拟器使用 unsigned HAP（已安装验证）
 - `test-core.sh` / `test-entry.sh` 通过
 
 ---
 
-## 5. Mock 部分缺口
+## 5. Mock 部分缺口（本轮暂缓）
 
 以下内容尚未完成，已记录在 [`Mock.md`](Mock.md)，后续不能误认为 mock 数据链路已经可用：
 
@@ -95,7 +96,7 @@
 - [x] **App 侧域名覆盖点已实现**：`MihoyoDomain` 在 `APP_ENV=mock` 时切到 `http://127.0.0.1:8787`，`BBS_APIHUB` 保留 `/apihub`
 - [ ] **Mock 直接 REST 路由未实现**：`mock-service/server.mjs` 目前只有 `/__health`、`/`、`POST /__mock/rpc`，App 请求会 404
 - [ ] **接入方案未最终确定**：直连路径代理 vs RPC（推荐直连路径代理）
-- [ ] **uat / mock 签名未配置**：必须为对应 Bundle ID 创建独立 AGC 调试证书和 Profile，不能复用 release
+- [x] **UAT / Mock 模拟器运行已验证**：unsigned HAP 可安装启动；真机安装仍需为对应 Bundle ID 单独申请调试 Profile，不能复用 release
 - [ ] **真机 / 模拟器 mock 数据联调未做**
 - [ ] **Swift-Vapor 与 Node 的 parity 测试未建立**
 - [ ] **fixture 缺口未补**：签到、ZZZ `avatar_compute`、原神/星铁账号级 Widget
@@ -108,7 +109,7 @@
 
 按 `Plan.md` 的阶段顺序，**Phase 1.1 BaseApiService** 已完成；以下保留实施记录：
 
-**Phase 1.1 — BaseApiService（Stage 0-3 已完成；基线 / 真机回归延后）**
+**Phase 1.1 — BaseApiService（Stage 0-3 已完成；header 基线延后）**
 
 **Stage 0 已完成（2026-10-20）**：
 
@@ -127,7 +128,7 @@
 - 删除 `HttpClient` / `HttpService` / `NetworkFactory` / `LegacyBaseApiService`；
 - 当时四个 product 构建、`test-core.sh` / `test-entry.sh` 通过；2026-10-22 已收敛为三环境；
 - `grep` 验收：axios 仅命中 `BaseApiService.ets`，无旧 transport 代码引用，无直接 `return this.get/post`；
-- header / retcode 基线、真实设备与 Mock 回归 **延后**，不阻塞本轮代码迁移。
+- header / retcode 基线与 Mock 回归 **延后**，不阻塞本轮代码迁移；真机 API 回归第 1～28 项已于 2026-10-24 通过（签到除外）。
 
 内容：
 
@@ -270,4 +271,4 @@
 - `core@default assembleHar`、`entry@ohosTest`、`mock` debug、`uat` debug、`release` release 构建通过。
 - `bash test-core.sh` 编译通过（只构建 ohosTest HAP，不执行测试）；新增 `core/src/test/MihoyoDomain.test.ets`，锁定 Mock `http://127.0.0.1:8787` / `BBS_APIHUB` `/apihub` 与 UAT / Release 官方域名契约；新增 `HeaderBuilder.test.ets`，覆盖 profile、覆盖、删除和不污染调用方 options 的合并规则。
 - `node scripts/check-architecture.mjs`：0 import cycle、0 `base → Kit` 边、无旧符号 / 旧路径、无空源码目录、业务 Service 无直接 header builder 调用。
-- 仍未验证：UAT / Mock 签名与安装、Mock REST 路由 / Swift-Vapor、真机 header / retcode、DB 升级与三环境回归。
+- 仍未验证：UAT / Mock 真机签名与安装（模拟器 unsigned 已验证）、Mock REST 路由 / Swift-Vapor、真机 header / retcode、DB 升级与三环境回归。

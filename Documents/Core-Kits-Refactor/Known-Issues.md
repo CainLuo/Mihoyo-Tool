@@ -1,7 +1,7 @@
 # Core Kits 已知问题与暂缓项
 
-> 状态：**Phase 1.2 / Phase 2 / Phase 3 / Phase 5 代码层完成；S-01 已解决；公共 Header 合并已完成；UAT / Mock 签名与运行时迁移验证延后**
-> 更新时间：2026-10-23
+> 状态：**Phase 1.2 / Phase 2 / Phase 3 / Phase 5 代码层完成；S-01 已解决；公共 Header 合并已完成；UAT / Mock 模拟器运行已验证（unsigned HAP）；真机 API 回归第 1～28 项通过（签到除外）；header / retcode、DB 升级、UAT / Mock 真机签名延后；Mock REST 数据链路暂缓**
+> 更新时间：2026-10-24
 > 原则：当前构建和既有功能可运行；header / retcode 未采集项保持现状，不用静态推断修改行为。任何修复必须等真机、抓包或明确需求，不把“参考项目这样做”直接当成线上结论。
 >
 > 相关文档：[`API-Baseline.md`](API-Baseline.md) §2.2 静态参考矩阵、[`APIService.md`](APIService.md) §8.6 / §8.7、[`Mock.md`](Mock.md)。
@@ -12,14 +12,14 @@
 
 | ID | 项目 | 当前状态 | 为什么暂不改 | 后续动作 |
 | --- | --- | --- | --- | --- |
-| R-01 | header / DS / retcode 实际抓包 | 只有静态参考；`API-Baseline.md` 仍为“运行时未采集” | 当前代码可运行，静态参考存在冲突 | 任务完成后用 Proxyman + debug 包补采；见 `APIService.md` §8.6 |
+| R-01 | header / DS / retcode 实际抓包 | 只有静态参考；`API-Baseline.md` 仍为“运行时未采集” | 当前代码可运行，静态参考存在冲突；第 1～28 项真机功能已通过，但未逐项保存 header / response | 任务完成后用 Proxyman + debug 包补采；见 `APIService.md` §8.6 |
 | R-02 | BBS 账号 / 角色 / 战绩卡片 header | `client_type=1` + DS v2 + `Referer: app.mihoyo.com` | 本项目历史 App 抓包支持 `client_type=1`；TeyvatGuide / Pizza 用 `5` + X4 | 真机确认 `getUserFullInfo` / `getGameRoles` / `getGameRecordCard`；不要仅凭 SDK 推断 |
-| R-03 | 二维码登录 header / token | 已切到 TeyvatGuide 变体：`bll8iq97cem8` + Capture/2.2.0 + `client_type=3` + X4 DS；确认后调用 `getLTokenBySToken` 再取 `cookie_token` | 静态 header 和 token 流程已对齐；扫码得到的 stoken 能否用于米游社尚未真机验证 | 真机扫码验证；不要再混用 Pizza / HYPContainer 变体 |
+| R-03 | 二维码登录 header / token | 已切到 TeyvatGuide 变体：`bll8iq97cem8` + Capture/2.2.0 + `client_type=3` + X4 DS；确认后调用 `getLTokenBySToken` 再取 `cookie_token` | 静态 header 和 token 流程已对齐；2026-10-24 真机扫码登录、token 换取与 Cookie 完整性均已通过 | 功能已通过；header 细节仍待 Proxyman 补采，不要混用 Pizza / HYPContainer 变体 |
 | R-04 | `cookie_token` 的 client_type | 当前 `getCookieAccountInfoBySToken` 用 `5` | TeyvatGuide 默认 `2`，Pizza 用 `5`；两边都有依据 | 失败时再对比；暂不改 |
-| R-05 | 便笺 / Widget header | `buildPizza`：app 2.40.1、UA 2.40.1、page `3.1.3_#/rpg` | 与 Pizza 一致；历史 App 抓包是 2.102.0 / 2.115.0 + tool_verison / 按游戏 page + device_name | 真机确认便笺和 Widget；`addNoteCaptureHeaders` 当前未调用，不要顺手启用 |
+| R-05 | 便笺 / Widget header | `buildPizza`：app 2.40.1、UA 2.40.1、page `3.1.3_#/rpg` | 与 Pizza 一致；历史 App 抓包是 2.102.0 / 2.115.0 + tool_verison / 按游戏 page + device_name；2026-10-24 真机便笺 / Widget 功能已通过 | header 细节待 Proxyman 补采；`addNoteCaptureHeaders` 当前未调用，不要顺手启用 |
 | R-06 | HTTP 非 200 / 超时 | `HttpError` 已实现；`statusCode=0` 表示无响应 | 没有真实 401/500/断网记录 | 在真机或本地代理制造 401/500/超时各一次 |
-| R-07 | Mock 数据链路 | `mock` product 可构建；`MihoyoDomain` 已切到 `http://127.0.0.1:8787`，但 `mock-service` 只有 `/__health`、`/`、`POST /__mock/rpc` | 直接 REST 路由未实现，App 请求会 404；UAT / Mock 签名也未配置 | 先补签名，再实现 local service 直连路由并做真机 / 模拟器回归；见 `Mock.md`，不要误判为已可用 |
-| R-08 | 真机功能回归 | 登录、便笺、角色、养成计算、签到未在本轮真机验证 | 只有构建和 grep 验收 | 有 `hdc` target 时按第 5 节清单跑一轮 |
+| R-07 | Mock 数据链路（暂缓） | `mock` product 可构建；`MihoyoDomain` 已切到 `http://127.0.0.1:8787`，但 `mock-service` 只有 `/__health`、`/`、`POST /__mock/rpc` | 用户决定本轮不做 Mock；直接 REST 路由未实现，App 请求会 404 | 后续实现 local service 直连路由并做回归；见 `Mock.md`，不要误判为已可用 |
+| R-08 | 真机 API 回归 | 2026-10-24 真机完成第 1～28 项：二维码 / 手机号 / Cookie 登录、账号与角色、三游戏便笺与 Widget、角色与养成计算均通过 | 签到功能未实现，第 29～33 项没有调用方；错误路径 34～39 未测 | 等签到功能接入后补 29～33；有需要时补错误路径 |
 
 ---
 
@@ -41,8 +41,8 @@
 
 | ID | 项目 | 当前状态 | 当前决定 |
 | --- | --- | --- | --- |
-| E-01 | 旧开发签名证书过期 / `internal` 已移除 | `Certificates/dev/miyoyo-dev.cer` 与 `miyoyo-profileDebug.p7b` 于 `2026-10-21 13:15:20 CST` 过期；`core/src/internal` / `entry/src/internal` 已合并删除；release 证书有效期到 `2029-04-24` | 不再使用旧 dev 材料；`internal` product 已移除。不要通过修改证书或复用 release 来绕过签名 |
-| E-02 | UAT / Mock 签名未配置 | `build-profile.json5` 中 `uat` / `mock` 引用了 `signingConfigs`，但当前只有 release 配置；两者构建产物为 unsigned HAP，不能安装 | 在 AGC 为 `com.cainluo.miyoyo.tools.uat` / `.mock` 创建独立调试证书和调试 Profile，填入 `signingConfigs`；禁止复用 release 或共享同一环境的签名 |
+| E-01 | 调试签名材料不匹配 / `internal` 已移除 | `Certificates/dev/miyoyo-profileDebug.p7b` 已续期（2026-10-23 ~ 2027-10-23），但绑定 base bundle `com.cainluo.miyoyo.tools`；`Certificates/dev/miyoyo-dev.cer` 实际是 Release 证书（2026-04-24 ~ 2029-04-24），与 Profile 内嵌的 Development 证书不匹配；`core/src/internal` / `entry/src/internal` 已合并删除 | UAT / Mock 在模拟器使用 unsigned HAP，不需要 p7b；真机签名需为后缀包名重新申请调试 Profile，并配套对应调试证书。不要通过修改 Profile 或复用 release 来绕过签名 |
+| E-02 | UAT / Mock 签名（模拟器已解决） | `build-profile.json5` 中 `uat` / `mock` 不再配置 `signingConfig`，构建 unsigned HAP；已在模拟器完成安装与启动 | 模拟器不需要签名；真机需为 `.uat` / `.mock` 分别申请绑定对应包名的调试 Profile。一套 p7b 只能对应一个 `bundleName`，不能共用 |
 
 ### 2.2 结构性暂缓（Phase 1.2 搬位置后暴露）
 
@@ -155,7 +155,7 @@
 3. 根 `SchemaRegistry.ets` 聚合 24 张表、30 个索引和 V2~V7 迁移；`RdbManager.init(context, SchemaRegistry)` 改为接收注册表，`db/` 不再 import 任何 Kit；`CoreInitializer` 和 11 个测试调用同步更新。
 4. 静态等价：`ALL_TABLES` / `ALL_INDEXES` 顺序与旧 `TableSchema` 一致；24 个表定义、23 个列枚举、30 个索引定义逐项比对无差异；V4 / V5 使用 `GENSHIN_INDEXES` 按原条件筛选，执行的 DDL 与顺序不变。
 5. 验证：`default` / `debug` / `mock` 构建通过；`test-core.sh` / `test-entry.sh` 通过；`internal` 的 `CompileArkTS` 通过，`SignHap` 因 E-01 失败；621 个相对 import 解析 0 缺失。
-6. 未验证：`RdbManager.test` / DAO 测试实际运行、旧版本 DB 文件升级路径、真机与 Mock 回归。两个测试脚本只构建 ohosTest HAP，不是运行测试。
+6. 未验证：`RdbManager.test` / DAO 测试实际运行、旧版本 DB 文件升级路径。真机 API 回归第 1～28 项已通过；Mock 回归本轮暂缓。
 
 ### 3.11 Phase 5 — 依赖反转与清理（代码层完成，2026-10-22）
 
@@ -166,7 +166,7 @@
 5. **命名 / 死字段**：`MihoyoApiServiceFactory` 类名改为 `ApiServiceFactory`；删除 `RequestOptions.baseUrlType`；移除 `core/Index.ets` 中重复的 `GenshinPropertyType` 导出；`core/BuildProfile.ets` 改为 Hvigor 生成物，从 Git 移除并加入 `.gitignore`。
 6. **删除未使用文件**：`CookieManager`、12 个不可达 entry 组件 / 工具文件、`core/src/main/ets/{constants,database,parsers}` 空目录；`entry/src/main/ets/components/main` 空目录一并移除。根目录历史 `internal/core` 未动。
 7. **验证**：`core@default assembleHar`、`entry@ohosTest`、`mock` debug、`uat` debug、`release` release 构建通过；`bash test-core.sh` 编译通过（只构建 HAP，不执行测试）；新增 `MihoyoDomain.test.ets` / `HeaderBuilder.test.ets`；`node scripts/check-architecture.mjs` 输出 0 import cycle、0 `base → Kit` 边、业务 Service 无直接 header builder 调用。
-8. **公共 Header 合并已完成**：`HeaderContext` + `prepareOptions` / `getWithProfile` / `postWithProfile`；raw / passport / QR / 设备指纹 / Geetest 路径保持原 header。**仍延后**：UAT / Mock 签名与安装、Mock REST 路由 / Swift-Vapor、真机 header / retcode 与 DB 升级回归。
+8. **公共 Header 合并已完成**：`HeaderContext` + `prepareOptions` / `getWithProfile` / `postWithProfile`；raw / passport / QR / 设备指纹 / Geetest 路径保持原 header。**已通过**：真机 API 回归第 1～28 项（签到除外）。**仍延后**：UAT / Mock 真机签名与安装（模拟器 unsigned 已验证）、Mock REST 路由 / Swift-Vapor（本轮暂缓）、真机 header / retcode 与 DB 升级回归。
 
 ---
 
@@ -245,7 +245,8 @@
 - [x] `test-core.sh` / `test-entry.sh` 通过；621 个相对 import 解析 0 缺失
 - [ ] `RdbManager.test` / DAO 测试实际运行
 - [ ] 旧版本 DB 文件 → 新包首启升级路径手测
-- [ ] 真机与 Mock 回归
+- [x] 真机 API 回归第 1～28 项（签到除外）
+- [ ] Mock 回归（本轮暂缓）
 
 ### 4.8 Phase 5 检查
 
@@ -258,21 +259,24 @@
 - [x] `core@default assembleHar`、`entry@ohosTest`、`mock` / `uat` / `release` 构建通过
 - [x] `node scripts/check-architecture.mjs`：0 import cycle、0 `base → Kit` 边
 - [x] 公共 Header 合并（5 个业务 Service；raw / passport / QR 保留原路径）
-- [ ] UAT / Mock 签名、安装与 Mock REST 数据链路
-- [ ] 真机 header / retcode、DB 升级与三环境回归
+- [x] UAT / Mock 模拟器 unsigned 安装与启动
+- [x] 真机 API 回归第 1～28 项（签到除外）
+- [ ] UAT / Mock 真机签名与安装
+- [ ] Mock REST 数据链路（本轮暂缓）
+- [ ] header / retcode 抓包、DB 升级与错误路径回归
 
 ---
 
-## 5. 真机回归清单（有设备时执行）
+## 5. 真机回归清单（2026-10-24 完成第 1～28 项）
 
-> 详细步骤、勾选项和待填结果见 [`Runtime-Acceptance-Checklist.md`](Runtime-Acceptance-Checklist.md)。
+> 详细步骤、勾选项和待填结果见 [`Runtime-Acceptance-Checklist.md`](Runtime-Acceptance-Checklist.md)。以下勾选表示功能通过，不代表 header / retcode 已采集。
 
-- [ ] 手机号登录 / 二维码登录 / Cookie 登录
-- [ ] 账号详情、游戏角色列表、战绩卡片
-- [ ] 原神 / 星铁 / 绝区零便笺与 Widget
-- [ ] 原神 / 星铁 / 绝区零角色列表与详情
-- [ ] 原神 / 星铁 / 绝区零养成计算
-- [ ] 签到信息 / 签到（当前有调用方时）
+- [x] 手机号登录 / 二维码登录 / Cookie 登录
+- [x] 账号详情、游戏角色列表、战绩卡片
+- [x] 原神 / 星铁 / 绝区零便笺与 Widget
+- [x] 原神 / 星铁 / 绝区零角色列表与详情
+- [x] 原神 / 星铁 / 绝区零养成计算
+- [ ] 签到信息 / 签到（功能未实现，API 保留）
 - [ ] HTTP 401 / 500 / 断网 / 超时各一次
 - [ ] 1034 / 10035 的 Geetest 提示，5003 / 10041 的指纹提示
 
