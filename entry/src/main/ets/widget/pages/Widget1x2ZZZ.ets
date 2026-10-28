@@ -15,13 +15,10 @@
  *   payload JSON → parsePayload() → ParsedPayload → Widget1x2ViewModel.buildUIState() → UIState → Component
  */
 
-import { Widget1x2ContentView } from '../components/Widget1x2ContentView';
-import { WidgetEmptyContent } from '../components/WidgetEmptyContent';
-import { parsePayload } from '../utils/WidgetPayloadParser';
-import { Widget1x2UIState } from '../models/WidgetUIStates';
+import { Widget1x2ContentView } from '../views/Widget1x2ContentView';
+import { WidgetEmptyContent } from '../views/WidgetEmptyContent';
+import { parsePayload, Widget1x2UIState, createSingleGameGradient, WidgetGameId, getGameColor, DefaultTheme } from 'widgetbase';
 import { Widget1x2ViewModel } from '../viewmodel/Widget1x2ViewModel';
-import { widgetSingleGameGradient, WIDGET_GAME_ID, getGameColor } from '../utils/WidgetUtils';
-import { DefaultTheme } from '../../theme/DefaultTheme';
 
 /** 主题常量实例（Widget 直接使用，不依赖 @ObservedV2/@Trace） */
 const theme = new DefaultTheme();
@@ -36,7 +33,7 @@ struct Widget1x2ZZZ {
   /** 构建 UIState（在组件方法中调用 ViewModel） */
   private getUIState(): Widget1x2UIState {
     const parsed = parsePayload(this.payloadJson);
-    return Widget1x2ViewModel.buildUIState(parsed, WIDGET_GAME_ID.ZZZ);
+    return Widget1x2ViewModel.buildUIState(parsed, WidgetGameId.ZZZ);
   }
 
   build() {
@@ -46,7 +43,7 @@ struct Widget1x2ZZZ {
       } else {
         Widget1x2ContentView({
           state: this.getUIState().role,
-          gameColor: getGameColor(WIDGET_GAME_ID.ZZZ)
+          gameColor: getGameColor(WidgetGameId.ZZZ)
         })
       }
     }
@@ -56,7 +53,7 @@ struct Widget1x2ZZZ {
       left: theme.value12,
       right: theme.value12
     })
-    .linearGradient(widgetSingleGameGradient(WIDGET_GAME_ID.ZZZ))
+    .linearGradient(createSingleGameGradient(WidgetGameId.ZZZ))
     .borderRadius(theme.radius16)
     .onClick(() => {
       postCardAction(this, {

@@ -1,0 +1,39 @@
+{
+  "routerMap": [
+    {
+      "name": "ZZZMaterialList",
+      "pageSourceFile": "src/main/ets/pages/ZZZMaterialListPage.ets",
+      "buildFunction": "ZZZMaterialListPageBuilder"
+    },
+    {
+      "name": "GenshinMaterialTargetConfig",
+      "pageSourceFile": "src/main/ets/pages/GenshinMaterialTargetConfigPage.ets",
+      "buildFunction": "GenshinMaterialTargetConfigPageBuilder"
+    },
+    {
+      "name": "StarRailMaterialTargetConfig",
+      "pageSourceFile": "src/main/ets/pages/StarRailMaterialTargetConfigPage.ets",
+      "buildFunction": "StarRailMaterialTargetConfigPageBuilder"
+    },
+    {
+      "name": "ZZZMaterialTargetConfig",
+      "pageSourceFile": "src/main/ets/pages/ZZZMaterialTargetConfigPage.ets",
+      "buildFunction": "ZZZMaterialTargetConfigPageBuilder"
+    },
+    {
+      "name": "GenshinMaterialList",
+      "pageSourceFile": "src/main/ets/pages/GenshinMaterialListPage.ets",
+      "buildFunction": "GenshinMaterialListPageBuilder"
+    },
+    {
+      "name": "StarRailMaterialList",
+      "pageSourceFile": "src/main/ets/pages/StarRailMaterialListPage.ets",
+      "buildFunction": "StarRailMaterialListPageBuilder"
+    },
+    {
+      "name": "MaterialCharacterSelect",
+      "pageSourceFile": "src/main/ets/pages/MaterialCharacterSelectPage.ets",
+      "buildFunction": "MaterialCharacterSelectPageBuilder"
+    }
+  ]
+}

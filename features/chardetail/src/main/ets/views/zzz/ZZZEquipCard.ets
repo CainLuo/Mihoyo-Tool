@@ -1,0 +1,71 @@
+/**
+ * ZZZEquipCard — 绝区零驱动盘卡片
+ *
+ * 卡片头部 + 主词条行 + 副词条列表。
+ * 仅在 ZZZEquipSection 的驱动盘网格中使用。
+ */
+import { themeManager, ThemeManager } from 'basic';
+import { ZZZCharDetailEquip, ZZZSubStat } from '../../model/CharDetailModels';
+import { ZZZEquipCardHeader } from './ZZZEquipCardHeader';
+
+@ComponentV2
+export struct ZZZEquipCard {
+  @Param equip: ZZZCharDetailEquip = new ZZZCharDetailEquip();
+  @Local private tm: ThemeManager = themeManager;
+
+  build() {
+    Column({ space: this.tm.current.value4 }) {
+      ZZZEquipCardHeader({ equip: this.equip })
+
+      Row() {
+        Text(this.equip.mainStatName)
+          .fontSize(this.tm.current.font11)
+          .fontColor(this.tm.current.accentRefine)
+          .layoutWeight(1)
+
+        Text(this.equip.mainStatValue)
+          .fontSize(this.tm.current.fontBold14)
+          .fontWeight(FontWeight.Bold)
+          .fontColor(this.tm.current.textOnDarkHigh)
+      }
+      .width(this.tm.current.full)
+      .padding({ top: this.tm.current.value2, bottom: this.tm.current.value2 })
+      .border({ width: { bottom: this.tm.current.value1 }, color: '#1AFFFFFF' })
+
+      Column() {
+        ForEach(this.equip.subStats, (sub: ZZZSubStat) => {
+          Row() {
+            Text(sub.name)
+              .fontSize(this.tm.current.font11)
+              .fontColor(sub.isValid ? this.tm.current.accentRefine : '#33FFFFFF')
+              .layoutWeight(1)
+
+            Text(sub.value)
+              .fontSize(this.tm.current.font11)
+              .fontColor(sub.isValid ? this.tm.current.accentRefine : this.tm.current.textOnDarkHigh)
+          }
+          .width(this.tm.current.full)
+          .padding({ top: this.tm.current.value1, bottom: this.tm.current.value1 })
+        }, (_sub: ZZZSubStat, idx: number) => `sub_${idx}`)
+      }
+      .width(this.tm.current.full)
+    }
+    .layoutWeight(1)
+    .padding(this.tm.current.value8)
+    .backgroundColor('#1AFFFFFF')
+    .border({ width: this.tm.current.value1, color: '#1AFFFFFF' })
+    .borderRadius(this.tm.current.radius8)
+  }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct ZZZEquipCardPreview {
+  build() {
+    ZZZEquipCard({ equip: new ZZZCharDetailEquip() })
+      .width(160)
+      .backgroundColor('#1a1a2e')
+  }
+}

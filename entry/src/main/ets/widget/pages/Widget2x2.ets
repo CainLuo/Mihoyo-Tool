@@ -7,14 +7,11 @@
  * - Multi game: two Widget1x2ContentView stacked vertically with Divider
  */
 
-import { Widget2x2SingleGame } from '../components/Widget2x2SingleGame';
-import { Widget1x2ContentView } from '../components/Widget1x2ContentView';
-import { WidgetEmptyContent } from '../components/WidgetEmptyContent';
-import { parsePayload, ParsedRole, ParsedPayload } from '../utils/WidgetPayloadParser';
-import { Widget2x2UIState, WidgetColors } from '../models/WidgetUIStates';
-import { widgetGradient, getGameColor } from '../utils/WidgetUtils';
+import { Widget2x2SingleGame } from '../views/Widget2x2SingleGame';
+import { Widget1x2ContentView } from '../views/Widget1x2ContentView';
+import { WidgetEmptyContent } from '../views/WidgetEmptyContent';
+import { parsePayload, ParsedRole, ParsedPayload, Widget2x2UIState, WidgetColors, createWidgetGradient, getGameColor, DefaultTheme } from 'widgetbase';
 import { Widget2x2ViewModel } from '../viewmodel/Widget2x2ViewModel';
-import { DefaultTheme } from '../../theme/DefaultTheme';
 
 const theme = new DefaultTheme();
 
@@ -54,7 +51,7 @@ struct Widget2x2 {
       Column()
         .width(theme.full)
         .height(theme.full)
-        .linearGradient(widgetGradient(this.getGameIds()))
+        .linearGradient(createWidgetGradient(this.getGameIds()))
         .borderRadius(theme.radius16)
 
       Column() {

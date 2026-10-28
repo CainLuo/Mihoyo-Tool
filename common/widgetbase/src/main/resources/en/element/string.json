@@ -1,0 +1,96 @@
+{
+  "string": [
+    {
+      "name": "widget_game_genshin",
+      "value": "Genshin Impact"
+    },
+    {
+      "name": "widget_game_starrail",
+      "value": "Honkai: Star Rail"
+    },
+    {
+      "name": "widget_game_zzz",
+      "value": "Zenless Zone Zero"
+    },
+    {
+      "name": "widget_stamina_full",
+      "value": "Full"
+    },
+    {
+      "name": "widget_resin_label",
+      "value": "Original Resin"
+    },
+    {
+      "name": "widget_stamina_label",
+      "value": "Trailblaze Power"
+    },
+    {
+      "name": "widget_energy_label",
+      "value": "Battery"
+    },
+    {
+      "name": "widget_expedition",
+      "value": "Expedition"
+    },
+    {
+      "name": "widget_home_coin",
+      "value": "Realm Currency"
+    },
+    {
+      "name": "widget_daily_task",
+      "value": "Daily Commission"
+    },
+    {
+      "name": "widget_task_received",
+      "value": "All Claimed"
+    },
+    {
+      "name": "widget_transformer",
+      "value": "Parametric Transformer"
+    },
+    {
+      "name": "widget_transformer_ready",
+      "value": "Ready"
+    },
+    {
+      "name": "widget_transformer_cooling",
+      "value": "Cooling"
+    },
+    {
+      "name": "widget_week_active",
+      "value": "Weekly Activity"
+    },
+    {
+      "name": "widget_train_score",
+      "value": "Daily Training"
+    },
+    {
+      "name": "widget_rogue_tourn",
+      "value": "Simulated Universe"
+    },
+    {
+      "name": "widget_card_done",
+      "value": "Done"
+    },
+    {
+      "name": "widget_card_not_done",
+      "value": "Not Done"
+    },
+    {
+      "name": "widget_store_open",
+      "value": "Open"
+    },
+    {
+      "name": "widget_recovery_hours",
+      "value": "Full in %d hr"
+    },
+    {
+      "name": "widget_recovery_hours_minutes",
+      "value": "Full in %d hr %d min"
+    },
+    {
+      "name": "widget_recovery_minutes",
+      "value": "Full in %d min"
+    }
+  ]
+}

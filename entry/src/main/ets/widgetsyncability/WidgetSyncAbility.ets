@@ -25,11 +25,8 @@ import { formProvider } from '@kit.FormKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { preferences } from '@kit.ArkData';
 import { CoreInitializer, Logger, GameId, RetcodeKind, RetcodeRegistry } from 'core';
-import { APP_ENV } from '../config/RuntimeConfig';
-import { WidgetDataStoreBuilder } from '../widget/utils/WidgetDataStoreBuilder';
-import { WidgetUpdateNotifier } from '../widget/utils/WidgetUpdateNotifier';
-import { WidgetConfigStore } from '../widget/utils/WidgetConfigStore';
-import { WidgetDataStoreManager } from '../widget/utils/WidgetDataStoreManager';
+import { APP_ENV } from 'basic';
+import { WidgetDataStoreBuilder, WidgetUpdateNotifier, WidgetConfigStore, WidgetDataStoreManager } from 'widget';
 
 const TAG = 'WidgetSyncAbility';
 
@@ -50,17 +47,17 @@ let cachedPrefs: preferences.Preferences | null = null;
 
 /** IPC 返回值 */
 class SyncParcelable implements rpc.Parcelable {
-  success: boolean = false;
+  isSuccess: boolean = false;
   message: string = '';
 
-  constructor(success: boolean, message: string) {
-    this.success = success;
+  constructor(isSuccess: boolean, message: string) {
+    this.isSuccess = isSuccess;
     this.message = message;
   }
 
   marshalling(messageSequence: rpc.MessageSequence): boolean {
     try {
-      messageSequence.writeInt(this.success ? 1 : 0);
+      messageSequence.writeInt(this.isSuccess ? 1 : 0);
       messageSequence.writeString(this.message);
       return true;
     } catch (e) {
@@ -71,7 +68,7 @@ class SyncParcelable implements rpc.Parcelable {
 
   unmarshalling(messageSequence: rpc.MessageSequence): boolean {
     try {
-      this.success = messageSequence.readInt() === 1;
+      this.isSuccess = messageSequence.readInt() === 1;
       this.message = messageSequence.readString();
       return true;
     } catch (e) {
@@ -118,8 +115,8 @@ async function syncAllWidgets(context: common.UIAbilityContext): Promise<void> {
     }
 
     // 刷新 Widget 数据存储
-    const success = await WidgetDataStoreBuilder.refreshAndSave(context, undefined, false);
-    if (!success) {
+    const isSuccess = await WidgetDataStoreBuilder.refreshAndSave(context, undefined, false);
+    if (!isSuccess) {
       Logger.warn(TAG, 'syncAllWidgets: refreshAndSave failed');
       return;
     }

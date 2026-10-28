@@ -13,22 +13,14 @@
  *   EntryFormAbility → parsePayload() → ParsedPayload → ViewModel.buildUIState() → UIState
  */
 
-import {
-  Widget4x4UIState,
-  WidgetRoleUIState,
-  WidgetExtraRow,
-  ExpeditionAvatar
-} from '../models/WidgetUIStates';
-import { ParsedPayload, ParsedRole } from '../utils/WidgetPayloadParser';
-import { WidgetDataHelper, ParsedExtraRow } from '../utils/WidgetDataHelper';
-import { WIDGET_GAME_ID, getGameName, getGameColor, gameNameRes } from '../utils/WidgetUtils';
+import { Widget4x4UIState, WidgetRoleUIState, WidgetExtraRow, ExpeditionAvatar, ParsedPayload, ParsedRole, WidgetDataHelper, ParsedExtraRow, WidgetGameId, getGameName, getGameColor, getGameNameRes } from 'widgetbase';
 
 /**
  * 4x4 Widget ViewModel
  */
 export class Widget4x4ViewModel {
   /** 4x4 多游戏模式最多显示的游戏数量 */
-  private static readonly MAX_GAMES_4x4: number = 2;
+  private static readonly MAX_GAMES_4X4: number = 2;
 
   /**
    * 构建 4x4 Widget UIState
@@ -54,7 +46,7 @@ export class Widget4x4ViewModel {
       result.isSingleGame = false;
       result.multiGameStates = Widget4x4ViewModel.buildMultiGameStates(
         roles,
-        Widget4x4ViewModel.MAX_GAMES_4x4
+        Widget4x4ViewModel.MAX_GAMES_4X4
       );
     }
 
@@ -69,7 +61,7 @@ export class Widget4x4ViewModel {
 
     state.gameId = role.gameId;
     state.gameName = getGameName(role.gameId);
-    state.gameNameResource = gameNameRes(role.gameId);
+    state.gameNameResource = getGameNameRes(role.gameId);
     state.gameColor = getGameColor(role.gameId);
     state.roleId = role.roleId;
     state.roleIdWithPrefix = 'UID ' + role.roleId;
@@ -94,12 +86,12 @@ export class Widget4x4ViewModel {
     // 星铁/绝区零：保留全部
     // 4x4 有更多空间，最多显示 6 条额外数据
     const extraRows = WidgetDataHelper.parseExtraRows(role.rawJson, role.widgetRawJson, role.gameId, 0); // 不限制数量
-    const filteredRows = role.gameId === WIDGET_GAME_ID.GENSHIN ? extraRows.slice(1) : extraRows;
+    const filteredRows = role.gameId === WidgetGameId.GENSHIN ? extraRows.slice(1) : extraRows;
     state.extraRows = Widget4x4ViewModel.convertExtraRows(filteredRows.slice(0, 6));
 
     // 原神专属：解析派遣角色头像
     // formImagesKey 使用 'exp_avatar' 前缀，与 FormExtensionAbility 中的 key 对应
-    if (role.gameId === WIDGET_GAME_ID.GENSHIN) {
+    if (role.gameId === WidgetGameId.GENSHIN) {
       state.expeditions = WidgetDataHelper.parseExpeditions(role.rawJson, 'exp_avatar');
     }
 

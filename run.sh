@@ -14,6 +14,7 @@ set -e
 EMULATOR='/Applications/DevEco-Studio.app/Contents/tools/emulator/Emulator'
 HDC='/Applications/DevEco-Studio.app/Contents/sdk/default/openharmony/toolchains/hdc'
 HVIGOR='/Applications/DevEco-Studio.app/Contents/tools/hvigor/bin/hvigorw'
+OHPM='/Applications/DevEco-Studio.app/Contents/tools/ohpm/bin/ohpm'
 export DEVECO_SDK_HOME='/Applications/DevEco-Studio.app/Contents/sdk'
 
 TARGET='127.0.0.1:5555'
@@ -140,6 +141,11 @@ if [ -n "$PROXY_HOST" ]; then
   "$HDC" -t "$TARGET" shell param set persist.netmanager.http_proxy "$PROXY_HOST"
   echo "✓ 代理已设置"
 fi
+
+# ── 2.5 安装依赖 ──────────────────────────────────────────────
+# 新增模块（common/*、features/*）后需要安装到各模块 oh_modules；DevEco 的 Sync 会自动做，命令行构建需要手动执行
+echo "▶ 安装依赖..."
+"$OHPM" install --all
 
 # ── 3. Clean ──────────────────────────────────────────────────
 echo "▶ Clean..."

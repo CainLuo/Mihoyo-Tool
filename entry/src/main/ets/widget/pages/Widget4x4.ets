@@ -10,13 +10,10 @@
  *   payload JSON → parsePayload() → ParsedPayload (Model) → ViewModel.buildUIState() → UIState (View)
  */
 
-import { Widget4x4SingleGame } from '../components/Widget4x4SingleGame';
-import { Widget2x4SingleGame } from '../components/Widget2x4SingleGame';
-import { parsePayload, ParsedPayload } from '../utils/WidgetPayloadParser';
-import { Widget4x4UIState, WidgetColors } from '../models/WidgetUIStates';
-import { widgetGradient } from '../utils/WidgetUtils';
+import { Widget4x4SingleGame } from '../views/Widget4x4SingleGame';
+import { Widget2x4SingleGame } from '../views/Widget2x4SingleGame';
+import { parsePayload, ParsedPayload, Widget4x4UIState, WidgetColors, createWidgetGradient, DefaultTheme } from 'widgetbase';
 import { Widget4x4ViewModel } from '../viewmodel/Widget4x4ViewModel';
-import { DefaultTheme } from '../../theme/DefaultTheme';
 
 /** 主题常量实例 */
 const theme = new DefaultTheme();
@@ -46,7 +43,7 @@ struct Widget4x4 {
       Column()
         .width(theme.full)
         .height(theme.full)
-        .linearGradient(widgetGradient(this.getGameIds()))
+        .linearGradient(createWidgetGradient(this.getGameIds()))
         .borderRadius(theme.radius16)
 
       // Content layer
@@ -72,7 +69,7 @@ struct Widget4x4 {
             // 第一个游戏
             Widget2x4SingleGame({ 
               role: this.getUIState().multiGameStates[0],
-              inNestedContainer: true 
+              isInNestedContainer: true 
             })
               .layoutWeight(1)
 
@@ -88,7 +85,7 @@ struct Widget4x4 {
               // 第二个游戏
               Widget2x4SingleGame({ 
                 role: this.getUIState().multiGameStates[1],
-                inNestedContainer: true 
+                isInNestedContainer: true 
               })
                 .layoutWeight(1)
             }

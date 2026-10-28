@@ -1,0 +1,10 @@
+{
+  name: "basic",
+  version: "1.0.0",
+  description: "Basic library for MiHoYoTool",
+  main: "Index.ets",
+  dependencies: {
+    core: "file:../../core",
+    widgetbase: "file:../widgetbase",
+  },
+}

@@ -13,22 +13,14 @@
  *   EntryFormAbility → parsePayload() → ParsedPayload → ViewModel.buildUIState() → UIState
  */
 
-import {
-  Widget2x2UIState,
-  WidgetRoleUIState,
-  Widget1x2RoleUIState,
-  WidgetExtraRow
-} from '../models/WidgetUIStates';
-import { ParsedPayload, ParsedRole } from '../utils/WidgetPayloadParser';
-import { WidgetDataHelper, ParsedExtraRow } from '../utils/WidgetDataHelper';
-import { getGameName, getGameColor, gameNameRes } from '../utils/WidgetUtils';
+import { Widget2x2UIState, WidgetRoleUIState, Widget1x2RoleUIState, WidgetExtraRow, ParsedPayload, ParsedRole, WidgetDataHelper, ParsedExtraRow, getGameName, getGameColor, getGameNameRes } from 'widgetbase';
 
 /**
  * 2x2 Widget ViewModel
  */
 export class Widget2x2ViewModel {
   /** 2x2 多游戏模式最多显示的游戏数量 */
-  private static readonly MAX_GAMES_2x2: number = 2;
+  private static readonly MAX_GAMES_2X2: number = 2;
 
   /**
    * 构建 2x2 Widget UIState
@@ -54,7 +46,7 @@ export class Widget2x2ViewModel {
       result.isSingleGame = false;
       result.multiGameStates = Widget2x2ViewModel.buildMultiGame1x2States(
         roles,
-        Widget2x2ViewModel.MAX_GAMES_2x2
+        Widget2x2ViewModel.MAX_GAMES_2X2
       );
     }
 
@@ -69,7 +61,7 @@ export class Widget2x2ViewModel {
 
     state.gameId = role.gameId;
     state.gameName = getGameName(role.gameId);
-    state.gameNameResource = gameNameRes(role.gameId);
+    state.gameNameResource = getGameNameRes(role.gameId);
     state.gameColor = getGameColor(role.gameId);
     state.roleId = role.roleId;
     state.roleIdWithPrefix = 'UID ' + role.roleId;

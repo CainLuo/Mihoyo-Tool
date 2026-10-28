@@ -1,15 +1,14 @@
-import { AppRoutes } from '../constants/AppRoutes';
-import { RouterUtil } from '../utils/RouterUtil';
-import { Launch } from './Launch';
-import { Main } from './Main';
-import { PrivacyConsentPageBuilder } from './PrivacyConsentPage';
+import { AppRoutes, RouterUtil } from 'basic';
+import { LaunchPage } from './LaunchPage';
+import { MainPage } from './MainPage';
+import { PrivacyConsentPageBuilder } from 'legal';
 
 @Builder
 function pageBuilder(name: string, param: Object) {
   if (name === AppRoutes.LAUNCH) {
-    Launch()
+    LaunchPage()
   } else if (name === AppRoutes.MAIN) {
-    Main()
+    MainPage()
   } else if (name === AppRoutes.PRIVACY_CONSENT) {
     PrivacyConsentPageBuilder(name, param)
   }

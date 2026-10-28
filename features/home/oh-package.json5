@@ -1,0 +1,16 @@
+{
+  name: "home",
+  version: "1.0.0",
+  description: "首页",
+  main: "Index.ets",
+  dependencies: {
+    core: "file:../../core",
+    widgetbase: "file:../../common/widgetbase",
+    basic: "file:../../common/basic",
+    dailynote: "file:../dailynote",
+    notification: "file:../notification",
+  },
+  devDependencies: {
+    "@ohos/hypium": "1.0.25",
+  },
+}

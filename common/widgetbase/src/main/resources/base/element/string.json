@@ -1,0 +1,96 @@
+{
+  "string": [
+    {
+      "name": "widget_game_genshin",
+      "value": "原神"
+    },
+    {
+      "name": "widget_game_starrail",
+      "value": "崩坏：星穹铁道"
+    },
+    {
+      "name": "widget_game_zzz",
+      "value": "绝区零"
+    },
+    {
+      "name": "widget_stamina_full",
+      "value": "已回满"
+    },
+    {
+      "name": "widget_resin_label",
+      "value": "原粹树脂"
+    },
+    {
+      "name": "widget_stamina_label",
+      "value": "开拓力"
+    },
+    {
+      "name": "widget_energy_label",
+      "value": "电量"
+    },
+    {
+      "name": "widget_expedition",
+      "value": "探索派遣"
+    },
+    {
+      "name": "widget_home_coin",
+      "value": "洞天财瓮"
+    },
+    {
+      "name": "widget_daily_task",
+      "value": "每日委托"
+    },
+    {
+      "name": "widget_task_received",
+      "value": "已全部领取"
+    },
+    {
+      "name": "widget_transformer",
+      "value": "参量质变仪"
+    },
+    {
+      "name": "widget_transformer_ready",
+      "value": "可使用"
+    },
+    {
+      "name": "widget_transformer_cooling",
+      "value": "冷却中"
+    },
+    {
+      "name": "widget_week_active",
+      "value": "周活跃进度"
+    },
+    {
+      "name": "widget_train_score",
+      "value": "每日实训"
+    },
+    {
+      "name": "widget_rogue_tourn",
+      "value": "模拟宇宙"
+    },
+    {
+      "name": "widget_card_done",
+      "value": "已完成"
+    },
+    {
+      "name": "widget_card_not_done",
+      "value": "未完成"
+    },
+    {
+      "name": "widget_store_open",
+      "value": "营业中"
+    },
+    {
+      "name": "widget_recovery_hours",
+      "value": "%d小时后回满"
+    },
+    {
+      "name": "widget_recovery_hours_minutes",
+      "value": "%d小时%d分钟后回满"
+    },
+    {
+      "name": "widget_recovery_minutes",
+      "value": "%d分钟后回满"
+    }
+  ]
+}

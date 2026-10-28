@@ -1,0 +1,10 @@
+{
+  name: "widgetbase",
+  version: "1.0.0",
+  description: "Widget base library for MiHoYoTool (form-safe code only)",
+  main: "Index.ets",
+  dependencies: {},
+  devDependencies: {
+    "@ohos/hypium": "1.0.25",
+  },
+}

@@ -1,0 +1,10 @@
+{
+  name: "settings",
+  version: "1.0.0",
+  description: "外观设置",
+  main: "Index.ets",
+  dependencies: {
+    core: "file:../../core",
+    basic: "file:../../common/basic",
+  },
+}

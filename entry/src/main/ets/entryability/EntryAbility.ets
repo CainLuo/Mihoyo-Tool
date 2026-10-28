@@ -1,12 +1,10 @@
-import { UIAbility, Want, AbilityConstant } from '@kit.AbilityKit';
+import { UIAbility, Want, AbilityConstant, Configuration } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
 import { CoreInitializer, Logger, SyncQueueRunner } from 'core';
-import { APP_ENV } from '../config/RuntimeConfig';
-import { AppearanceManager } from '../utils/AppearanceManager';
-import { StaminaNotificationService } from '../notification/StaminaNotificationService';
-import { WidgetDataStoreBuilder } from '../widget/utils/WidgetDataStoreBuilder';
-import { WidgetDataStoreManager } from '../widget/utils/WidgetDataStoreManager';
-import { TransparentColorCache } from '../utils/ColorUtil';
+import { APP_ENV, TransparentColorCache, WidgetSyncHook } from 'basic';
+import { AppearanceManager } from 'settings';
+import { StaminaNotificationService } from 'notification';
+import { WidgetDataStoreBuilder, WidgetDataStoreManager, WidgetSyncHandlerImpl } from 'widget';
 
 const TAG: string = 'EntryAbility';
 
@@ -14,12 +12,15 @@ export default class EntryAbility extends UIAbility {
   onCreate(_want: Want, _launchParam: AbilityConstant.LaunchParam) {
     Logger.info(TAG, 'onCreate');
 
+    // 注册卡片推送实现（须早于 StaminaNotificationService.init）
+    WidgetSyncHook.register(new WidgetSyncHandlerImpl());
+
     // 尽早恢复用户选择的颜色模式，避免启动时闪烁
     AppearanceManager.restoreOnLaunch(this.context).catch((error: Error | object) => {
       Logger.warning(TAG, `restoreOnLaunch failed: ${JSON.stringify(error)}`);
     });
 
-    // 初始化透明色缓存（从 color.json 读取基础颜色并计算）
+    // 初始化透明色缓存（从 color.json 读取基础颜色并计算；restoreOnLaunch 已同步应用用户的颜色模式）
     TransparentColorCache.init(this.context);
 
     // 初始化核心库，直接传递 AppEnv，无需任何转换
@@ -36,7 +37,7 @@ export default class EntryAbility extends UIAbility {
           await WidgetDataStoreBuilder.refreshAndSave(this.context);
         });
         // 核心库初始化完成后，初始化通知服务
-        StaminaNotificationService.instance().init(this.context).catch((e: Error | object) => {
+        StaminaNotificationService.getInstance().init(this.context).catch((e: Error | object) => {
           Logger.warning(TAG, `StaminaNotificationService.init failed: ${JSON.stringify(e)}`);
         });
       })
@@ -65,7 +66,7 @@ export default class EntryAbility extends UIAbility {
   onWindowStageCreate(windowStage: window.WindowStage) {
     Logger.info(TAG, 'onWindowStageCreate');
     windowStage.getMainWindow().then((win) => {
-      // 将 windowClass 存入 AppStorage，供 Main.ets 直接持有并注册监听
+      // 将 windowClass 存入 AppStorage，供 MainPage.ets 直接持有并注册监听
       AppStorage.setOrCreate('windowClass', win);
       // 获取底部导航条高度并存入 AppStorage，供弹窗类组件读取（Navigation 不自动处理弹窗）
       const bottomArea = win.getWindowAvoidArea(window.AvoidAreaType.TYPE_NAVIGATION_INDICATOR);
@@ -101,6 +102,11 @@ export default class EntryAbility extends UIAbility {
 
   onWindowStageDestroy() {
     Logger.info(TAG, 'onWindowStageDestroy');
+  }
+
+  onConfigurationUpdate(_newConfig: Configuration): void {
+    // 深浅色切换（跟随系统或在外观设置中切换）后，color_primary 的取值会变，重算透明色缓存
+    TransparentColorCache.init(this.context);
   }
 
   onForeground() {

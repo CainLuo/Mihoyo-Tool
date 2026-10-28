@@ -1,0 +1,12 @@
+{
+  "module": {
+    "name": "chardetail",
+    "type": "har",
+    "deviceTypes": [
+      "default",
+      "tablet",
+      "2in1"
+    ],
+    "routerMap": "$profile:chardetail_router_map"
+  }
+}

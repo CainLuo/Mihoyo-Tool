@@ -1,13 +1,12 @@
 /**
  * TestPage — 测试工具页（UAT / Mock 可见，BuildProfile.DEBUG）
  *
- * 集中所有手动测试场景，通过 My 页右上角入口进入。
+ * 集中所有手动测试场景，通过 MyPage 页右上角入口进入。
  */
-import { themeManager, ThemeManager } from '../theme/ThemeManager'
+import { themeManager, ThemeManager, CookieExpiredSignal } from 'basic'
 import { CoreInitializer, FailedAccountInfo } from 'core'
-import { CookieExpiredSignal } from '../utils/CookieExpiredSignal'
-import { TestSectionHeader } from '../components/TestSectionHeader'
-import { TestRow } from '../components/TestRow'
+import { TestSectionHeader } from '../views/test/TestSectionHeader'
+import { TestRow } from '../views/test/TestRow'
 
 @ComponentV2
 export struct TestPage {
@@ -74,7 +73,7 @@ export struct TestPage {
     fakeInfo.nickname = '测试账号'
     fakeInfo.username = '182692936'
     fakeInfo.isNetworkError = false
-    CookieExpiredSignal.instance().push(fakeInfo)
+    CookieExpiredSignal.getInstance().push(fakeInfo)
   }
 
   private onTestT3(): void {

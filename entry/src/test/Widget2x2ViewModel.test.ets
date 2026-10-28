@@ -3,13 +3,7 @@
  */
 
 import { Widget2x2ViewModel } from '../main/ets/widget/viewmodel/Widget2x2ViewModel';
-import {
-  Widget2x2UIState,
-  WidgetRoleUIState,
-  Widget1x2RoleUIState,
-  StaminaColorType
-} from '../main/ets/widget/models/WidgetUIStates';
-import { parsePayload, ParsedPayload } from '../main/ets/widget/utils/WidgetPayloadParser';
+import { Widget2x2UIState, WidgetRoleUIState, Widget1x2RoleUIState, StaminaColorType, parsePayload, ParsedPayload } from 'widgetbase';
 
 /**
  * 测试套件：Widget2x2ViewModel

@@ -14,10 +14,7 @@
  *   EntryFormAbility → parsePayload() → ParsedPayload → ViewModel.buildUIState() → UIState
  */
 
-import { Widget1x2UIState, Widget1x2RoleUIState, StaminaColorType } from '../models/WidgetUIStates';
-import { ParsedPayload, ParsedRole } from '../utils/WidgetPayloadParser';
-import { WidgetDataHelper } from '../utils/WidgetDataHelper';
-import { getGameName } from '../utils/WidgetUtils';
+import { Widget1x2UIState, Widget1x2RoleUIState, StaminaColorType, ParsedPayload, ParsedRole, WidgetDataHelper, getGameName } from 'widgetbase';
 
 /**
  * 1x2 Widget ViewModel

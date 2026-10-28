@@ -1,0 +1,11 @@
+{
+  name: "widget",
+  version: "1.0.0",
+  description: "小组件数据与小组件设置页",
+  main: "Index.ets",
+  dependencies: {
+    core: "file:../../core",
+    widgetbase: "file:../../common/widgetbase",
+    basic: "file:../../common/basic",
+  },
+}

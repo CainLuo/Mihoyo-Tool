@@ -1,0 +1,13 @@
+{
+  name: "legal",
+  version: "1.0.0",
+  description: "隐私同意、协议 WebView",
+  main: "Index.ets",
+  dependencies: {
+    core: "file:../../core",
+    basic: "file:../../common/basic",
+  },
+  devDependencies: {
+    "@ohos/hypium": "1.0.25",
+  },
+}

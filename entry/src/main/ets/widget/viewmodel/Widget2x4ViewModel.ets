@@ -13,21 +13,14 @@
  *   EntryFormAbility → parsePayload() → ParsedPayload → ViewModel.buildUIState() → UIState
  */
 
-import {
-  Widget2x4UIState,
-  WidgetRoleUIState,
-  WidgetExtraRow
-} from '../models/WidgetUIStates';
-import { ParsedPayload, ParsedRole } from '../utils/WidgetPayloadParser';
-import { WidgetDataHelper, ParsedExtraRow } from '../utils/WidgetDataHelper';
-import { WIDGET_GAME_ID, getGameName, getGameColor, gameNameRes } from '../utils/WidgetUtils';
+import { Widget2x4UIState, WidgetRoleUIState, WidgetExtraRow, ParsedPayload, ParsedRole, WidgetDataHelper, ParsedExtraRow, WidgetGameId, getGameName, getGameColor, getGameNameRes } from 'widgetbase';
 
 /**
  * 2x4 Widget ViewModel
  */
 export class Widget2x4ViewModel {
   /** 2x4 多游戏模式最多显示的游戏数量 */
-  private static readonly MAX_GAMES_2x4: number = 2;
+  private static readonly MAX_GAMES_2X4: number = 2;
 
   /**
    * 构建 2x4 Widget UIState
@@ -53,7 +46,7 @@ export class Widget2x4ViewModel {
       result.isSingleGame = false;
       result.multiGameStates = Widget2x4ViewModel.buildMultiGameStates(
         roles,
-        Widget2x4ViewModel.MAX_GAMES_2x4
+        Widget2x4ViewModel.MAX_GAMES_2X4
       );
     }
 
@@ -68,7 +61,7 @@ export class Widget2x4ViewModel {
 
     state.gameId = role.gameId;
     state.gameName = getGameName(role.gameId);
-    state.gameNameResource = gameNameRes(role.gameId);
+    state.gameNameResource = getGameNameRes(role.gameId);
     state.gameColor = getGameColor(role.gameId);
     state.roleId = role.roleId;
     state.roleIdWithPrefix = 'UID ' + role.roleId;
@@ -92,16 +85,16 @@ export class Widget2x4ViewModel {
     // 原神：去掉第一条（探索派遣），因为改在底部显示
     // 星铁：保留全部（最多 3 条）
     // 绝区零：保留全部（最多 4 条，note_list 有 4 条）
-    const maxRows = role.gameId === WIDGET_GAME_ID.GENSHIN ? 4 : 
-                    role.gameId === WIDGET_GAME_ID.ZZZ ? 4 : 3;
+    const maxRows = role.gameId === WidgetGameId.GENSHIN ? 4 : 
+                    role.gameId === WidgetGameId.ZZZ ? 4 : 3;
     const extraRows = WidgetDataHelper.parseExtraRows(role.rawJson, role.widgetRawJson, role.gameId, maxRows);
-    const filteredRows = role.gameId === WIDGET_GAME_ID.GENSHIN ? extraRows.slice(1) : extraRows;
-    const finalMaxRows = role.gameId === WIDGET_GAME_ID.ZZZ ? 4 : 3;
+    const filteredRows = role.gameId === WidgetGameId.GENSHIN ? extraRows.slice(1) : extraRows;
+    const finalMaxRows = role.gameId === WidgetGameId.ZZZ ? 4 : 3;
     state.extraRows = Widget2x4ViewModel.convertExtraRows(filteredRows.slice(0, finalMaxRows));
 
     // 原神专属：解析派遣角色头像
     // formImagesKey 使用 'exp_avatar' 前缀，与 FormExtensionAbility 中的 key 对应
-    if (role.gameId === WIDGET_GAME_ID.GENSHIN) {
+    if (role.gameId === WidgetGameId.GENSHIN) {
       state.expeditions = WidgetDataHelper.parseExpeditions(role.rawJson, 'exp_avatar');
     }
 

@@ -1,0 +1,10 @@
+{
+  name: "verification",
+  version: "1.0.0",
+  description: "人机验证、设备指纹",
+  main: "Index.ets",
+  dependencies: {
+    core: "file:../../core",
+    basic: "file:../../common/basic",
+  },
+}

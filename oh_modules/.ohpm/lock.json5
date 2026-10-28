@@ -24,6 +24,34 @@
       "dynamicDependencies": {},
       "maskedByOverrideDependencyMap": false
     },
+    "common/basic": {
+      "name": "basic",
+      "dependencies": {
+        "core": {
+          "specifier": "file:core",
+          "version": "file:core"
+        },
+        "widgetbase": {
+          "specifier": "file:common/widgetbase",
+          "version": "file:common/widgetbase"
+        }
+      },
+      "devDependencies": {},
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "common/widgetbase": {
+      "name": "widgetbase",
+      "dependencies": {},
+      "devDependencies": {
+        "@ohos/hypium": {
+          "specifier": "1.0.25",
+          "version": "1.0.25"
+        }
+      },
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
     "core": {
       "name": "core",
       "dependencies": {
@@ -51,6 +79,50 @@
         "core": {
           "specifier": "file:core",
           "version": "file:core"
+        },
+        "widgetbase": {
+          "specifier": "file:common/widgetbase",
+          "version": "file:common/widgetbase"
+        },
+        "basic": {
+          "specifier": "file:common/basic",
+          "version": "file:common/basic"
+        },
+        "characters": {
+          "specifier": "file:features/characters",
+          "version": "file:features/characters"
+        },
+        "home": {
+          "specifier": "file:features/home",
+          "version": "file:features/home"
+        },
+        "account": {
+          "specifier": "file:features/account",
+          "version": "file:features/account"
+        },
+        "legal": {
+          "specifier": "file:features/legal",
+          "version": "file:features/legal"
+        },
+        "settings": {
+          "specifier": "file:features/settings",
+          "version": "file:features/settings"
+        },
+        "verification": {
+          "specifier": "file:features/verification",
+          "version": "file:features/verification"
+        },
+        "material": {
+          "specifier": "file:features/material",
+          "version": "file:features/material"
+        },
+        "notification": {
+          "specifier": "file:features/notification",
+          "version": "file:features/notification"
+        },
+        "widget": {
+          "specifier": "file:features/widget",
+          "version": "file:features/widget"
         }
       },
       "devDependencies": {
@@ -65,9 +137,296 @@
       },
       "dynamicDependencies": {},
       "maskedByOverrideDependencyMap": false
+    },
+    "features/account": {
+      "name": "account",
+      "dependencies": {
+        "core": {
+          "specifier": "file:core",
+          "version": "file:core"
+        },
+        "widgetbase": {
+          "specifier": "file:common/widgetbase",
+          "version": "file:common/widgetbase"
+        },
+        "basic": {
+          "specifier": "file:common/basic",
+          "version": "file:common/basic"
+        },
+        "settings": {
+          "specifier": "file:features/settings",
+          "version": "file:features/settings"
+        },
+        "legal": {
+          "specifier": "file:features/legal",
+          "version": "file:features/legal"
+        },
+        "widget": {
+          "specifier": "file:features/widget",
+          "version": "file:features/widget"
+        },
+        "verification": {
+          "specifier": "file:features/verification",
+          "version": "file:features/verification"
+        }
+      },
+      "devDependencies": {
+        "@ohos/hypium": {
+          "specifier": "1.0.25",
+          "version": "1.0.25"
+        }
+      },
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "features/characters": {
+      "name": "characters",
+      "dependencies": {
+        "core": {
+          "specifier": "file:core",
+          "version": "file:core"
+        },
+        "widgetbase": {
+          "specifier": "file:common/widgetbase",
+          "version": "file:common/widgetbase"
+        },
+        "basic": {
+          "specifier": "file:common/basic",
+          "version": "file:common/basic"
+        },
+        "chardetail": {
+          "specifier": "file:features/chardetail",
+          "version": "file:features/chardetail"
+        }
+      },
+      "devDependencies": {
+        "@ohos/hypium": {
+          "specifier": "1.0.25",
+          "version": "1.0.25"
+        }
+      },
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "features/chardetail": {
+      "name": "chardetail",
+      "dependencies": {
+        "core": {
+          "specifier": "file:core",
+          "version": "file:core"
+        },
+        "widgetbase": {
+          "specifier": "file:common/widgetbase",
+          "version": "file:common/widgetbase"
+        },
+        "basic": {
+          "specifier": "file:common/basic",
+          "version": "file:common/basic"
+        },
+        "material": {
+          "specifier": "file:features/material",
+          "version": "file:features/material"
+        }
+      },
+      "devDependencies": {
+        "@ohos/hypium": {
+          "specifier": "1.0.25",
+          "version": "1.0.25"
+        }
+      },
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "features/dailynote": {
+      "name": "dailynote",
+      "dependencies": {
+        "core": {
+          "specifier": "file:core",
+          "version": "file:core"
+        },
+        "widgetbase": {
+          "specifier": "file:common/widgetbase",
+          "version": "file:common/widgetbase"
+        },
+        "basic": {
+          "specifier": "file:common/basic",
+          "version": "file:common/basic"
+        }
+      },
+      "devDependencies": {
+        "@ohos/hypium": {
+          "specifier": "1.0.25",
+          "version": "1.0.25"
+        }
+      },
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "features/home": {
+      "name": "home",
+      "dependencies": {
+        "core": {
+          "specifier": "file:core",
+          "version": "file:core"
+        },
+        "widgetbase": {
+          "specifier": "file:common/widgetbase",
+          "version": "file:common/widgetbase"
+        },
+        "basic": {
+          "specifier": "file:common/basic",
+          "version": "file:common/basic"
+        },
+        "dailynote": {
+          "specifier": "file:features/dailynote",
+          "version": "file:features/dailynote"
+        },
+        "notification": {
+          "specifier": "file:features/notification",
+          "version": "file:features/notification"
+        }
+      },
+      "devDependencies": {
+        "@ohos/hypium": {
+          "specifier": "1.0.25",
+          "version": "1.0.25"
+        }
+      },
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "features/legal": {
+      "name": "legal",
+      "dependencies": {
+        "core": {
+          "specifier": "file:core",
+          "version": "file:core"
+        },
+        "basic": {
+          "specifier": "file:common/basic",
+          "version": "file:common/basic"
+        }
+      },
+      "devDependencies": {
+        "@ohos/hypium": {
+          "specifier": "1.0.25",
+          "version": "1.0.25"
+        }
+      },
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "features/material": {
+      "name": "material",
+      "dependencies": {
+        "core": {
+          "specifier": "file:core",
+          "version": "file:core"
+        },
+        "basic": {
+          "specifier": "file:common/basic",
+          "version": "file:common/basic"
+        }
+      },
+      "devDependencies": {
+        "@ohos/hypium": {
+          "specifier": "1.0.25",
+          "version": "1.0.25"
+        }
+      },
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "features/notification": {
+      "name": "notification",
+      "dependencies": {
+        "core": {
+          "specifier": "file:core",
+          "version": "file:core"
+        },
+        "widgetbase": {
+          "specifier": "file:common/widgetbase",
+          "version": "file:common/widgetbase"
+        },
+        "basic": {
+          "specifier": "file:common/basic",
+          "version": "file:common/basic"
+        }
+      },
+      "devDependencies": {
+        "@ohos/hypium": {
+          "specifier": "1.0.25",
+          "version": "1.0.25"
+        }
+      },
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "features/settings": {
+      "name": "settings",
+      "dependencies": {
+        "core": {
+          "specifier": "file:core",
+          "version": "file:core"
+        },
+        "basic": {
+          "specifier": "file:common/basic",
+          "version": "file:common/basic"
+        }
+      },
+      "devDependencies": {},
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "features/verification": {
+      "name": "verification",
+      "dependencies": {
+        "core": {
+          "specifier": "file:core",
+          "version": "file:core"
+        },
+        "basic": {
+          "specifier": "file:common/basic",
+          "version": "file:common/basic"
+        }
+      },
+      "devDependencies": {},
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
+    },
+    "features/widget": {
+      "name": "widget",
+      "dependencies": {
+        "core": {
+          "specifier": "file:core",
+          "version": "file:core"
+        },
+        "widgetbase": {
+          "specifier": "file:common/widgetbase",
+          "version": "file:common/widgetbase"
+        },
+        "basic": {
+          "specifier": "file:common/basic",
+          "version": "file:common/basic"
+        }
+      },
+      "devDependencies": {},
+      "dynamicDependencies": {},
+      "maskedByOverrideDependencyMap": false
     }
   },
   "packages": {
+    "widgetbase@file:common/widgetbase": {
+      "storePath": "common/widgetbase",
+      "dependencies": {},
+      "devDependencies": {
+        "@ohos/hypium": "1.0.25"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
     "@ohos/hypium@1.0.25": {
       "integrity": "sha512-l6uO2pjl8HyEKdekLqQt7tUpWbDqX/42zoAzkagtUVZAW9jT6lMvbe54MVjoLxq/RwQGygRvi6j4GpypSMFSHw==",
       "storePath": "oh_modules/.ohpm/@ohos+hypium@1.0.25",
@@ -113,6 +472,177 @@
       "integrity": "sha512-QPW+vxSambzep39qnnvGLk2lItqPqt+HBTo7FsTdL9edv3z35h4D80ClnEPNPfXQzIp8DgVDMIgbAWa1hWq8ug==",
       "storePath": "oh_modules/.ohpm/@ohos+crypto-js@2.0.5",
       "dependencies": {},
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "basic@file:common/basic": {
+      "storePath": "common/basic",
+      "dependencies": {
+        "core": "core",
+        "widgetbase": "common/widgetbase"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "widget@file:features/widget": {
+      "storePath": "features/widget",
+      "dependencies": {
+        "core": "core",
+        "widgetbase": "common/widgetbase",
+        "basic": "common/basic"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "dailynote@file:features/dailynote": {
+      "storePath": "features/dailynote",
+      "dependencies": {
+        "core": "core",
+        "widgetbase": "common/widgetbase",
+        "basic": "common/basic"
+      },
+      "devDependencies": {
+        "@ohos/hypium": "1.0.25"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "notification@file:features/notification": {
+      "storePath": "features/notification",
+      "dependencies": {
+        "core": "core",
+        "widgetbase": "common/widgetbase",
+        "basic": "common/basic"
+      },
+      "devDependencies": {
+        "@ohos/hypium": "1.0.25"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "chardetail@file:features/chardetail": {
+      "storePath": "features/chardetail",
+      "dependencies": {
+        "core": "core",
+        "widgetbase": "common/widgetbase",
+        "basic": "common/basic",
+        "material": "features/material"
+      },
+      "devDependencies": {
+        "@ohos/hypium": "1.0.25"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "material@file:features/material": {
+      "storePath": "features/material",
+      "dependencies": {
+        "core": "core",
+        "basic": "common/basic"
+      },
+      "devDependencies": {
+        "@ohos/hypium": "1.0.25"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "characters@file:features/characters": {
+      "storePath": "features/characters",
+      "dependencies": {
+        "core": "core",
+        "widgetbase": "common/widgetbase",
+        "basic": "common/basic",
+        "chardetail": "features/chardetail"
+      },
+      "devDependencies": {
+        "@ohos/hypium": "1.0.25"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "settings@file:features/settings": {
+      "storePath": "features/settings",
+      "dependencies": {
+        "core": "core",
+        "basic": "common/basic"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "verification@file:features/verification": {
+      "storePath": "features/verification",
+      "dependencies": {
+        "core": "core",
+        "basic": "common/basic"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "legal@file:features/legal": {
+      "storePath": "features/legal",
+      "dependencies": {
+        "core": "core",
+        "basic": "common/basic"
+      },
+      "devDependencies": {
+        "@ohos/hypium": "1.0.25"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "home@file:features/home": {
+      "storePath": "features/home",
+      "dependencies": {
+        "core": "core",
+        "widgetbase": "common/widgetbase",
+        "basic": "common/basic",
+        "dailynote": "features/dailynote",
+        "notification": "features/notification"
+      },
+      "devDependencies": {
+        "@ohos/hypium": "1.0.25"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "account@file:features/account": {
+      "storePath": "features/account",
+      "dependencies": {
+        "core": "core",
+        "widgetbase": "common/widgetbase",
+        "basic": "common/basic",
+        "settings": "features/settings",
+        "legal": "features/legal",
+        "widget": "features/widget",
+        "verification": "features/verification"
+      },
+      "devDependencies": {
+        "@ohos/hypium": "1.0.25"
+      },
       "dynamicDependencies": {},
       "dev": false,
       "dynamic": false,

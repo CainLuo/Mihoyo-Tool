@@ -10,13 +10,10 @@
  *   payload JSON → parsePayload() → ParsedPayload (Model) → ViewModel.buildUIState() → UIState (View)
  */
 
-import { Widget2x4SingleGame } from '../components/Widget2x4SingleGame';
-import { Widget2x2SingleGame } from '../components/Widget2x2SingleGame';
-import { parsePayload, ParsedPayload } from '../utils/WidgetPayloadParser';
-import { Widget2x4UIState, WidgetColors } from '../models/WidgetUIStates';
-import { widgetGradient } from '../utils/WidgetUtils';
+import { Widget2x4SingleGame } from '../views/Widget2x4SingleGame';
+import { Widget2x2SingleGame } from '../views/Widget2x2SingleGame';
+import { parsePayload, ParsedPayload, Widget2x4UIState, WidgetColors, createWidgetGradient, DefaultTheme } from 'widgetbase';
 import { Widget2x4ViewModel } from '../viewmodel/Widget2x4ViewModel';
-import { DefaultTheme } from '../../theme/DefaultTheme';
 
 /** 主题常量实例 */
 const theme = new DefaultTheme();
@@ -46,7 +43,7 @@ struct Widget2x4 {
       Column()
         .width(theme.full)
         .height(theme.full)
-        .linearGradient(widgetGradient(this.getGameIds()))
+        .linearGradient(createWidgetGradient(this.getGameIds()))
         .borderRadius(theme.radius16)
 
       // Content layer

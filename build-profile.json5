@@ -152,5 +152,291 @@
         },
       ],
     },
+    {
+      name: "widgetbase",
+      srcPath: "./common/widgetbase",
+      targets: [
+        {
+          name: "default",
+          applyToProducts: ["default"],
+        },
+        {
+          name: "release",
+          applyToProducts: ["release"],
+        },
+        {
+          name: "uat",
+          applyToProducts: ["uat"],
+        },
+        {
+          name: "mock",
+          applyToProducts: ["mock"],
+        },
+      ],
+    },
+    {
+      name: "basic",
+      srcPath: "./common/basic",
+      targets: [
+        {
+          name: "default",
+          applyToProducts: ["default"],
+        },
+        {
+          name: "release",
+          applyToProducts: ["release"],
+        },
+        {
+          name: "uat",
+          applyToProducts: ["uat"],
+        },
+        {
+          name: "mock",
+          applyToProducts: ["mock"],
+        },
+      ],
+    },
+    {
+      name: "legal",
+      srcPath: "./features/legal",
+      targets: [
+        {
+          name: "default",
+          applyToProducts: ["default"],
+        },
+        {
+          name: "release",
+          applyToProducts: ["release"],
+        },
+        {
+          name: "uat",
+          applyToProducts: ["uat"],
+        },
+        {
+          name: "mock",
+          applyToProducts: ["mock"],
+        },
+      ],
+    },
+    {
+      name: "settings",
+      srcPath: "./features/settings",
+      targets: [
+        {
+          name: "default",
+          applyToProducts: ["default"],
+        },
+        {
+          name: "release",
+          applyToProducts: ["release"],
+        },
+        {
+          name: "uat",
+          applyToProducts: ["uat"],
+        },
+        {
+          name: "mock",
+          applyToProducts: ["mock"],
+        },
+      ],
+    },
+    {
+      name: "verification",
+      srcPath: "./features/verification",
+      targets: [
+        {
+          name: "default",
+          applyToProducts: ["default"],
+        },
+        {
+          name: "release",
+          applyToProducts: ["release"],
+        },
+        {
+          name: "uat",
+          applyToProducts: ["uat"],
+        },
+        {
+          name: "mock",
+          applyToProducts: ["mock"],
+        },
+      ],
+    },
+    {
+      name: "material",
+      srcPath: "./features/material",
+      targets: [
+        {
+          name: "default",
+          applyToProducts: ["default"],
+        },
+        {
+          name: "release",
+          applyToProducts: ["release"],
+        },
+        {
+          name: "uat",
+          applyToProducts: ["uat"],
+        },
+        {
+          name: "mock",
+          applyToProducts: ["mock"],
+        },
+      ],
+    },
+    {
+      name: "dailynote",
+      srcPath: "./features/dailynote",
+      targets: [
+        {
+          name: "default",
+          applyToProducts: ["default"],
+        },
+        {
+          name: "release",
+          applyToProducts: ["release"],
+        },
+        {
+          name: "uat",
+          applyToProducts: ["uat"],
+        },
+        {
+          name: "mock",
+          applyToProducts: ["mock"],
+        },
+      ],
+    },
+    {
+      name: "notification",
+      srcPath: "./features/notification",
+      targets: [
+        {
+          name: "default",
+          applyToProducts: ["default"],
+        },
+        {
+          name: "release",
+          applyToProducts: ["release"],
+        },
+        {
+          name: "uat",
+          applyToProducts: ["uat"],
+        },
+        {
+          name: "mock",
+          applyToProducts: ["mock"],
+        },
+      ],
+    },
+    {
+      name: "widget",
+      srcPath: "./features/widget",
+      targets: [
+        {
+          name: "default",
+          applyToProducts: ["default"],
+        },
+        {
+          name: "release",
+          applyToProducts: ["release"],
+        },
+        {
+          name: "uat",
+          applyToProducts: ["uat"],
+        },
+        {
+          name: "mock",
+          applyToProducts: ["mock"],
+        },
+      ],
+    },
+    {
+      name: "chardetail",
+      srcPath: "./features/chardetail",
+      targets: [
+        {
+          name: "default",
+          applyToProducts: ["default"],
+        },
+        {
+          name: "release",
+          applyToProducts: ["release"],
+        },
+        {
+          name: "uat",
+          applyToProducts: ["uat"],
+        },
+        {
+          name: "mock",
+          applyToProducts: ["mock"],
+        },
+      ],
+    },
+    {
+      name: "home",
+      srcPath: "./features/home",
+      targets: [
+        {
+          name: "default",
+          applyToProducts: ["default"],
+        },
+        {
+          name: "release",
+          applyToProducts: ["release"],
+        },
+        {
+          name: "uat",
+          applyToProducts: ["uat"],
+        },
+        {
+          name: "mock",
+          applyToProducts: ["mock"],
+        },
+      ],
+    },
+    {
+      name: "account",
+      srcPath: "./features/account",
+      targets: [
+        {
+          name: "default",
+          applyToProducts: ["default"],
+        },
+        {
+          name: "release",
+          applyToProducts: ["release"],
+        },
+        {
+          name: "uat",
+          applyToProducts: ["uat"],
+        },
+        {
+          name: "mock",
+          applyToProducts: ["mock"],
+        },
+      ],
+    },
+    {
+      name: "characters",
+      srcPath: "./features/characters",
+      targets: [
+        {
+          name: "default",
+          applyToProducts: ["default"],
+        },
+        {
+          name: "release",
+          applyToProducts: ["release"],
+        },
+        {
+          name: "uat",
+          applyToProducts: ["uat"],
+        },
+        {
+          name: "mock",
+          applyToProducts: ["mock"],
+        },
+      ],
+    },
   ],
 }

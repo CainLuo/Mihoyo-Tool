@@ -1,0 +1,1888 @@
+{
+  "string": [
+    {
+      "name": "common_arrow_right",
+      "value": "›"
+    },
+    {
+      "name": "app_name",
+      "value": "MiYouYou"
+    },
+    {
+      "name": "launch_subtitle",
+      "value": "Game Stats Assistant"
+    },
+    {
+      "name": "geetest_dialog_title",
+      "value": "Complete Security Verification"
+    },
+    {
+      "name": "geetest_dialog_close",
+      "value": "✕"
+    },
+    {
+      "name": "geetest_progress_format",
+      "value": "Verifying (%d/%d)"
+    },
+    {
+      "name": "genshin_daily_title",
+      "value": "Real-Time Notes"
+    },
+    {
+      "name": "genshin_daily_data_delay_hint",
+      "value": "*Data refresh may be slightly delayed. Please refer to the actual in-game data."
+    },
+    {
+      "name": "login_title",
+      "value": "Welcome"
+    },
+    {
+      "name": "login_button",
+      "value": "Login"
+    },
+    {
+      "name": "login_cookie_placeholder",
+      "value": "Paste your MiHoYo Cookie here"
+    },
+    {
+      "name": "login_tab_phone",
+      "value": "Phone"
+    },
+    {
+      "name": "login_tab_qrcode",
+      "value": "QR Code"
+    },
+    {
+      "name": "login_tab_cookie",
+      "value": "Cookie"
+    },
+    {
+      "name": "login_phone_placeholder",
+      "value": "Enter phone number"
+    },
+    {
+      "name": "login_send_sms_button",
+      "value": "Send Code"
+    },
+    {
+      "name": "login_code_placeholder",
+      "value": "Enter verification code"
+    },
+    {
+      "name": "login_back_to_phone",
+      "value": "Re-enter phone number"
+    },
+    {
+      "name": "login_resend_sms",
+      "value": "Resend"
+    },
+    {
+      "name": "login_sms_cooldown_seconds",
+      "value": "%ds"
+    },
+    {
+      "name": "login_qrcode_loading",
+      "value": "Loading QR code..."
+    },
+    {
+      "name": "login_qrcode_hint",
+      "value": "Scan with MiYouShe App to login"
+    },
+    {
+      "name": "login_qrcode_scanned",
+      "value": "Scanned, please confirm in the App"
+    },
+    {
+      "name": "login_qrcode_confirmed",
+      "value": "Logging in..."
+    },
+    {
+      "name": "login_qrcode_expired",
+      "value": "QR code expired, please refresh"
+    },
+    {
+      "name": "login_qrcode_refresh",
+      "value": "Refresh QR Code"
+    },
+    {
+      "name": "login_cookie_hint",
+      "value": "Cookie must contain stoken field. Use phone or QR code login instead"
+    },
+    {
+      "name": "login_cookie_no_stoken",
+      "value": "Cookie is missing the stoken field. Daily note sync will not work. Please use phone or QR code login, or provide a Cookie that includes stoken"
+    },
+    {
+      "name": "login_cookie_no_stoken_title",
+      "value": "Incomplete Cookie"
+    },
+    {
+      "name": "main_tab_home",
+      "value": "Home"
+    },
+    {
+      "name": "main_tab_my",
+      "value": "My"
+    },
+    {
+      "name": "my_section_account",
+      "value": "Accounts"
+    },
+    {
+      "name": "my_section_appearance",
+      "value": "Appearance"
+    },
+    {
+      "name": "my_section_about",
+      "value": "About"
+    },
+    {
+      "name": "my_account_empty",
+      "value": "No accounts yet, tap to add"
+    },
+    {
+      "name": "my_account_role_count",
+      "value": "%d game roles"
+    },
+    {
+      "name": "my_account_add",
+      "value": "+ Add Account"
+    },
+    {
+      "name": "my_theme_label",
+      "value": "Theme"
+    },
+    {
+      "name": "my_theme_light",
+      "value": "Light"
+    },
+    {
+      "name": "my_theme_dark",
+      "value": "Dark"
+    },
+    {
+      "name": "my_theme_system",
+      "value": "System"
+    },
+    {
+      "name": "my_about_version",
+      "value": "Version"
+    },
+    {
+      "name": "my_export_logs",
+      "value": "Export Logs"
+    },
+    {
+      "name": "my_clear_cache",
+      "value": "Clear Cache"
+    },
+    {
+      "name": "my_clear_cache_confirm_title",
+      "value": "Confirm Clear"
+    },
+    {
+      "name": "my_clear_cache_confirm_msg",
+      "value": "All local log files will be deleted. This cannot be undone."
+    },
+    {
+      "name": "my_clear_cache_success",
+      "value": "Freed %s"
+    },
+    {
+      "name": "my_clear_cache_failed",
+      "value": "Done, %d file(s) failed to delete"
+    },
+    {
+      "name": "my_export_logs_failed",
+      "value": "Export failed, please try again"
+    },
+    {
+      "name": "account_detail_title",
+      "value": "Account Detail"
+    },
+    {
+      "name": "account_detail_section_roles",
+      "value": "Linked Game Roles"
+    },
+    {
+      "name": "account_detail_section_actions",
+      "value": "Actions"
+    },
+    {
+      "name": "account_detail_relogin",
+      "value": "Log in again"
+    },
+    {
+      "name": "account_detail_refresh_cookie",
+      "value": "Refresh Cookie"
+    },
+    {
+      "name": "account_detail_refreshing_cookie",
+      "value": "Refreshing…"
+    },
+    {
+      "name": "account_detail_refresh_cookie_success",
+      "value": "Cookie refreshed"
+    },
+    {
+      "name": "account_detail_refresh_cookie_failed",
+      "value": "Failed to refresh cookie, please log in again"
+    },
+    {
+      "name": "account_detail_expired_tip",
+      "value": "Login has expired for this account"
+    },
+    {
+      "name": "account_detail_delete",
+      "value": "Delete This Account"
+    },
+    {
+      "name": "daily_note_task_label",
+      "value": "Daily Tasks"
+    },
+    {
+      "name": "daily_note_adventure_label",
+      "value": "Adventure EXP"
+    },
+    {
+      "name": "daily_note_stored_adventure_label",
+      "value": "Stored Adventure EXP"
+    },
+    {
+      "name": "daily_note_task_all_received",
+      "value": "All Claimed"
+    },
+    {
+      "name": "daily_note_task_not_received",
+      "value": "Reward Unclaimed"
+    },
+    {
+      "name": "daily_note_archon_quest_title",
+      "value": "Archon Quests"
+    },
+    {
+      "name": "daily_note_archon_quest_done",
+      "value": "All Done"
+    },
+    {
+      "name": "daily_note_resin_title",
+      "value": "Original Resin"
+    },
+    {
+      "name": "daily_note_home_coin_title",
+      "value": "Realm Currency"
+    },
+    {
+      "name": "daily_note_daily_task_title",
+      "value": "Daily Commission Rewards"
+    },
+    {
+      "name": "daily_note_weekly_boss_title",
+      "value": "Enemies of Note"
+    },
+    {
+      "name": "daily_note_weekly_boss_subtitle",
+      "value": "Remaining half-off challenges this week"
+    },
+    {
+      "name": "daily_note_transformer_title",
+      "value": "Parametric Transformer"
+    },
+    {
+      "name": "daily_note_transformer_ready",
+      "value": "Ready"
+    },
+    {
+      "name": "daily_note_transformer_done",
+      "value": "Preparation Complete"
+    },
+    {
+      "name": "daily_note_expedition_title",
+      "value": "Expedition Limit"
+    },
+    {
+      "name": "daily_note_expedition_finished",
+      "value": "Completed"
+    },
+    {
+      "name": "daily_note_expedition_ongoing",
+      "value": "Exploring"
+    },
+    {
+      "name": "daily_note_expedition_remain_prefix",
+      "value": "Remaining: "
+    },
+    {
+      "name": "game_name_genshin",
+      "value": "Genshin Impact"
+    },
+    {
+      "name": "game_name_starrail",
+      "value": "Honkai: Star Rail"
+    },
+    {
+      "name": "game_name_zzz",
+      "value": "Zenless Zone Zero"
+    },
+    {
+      "name": "game_name_honkai3",
+      "value": "Honkai Impact 3rd"
+    },
+    {
+      "name": "server_genshin_cn_official",
+      "value": "Tianqiu (Official)"
+    },
+    {
+      "name": "server_starrail_cn_official",
+      "value": "Nameless Honor (Official)"
+    },
+    {
+      "name": "server_zzz_cn_official",
+      "value": "New Eridu (Official)"
+    },
+    {
+      "name": "sync_just_now",
+      "value": "Just synced"
+    },
+    {
+      "name": "sync_not_synced",
+      "value": "Not synced"
+    },
+    {
+      "name": "sync_minutes_ago",
+      "value": "%d min ago"
+    },
+    {
+      "name": "sync_hours_ago",
+      "value": "%d hr ago"
+    },
+    {
+      "name": "sync_long_ago",
+      "value": "Over 1 day ago"
+    },
+    {
+      "name": "dialog_confirm",
+      "value": "OK"
+    },
+    {
+      "name": "dialog_cancel",
+      "value": "Cancel"
+    },
+    {
+      "name": "dialog_sync",
+      "value": "Sync"
+    },
+    {
+      "name": "characters_tab_title",
+      "value": "Characters"
+    },
+    {
+      "name": "characters_switch_account_title",
+      "value": "Switch Account"
+    },
+    {
+      "name": "characters_placeholder_title",
+      "value": "No Character Data"
+    },
+    {
+      "name": "characters_placeholder_desc",
+      "value": "Link an account and sync to view your character roster"
+    },
+    {
+      "name": "characters_no_data_hint",
+      "value": "No characters yet, tap refresh to sync"
+    },
+    {
+      "name": "characters_refresh_cooldown_title",
+      "value": "Refresh Rate Limited"
+    },
+    {
+      "name": "characters_refresh_cooldown_msg",
+      "value": "Synced within 30 minutes. Frequent refreshes may trigger CAPTCHA. Continue anyway?"
+    },
+    {
+      "name": "character_weapon_level_prefix",
+      "value": "Lv.%d"
+    },
+    {
+      "name": "character_weapon_none",
+      "value": "No Weapon"
+    },
+    {
+      "name": "character_level_value",
+      "value": "Lv.%d"
+    },
+    {
+      "name": "character_fetter_value",
+      "value": "Fetter %d"
+    },
+    {
+      "name": "char_detail_title",
+      "value": "Character Detail"
+    },
+    {
+      "name": "char_detail_hp",
+      "value": "HP"
+    },
+    {
+      "name": "char_detail_atk",
+      "value": "ATK"
+    },
+    {
+      "name": "char_detail_def",
+      "value": "DEF"
+    },
+    {
+      "name": "char_detail_em",
+      "value": "Elemental Mastery"
+    },
+    {
+      "name": "char_detail_cr",
+      "value": "CRIT Rate"
+    },
+    {
+      "name": "char_detail_cd",
+      "value": "CRIT DMG"
+    },
+    {
+      "name": "char_detail_er",
+      "value": "Energy Recharge"
+    },
+    {
+      "name": "char_detail_heal",
+      "value": "Healing Bonus"
+    },
+    {
+      "name": "char_detail_weapon_atk",
+      "value": "Base ATK"
+    },
+    {
+      "name": "char_detail_no_data",
+      "value": "No data"
+    },
+    {
+      "name": "char_detail_fetter_label",
+      "value": "Fetter"
+    },
+    {
+      "name": "char_detail_relic_lv_prefix",
+      "value": "+%d"
+    },
+    {
+      "name": "char_detail_weapon_refine_prefix",
+      "value": "R%d"
+    },
+    {
+      "name": "char_detail_weapon_lv_prefix",
+      "value": "Lv.%d"
+    },
+    {
+      "name": "prop_hp_flat",
+      "value": "HP"
+    },
+    {
+      "name": "prop_hp_pct",
+      "value": "HP%"
+    },
+    {
+      "name": "prop_base_atk",
+      "value": "Base ATK"
+    },
+    {
+      "name": "prop_atk_flat",
+      "value": "ATK"
+    },
+    {
+      "name": "prop_atk_pct",
+      "value": "ATK%"
+    },
+    {
+      "name": "prop_def_flat",
+      "value": "DEF"
+    },
+    {
+      "name": "prop_def_pct",
+      "value": "DEF%"
+    },
+    {
+      "name": "prop_base_hp",
+      "value": "Base HP"
+    },
+    {
+      "name": "prop_base_def",
+      "value": "Base DEF"
+    },
+    {
+      "name": "prop_crit_rate",
+      "value": "CRIT Rate"
+    },
+    {
+      "name": "prop_crit_dmg",
+      "value": "CRIT DMG"
+    },
+    {
+      "name": "prop_energy_recharge",
+      "value": "Energy Recharge"
+    },
+    {
+      "name": "prop_healing_bonus",
+      "value": "Healing Bonus"
+    },
+    {
+      "name": "prop_incoming_healing",
+      "value": "Incoming Healing"
+    },
+    {
+      "name": "prop_elemental_mastery",
+      "value": "Elemental Mastery"
+    },
+    {
+      "name": "prop_pyro_dmg",
+      "value": "Pyro DMG Bonus"
+    },
+    {
+      "name": "prop_electro_dmg",
+      "value": "Electro DMG Bonus"
+    },
+    {
+      "name": "prop_hydro_dmg",
+      "value": "Hydro DMG Bonus"
+    },
+    {
+      "name": "prop_dendro_dmg",
+      "value": "Dendro DMG Bonus"
+    },
+    {
+      "name": "prop_anemo_dmg",
+      "value": "Anemo DMG Bonus"
+    },
+    {
+      "name": "prop_geo_dmg",
+      "value": "Geo DMG Bonus"
+    },
+    {
+      "name": "prop_cryo_dmg",
+      "value": "Cryo DMG Bonus"
+    },
+    {
+      "name": "prop_physical_dmg",
+      "value": "Physical DMG Bonus"
+    },
+    {
+      "name": "prop_cooldown_reduction",
+      "value": "CD Reduction"
+    },
+    {
+      "name": "prop_shield_strength",
+      "value": "Shield Strength"
+    },
+    {
+      "name": "login_agreement_prefix",
+      "value": "By logging in, you agree to our"
+    },
+    {
+      "name": "login_agreement_terms",
+      "value": "Terms of Service"
+    },
+    {
+      "name": "login_agreement_and",
+      "value": "and"
+    },
+    {
+      "name": "login_agreement_privacy",
+      "value": "Privacy Policy"
+    },
+    {
+      "name": "login_cookie_security_hint",
+      "value": "Cookie is stored locally only and never uploaded to any server"
+    },
+    {
+      "name": "login_brand_desc",
+      "value": "All-in-one game stats viewer"
+    },
+    {
+      "name": "login_brand_feature1",
+      "value": "Character list & detail"
+    },
+    {
+      "name": "login_brand_feature2",
+      "value": "Real-time notes & resin reminder"
+    },
+    {
+      "name": "login_sms_sent_to_prefix",
+      "value": "Code sent to"
+    },
+    {
+      "name": "login_phone_label",
+      "value": "Phone Number"
+    },
+    {
+      "name": "login_code_label",
+      "value": "Verification Code"
+    },
+    {
+      "name": "login_cookie_label",
+      "value": "Cookie"
+    },
+    {
+      "name": "login_phone_hint",
+      "value": "Mainland China phone numbers only"
+    },
+    {
+      "name": "starrail_stamina_title",
+      "value": "Trailblaze Power"
+    },
+    {
+      "name": "starrail_reserve_stamina_title",
+      "value": "Reserved Trailblaze Power"
+    },
+    {
+      "name": "starrail_train_score_title",
+      "value": "Daily Training"
+    },
+    {
+      "name": "starrail_cocoon_title",
+      "value": "Echo of War"
+    },
+    {
+      "name": "starrail_rogue_score_title",
+      "value": "Simulated Universe Score"
+    },
+    {
+      "name": "starrail_tourn_score_title",
+      "value": "Divergent Universe Score"
+    },
+    {
+      "name": "zzz_energy_title",
+      "value": "Battery Charge"
+    },
+    {
+      "name": "zzz_vitality_title",
+      "value": "Daily Engagement"
+    },
+    {
+      "name": "zzz_card_sign_title",
+      "value": "Scratch Card"
+    },
+    {
+      "name": "zzz_card_sign_done",
+      "value": "Completed"
+    },
+    {
+      "name": "zzz_card_sign_todo",
+      "value": "Not Done"
+    },
+    {
+      "name": "zzz_video_store_title",
+      "value": "Video Store"
+    },
+    {
+      "name": "zzz_video_store_done",
+      "value": "Revenue Available"
+    },
+    {
+      "name": "zzz_video_store_open",
+      "value": "Currently Open"
+    },
+    {
+      "name": "zzz_video_store_closed",
+      "value": "Waiting to Open"
+    },
+    {
+      "name": "home_refresh_cooldown_title",
+      "value": "Refresh Rate Limited"
+    },
+    {
+      "name": "home_refresh_cooldown_msg",
+      "value": "Synced within 30 minutes. Frequent refreshes may trigger CAPTCHA. Continue anyway?"
+    },
+    {
+      "name": "time_hours_minutes_recovery",
+      "value": "Recovers in %d h %d min"
+    },
+    {
+      "name": "time_minutes_recovery",
+      "value": "Recovers in %d min"
+    },
+    {
+      "name": "time_hours_minutes_after",
+      "value": "Recovers in %dh %dm"
+    },
+    {
+      "name": "time_minutes_after",
+      "value": "Recovers in %d min"
+    },
+    {
+      "name": "time_soon",
+      "value": "Recovering soon"
+    },
+    {
+      "name": "time_days_hours_available",
+      "value": "Available in %dd %dh"
+    },
+    {
+      "name": "time_hours_minutes_available",
+      "value": "Available in %dh %dm"
+    },
+    {
+      "name": "time_minutes_available",
+      "value": "Available in %d min"
+    },
+    {
+      "name": "time_soon_available",
+      "value": "Available soon"
+    },
+    {
+      "name": "starrail_char_detail_title",
+      "value": "Character Detail"
+    },
+    {
+      "name": "starrail_char_detail_skills_main",
+      "value": "Main Skills"
+    },
+    {
+      "name": "starrail_char_detail_skills_extra",
+      "value": "Bonus Abilities"
+    },
+    {
+      "name": "starrail_char_detail_skills_attr",
+      "value": "Stat Boosts"
+    },
+    {
+      "name": "starrail_char_detail_equip_title",
+      "value": "Light Cone"
+    },
+    {
+      "name": "starrail_char_detail_no_equip",
+      "value": "No Light Cone"
+    },
+    {
+      "name": "starrail_char_detail_relics_title",
+      "value": "Relics"
+    },
+    {
+      "name": "starrail_char_detail_props_title",
+      "value": "Stats"
+    },
+    {
+      "name": "starrail_char_detail_rank_prefix",
+      "value": "E%d"
+    },
+    {
+      "name": "sr_prop_hp",
+      "value": "HP"
+    },
+    {
+      "name": "sr_prop_atk",
+      "value": "ATK"
+    },
+    {
+      "name": "sr_prop_def",
+      "value": "DEF"
+    },
+    {
+      "name": "sr_prop_spd",
+      "value": "SPD"
+    },
+    {
+      "name": "sr_prop_crit_rate",
+      "value": "CRIT Rate"
+    },
+    {
+      "name": "sr_prop_crit_dmg",
+      "value": "CRIT DMG"
+    },
+    {
+      "name": "sr_prop_effect_hit",
+      "value": "Effect Hit Rate"
+    },
+    {
+      "name": "sr_prop_energy_regen",
+      "value": "Energy Regeneration Rate"
+    },
+    {
+      "name": "sr_prop_effect_res",
+      "value": "Effect RES"
+    },
+    {
+      "name": "sr_prop_break_dmg",
+      "value": "Break Effect"
+    },
+    {
+      "name": "sr_prop_healing_bonus",
+      "value": "Outgoing Healing Boost"
+    },
+    {
+      "name": "sr_prop_hp_pct",
+      "value": "HP%"
+    },
+    {
+      "name": "sr_prop_atk_pct",
+      "value": "ATK%"
+    },
+    {
+      "name": "sr_prop_def_pct",
+      "value": "DEF%"
+    },
+    {
+      "name": "sr_prop_spd_pct",
+      "value": "SPD%"
+    },
+    {
+      "name": "sr_prop_physical_dmg",
+      "value": "Physical DMG Boost"
+    },
+    {
+      "name": "sr_prop_fire_dmg",
+      "value": "Fire DMG Boost"
+    },
+    {
+      "name": "sr_prop_ice_dmg",
+      "value": "Ice DMG Boost"
+    },
+    {
+      "name": "sr_prop_lightning_dmg",
+      "value": "Lightning DMG Boost"
+    },
+    {
+      "name": "sr_prop_wind_dmg",
+      "value": "Wind DMG Boost"
+    },
+    {
+      "name": "sr_prop_quantum_dmg",
+      "value": "Quantum DMG Boost"
+    },
+    {
+      "name": "sr_prop_imaginary_dmg",
+      "value": "Imaginary DMG Boost"
+    },
+    {
+      "name": "sr_prop_unknown_71",
+      "value": "Euphoria"
+    },
+    {
+      "name": "zzz_char_detail_title",
+      "value": "Agent Detail"
+    },
+    {
+      "name": "zzz_char_detail_skills_title",
+      "value": "Skills"
+    },
+    {
+      "name": "zzz_char_detail_weapon_title",
+      "value": "W-Engine"
+    },
+    {
+      "name": "zzz_char_detail_no_weapon",
+      "value": "No W-Engine"
+    },
+    {
+      "name": "zzz_char_detail_equip_title",
+      "value": "Drive Discs"
+    },
+    {
+      "name": "zzz_char_detail_props_title",
+      "value": "Stats"
+    },
+    {
+      "name": "zzz_char_detail_suit_pieces",
+      "value": "%d pcs"
+    },
+    {
+      "name": "zzz_char_detail_rank_prefix",
+      "value": "M%d"
+    },
+    {
+      "name": "char_detail_section_skills",
+      "value": "Skills"
+    },
+    {
+      "name": "char_detail_skill_default_name",
+      "value": "Skill %d"
+    },
+    {
+      "name": "char_detail_section_weapon",
+      "value": "Weapon"
+    },
+    {
+      "name": "char_detail_section_stats",
+      "value": "Stats"
+    },
+    {
+      "name": "char_detail_section_relics",
+      "value": "Artifacts"
+    },
+    {
+      "name": "char_detail_no_weapon",
+      "value": "No Weapon"
+    },
+    {
+      "name": "char_detail_relic_pos_flower",
+      "value": "Flower of Life"
+    },
+    {
+      "name": "char_detail_relic_pos_plume",
+      "value": "Plume of Death"
+    },
+    {
+      "name": "char_detail_relic_pos_sands",
+      "value": "Sands of Eon"
+    },
+    {
+      "name": "char_detail_relic_pos_goblet",
+      "value": "Goblet of Eonothem"
+    },
+    {
+      "name": "char_detail_relic_pos_circlet",
+      "value": "Circlet of Logos"
+    },
+    {
+      "name": "starrail_relic_pos_head",
+      "value": "Head"
+    },
+    {
+      "name": "starrail_relic_pos_hand",
+      "value": "Hands"
+    },
+    {
+      "name": "starrail_relic_pos_body",
+      "value": "Body"
+    },
+    {
+      "name": "starrail_relic_pos_feet",
+      "value": "Feet"
+    },
+    {
+      "name": "starrail_relic_pos_sphere",
+      "value": "Planar Sphere"
+    },
+    {
+      "name": "starrail_relic_pos_rope",
+      "value": "Link Rope"
+    },
+    {
+      "name": "starrail_daily_title",
+      "value": "Star Rail Notes"
+    },
+    {
+      "name": "zzz_daily_title",
+      "value": "ZZZ Notes"
+    },
+    {
+      "name": "daily_note_section_daily",
+      "value": "Daily"
+    },
+    {
+      "name": "daily_note_section_universe",
+      "value": "Universe"
+    },
+    {
+      "name": "daily_note_section_shop",
+      "value": "Shop"
+    },
+    {
+      "name": "daily_note_section_other",
+      "value": "Other"
+    },
+    {
+      "name": "daily_note_stamina",
+      "value": "Trailblaze Power"
+    },
+    {
+      "name": "daily_note_reserve_stamina",
+      "value": "Reserve Stamina"
+    },
+    {
+      "name": "daily_note_reserve_stamina_full_value",
+      "value": "%d (Full)"
+    },
+    {
+      "name": "daily_note_expedition_sr",
+      "value": "Expeditions"
+    },
+    {
+      "name": "daily_note_train_score",
+      "value": "Daily Training"
+    },
+    {
+      "name": "daily_note_cocoon",
+      "value": "Echo of War"
+    },
+    {
+      "name": "daily_note_rogue_score",
+      "value": "Simulated Universe"
+    },
+    {
+      "name": "daily_note_rogue_tourn",
+      "value": "Divergent Universe"
+    },
+    {
+      "name": "daily_note_rogue_tourn_locked",
+      "value": "Locked"
+    },
+    {
+      "name": "daily_note_rogue_exp_full",
+      "value": "EXP Full"
+    },
+    {
+      "name": "daily_note_grid_fight",
+      "value": "Gold & Gears"
+    },
+    {
+      "name": "daily_note_grid_fight_locked",
+      "value": "Locked"
+    },
+    {
+      "name": "daily_note_energy",
+      "value": "Battery"
+    },
+    {
+      "name": "daily_note_vitality",
+      "value": "Vitality"
+    },
+    {
+      "name": "daily_note_vitality_done",
+      "value": "Daily vitality complete"
+    },
+    {
+      "name": "daily_note_vitality_hint",
+      "value": "Complete daily tasks for vitality"
+    },
+    {
+      "name": "daily_note_vhs_sale",
+      "value": "Video Store"
+    },
+    {
+      "name": "daily_note_card_sign",
+      "value": "Scratch Card"
+    },
+    {
+      "name": "daily_note_temple",
+      "value": "Hollow Zero"
+    },
+    {
+      "name": "daily_note_member_card",
+      "value": "Member Card"
+    },
+    {
+      "name": "daily_note_cafe",
+      "value": "Café"
+    },
+    {
+      "name": "daily_note_vhs_done",
+      "value": "Settled"
+    },
+    {
+      "name": "daily_note_vhs_doing",
+      "value": "Open"
+    },
+    {
+      "name": "daily_note_vhs_no",
+      "value": "Closed"
+    },
+    {
+      "name": "daily_note_card_done",
+      "value": "Done"
+    },
+    {
+      "name": "daily_note_card_no",
+      "value": "Not Done"
+    },
+    {
+      "name": "daily_note_temple_unknown",
+      "value": "Unknown"
+    },
+    {
+      "name": "daily_note_temple_running",
+      "value": "Running"
+    },
+    {
+      "name": "daily_note_temple_done",
+      "value": "Done"
+    },
+    {
+      "name": "daily_note_temple_idle",
+      "value": "Idle"
+    },
+    {
+      "name": "daily_note_temple_currency",
+      "value": "Currency: %d"
+    },
+    {
+      "name": "daily_note_member_no",
+      "value": "Not Active"
+    },
+    {
+      "name": "daily_note_member_active",
+      "value": "Active"
+    },
+    {
+      "name": "daily_note_member_expired",
+      "value": "Expired"
+    },
+    {
+      "name": "daily_note_cafe_no",
+      "value": "Closed"
+    },
+    {
+      "name": "daily_note_cafe_open",
+      "value": "Open"
+    },
+    {
+      "name": "daily_note_cafe_done",
+      "value": "Settled"
+    },
+    {
+      "name": "cookie_expired_dialog_title",
+      "value": "Session Expired"
+    },
+    {
+      "name": "cookie_expired_dialog_msg",
+      "value": "The session for %s has expired. Please log in again to continue."
+    },
+    {
+      "name": "cookie_expired_go_login",
+      "value": "Log In"
+    },
+    {
+      "name": "test_page_title",
+      "value": "Test Tools"
+    },
+    {
+      "name": "test_t1_done",
+      "value": "T1 set, please restart App"
+    },
+    {
+      "name": "test_t3_done",
+      "value": "T3 set, please restart App"
+    },
+    {
+      "name": "test_failed",
+      "value": "Setup failed, check logs"
+    },
+    {
+      "name": "feedback_home_refresh_success",
+      "value": "Stats updated"
+    },
+    {
+      "name": "feedback_characters_refresh_success",
+      "value": "Characters updated"
+    },
+    {
+      "name": "feedback_refresh_error",
+      "value": "Refresh failed, check your connection"
+    },
+    {
+      "name": "my_section_notification",
+      "value": "Notifications"
+    },
+    {
+      "name": "notification_master_switch",
+      "value": "Stamina Reminders"
+    },
+    {
+      "name": "notification_master_switch_desc",
+      "value": "Push system reminders when stamina reaches the set value, works even when App is closed"
+    },
+    {
+      "name": "notification_permission_denied_title",
+      "value": "Notification Permission Disabled"
+    },
+    {
+      "name": "notification_permission_denied_desc",
+      "value": "Go to System Settings → Apps → MiYouYou → Notifications to enable"
+    },
+    {
+      "name": "notification_slot_usage",
+      "value": "Reminder Quota"
+    },
+    {
+      "name": "notification_slot_usage_desc",
+      "value": "Each game can have 1 reminder, max 30 total"
+    },
+    {
+      "name": "notification_style_a_title",
+      "value": "Style A · Individual"
+    },
+    {
+      "name": "notification_style_a_desc",
+      "value": "One notification per game role"
+    },
+    {
+      "name": "notification_style_b_title",
+      "value": "Style B · Combined"
+    },
+    {
+      "name": "notification_style_b_desc",
+      "value": "Combine all games into one notification, up to 3 lines when expanded"
+    },
+    {
+      "name": "notification_max_from_api",
+      "value": "Max %d, %d min/unit recovery"
+    },
+    {
+      "name": "notification_max_pending",
+      "value": "Max pending sync, %d min/unit recovery"
+    },
+    {
+      "name": "notification_full_value_shortcut",
+      "value": "Notify at Full"
+    },
+    {
+      "name": "notification_full_value_shortcut_desc",
+      "value": "Set all reminder values to max for this account"
+    },
+    {
+      "name": "notification_full_value_set",
+      "value": "Set"
+    },
+    {
+      "name": "notification_limit_dialog_title",
+      "value": "Reminder Limit Reached"
+    },
+    {
+      "name": "notification_limit_dialog_msg",
+      "value": "Reminder limit reached (30). Please disable some game notifications first."
+    },
+    {
+      "name": "notification_limit_dialog_confirm",
+      "value": "Got it"
+    },
+    {
+      "name": "notification_content_title_style_a",
+      "value": "%s · %s"
+    },
+    {
+      "name": "notification_content_body_style_a",
+      "value": "%s reached %d/%d, use it now"
+    },
+    {
+      "name": "notification_content_sub_style_a",
+      "value": "%s · UID %s"
+    },
+    {
+      "name": "notification_content_title_style_b_collapsed",
+      "value": "MiYouYou · %d stamina alerts"
+    },
+    {
+      "name": "notification_content_title_style_b_expanded",
+      "value": "Game Stamina Alerts"
+    },
+    {
+      "name": "notification_content_line_style_b",
+      "value": "%s: %s %d/%d full"
+    },
+    {
+      "name": "notification_stamina_genshin",
+      "value": "Resin"
+    },
+    {
+      "name": "notification_stamina_starrail",
+      "value": "Trailblaze Power"
+    },
+    {
+      "name": "notification_stamina_zzz",
+      "value": "Battery"
+    },
+    {
+      "name": "notification_warning_icon",
+      "value": "⚠️"
+    },
+    {
+      "name": "notification_game_stamina_label",
+      "value": "%s · %s"
+    },
+    {
+      "name": "notification_stamina_max_suffix",
+      "value": "/ %d"
+    },
+    {
+      "name": "notification_stamina_max_unknown",
+      "value": "/ —"
+    },
+    {
+      "name": "common_dot_separator",
+      "value": "·"
+    },
+    {
+      "name": "common_uid_format",
+      "value": "UID %s"
+    },
+    {
+      "name": "split_placeholder_hint",
+      "value": "Tap an item on the left to view details"
+    },
+    {
+      "name": "appearance_settings_title",
+      "value": "Appearance"
+    },
+    {
+      "name": "appearance_theme_light_desc",
+      "value": "Always use light mode"
+    },
+    {
+      "name": "appearance_theme_dark_desc",
+      "value": "Always use dark mode"
+    },
+    {
+      "name": "appearance_theme_system_desc",
+      "value": "Follow system dark/light mode"
+    },
+    {
+      "name": "appearance_settings_hint",
+      "value": "When \"Follow System\" is selected, the app automatically switches between dark and light mode based on system settings."
+    },
+    {
+      "name": "privacy_consent_terms_title",
+      "value": "Terms of Service"
+    },
+    {
+      "name": "privacy_consent_privacy_title",
+      "value": "Privacy Policy"
+    },
+    {
+      "name": "privacy_consent_next",
+      "value": "Next"
+    },
+    {
+      "name": "privacy_consent_agree",
+      "value": "Agree & Continue"
+    },
+    {
+      "name": "privacy_consent_disagree",
+      "value": "Disagree & Exit"
+    },
+    {
+      "name": "privacy_consent_scroll_hint",
+      "value": "Please scroll to read all content before continuing"
+    },
+    {
+      "name": "my_section_widget",
+      "value": "Widget Cards"
+    },
+    {
+      "name": "widget_no_account",
+      "value": "Please add an account in the app"
+    },
+    {
+      "name": "widget_reserve_stamina",
+      "value": "Reserved Power"
+    },
+    {
+      "name": "widget_grid_fight",
+      "value": "Divergent Universe"
+    },
+    {
+      "name": "widget_rogue_weekly",
+      "value": "Divergent Universe Weekly"
+    },
+    {
+      "name": "widget_vitality",
+      "value": "Daily Vitality"
+    },
+    {
+      "name": "widget_card_sign",
+      "value": "Scratch Card"
+    },
+    {
+      "name": "widget_uid_prefix",
+      "value": "UID "
+    },
+    {
+      "name": "widget_video_store",
+      "value": "Video Store"
+    },
+    {
+      "name": "widget_reserve_prefix",
+      "value": "Reserved "
+    },
+    {
+      "name": "widget_config_title",
+      "value": "Configure Widget"
+    },
+    {
+      "name": "widget_size_1x2",
+      "value": "1×2 Mini"
+    },
+    {
+      "name": "widget_size_2x2",
+      "value": "2×2 Standard"
+    },
+    {
+      "name": "widget_size_2x4",
+      "value": "2×4 Wide"
+    },
+    {
+      "name": "widget_size_4x4",
+      "value": "4×4 Large"
+    },
+    {
+      "name": "widget_size_1x2_desc",
+      "value": "1 account · 1 game · Stamina only"
+    },
+    {
+      "name": "widget_size_2x2_desc",
+      "value": "1 account · Up to 3 games · Detailed mode"
+    },
+    {
+      "name": "widget_size_2x4_desc",
+      "value": "Detailed: 1 account full data / Compact: 2 accounts stamina"
+    },
+    {
+      "name": "widget_size_4x4_desc",
+      "value": "Detailed: 1 account full data / Compact: 3 accounts stamina"
+    },
+    {
+      "name": "widget_select_account_hint",
+      "value": "Select an account to bind (single choice)"
+    },
+    {
+      "name": "widget_select_game_hint",
+      "value": "Select the game type to display"
+    },
+    {
+      "name": "widget_selected_count",
+      "value": "%1$d/%2$d roles selected"
+    },
+    {
+      "name": "widget_game_account_count",
+      "value": "%d accounts"
+    },
+    {
+      "name": "widget_btn_prev",
+      "value": "Previous"
+    },
+    {
+      "name": "widget_btn_next",
+      "value": "Next"
+    },
+    {
+      "name": "widget_btn_add",
+      "value": "Add to Home Screen"
+    },
+    {
+      "name": "widget_config_done_title",
+      "value": "Configuration Complete!"
+    },
+    {
+      "name": "widget_config_done_desc",
+      "value": "Widget is ready to be added to home screen"
+    },
+    {
+      "name": "widget_summary_size",
+      "value": "Size"
+    },
+    {
+      "name": "widget_summary_roles",
+      "value": "Selected Roles"
+    },
+    {
+      "name": "a11y_character_card",
+      "value": "%s character card, tap to view details"
+    },
+    {
+      "name": "a11y_game_card",
+      "value": "%s game card, tap to view details"
+    },
+    {
+      "name": "a11y_widget_card",
+      "value": "Widget card, tap to sync data"
+    },
+    {
+      "name": "a11y_character_avatar",
+      "value": "%s avatar"
+    },
+    {
+      "name": "a11y_character_portrait",
+      "value": "%s portrait"
+    },
+    {
+      "name": "a11y_character_weapon",
+      "value": "%s weapon"
+    },
+    {
+      "name": "a11y_element_icon",
+      "value": "%s element"
+    },
+    {
+      "name": "a11y_path_icon",
+      "value": "Path icon"
+    },
+    {
+      "name": "a11y_rarity_icon",
+      "value": "%s rarity"
+    },
+    {
+      "name": "a11y_element_icon_generic",
+      "value": "Element icon"
+    },
+    {
+      "name": "a11y_profession_icon",
+      "value": "Profession icon"
+    },
+    {
+      "name": "a11y_faction_icon",
+      "value": "Faction icon"
+    },
+    {
+      "name": "tools_title",
+      "value": "Tools"
+    },
+    {
+      "name": "tools_game_no_data",
+      "value": "No character data"
+    },
+    {
+      "name": "tools_game_status_not_computed",
+      "value": "%d characters · Not calculated"
+    },
+    {
+      "name": "tools_game_status_partial",
+      "value": "%d characters · %d calculated"
+    },
+    {
+      "name": "tools_game_status_done",
+      "value": "%d characters · All calculated"
+    },
+    {
+      "name": "material_list_empty_title",
+      "value": "No material data"
+    },
+    {
+      "name": "material_list_empty_desc",
+      "value": "Please calculate material requirements from character details"
+    },
+    {
+      "name": "material_list_empty_button",
+      "value": "Sync Now"
+    },
+    {
+      "name": "material_list_syncing",
+      "value": "Syncing..."
+    },
+    {
+      "name": "material_view_by_character",
+      "value": "By Character"
+    },
+    {
+      "name": "material_view_by_material",
+      "value": "By Material"
+    },
+    {
+      "name": "material_section_avatar",
+      "value": "Character Materials"
+    },
+    {
+      "name": "material_section_needed",
+      "value": "Materials Needed"
+    },
+    {
+      "name": "material_section_skill",
+      "value": "Skill Materials"
+    },
+    {
+      "name": "material_section_weapon",
+      "value": "Weapon Materials"
+    },
+    {
+      "name": "material_section_all",
+      "value": "All Materials"
+    },
+    {
+      "name": "genshin_material_list_title",
+      "value": "Genshin Material Summary"
+    },
+    {
+      "name": "starrail_material_list_title",
+      "value": "Star Rail Material Summary"
+    },
+    {
+      "name": "zzz_material_list_title",
+      "value": "ZZZ Material Summary"
+    },
+    {
+      "name": "material_section_light_cone",
+      "value": "Light Cone Materials"
+    },
+    {
+      "name": "material_calc_title",
+      "value": "Material Calculator"
+    },
+    {
+      "name": "material_calc_empty_title",
+      "value": "No calculation data"
+    },
+    {
+      "name": "material_calc_empty_desc",
+      "value": "Please sync character data first"
+    },
+    {
+      "name": "material_calc_refresh_hint",
+      "value": "↓ Pull down to refresh"
+    },
+    {
+      "name": "skill_target_title",
+      "value": "Skill Targets"
+    },
+    {
+      "name": "skill_normal",
+      "value": "Normal"
+    },
+    {
+      "name": "skill_skill",
+      "value": "Skill"
+    },
+    {
+      "name": "skill_burst",
+      "value": "Burst"
+    },
+    {
+      "name": "skill_basic",
+      "value": "Basic"
+    },
+    {
+      "name": "skill_ultimate",
+      "value": "Ultimate"
+    },
+    {
+      "name": "skill_talent",
+      "value": "Talent"
+    },
+    {
+      "name": "skill_special",
+      "value": "Special"
+    },
+    {
+      "name": "skill_chain",
+      "value": "Chain"
+    },
+    {
+      "name": "skill_dodge",
+      "value": "Dodge"
+    },
+    {
+      "name": "skill_assist",
+      "value": "Assist"
+    },
+    {
+      "name": "skill_core",
+      "value": "Core"
+    },
+    {
+      "name": "level_picker_title",
+      "value": "Select Target Level"
+    },
+    {
+      "name": "game_name_genshin_material",
+      "value": "Genshin Impact Materials"
+    },
+    {
+      "name": "game_name_starrail_material",
+      "value": "Honkai: Star Rail Materials"
+    },
+    {
+      "name": "game_name_zzz_material",
+      "value": "Zenless Zone Zero Materials"
+    },
+    {
+      "name": "char_detail_material_calc_title",
+      "value": "Upgrade Calculator"
+    },
+    {
+      "name": "char_detail_material_calc_desc",
+      "value": "Check materials needed for character upgrade"
+    },
+    {
+      "name": "material_target_config_title",
+      "value": "Upgrade Target Config"
+    },
+    {
+      "name": "material_target_config_genshin_tip",
+      "value": "💡 Tap level rows to set current and target levels. The system will calculate required materials."
+    },
+    {
+      "name": "material_target_config_starrail_tip",
+      "value": "Star Rail characters max at Lv.80, Light Cones max at Lv.80.\nNote: Skill level is unified and applies to all Traces."
+    },
+    {
+      "name": "material_target_config_zzz_tip",
+      "value": "ZZZ characters max at Lv.60, skills max at Lv.12, W-Engines max at Lv.60.\nNote: ZZZ has 6 independent skills to configure."
+    },
+    {
+      "name": "material_target_config_avatar_level",
+      "value": "Character Level"
+    },
+    {
+      "name": "material_target_config_skill_level",
+      "value": "Skill Level"
+    },
+    {
+      "name": "material_target_config_weapon_level",
+      "value": "Weapon Level"
+    },
+    {
+      "name": "material_target_config_trace_level",
+      "value": "Trace Level"
+    },
+    {
+      "name": "material_target_config_light_cone_level",
+      "value": "Light Cone Level"
+    },
+    {
+      "name": "material_target_config_start_calc",
+      "value": "Calculate Materials"
+    },
+    {
+      "name": "material_target_config_syncing",
+      "value": "Syncing data..."
+    },
+    {
+      "name": "material_target_config_current",
+      "value": "Current"
+    },
+    {
+      "name": "material_target_config_target",
+      "value": "Target"
+    },
+    {
+      "name": "material_target_config_level_suffix",
+      "value": "Lv.%d"
+    },
+    {
+      "name": "genshin_skill_normal_attack",
+      "value": "Normal Attack"
+    },
+    {
+      "name": "genshin_skill_elemental_skill",
+      "value": "Elemental Skill"
+    },
+    {
+      "name": "genshin_skill_elemental_burst",
+      "value": "Elemental Burst"
+    },
+    {
+      "name": "starrail_skill_basic_attack",
+      "value": "Basic ATK"
+    },
+    {
+      "name": "starrail_skill_skill",
+      "value": "Skill"
+    },
+    {
+      "name": "starrail_skill_ultimate",
+      "value": "Ultimate"
+    },
+    {
+      "name": "starrail_skill_talent",
+      "value": "Talent"
+    },
+    {
+      "name": "zzz_skill_normal_attack",
+      "value": "Normal Attack"
+    },
+    {
+      "name": "zzz_skill_dodge",
+      "value": "Dodge"
+    },
+    {
+      "name": "zzz_skill_assist",
+      "value": "Assist"
+    },
+    {
+      "name": "zzz_skill_special",
+      "value": "Special"
+    },
+    {
+      "name": "zzz_skill_chain",
+      "value": "Chain"
+    },
+    {
+      "name": "zzz_skill_core",
+      "value": "Core"
+    },
+    {
+      "name": "material_character_select_empty_title",
+      "value": "No Characters Available"
+    },
+    {
+      "name": "material_character_select_empty_desc",
+      "value": "Please sync character data first"
+    },
+    {
+      "name": "material_character_select_count",
+      "value": "%d/4 selected"
+    },
+    {
+      "name": "material_character_select_start",
+      "value": "Start Calculation"
+    },
+    {
+      "name": "material_list_target_reached",
+      "value": "Target reached"
+    },
+    {
+      "name": "material_target_config_required_title",
+      "value": "Target not set"
+    },
+    {
+      "name": "material_target_config_required_message",
+      "value": "Please set the target levels for character, skills and weapon before calculating materials."
+    },
+    {
+      "name": "material_target_config_required_go",
+      "value": "Set now"
+    },
+    {
+      "name": "material_history",
+      "value": "History"
+    },
+    {
+      "name": "material_target_config_saved",
+      "value": "Target saved"
+    },
+    {
+      "name": "material_character_select_failed",
+      "value": "Calculation failed, please try again later"
+    },
+    {
+      "name": "material_character_select_no_needs",
+      "value": "Selected characters are already maxed out"
+    },
+    {
+      "name": "device_fp_invalid_title",
+      "value": "Device fingerprint invalid"
+    },
+    {
+      "name": "device_fp_invalid_msg",
+      "value": "A request for %s returned an invalid device fingerprint (error %d), usually due to miHoYo risk control. Regenerate the device fingerprint and try again."
+    },
+    {
+      "name": "device_fp_regenerate",
+      "value": "Regenerate device fingerprint"
+    },
+    {
+      "name": "device_fp_regenerating",
+      "value": "Regenerating…"
+    },
+    {
+      "name": "device_fp_regenerate_success",
+      "value": "Device fingerprint regenerated. Syncing again."
+    },
+    {
+      "name": "device_fp_regenerate_failed",
+      "value": "Failed to regenerate the device fingerprint. Please try again later."
+    },
+    {
+      "name": "device_fp_unknown_account",
+      "value": "miHoYo account"
+    },
+    {
+      "name": "device_fp_regenerate_short",
+      "value": "Regenerate"
+    },
+    {
+      "name": "characters_refresh_busy",
+      "value": "Refreshing in progress. Please don't refresh repeatedly."
+    }
+  ]
+}

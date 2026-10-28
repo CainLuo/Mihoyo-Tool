@@ -1,0 +1,13 @@
+{
+  name: "material",
+  version: "1.0.0",
+  description: "材料计算 / 清单 / 目标配置 / 选角 / 工具页",
+  main: "Index.ets",
+  dependencies: {
+    core: "file:../../core",
+    basic: "file:../../common/basic",
+  },
+  devDependencies: {
+    "@ohos/hypium": "1.0.25",
+  },
+}

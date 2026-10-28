@@ -1,0 +1,34 @@
+<svg width="120" height="120" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+<defs>
+<linearGradient id="blue" x1="0%" y1="0%" x2="100%" y2="100%">
+  <stop offset="0%" stop-color="#007DFF"/>
+  <stop offset="100%" stop-color="#4BC3F1"/>
+</linearGradient>
+<radialGradient id="head" cx="45%" cy="35%" r="65%">
+  <stop offset="0%" stop-color="#FFFFFF"/>
+  <stop offset="100%" stop-color="#E8F0FF"/>
+</radialGradient>
+<filter id="sh" x="-20%" y="-20%" width="140%" height="140%">
+  <feDropShadow dx="0" dy="1.2" stdDeviation="2.4" flood-color="#007DFF" flood-opacity="0.4"/>
+</filter>
+<clipPath id="clip">
+  <rect width="120" height="120" rx="26.4" ry="26.4"/>
+</clipPath>
+</defs>
+<g clip-path="url(#clip)">
+<rect width="120" height="120" fill="#FFFFFF"/>
+<rect x="0" y="0" width="120" height="74.4" fill="url(#blue)"/>
+<rect x="46.2" y="12.0" width="13.2" height="36.0" rx="6.6" ry="6.6" fill="url(#head)" filter="url(#sh)"/>
+<rect x="60.6" y="12.0" width="13.2" height="36.0" rx="6.6" ry="6.6" fill="url(#head)" filter="url(#sh)"/>
+<rect x="46.2" y="12.0" width="13.2" height="36.0" rx="6.6" ry="6.6" fill="none" stroke="#007DFF" stroke-width="2.16"/>
+<rect x="60.6" y="12.0" width="13.2" height="36.0" rx="6.6" ry="6.6" fill="none" stroke="#007DFF" stroke-width="2.16"/>
+<rect x="49.83" y="15.6" width="5.94" height="19.8" rx="2.97" ry="2.97" fill="#007DFF" opacity="0.55"/>
+<rect x="64.23" y="15.6" width="5.94" height="19.8" rx="2.97" ry="2.97" fill="#007DFF" opacity="0.55"/>
+<circle cx="52.8" cy="13.8" r="2.64" fill="#4A90D9" opacity="0.9"/>
+<circle cx="67.2" cy="13.8" r="2.64" fill="#7B68EE" opacity="0.9"/>
+<circle cx="60.0" cy="86.4" r="38.4" fill="url(#head)" filter="url(#sh)"/>
+<circle cx="60.0" cy="86.4" r="38.4" fill="none" stroke="#007DFF" stroke-width="2.16"/>
+<polygon points="49.2,81.6 52.2,84.6 49.2,87.6 46.2,84.6" fill="#007DFF"/>
+<polygon points="70.8,81.6 73.8,84.6 70.8,87.6 67.8,84.6" fill="#007DFF"/>
+</g>
+</svg>

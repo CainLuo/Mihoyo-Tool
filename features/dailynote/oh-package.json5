@@ -1,0 +1,14 @@
+{
+  name: "dailynote",
+  version: "1.0.0",
+  description: "便笺详情（三游戏）",
+  main: "Index.ets",
+  dependencies: {
+    core: "file:../../core",
+    widgetbase: "file:../../common/widgetbase",
+    basic: "file:../../common/basic",
+  },
+  devDependencies: {
+    "@ohos/hypium": "1.0.25",
+  },
+}

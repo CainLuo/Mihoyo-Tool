@@ -1,0 +1,15 @@
+{
+  name: "characters",
+  version: "1.0.0",
+  description: "角色列表",
+  main: "Index.ets",
+  dependencies: {
+    core: "file:../../core",
+    widgetbase: "file:../../common/widgetbase",
+    basic: "file:../../common/basic",
+    chardetail: "file:../chardetail",
+  },
+  devDependencies: {
+    "@ohos/hypium": "1.0.25",
+  },
+}
