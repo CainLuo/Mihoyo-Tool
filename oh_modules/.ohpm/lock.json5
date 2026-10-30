@@ -530,8 +530,8 @@
       "dynamic": false,
       "maskedByOverrideDependencyMap": false
     },
-    "verification@file:features/verification": {
-      "storePath": "features/verification",
+    "settings@file:features/settings": {
+      "storePath": "features/settings",
       "dependencies": {
         "core": "core",
         "basic": "common/basic"
@@ -541,8 +541,8 @@
       "dynamic": false,
       "maskedByOverrideDependencyMap": false
     },
-    "settings@file:features/settings": {
-      "storePath": "features/settings",
+    "verification@file:features/verification": {
+      "storePath": "features/verification",
       "dependencies": {
         "core": "core",
         "basic": "common/basic"
