@@ -530,13 +530,33 @@
       "dynamic": false,
       "maskedByOverrideDependencyMap": false
     },
-    "chardetail@file:features/chardetail": {
-      "storePath": "features/chardetail",
+    "verification@file:features/verification": {
+      "storePath": "features/verification",
       "dependencies": {
         "core": "core",
-        "widgetbase": "common/widgetbase",
-        "basic": "common/basic",
-        "material": "features/material"
+        "basic": "common/basic"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "settings@file:features/settings": {
+      "storePath": "features/settings",
+      "dependencies": {
+        "core": "core",
+        "basic": "common/basic"
+      },
+      "dynamicDependencies": {},
+      "dev": false,
+      "dynamic": false,
+      "maskedByOverrideDependencyMap": false
+    },
+    "legal@file:features/legal": {
+      "storePath": "features/legal",
+      "dependencies": {
+        "core": "core",
+        "basic": "common/basic"
       },
       "devDependencies": {
         "@ohos/hypium": "1.0.25"
@@ -560,13 +580,13 @@
       "dynamic": false,
       "maskedByOverrideDependencyMap": false
     },
-    "characters@file:features/characters": {
-      "storePath": "features/characters",
+    "chardetail@file:features/chardetail": {
+      "storePath": "features/chardetail",
       "dependencies": {
         "core": "core",
         "widgetbase": "common/widgetbase",
         "basic": "common/basic",
-        "chardetail": "features/chardetail"
+        "material": "features/material"
       },
       "devDependencies": {
         "@ohos/hypium": "1.0.25"
@@ -576,33 +596,13 @@
       "dynamic": false,
       "maskedByOverrideDependencyMap": false
     },
-    "settings@file:features/settings": {
-      "storePath": "features/settings",
+    "characters@file:features/characters": {
+      "storePath": "features/characters",
       "dependencies": {
         "core": "core",
-        "basic": "common/basic"
-      },
-      "dynamicDependencies": {},
-      "dev": false,
-      "dynamic": false,
-      "maskedByOverrideDependencyMap": false
-    },
-    "verification@file:features/verification": {
-      "storePath": "features/verification",
-      "dependencies": {
-        "core": "core",
-        "basic": "common/basic"
-      },
-      "dynamicDependencies": {},
-      "dev": false,
-      "dynamic": false,
-      "maskedByOverrideDependencyMap": false
-    },
-    "legal@file:features/legal": {
-      "storePath": "features/legal",
-      "dependencies": {
-        "core": "core",
-        "basic": "common/basic"
+        "widgetbase": "common/widgetbase",
+        "basic": "common/basic",
+        "chardetail": "features/chardetail"
       },
       "devDependencies": {
         "@ohos/hypium": "1.0.25"

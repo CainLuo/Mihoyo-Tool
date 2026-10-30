@@ -209,7 +209,7 @@ export class StaminaNotificationService {
     roleNickname: string,
     _server: string,
   ): Promise<MergedNotificationEntry | null> {
-    const noteData = await this.loadRecoveryData(accountId, roleUid, gameId);
+    const noteData = await this.loadStaminaRecovery(accountId, roleUid, gameId);
     if (noteData === null) {
       return null;
     }
@@ -401,7 +401,7 @@ export class StaminaNotificationService {
     roleNickname: string,
     server: string,
   ): Promise<void> {
-    const noteData = await this.loadRecoveryData(accountId, roleUid, gameId);
+    const noteData = await this.loadStaminaRecovery(accountId, roleUid, gameId);
     if (noteData === null) {
       return;
     }
@@ -557,7 +557,7 @@ export class StaminaNotificationService {
     }
   }
 
-  private async loadRecoveryData(
+  private async loadStaminaRecovery(
     accountId: string,
     roleUid: string,
     gameId: GameId,
@@ -605,7 +605,7 @@ export class StaminaNotificationService {
       return null;
     } catch (e) {
       const msg = e instanceof Error ? e.message : `${e}`;
-      Logger.warn(TAG, `loadRecoveryData failed for ${gameId}/${roleUid}: ${msg}`);
+      Logger.warn(TAG, `loadStaminaRecovery failed for ${gameId}/${roleUid}: ${msg}`);
       return null;
     }
   }

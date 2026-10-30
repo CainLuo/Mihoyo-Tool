@@ -66,6 +66,8 @@ HVIGOR=/Applications/DevEco-Studio.app/Contents/tools/hvigor/bin/hvigorw
 
 ### 2.1 `entry/src/main/ets/` 顶层布局（16 个目录，349 个 `.ets` 文件，40947 行）
 
+> 本节为 2026-10-23 结构迁移前的快照，保留作历史；当前结构见 [docs/project-structure.md](../docs/project-structure.md)。
+
 | dir | files | lines | role |
 |---|---|---|---|
 | `pages/` | 29 | 5211 | 页面容器（Navigation 路由），含框架文件 `Main`/`Index`/`Launch` + `TestPage` |
@@ -92,7 +94,7 @@ Fan-in 中心节点（共享层，不可随意移动）：
 - `theme/ThemeFonts.ets` — 82（原 83 含 `ThemeManager.ets:11` 注释）；`models/CharDetailModels.ets` — 41；`constants/ViewState.ets` — 35
 - `widget/models/WidgetUIStates.ets` — 31；`constants/AppRoutes.ets` — 21；`utils/GameIdUtil.ets` — 16
 
-**需要关注的分层违规（潜在循环导入风险）：** 2026-10-27 复核：现存循环可以编译运行（`models/WidgetSettingsModels ↔ viewmodel/WidgetSettingsViewModel`、`components/GeetestDialog ↔ GeetestDialogHelper`），但循环会带来模块初始化顺序风险，重构**不得新增**循环。
+**需要关注的分层违规（潜在循环导入风险）：** 2026-10-27 复核：现存循环可以编译运行（`models/WidgetSettingsModels ↔ viewmodel/WidgetSettingsViewModel`、`components/GeetestDialog ↔ GeetestDialogHelper`（迁移后为 `features/verification` 内 `views/GeetestDialog ↔ utils/GeetestDialogUtil`，仍存在）），但循环会带来模块初始化顺序风险，重构**不得新增**循环。
 - `components → viewmodel`：**48 个边**，而 `viewmodel → components`：2 个 → 按功能可能存在循环
 - `viewmodel → pages`：3 个边，`utils → components`：2 个边，`models → viewmodel`：1 个边
 - 每个模块需做决策：优先通过 `@Param`/`@ObjectLink` 传递状态，而非组件导入 ViewModel 类型（§6 P-3）。
@@ -193,13 +195,13 @@ entry/src/main/ets/
 | M12 | Login | Login (+WebViewPage) | LoginViewModel | login/（18） | **已有根 spec `Refactor_Login_Spec.md`**：其中 build-profile/mock 分离不可执行，只取组件拆分；WebView 路由文件冻结 |
 | M13 | WidgetConfig | WidgetSettings | WidgetConfigViewModel | widgetsettings/（24 = 13 根级 + preview/11） | 无 Local Test |
 | M14 | Widget 子系统 | widget/pages ×6 | widget/viewmodel ×4 | widget/components（10）+ models（4）+ utils（16） | V1 孤岛；与 widgetsyncability + notification 交互；form_config 路径冻结 |
-| M15 | 框架 | Main, Index, Launch (+TestPage) | – | – | Navigation 路由 + `@Param` 回调编排；最后执行 |
+| M15 | 框架 | MainPage, Index, LaunchPage (+TestPage) | – | – | Navigation 路由 + `@Param` 回调编排；最后执行 |
 
 **跨模块共享组件（复用分析）** — 被多个模块导入的组件应位于 `components/common/`（或保留在原定义处）：
 - `components/common/SegmentedTabBar.ets`、`PlaceholderView.ets`
-- 根级 `components/SnackbarContent.ets`（被 M0 的 `FeedbackUtil` 导入，归 M0）；`SplitPlaceholder.ets`、`GeetestDialogHelper.ets` 实际只被 Main（及 `utils/GeetestSignal` 取 `GeetestProgress`）使用，归 M15、原位保留
+- 根级 `components/SnackbarContent.ets`（被 M0 的 `FeedbackUtil` 导入，归 M0）；`SplitPlaceholder.ets`、`GeetestDialogHelper.ets` 实际只被 Main（及 `utils/GeetestSignal` 取 `GeetestProgress`）使用，归 M15、原位保留（2026-10-29 核对：`GeetestDialogHelper` 还被 `GeetestDialog`、`GeetestDialogTitleBar` 导入，均在同一功能内；结构迁移后：`SplitPlaceholder` 在 `common/basic/.../shares/`，`GeetestDialogHelper` 改名 `GeetestDialogUtil`，在 `features/verification/.../utils/`）
 - `chardetail/common/CharDetailSectionLabel.ets` fan-in **12** → 3 个游戏共享
-- Login 组件 `LoginTypeState`/`LoginTypeSelectDialog` 被 Main 使用；`AccountSwitchDialog` 在 `components/characters/` 下 — 保留原位，Main 通过路径导入（先例可接受）
+- ~~Login 组件 `LoginTypeState`/`LoginTypeSelectDialog` 被 Main 使用~~（2026-10-29 核对：代码中已不存在这两个组件，MainPage 也不导入）；`AccountSwitchDialog` 原在 `components/characters/` 下，结构迁移后在 `common/basic/.../shares/`（MainPage 与材料选角页共用）
 
 **重构目标指标（前后对比，防"只搬文件"）：**
 - 每个模块完成后统计：文件数 / 最大文件行数 / 重复 struct 数 / `components → viewmodel` 反向边数。
@@ -272,7 +274,7 @@ entry/src/main/ets/
 1. Q-1: `entry/src/test` 是否允许*新增* hypium 测试文件，还是严格只运行现有测试？（作用域规则写的是"不准动"）
 2. Q-2: `pages/TestPage.ets` 与 `components/TestRow.ets` / `TestSectionHeader.ets` —— 生产路径中的开发/测试文件：保留原位不动，还是由用户自行迁移/删除？
 3. Q-3: Login spec（`Refactor_Login_Spec.md`）中包含 `build-profile.json5` 的改动——在现行作用域限制下禁止执行。确认：Login 重构仅限于 `.ets` 文件内的组件拆分？
-4. Q-4: 框架模块（M15 `MainPage.ets` @ComponentV2 + Navigation 菜单/@Param 回调编排）——允许在 `.ets` 内部做重构，但类名 `Main`、路由 id 和 `NavPathStack` 使用必须保留；确认这就是"契约不可移动"的含义。
+4. Q-4: 框架模块（M15 `MainPage.ets` @ComponentV2 + Navigation 菜单/@Param 回调编排）——允许在 `.ets` 内部做重构，但类名 `MainPage`（2026-10-28 命名规范化由 `Main` 改名）、路由 id 和 `NavPathStack` 使用必须保留；确认这就是"契约不可移动"的含义。
 5. Q-5: `AppearanceSettingsPage.ets` / `WebViewPage.ets` 的路由冻结是否维持？若要执行 N-1，需要破例修改 `custom_router_map.json`（resources），是否授权？
 6. Q-6: `docs/**`、`docs/reviews/**`、根 `CHANGELOG.md` 的文档白名单是否确认？（本次文档修订已按此执行）
 7. Q-7: 三件套去重的验收标准：只要求"行为等价"（同数据同 UI），还是允许顺手修已知 bug？后者会扩大 diff 与回归面。
@@ -291,7 +293,7 @@ entry/src/main/ets/
 - ⚠️ **@ComponentV2 装饰器**：拆分文件时保持装饰器风格不变（@Local/@Param/@Watch 语义在文件边界处会变化；遵循 state-management skill 规则与 §6.1）。
 - ⚠️ **单例静态成员**：`themeManager` 模块级单例（210 个导入者）、`CookieExpiredSignal.instance()` 模式 —— 移动文件不会移动单例；保持导入相同路径或 AppStorage，切勿重新实例化。
 - ⚠️ **widgetsyncability / entryformability**：表单和同步能力与 widget/ 耦合；`form_config.json` 硬编码 6 个页面路径，M14 不得移动 `widget/pages/*`。
-- ⚠️ **AppStorage / windowClass**（`MainPage.ets` 第 56 行：`AppStorage.get<window.Window>('windowClass')`）：key-string 耦合 —— 保留 key 字符串不变。
+- ⚠️ **AppStorage / windowClass**（`entry/src/main/ets/pages/MainPage.ets` 第 44 行：`AppStorage.get<window.Window>('windowClass')`）：key-string 耦合 —— 保留 key 字符串不变。
 - ⚠️ **基线与门禁**：Local Test 只能在 DevEco 运行；`test-entry.sh` 只编译 ohosTest HAP，且 ohosTest 当前 67 个编译错误（`log.md`）。不要把它当作回归保护。
 - ⚠️ **作用域外已知问题（本次不处理）**：`build-profile.json5` 内含明文签名口令（SEC-001 / Critical），建议单独轮换并迁移到 CI Secret；`entry/src/ohosTest` 的过期测试需要单独清理。
 
@@ -310,11 +312,15 @@ entry/src/main/ets/
 ### M<n> - <module name> 改动清单
 | 操作 | 原路径 | 新路径 | 说明 |
 |------|--------|--------|------|
-| 重命名 | `entry/src/main/ets/pages/XXXPage.ets` | `entry/src/main/ets/pages/XXX.ets` | 去掉 Page 后缀 |
-| 拆分 | — | `entry/src/main/ets/components/xxx/NewSection.ets` | 从 XXX.ets 拆分 |
-| 删除 | `entry/src/main/ets/components/xxx/OldDuplicate.ets` | — | 合并到 common/ |
-| 修改 | `entry/src/main/ets/pages/XXX.ets` | (same) | 更新 import 路径、调整 state 绑定 |
-```
+```markdown
+
+### M1 - Tools 改动清单
+| 操作 | 原路径 | 新路径 | 说明 |
+|------|--------|--------|------|
+| 无变更 | `features/material/src/main/ets/pages/ToolsPage.ets` | (same) | 目录/命名已规范，不改动 |
+| 无变更 | `features/material/src/main/ets/viewmodel/ToolsViewModel.ets` | (same) | 162L < 500L 阈值，不拆分 |
+| 无变更 | `features/material/src/main/ets/views/GameEntryCard.ets` | (same) | 本模块 views/ 内，无需移动 |
+| 无变更 | `features/material/src/main/ets/model/ToolsModels.ets` | (same) | 被测试引用 + 跨模块共享，不移动 |
 
 > **注意**: 每完成一个模块，在本表追加对应条目，并与该模块 `## M<n> spec` 的变更记录保持一致。
 
@@ -339,7 +345,7 @@ entry/src/main/ets/
 | M12 | Login | [login](../docs/login-module-analysis.md) / [webview](../docs/webview-page-module-analysis.md) | 0 Critical / 0 High（二维码轮询取消标记已由 `b98abae` 修复，复核撤回；原 SEC-002「Cookie 日志明文」经逐层核查无凭据落盘路径，降为 Medium 加固）；4 Medium / 2 Low；WebView 0 High（2 Low） | 无阻断项；日志脱敏可选（`LoginViewModel.ets:350`，单独提交）；WebView 仅记录 |
 | M13 | WidgetConfig | [widget-settings](../docs/widget-settings-module-analysis.md) | 0 High；1 Medium（`vm.init()` 失败后静默回退空配置，无错误态/重试；`isLoading` 必被置 false）+ 1 Low | 随模块修 |
 | M14 | Widget 子系统 | [widget-subsystem](../docs/widget-subsystem-modules-analysis.md) / [widget-settings](../docs/widget-settings-module-analysis.md) / [component-dedup](../docs/component-deduplication-review.md) | 0 Critical / 3 High（瞬时更新失败即删用户卡片配置；无数据时展示 Mock 账号与体力；卡片从不显示数据新鲜度）；6 Medium / 3 Low；V1 孤岛（16 个 V1 文件：6 pages + 10 components） | H1/H2 随模块修（各自单提交），H3 需产品决策；装饰器不迁移；form_config 6 条 src 冻结 |
-| M15 | 框架 | [main](../docs/main-module-analysis.md) / [index](../docs/index-module-analysis.md) / [launch](../docs/launch-module-analysis.md) / [test-page](../docs/test-page-module-analysis.md) / [ability-startup](../docs/ability-and-startup-modules-analysis.md) | Main 3 High（共享路由栈、人机验证无超时、`windowClass` 快照）；Index / Launch 0 High；TestPage 0 High（入口仅 DEBUG 可见，Q-2）；Ability 0 High / 4 Medium（初始化失败不可见、4 个 AppStorage key 无常量、`loadContent` 无兜底、导出 ability 不校验调用方） | 记录；Main 行为修复后续单独立项；AppStorage 常量可随 M15 |
+| M15 | 框架 | [main](../docs/main-module-analysis.md) / [index](../docs/index-module-analysis.md) / [launch](../docs/launch-module-analysis.md) / [test-page](../docs/test-page-module-analysis.md) / [ability-startup](../docs/ability-and-startup-modules-analysis.md) | MainPage 2 High（人机验证弹窗关闭时无 callback 地 `off('windowSizeChange')`，注销窗口尺寸监听；返回手势关闭验证框后验证队列永久卡死——10-29 复核恢复）；10 Medium / 6 Low（含 Cookie 过期弹框叠加、窗口 API 未包 try、Tab 根页按返回可能显示空白——待真机确认）；Index / Launch 0 High；TestPage 0 High（入口仅 DEBUG 可见，Q-2）；Ability 0 High / 4 Medium（初始化失败不可见、4 个 AppStorage key 无常量、`loadContent` 无兜底、导出 ability 不校验调用方） | 记录；Main 行为修复后续单独立项；AppStorage 常量可随 M15 |
 
 > 原则：重构提交**不夹带行为变更**；Critical/High 若要修，先在本表登记并在 `## M<n> spec` 说明，修复与移动分开提交。
 
@@ -348,7 +354,7 @@ entry/src/main/ets/
 | M | 模块 | 状态 | 分支 | commit | 编译 | codeLinter | Local Test / 冒烟 | review | 遗留 |
 |---|---|---|---|---|---|---|---|---|---|
 | M0 | 共享层 | 代码已改，待本地编译 | — | 待提交 | 待验证 | 待验证 | 待冒烟（见 M0 spec） | 文档 13 轮复核 | M8 / 外观页 High 待批准新增字符串；M7 部分失败待产品决策 |
-| M1 | Tools | 未开始 | — | — | — | — | — | — | — |
+| M1 | Tools | ✅ 已完成（无代码变更） | — | — | ✅ BUILD SUCCESSFUL in 15s818ms | ⚠️ codeLinter task 不可用，跳过 | 🔶 需 DevEco GUI 运行；🔶 冒烟待手动 | 6 Medium/Low 问题记录不执行 | 结构已规范，改动 ≈ 0 |
 | M2 | PrivacyConsent | 未开始 | — | — | — | — | — | — | — |
 | M3 | AppearanceSettings | 未开始 | — | — | — | — | — | — | — |
 | M4 | My | 未开始 | — | — | — | — | — | — | — |
@@ -406,5 +412,61 @@ entry/src/main/ets/
 
 ---
 
+## M1 spec — Tools 模块（2026-10-30）
+
+分析依据：[`docs/tools-module-analysis.md`](../docs/tools-module-analysis.md)「重构执行备注」；逐条状态见该文 §5。
+
+### 背景说明
+
+工程已从 `modules/` 三层迁移到 `features/`（M0 阶段完成），M1 涉及的四个文件已位于正确位置：
+
+| 文件 | 当前路径 | 角色 |
+|---|---|---|
+| ToolsPage | `features/material/src/main/ets/pages/ToolsPage.ets` | 页面入口（@ComponentV2，128L） |
+| ToolsViewModel | `features/material/src/main/ets/viewmodel/ToolsViewModel.ets` | ViewModel（@ObservedV2 + @Trace，162L） |
+| GameEntryCard | `features/material/src/main/ets/views/GameEntryCard.ets` | 组件（@ComponentV2，134L） |
+| ToolsModels | `features/material/src/main/ets/model/ToolsModels.ets` | 模型含 ZZZSkillType/MaterialComputeTargets/GameEntryVM（135L） |
+
+### 决策
+
+| # | 问题 | 决定 | 依据 |
+| --- | --- | --- | --- |
+| D1 | `ToolsViewModel` 是否拆分（<500L） | 不拆分；当前 162L 远低于阈值 | §6 N-2：仅 >500L 时考虑拆分 |
+| D2 | `GameEntryCard @Param entry` 默认实例 (PARAM-DEFAULT Medium) | **记录不执行**；修改会影响所有调用方（行为变更） | Refactor_Spec §9「重构提交不夹带行为变更」 |
+| D3 | `loadData()` 无取消标记/代际号 (LIFE-002 Medium) | **记录不执行**；Tools 由 Main 常驻挂载，风险可控，且修改会改变行为 | Refactor_Spec §9；tools-module-analysis.md 明确建议记录到 Refactor_Spec 遗留 |
+| D4 | `@Monitor('signal.version')` 硬编码字符串 (MONITOR-PATH Low) | **维持现状**；ToolsViewModelKeys 已存在但无需监听，改它无实际收益 | tools-module-analysis.md §合规检查 |
+
+### 文件改动清单
+
+| 操作 | 文件 | 说明 |
+|---|---|---|
+| 无代码变更 | （全部 4 个文件） | 目录结构、命名规范已对齐 N-1/N-2；`GameEntryCard.ets` 在本模块 `views/` 内，无需移动 |
+
+### 已知问题记录（不执行）
+
+| ID | 级别 | 描述 | 建议 |
+|---|---|---|---|
+| LIFE-002 | Medium | `loadData()` 无代际标记/取消，多次快速切换 Tab 可能交错写回 | 单独提交；非重构必要项 |
+| KIT-005引申 | Medium | 加载异常落 EMPTY（登录引导），而非错误态 | 单独提交；行为变更 |
+| DRY / N+1 | Medium | DAO 重复查询逻辑；N+1 批量查询 | 不在本次范围 |
+| STRING-001 | Medium | 箭头字符 `'›'` 硬编码未走资源文件 | 不在本次范围 |
+| DEAD-PARAM | Low | `accountId`/`roleUid` 传送给选角页但下游不使用且可能不配对 | 可选清理 |
+| MONITOR-PATH | Low | `@Monitor` 路径硬编码字符串 | 维持现状 |
+
+### 验收记录
+
+| 项 | 结果 |
+|---|---|
+| 编译（uat/Debug） | ✅ `BUILD SUCCESSFUL in 15s818ms` |
+| codeLinter | ⚠️ 项目中无 `codeLinter` task（Hvigor 配置未启用），跳过 |
+| Local Test | 🔶 `ToolsViewModel.test.ets` 4 条用例——需 DevEco GUI 手动运行，CLI 无 test 任务 |
+| 冒烟 | 🔶 待手动验证：底部 Tab → Tools；三游戏卡片进入/返回 |
+
+### 结论
+
+**M1 实际改动 ≈ 0**。当前模块结构已规范（pages/viewmodel/views/model），命名符合 N-1/N-2，6 个已知问题均为 Medium/Low 且涉及行为变更或不在重构范围。建立基线后标记完成。
+
+---
+
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*待用户确认 §8 开放问题后，开始执行 M0（原位编辑）→ M1 → M15 重构循环。*
+*M1 已完成：编译通过，无代码变更（目录/命名已规范），6 个已知问题记录不执行。*
