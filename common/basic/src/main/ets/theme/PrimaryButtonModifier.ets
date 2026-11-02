@@ -1,5 +1,5 @@
 /**
- * ButtonModifier.ets — 按钮样式修改器
+ * PrimaryButtonModifier.ets — 主按钮样式修改器
  *
  * 使用 AttributeModifier 封装按钮样式，支持跨文件导出。
  * 所有颜色和尺寸从 ThemeManager 读取，禁止硬编码。

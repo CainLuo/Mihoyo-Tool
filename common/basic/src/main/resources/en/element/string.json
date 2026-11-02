@@ -1333,6 +1333,10 @@
       "value": "When \"Follow System\" is selected, the app automatically switches between dark and light mode based on system settings."
     },
     {
+      "name": "appearance_apply_failed",
+      "value": "Failed to switch appearance. Please try again."
+    },
+    {
       "name": "privacy_consent_terms_title",
       "value": "Terms of Service"
     },

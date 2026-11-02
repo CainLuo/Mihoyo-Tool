@@ -1,8 +1,9 @@
 /**
- * SegmentedTabModels.ets — SegmentedTabBar 的数据模型
+ * SegmentedTabItemModel.ets — SegmentedTabBar 的数据模型
  *
- * 放在 models/ 中，供 ViewModel 构建 Tab 列表时引用，避免 ViewModel 反向依赖组件文件。
- * components/common/SegmentedTabBar.ets 会重新导出 SegmentedTabItem，原有导入路径保持可用。
+ * 放在 model/ 中（与 SegmentedTabBar 组件分离），供 ViewModel 构建 Tab 列表时引用，
+ * 避免 ViewModel 反向依赖组件文件。统一从 'basic' 桶文件导入，
+ * shares/SegmentedTabBar.ets 不再重新导出本类型。
  */
 
 /** Tab 项数据模型 */

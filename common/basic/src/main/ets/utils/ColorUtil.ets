@@ -6,6 +6,9 @@
  */
 
 import { common } from '@kit.AbilityKit';
+import { Logger } from 'core';
+
+const TAG: string = 'ColorUtil';
 
 /**
  * 预定义的透明度常量
@@ -102,8 +105,10 @@ export class TransparentColorCache {
       TransparentColorCache.whiteWith60 = applyAlpha(white, Alpha.P60);
       TransparentColorCache.blue500With15 = applyAlpha(blue500, Alpha.P15);
       TransparentColorCache.blue500With60 = applyAlpha(blue500, Alpha.P60);
-    } catch (e) {
-      // 获取颜色失败时使用默认值（已在静态字段中预设）
+    } catch (error) {
+      // 失败时回退到静态字段里预设的默认值；但要留日志——全部退回默认值意味着透明色不再跟随深浅色，
+      // 切换颜色模式后卡片/遮罩的对比度会不对，静默失败会让这个问题无法定位。
+      Logger.error(TAG, `TransparentColorCache.init failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
 }

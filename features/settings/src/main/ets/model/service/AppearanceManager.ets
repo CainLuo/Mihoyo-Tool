@@ -57,22 +57,28 @@ export class AppearanceManager {
     }
   }
 
-  /** 应用颜色模式：立即生效 + 持久化 */
+  /**
+   * 应用颜色模式：立即生效，成功后持久化。
+   *
+   * @returns true = 系统已接受切换（内存缓存与持久化已同步）；
+   *          false = setColorMode 失败。调用方必须提示用户并留在当前页，不能 pop：
+   *          之前这里吞掉异常，页面照常返回，用户看到的是"点了没反应但页面退了"。
+   */
   public static async applyColorMode(
     context: common.UIAbilityContext,
     colorMode: number
-  ): Promise<void> {
-    // 更新内存缓存
-    AppearanceManager.cachedColorMode = colorMode;
-    // 1. 立即切换
+  ): Promise<boolean> {
+    // 1. 立即切换：失败时缓存也不能改，否则下次进入我的页会显示一个没生效的模式
     try {
       context.setColorMode(colorMode);
       Logger.info(TAG, `setColorMode(${colorMode}) success`);
     } catch (error) {
       Logger.error(TAG, `setColorMode failed: ${error instanceof Error ? error.message : String(error)}`);
+      return false;
     }
+    AppearanceManager.cachedColorMode = colorMode;
 
-    // 2. 持久化
+    // 2. 持久化：失败只影响下次启动的恢复，本次切换已生效，不作为失败
     try {
       const prefs = await AppearanceManager.getPrefs(context);
       await prefs.put(KEY_COLOR_MODE, colorMode);
@@ -80,6 +86,7 @@ export class AppearanceManager {
     } catch (error) {
       Logger.error(TAG, `persist colorMode failed: ${error instanceof Error ? error.message : String(error)}`);
     }
+    return true;
   }
 
   /**

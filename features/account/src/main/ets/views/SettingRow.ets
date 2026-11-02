@@ -1,12 +1,14 @@
 /**
- * SettingRow — 通用设置行组件
+ * SettingRow — 设置行组件（我的页/关于/外观）
  *
  * 左侧标签 + 可选右侧值文字 + 箭头，适用于所有"点击跳转/触发操作"的设置行。
  * 不传 onTap 时不显示箭头，仅展示标签和值（用于纯展示行如版本号）。
  * 背景色和圆角由父容器负责。
+ *
+ * 目前只有 account 功能（MyPage / AboutSection / AppearanceSection）使用，
+ * 因此放在本模块 views/ 而不是 basic 共享层；其他功能若需要，再协商上移。
  */
-import { themeManager, ThemeManager } from '../theme/ThemeManager'
-import { ThemeFonts } from '../theme/ThemeFonts'
+import { themeManager, ThemeManager, ThemeFonts } from 'basic'
 
 @ComponentV2
 export struct SettingRow {

@@ -5,7 +5,8 @@
  * 不再内嵌 ThemeChip，改为显示当前选中值 + 箭头，onTap 由调用方传入。
  */
 import { ConfigurationConstant } from '@kit.AbilityKit'
-import { themeManager, ThemeManager, SettingRow } from 'basic'
+import { themeManager, ThemeManager } from 'basic'
+import { SettingRow } from './SettingRow'
 
 @ComponentV2
 export struct AppearanceSection {

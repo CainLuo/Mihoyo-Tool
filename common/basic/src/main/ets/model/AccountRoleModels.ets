@@ -1,8 +1,10 @@
 /**
- * HomeModels — 首页 ViewModel 数据类
+ * AccountRoleModels — 账号 / 游戏角色 / 便签摘要的展示模型
  *
  * 以用户为单位，每个用户下有多个游戏角色，
  * 每个游戏角色携带该游戏的实时便签摘要。
+ * 供首页（HomePage）与小组件设置（WidgetSettingsSlotStep）共用；
+ * 角色详情专用的模型（CharDetailRouterParam 等）不在这里，见 features/chardetail 的 CharDetailModels.
  */
 import { ZZZVideoStoreState, ZZZCardSign } from 'core';
 import { GameId } from 'core';

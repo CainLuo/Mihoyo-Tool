@@ -1357,6 +1357,10 @@
       "value": "选择「跟随系统」时，应用会根据系统设置自动切换深色/浅色模式。"
     },
     {
+      "name": "appearance_apply_failed",
+      "value": "切换外观失败，请重试"
+    },
+    {
       "name": "privacy_consent_terms_title",
       "value": "用户协议"
     },

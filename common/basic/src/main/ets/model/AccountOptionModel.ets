@@ -2,7 +2,8 @@
  * AccountOption — 账号切换 Menu 的选项数据
  *
  * 由 CharactersViewModel.buildAccountOptions() 从 AccountRow[] 转换而来，
- * 用于 CharactersPage 页右上角账号切换 Menu 的列表展示。
+ * 用于账号切换 Menu 与 AccountSwitchDialog 的列表展示（MainPage 右上角菜单、
+ * MaterialCharacterSelectPage 的切换账号弹窗、CharactersPage）.
  *
  * 显示内容：nickname（优先）或 username，以及 uid。
  */

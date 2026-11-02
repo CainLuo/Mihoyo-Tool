@@ -2,7 +2,8 @@
  * MyPage — 我的页面（View 层，普通内容组件）
  */
 import { ConfigurationConstant, common } from '@kit.AbilityKit'
-import { themeManager, ThemeManager, AppRoutes, AccountSignal, SettingRow } from 'basic'
+import { themeManager, ThemeManager, AppRoutes, AccountSignal } from 'basic'
+import { SettingRow } from '../views/SettingRow'
 import { MyAccountVM } from '../model/MyModels'
 import { AccountListSection } from '../views/AccountListSection'
 import { AppearanceSection } from '../views/AppearanceSection'

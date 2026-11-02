@@ -9,11 +9,15 @@ import { UIContext } from '@kit.ArkUI';
 export class TimeFormatUtil {
 
   /**
-   * 将剩余恢复秒数转为首页卡片用的描述文字。
-   * 例："将于 1 小时 30 分钟后全部恢复" / "将于 10 分钟后全部恢复" / "即将恢复"（不足 1 分钟）
-   * 秒数 <= 0 时返回空字符串。
+   * 恢复倒计时共用实现：秒数换算 + 不足 1 分钟 + 异常兜底只写一份，
+   * 两个公开方法的差别只有句子形态，由 hoursKey / minutesKey 决定。
    */
-  static formatRecoveryDesc(seconds: number, uiCtx: UIContext): string {
+  private static formatRecovery(
+    seconds: number,
+    uiCtx: UIContext,
+    hoursKey: Resource,
+    minutesKey: Resource
+  ): string {
     if (seconds <= 0) {
       return '';
     }
@@ -23,12 +27,12 @@ export class TimeFormatUtil {
       const h = Math.floor(seconds / 3600);
       const m = Math.floor((seconds % 3600) / 60);
       if (h > 0) {
-        return rm.getStringSync($r('app.string.time_hours_minutes_recovery').id, h, m);
+        return rm.getStringSync(hoursKey.id, h, m);
       }
       if (m > 0) {
-        return rm.getStringSync($r('app.string.time_minutes_recovery').id, m);
+        return rm.getStringSync(minutesKey.id, m);
       }
-      // 不足 1 分钟：与 formatSeconds 一致显示"即将恢复"，避免出现"将于 0 分钟后全部恢复"
+      // 不足 1 分钟：显示"即将恢复"，避免出现"将于 0 分钟后全部恢复"
       return rm.getStringSync($r('app.string.time_soon').id);
     } catch (_) {
       return '';
@@ -36,28 +40,22 @@ export class TimeFormatUtil {
   }
 
   /**
+   * 将剩余恢复秒数转为首页卡片用的描述文字。
+   * 例："将于 1 小时 30 分钟后全部恢复" / "将于 10 分钟后全部恢复" / "即将恢复"（不足 1 分钟）
+   * 秒数 <= 0 时返回空字符串。
+   */
+  static formatRecoveryDesc(seconds: number, uiCtx: UIContext): string {
+    return TimeFormatUtil.formatRecovery(seconds, uiCtx,
+      $r('app.string.time_hours_minutes_recovery'), $r('app.string.time_minutes_recovery'));
+  }
+
+  /**
    * 将秒数格式化为详情页用的描述文字。
    * 例："1小时30分钟后恢复" / "10分钟后恢复" / "即将恢复"
    */
   static formatSeconds(seconds: number, uiCtx: UIContext): string {
-    if (seconds <= 0) {
-      return '';
-    }
-    try {
-      const rm = uiCtx.getHostContext()?.resourceManager;
-      if (rm === undefined) { return ''; }
-      const h = Math.floor(seconds / 3600);
-      const m = Math.floor((seconds % 3600) / 60);
-      if (h > 0) {
-        return rm.getStringSync($r('app.string.time_hours_minutes_after').id, h, m);
-      }
-      if (m > 0) {
-        return rm.getStringSync($r('app.string.time_minutes_after').id, m);
-      }
-      return rm.getStringSync($r('app.string.time_soon').id);
-    } catch (_) {
-      return '';
-    }
+    return TimeFormatUtil.formatRecovery(seconds, uiCtx,
+      $r('app.string.time_hours_minutes_after'), $r('app.string.time_minutes_after'));
   }
 
   /**

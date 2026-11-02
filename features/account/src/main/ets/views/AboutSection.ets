@@ -4,7 +4,8 @@
  * 纯渲染组件，业务逻辑（日志导出、缓存清理）由 MyViewModel 负责。
  */
 import { bundleManager } from '@kit.AbilityKit'
-import { themeManager, ThemeManager, SettingRow } from 'basic'
+import { themeManager, ThemeManager } from 'basic'
+import { SettingRow } from './SettingRow'
 import { MyViewModel } from '../viewmodel/MyViewModel'
 
 @ComponentV2

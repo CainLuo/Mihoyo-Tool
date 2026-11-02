@@ -2,13 +2,13 @@
  * AppearanceSettingsPage — 外观设置二级页
  *
  * 展示三种主题模式（浅色/深色/跟随系统）的选项列表，
- * 选中后立即通过 AppearanceManager 应用并返回上一页。
+ * 选中后立即通过 AppearanceManager 应用；应用成功才回上一页，失败则提示并留在当前页。
  *
  * 路由参数：AppearanceSettingsParam（含当前 themeMode 和 onThemeChange 回调）
  */
 
 import { ConfigurationConstant, common } from '@kit.AbilityKit'
-import { ThemeFonts, themeManager, ThemeManager } from 'basic'
+import { ThemeFonts, themeManager, ThemeManager, showFeedback, FeedbackType } from 'basic'
 import { AppearanceManager } from '../model/service/AppearanceManager'
 import { AppearanceSettingsViewModel, ThemeModeItem } from '../viewmodel/AppearanceSettingsViewModel'
 import { ThemeModeRow } from '../views/ThemeModeRow'
@@ -29,6 +29,8 @@ export struct AppearanceSettingsPage {
   private localStack: NavPathStack | null = null
   private onThemeChange: (mode: number) => void = (_m: number) => {}
   private uiCtx: UIContext | null = null
+  /** 切换进行中：避免连点后多次 pop（每次成功都会退一页） */
+  private isApplying: boolean = false
 
   aboutToAppear(): void {
     this.uiCtx = this.getUIContext()
@@ -44,25 +46,47 @@ export struct AppearanceSettingsPage {
   }
 
   private selectTheme(mode: number): void {
+    if (this.isApplying) {
+      return
+    }
     // 获取 UIAbilityContext 并应用颜色模式
     const hostCtx = this.uiCtx?.getHostContext()
-    if (hostCtx !== undefined && hostCtx !== null) {
-      const abilityCtx = hostCtx as common.UIAbilityContext
-      AppearanceManager.applyColorMode(abilityCtx, mode).catch((err: Error) => {
-        Logger.error(TAG, `applyColorMode failed: ${err.message}`)
-      })
-    } else {
+    if (hostCtx === undefined || hostCtx === null) {
       Logger.error(TAG, 'selectTheme: hostContext is null')
+      this.notifyApplyFailed()
+      return
     }
 
-    // 更新 ViewModel 状态
-    this.vm.init(mode)
+    this.isApplying = true
+    AppearanceManager.applyColorMode(hostCtx as common.UIAbilityContext, mode)
+      .then((applied: boolean) => {
+        this.isApplying = false
+        if (!applied) {
+          // 系统拒绝切换：保持当前模式与当前页面，让用户能重试
+          this.notifyApplyFailed()
+          return
+        }
+        // 更新 ViewModel 状态
+        this.vm.init(mode)
+        // 通知调用方
+        this.onThemeChange(mode)
+        // 返回上一页
+        this.localStack?.pop()
+      })
+      .catch((err: Error) => {
+        this.isApplying = false
+        Logger.error(TAG, `applyColorMode threw: ${err.message}`)
+        this.notifyApplyFailed()
+      })
+  }
 
-    // 通知调用方
-    this.onThemeChange(mode)
-
-    // 返回上一页
-    this.localStack?.pop()
+  /** 切换失败的用户提示（不返回上一页，避免「没反应却退出了」） */
+  private notifyApplyFailed(): void {
+    const ctx = this.uiCtx
+    if (ctx === null) {
+      return
+    }
+    showFeedback(ctx, FeedbackType.ERROR, $r('app.string.appearance_apply_failed'))
   }
 
   build() {
