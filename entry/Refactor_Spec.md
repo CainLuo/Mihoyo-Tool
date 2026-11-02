@@ -354,14 +354,14 @@ entry/src/main/ets/
 | M | 模块 | 状态 | 分支 | commit | 编译 | codeLinter | Local Test / 冒烟 | review | 遗留 |
 |---|---|---|---|---|---|---|---|---|---|
 | M0 | 共享层 | 代码已改，待本地编译 | — | 待提交 | 待验证 | 待验证 | 待冒烟（见 M0 spec） | 文档 13 轮复核 | M8 / 外观页 High 待批准新增字符串；M7 部分失败待产品决策 |
-| M1 | Tools | ✅ 已完成（无代码变更） | — | — | ✅ BUILD SUCCESSFUL in 15s818ms | ⚠️ codeLinter task 不可用，跳过 | 🔶 需 DevEco GUI 运行；🔶 冒烟待手动 | 6 Medium/Low 问题记录不执行 | 结构已规范，改动 ≈ 0 |
-| M2 | PrivacyConsent | 未开始 | — | — | — | — | — | — | — |
-| M3 | AppearanceSettings | 未开始 | — | — | — | — | — | — | — |
-| M4 | My | 未开始 | — | — | — | — | — | — | — |
-| M5 | Notification | 未开始 | — | — | — | — | — | — | — |
-| M6 | Dailynote | 未开始 | — | — | — | — | — | — | — |
-| M7 | MaterialCalc | 未开始 | — | — | — | — | — | — | — |
-| M8 | Home | 未开始 | — | — | — | — | — | — | — |
+| M1 | Tools | 🔶 命名核查完成，真重构待执行 | — | — | ✅ BUILD SUCCESSFUL in 15s818ms | ⚠️ codeLinter 未配置，跳过 | 🔶 待 DevEco GUI 运行 | 6 Medium/Low 记录不执行 | 结构已规范；未做去重 / 行为等价验证 |
+| M2 | PrivacyConsent | 🔶 命名核查完成，真重构待执行 | — | — | — | ⚠️ 跳过 | 🔶 待运行 | — | 未做真重构 |
+| M3 | AppearanceSettings | 🔧 代码改动已暂存待提交 | — | 待提交 | — | ⚠️ 跳过 | 🔶 待运行 | — | AppearanceManager / AppearanceSettingsPage |
+| M4 | My | 🔧 代码改动已暂存待提交 | — | 待提交 | ✅ BUILD SUCCESSFUL in 16s 358ms | ⚠️ 跳过 | 🔶 待运行 | — | SettingRow 迁入 account/views 等 |
+| M5 | Notification | 🔶 命名核查完成，真重构待执行 | — | 0160c6b（夹带无关文件） | ✅ BUILD SUCCESSFUL in 15s 719ms | ⚠️ 跳过 | 🔶 待运行 | — | 提交卫生待清理；服务去重未做 |
+| M6 | Dailynote | 🔶 命名核查完成，真重构待执行 | — | bf6de65（记录曾写错文档） | ✅ BUILD SUCCESSFUL in 15s 824ms | ⚠️ 跳过 | 🔶 待运行 | — | 三件套去重未做 |
+| M7 | MaterialCalc | 🔶 命名核查完成，真重构待执行 | — | 5e9b2a7（记录曾写错文档） | ✅ BUILD SUCCESSFUL in 14s 40ms | ⚠️ 跳过 | 🔶 待运行 | — | 三件套去重未做 |
+| M8 | Home | 🔧 真重构进行中 | — | — | — | — | — | — | HomeViewModel 728L 拆分 + facade |
 | M9 | Characters | 未开始 | — | — | — | — | — | — | — |
 | M10 | CharDetail | 未开始 | — | — | — | — | — | — | — |
 | M11 | AccountDetail | 未开始 | — | — | — | — | — | — | — |

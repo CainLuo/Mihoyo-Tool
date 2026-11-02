@@ -134,3 +134,9 @@ NotificationSettings (@ComponentV2)
 - Low（`abilityContext` 为 null 时开关静默无响应，不崩溃）：页面侧禁用态即可，可顺手修。
 - Low（`@Monitor` 路径未用常量）：随 `NotificationSection` 迁移一起改为引用常量，零行为变更。
 - 结构提示（页面仅 40 行空壳）：保持现状，不拆。
+
+### 校验记录
+
+| 校验轮次 | 范围 | 结论 |
+|---------|------|------|
+| 第 1 轮（2026-10-30 命名核查） | Service 层 4 文件 + Views 层 16 文件逐标识符核对：类名 PascalCase / 方法·变量 camelCase / 常量 UPPER_SNAKE_CASE；编译验证 `bash run.sh uat` → BUILD SUCCESSFUL in 15s 719ms | 🔶 命名零违规；本项为初步核查，M5 真重构（服务去重、行为等价验证、冒烟）待执行 |

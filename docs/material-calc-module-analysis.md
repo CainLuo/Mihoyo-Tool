@@ -161,3 +161,5 @@ MaterialCalc (@ComponentV2)
 | 第 3 轮（全面复核） | `init()` L76 为 async、L80 设 LOADING、L83 `getGameRoles` 在 try-catch 外、L91 才进 `loadData()`；`loadData` 失败→EMPTY（L169）；测试 13 用例引用的方法均存在；页面直接导入 4 个组件 | ✅ 修正 2 处（§1 直接导入清单 / §6 恢复 init 失败卡 LOADING 的 Medium） |
 | 第 4 轮（2026-10-27 逐条复核） | 路由可达性（routerMap / `Index.ets` pageBuilder / `MainPage.ets:415` 无 navDestination）、VM 状态机 L165 覆盖、L216 回退、`recalculateMaterials` 空实现、组件硬编码 | ✅ 新增 H-1、3 条 Medium、2 条 Low；评级 A → B；§1 补 VM / 模型 / 组件行并标注 2 个未使用导入 |
 | 第 5 轮（2026-10-27 对抗复核） | 路由注册方式全量排查（`custom_router_map.json` 无条目、`main_pages.json` 只有 `pages/Index`、全工程唯一 `.navDestination` 在 `Index.ets:30` 且 `pageBuilder` 无此分支、无 HMRouter/`@Route`/`router.pushUrl`、core 等模块无 routerMap 条目）；VM 各行号逐行复核 | ✅ H-1 及 4 条 Medium 成立；撤回 Low「levelOptions 非响应式」（`MaterialCalcPage.ets:34` 已是 `@Local`，选项固定，无问题）；§5 同步；补占位实现定 Medium 理由；L 4→3，债务 15→14，密度 13.5→12.6 |
+
+| 第 6 轮（2026-10-30 命名核查） | Pages(9) / ViewModels(10) / Models(5) / Service(1) / Utils(1) / Views(15)，共 34 文件逐标识符核对；编译验证 `bash run.sh uat` → BUILD SUCCESSFUL in 14s 40ms | 🔶 命名零违规；本项为初步核查，M7 真重构（三件套去重、行为等价验证）待执行 |

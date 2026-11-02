@@ -224,3 +224,5 @@
 | 第 5 轮（2026-10-27 逐条复核） | 逐行对照全部锚点（修正 `@Param` / `@Local` 行号）；补读 VM catch、`DailyNoteEmptyView`、`DailyNoteGenshin` 与 `toVM()`；新增 DAILY-M3 / DAILY-M4；补 ARKTS-014 合规行（随 DAILY-L1 消除，不单独计数） | ✅ 0/0/3/2，债务 4→8 |
 
 | 第 6 轮（2026-10-30 断链修复） | 迁移前路径 `components/dailynote/*` → `features/dailynote/src/main/ets/views/*`；页面 / ViewModel / Model / 测试全量更新为 `features/dailynote/src/main/ets/` 绝对路径；Theme 常量从 `shares/` 修正到 `theme/`；TimeFormatUtil 补全路径 | ✅ 12 处路径全部验证存在 |
+
+| 第 7 轮（2026-10-30 命名核查） | Pages(3) / Models(1) / ViewModels(3) / Common Views(6) / Genshin Views(3) / StarRail Views(3) / ZZZ Views(4)，共 24 文件逐标识符核对；编译验证 `bash run.sh uat` → BUILD SUCCESSFUL in 15s 824ms | 🔶 命名零违规；本项为初步核查，M6 真重构（三件套去重、行为等价验证）待执行 |
