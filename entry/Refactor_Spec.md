@@ -353,15 +353,15 @@ entry/src/main/ets/
 
 | M | 模块 | 状态 | 分支 | commit | 编译 | codeLinter | Local Test / 冒烟 | review | 遗留 |
 |---|---|---|---|---|---|---|---|---|---|
-| M0 | 共享层 | 代码已改，待本地编译 | — | 待提交 | 待验证 | 待验证 | 待冒烟（见 M0 spec） | 文档 13 轮复核 | M8 / 外观页 High 待批准新增字符串；M7 部分失败待产品决策 |
+| M0 | 共享层 | ✅ 已提交（导出清理 + 工具去重 + 日志） | — | 1ff4cfe | ✅ 随 M8 构建通过 | ⚠️ 跳过 | 🔶 待冒烟 | 文档 13 轮复核 | M8/外观页 High 已补字符串；M7 部分失败待产品决策 |
 | M1 | Tools | 🔶 命名核查完成，真重构待执行 | — | — | ✅ BUILD SUCCESSFUL in 15s818ms | ⚠️ codeLinter 未配置，跳过 | 🔶 待 DevEco GUI 运行 | 6 Medium/Low 记录不执行 | 结构已规范；未做去重 / 行为等价验证 |
 | M2 | PrivacyConsent | 🔶 命名核查完成，真重构待执行 | — | — | — | ⚠️ 跳过 | 🔶 待运行 | — | 未做真重构 |
-| M3 | AppearanceSettings | 🔧 代码改动已暂存待提交 | — | 待提交 | — | ⚠️ 跳过 | 🔶 待运行 | — | AppearanceManager / AppearanceSettingsPage |
-| M4 | My | 🔧 代码改动已暂存待提交 | — | 待提交 | ✅ BUILD SUCCESSFUL in 16s 358ms | ⚠️ 跳过 | 🔶 待运行 | — | SettingRow 迁入 account/views 等 |
+| M3 | AppearanceSettings | 🔶 部分完成（失败提示 + 字符串） | — | 1ff4cfe | ✅ 随 M8 构建通过 | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
+| M4 | My | 🔶 部分完成（SettingRow 迁入） | — | 1ff4cfe | ✅ BUILD SUCCESSFUL in 16s 358ms | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
 | M5 | Notification | 🔶 命名核查完成，真重构待执行 | — | 0160c6b（夹带无关文件） | ✅ BUILD SUCCESSFUL in 15s 719ms | ⚠️ 跳过 | 🔶 待运行 | — | 提交卫生待清理；服务去重未做 |
 | M6 | Dailynote | 🔶 命名核查完成，真重构待执行 | — | bf6de65（记录曾写错文档） | ✅ BUILD SUCCESSFUL in 15s 824ms | ⚠️ 跳过 | 🔶 待运行 | — | 三件套去重未做 |
 | M7 | MaterialCalc | 🔶 命名核查完成，真重构待执行 | — | 5e9b2a7（记录曾写错文档） | ✅ BUILD SUCCESSFUL in 14s 40ms | ⚠️ 跳过 | 🔶 待运行 | — | 三件套去重未做 |
-| M8 | Home | ✅ 真重构完成 | — | 待提交 | ✅ BUILD SUCCESSFUL in 18s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 已拆 4 文件，最大 315L |
+| M8 | Home | ✅ 真重构完成 | — | e831292 | ✅ BUILD SUCCESSFUL in 18s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 已拆 4 文件，最大 315L |
 | M9 | Characters | 未开始 | — | — | — | — | — | — | — |
 | M10 | CharDetail | 未开始 | — | — | — | — | — | — | — |
 | M11 | AccountDetail | 未开始 | — | — | — | — | — | — | — |
@@ -469,7 +469,7 @@ entry/src/main/ets/
 ---
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*M1 已完成：编译通过，无代码变更（目录/命名已规范），6 个已知问题记录不执行。*
+*进度（2026-11-01）：M0 已提交（`1ff4cfe`）；M3/M4 部分提交（`1ff4cfe`）；M8 真重构完成（`e831292`）；M1/M2/M5/M6/M7 仅完成命名核查，真重构待执行。*
 
 ---
 
