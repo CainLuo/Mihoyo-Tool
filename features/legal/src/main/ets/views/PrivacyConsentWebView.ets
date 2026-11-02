@@ -19,11 +19,16 @@ const SCROLL_DETECTION_SCRIPT: string =
   '    var sh=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight);' +
   '    var st=window.pageYOffset||document.documentElement.scrollTop||document.body.scrollTop||0;' +
   '    var ih=window.innerHeight||document.documentElement.clientHeight;' +
-  '    if(sh>ih && st+ih>=sh-50){' +
+  '    if(sh<=ih){' +
+  '      if(window.scrollBridge){window.scrollBridge.onReachedBottom();}' +
+  '      return;' +
+  '    }' +
+  '    if(st+ih>=sh-50){' +
   '      if(window.scrollBridge){window.scrollBridge.onReachedBottom();}' +
   '    }' +
   '  }' +
   '  window.addEventListener("scroll",check,{passive:true});' +
+  '  window.addEventListener("resize",check);' +
   '  setTimeout(check,500);' +
   '})();';
 

@@ -108,6 +108,7 @@ PrivacyConsentPage (@ComponentV2)
 | 第 3 轮（全面复核） | 12 项 import、VM 三字段 + 两 getter + 三方法、Index.ets:5 Builder 导入、测试文件存在 | ✅ 无不一致 |
 | 第 4 轮（2026-10-27 逐条事实） | WebView 滚动脚本 `:16-28`、Footer `enabled` `:42/57/69`、`LegalI18nRouter.ets:24` fallback 与 `rawfile/legal/*.html` 体量；测试 import 实际只有 VM | ✅ 新增 High（不足一屏卡死）；修正测试引用冻结项（无 `ViewStates`）；计数 0/0/1/1 → 0/1/1/1，评级 A → B |
 | 第 5 轮（2026-11-02 M2 真重构） | 步骤常量迁入 `model/PrivacyConsentModels.ets`（VM re-export）；Page 提取 5 个 getter/handler；Footer 主按钮抽 `@Builder`；WebView 两处命名修正；编译 `bash run.sh uat` → BUILD SUCCESSFUL in 16s 153ms | ✅ 纯重构完成；High / Medium 行为修复仍单独提交 |
+| 第 6 轮（2026-11-02 High 修复） | `SCROLL_DETECTION_SCRIPT` 增加 `sh <= ih` 直接上报 + `resize` 监听；编译 `bash run.sh uat` → BUILD SUCCESSFUL in 16s 145ms | ✅ High（不足一屏卡死）修复；与纯重构分开提交 |
 
 ---
 
@@ -139,7 +140,7 @@ PrivacyConsentPage (@ComponentV2)
 
 ### 已知问题归属
 
-- 高优先级（不足一屏卡死）：发版前必修；修改点在 `components/privacyconsent/PrivacyConsentWebView.ets` 的脚本条件（及 Footer 的"不同意"可用性），属行为修复，与改名/移动分开提交，需登记到 Refactor_Spec §11。
+- 高优先级（不足一屏卡死）：✅ 已于 2026-11-02 修复（见文末「High 修复」）；脚本在 `scrollHeight <= innerHeight` 时直接上报到底，并监听 resize。
 - 中优先级（`setAgreed` 失败后仍 `replace(MAIN)`）：属于失败路径行为修复，若在 M2 修，必须与改名/移动分开提交；否则记录到 Refactor_Spec §11。
 - 低优先级（无步骤指示）：不在重构范围。
 
@@ -173,5 +174,26 @@ PrivacyConsentPage (@ComponentV2)
 
 ### 未执行
 
-- High（协议不足一屏时按钮永久禁用）：行为修复，单独提交（见下一节）。
+- High（协议不足一屏时按钮永久禁用）：✅ 已在本轮后续提交修复（见下节「High 修复」）。
 - Medium（`setAgreed` 失败后仍 `replace(MAIN)`）：行为修复，保留。
+
+---
+
+## High 修复（2026-11-02）
+
+**问题**：`SCROLL_DETECTION_SCRIPT` 只在 `sh > ih` 时检查是否滚到底；当协议内容不足一屏（系统语言走 fallback 短文本时必现）时，页面没有滚动事件，`onReachedBottom` 永不触发，步骤一「下一步」和步骤二两个按钮永久禁用，用户卡死。
+
+**修复**：
+
+```js
+if (sh <= ih) {
+  if (window.scrollBridge) { window.scrollBridge.onReachedBottom(); }
+  return;
+}
+```
+
+并增加 `window.addEventListener("resize", check)`，覆盖旋转屏幕 / 字体变化导致的可视区变化。
+
+**验证**：`bash run.sh uat` → `BUILD SUCCESSFUL in 16s 145ms`；VM 的 `markTermsRead` / `markPrivacyRead` 幂等，重复上报无副作用。
+
+**遗留**：Medium（`setAgreed` 失败后仍 `replace(MAIN)`）未修；若持久化失败，用户下次启动会再次看到隐私页。
