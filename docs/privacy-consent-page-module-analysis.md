@@ -107,6 +107,7 @@ PrivacyConsentPage (@ComponentV2)
 | 第 2 轮（关键代码段） | handleAgree L28-35（catch 后仍 replace MAIN）、handleDisagree L38-43、build 条件渲染 + Footer 传参 | ✅ |
 | 第 3 轮（全面复核） | 12 项 import、VM 三字段 + 两 getter + 三方法、Index.ets:5 Builder 导入、测试文件存在 | ✅ 无不一致 |
 | 第 4 轮（2026-10-27 逐条事实） | WebView 滚动脚本 `:16-28`、Footer `enabled` `:42/57/69`、`LegalI18nRouter.ets:24` fallback 与 `rawfile/legal/*.html` 体量；测试 import 实际只有 VM | ✅ 新增 High（不足一屏卡死）；修正测试引用冻结项（无 `ViewStates`）；计数 0/0/1/1 → 0/1/1/1，评级 A → B |
+| 第 5 轮（2026-11-02 M2 真重构） | 步骤常量迁入 `model/PrivacyConsentModels.ets`（VM re-export）；Page 提取 5 个 getter/handler；Footer 主按钮抽 `@Builder`；WebView 两处命名修正；编译 `bash run.sh uat` → BUILD SUCCESSFUL in 16s 153ms | ✅ 纯重构完成；High / Medium 行为修复仍单独提交 |
 
 ---
 
@@ -141,3 +142,36 @@ PrivacyConsentPage (@ComponentV2)
 - 高优先级（不足一屏卡死）：发版前必修；修改点在 `components/privacyconsent/PrivacyConsentWebView.ets` 的脚本条件（及 Footer 的"不同意"可用性），属行为修复，与改名/移动分开提交，需登记到 Refactor_Spec §11。
 - 中优先级（`setAgreed` 失败后仍 `replace(MAIN)`）：属于失败路径行为修复，若在 M2 修，必须与改名/移动分开提交；否则记录到 Refactor_Spec §11。
 - 低优先级（无步骤指示）：不在重构范围。
+
+---
+
+## M2 真重构记录（2026-11-02）
+
+### 改动
+
+| 类型 | 文件 | 说明 |
+| --- | --- | --- |
+| 新增 | `model/PrivacyConsentModels.ets` | `PrivacyConsentStep` 常量集中定义（值仍为 `'terms'` / `'privacy'`） |
+| 契约 | `viewmodel/PrivacyConsentViewModel.ets` | 引用 model 常量并 re-export；`step` 类型与测试断言不变 |
+| 清理 | `pages/PrivacyConsentPage.ets` | 提取 `isTermsStep` / `currentHtmlFile` / `canProceed` / `currentTitle` / `handleReachedBottom`，去掉 build 内重复三元与字符串比较 |
+| 去重 | `views/PrivacyConsentFooter.ets` | 「下一步」「同意并继续」共用的主按钮样式抽为 `@Builder primaryButton` |
+| 命名 | `views/PrivacyConsentWebView.ets` | `SCROLL_SCRIPT` → `SCROLL_DETECTION_SCRIPT`；`injectAll` → `injectThemeAndScrollScript` |
+
+### 行为等价说明
+
+- 步骤常量值与原字符串完全一致；`step` 仍是 `string`，测试 `assertEqual('terms'/'privacy')` 不受影响。
+- 页面仍按 `step` 渲染两个 `PrivacyConsentWebView` 分支，未合并组件实例（避免 `Web.src` 动态更新的不确定性）。
+- Footer 主按钮的尺寸、颜色、禁用逻辑与原两段代码逐项一致。
+
+### 验收
+
+| 项 | 结果 |
+| --- | --- |
+| 编译 | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 16s 153ms` |
+| 测试契约 | ✅ `viewmodel/PrivacyConsentViewModel.ets` 路径、`PrivacyConsentViewModel` / `PrivacyConsentStep` 导出不变 |
+| 冒烟 | 🔶 待手动：首次启动两步流程、同意后进 Main、重启不重复弹出 |
+
+### 未执行
+
+- High（协议不足一屏时按钮永久禁用）：行为修复，单独提交（见下一节）。
+- Medium（`setAgreed` 失败后仍 `replace(MAIN)`）：行为修复，保留。

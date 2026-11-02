@@ -5,15 +5,35 @@
  * 步骤二：「同意并继续」+ 「不同意，退出」（未读完时均禁用）
  */
 import { themeManager, ThemeManager, ThemeFonts } from 'basic';
+import { PrivacyConsentStep } from '../model/PrivacyConsentModels';
 
 @ComponentV2
 export struct PrivacyConsentFooter {
-  @Param step: string = 'terms';
+  @Param step: string = PrivacyConsentStep.TERMS;
   @Param canProceed: boolean = false;
   @Event onNext: () => void = () => {};
   @Event onAgree: () => void = () => {};
   @Event onDisagree: () => void = () => {};
   @Local private tm: ThemeManager = themeManager;
+
+  /** 步骤一 / 步骤二共用的主按钮样式 */
+  @Builder
+  primaryButton(label: ResourceStr, action: () => void) {
+    Button(label, { type: ButtonType.Normal })
+      .width(this.tm.current.full)
+      .height(this.tm.current.value46)
+      .borderRadius(this.tm.current.radius8)
+      .backgroundColor(this.canProceed
+        ? this.tm.current.colorPrimary
+        : this.tm.current.colorSurfaceSubtle)
+      .fontSize(this.tm.current.fontBold16)
+      .fontWeight(FontWeight.Bold)
+      .fontColor(this.canProceed
+        ? this.tm.current.textOnDarkHigh
+        : this.tm.current.colorTextSecondary)
+      .enabled(this.canProceed)
+      .onClick(() => { action(); })
+  }
 
   build() {
     Column({ space: this.tm.current.value8 }) {
@@ -25,36 +45,10 @@ export struct PrivacyConsentFooter {
           .width(this.tm.current.full)
       }
 
-      if (this.step === 'terms') {
-        Button($r('app.string.privacy_consent_next'), { type: ButtonType.Normal })
-          .width(this.tm.current.full)
-          .height(this.tm.current.value46)
-          .borderRadius(this.tm.current.radius8)
-          .backgroundColor(this.canProceed
-            ? this.tm.current.colorPrimary
-            : this.tm.current.colorSurfaceSubtle)
-          .fontSize(this.tm.current.fontBold16)
-          .fontWeight(FontWeight.Bold)
-          .fontColor(this.canProceed
-            ? this.tm.current.textOnDarkHigh
-            : this.tm.current.colorTextSecondary)
-          .enabled(this.canProceed)
-          .onClick(() => { this.onNext(); })
+      if (this.step === PrivacyConsentStep.TERMS) {
+        this.primaryButton($r('app.string.privacy_consent_next'), () => { this.onNext(); })
       } else {
-        Button($r('app.string.privacy_consent_agree'), { type: ButtonType.Normal })
-          .width(this.tm.current.full)
-          .height(this.tm.current.value46)
-          .borderRadius(this.tm.current.radius8)
-          .backgroundColor(this.canProceed
-            ? this.tm.current.colorPrimary
-            : this.tm.current.colorSurfaceSubtle)
-          .fontSize(this.tm.current.fontBold16)
-          .fontWeight(FontWeight.Bold)
-          .fontColor(this.canProceed
-            ? this.tm.current.textOnDarkHigh
-            : this.tm.current.colorTextSecondary)
-          .enabled(this.canProceed)
-          .onClick(() => { this.onAgree(); })
+        this.primaryButton($r('app.string.privacy_consent_agree'), () => { this.onAgree(); })
 
         Button($r('app.string.privacy_consent_disagree'), { type: ButtonType.Normal })
           .width(this.tm.current.full)
@@ -84,13 +78,13 @@ export struct PrivacyConsentFooterPreview {
 
   build() {
     Column({ space: this.tm.current.font16 }) {
-      PrivacyConsentFooter({ step: 'terms', canProceed: false })
+      PrivacyConsentFooter({ step: PrivacyConsentStep.TERMS, canProceed: false })
 
-      PrivacyConsentFooter({ step: 'terms', canProceed: true })
+      PrivacyConsentFooter({ step: PrivacyConsentStep.TERMS, canProceed: true })
 
-      PrivacyConsentFooter({ step: 'privacy', canProceed: false })
+      PrivacyConsentFooter({ step: PrivacyConsentStep.PRIVACY, canProceed: false })
 
-      PrivacyConsentFooter({ step: 'privacy', canProceed: true })
+      PrivacyConsentFooter({ step: PrivacyConsentStep.PRIVACY, canProceed: true })
     }
     .padding(this.tm.current.font16)
     .backgroundColor('#1a1a2e')

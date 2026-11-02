@@ -8,7 +8,7 @@
 import { common } from '@kit.AbilityKit';
 import { ThemeFonts, themeManager, ThemeManager, RouterUtil, AppRoutes } from 'basic'
 import { BusinessError } from '@kit.BasicServicesKit';
-import { PrivacyConsentViewModel } from '../viewmodel/PrivacyConsentViewModel';
+import { PrivacyConsentStep, PrivacyConsentViewModel } from '../viewmodel/PrivacyConsentViewModel';
 import { LegalI18nRouter } from '../utils/LegalI18nUtil';
 import { LegalPreferences } from '../model/service/LegalPreferences';
 import { Logger } from 'core';
@@ -21,6 +21,32 @@ const TAG: string = 'PrivacyConsentPage';
 export struct PrivacyConsentPage {
   @Local private vm: PrivacyConsentViewModel = new PrivacyConsentViewModel();
   @Local private tm: ThemeManager = themeManager;
+
+  private get isTermsStep(): boolean {
+    return this.vm.step === PrivacyConsentStep.TERMS;
+  }
+
+  private get currentHtmlFile(): string {
+    return this.isTermsStep ? LegalI18nRouter.getTermsPath() : LegalI18nRouter.getPrivacyPath();
+  }
+
+  private get canProceed(): boolean {
+    return this.isTermsStep ? this.vm.canProceedFromTerms : this.vm.canAgree;
+  }
+
+  private get currentTitle(): ResourceStr {
+    return this.isTermsStep
+      ? $r('app.string.privacy_consent_terms_title')
+      : $r('app.string.privacy_consent_privacy_title');
+  }
+
+  private handleReachedBottom(): void {
+    if (this.isTermsStep) {
+      this.vm.markTermsRead();
+    } else {
+      this.vm.markPrivacyRead();
+    }
+  }
 
   private async handleAgree(): Promise<void> {
     const ctx = this.getUIContext().getHostContext() as common.UIAbilityContext;
@@ -42,21 +68,21 @@ export struct PrivacyConsentPage {
   build() {
     NavDestination() {
       Column() {
-        if (this.vm.step === 'terms') {
+        if (this.isTermsStep) {
           PrivacyConsentWebView({
-            htmlFile: LegalI18nRouter.getTermsPath(),
-            onReachedBottom: () => { this.vm.markTermsRead(); }
+            htmlFile: this.currentHtmlFile,
+            onReachedBottom: () => { this.handleReachedBottom(); }
           })
         } else {
           PrivacyConsentWebView({
-            htmlFile: LegalI18nRouter.getPrivacyPath(),
-            onReachedBottom: () => { this.vm.markPrivacyRead(); }
+            htmlFile: this.currentHtmlFile,
+            onReachedBottom: () => { this.handleReachedBottom(); }
           })
         }
 
         PrivacyConsentFooter({
           step: this.vm.step,
-          canProceed: this.vm.step === 'terms' ? this.vm.canProceedFromTerms : this.vm.canAgree,
+          canProceed: this.canProceed,
           onNext: () => { this.vm.goToPrivacy(); },
           onAgree: () => { this.handleAgree(); },
           onDisagree: () => { this.handleDisagree(); }
@@ -65,9 +91,7 @@ export struct PrivacyConsentPage {
       .width(this.tm.current.full)
       .height(this.tm.current.full)
     }
-    .title(this.vm.step === 'terms'
-      ? $r('app.string.privacy_consent_terms_title')
-      : $r('app.string.privacy_consent_privacy_title'))
+    .title(this.currentTitle)
     .hideTitleBar(false)
     .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
   }
@@ -101,7 +125,7 @@ export struct PrivacyConsentPagePreview {
       .alignItems(HorizontalAlign.Center)
       .backgroundColor(this.tm.current.colorPageBg)
 
-      PrivacyConsentFooter({ step: 'terms', canProceed: false })
+      PrivacyConsentFooter({ step: PrivacyConsentStep.TERMS, canProceed: false })
     }
     .width(this.tm.current.full)
     .height(this.tm.current.full)

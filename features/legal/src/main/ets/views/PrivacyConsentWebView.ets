@@ -13,7 +13,7 @@ import { Logger } from 'core';
 const TAG: string = 'PrivacyConsentWebView';
 
 /** 滚动到底部检测脚本 */
-const SCROLL_SCRIPT: string =
+const SCROLL_DETECTION_SCRIPT: string =
   '(function(){' +
   '  function check(){' +
   '    var sh=Math.max(document.body.scrollHeight,document.documentElement.scrollHeight);' +
@@ -76,8 +76,8 @@ export struct PrivacyConsentWebView {
     return ctx.config.colorMode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK;
   }
 
-  private injectAll(): void {
-    const script = buildThemeScript(this.isDark()) + SCROLL_SCRIPT;
+  private injectThemeAndScrollScript(): void {
+    const script = buildThemeScript(this.isDark()) + SCROLL_DETECTION_SCRIPT;
     this.controller.runJavaScript(script, (err: BusinessError) => {
       if (err) { Logger.warn(TAG, `inject failed: ${err.message}`); }
     });
@@ -85,7 +85,7 @@ export struct PrivacyConsentWebView {
 
   @Monitor('tm')
   onThemeChanged(_m: IMonitor): void {
-    if (this.isPageLoaded) { this.injectAll(); }
+    if (this.isPageLoaded) { this.injectThemeAndScrollScript(); }
   }
 
   build() {
@@ -104,7 +104,7 @@ export struct PrivacyConsentWebView {
       })
       .onPageEnd((_event: OnPageEndEvent) => {
         this.isPageLoaded = true;
-        this.injectAll();
+        this.injectThemeAndScrollScript();
       })
   }
 }

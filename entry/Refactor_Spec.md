@@ -355,7 +355,7 @@ entry/src/main/ets/
 |---|---|---|---|---|---|---|---|---|---|
 | M0 | 共享层 | ✅ 已提交（导出清理 + 工具去重 + 日志） | — | 1ff4cfe | ✅ 随 M8 构建通过 | ⚠️ 跳过 | 🔶 待冒烟 | 文档 13 轮复核 | M8/外观页 High 已补字符串；M7 部分失败待产品决策 |
 | M1 | Tools | ✅ 真重构完成 | — | 82cf004 | ✅ BUILD SUCCESSFUL in 17s 272ms | ⚠️ codeLinter 未配置，跳过 | 🔶 待 DevEco GUI 运行 | 6 Medium/Low 记录不执行 | ToolsModels 拆分 + 死代码清理；LIFE-002/N+1 保留 |
-| M2 | PrivacyConsent | 🔶 命名核查完成，真重构待执行 | — | — | — | ⚠️ 跳过 | 🔶 待运行 | — | 未做真重构 |
+| M2 | PrivacyConsent | ✅ 纯重构完成 | — | 待提交 | ✅ BUILD SUCCESSFUL in 16s 153ms | ⚠️ 跳过 | 🔶 待运行 | — | 步骤常量/model、Footer 去重；High 待单独修 |
 | M3 | AppearanceSettings | 🔶 部分完成（失败提示 + 字符串） | — | 1ff4cfe | ✅ 随 M8 构建通过 | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
 | M4 | My | 🔶 部分完成（SettingRow 迁入） | — | 1ff4cfe | ✅ BUILD SUCCESSFUL in 16s 358ms | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
 | M5 | Notification | 🔶 命名核查完成，真重构待执行 | — | 0160c6b（夹带无关文件） | ✅ BUILD SUCCESSFUL in 15s 719ms | ⚠️ 跳过 | 🔶 待运行 | — | 提交卫生待清理；服务去重未做 |
@@ -476,8 +476,52 @@ entry/src/main/ets/
 
 ---
 
+## M2 spec — PrivacyConsent 模块（2026-11-02 真重构）
+
+分析依据：[`docs/privacy-consent-page-module-analysis.md`](../docs/privacy-consent-page-module-analysis.md)「重构执行备注」。
+
+### 背景说明
+
+模块共 4 个文件、364 行：`PrivacyConsentPage` 110L / `PrivacyConsentViewModel` 46L / `PrivacyConsentFooter` 98L / `PrivacyConsentWebView` 110L。测试只导入 `viewmodel/PrivacyConsentViewModel.ets`，并断言 `step` 为字符串 `'terms'` / `'privacy'`。
+
+### 决策
+
+| # | 问题 | 决定 | 依据 |
+| --- | --- | --- | --- |
+| D1 | `step` 是否改成 enum | 不改；新增 `PrivacyConsentStep` 字符串常量 | 测试 `assertEqual('terms'/'privacy')` 冻结 |
+| D2 | 常量放哪里 | `model/PrivacyConsentModels.ets`；VM re-export | View 不反向依赖 ViewModel 实现 |
+| D3 | 页面两个 WebView 分支是否合并 | 不合并 | 避免 `Web.src` 动态更新的不确定性，保持组件重建语义 |
+| D4 | Footer 两个主按钮重复样式 | 抽 `@Builder primaryButton` | 两段样式逐项相同 |
+| D5 | High：协议不足一屏时按钮永久禁用 | 单独提交修复 | 行为变更不得混入纯重构提交 |
+
+### 文件改动清单
+
+| 操作 | 文件 | 说明 |
+| --- | --- | --- |
+| 新增 | `model/PrivacyConsentModels.ets` | `PrivacyConsentStep.TERMS/PRIVACY` 常量 |
+| 修改 | `viewmodel/PrivacyConsentViewModel.ets` | 使用常量并 re-export；导出符号与字段类型不变 |
+| 修改 | `pages/PrivacyConsentPage.ets` | 提取 `isTermsStep` / `currentHtmlFile` / `canProceed` / `currentTitle` / `handleReachedBottom` |
+| 修改 | `views/PrivacyConsentFooter.ets` | 主按钮抽 `@Builder`；步骤比较改用常量 |
+| 修改 | `views/PrivacyConsentWebView.ets` | `SCROLL_SCRIPT` → `SCROLL_DETECTION_SCRIPT`；`injectAll` → `injectThemeAndScrollScript` |
+
+### 验收记录
+
+| 项 | 结果 |
+|---|---|
+| 编译（uat/Debug） | ✅ `BUILD SUCCESSFUL in 16s 153ms` |
+| codeLinter | ⚠️ 项目中无 `codeLinter` task，跳过 |
+| Local Test | 🔶 `PrivacyConsentViewModel.test.ets` 10 条用例——需 DevEco GUI 手动运行 |
+| 测试契约 | ✅ VM 路径、类名、`step` 字符串值不变 |
+| 冒烟 | 🔶 待手动：两步流程、同意后进 Main、重启不重复弹出 |
+
+### 结论
+
+**M2 纯重构完成**：步骤常量集中到 model 层，页面分支逻辑提取为 getter/handler，Footer 主按钮去重，WebView 命名修正。行为等价，编译通过。High（不足一屏卡死）另行提交。
+
+---
+
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-02）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M3/M4 部分提交（`1ff4cfe`）；M8 真重构完成（`e831292`）；M2/M5/M6/M7 仅完成命名核查，真重构待执行。*
+*进度（2026-11-02）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 纯重构完成（待提交）；M3/M4 部分提交（`1ff4cfe`）；M8 真重构完成（`e831292`）；M5/M6/M7 仅完成命名核查，真重构待执行。*
 
 ---
 
