@@ -354,7 +354,7 @@ entry/src/main/ets/
 | M | 模块 | 状态 | 分支 | commit | 编译 | codeLinter | Local Test / 冒烟 | review | 遗留 |
 |---|---|---|---|---|---|---|---|---|---|
 | M0 | 共享层 | ✅ 已提交（导出清理 + 工具去重 + 日志） | — | 1ff4cfe | ✅ 随 M8 构建通过 | ⚠️ 跳过 | 🔶 待冒烟 | 文档 13 轮复核 | M8/外观页 High 已补字符串；M7 部分失败待产品决策 |
-| M1 | Tools | ✅ 真重构完成 | — | 待提交 | ✅ BUILD SUCCESSFUL in 17s 272ms | ⚠️ codeLinter 未配置，跳过 | 🔶 待 DevEco GUI 运行 | 6 Medium/Low 记录不执行 | ToolsModels 拆分 + 死代码清理；LIFE-002/N+1 保留 |
+| M1 | Tools | ✅ 真重构完成 | — | 82cf004 | ✅ BUILD SUCCESSFUL in 17s 272ms | ⚠️ codeLinter 未配置，跳过 | 🔶 待 DevEco GUI 运行 | 6 Medium/Low 记录不执行 | ToolsModels 拆分 + 死代码清理；LIFE-002/N+1 保留 |
 | M2 | PrivacyConsent | 🔶 命名核查完成，真重构待执行 | — | — | — | ⚠️ 跳过 | 🔶 待运行 | — | 未做真重构 |
 | M3 | AppearanceSettings | 🔶 部分完成（失败提示 + 字符串） | — | 1ff4cfe | ✅ 随 M8 构建通过 | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
 | M4 | My | 🔶 部分完成（SettingRow 迁入） | — | 1ff4cfe | ✅ BUILD SUCCESSFUL in 16s 358ms | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
@@ -477,7 +477,7 @@ entry/src/main/ets/
 ---
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-02）：M0 已提交（`1ff4cfe`）；M1 真重构完成（待提交）；M3/M4 部分提交（`1ff4cfe`）；M8 真重构完成（`e831292`）；M2/M5/M6/M7 仅完成命名核查，真重构待执行。*
+*进度（2026-11-02）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M3/M4 部分提交（`1ff4cfe`）；M8 真重构完成（`e831292`）；M2/M5/M6/M7 仅完成命名核查，真重构待执行。*
 
 ---
 
