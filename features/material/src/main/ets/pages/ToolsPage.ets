@@ -5,10 +5,8 @@
  * 作为 Tab 子页面嵌入 MainPage。
  */
 import { themeManager, ThemeManager, ViewState, PlaceholderView, PlaceholderState, AppRoutes, AccountSignal } from 'basic'
-import { UIContext } from '@kit.ArkUI'
 import { ToolsViewModel } from '../viewmodel/ToolsViewModel'
 import { GameEntryCard } from '../views/GameEntryCard'
-import { GameId } from 'core'
 import { GameEntryVM } from '../model/ToolsModels'
 import { MaterialCharacterSelectParam } from '../viewmodel/MaterialCharacterSelectViewModel'
 
@@ -19,10 +17,8 @@ export struct ToolsPage {
   @Local private signal: AccountSignal = AccountSignal.getInstance()
   /** Navigation stack from MainPage */
   @Param detailStack: NavPathStack | null = null
-  private uiContext: UIContext | null = null
 
   aboutToAppear(): void {
-    this.uiContext = this.getUIContext()
     this.vm.loadData()
   }
 

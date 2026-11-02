@@ -11,7 +11,7 @@ import { GameId } from 'core';
 
 @ComponentV2
 export struct GameEntryCard {
-  @Param entry: GameEntryVM = new GameEntryVM();
+  @Require @Param entry: GameEntryVM;
   @Param onTap: () => void = () => {};
 
   @Local private tm: ThemeManager = themeManager;
@@ -44,7 +44,7 @@ export struct GameEntryCard {
 
       // 箭头（有数据时显示）
       if (this.entry.hasData) {
-        Text('›')
+        Text($r('app.string.common_arrow_right'))
           .fontSize(this.tm.current.font16)
           .fontColor(this.tm.current.colorTextSecondary)
       }
@@ -58,7 +58,7 @@ export struct GameEntryCard {
     })
     .backgroundColor(this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
-    .border({ width: 1, color: this.tm.current.colorDivider })
+    .border({ width: this.tm.current.value1, color: this.tm.current.colorDivider })
     .opacity(this.entry.hasData ? 1 : 0.5)
     .onClick(() => {
       if (this.entry.hasData) {
@@ -95,7 +95,6 @@ export struct GameEntryCardPreview {
     this.entry1.gameId = GameId.GENSHIN;
     this.entry1.gameName = $r('app.string.game_name_genshin_material');
     this.entry1.gameIcon = $r('app.media.logo_genshin');
-    this.entry1.gameColor = $r('app.color.blue_400');
     this.entry1.characterCount = 12;
     this.entry1.computedCount = 8;
     this.entry1.hasData = true;
@@ -103,7 +102,6 @@ export struct GameEntryCardPreview {
     this.entry2.gameId = GameId.STARRAIL;
     this.entry2.gameName = $r('app.string.game_name_starrail_material');
     this.entry2.gameIcon = $r('app.media.logo_starrail');
-    this.entry2.gameColor = $r('app.color.purple');
     this.entry2.characterCount = 15;
     this.entry2.computedCount = 15;
     this.entry2.hasData = true;
@@ -111,7 +109,6 @@ export struct GameEntryCardPreview {
     this.entry3.gameId = GameId.ZZZ;
     this.entry3.gameName = $r('app.string.game_name_zzz_material');
     this.entry3.gameIcon = $r('app.media.logo_zzz');
-    this.entry3.gameColor = $r('app.color.zzz_amber');
     this.entry3.characterCount = 0;
     this.entry3.computedCount = 0;
     this.entry3.hasData = false;

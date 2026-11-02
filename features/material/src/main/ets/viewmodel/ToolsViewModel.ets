@@ -4,7 +4,7 @@
  * 工具页展示三个游戏的材料总汇入口，每个入口显示：
  * - 游戏名称和图标
  * - 角色数量
- * - 已计算角色数量
+ * - 已配置养成目标的角色数量
  *
  * 数据流：
  *   loadData() → 读本地 DB（账号 + 角色） → 按游戏汇总 → 渲染
@@ -23,16 +23,22 @@ import {
   StarRailMaterialTargetConfigDao,
   ZZZMaterialTargetConfigDao,
 } from 'core';
-import { ViewState, getGameColor, getGameLogo, getGameName } from 'basic';
+import { ViewState, getGameLogo, getGameName } from 'basic';
 import { GameEntryVM } from '../model/ToolsModels';
 
 const TAG: string = 'ToolsViewModel';
+const SUPPORTED_GAMES: GameId[] = [GameId.GENSHIN, GameId.STARRAIL, GameId.ZZZ];
 
 @ObservedV2
 export class ToolsViewModel {
   @Trace viewState: ViewState = ViewState.LOADING;
   @Trace accountCount: number = 0;
   @Trace gameEntries: GameEntryVM[] = [];
+
+  // DAO 无实例状态，复用同一实例即可，避免每个角色都 new 一次
+  private readonly genshinConfigDao: GenshinMaterialTargetConfigDao = new GenshinMaterialTargetConfigDao();
+  private readonly starRailConfigDao: StarRailMaterialTargetConfigDao = new StarRailMaterialTargetConfigDao();
+  private readonly zzzConfigDao: ZZZMaterialTargetConfigDao = new ZZZMaterialTargetConfigDao();
 
   // ─── 公开方法 ────────────────────────────────────────────────
 
@@ -53,9 +59,7 @@ export class ToolsViewModel {
         return;
       }
 
-      // 按游戏汇总角色数量和计算数量
-      const entries = await this.buildGameEntries(accounts);
-      this.gameEntries = entries;
+      this.gameEntries = await this.buildGameEntries(accounts);
       this.viewState = ViewState.DATA;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -67,95 +71,73 @@ export class ToolsViewModel {
   // ─── 私有方法 ────────────────────────────────────────────────
 
   /**
-   * 构建游戏入口列表，每个游戏统计角色数量和计算数量。
-   * 同时记录每个游戏的第一个角色 UID，用于跳转配置页时传递参数。
+   * 构建游戏入口列表，每个游戏统计角色数量和已配置目标的数量。
+   * 同时记录每个游戏的第一个角色 UID，用于跳转角色选择页时传递参数。
    */
   private async buildGameEntries(accounts: AccountRow[]): Promise<GameEntryVM[]> {
-    const gameIds: GameId[] = [GameId.GENSHIN, GameId.STARRAIL, GameId.ZZZ];
-    const entries: GameEntryVM[] = [];
-
-    // 统计各游戏的角色数量
     const roleCounts: Map<GameId, number> = new Map();
-    // 统计各游戏已计算的角色数量
-    const computedCounts: Map<GameId, number> = new Map();
+    const configuredCounts: Map<GameId, number> = new Map();
+    const firstRoleUids: Map<GameId, string> = new Map();
     // 首个账号 UID（用于填充 entry.accountId）
     let firstAccountUid: string = '';
-    // 各游戏的第一个角色 UID（用于跳转配置页）
-    const firstRoleUids: Map<GameId, string> = new Map();
 
-    for (let i = 0; i < accounts.length; i++) {
-      const account = accounts[i];
+    for (const account of accounts) {
       if (firstAccountUid === '') {
         firstAccountUid = account.uid;
       }
       const roles = await CoreInitializer.bbsRepository.getGameRoles(account.uid);
 
-      for (let j = 0; j < roles.length; j++) {
-        const role = roles[j];
+      for (const role of roles) {
         const gameId = role.gameId;
-        const current = roleCounts.get(gameId) ?? 0;
-        roleCounts.set(gameId, current + 1);
+        roleCounts.set(gameId, (roleCounts.get(gameId) ?? 0) + 1);
 
-        // 记录该游戏的第一个角色 UID
         if (!firstRoleUids.has(gameId)) {
           firstRoleUids.set(gameId, role.roleId);
         }
 
-        // 统计已计算的角色数量（通过查询对应的 compute 表）
-        const hasComputeData = await this.hasComputeData(gameId, account.uid, role.roleId);
-        if (hasComputeData) {
-          const computed = computedCounts.get(gameId) ?? 0;
-          computedCounts.set(gameId, computed + 1);
+        if (await this.hasTargetConfig(gameId, account.uid, role.roleId)) {
+          configuredCounts.set(gameId, (configuredCounts.get(gameId) ?? 0) + 1);
         }
       }
     }
 
-    // 构建游戏入口
-    for (let i = 0; i < gameIds.length; i++) {
-      const gameId = gameIds[i];
-      const count = roleCounts.get(gameId) ?? 0;
-      const computed = computedCounts.get(gameId) ?? 0;
-
+    const entries: GameEntryVM[] = [];
+    for (const gameId of SUPPORTED_GAMES) {
+      const characterCount = roleCounts.get(gameId) ?? 0;
       const entry = new GameEntryVM();
       entry.accountId = firstAccountUid;
       entry.roleUid = firstRoleUids.get(gameId) ?? '';
       entry.gameId = gameId;
       entry.gameName = getGameName(gameId);
       entry.gameIcon = getGameLogo(gameId);
-      entry.gameColor = getGameColor(gameId);
-      entry.characterCount = count;
-      entry.computedCount = computed;
-      entry.hasData = count > 0;
-
-      entries[entries.length] = entry;
+      entry.characterCount = characterCount;
+      entry.computedCount = configuredCounts.get(gameId) ?? 0;
+      entry.hasData = characterCount > 0;
+      entries.push(entry);
     }
-
     return entries;
   }
 
   /**
-   * 检查指定角色是否有养成目标配置数据
-   * 用户在配置页设置完目标等级后，config 表会有数据，此时应认为"已配置"
+   * 检查指定角色是否已保存养成目标配置。
+   * 用户在配置页保存后 material_target_config 表会有记录，此时认为"已配置"。
    */
-  private async hasComputeData(gameId: GameId, accountUid: string, roleUid: string): Promise<boolean> {
+  private async hasTargetConfig(gameId: GameId, accountUid: string, roleUid: string): Promise<boolean> {
     try {
       if (gameId === GameId.GENSHIN) {
-        const dao = new GenshinMaterialTargetConfigDao();
-        const config = await dao.findOne(accountUid, roleUid);
+        const config = await this.genshinConfigDao.findOne(accountUid, roleUid);
         return config !== null && config.configJson !== '';
       } else if (gameId === GameId.STARRAIL) {
-        const dao = new StarRailMaterialTargetConfigDao();
-        const config = await dao.findOne(accountUid, roleUid);
+        const config = await this.starRailConfigDao.findOne(accountUid, roleUid);
         return config !== null && config.configJson !== '';
       } else if (gameId === GameId.ZZZ) {
-        const dao = new ZZZMaterialTargetConfigDao();
-        const config = await dao.findOne(accountUid, roleUid);
+        const config = await this.zzzConfigDao.findOne(accountUid, roleUid);
         return config !== null && config.configJson !== '';
       }
       return false;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error(TAG, `hasComputeData failed for ${gameId}: ${msg}`);
+      Logger.error(TAG, `hasTargetConfig failed for ${gameId}: ${msg}`);
       return false;
     }
   }

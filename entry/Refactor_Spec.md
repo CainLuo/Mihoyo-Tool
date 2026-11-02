@@ -354,7 +354,7 @@ entry/src/main/ets/
 | M | 模块 | 状态 | 分支 | commit | 编译 | codeLinter | Local Test / 冒烟 | review | 遗留 |
 |---|---|---|---|---|---|---|---|---|---|
 | M0 | 共享层 | ✅ 已提交（导出清理 + 工具去重 + 日志） | — | 1ff4cfe | ✅ 随 M8 构建通过 | ⚠️ 跳过 | 🔶 待冒烟 | 文档 13 轮复核 | M8/外观页 High 已补字符串；M7 部分失败待产品决策 |
-| M1 | Tools | 🔶 命名核查完成，真重构待执行 | — | — | ✅ BUILD SUCCESSFUL in 15s818ms | ⚠️ codeLinter 未配置，跳过 | 🔶 待 DevEco GUI 运行 | 6 Medium/Low 记录不执行 | 结构已规范；未做去重 / 行为等价验证 |
+| M1 | Tools | ✅ 真重构完成 | — | 待提交 | ✅ BUILD SUCCESSFUL in 17s 272ms | ⚠️ codeLinter 未配置，跳过 | 🔶 待 DevEco GUI 运行 | 6 Medium/Low 记录不执行 | ToolsModels 拆分 + 死代码清理；LIFE-002/N+1 保留 |
 | M2 | PrivacyConsent | 🔶 命名核查完成，真重构待执行 | — | — | — | ⚠️ 跳过 | 🔶 待运行 | — | 未做真重构 |
 | M3 | AppearanceSettings | 🔶 部分完成（失败提示 + 字符串） | — | 1ff4cfe | ✅ 随 M8 构建通过 | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
 | M4 | My | 🔶 部分完成（SettingRow 迁入） | — | 1ff4cfe | ✅ BUILD SUCCESSFUL in 16s 358ms | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
@@ -412,9 +412,9 @@ entry/src/main/ets/
 
 ---
 
-## M1 spec — Tools 模块（2026-10-30）
+## M1 spec — Tools 模块（2026-11-02 真重构）
 
-分析依据：[`docs/tools-module-analysis.md`](../docs/tools-module-analysis.md)「重构执行备注」；逐条状态见该文 §5。
+分析依据：[`docs/tools-module-analysis.md`](../docs/tools-module-analysis.md)「重构执行备注」与文末「M1 真重构记录」。
 
 ### 背景说明
 
@@ -422,54 +422,62 @@ entry/src/main/ets/
 
 | 文件 | 当前路径 | 角色 |
 |---|---|---|
-| ToolsPage | `features/material/src/main/ets/pages/ToolsPage.ets` | 页面入口（@ComponentV2，128L） |
-| ToolsViewModel | `features/material/src/main/ets/viewmodel/ToolsViewModel.ets` | ViewModel（@ObservedV2 + @Trace，162L） |
-| GameEntryCard | `features/material/src/main/ets/views/GameEntryCard.ets` | 组件（@ComponentV2，134L） |
-| ToolsModels | `features/material/src/main/ets/model/ToolsModels.ets` | 模型含 ZZZSkillType/MaterialComputeTargets/GameEntryVM（135L） |
+| ToolsPage | `features/material/src/main/ets/pages/ToolsPage.ets` | 页面入口（@ComponentV2，125L） |
+| ToolsViewModel | `features/material/src/main/ets/viewmodel/ToolsViewModel.ets` | ViewModel（@ObservedV2 + @Trace，144L） |
+| GameEntryCard | `features/material/src/main/ets/views/GameEntryCard.ets` | 组件（@ComponentV2，131L） |
+| ToolsModels | `features/material/src/main/ets/model/ToolsModels.ets` | 工具页 UI State（GameEntryVM，43L） |
+| MaterialTargetModels | `features/material/src/main/ets/model/MaterialTargetModels.ets` | 材料养成目标领域模型（116L，新增） |
 
 ### 决策
 
 | # | 问题 | 决定 | 依据 |
 | --- | --- | --- | --- |
-| D1 | `ToolsViewModel` 是否拆分（<500L） | 不拆分；当前 162L 远低于阈值 | §6 N-2：仅 >500L 时考虑拆分 |
-| D2 | `GameEntryCard @Param entry` 默认实例 (PARAM-DEFAULT Medium) | **记录不执行**；修改会影响所有调用方（行为变更） | Refactor_Spec §9「重构提交不夹带行为变更」 |
-| D3 | `loadData()` 无取消标记/代际号 (LIFE-002 Medium) | **记录不执行**；Tools 由 Main 常驻挂载，风险可控，且修改会改变行为 | Refactor_Spec §9；tools-module-analysis.md 明确建议记录到 Refactor_Spec 遗留 |
-| D4 | `@Monitor('signal.version')` 硬编码字符串 (MONITOR-PATH Low) | **维持现状**；ToolsViewModelKeys 已存在但无需监听，改它无实际收益 | tools-module-analysis.md §合规检查 |
+| D1 | `ToolsViewModel` 是否拆分（<500L） | 不拆分；144L 远低于阈值 | §6 N-2：仅 >500L 时考虑拆分 |
+| D2 | `ToolsModels.ets` 混放材料计算领域模型 | 拆出 `MaterialTargetModels.ets`，`ToolsModels.ets` 保留 `GameEntryVM` 并 re-export | 工具页 UI State 与材料计算领域模型职责不同；re-export 保持全部既有 import 与测试路径不变 |
+| D3 | `GameEntryCard @Param entry` 默认实例 | 改为 `@Require @Param entry` | 所有调用方均显式传参，编译期强制比运行时构造默认对象更安全 |
+| D4 | `GameEntryVM.gameColor` | 删除 | 全仓只写不读，属死字段 |
+| D5 | `loadData()` 无取消标记/代际号 (LIFE-002 Medium) | 记录不执行 | 会改变并发语义；Tools 由 Main 常驻挂载，风险可控 |
+| D6 | `@Monitor('signal.version')` 硬编码字符串 (MONITOR-PATH Low) | 维持现状 | 4 个页面统一写法；@Monitor 路径需字符串字面量，改常量无实际收益 |
 
 ### 文件改动清单
 
 | 操作 | 文件 | 说明 |
 |---|---|---|
-| 无代码变更 | （全部 4 个文件） | 目录结构、命名规范已对齐 N-1/N-2；`GameEntryCard.ets` 在本模块 `views/` 内，无需移动 |
+| 新增 | `model/MaterialTargetModels.ets` | 迁入 `ZZZSkillType` / `ZZZSkillTarget` / `GenshinTalentSlot` / `StarRailSkillSlot` / `MaterialComputeTargets` / `MaterialTargetConfigParam` |
+| 重写 | `model/ToolsModels.ets` | 只保留 `GameEntryVM`；去掉冗余 `@ObservedV2` / `@Trace` 与死字段 `gameColor`；re-export 迁出的模型 |
+| 修改 | `viewmodel/ToolsViewModel.ets` | `hasComputeData` → `hasTargetConfig`；DAO 提为字段；`push` / for-of；删除 `gameColor` 赋值 |
+| 修改 | `pages/ToolsPage.ets` | 删除只赋值不读取的 `uiContext` 与 `UIContext` import |
+| 修改 | `views/GameEntryCard.ets` | `@Require`；箭头资源化；边框宽度走主题；Preview 去掉 `gameColor` |
 
 ### 已知问题记录（不执行）
 
-| ID | 级别 | 描述 | 建议 |
+| ID | 级别 | 描述 | 状态 |
 |---|---|---|---|
-| LIFE-002 | Medium | `loadData()` 无代际标记/取消，多次快速切换 Tab 可能交错写回 | 单独提交；非重构必要项 |
-| KIT-005引申 | Medium | 加载异常落 EMPTY（登录引导），而非错误态 | 单独提交；行为变更 |
-| DRY / N+1 | Medium | DAO 重复查询逻辑；N+1 批量查询 | 不在本次范围 |
-| STRING-001 | Medium | 箭头字符 `'›'` 硬编码未走资源文件 | 不在本次范围 |
-| DEAD-PARAM | Low | `accountId`/`roleUid` 传送给选角页但下游不使用且可能不配对 | 可选清理 |
+| LIFE-002 | Medium | `loadData()` 无代际标记/取消，多次快速切换 Tab 可能交错写回 | 保留，单独提交 |
+| KIT-005引申 | Medium | 加载异常落 EMPTY（登录引导），而非错误态 | 保留，行为变更 |
+| N+1 | Medium | 每个角色一次 `findOne` 批量查询 | DAO 实例已复用；批量查询需 core 支持，保留 |
+| DEAD-PARAM | Low | `accountId`/`roleUid` 传送给选角页但下游不使用且可能不配对 | 保留（测试断言 `accountId` 初始值） |
 | MONITOR-PATH | Low | `@Monitor` 路径硬编码字符串 | 维持现状 |
+| 分层 | Low | `MaterialCharacterSelectParam` 定义在 ViewModel、ToolsPage 直接 import | 随 M7 迁移到 model |
 
 ### 验收记录
 
 | 项 | 结果 |
 |---|---|
-| 编译（uat/Debug） | ✅ `BUILD SUCCESSFUL in 15s818ms` |
+| 编译（uat/Debug） | ✅ `BUILD SUCCESSFUL in 17s 272ms`，安装/启动成功 |
 | codeLinter | ⚠️ 项目中无 `codeLinter` task（Hvigor 配置未启用），跳过 |
 | Local Test | 🔶 `ToolsViewModel.test.ets` 4 条用例——需 DevEco GUI 手动运行，CLI 无 test 任务 |
+| 测试契约 | ✅ `ToolsViewModel.ets` / `ToolsModels.ets` 路径与 `GameEntryVM` 导出不变 |
 | 冒烟 | 🔶 待手动验证：底部 Tab → Tools；三游戏卡片进入/返回 |
 
 ### 结论
 
-**M1 实际改动 ≈ 0**。当前模块结构已规范（pages/viewmodel/views/model），命名符合 N-1/N-2，6 个已知问题均为 Medium/Low 且涉及行为变更或不在重构范围。建立基线后标记完成。
+**M1 真重构完成**：`ToolsModels.ets` 135L → 43L（材料领域模型独立为 116L）；`hasComputeData` 更名为语义准确的 `hasTargetConfig`；删除 `gameColor` / `uiContext` 两处死代码；`GameEntryCard` 改用 `@Require`；箭头与边框宽度资源化；DAO 实例复用。行为等价，编译通过。
 
 ---
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-01）：M0 已提交（`1ff4cfe`）；M3/M4 部分提交（`1ff4cfe`）；M8 真重构完成（`e831292`）；M1/M2/M5/M6/M7 仅完成命名核查，真重构待执行。*
+*进度（2026-11-02）：M0 已提交（`1ff4cfe`）；M1 真重构完成（待提交）；M3/M4 部分提交（`1ff4cfe`）；M8 真重构完成（`e831292`）；M2/M5/M6/M7 仅完成命名核查，真重构待执行。*
 
 ---
 

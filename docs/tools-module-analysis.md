@@ -302,10 +302,10 @@ grep -rEn "'›'" --include='*.ets' features/material/src/main/ets/
 
 ### 重构范围（建议）
 
-- 现有目录与命名已符合 N-1 / N-2：`features/material/src/main/ets/pages/ToolsPage.ets`、`features/material/src/main/ets/viewmodel/ToolsViewModel.ets`、`features/material/src/main/ets/views/GameEntryCard.ets`。**M1 的预期实际改动接近 0**；若没有可安全移动的文件，就只建立基线并标记完成，不要为"有 diff"而改代码。
-- `ToolsViewModel.ets` 171 行（< 500），不拆分。
-- `ToolsModels.ets` 已在 `model/`，且被测试引用，不移动。
-- `GameEntryCard.ets` 仅本模块使用；如要调整，只允许在 `views/` 内。
+- 现有目录与命名已符合 N-1 / N-2：`features/material/src/main/ets/pages/ToolsPage.ets`、`features/material/src/main/ets/viewmodel/ToolsViewModel.ets`、`features/material/src/main/ets/views/GameEntryCard.ets`。M1 已按「真重构」执行，实际改动见文末「M1 真重构记录（2026-11-02）」，不再以“改动接近 0”为验收目标。
+- `ToolsViewModel.ets` 144 行（< 500），不拆分。
+- `ToolsModels.ets` 路径与 `GameEntryVM` 导出保持不变；材料养成目标领域模型已拆到 `MaterialTargetModels.ets`，原文件 re-export 兼容既有 import。
+- `GameEntryCard.ets` 仅本模块使用；调整限定在 `views/` 内。
 
 ### 验收
 
@@ -316,9 +316,12 @@ grep -rEn "'›'" --include='*.ets' features/material/src/main/ets/
 
 ### 已知问题归属
 
-- `LIFE-002`（Medium，原 High 降级）：`loadData()` 无代际标记。可在 M1 修，但必须与“纯移动”分开提交；若本轮只做目录/命名对齐，则记录到 Refactor_Spec §11 遗留。
-- 加载失败落到登录引导（Medium 6）：行为变更，单独提交。
-- `DRY` / `N+1` / `STRING-001` / `PARAM-DEFAULT` / Low 2 项：不在本次重构范围，保持记录。
+- `LIFE-002`（Medium，原 High 降级）：`loadData()` 无代际标记。M1 未修（会改变并发语义），保留在 Refactor_Spec §11 遗留。
+- 加载失败落到登录引导（Medium 6）：行为变更，单独提交，M1 未修。
+- `N+1`（每个角色一次 `findOne`）：M1 已复用 DAO 实例、去掉每角色 new；批量查询需 core 增加 DAO 方法，留给 core / M7。
+- `STRING-001` / `PARAM-DEFAULT`：M1 已修复（资源化箭头、`@Require`）。
+- `MaterialCharacterSelectParam` 定义在 ViewModel、由 ToolsPage 直接 import：分层问题，随 M7 角色选择页重构迁移到 model。
+- `DEAD-PARAM` / `MONITOR-PATH`：M1 未修，保留记录。
 
 ### 文档修正记录（2026-10-24）
 
@@ -335,3 +338,43 @@ grep -rEn "'›'" --include='*.ets' features/material/src/main/ets/
 | 第 3 轮（全面复核） | GameEntryCard @Param 默认值（STATE-008）、执行摘要计数 3→4、附录/优先级/归属同步 | ✅ 修正 1 处 |
 | 第 4 轮（2026-10-26 复核） | 补合规检查（11 条 checklist）；复核 `ToolsPage.ets:75-82` ForEach key、`GameEntryCard.ets:14-15` 两个 @Param、无 push / console | ✅ 无新增风险，计数维持 0/1/4/2 |
 | 第 5 轮（2026-10-27 逐条事实） | `MainPage.ets:451-452` Tools 常驻挂载；`ToolsViewModel.ets:69-72` 失败落 EMPTY；`MaterialCharacterSelectPage.ets:56` 只用 gameId；checklist ID 逐条对照 | ✅ H1 降为 Medium 5；新增 Medium 6；L1 改写；5 处误用 ID 更正；计数 0/1/4/2 → 0/0/6/2，评级 B 不变 |
+| 第 6 轮（2026-11-02 M1 真重构） | ToolsModels 135L 拆分（GameEntryVM 43L + MaterialTargetModels 116L，re-export 保持 import）；`hasComputeData` → `hasTargetConfig`；删除 `gameColor` / `uiContext` 死代码；`@Require`；箭头资源化；DAO 复用；编译 `bash run.sh uat` → BUILD SUCCESSFUL in 17s 272ms | ✅ M1 真重构完成；LIFE-002 / KIT-005 / N+1 保留 |
+
+---
+
+## M1 真重构记录（2026-11-02）
+
+### 改动
+
+| 类型 | 文件 | 说明 |
+| --- | --- | --- |
+| 拆分 | `model/MaterialTargetModels.ets`（新增 116L） | 从 `ToolsModels.ets` 迁出 `ZZZSkillType` / `ZZZSkillTarget` / `GenshinTalentSlot` / `StarRailSkillSlot` / `MaterialComputeTargets` / `MaterialTargetConfigParam` |
+| facade | `model/ToolsModels.ets`（135L → 43L） | 只保留 `GameEntryVM`，并 re-export 上述模型；路径与导出符号不变 |
+| 命名 | `ToolsViewModel.ets` | `hasComputeData` → `hasTargetConfig`（实际查询 `material_target_config`，原名误导） |
+| 清理 | `ToolsViewModel.ets` | 删除死字段 `GameEntryVM.gameColor`（只写不读）；三个 DAO 提为字段复用；`entries[entries.length]` → `entries.push`；索引 for → for-of |
+| 清理 | `ToolsPage.ets` | 删除只赋值、从不读取的 `uiContext` 字段与 `UIContext` import |
+| 契约 | `GameEntryCard.ets` | `@Param entry = new GameEntryVM()` → `@Require @Param entry`（调用方与 Preview 均已显式传参） |
+| 资源 | `GameEntryCard.ets` | `Text('›')` → `$r('app.string.common_arrow_right')`；边框宽度 `1` → `tm.current.value1` |
+| 响应式 | `ToolsModels.ets` | `GameEntryVM` 去掉冗余 `@ObservedV2` / `@Trace`：入口列表每次整体重建，不存在字段原地修改 |
+
+### 行为等价说明
+
+- `hasTargetConfig` 的查询条件、表、返回语义与原来一致；DAO 无实例状态，复用不改变结果。
+- `gameColor` 在全仓无读取方；删除后卡片渲染不变。
+- `@Require` 只是编译期约束；`ToolsPage` 与 `GameEntryCardPreview` 均传 `entry`。
+- 箭头资源 `common_arrow_right` 的值同样是 `›`；`ThemeManager.value1 = 1`，边框视觉不变。
+
+### 验收
+
+| 项 | 结果 |
+| --- | --- |
+| 编译 | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 17s 272ms`，安装/启动成功 |
+| 测试契约 | ✅ `viewmodel/ToolsViewModel.ets` / `model/ToolsModels.ets` 路径不变；`GameEntryVM` 导出与 `accountId` 等字段不变 |
+| 文件规模 | ✅ ToolsViewModel 144L / GameEntryCard 131L / ToolsPage 125L / ToolsModels 43L |
+| 冒烟 | 🔶 待手动：Tools Tab 三卡片、进入角色选择页、空态 |
+
+### 未执行（保留记录）
+
+- `LIFE-002` 代际标记、KIT-005 错误态：行为变更，需单独提交。
+- N+1 批量查询：每个角色仍一次 `findOne`，需 core 增加批量 DAO 方法。
+- `MaterialCharacterSelectParam` 定义在 ViewModel、由 ToolsPage 直接 import：分层问题，随 M7 角色选择页重构迁移到 model。
