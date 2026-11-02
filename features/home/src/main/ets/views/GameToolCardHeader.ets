@@ -11,15 +11,15 @@ export struct GameToolCardHeader {
   @Param card: GameRoleCardVM = new GameRoleCardVM(GameId.GENSHIN, '', '', '', '', '', null, '');
   @Local private tm: ThemeManager = themeManager;
 
-  private syncDescResource(key: string): ResourceStr {
-    if (key === 'sync_just_now') { return $r('app.string.sync_just_now'); }
-    if (key === 'sync_long_ago') { return $r('app.string.sync_long_ago'); }
-    if (key.startsWith('sync_minutes_ago:')) {
-      const n = parseInt(key.split(':')[1]);
+  private syncDescResource(syncKey: string): ResourceStr {
+    if (syncKey === 'sync_just_now') { return $r('app.string.sync_just_now'); }
+    if (syncKey === 'sync_long_ago') { return $r('app.string.sync_long_ago'); }
+    if (syncKey.startsWith('sync_minutes_ago:')) {
+      const n = parseInt(syncKey.split(':')[1]);
       return $r('app.string.sync_minutes_ago', n);
     }
-    if (key.startsWith('sync_hours_ago:')) {
-      const n = parseInt(key.split(':')[1]);
+    if (syncKey.startsWith('sync_hours_ago:')) {
+      const n = parseInt(syncKey.split(':')[1]);
       return $r('app.string.sync_hours_ago', n);
     }
     return $r('app.string.sync_not_synced');

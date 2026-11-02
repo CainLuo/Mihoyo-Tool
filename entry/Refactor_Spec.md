@@ -361,7 +361,7 @@ entry/src/main/ets/
 | M5 | Notification | 🔶 命名核查完成，真重构待执行 | — | 0160c6b（夹带无关文件） | ✅ BUILD SUCCESSFUL in 15s 719ms | ⚠️ 跳过 | 🔶 待运行 | — | 提交卫生待清理；服务去重未做 |
 | M6 | Dailynote | 🔶 命名核查完成，真重构待执行 | — | bf6de65（记录曾写错文档） | ✅ BUILD SUCCESSFUL in 15s 824ms | ⚠️ 跳过 | 🔶 待运行 | — | 三件套去重未做 |
 | M7 | MaterialCalc | 🔶 命名核查完成，真重构待执行 | — | 5e9b2a7（记录曾写错文档） | ✅ BUILD SUCCESSFUL in 14s 40ms | ⚠️ 跳过 | 🔶 待运行 | — | 三件套去重未做 |
-| M8 | Home | 🔧 真重构进行中 | — | — | — | — | — | — | HomeViewModel 728L 拆分 + facade |
+| M8 | Home | ✅ 真重构完成 | — | 待提交 | ✅ BUILD SUCCESSFUL in 18s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 已拆 4 文件，最大 315L |
 | M9 | Characters | 未开始 | — | — | — | — | — | — | — |
 | M10 | CharDetail | 未开始 | — | — | — | — | — | — | — |
 | M11 | AccountDetail | 未开始 | — | — | — | — | — | — | — |
@@ -470,3 +470,49 @@ entry/src/main/ets/
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
 *M1 已完成：编译通过，无代码变更（目录/命名已规范），6 个已知问题记录不执行。*
+
+---
+
+## M8 spec — Home 模块（2026-11-01）
+
+分析依据：[`docs/home-module-analysis.md`](../docs/home-module-analysis.md)。
+
+### 背景
+
+`HomeViewModel` 728 行，承担 DB 读取、三游戏快照解析、同步编排、冷启动处理、路由构造、卡片展示 6 类职责，超过 §6 N-2 的 500 行拆分阈值。测试 `features/home/src/test/HomeViewModel.test.ets` 直接导入 `viewmodel/HomeViewModel.ets` 并调用 `HomeViewModel.getGameColor`，路径与导出符号冻结。
+
+### 文件映射
+
+| 原文件 | 新文件 | 职责 |
+|---|---|---|
+| `viewmodel/HomeViewModel.ets`（728L） | `viewmodel/HomeViewModel.ets`（303L） | facade：状态字段 + 公开方法 + 静态展示方法（保留原导出符号） |
+| 同上 | `viewmodel/HomeDataLoader.ets`（315L，新增） | `fetchAccounts` / `buildRoleCards` / `loadDailyNoteSnapshot` / `shouldSyncDailyNote` / `getDailyNoteLastSyncTime` |
+| 同上 | `viewmodel/HomeSyncCoordinator.ets`（137L，新增） | `syncDailyNote` / `syncIfNeeded` / `syncAllDailyNotes` / `handleColdStartRefreshResult` |
+| 同上 | `viewmodel/HomeCardPresenter.ets`（65L，新增） | `getGameColor` / `getGameLogo` / `syncDescKey` / `getPrimaryColor` |
+
+### 命名修正
+
+- `SkeletonBlock` 参数 `blockW/blockH/blockR` → `blockWidth/blockHeight/blockRadius`
+- `GameToolCardHeader.syncDescResource(key)` → `syncKey`
+- `loadDailyNoteSnapshot` 局部变量：`expCur/expMax` → `expeditionCurrent/expeditionMax`、`coinCur/coinMax` → `homeCoinCurrent/homeCoinMax`、`srRows` → `starRailRows`、`zzzisFull` → `isFull`、`zzzRecoverySec` → `recoverySeconds`、`vhsValue/vhsColor` → `videoStoreValue/videoStoreColor`、`cardSignDone` → `isCardSignDone`
+- 删除废弃空方法 `HomeViewModel.showNextCookieExpiredDialog`（全仓无调用方）
+
+### 决策
+
+| # | 问题 | 决定 | 依据 |
+|---|---|---|---|
+| D1 | `HomeViewModel` 是否拆分 | 拆为 4 文件，保留 facade | §6 N-2：>500L 且点名 HomeViewModel；测试路径冻结 |
+| D2 | 静态方法 `getGameColor` 等是否移出 | 保留在 `HomeViewModel` 上，内部委托 `HomeCardPresenter` | 测试直接调用 `HomeViewModel.getGameColor` |
+| D3 | `syncDailyNote` 错误上报方式 | 由直接写 `networkErrorMsg` 改为返回错误字符串 + 回调，facade 统一写入 | 解耦 helper 与 VM 状态；逐角色提示行为等价 |
+| D4 | `refresh` / `forceRefresh` 重复代码 | 提取 `performRefresh()` | 两方法除冷却检查外完全相同 |
+
+### 验收
+
+| 项 | 结果 |
+|---|---|
+| 编译（uat/Debug） | ✅ `BUILD SUCCESSFUL in 18s 80ms` |
+| 最大文件行数 | ✅ 315L（`HomeDataLoader.ets`），低于 500L 阈值 |
+| 测试契约 | ✅ `viewmodel/HomeViewModel.ets` 路径与 `HomeViewModel` / `getGameColor` 导出不变 |
+| 行为等价 | ✅ 同步/加载/错误提示/冷却/定时器逻辑逐方法对照；错误提示仍按角色逐个触发 |
+| codeLinter | ⚠️ 项目未配置 codeLinter task，跳过 |
+| 冒烟 | 🔶 待手动：首页三游戏卡片、刷新、骨架屏 |

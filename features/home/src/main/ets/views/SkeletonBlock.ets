@@ -8,9 +8,9 @@ import { themeManager, ThemeManager } from 'basic';
 @ComponentV2
 export struct SkeletonBlock {
   @Local private tm: ThemeManager = themeManager;
-  @Param blockW: Length = themeManager.current.full;
-  @Param blockH: number = themeManager.current.value16;
-  @Param blockR: number = themeManager.current.value8;
+  @Param blockWidth: Length = themeManager.current.full;
+  @Param blockHeight: number = themeManager.current.value16;
+  @Param blockRadius: number = themeManager.current.value8;
   @Local private shimmerOpacity: number = 1.0;
   private uiCtx: UIContext | null = null;
 
@@ -37,9 +37,9 @@ export struct SkeletonBlock {
 
   build() {
     Row()
-      .width(this.blockW)
-      .height(this.blockH)
-      .borderRadius(this.blockR)
+      .width(this.blockWidth)
+      .height(this.blockHeight)
+      .borderRadius(this.blockRadius)
       .backgroundColor(this.tm.current.colorSurfaceSubtle)
       .opacity(this.shimmerOpacity)
   }

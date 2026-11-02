@@ -13,17 +13,17 @@ export struct AccountSkeletonCard {
   build() {
     Column({ space: this.tm.current.value12 }) {
       Row({ space: this.tm.current.value12 }) {
-        SkeletonBlock({ blockW: this.tm.current.value36, blockH: this.tm.current.value36, blockR: this.tm.current.font18 })
+        SkeletonBlock({ blockWidth: this.tm.current.value36, blockHeight: this.tm.current.value36, blockRadius: this.tm.current.font18 })
 
-        SkeletonBlock({ blockW: this.tm.current.value120, blockH: this.tm.current.font16, blockR: this.tm.current.radius8 })
+        SkeletonBlock({ blockWidth: this.tm.current.value120, blockHeight: this.tm.current.font16, blockRadius: this.tm.current.radius8 })
       }
       .width(this.tm.current.full)
       .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })
 
       Column({ space: this.tm.current.value12 }) {
-        SkeletonBlock({ blockW: this.tm.current.full, blockH: this.tm.current.value100, blockR: this.tm.current.radius16 })
+        SkeletonBlock({ blockWidth: this.tm.current.full, blockHeight: this.tm.current.value100, blockRadius: this.tm.current.radius16 })
 
-        SkeletonBlock({ blockW: this.tm.current.full, blockH: this.tm.current.value100, blockR: this.tm.current.radius16 })
+        SkeletonBlock({ blockWidth: this.tm.current.full, blockHeight: this.tm.current.value100, blockRadius: this.tm.current.radius16 })
       }
       .width(this.tm.current.full)
       .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })
