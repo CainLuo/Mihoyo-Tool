@@ -13,7 +13,7 @@ import { ZZZDailyCard } from './ZZZDailyCard';
 import { ZZZShopCard } from './ZZZShopCard';
 import { ZZZOtherCard } from './ZZZOtherCard';
 
-function makeMockZzzNote(): ZZZDailyNoteVM {
+function createPreviewZzzNote(): ZZZDailyNoteVM {
   const vm = new ZZZDailyNoteVM();
   vm.currentEnergy = 240;
   vm.maxEnergy = 240;
@@ -40,7 +40,7 @@ export struct DailyNoteZZZPreview {
 
   build() {
     Scroll() {
-      DailyNoteZZZ({ data: makeMockZzzNote() })
+      DailyNoteZZZ({ data: createPreviewZzzNote() })
         .padding(this.tm.current.font16)
     }
     .height(this.tm.current.value600)

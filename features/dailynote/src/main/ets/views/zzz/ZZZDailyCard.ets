@@ -5,19 +5,12 @@
  */
 import { themeManager, ThemeManager, ThemeFonts, TimeFormatUtil } from 'basic';
 import { ZZZDailyNoteVM } from '../../model/DailyNoteModels';
+import { getStaminaRatioColor } from '../../utils/StaminaColorUtil';
 
 @ComponentV2
 export struct ZZZDailyCard {
   @Param data: ZZZDailyNoteVM = new ZZZDailyNoteVM();
   @Local private tm: ThemeManager = themeManager;
-
-  private getEnergyColor(): ResourceColor {
-    if (this.data.maxEnergy <= 0) { return this.tm.current.colorPrimary; }
-    const ratio = this.data.currentEnergy / this.data.maxEnergy;
-    if (ratio < 0.3) { return this.tm.current.colorDanger; }
-    if (ratio < 0.7) { return this.tm.current.colorWarning; }
-    return this.tm.current.colorPrimary;
-  }
 
   build() {
     Column({ space: this.tm.current.value0 }) {
@@ -44,7 +37,7 @@ export struct ZZZDailyCard {
         Row({ space: this.tm.current.value2 }) {
           Text(this.data.currentEnergy.toString())
             .font(ThemeFonts.FONT_BOLD_20)
-            .fontColor(this.getEnergyColor())
+            .fontColor(getStaminaRatioColor(this.data.currentEnergy, this.data.maxEnergy, this.tm))
 
           Text('/' + this.data.maxEnergy.toString())
             .font(ThemeFonts.FONT_14)

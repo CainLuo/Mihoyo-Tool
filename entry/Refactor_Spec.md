@@ -103,7 +103,7 @@ Fan-in 中心节点（共享层，不可随意移动）：
 
 - **按游戏三件套**（Genshin/StarRail/ZZZ）：`pages/GenshinDailyDetail|StarRailDailyDetail|ZZZDailyDetail`，MaterialList / MaterialTargetConfig / CharacterDetail 同样 ×3；`viewmodel/` 共 4 组。`components/characters/` 有 `genshin` / `starrail` / `zzz` 三个子目录（含 ×3 BottomBar + ×3 TopLeftBadge）→ 去重机会：共享骨架 + 按游戏配置参数（login-spec 先例模式）。
 - **`components/chardetail/`**：`common` 9 + `genshin` 26 + `starrail` 11 + `zzz` 13 = **59 个文件**，含响应式分支（Portrait/Landscape/Wide Layout ×4 HeroPanel 变体）——最大的去重目标。
-- **`components/dailynote/`**：已是 `common` + `genshin` / `starrail` / `zzz` 结构，共 **16 个文件**；M6 的"三件套去重"实际上只需清理残余重复，不要按"4 个文件"的旧统计规划。
+- **`components/dailynote/`**：已是 `common` + `genshin` / `starrail` / `zzz` 结构，共 **17 个视图文件**（M6 后另增 `utils/` 3 个）；M6 的"三件套去重"实际上只需清理残余重复，不要按"4 个文件"的旧统计规划。
 - **`components/widgetsettings/`**：**24 个文件**（13 个根级 + `preview/` 11 个），旧统计的 14 只算了根级。
 - **`components/characters/`**：**11 个文件**（根级 5 + 3 个游戏子目录共 6）。
 - **V1/V2 复核**：229 个文件出现过 `@ComponentV2` 字样，其中 **219 个实际使用**该装饰器（另 10 个只在注释里提及）；**16 个文件实际使用 `@Component`**（6 pages + 10 components，全部在 `widget/`；另 1 个 `widget/utils/WidgetUtils.ets` 仅在注释里提及）；未发现同一文件实际混用。**10 个 `widget/components/` 文件 + 3 个 `widget/pages/` 文件**在注释里说明"卡片引擎不支持 V2"，属于有意为之。
@@ -186,7 +186,7 @@ entry/src/main/ets/
 | M3 | AppearanceSettings | AppearanceSettingsPage | AppearanceSettingsViewModel | appearancesettings/（1 个文件） | 路由文件路径冻结；与 theme 中心节点关联 |
 | M4 | My | My | MyViewModel | my/（6 个文件） | 有 Local Test |
 | M5 | Notification | NotificationSettings | NotificationSettingsViewModel（318L） | `views/`（14）+ `views/NotificationSection.ets` + `model/service/`（6 个，含 `StaminaNoteReader`） | `NotificationModels` 被测试引用；服务层已做纯重构（670 → 490L），行为修复（M1/M2/M4/M7/M8）仍单独提交 |
-| M6 | Dailynote | Genshin/StarRail/ZZZ DailyDetail ×3 | ×3 | dailynote/（16 个文件，已分 common/genshin/starrail/zzz） | 页面骨架 ~90% 复制，但无必须的目录移动；仅 Genshin 有测试 |
+| M6 | Dailynote | Genshin/StarRail/ZZZ DailyDetail ×3 | ×3 | dailynote/（views 17 个 + utils 3 个，已分 common/genshin/starrail/zzz） | 三页共用 `DailyDetailScaffold`；VM 共用 `DailyNoteLoader` / `ExpeditionMapper`；仅 Genshin 有测试 |
 | M7 | MaterialCalc | MaterialCalc | MaterialCalcViewModel + MaterialCharacterSelectViewModel + MaterialTargetConfigViewModel ×3 | materialcalc/（8 个常规组件：LevelPicker / Character / ContentView / EmptyView / Item / LoadingView / Section / Skills）+ materiallist/（6 个）+ `builders/MaterialCharacterSelectPageBuilder.ets` | `MaterialComputeService` 中心节点；`MaterialCalcModels` 被测试引用 |
 | M8 | Home | Home | HomeViewModel（754L，需拆分，保留 facade） | home/（10 个文件） | `models/HomeModels` 被测试引用（测试当前误写成 `components/home/HomeModels`，见 §0.4），不能移动 |
 | M9 | Characters | Characters | CharactersViewModel | characters/（11 个：根级 5 + 3 个游戏子目录共 6） | 三件套去重；有 Local Test |
@@ -336,7 +336,7 @@ entry/src/main/ets/
 | M3 | AppearanceSettings | [appearance-settings-page](../docs/appearance-settings-page-module-analysis.md) | 1 High（主题切换失败被 `AppearanceManager.applyColorMode` 内部吞掉，页面照常 `pop()` 且无提示） | 修复点在 M0 的 `AppearanceManager`（改为返回成功与否或重新抛出），会改变失败时的 UI 行为，与 M3 协同、单独提交 |
 | M4 | My | [my](../docs/my-module-analysis.md) | 0 High；2 Medium（`AboutSection` 的 `@Param` 默认实例 + 依赖 page 类型）+ 1 Low（`onVisibleAreaChange` 无节流；原 ARKTS-012 经查 core `Logger` 已封装 hilog，撤回） | 随模块修；类型抽取与 M3 协调 |
 | M5 | Notification | [notification-settings](../docs/notification-settings-module-analysis.md) / [notification-service](../docs/notification-service-modules-analysis.md) | 页面：0 High；1 Medium（`abilityContext=null` 时开关静默无响应）+ 2 Low（`@Monitor` 路径、改阈值不重排）。服务层：0 High；8 Medium（每次同步取消并重建全部提醒、30 条上限静默跳过、`onDailyNotesSynced` 被 Home 触发 3 次、wantAgent 硬编码 bundle、状态表无对账、即时通知重复发布、延迟未扣除已流逝时间、空 catch）+ 4 Low | 纯重构已完成；M1/M7、M4、M8 各自单独提交；M2/M6 需决策；M5 属构建配置；M9 已随重构关闭 |
-| M6 | Dailynote | [daily-detail](../docs/daily-detail-modules-analysis.md) | 1 Medium（三页骨架复制）+ 2 Low；另有 `GenshinDailyDetailViewModel.test.ets` 引用失效方法（测试资产，不计入评级，但阻塞 §7 验收） | 记录；共享 Scaffold 非必须；测试引用需在跑 Local Test 前修 |
+| M6 | Dailynote | [daily-detail](../docs/daily-detail-modules-analysis.md) | 0 High；2 Medium（DAILY-M3 ERROR 显示为不可点击的"点击同步"空态、DAILY-M4 魔神任务卡片无数据源）+ 0 Low | 纯重构已完成（DAILY-M1 / L1 / L2 / I1 关闭，DAILY-M2 确认已修复）；M3 / M4 为行为变更，单独提交 |
 | M7 | MaterialCalc | [material-calc](../docs/material-calc-module-analysis.md) / [material-list](../docs/material-list-modules-analysis.md) / [target-config](../docs/material-target-config-modules-analysis.md) / [character-select](../docs/material-character-select-module-analysis.md) | 0 Critical / **1 High**（`MaterialCalc` 路由未注册、页面不可达）；Medium 11 + Low 13（按 4 份文档 2026-10-27 的执行摘要合计，这 4 份文档第二轮复核未完成，数字待复核） | High 单独提交（需在 `custom_router_map.json` 注册或改由 navDestination 处理，涉及 resources 作用域，需用户批准）；其余记录，去重随模块（不改变 UI 行为） |
 | M8 | Home | [home](../docs/home-module-analysis.md) | 2 High（ViewModel 754 行；Skeleton 动画未停） | 拆分随模块；动画修复随模块 |
 | M9 | Characters | [characters](../docs/characters-module-analysis.md) | 1 High（11 个 `@Monitor` 竞态） | 记录，暂不改行为 |
@@ -359,7 +359,7 @@ entry/src/main/ets/
 | M3 | AppearanceSettings | 🔶 部分完成（失败提示 + 字符串） | — | 1ff4cfe | ✅ 随 M8 构建通过 | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
 | M4 | My | 🔶 部分完成（SettingRow 迁入） | — | 1ff4cfe | ✅ BUILD SUCCESSFUL in 16s 358ms | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
 | M5 | Notification | ✅ 纯重构完成（行为修复待单独提交） | — | 5ca87a1 | ✅ BUILD SUCCESSFUL in 15s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 服务 670→490L + Reader 83L；VM 399→318L；M1/M2/M4/M7/M8 保留 |
-| M6 | Dailynote | 🔶 命名核查完成，真重构待执行 | — | bf6de65（记录曾写错文档） | ✅ BUILD SUCCESSFUL in 15s 824ms | ⚠️ 跳过 | 🔶 待运行 | — | 三件套去重未做 |
+| M6 | Dailynote | ✅ 真重构完成 | — | 待提交 | ✅ BUILD SUCCESSFUL in 15s 175ms | ⚠️ 跳过 | 🔶 待运行 | — | 页面 131/123/123→60/57/57；新增 Scaffold + 3 个 utils；M3/M4 保留 |
 | M7 | MaterialCalc | 🔶 命名核查完成，真重构待执行 | — | 5e9b2a7（记录曾写错文档） | ✅ BUILD SUCCESSFUL in 14s 40ms | ⚠️ 跳过 | 🔶 待运行 | — | 三件套去重未做 |
 | M8 | Home | ✅ 真重构完成 | — | e831292 | ✅ BUILD SUCCESSFUL in 18s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 已拆 4 文件，最大 315L |
 | M9 | Characters | 未开始 | — | — | — | — | — | — | — |
@@ -522,7 +522,7 @@ entry/src/main/ets/
 ---
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-02）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3/M4 部分提交（`1ff4cfe`）；M5 纯重构完成（`5ca87a1`）；M8 真重构完成（`e831292`）；M6/M7 仅完成命名核查，真重构待执行。*
+*进度（2026-11-02）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3/M4 部分提交（`1ff4cfe`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（待提交）；M8 真重构完成（`e831292`）；M7 仅完成命名核查，真重构待执行。*
 
 ---
 
@@ -630,3 +630,63 @@ entry/src/main/ets/
 ### 结论
 
 **M5 纯重构完成**：服务层抽出 `StaminaNoteReader`，STYLE_A / STYLE_B 共用 `resolveSchedule` 与 `publishTimerReminder`，三处状态写回与 WantAgent 构建去重；页面 VM 复用共享读取器与资源映射，去掉手写循环 / 复制 / 查询。服务 670 → 490L，VM 399 → 318L，行为等价，编译通过。M1/M2/M4/M7/M8 等行为修复仍按计划单独提交。
+
+---
+
+## M6 spec — Dailynote 模块（2026-11-02 真重构）
+
+分析依据：[`docs/daily-detail-modules-analysis.md`](../docs/daily-detail-modules-analysis.md)。
+
+### 背景说明
+
+模块共 24 个源文件：3 个页面（131 / 123 / 123 行）、3 个 ViewModel（97 / 82 / 63 行）、1 个模型文件、17 个视图组件。三页约 90% 同构（window 监听 + 三态分支 + 滚动容器），两个 VM 各写一份派遣转换，三个游戏各写一份体力比例配色。
+
+### 决策
+
+| # | 问题 | 决定 | 依据 |
+| --- | --- | --- | --- |
+| D1 | 三页骨架是否抽共享组件 | 抽 `DailyDetailScaffold`（`@BuilderParam` 内容槽） | 90% 重复且逻辑稳定；页面壳保留 Param / VM / 内容插槽 |
+| D2 | `windowWidthVp` + `display` + `windowSizeChange` | 删除 | 三页均只写不读，宽屏实际只靠 `maxWidth 600` |
+| D3 | 三个 VM 的 `loadData` 流程 | 抽 `loadDailyNote()`，返回 `DailyNoteLoadResult<T>` | 三份 LOADING / EMPTY / DATA / ERROR + 日志完全一致 |
+| D4 | 原神 / 星铁派遣转换 | 抽 `toExpeditionVMs()`，参数用两类型联合 | 字段一致（avatarSideIcon / status / remainedTime）；ArkTS 无结构化类型，不用 interface |
+| D5 | 三游戏体力阈值配色 | 抽 `getStaminaRatioColor(current, max, tm)` | 30% / 70% 阈值与颜色映射逐行相同 |
+| D6 | `DailyNoteCard` 未使用插槽 | 删除 `icon` / `hasIcon` / `customRight` / `hasCustomRight` | 全仓无调用方，属投机扩展 |
+| D7 | DAILY-M3 / M4 | 本轮不修，单独提交 | 均为用户可见行为变更 |
+
+### 文件改动清单
+
+| 操作 | 文件 | 说明 |
+| --- | --- | --- |
+| 新增 | `views/common/DailyDetailScaffold.ets`（67L） | NavDestination 标题栏 + 三态分支 + Scroll / 宽屏约束 |
+| 新增 | `utils/DailyNoteLoader.ets`（42L） | `loadDailyNote()` 与 `DailyNoteLoadResult<T>` |
+| 新增 | `utils/ExpeditionMapper.ets`（22L） | `ExpeditionSource` 联合类型 + `toExpeditionVMs()` |
+| 新增 | `utils/StaminaColorUtil.ets`（21L） | `getStaminaRatioColor()` |
+| 修改 | 3 个页面（131/123/123 → 60/57/57L） | 删除 window / display 样板；改用 Scaffold + `@Builder gameContent()` |
+| 修改 | 3 个 VM（97/82/63 → 82/70/62L） | `loadData` 改用 loader；派遣改用 mapper |
+| 修改 | `views/common/DailyNoteCard.ets` | 删除 4 个未使用参数；`title` 改 `@Require`；Preview 去掉死 `tm` |
+| 修改 | `DailyNoteDataRow` / `DailyNoteSectionLabel` / `GenshinDailyTaskContent` / `ExpeditionItem` | 必填参数改 `@Require`，删除无意义默认值 |
+| 修改 | `DailyNoteGenshin` / `StarRailStaminaCard` / `ZZZDailyCard` | 改用 `getStaminaRatioColor`；删除 `StarRailStaminaCard.uiCtx` 死字段 |
+| 修改 | 3 个游戏入口组件 | Preview mock 函数统一命名 `createPreviewXxxNote` |
+
+### 已知问题记录（不执行）
+
+| ID | 级别 | 描述 | 状态 |
+| --- | --- | --- | --- |
+| DAILY-M3 | Medium | ERROR 与 EMPTY 共用"暂无数据，点击同步"空态，无点击 / 无错误提示 | 保留，单独提交 |
+| DAILY-M4 | Medium | 原神魔神任务卡片字段从未赋值；`storedAdventure` 固定 -1 | 保留，需产品决策 |
+| DAILY-M2 | 测试资产 | 测试曾引用失效方法 | ✅ 当前 32 行 / 2 用例，已无失效引用 |
+
+### 验收记录
+
+| 项 | 结果 |
+| --- | --- |
+| 编译（uat/Debug） | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 15s 175ms`，安装/启动成功 |
+| codeLinter | ⚠️ 项目未配置 codeLinter task，跳过 |
+| Local Test | 🔶 `GenshinDailyDetailViewModel.test.ets` 2 条用例——需 DevEco GUI 手动运行 |
+| 测试契约 | ✅ VM 路径、类名、`viewState` / `note` 字段不变 |
+| 路由契约 | ✅ 三个 `pageSourceFile` 与 `*PageBuilder` 名不变；Param 类仍在原页面文件 |
+| 冒烟 | 🔶 待手动：三个游戏便笺详情、三态、宽屏 600 |
+
+### 结论
+
+**M6 真重构完成**：三页骨架收敛到 `DailyDetailScaffold`，页面 131/123/123 → 60/57/57 行；VM 加载流程、派遣转换、体力配色各自去重；删除三页无效 window 监听与 `DailyNoteCard` 未使用插槽。行为等价，编译通过。DAILY-M3 / M4 保留待单独提交。

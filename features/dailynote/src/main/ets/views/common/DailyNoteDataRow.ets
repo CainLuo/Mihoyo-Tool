@@ -8,8 +8,8 @@ import { themeManager, ThemeManager, ThemeFonts } from 'basic';
 
 @ComponentV2
 export struct DailyNoteDataRow {
-  @Param label: ResourceStr = '';
-  @Param value: ResourceStr = '';
+  @Require @Param label: ResourceStr;
+  @Require @Param value: ResourceStr;
   @Param valueColor: ResourceColor = '';
   /** true = 首行（无顶部分割线），false = 普通行（有顶部分割线） */
   @Param isFirst: boolean = false;

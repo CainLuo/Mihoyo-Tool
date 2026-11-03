@@ -5,13 +5,13 @@
  * 从 DB 读取 rawJson → StarRailDailyNoteParser.parse() → 转换为 StarRailDailyNoteVM。
  */
 
-import { CoreInitializer, StarRailDailyNoteParser, StarRailDailyNoteData, StarRailExpeditionData } from 'core';
-import { StarRailDailyNoteVM } from '../model/DailyNoteModels';
-import { ExpeditionVM } from '../model/DailyNoteModels';
-import { Logger } from 'core';
-import { ViewState } from 'basic';
+import { CoreInitializer, StarRailDailyNoteParser, StarRailDailyNoteData } from 'core'
+import { StarRailDailyNoteVM } from '../model/DailyNoteModels'
+import { ViewState } from 'basic'
+import { loadDailyNote } from '../utils/DailyNoteLoader'
+import { toExpeditionVMs } from '../utils/ExpeditionMapper'
 
-const TAG: string = 'StarRailDailyDetailViewModel';
+const TAG: string = 'StarRailDailyDetailViewModel'
 
 @ObservedV2
 export class StarRailDailyDetailViewModel {
@@ -28,20 +28,19 @@ export class StarRailDailyDetailViewModel {
 
   async loadData(): Promise<void> {
     this.viewState = ViewState.LOADING;
-    try {
-      const row = await CoreInitializer.starRailRepository.getDailyNote(this.accountId, this.roleUid);
-      if (row === null) {
-        this.viewState = ViewState.EMPTY;
-        return;
-      }
-      const data = StarRailDailyNoteParser.parse(row.rawJson);
-      this.note = StarRailDailyDetailViewModel.toVM(data);
-      this.viewState = ViewState.DATA;
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error(TAG, `loadData failed: ${msg}`);
-      this.viewState = ViewState.ERROR;
+    const result = await loadDailyNote(
+      TAG,
+      async (): Promise<string | null> => {
+        const row = await CoreInitializer.starRailRepository.getDailyNote(this.accountId, this.roleUid);
+        return row === null ? null : row.rawJson;
+      },
+      (rawJson: string): StarRailDailyNoteVM =>
+        StarRailDailyDetailViewModel.toVM(StarRailDailyNoteParser.parse(rawJson)),
+    );
+    if (result.note !== null) {
+      this.note = result.note;
     }
+    this.viewState = result.viewState;
   }
 
   private static toVM(data: StarRailDailyNoteData): StarRailDailyNoteVM {
@@ -53,7 +52,7 @@ export class StarRailDailyDetailViewModel {
     vm.isReserveStaminaFull = data.isReserveStaminaFull;
     vm.acceptedExpeditionNum = data.acceptedExpeditionNum;
     vm.totalExpeditionNum = data.totalExpeditionNum;
-    vm.expeditions = StarRailDailyDetailViewModel.toExpeditionVMs(data.expeditions);
+    vm.expeditions = toExpeditionVMs(data.expeditions);
     vm.currentTrainScore = data.currentTrainScore;
     vm.maxTrainScore = data.maxTrainScore;
     vm.currentRogueScore = data.currentRogueScore;
@@ -67,16 +66,5 @@ export class StarRailDailyDetailViewModel {
     vm.gridFightWeeklyCur = data.gridFightWeeklyCur;
     vm.gridFightWeeklyMax = data.gridFightWeeklyMax;
     return vm;
-  }
-
-  private static toExpeditionVMs(raws: StarRailExpeditionData[]): ExpeditionVM[] {
-    const result: ExpeditionVM[] = [];
-    for (let i = 0; i < raws.length; i++) {
-      const r = raws[i];
-      const isFinished = r.status === 'Finished' || r.remainedTime === '0';
-      const remainSec = parseInt(r.remainedTime, 10) || 0;
-      result[result.length] = new ExpeditionVM(r.avatarSideIcon, remainSec, isFinished);
-    }
-    return result;
   }
 }

@@ -8,7 +8,7 @@ import { themeManager, ThemeManager, ThemeFonts } from 'basic';
 
 @ComponentV2
 export struct DailyNoteSectionLabel {
-  @Param label: Resource = $r('app.string.app_name');
+  @Require @Param label: Resource;
   @Local private tm: ThemeManager = themeManager;
 
   build() {

@@ -6,24 +6,12 @@
 import { themeManager, ThemeManager, ThemeFonts, TimeFormatUtil } from 'basic';
 import { StarRailDailyNoteVM } from '../../model/DailyNoteModels';
 import { DailyNoteDataRow } from '../common/DailyNoteDataRow';
+import { getStaminaRatioColor } from '../../utils/StaminaColorUtil';
 
 @ComponentV2
 export struct StarRailStaminaCard {
   @Param data: StarRailDailyNoteVM = new StarRailDailyNoteVM();
   @Local private tm: ThemeManager = themeManager;
-  private uiCtx: UIContext | null = null;
-
-  aboutToAppear(): void {
-    this.uiCtx = this.getUIContext();
-  }
-
-  private getStaminaColor(): ResourceColor {
-    if (this.data.maxStamina <= 0) { return this.tm.current.colorPrimary; }
-    const ratio = this.data.currentStamina / this.data.maxStamina;
-    if (ratio < 0.3) { return this.tm.current.colorDanger; }
-    if (ratio < 0.7) { return this.tm.current.colorWarning; }
-    return this.tm.current.colorPrimary;
-  }
 
   build() {
     Column({ space: this.tm.current.value0 }) {
@@ -50,7 +38,7 @@ export struct StarRailStaminaCard {
         Row({ space: this.tm.current.value2 }) {
           Text(this.data.currentStamina.toString())
             .font(ThemeFonts.FONT_BOLD_20)
-            .fontColor(this.getStaminaColor())
+            .fontColor(getStaminaRatioColor(this.data.currentStamina, this.data.maxStamina, this.tm))
 
           Text('/' + this.data.maxStamina.toString())
             .font(ThemeFonts.FONT_14)

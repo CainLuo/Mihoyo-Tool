@@ -5,11 +5,12 @@
  */
 import { themeManager, ThemeManager, TimeFormatUtil } from 'basic';
 import { GenshinDailyNoteVM, ExpeditionVM, GenshinDailyTaskVM } from '../../model/DailyNoteModels';
+import { getStaminaRatioColor } from '../../utils/StaminaColorUtil';
 import { DailyNoteCard } from '../common/DailyNoteCard';
 import { GenshinDailyTaskContent } from './GenshinDailyTaskContent';
 import { GenshinExpeditionSection } from './GenshinExpeditionSection';
 
-function makeMockNote(resin: number): GenshinDailyNoteVM {
+function createPreviewGenshinNote(resin: number): GenshinDailyNoteVM {
   const note = new GenshinDailyNoteVM();
   note.currentResin = resin;
   note.maxResin = 200;
@@ -43,7 +44,7 @@ export struct DailyNoteGenshinPreviewNormal {
 
   build() {
     Scroll() {
-      DailyNoteGenshin({ data: makeMockNote(140) })
+      DailyNoteGenshin({ data: createPreviewGenshinNote(140) })
         .padding(this.tm.current.font16)
     }
     .height(this.tm.current.value600)
@@ -57,7 +58,7 @@ export struct DailyNoteGenshinPreviewNormal {
 export struct DailyNoteGenshinPreviewFull {
   build() {
     Scroll() {
-      DailyNoteGenshin({ data: makeMockNote(200) })
+      DailyNoteGenshin({ data: createPreviewGenshinNote(200) })
         .padding(themeManager.current.value16)
     }
     .height(themeManager.current.value600)
@@ -69,14 +70,6 @@ export struct DailyNoteGenshinPreviewFull {
 export struct DailyNoteGenshin {
   @Param data: GenshinDailyNoteVM = new GenshinDailyNoteVM();
   @Local private tm: ThemeManager = themeManager;
-
-  private getResinColor(): ResourceColor {
-    if (this.data.maxResin <= 0) { return this.tm.current.colorPrimary; }
-    const ratio = this.data.currentResin / this.data.maxResin;
-    if (ratio < 0.3) { return this.tm.current.colorDanger; }
-    if (ratio < 0.7) { return this.tm.current.colorWarning; }
-    return this.tm.current.colorPrimary;
-  }
 
   @Builder
   taskContent() {
@@ -100,7 +93,7 @@ export struct DailyNoteGenshin {
         hasSubtitle: this.data.resinRecoverySeconds > 0,
         valueText: this.data.currentResin.toString() + '/' + this.data.maxResin.toString(),
         hasValueText: true,
-        valueColor: this.getResinColor(),
+        valueColor: getStaminaRatioColor(this.data.currentResin, this.data.maxResin, this.tm),
       })
 
       DailyNoteCard({

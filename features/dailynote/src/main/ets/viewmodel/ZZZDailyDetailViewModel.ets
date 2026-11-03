@@ -5,12 +5,12 @@
  * 从 DB 读取 rawJson → ZZZDailyNoteParser.parse() → 转换为 ZZZDailyNoteVM。
  */
 
-import { CoreInitializer, ZZZDailyNoteParser, ZZZDailyNoteData } from 'core';
-import { ZZZDailyNoteVM } from '../model/DailyNoteModels';
-import { Logger } from 'core';
-import { ViewState } from 'basic';
+import { CoreInitializer, ZZZDailyNoteParser, ZZZDailyNoteData } from 'core'
+import { ZZZDailyNoteVM } from '../model/DailyNoteModels'
+import { ViewState } from 'basic'
+import { loadDailyNote } from '../utils/DailyNoteLoader'
 
-const TAG: string = 'ZZZDailyDetailViewModel';
+const TAG: string = 'ZZZDailyDetailViewModel'
 
 @ObservedV2
 export class ZZZDailyDetailViewModel {
@@ -27,20 +27,19 @@ export class ZZZDailyDetailViewModel {
 
   async loadData(): Promise<void> {
     this.viewState = ViewState.LOADING;
-    try {
-      const row = await CoreInitializer.zzzRepository.getDailyNote(this.accountId, this.roleUid);
-      if (row === null) {
-        this.viewState = ViewState.EMPTY;
-        return;
-      }
-      const data = ZZZDailyNoteParser.parse(row.rawJson);
-      this.note = ZZZDailyDetailViewModel.toVM(data);
-      this.viewState = ViewState.DATA;
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error(TAG, `loadData failed: ${msg}`);
-      this.viewState = ViewState.ERROR;
+    const result = await loadDailyNote(
+      TAG,
+      async (): Promise<string | null> => {
+        const row = await CoreInitializer.zzzRepository.getDailyNote(this.accountId, this.roleUid);
+        return row === null ? null : row.rawJson;
+      },
+      (rawJson: string): ZZZDailyNoteVM =>
+        ZZZDailyDetailViewModel.toVM(ZZZDailyNoteParser.parse(rawJson)),
+    );
+    if (result.note !== null) {
+      this.note = result.note;
     }
+    this.viewState = result.viewState;
   }
 
   private static toVM(data: ZZZDailyNoteData): ZZZDailyNoteVM {

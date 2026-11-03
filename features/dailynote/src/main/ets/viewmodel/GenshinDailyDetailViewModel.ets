@@ -4,20 +4,17 @@
  * 原神实时便笺详情页 ViewModel。
  * 从 DB 读取 rawJson → GenshinDailyNoteParser.parse() → 转换为 GenshinDailyNoteVM。
  *
- * 时间描述（"X小时Y分钟后恢复"）在此处生成为纯字符串，
+ * 时间描述（"X小时Y分钟后恢复"）在 View 层生成为纯字符串，
  * 因为时间是动态计算值，不适合放资源文件。
  */
 
-import { CoreInitializer, GenshinDailyNoteParser, GenshinDailyNoteData, GenshinExpeditionData } from 'core';
-import {
-  GenshinDailyNoteVM,
-  GenshinDailyTaskVM,
-  ExpeditionVM
-} from '../model/DailyNoteModels';
-import { Logger } from 'core';
-import { ViewState } from 'basic';
+import { CoreInitializer, GenshinDailyNoteParser, GenshinDailyNoteData } from 'core'
+import { GenshinDailyNoteVM, GenshinDailyTaskVM } from '../model/DailyNoteModels'
+import { ViewState } from 'basic'
+import { loadDailyNote } from '../utils/DailyNoteLoader'
+import { toExpeditionVMs } from '../utils/ExpeditionMapper'
 
-const TAG: string = 'GenshinDailyDetailViewModel';
+const TAG: string = 'GenshinDailyDetailViewModel'
 
 @ObservedV2
 export class GenshinDailyDetailViewModel {
@@ -34,20 +31,19 @@ export class GenshinDailyDetailViewModel {
 
   async loadData(): Promise<void> {
     this.viewState = ViewState.LOADING;
-    try {
-      const row = await CoreInitializer.genshinRepository.getDailyNote(this.accountId, this.roleUid);
-      if (row === null) {
-        this.viewState = ViewState.EMPTY;
-        return;
-      }
-      const data = GenshinDailyNoteParser.parse(row.rawJson);
-      this.note = GenshinDailyDetailViewModel.toVM(data);
-      this.viewState = ViewState.DATA;
-    } catch (error) {
-      const msg = error instanceof Error ? error.message : `${error}`;
-      Logger.error(TAG, `loadData failed: ${msg}`);
-      this.viewState = ViewState.ERROR;
+    const result = await loadDailyNote(
+      TAG,
+      async (): Promise<string | null> => {
+        const row = await CoreInitializer.genshinRepository.getDailyNote(this.accountId, this.roleUid);
+        return row === null ? null : row.rawJson;
+      },
+      (rawJson: string): GenshinDailyNoteVM =>
+        GenshinDailyDetailViewModel.toVM(GenshinDailyNoteParser.parse(rawJson)),
+    );
+    if (result.note !== null) {
+      this.note = result.note;
     }
+    this.viewState = result.viewState;
   }
 
   // ─── 数据转换 ────────────────────────────────────────────────
@@ -78,20 +74,9 @@ export class GenshinDailyDetailViewModel {
     vm.transformerHour = data.transformer.hour;
     vm.transformerMinute = data.transformer.minute;
 
-    vm.expeditions = GenshinDailyDetailViewModel.toExpeditionVMs(data.expeditions);
+    vm.expeditions = toExpeditionVMs(data.expeditions);
     vm.maxExpeditionNum = data.maxExpeditionNum;
 
     return vm;
-  }
-
-  private static toExpeditionVMs(raws: GenshinExpeditionData[]): ExpeditionVM[] {
-    const result: ExpeditionVM[] = [];
-    for (let i = 0; i < raws.length; i++) {
-      const r = raws[i];
-      const isFinished = r.status === 'Finished' || r.remainedTime === '0';
-      const remainSec = parseInt(r.remainedTime, 10) || 0;
-      result[result.length] = new ExpeditionVM(r.avatarSideIcon, remainSec, isFinished);
-    }
-    return result;
   }
 }

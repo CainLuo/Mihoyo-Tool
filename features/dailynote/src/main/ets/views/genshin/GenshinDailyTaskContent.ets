@@ -8,7 +8,7 @@ import { GenshinDailyTaskVM } from '../../model/DailyNoteModels';
 
 @ComponentV2
 export struct GenshinDailyTaskContent {
-  @Param task: GenshinDailyTaskVM = new GenshinDailyTaskVM(0, 0, false, 0);
+  @Require @Param task: GenshinDailyTaskVM;
   @Local private tm: ThemeManager = themeManager;
 
   build() {

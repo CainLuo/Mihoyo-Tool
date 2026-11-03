@@ -11,7 +11,7 @@ import { DailyNoteSectionLabel } from '../common/DailyNoteSectionLabel';
 import { StarRailStaminaCard } from './StarRailStaminaCard';
 import { StarRailUniverseCard } from './StarRailUniverseCard';
 
-function makeMockSrNote(): StarRailDailyNoteVM {
+function createPreviewStarRailNote(): StarRailDailyNoteVM {
   const vm = new StarRailDailyNoteVM();
   vm.currentStamina = 300;
   vm.maxStamina = 300;
@@ -44,7 +44,7 @@ export struct DailyNoteStarRailPreview {
 
   build() {
     Scroll() {
-      DailyNoteStarRail({ data: makeMockSrNote() })
+      DailyNoteStarRail({ data: createPreviewStarRailNote() })
         .padding(this.tm.current.font16)
     }
     .height(this.tm.current.value600)

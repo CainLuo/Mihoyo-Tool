@@ -28,7 +28,7 @@ export struct ExpeditionItemPreviewOngoing {
 
 @ComponentV2
 export struct ExpeditionItem {
-  @Param expedition: ExpeditionVM = new ExpeditionVM('', 0, false)
+  @Require @Param expedition: ExpeditionVM
   @Local private tm: ThemeManager = themeManager
 
   build() {
