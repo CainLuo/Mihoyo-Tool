@@ -92,7 +92,7 @@ export class GameStaminaConstants {
   static readonly REMINDER_LIMIT: number = 30;
 
   /** 根据 gameId 返回 fallback 上限 */
-  static getFallbackMax(gameId: string): number {
+  static getFallbackMax(gameId: GameId): number {
     if (gameId === GameId.GENSHIN) {
       return GameStaminaConstants.GENSHIN_MAX_FALLBACK;
     }
@@ -100,5 +100,82 @@ export class GameStaminaConstants {
       return GameStaminaConstants.STARRAIL_MAX_FALLBACK;
     }
     return GameStaminaConstants.ZZZ_MAX_FALLBACK;
+  }
+
+  /** 根据 gameId 返回每点体力恢复秒数 */
+  static getSecondsPerUnit(gameId: GameId): number {
+    if (gameId === GameId.GENSHIN) {
+      return GameStaminaConstants.GENSHIN_SECONDS_PER_UNIT;
+    }
+    if (gameId === GameId.STARRAIL) {
+      return GameStaminaConstants.STARRAIL_SECONDS_PER_UNIT;
+    }
+    return GameStaminaConstants.ZZZ_SECONDS_PER_UNIT;
+  }
+}
+
+/**
+ * 游戏名称 / 体力名称的资源映射。
+ *
+ * - UI 层（通知设置页）直接取 `Resource`，交给 ArkUI 做多语言渲染；
+ * - 服务层（代理提醒文案）按 key 通过 resourceManager 取当前语言字符串，
+ *   取不到时使用英文 fallback。
+ *
+ * 三个游戏的映射只保留这一份，避免页面与服务各写一套 if 链。
+ */
+export class GameStaminaResources {
+  /** 游戏名称资源 key */
+  static getGameNameKey(gameId: GameId): string {
+    if (gameId === GameId.GENSHIN) {
+      return 'game_name_genshin';
+    }
+    if (gameId === GameId.STARRAIL) {
+      return 'game_name_starrail';
+    }
+    return 'game_name_zzz';
+  }
+
+  /** 体力名称资源 key */
+  static getStaminaNameKey(gameId: GameId): string {
+    if (gameId === GameId.GENSHIN) {
+      return 'notification_stamina_genshin';
+    }
+    if (gameId === GameId.STARRAIL) {
+      return 'notification_stamina_starrail';
+    }
+    return 'notification_stamina_zzz';
+  }
+
+  /** 游戏名称英文 fallback（resourceManager 取不到时使用） */
+  static getGameNameFallback(gameId: GameId): string {
+    if (gameId === GameId.GENSHIN) {
+      return 'Genshin Impact';
+    }
+    if (gameId === GameId.STARRAIL) {
+      return 'Honkai: Star Rail';
+    }
+    return 'Zenless Zone Zero';
+  }
+
+  /** 体力名称英文 fallback（resourceManager 取不到时使用） */
+  static getStaminaNameFallback(gameId: GameId): string {
+    if (gameId === GameId.GENSHIN) {
+      return 'Resin';
+    }
+    if (gameId === GameId.STARRAIL) {
+      return 'Trailblaze Power';
+    }
+    return 'Battery';
+  }
+
+  /** 体力名称 Resource（通知设置页 UI 使用） */
+  static getStaminaName(gameId: GameId): Resource {
+    if (gameId === GameId.GENSHIN) {
+      return $r('app.string.notification_stamina_genshin');
+    }
+    if (gameId === GameId.STARRAIL) {
+      return $r('app.string.notification_stamina_starrail');
+    }
+    return $r('app.string.notification_stamina_zzz');
   }
 }

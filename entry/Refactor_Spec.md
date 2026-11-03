@@ -185,7 +185,7 @@ entry/src/main/ets/
 | M2 | PrivacyConsent | PrivacyConsentPage | PrivacyConsentViewModel | privacyconsent/（2 个文件） | 有 Local Test；页面不在 routerMap |
 | M3 | AppearanceSettings | AppearanceSettingsPage | AppearanceSettingsViewModel | appearancesettings/（1 个文件） | 路由文件路径冻结；与 theme 中心节点关联 |
 | M4 | My | My | MyViewModel | my/（6 个文件） | 有 Local Test |
-| M5 | Notification | NotificationSettings | NotificationSettingsViewModel（403L） | `components/notification/`（14）+ `components/my/NotificationSection.ets`（待迁入）+ `notification/` 服务（5 个） | 服务向 widget 扇出：3 条边；`NotificationModels` 被测试引用；唯一安全移动是把 `NotificationSection` 从 `my/` 迁入 `notification/` |
+| M5 | Notification | NotificationSettings | NotificationSettingsViewModel（318L） | `views/`（14）+ `views/NotificationSection.ets` + `model/service/`（6 个，含 `StaminaNoteReader`） | `NotificationModels` 被测试引用；服务层已做纯重构（670 → 490L），行为修复（M1/M2/M4/M7/M8）仍单独提交 |
 | M6 | Dailynote | Genshin/StarRail/ZZZ DailyDetail ×3 | ×3 | dailynote/（16 个文件，已分 common/genshin/starrail/zzz） | 页面骨架 ~90% 复制，但无必须的目录移动；仅 Genshin 有测试 |
 | M7 | MaterialCalc | MaterialCalc | MaterialCalcViewModel + MaterialCharacterSelectViewModel + MaterialTargetConfigViewModel ×3 | materialcalc/（8 个常规组件：LevelPicker / Character / ContentView / EmptyView / Item / LoadingView / Section / Skills）+ materiallist/（6 个）+ `builders/MaterialCharacterSelectPageBuilder.ets` | `MaterialComputeService` 中心节点；`MaterialCalcModels` 被测试引用 |
 | M8 | Home | Home | HomeViewModel（754L，需拆分，保留 facade） | home/（10 个文件） | `models/HomeModels` 被测试引用（测试当前误写成 `components/home/HomeModels`，见 §0.4），不能移动 |
@@ -335,7 +335,7 @@ entry/src/main/ets/
 | M2 | PrivacyConsent | [privacy-consent](../docs/privacy-consent-page-module-analysis.md) | 1 Medium（`setAgreed` 失败后仍 `replace(MAIN)`） | 记录；要修则单独提交 |
 | M3 | AppearanceSettings | [appearance-settings-page](../docs/appearance-settings-page-module-analysis.md) | 1 High（主题切换失败被 `AppearanceManager.applyColorMode` 内部吞掉，页面照常 `pop()` 且无提示） | 修复点在 M0 的 `AppearanceManager`（改为返回成功与否或重新抛出），会改变失败时的 UI 行为，与 M3 协同、单独提交 |
 | M4 | My | [my](../docs/my-module-analysis.md) | 0 High；2 Medium（`AboutSection` 的 `@Param` 默认实例 + 依赖 page 类型）+ 1 Low（`onVisibleAreaChange` 无节流；原 ARKTS-012 经查 core `Logger` 已封装 hilog，撤回） | 随模块修；类型抽取与 M3 协调 |
-| M5 | Notification | [notification-settings](../docs/notification-settings-module-analysis.md) / [notification-service](../docs/notification-service-modules-analysis.md) | 页面：0 High；1 Medium（`abilityContext=null` 时开关静默无响应）+ 0 Low（40 行薄壳的结构提示不算缺陷）。服务层：0 High；6 Medium（每次同步取消并重建全部提醒且与注释相反、30 条上限静默跳过、widget 推送 fire-and-forget、`onDailyNotesSynced` 被 Home 触发 3 次、wantAgent 硬编码 bundle、状态表无对账）+ 3 Low | 页面随模块修；服务层 M1/M3/M4 随 M5（各自单提交），M2/M6 需决策，M5 属构建配置 |
+| M5 | Notification | [notification-settings](../docs/notification-settings-module-analysis.md) / [notification-service](../docs/notification-service-modules-analysis.md) | 页面：0 High；1 Medium（`abilityContext=null` 时开关静默无响应）+ 2 Low（`@Monitor` 路径、改阈值不重排）。服务层：0 High；8 Medium（每次同步取消并重建全部提醒、30 条上限静默跳过、`onDailyNotesSynced` 被 Home 触发 3 次、wantAgent 硬编码 bundle、状态表无对账、即时通知重复发布、延迟未扣除已流逝时间、空 catch）+ 4 Low | 纯重构已完成；M1/M7、M4、M8 各自单独提交；M2/M6 需决策；M5 属构建配置；M9 已随重构关闭 |
 | M6 | Dailynote | [daily-detail](../docs/daily-detail-modules-analysis.md) | 1 Medium（三页骨架复制）+ 2 Low；另有 `GenshinDailyDetailViewModel.test.ets` 引用失效方法（测试资产，不计入评级，但阻塞 §7 验收） | 记录；共享 Scaffold 非必须；测试引用需在跑 Local Test 前修 |
 | M7 | MaterialCalc | [material-calc](../docs/material-calc-module-analysis.md) / [material-list](../docs/material-list-modules-analysis.md) / [target-config](../docs/material-target-config-modules-analysis.md) / [character-select](../docs/material-character-select-module-analysis.md) | 0 Critical / **1 High**（`MaterialCalc` 路由未注册、页面不可达）；Medium 11 + Low 13（按 4 份文档 2026-10-27 的执行摘要合计，这 4 份文档第二轮复核未完成，数字待复核） | High 单独提交（需在 `custom_router_map.json` 注册或改由 navDestination 处理，涉及 resources 作用域，需用户批准）；其余记录，去重随模块（不改变 UI 行为） |
 | M8 | Home | [home](../docs/home-module-analysis.md) | 2 High（ViewModel 754 行；Skeleton 动画未停） | 拆分随模块；动画修复随模块 |
@@ -358,7 +358,7 @@ entry/src/main/ets/
 | M2 | PrivacyConsent | ✅ 重构 + High 修复完成 | — | 8a85078 / ed45262 | ✅ BUILD SUCCESSFUL in 16s 145ms | ⚠️ 跳过 | 🔶 待运行 | — | 步骤常量/model、Footer 去重；不足一屏卡死已修 |
 | M3 | AppearanceSettings | 🔶 部分完成（失败提示 + 字符串） | — | 1ff4cfe | ✅ 随 M8 构建通过 | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
 | M4 | My | 🔶 部分完成（SettingRow 迁入） | — | 1ff4cfe | ✅ BUILD SUCCESSFUL in 16s 358ms | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
-| M5 | Notification | 🔶 命名核查完成，真重构待执行 | — | 0160c6b（夹带无关文件） | ✅ BUILD SUCCESSFUL in 15s 719ms | ⚠️ 跳过 | 🔶 待运行 | — | 提交卫生待清理；服务去重未做 |
+| M5 | Notification | ✅ 纯重构完成（行为修复待单独提交） | — | 待提交 | ✅ BUILD SUCCESSFUL in 15s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 服务 670→490L + Reader 83L；VM 399→318L；M1/M2/M4/M7/M8 保留 |
 | M6 | Dailynote | 🔶 命名核查完成，真重构待执行 | — | bf6de65（记录曾写错文档） | ✅ BUILD SUCCESSFUL in 15s 824ms | ⚠️ 跳过 | 🔶 待运行 | — | 三件套去重未做 |
 | M7 | MaterialCalc | 🔶 命名核查完成，真重构待执行 | — | 5e9b2a7（记录曾写错文档） | ✅ BUILD SUCCESSFUL in 14s 40ms | ⚠️ 跳过 | 🔶 待运行 | — | 三件套去重未做 |
 | M8 | Home | ✅ 真重构完成 | — | e831292 | ✅ BUILD SUCCESSFUL in 18s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 已拆 4 文件，最大 315L |
@@ -522,7 +522,7 @@ entry/src/main/ets/
 ---
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-02）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3/M4 部分提交（`1ff4cfe`）；M8 真重构完成（`e831292`）；M5/M6/M7 仅完成命名核查，真重构待执行。*
+*进度（2026-11-02）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3/M4 部分提交（`1ff4cfe`）；M5 纯重构完成（待提交）；M8 真重构完成（`e831292`）；M6/M7 仅完成命名核查，真重构待执行。*
 
 ---
 
@@ -569,3 +569,64 @@ entry/src/main/ets/
 | 行为等价 | ✅ 同步/加载/错误提示/冷却/定时器逻辑逐方法对照；错误提示仍按角色逐个触发 |
 | codeLinter | ⚠️ 项目未配置 codeLinter task，跳过 |
 | 冒烟 | 🔶 待手动：首页三游戏卡片、刷新、骨架屏 |
+
+---
+
+## M5 spec — Notification 模块（2026-11-02 真重构）
+
+分析依据：[`docs/notification-settings-module-analysis.md`](../docs/notification-settings-module-analysis.md) 与 [`docs/notification-service-modules-analysis.md`](../docs/notification-service-modules-analysis.md)。
+
+### 背景说明
+
+页面层：`NotificationSettingsPage` 40L + `NotificationSection` 113L + `NotificationSettingsViewModel` 399L + `views/` 14 个组件。
+服务层：`StaminaNotificationService` 670L、`NotificationSettingsStore` 115L、`NotificationModels` 104L、`NotificationStateStore` 102L、`StaminaThresholdCalculator` 70L。
+测试只直接导入 `model/NotificationModels.ets` 与 `model/service/StaminaThresholdCalculator.ets`；服务本体未被测试 import。
+
+### 决策
+
+| # | 问题 | 决定 | 依据 |
+| --- | --- | --- | --- |
+| D1 | `StaminaNotificationService` 670L 是否拆文件 | 不拆调度类；把 daily_note 读取抽到 `StaminaNoteReader` | 调度与 reminderAgent 调用序列紧耦合；读取逻辑可独立复用且设置页也需要 |
+| D2 | STYLE_A / STYLE_B 两套调度链路 | 统一为 `resolveSchedule` + `StaminaSchedule` | 两套链路除最终呈现外步骤完全相同，重复近 50 行 |
+| D3 | 两套代理提醒发布方法 | 合并为 `publishTimerReminder(schedule, body)` | 标题、WantAgent、关闭按钮、状态写回完全一致，仅正文不同 |
+| D4 | 游戏名称 / 体力名称 / 恢复秒数映射 | 收敛到 `GameStaminaConstants` + `GameStaminaResources` | VM 与 service 原本各写一份 if 链 |
+| D5 | `getFallbackMax(gameId: string)` | 收紧为 `GameId` | 调用方与测试均传 `GameId`，编译期可校验 |
+| D6 | M1/M2/M4/M7/M8 行为缺陷 | 本轮不修，单独提交 | §9「重构提交不夹带行为变更」 |
+
+### 文件改动清单
+
+| 操作 | 文件 | 说明 |
+| --- | --- | --- |
+| 新增 | `model/service/StaminaNoteReader.ets`（83L） | 三游戏 daily_note 读取与解析，输出 `StaminaSnapshot` |
+| 修改 | `model/NotificationModels.ets`（104 → 181L） | `getSecondsPerUnit`、`getFallbackMax(GameId)`、`GameStaminaResources` |
+| 修改 | `model/service/StaminaNotificationService.ets`（670 → 490L） | `StaminaSchedule` + `resolveSchedule` + `dispatchImmediateOrTimer` + `publishTimerReminder` + `saveState` + `createNotificationWantAgentInfo`；删除注释死代码与空 catch |
+| 修改 | `viewmodel/NotificationSettingsViewModel.ets`（399 → 318L） | 使用 `StaminaNoteReader` / `GameStaminaResources` / `basic.getGameName` / `getSecondsPerUnit`；`Set` 去重、`find`、`slice`、`cloneGameConfig`、`saveGameSetting` |
+
+### 已知问题记录（不执行）
+
+| ID | 级别 | 描述 | 状态 |
+| --- | --- | --- | --- |
+| M1 | Medium | 每次同步取消并重建已有提醒，`shouldReschedule` 未启用 | 保留，单独提交 |
+| M2 | Medium | 30 条上限命中后静默跳过 | 保留，需产品决策 |
+| M4 | Medium | Home 3 处触发 `onDailyNotesSynced` 且无并发保护 | 保留，单独提交 |
+| M5 | Medium | WantAgent bundle / ability 硬编码 | 保留，构建配置修复 |
+| M6 | Medium | 状态表与系统提醒无对账 | 保留，需存储设计 |
+| M7 | Medium | 已达阈值角色每次同步重发即时通知 | 保留，与 M1 同提交 |
+| M8 | Medium | 延迟未扣除已流逝时间 | 保留，单独提交 |
+| L1–L4 | Low | 权限时序 / 上限双源 / 错误信息 / 通知撤回 | 保留 |
+| 页面 Medium | Medium | 改阈值 / 一键满值只取消不重排 | 保留 |
+| 页面 Low ×2 | Low | `abilityContext` 为 null 静默；`@Monitor` 路径未用常量 | 保留 |
+
+### 验收记录
+
+| 项 | 结果 |
+|---|---|
+| 编译（uat/Debug） | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 15s 80ms`，安装/启动成功 |
+| codeLinter | ⚠️ 项目中无 `codeLinter` task，跳过 |
+| Local Test | 🔶 `StaminaNotificationService.test.ets` 26 条 + `StaminaThresholdCalculator.test.ets` 23 条——需 DevEco GUI 手动运行 |
+| 测试契约 | ✅ `NotificationModels.ets` / `StaminaThresholdCalculator.ets` 路径与导出符号不变 |
+| 冒烟 | 🔶 待手动：通知设置页、开关权限、阈值调整、前台/后台同步提醒 |
+
+### 结论
+
+**M5 纯重构完成**：服务层抽出 `StaminaNoteReader`，STYLE_A / STYLE_B 共用 `resolveSchedule` 与 `publishTimerReminder`，三处状态写回与 WantAgent 构建去重；页面 VM 复用共享读取器与资源映射，去掉手写循环 / 复制 / 查询。服务 670 → 490L，VM 399 → 318L，行为等价，编译通过。M1/M2/M4/M7/M8 等行为修复仍按计划单独提交。

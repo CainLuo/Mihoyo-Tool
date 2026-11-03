@@ -2,7 +2,7 @@
 
 > 生成时间：2026-10-24
 > 代码版本：`105c8d3`（本文档分析基线，2026-10-24 复核）
-> 作用 scope：`features/notification/src/main/ets/pages/NotificationSettingsPage.ets` + `NotificationSection`（子组件）+ `NotificationSettingsViewModel` + `features/notification/src/main/ets/views/notification/`（14 个子组件）；服务层见 [notification-service-modules-analysis.md](./notification-service-modules-analysis.md)
+> 作用 scope：`features/notification/src/main/ets/pages/NotificationSettingsPage.ets` + `views/NotificationSection`（子组件）+ `NotificationSettingsViewModel` + `features/notification/src/main/ets/views/`（14 个子组件）；服务层见 [notification-service-modules-analysis.md](./notification-service-modules-analysis.md)
 
 ---
 
@@ -26,9 +26,9 @@
 | 文件 | 类型 | 行数 | 职责 |
 |------|------|------|------|
 | `NotificationSettingsPage.ets` | Page / @ComponentV2 | 40 | 通知设置二级页，委托给 NotificationSection 组件 |
-| `components/my/NotificationSection.ets` | Component（子组件，位置待迁移） | 113 | 通知设置页内容（总开关/权限/槽位/样式/账号阈值） |
-| `viewmodel/NotificationSettingsViewModel.ets` | ViewModel | 403 | 通知设置数据/动作（被 Section 与多个 notification 子组件引用） |
-| `components/notification/`（14 个） | Component | 720 | `NotificationGameRow` 109 · `NotificationAccountBlock` 77 · `NotificationStyleCard` 71 · `NotificationAccountHeader` 56 · `NotificationStyleBPreview` 54 · `NotificationBubbleExpanded` 52 · `NotificationSlotUsage` 47 · `NotificationStyleAPreview` 47 · `NotificationFullValueRow` 46 · `NotificationMasterToggle` 45 · `NotificationBubbleCollapsed` 32 · `NotificationPermissionWarning` 31 · `NotificationBubbleHeader` 30 · `NotificationStyleBLine` 23 |
+| `views/NotificationSection.ets` | Component（子组件） | 113 | 通知设置页内容（总开关/权限/槽位/样式/账号阈值） |
+| `viewmodel/NotificationSettingsViewModel.ets` | ViewModel | 318 | 通知设置数据/动作（被 Section 与多个 notification 子组件引用） |
+| `views/`（14 个） | Component | 720 | `NotificationGameRow` 109 · `NotificationAccountBlock` 77 · `NotificationStyleCard` 71 · `NotificationAccountHeader` 56 · `NotificationStyleBPreview` 54 · `NotificationBubbleExpanded` 52 · `NotificationSlotUsage` 47 · `NotificationStyleAPreview` 47 · `NotificationFullValueRow` 46 · `NotificationMasterToggle` 45 · `NotificationBubbleCollapsed` 32 · `NotificationPermissionWarning` 31 · `NotificationBubbleHeader` 30 · `NotificationStyleBLine` 23 |
 
 **直接导入依赖**：`common`, `ThemeManager`, `NotificationSection`（子组件）
 
@@ -113,14 +113,14 @@ NotificationSettings (@ComponentV2)
 | 路由 | `custom_router_map.json:24-26`：`NotificationSettings` → `pages/NotificationSettingsPage.ets` + `NotificationSettingsBuilder`，**页面路径与 Builder 名冻结** |
 | 路由常量 | `AppRoutes.NOTIFICATION_SETTINGS = 'NotificationSettings'` 字符串冻结 |
 | 测试引用（冻结） | `notification/NotificationModels.ets` 被 `StaminaNotificationService.test.ets` 导入；`notification/StaminaThresholdCalculator.ets` 被 `StaminaThresholdCalculator.test.ets` 导入。两份测试分别依赖对应文件，**路径/导出符号不得变** |
-| 服务层 | `notification/` 的 5 个文件与 widget 存在 3 条扇出边；M5 只做目录整理时不得改服务行为 |
-| 组件位置 | `NotificationSection.ets` 当前在 `components/my/`，但只有 `NotificationSettingsPage.ets` 引用它（`MyPage.ets` 不用） |
+| 服务层 | `notification/` 的 6 个文件与 widget 只有 1 条 `basic` 边（`WidgetSyncHook`）；M5 重构不得改服务行为 |
+| 组件位置 | `NotificationSection.ets` 已位于 `views/`，只有 `NotificationSettingsPage.ets` 引用它（`MyPage.ets` 不用） |
 
-### 重构范围（建议）
+### 重构范围（已执行）
 
-- **唯一值得做的移动**：`components/my/NotificationSection.ets` → `components/notification/NotificationSection.ets`，同步更新 `pages/NotificationSettingsPage.ets:6` 的 import。已确认无其它引用、无测试引用、目标目录无同名文件。
-- `NotificationSettingsViewModel` 403 行（< 500），不拆分；它被 `NotificationSection` 与 `notification/` 下 6 个子组件直接 import（`NotificationMasterToggle` / `NotificationStyleCard` / `NotificationAccountBlock` / `NotificationGameRow` / `NotificationSlotUsage` / `NotificationFullValueRow`），路径保持 `viewmodel/`。
-- `notification/` 服务目录（`StaminaNotificationService` 691 行等）不在目录级改动范围；涉及行为的修复单独提交。
+- `NotificationSection.ets` 已位于 `views/`，无需再移动；页面 import 保持 `../views/NotificationSection`。
+- `NotificationSettingsViewModel` 318 行（< 500），不拆分；它被 `NotificationSection` 与 `views/` 下 6 个子组件直接 import（`NotificationMasterToggle` / `NotificationStyleCard` / `NotificationAccountBlock` / `NotificationGameRow` / `NotificationSlotUsage` / `NotificationFullValueRow`），路径保持 `viewmodel/`。
+- 服务目录只做私有方法抽取与去重，不拆文件；涉及行为的修复单独提交。
 
 ### 验收
 
@@ -130,9 +130,9 @@ NotificationSettings (@ComponentV2)
 
 ### 已知问题归属
 
-- Medium（改阈值 / 一键满值只取消不重排）：建议随 M5 修，与服务层 M1/M7 的去重修复一起冒烟，但与移动分开提交；否则记录到 Refactor_Spec §11。
-- Low（`abilityContext` 为 null 时开关静默无响应，不崩溃）：页面侧禁用态即可，可顺手修。
-- Low（`@Monitor` 路径未用常量）：随 `NotificationSection` 迁移一起改为引用常量，零行为变更。
+- Medium（改阈值 / 一键满值只取消不重排）：**未修**（行为变更），保留到 Refactor_Spec §11 / 服务层 M1+M7 一起处理。
+- Low（`abilityContext` 为 null 时开关静默无响应，不崩溃）：**未修**，保留。
+- Low（`@Monitor` 路径未用常量）：**未修**，`NotificationSection` 仍在用字面量路径。
 - 结构提示（页面仅 40 行空壳）：保持现状，不拆。
 
 ### 校验记录
@@ -140,3 +140,39 @@ NotificationSettings (@ComponentV2)
 | 校验轮次 | 范围 | 结论 |
 |---------|------|------|
 | 第 1 轮（2026-10-30 命名核查） | Service 层 4 文件 + Views 层 16 文件逐标识符核对：类名 PascalCase / 方法·变量 camelCase / 常量 UPPER_SNAKE_CASE；编译验证 `bash run.sh uat` → BUILD SUCCESSFUL in 15s 719ms | 🔶 命名零违规；本项为初步核查，M5 真重构（服务去重、行为等价验证、冒烟）待执行 |
+| 第 2 轮（2026-11-02 M5 页面层真重构） | VM 399 → 318 行；`loadMaxStamina` 改用 `StaminaNoteReader`；`getGameName` 改用 `basic`；`getStaminaName` 改用 `GameStaminaResources`；`getSecondsPerUnit` 改用 `GameStaminaConstants`；游戏去重改 `Set`；数组复制改 `slice()`；`find` / `findGameConfig` / `cloneGameConfig` / `saveGameSetting` 去重；编译 `bash run.sh uat` → BUILD SUCCESSFUL in 15s 80ms | ✅ 纯重构完成；Medium（阈值改动不重排）与 2 个 Low 保留 |
+
+---
+
+## M5 页面层真重构记录（2026-11-02）
+
+### 改动
+
+| 类型 | 文件 | 说明 |
+| --- | --- | --- |
+| 去重 | `viewmodel/NotificationSettingsViewModel.ets` | `loadMaxStamina` 改用共享的 `StaminaNoteReader`，不再手写三游戏 `getDailyNote → Parser → max` 分支 |
+| 去重 | `viewmodel/NotificationSettingsViewModel.ets` | 游戏名称改用 `basic.getGameName`；体力名称改用 `GameStaminaResources.getStaminaName`；每点恢复秒数改用 `GameStaminaConstants.getSecondsPerUnit` |
+| 去重 | `viewmodel/NotificationSettingsViewModel.ets` | 三处「构造 `GameNotificationSetting` + save」抽为 `saveGameSetting`；`findAccount` / `findGame` 用 `find()`，新增 `findGameConfig` |
+| 清理 | `viewmodel/NotificationSettingsViewModel.ets` | 游戏去重改 `Set<GameId>`；两处手写数组复制改 `this.accounts.slice()`；一键满值的字段复制抽为 `cloneGameConfig` |
+| 清理 | `viewmodel/NotificationSettingsViewModel.ets` | 删除重构后不再使用的 `getThreshold`；`fetchAccountConfigs` 的索引循环改 for-of + `push` |
+
+### 行为等价说明
+
+- `loadMaxStamina` 仍返回「DB/API 原始上限」，0 表示无数据；`StaminaNoteReader` 内部的三游戏字段与行数据兜底逐项照搬原实现。
+- `getGameName` 在 GENSHIN / STARRAIL / ZZZ 三个可达分支上与原来的 `$r('app.string.game_name_*')` 完全一致；`GameStaminaResources.getStaminaName` 同样逐项一致。
+- `getFallbackMax` 的入参由 `string` 收紧为 `GameId`；调用方与测试传入的都是 `GameId`，无运行时差异。
+- `slice()` 与手写复制都产生新数组引用，`@Trace` 更新语义不变。
+
+### 验收
+
+| 项 | 结果 |
+| --- | --- |
+| 编译 | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 15s 80ms`，安装/启动成功 |
+| 测试契约 | ✅ `model/NotificationModels.ets` 路径与 `NotificationStyle` / `GameStaminaConstants` / `GameNotificationSetting` 导出不变；`getFallbackMax(GameId)` 与测试调用一致 |
+| 冒烟 | 🔶 待手动：通知设置页账号/游戏展开、阈值调整、一键满值、样式切换 |
+
+### 未执行（保留记录）
+
+- Medium（改阈值 / 一键满值只取消不重排）：行为变更，保留到服务层 M1 + M7 一起修。
+- Low（`abilityContext` 为 null 静默）：保留。
+- Low（`@Monitor` 路径未用常量）：保留。

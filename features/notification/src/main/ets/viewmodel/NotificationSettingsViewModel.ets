@@ -2,7 +2,8 @@
  * NotificationSettingsViewModel.ets — 通知设置页 ViewModel
  */
 import { common } from '@kit.AbilityKit';
-import { CoreInitializer, Logger, GameRoleRow, GameId, GenshinDailyNoteParser, StarRailDailyNoteParser, ZZZDailyNoteParser } from 'core';
+import { CoreInitializer, Logger, GameRoleRow, GameId } from 'core';
+import { getGameName } from 'basic';
 import { StaminaNotificationService } from '../model/service/StaminaNotificationService';
 import { NotificationSettingsStore } from '../model/service/NotificationSettingsStore';
 import {
@@ -12,8 +13,10 @@ import {
   NotificationSettings,
   NotificationStyle,
   GameStaminaConstants,
+  GameStaminaResources,
 } from '../model/NotificationModels';
 import { StaminaThresholdCalculator } from '../model/service/StaminaThresholdCalculator';
+import { StaminaNoteReader } from '../model/service/StaminaNoteReader';
 
 const TAG: string = 'NotificationSettingsViewModel';
 
@@ -119,19 +122,14 @@ export class NotificationSettingsViewModel {
       }
 
       // 更新本地状态
-      const acct = this.findAccount(accountId);
-      if (acct !== null) {
-        const game = this.findGame(acct, gameId);
-        if (game !== null) {
-          game.isEnabled = isTargetEnabled;
-        }
+      const game = this.findGameConfig(accountId, gameId);
+      const threshold = game !== null ? game.threshold : 0;
+      if (game !== null) {
+        game.isEnabled = isTargetEnabled;
       }
 
       // 持久化
-      const setting = new GameNotificationSetting();
-      setting.isEnabled = isTargetEnabled;
-      setting.threshold = this.getThreshold(accountId, gameId);
-      await NotificationSettingsStore.getInstance().saveGameSetting(accountId, gameId, setting);
+      await this.saveGameSetting(accountId, gameId, isTargetEnabled, threshold);
 
       if (!isTargetEnabled) {
         await StaminaNotificationService.getInstance().cancelByAccountGame(accountId, gameId);
@@ -148,18 +146,13 @@ export class NotificationSettingsViewModel {
     const maxStamina = this.getMaxStamina(accountId, gameId);
     const clamped = StaminaThresholdCalculator.clampThreshold(threshold, maxStamina > 0 ? maxStamina : 999);
 
-    const acct = this.findAccount(accountId);
-    if (acct !== null) {
-      const game = this.findGame(acct, gameId);
-      if (game !== null) {
-        game.threshold = clamped;
-      }
+    const game = this.findGameConfig(accountId, gameId);
+    const isEnabled = game !== null ? game.isEnabled : false;
+    if (game !== null) {
+      game.threshold = clamped;
     }
 
-    const setting = new GameNotificationSetting();
-    setting.isEnabled = this.getGameEnabled(accountId, gameId);
-    setting.threshold = clamped;
-    await NotificationSettingsStore.getInstance().saveGameSetting(accountId, gameId, setting);
+    await this.saveGameSetting(accountId, gameId, isEnabled, clamped);
 
     // 阈值变化：取消旧提醒，下次同步时重新调度
     await StaminaNotificationService.getInstance().cancelByAccountGame(accountId, gameId);
@@ -172,32 +165,14 @@ export class NotificationSettingsViewModel {
     }
     // 创建新的 games 数组（新对象引用），让 @Monitor('game') 能检测到变化
     const newGames: GameNotificationConfig[] = [];
-    for (let i = 0; i < acct.games.length; i++) {
-      const game = acct.games[i];
+    for (const game of acct.games) {
       const maxVal = game.maxStamina > 0 ? game.maxStamina : GameStaminaConstants.getFallbackMax(game.gameId);
-      const setting = new GameNotificationSetting();
-      setting.isEnabled = game.isEnabled;
-      setting.threshold = maxVal;
-      await NotificationSettingsStore.getInstance().saveGameSetting(accountId, game.gameId, setting);
+      await this.saveGameSetting(accountId, game.gameId, game.isEnabled, maxVal);
       await StaminaNotificationService.getInstance().cancelByAccountGame(accountId, game.gameId);
-      // 创建新对象，threshold 已更新
-      const newGame = new GameNotificationConfig();
-      newGame.gameId = game.gameId;
-      newGame.gameName = game.gameName;
-      newGame.staminaName = game.staminaName;
-      newGame.isEnabled = game.isEnabled;
-      newGame.threshold = maxVal;
-      newGame.maxStamina = game.maxStamina;
-      newGame.secondsPerUnit = game.secondsPerUnit;
-      newGames[newGames.length] = newGame;
+      newGames.push(this.cloneGameConfig(game, maxVal));
     }
     acct.games = newGames;
-    // 重新赋值触发 @Trace 更新
-    const copy: AccountNotificationConfig[] = [];
-    for (let i = 0; i < this.accounts.length; i++) {
-      copy[copy.length] = this.accounts[i];
-    }
-    this.accounts = copy;
+    this.notifyAccountsChanged();
   }
 
   onToggleAccountExpanded(accountId: string): void {
@@ -205,11 +180,7 @@ export class NotificationSettingsViewModel {
     if (acct !== null) {
       acct.isExpanded = !acct.isExpanded;
       // 重新赋值触发 @Trace 更新，让 ForEach 重渲染
-      const copy: AccountNotificationConfig[] = [];
-      for (let i = 0; i < this.accounts.length; i++) {
-        copy[copy.length] = this.accounts[i];
-      }
-      this.accounts = copy;
+      this.notifyAccountsChanged();
     }
   }
 
@@ -222,33 +193,25 @@ export class NotificationSettingsViewModel {
     await NotificationSettingsStore.getInstance().saveGlobal(s);
   }
 
+  private async saveGameSetting(
+    accountId: string,
+    gameId: GameId,
+    isEnabled: boolean,
+    threshold: number,
+  ): Promise<void> {
+    const setting = new GameNotificationSetting();
+    setting.isEnabled = isEnabled;
+    setting.threshold = threshold;
+    await NotificationSettingsStore.getInstance().saveGameSetting(accountId, gameId, setting);
+  }
+
   private async fetchAccountConfigs(): Promise<AccountNotificationConfig[]> {
     const result: AccountNotificationConfig[] = [];
     try {
       const accounts = await CoreInitializer.bbsRepository.getAllAccounts();
-      for (let ai = 0; ai < accounts.length; ai++) {
-        const account = accounts[ai];
+      for (const account of accounts) {
         const roles = await CoreInitializer.bbsRepository.getGameRoles(account.uid);
-
-        // 收集该账号拥有的游戏（去重）
-        const gameIds: GameId[] = [];
-        for (let ri = 0; ri < roles.length; ri++) {
-          const gid = roles[ri].gameId;
-          if (gid !== GameId.GENSHIN && gid !== GameId.STARRAIL && gid !== GameId.ZZZ) {
-            continue;
-          }
-          let found = false;
-          for (let gi = 0; gi < gameIds.length; gi++) {
-            if (gameIds[gi] === gid) {
-              found = true;
-              break;
-            }
-          }
-          if (!found) {
-            gameIds[gameIds.length] = gid;
-          }
-        }
-
+        const gameIds = this.collectGameIds(roles);
         if (gameIds.length === 0) {
           continue;
         }
@@ -260,26 +223,25 @@ export class NotificationSettingsViewModel {
         acctConfig.avatarUrl = account.avatarUrl;
         acctConfig.isExpanded = true;
 
-        for (let gi = 0; gi < gameIds.length; gi++) {
-          const gameId = gameIds[gi];
+        for (const gameId of gameIds) {
           const maxStamina = await this.loadMaxStamina(account.uid, gameId, roles);
           const setting = await NotificationSettingsStore.getInstance().loadGameSetting(account.uid, gameId, maxStamina);
 
           const gameConfig = new GameNotificationConfig();
           gameConfig.gameId = gameId;
-          gameConfig.gameName = NotificationSettingsViewModel.getGameName(gameId);
-          gameConfig.staminaName = NotificationSettingsViewModel.getStaminaName(gameId);
+          gameConfig.gameName = getGameName(gameId);
+          gameConfig.staminaName = GameStaminaResources.getStaminaName(gameId);
           gameConfig.isEnabled = setting.isEnabled;
           gameConfig.threshold = StaminaThresholdCalculator.clampThreshold(
             setting.threshold,
             maxStamina > 0 ? maxStamina : 999,
           );
           gameConfig.maxStamina = maxStamina;
-          gameConfig.secondsPerUnit = NotificationSettingsViewModel.getSecondsPerUnit(gameId);
-          acctConfig.games[acctConfig.games.length] = gameConfig;
+          gameConfig.secondsPerUnit = GameStaminaConstants.getSecondsPerUnit(gameId);
+          acctConfig.games.push(gameConfig);
         }
 
-        result[result.length] = acctConfig;
+        result.push(acctConfig);
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : `${e}`;
@@ -288,112 +250,69 @@ export class NotificationSettingsViewModel {
     return result;
   }
 
+  /** 收集账号拥有的游戏（保持 roles 中的首次出现顺序，去重） */
+  private collectGameIds(roles: GameRoleRow[]): GameId[] {
+    const seen = new Set<GameId>();
+    for (const role of roles) {
+      if (role.gameId === GameId.GENSHIN || role.gameId === GameId.STARRAIL || role.gameId === GameId.ZZZ) {
+        seen.add(role.gameId);
+      }
+    }
+    const gameIds: GameId[] = [];
+    seen.forEach((gameId: GameId) => {
+      gameIds.push(gameId);
+    });
+    return gameIds;
+  }
+
   private async loadMaxStamina(accountId: string, gameId: GameId, roles: GameRoleRow[]): Promise<number> {
     // 取该账号该游戏的第一个角色 UID
-    let roleUid = '';
-    for (let ri = 0; ri < roles.length; ri++) {
-      const role = roles[ri];
-      if (role.gameId === gameId) {
-        roleUid = role.roleId;
-        break;
-      }
-    }
-    if (roleUid.length === 0) {
+    const role = roles.find((candidate: GameRoleRow) => candidate.gameId === gameId);
+    if (role === undefined) {
       return 0;
     }
-    try {
-      if (gameId === GameId.GENSHIN) {
-        const row = await CoreInitializer.genshinRepository.getDailyNote(accountId, roleUid);
-        if (row === null) {
-          return 0;
-        }
-        const data = GenshinDailyNoteParser.parse(row.rawJson);
-        return data.maxResin > 0 ? data.maxResin : row.maxResin;
-      }
-      if (gameId === GameId.STARRAIL) {
-        const row = await CoreInitializer.starRailRepository.getDailyNote(accountId, roleUid);
-        if (row === null) {
-          return 0;
-        }
-        const data = StarRailDailyNoteParser.parse(row.rawJson);
-        return data.maxStamina > 0 ? data.maxStamina : row.maxStamina;
-      }
-      if (gameId === GameId.ZZZ) {
-        const row = await CoreInitializer.zzzRepository.getDailyNote(accountId, roleUid);
-        if (row === null) {
-          return 0;
-        }
-        const data = ZZZDailyNoteParser.parse(row.rawJson);
-        return data.maxEnergy > 0 ? data.maxEnergy : row.energyMax;
-      }
-    } catch (_) {}
-    return 0;
+    const snapshot = await StaminaNoteReader.read(accountId, role.roleId, gameId);
+    return snapshot !== null ? snapshot.maxStamina : 0;
   }
 
   private findAccount(accountId: string): AccountNotificationConfig | null {
-    for (let i = 0; i < this.accounts.length; i++) {
-      if (this.accounts[i].accountId === accountId) {
-        return this.accounts[i];
-      }
-    }
-    return null;
+    return this.accounts.find((acct: AccountNotificationConfig) => acct.accountId === accountId) ?? null;
   }
 
   private findGame(acct: AccountNotificationConfig, gameId: GameId): GameNotificationConfig | null {
-    for (let i = 0; i < acct.games.length; i++) {
-      if (acct.games[i].gameId === gameId) {
-        return acct.games[i];
-      }
-    }
-    return null;
+    return acct.games.find((game: GameNotificationConfig) => game.gameId === gameId) ?? null;
   }
 
-  private getThreshold(accountId: string, gameId: GameId): number {
+  private findGameConfig(accountId: string, gameId: GameId): GameNotificationConfig | null {
     const acct = this.findAccount(accountId);
-    if (acct === null) {
-      return 0;
-    }
-    const game = this.findGame(acct, gameId);
-    return game !== null ? game.threshold : 0;
+    return acct !== null ? this.findGame(acct, gameId) : null;
   }
 
   private getMaxStamina(accountId: string, gameId: GameId): number {
-    const acct = this.findAccount(accountId);
-    if (acct === null) {
-      return 0;
-    }
-    const game = this.findGame(acct, gameId);
+    const game = this.findGameConfig(accountId, gameId);
     return game !== null ? game.maxStamina : 0;
   }
 
   private getGameEnabled(accountId: string, gameId: GameId): boolean {
-    const acct = this.findAccount(accountId);
-    if (acct === null) {
-      return false;
-    }
-    const game = this.findGame(acct, gameId);
+    const game = this.findGameConfig(accountId, gameId);
     return game !== null ? game.isEnabled : false;
   }
 
-  private static getGameName(gameId: GameId): Resource {
-    if (gameId === GameId.GENSHIN) { return $r('app.string.game_name_genshin'); }
-    if (gameId === GameId.STARRAIL) { return $r('app.string.game_name_starrail'); }
-    return $r('app.string.game_name_zzz');
+  /** 复制游戏配置并替换阈值（用于一键满值后触发响应式更新） */
+  private cloneGameConfig(game: GameNotificationConfig, threshold: number): GameNotificationConfig {
+    const copy = new GameNotificationConfig();
+    copy.gameId = game.gameId;
+    copy.gameName = game.gameName;
+    copy.staminaName = game.staminaName;
+    copy.isEnabled = game.isEnabled;
+    copy.threshold = threshold;
+    copy.maxStamina = game.maxStamina;
+    copy.secondsPerUnit = game.secondsPerUnit;
+    return copy;
   }
 
-  private static getStaminaName(gameId: GameId): Resource {
-    if (gameId === GameId.GENSHIN) { return $r('app.string.notification_stamina_genshin'); }
-    if (gameId === GameId.STARRAIL) { return $r('app.string.notification_stamina_starrail'); }
-    return $r('app.string.notification_stamina_zzz');
-  }
-
-  private static getSecondsPerUnit(gameId: GameId): number {
-    if (gameId === GameId.GENSHIN) {
-      return GameStaminaConstants.GENSHIN_SECONDS_PER_UNIT;
-    }
-    if (gameId === GameId.STARRAIL) {
-      return GameStaminaConstants.STARRAIL_SECONDS_PER_UNIT;
-    }
-    return GameStaminaConstants.ZZZ_SECONDS_PER_UNIT;
+  /** 重新赋值数组引用，触发 @Trace 更新 */
+  private notifyAccountsChanged(): void {
+    this.accounts = this.accounts.slice();
   }
 }

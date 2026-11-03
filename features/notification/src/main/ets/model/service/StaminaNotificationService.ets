@@ -3,40 +3,49 @@
  *
  * 使用 reminderAgentManager（@kit.BackgroundTasksKit）注册系统级代理提醒，
  * App 被杀后时间到了系统仍会自动弹出通知。
+ *
+ * STYLE_A（单角色通知）与 STYLE_B（合并通知）共用同一套调度数据：
+ *   读 daily_note → 读游戏设置 → clamp 阈值 → 取消旧提醒 → 计算延迟 → 发布。
+ * 两种样式的差异只在最终通知的呈现方式。
  */
 import { reminderAgentManager } from '@kit.BackgroundTasksKit';
 import { notificationManager } from '@kit.NotificationKit';
-import { wantAgent } from '@kit.AbilityKit';
-import { common } from '@kit.AbilityKit';
+import { wantAgent, common } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
-import { CoreInitializer, Logger, GameId, GenshinDailyNoteParser, StarRailDailyNoteParser, ZZZDailyNoteParser } from 'core';
+import { CoreInitializer, Logger, GameId } from 'core';
 import { StaminaThresholdCalculator } from './StaminaThresholdCalculator';
 import { NotificationSettingsStore } from './NotificationSettingsStore';
 import { NotificationStateStore } from './NotificationStateStore';
-import { NotificationStateEntry, NotificationStyle, GameStaminaConstants } from '../NotificationModels';
+import { StaminaNoteReader } from './StaminaNoteReader';
+import {
+  NotificationStateEntry,
+  NotificationStyle,
+  GameStaminaConstants,
+  GameStaminaResources,
+} from '../NotificationModels';
 import { WidgetSyncHook } from 'basic';
 
 const TAG: string = 'StaminaNotificationService';
 const BUNDLE_NAME: string = 'com.cainluo.miyoyo.tools';
 const ABILITY_NAME: string = 'EntryAbility';
 
-/** 内部用于传递 Recovery_Time 数据的类（替代匿名对象类型） */
-class StaminaRecovery {
-  recoveryTime: number = 0;
-  maxStamina: number = 0;
-  currentStamina: number = 0;
-}
-
-/** STYLE_B 合并通知用的条目数据 */
-class MergedNotificationEntry {
+/** 单个角色的提醒调度数据（STYLE_A / STYLE_B 共用） */
+class StaminaSchedule {
+  /** 状态存储 key：{accountId}_{roleUid}_{gameId} */
   key: string = '';
+  gameId: GameId = GameId.GENSHIN;
   gameName: string = '';
+  /** 优先角色昵称，没有则用账号昵称 */
   displayName: string = '';
   staminaName: string = '';
+  server: string = '';
+  roleUid: string = '';
   currentStamina: number = 0;
   maxStamina: number = 0;
+  /** 调度时的 Recovery_Time 快照（秒） */
   recoveryTimeSnapshot: number = 0;
   threshold: number = 0;
+  /** ≤ 0 表示当前已达到阈值，应立即通知 */
   delaySeconds: number = 0;
 }
 
@@ -112,47 +121,44 @@ export class StaminaNotificationService {
       return;
     }
 
-    // STYLE_B：收集所有需要即时通知的条目
-    const mergedEntries: MergedNotificationEntry[] = [];
+    const isMergedStyle = globalSettings.style === NotificationStyle.STYLE_B;
+    const mergedSchedules: StaminaSchedule[] = [];
 
     try {
       const accounts = await CoreInitializer.bbsRepository.getAllAccounts();
-      for (let ai = 0; ai < accounts.length; ai++) {
-        const account = accounts[ai];
+      for (const account of accounts) {
         const roles = await CoreInitializer.bbsRepository.getGameRoles(account.uid);
-        for (let ri = 0; ri < roles.length; ri++) {
-          const role = roles[ri];
-          const nickname = account.nickname.length > 0 ? account.nickname : account.username;
+        const accountNickname = account.nickname.length > 0 ? account.nickname : account.username;
 
-          if (globalSettings.style === NotificationStyle.STYLE_B) {
-            // STYLE_B：收集条目
-            const entry = await this.buildMergedEntry(
-              account.uid, nickname, role.roleId, role.gameId,
-              role.nickname, role.server,
-            );
-            if (entry === null) {
-              continue;
-            }
-            if (entry.delaySeconds <= 0) {
+        for (const role of roles) {
+          const schedule = await this.resolveSchedule(
+            account.uid, accountNickname, role.roleId, role.gameId,
+            role.nickname, role.server,
+          );
+          if (schedule === null) {
+            continue;
+          }
+
+          if (isMergedStyle) {
+            if (schedule.delaySeconds <= 0) {
               // 已到达阈值：收集到合并列表
-              mergedEntries.push(entry);
+              mergedSchedules.push(schedule);
             } else {
               // 未到达阈值：发布代理提醒，到期后触发合并通知
-              await this.scheduleMergedReminder(entry);
+              await this.publishTimerReminder(
+                schedule,
+                `${schedule.staminaName}已达阈值 ${schedule.threshold}/${schedule.maxStamina}`,
+              );
             }
           } else {
-            // STYLE_A：独立发布
-            await this.checkAndSchedule(
-              account.uid, nickname, role.roleId, role.gameId,
-              role.nickname, role.server,
-            );
+            await this.dispatchImmediateOrTimer(schedule);
           }
         }
       }
 
       // STYLE_B：发布合并通知
-      if (globalSettings.style === NotificationStyle.STYLE_B && mergedEntries.length > 0) {
-        await this.publishMergedNotification(mergedEntries, globalSettings.style);
+      if (isMergedStyle && mergedSchedules.length > 0) {
+        await this.publishMergedNotification(mergedSchedules);
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : `${e}`;
@@ -176,19 +182,12 @@ export class StaminaNotificationService {
   async cancelByAccountGame(accountId: string, gameId: GameId): Promise<void> {
     try {
       const roles = await CoreInitializer.bbsRepository.getGameRoles(accountId);
-      for (let ri = 0; ri < roles.length; ri++) {
-        const role = roles[ri];
+      for (const role of roles) {
         if (role.gameId !== gameId) {
           continue;
         }
         const key = `${accountId}_${role.roleId}_${gameId}`;
-        const entry = await NotificationStateStore.getInstance().getEntry(key);
-        if (entry !== null && entry.reminderId >= 0) {
-          try {
-            await reminderAgentManager.cancelReminder(entry.reminderId);
-          } catch (_) {}
-          await NotificationStateStore.getInstance().removeEntry(key);
-        }
+        await this.cancelExistingReminder(key);
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : `${e}`;
@@ -196,26 +195,29 @@ export class StaminaNotificationService {
     }
   }
 
+  // ─── 调度数据 ────────────────────────────────────────────────
+
   /**
-   * STYLE_B：构建合并通知用的条目数据
-   * 
-   * 返回 null 表示不需要通知（数据不足或已禁用）
+   * 组装单个角色的调度数据（两种样式共用）。
+   * 返回 null 表示无需通知（无 daily_note、游戏开关关闭）。
    */
-  private async buildMergedEntry(
+  private async resolveSchedule(
     accountId: string,
     accountNickname: string,
     roleUid: string,
     gameId: GameId,
     roleNickname: string,
-    _server: string,
-  ): Promise<MergedNotificationEntry | null> {
-    const noteData = await this.loadStaminaRecovery(accountId, roleUid, gameId);
-    if (noteData === null) {
+    server: string,
+  ): Promise<StaminaSchedule | null> {
+    const snapshot = await StaminaNoteReader.read(accountId, roleUid, gameId);
+    if (snapshot === null) {
       return null;
     }
-    const recoveryTime = noteData.recoveryTime;
-    const maxStamina = noteData.maxStamina;
-    const currentStamina = noteData.currentStamina;
+
+    // 服务层需要 fallback 上限，避免 DB 无数据时无法计算阈值
+    const maxStamina = snapshot.maxStamina > 0
+      ? snapshot.maxStamina
+      : GameStaminaConstants.getFallbackMax(gameId);
 
     // 传入 maxStamina，首次使用时默认阈值 = maxStamina × 80%
     const gameSetting = await NotificationSettingsStore.getInstance().loadGameSetting(accountId, gameId, maxStamina);
@@ -223,83 +225,95 @@ export class StaminaNotificationService {
       return null;
     }
     const threshold = StaminaThresholdCalculator.clampThreshold(gameSetting.threshold, maxStamina);
-    const secondsPerUnit = StaminaNotificationService.getSecondsPerUnit(gameId);
 
     const key = `${accountId}_${roleUid}_${gameId}`;
-    const existingEntry = await NotificationStateStore.getInstance().getEntry(key);
+    await this.cancelExistingReminder(key);
 
-    // 如果已有调度且未过期，跳过
+    const delaySeconds = StaminaThresholdCalculator.calcDelaySeconds(
+      snapshot.recoveryTime, threshold, maxStamina, GameStaminaConstants.getSecondsPerUnit(gameId),
+    );
+
+    const schedule = new StaminaSchedule();
+    schedule.key = key;
+    schedule.gameId = gameId;
+    schedule.gameName = this.getGameName(gameId);
+    schedule.displayName = roleNickname.length > 0 ? roleNickname : accountNickname;
+    schedule.staminaName = this.getStaminaName(gameId);
+    schedule.server = server;
+    schedule.roleUid = roleUid;
+    schedule.currentStamina = snapshot.currentStamina;
+    schedule.maxStamina = maxStamina;
+    schedule.recoveryTimeSnapshot = snapshot.recoveryTime;
+    schedule.threshold = threshold;
+    schedule.delaySeconds = delaySeconds;
+    return schedule;
+  }
+
+  /** 取消该 key 已注册的旧提醒并清除状态 */
+  private async cancelExistingReminder(key: string): Promise<void> {
+    const existingEntry = await NotificationStateStore.getInstance().getEntry(key);
     if (existingEntry !== null && existingEntry.reminderId >= 0) {
       try {
         await reminderAgentManager.cancelReminder(existingEntry.reminderId);
-      } catch (_) {}
+      } catch (e) {
+        const msg = e instanceof Error ? e.message : `${e}`;
+        Logger.warn(TAG, `cancelReminder failed for ${key}: ${msg}`);
+      }
       await NotificationStateStore.getInstance().removeEntry(key);
     }
+  }
 
-    const delaySeconds = StaminaThresholdCalculator.calcDelaySeconds(
-      recoveryTime, threshold, maxStamina, secondsPerUnit
+  /** STYLE_A：已达标立即通知，否则注册代理提醒 */
+  private async dispatchImmediateOrTimer(schedule: StaminaSchedule): Promise<void> {
+    Logger.info(
+      TAG,
+      `checkAndSchedule: ${schedule.gameId}/${schedule.roleUid} ` +
+      `recoveryTime=${schedule.recoveryTimeSnapshot} threshold=${schedule.threshold} ` +
+      `maxStamina=${schedule.maxStamina} delaySeconds=${schedule.delaySeconds}`,
     );
 
-    const staminaName = this.getStaminaName(gameId);
-    const gameName = this.getGameName(gameId);
-    const displayName = roleNickname.length > 0 ? roleNickname : accountNickname;
-
-    const entry = new MergedNotificationEntry();
-    entry.key = key;
-    entry.gameName = gameName;
-    entry.displayName = displayName;
-    entry.staminaName = staminaName;
-    entry.currentStamina = currentStamina;
-    entry.maxStamina = maxStamina;
-    entry.recoveryTimeSnapshot = recoveryTime;
-    entry.threshold = threshold;
-    entry.delaySeconds = delaySeconds;
-
-    return entry;
+    if (schedule.delaySeconds <= 0) {
+      const title = `${schedule.gameName} · ${schedule.displayName}`;
+      const body = `${schedule.staminaName}已达 ${schedule.currentStamina}/${schedule.maxStamina}，请及时消耗`;
+      const sub = `${schedule.server} · UID ${schedule.roleUid}`;
+      await this.publishImmediateNotification(schedule, title, body, sub);
+    } else {
+      await this.publishTimerReminder(
+        schedule,
+        `${schedule.staminaName}已达 ${schedule.currentStamina}/${schedule.maxStamina}，请及时消耗`,
+      );
+    }
   }
+
+  // ─── 通知发布 ────────────────────────────────────────────────
 
   /**
    * STYLE_B：发布合并的多行文本通知
-   * 
+   *
    * 收集所有角色的通知数据，合并为一条多行文本通知。
    * 每个角色一行，格式："游戏名 · 昵称：体力名 120/200"
    */
-  private async publishMergedNotification(
-    entries: MergedNotificationEntry[],
-    _style: NotificationStyle,
-  ): Promise<void> {
-    if (entries.length === 0) {
+  private async publishMergedNotification(schedules: StaminaSchedule[]): Promise<void> {
+    if (schedules.length === 0) {
       return;
     }
 
     try {
-      // 构建多行文本内容
       const lines: string[] = [];
-      for (let i = 0; i < entries.length; i++) {
-        const entry = entries[i];
-        lines.push(`${entry.gameName} · ${entry.displayName}：${entry.staminaName} ${entry.currentStamina}/${entry.maxStamina}`);
+      for (const schedule of schedules) {
+        lines.push(
+          `${schedule.gameName} · ${schedule.displayName}：` +
+          `${schedule.staminaName} ${schedule.currentStamina}/${schedule.maxStamina}`,
+        );
       }
-
       // 使用固定 ID 发布合并通知
       const notifId = StaminaNotificationService.hashNotificationId('merged_stamina_notification');
+      const wa = await wantAgent.getWantAgent(this.createNotificationWantAgentInfo(notifId));
 
-      // 构建点击通知后启动 App 的 WantAgent
-      const wantAgentInfo: wantAgent.WantAgentInfo = {
-        wants: [{
-          bundleName: BUNDLE_NAME,
-          abilityName: ABILITY_NAME,
-        }],
-        operationType: wantAgent.OperationType.START_ABILITY,
-        requestCode: notifId,
-        wantAgentFlags: [wantAgent.WantAgentFlags.UPDATE_PRESENT_FLAG],
-      };
-      const wa = await wantAgent.getWantAgent(wantAgentInfo);
-
-      // 多行文本通知内容
       const multiLineContent: notificationManager.NotificationMultiLineContent = {
         title: '体力提醒',
-        text: `共 ${entries.length} 个角色体力已达标`,
-        briefText: `${entries.length} 个角色`,
+        text: `共 ${schedules.length} 个角色体力已达标`,
+        briefText: `${schedules.length} 个角色`,
         longTitle: '体力提醒',
         lines: lines,
       };
@@ -314,165 +328,28 @@ export class StaminaNotificationService {
       };
       await notificationManager.publish(request);
 
-      // 更新所有条目的状态
       const now = Math.floor(Date.now() / 1000);
-      for (let i = 0; i < entries.length; i++) {
-        const entry = entries[i];
-        const stateEntry = new NotificationStateEntry();
-        stateEntry.reminderId = -1;
-        stateEntry.recoveryTimeSnapshot = entry.recoveryTimeSnapshot;
-        stateEntry.threshold = entry.threshold;
-        stateEntry.scheduledAt = now;
-        await NotificationStateStore.getInstance().setEntry(entry.key, stateEntry);
+      for (const schedule of schedules) {
+        await this.saveState(
+          schedule.key, -1, schedule.recoveryTimeSnapshot, schedule.threshold, now,
+        );
       }
-      Logger.info(TAG, `merged notification sent for ${entries.length} roles`);
+      Logger.info(TAG, `merged notification sent for ${schedules.length} roles`);
     } catch (e) {
       const msg = e instanceof Error ? e.message : `${e}`;
       Logger.warn(TAG, `publishMergedNotification failed: ${msg}`);
     }
   }
 
-  /**
-   * STYLE_B：为单个角色发布代理提醒
-   * 
-   * 代理提醒到期后，系统会唤醒 App，App 启动时会调用 onDailyNotesSynced()
-   * 重新检查所有角色状态并发布合并通知。
-   */
-  private async scheduleMergedReminder(entry: MergedNotificationEntry): Promise<void> {
-    try {
-      const count = await this.getReminderCount();
-      if (count >= GameStaminaConstants.REMINDER_LIMIT) {
-        Logger.warn(TAG, `reminder limit reached (${count}/${GameStaminaConstants.REMINDER_LIMIT}), skip: ${entry.key}`);
-        return;
-      }
-
-      const notifId = StaminaNotificationService.hashNotificationId(entry.key);
-      const wa: reminderAgentManager.WantAgent = {
-        pkgName: BUNDLE_NAME,
-        abilityName: ABILITY_NAME,
-      };
-      const closeBtn: reminderAgentManager.ActionButton = {
-        title: '关闭',
-        type: reminderAgentManager.ActionButtonType.ACTION_BUTTON_TYPE_CLOSE,
-      };
-
-      // 提醒标题和内容使用单角色格式
-      const title = `${entry.gameName} · ${entry.displayName}`;
-      const body = `${entry.staminaName}已达阈值 ${entry.threshold}/${entry.maxStamina}`;
-
-      const reminder: reminderAgentManager.ReminderRequestTimer = {
-        reminderType: reminderAgentManager.ReminderType.REMINDER_TYPE_TIMER,
-        triggerTimeInSeconds: entry.delaySeconds,
-        title: title,
-        content: body,
-        expiredContent: body,
-        notificationId: notifId,
-        slotType: notificationManager.SlotType.SERVICE_INFORMATION,
-        wantAgent: wa,
-        actionButton: [closeBtn],
-      };
-
-      Logger.info(TAG, `scheduleMergedReminder: publishing reminder for ${entry.key}, delay=${entry.delaySeconds}s, current count=${count}`);
-      const reminderId = await reminderAgentManager.publishReminder(reminder);
-      Logger.info(TAG, `scheduleMergedReminder: SUCCESS, reminderId=${reminderId} for ${entry.key}`);
-
-      const stateEntry = new NotificationStateEntry();
-      stateEntry.reminderId = reminderId;
-      stateEntry.recoveryTimeSnapshot = entry.recoveryTimeSnapshot;
-      stateEntry.threshold = entry.threshold;
-      stateEntry.scheduledAt = Math.floor(Date.now() / 1000);
-      await NotificationStateStore.getInstance().setEntry(entry.key, stateEntry);
-    } catch (e) {
-      const err = e as BusinessError;
-      const code: number = err.code !== undefined ? err.code : -1;
-      const msg: string = err.message !== undefined ? err.message : `${e}`;
-      Logger.error(TAG, `scheduleMergedReminder FAILED for ${entry.key}: code=${code} msg=${msg}`);
-    }
-  }
-
-  // ─── 私有方法 ────────────────────────────────────────────────
-
-  /** STYLE_A：独立发布每个角色的通知 */
-  private async checkAndSchedule(
-    accountId: string,
-    accountNickname: string,
-    roleUid: string,
-    gameId: GameId,
-    roleNickname: string,
-    server: string,
-  ): Promise<void> {
-    const noteData = await this.loadStaminaRecovery(accountId, roleUid, gameId);
-    if (noteData === null) {
-      return;
-    }
-    const recoveryTime = noteData.recoveryTime;
-    const maxStamina = noteData.maxStamina;
-    const currentStamina = noteData.currentStamina;
-
-    // 传入 maxStamina，首次使用时默认阈值 = maxStamina × 80%
-    const gameSetting = await NotificationSettingsStore.getInstance().loadGameSetting(accountId, gameId, maxStamina);
-    if (!gameSetting.isEnabled) {
-      return;
-    }
-    const threshold = StaminaThresholdCalculator.clampThreshold(gameSetting.threshold, maxStamina);
-    const secondsPerUnit = StaminaNotificationService.getSecondsPerUnit(gameId);
-
-    const key = `${accountId}_${roleUid}_${gameId}`;
-    const existingEntry = await NotificationStateStore.getInstance().getEntry(key);
-
-    // if (existingEntry !== null &&
-    //     !StaminaThresholdCalculator.shouldReschedule(existingEntry.recoveryTimeSnapshot, recoveryTime)) {
-    //   return;
-    // }
-    if (existingEntry !== null && existingEntry.reminderId >= 0) {
-      try {
-        await reminderAgentManager.cancelReminder(existingEntry.reminderId);
-      } catch (_) {}
-      await NotificationStateStore.getInstance().removeEntry(key);
-    }
-
-    const delaySeconds = StaminaThresholdCalculator.calcDelaySeconds(
-      recoveryTime, threshold, maxStamina, secondsPerUnit
-    );
-
-    Logger.info(TAG, `checkAndSchedule: ${gameId}/${roleUid} recoveryTime=${recoveryTime} threshold=${threshold} maxStamina=${maxStamina} delaySeconds=${delaySeconds}`);
-
-    const staminaName = this.getStaminaName(gameId);
-    const gameName = this.getGameName(gameId);
-    const displayName = roleNickname.length > 0 ? roleNickname : accountNickname;
-    const notifTitle = `${gameName} · ${displayName}`;
-    const notifBody = `${staminaName}已达 ${currentStamina}/${maxStamina}，请及时消耗`;
-    const notifSub = `${server} · UID ${roleUid}`;
-
-    if (delaySeconds <= 0) {
-      await this.publishImmediateNotification(notifTitle, notifBody, notifSub, key, recoveryTime, threshold);
-    } else {
-      await this.scheduleReminder(notifTitle, notifBody, delaySeconds, key, recoveryTime, threshold);
-    }
-  }
-
   private async publishImmediateNotification(
+    schedule: StaminaSchedule,
     title: string,
     body: string,
     sub: string,
-    key: string,
-    recoveryTimeSnapshot: number,
-    threshold: number,
   ): Promise<void> {
     try {
-      const notifId = StaminaNotificationService.hashNotificationId(key);
-
-      // 构建点击通知后启动 App 的 WantAgent
-      const wantAgentInfo: wantAgent.WantAgentInfo = {
-        wants: [{
-          bundleName: BUNDLE_NAME,
-          abilityName: ABILITY_NAME,
-        }],
-        operationType: wantAgent.OperationType.START_ABILITY,
-        requestCode: notifId,
-        wantAgentFlags: [wantAgent.WantAgentFlags.UPDATE_PRESENT_FLAG],
-      };
-      const wa = await wantAgent.getWantAgent(wantAgentInfo);
+      const notifId = StaminaNotificationService.hashNotificationId(schedule.key);
+      const wa = await wantAgent.getWantAgent(this.createNotificationWantAgentInfo(notifId));
 
       const basicContent: notificationManager.NotificationBasicContent = {
         title: title,
@@ -490,36 +367,31 @@ export class StaminaNotificationService {
       };
       await notificationManager.publish(request);
 
-      const entry = new NotificationStateEntry();
-      entry.reminderId = -1;
-      entry.recoveryTimeSnapshot = recoveryTimeSnapshot;
-      entry.threshold = threshold;
-      entry.scheduledAt = Math.floor(Date.now() / 1000);
-      await NotificationStateStore.getInstance().setEntry(key, entry);
-      Logger.info(TAG, `immediate notification sent: ${key}`);
+      await this.saveState(schedule.key, -1, schedule.recoveryTimeSnapshot, schedule.threshold);
+      Logger.info(TAG, `immediate notification sent: ${schedule.key}`);
     } catch (e) {
       const msg = e instanceof Error ? e.message : `${e}`;
       Logger.warn(TAG, `publishImmediateNotification failed: ${msg}`);
     }
   }
 
-  private async scheduleReminder(
-    title: string,
-    body: string,
-    delaySeconds: number,
-    key: string,
-    recoveryTimeSnapshot: number,
-    threshold: number,
-  ): Promise<void> {
+  /**
+   * 注册系统级代理提醒（STYLE_A / STYLE_B 共用）。
+   * 到期后系统会唤醒 App，App 启动时调用 onDailyNotesSynced() 重新检查。
+   */
+  private async publishTimerReminder(schedule: StaminaSchedule, body: string): Promise<void> {
     try {
       const count = await this.getReminderCount();
       if (count >= GameStaminaConstants.REMINDER_LIMIT) {
-        Logger.warn(TAG, `reminder limit reached (${count}/${GameStaminaConstants.REMINDER_LIMIT}), skip: ${key}`);
+        Logger.warn(
+          TAG,
+          `reminder limit reached (${count}/${GameStaminaConstants.REMINDER_LIMIT}), skip: ${schedule.key}`,
+        );
         return;
       }
 
-      const notifId = StaminaNotificationService.hashNotificationId(key);
-      const wa: reminderAgentManager.WantAgent = {
+      const notifId = StaminaNotificationService.hashNotificationId(schedule.key);
+      const reminderWantAgent: reminderAgentManager.WantAgent = {
         pkgName: BUNDLE_NAME,
         abilityName: ABILITY_NAME,
       };
@@ -527,136 +399,87 @@ export class StaminaNotificationService {
         title: '关闭',
         type: reminderAgentManager.ActionButtonType.ACTION_BUTTON_TYPE_CLOSE,
       };
+
       const reminder: reminderAgentManager.ReminderRequestTimer = {
         reminderType: reminderAgentManager.ReminderType.REMINDER_TYPE_TIMER,
-        triggerTimeInSeconds: delaySeconds,
-        title: title,
+        triggerTimeInSeconds: schedule.delaySeconds,
+        title: `${schedule.gameName} · ${schedule.displayName}`,
         content: body,
         expiredContent: body,
         notificationId: notifId,
         slotType: notificationManager.SlotType.SERVICE_INFORMATION,
-        wantAgent: wa,
+        wantAgent: reminderWantAgent,
         actionButton: [closeBtn],
       };
 
-      Logger.info(TAG, `scheduleReminder: publishing reminder for ${key}, delay=${delaySeconds}s, current count=${count}`);
+      Logger.info(
+        TAG,
+        `publishTimerReminder: publishing reminder for ${schedule.key}, ` +
+        `delay=${schedule.delaySeconds}s, current count=${count}`,
+      );
       const reminderId = await reminderAgentManager.publishReminder(reminder);
-      Logger.info(TAG, `scheduleReminder: SUCCESS, reminderId=${reminderId} for ${key}`);
+      Logger.info(TAG, `publishTimerReminder: SUCCESS, reminderId=${reminderId} for ${schedule.key}`);
 
-      const entry = new NotificationStateEntry();
-      entry.reminderId = reminderId;
-      entry.recoveryTimeSnapshot = recoveryTimeSnapshot;
-      entry.threshold = threshold;
-      entry.scheduledAt = Math.floor(Date.now() / 1000);
-      await NotificationStateStore.getInstance().setEntry(key, entry);
+      await this.saveState(schedule.key, reminderId, schedule.recoveryTimeSnapshot, schedule.threshold);
     } catch (e) {
       const err = e as BusinessError;
       const code: number = err.code !== undefined ? err.code : -1;
       const msg: string = err.message !== undefined ? err.message : `${e}`;
-      Logger.error(TAG, `scheduleReminder FAILED for ${key}: code=${code} msg=${msg}`);
+      Logger.error(TAG, `publishTimerReminder FAILED for ${schedule.key}: code=${code} msg=${msg}`);
     }
   }
 
-  private async loadStaminaRecovery(
-    accountId: string,
-    roleUid: string,
-    gameId: GameId,
-  ): Promise<StaminaRecovery | null> {
-    try {
-      if (gameId === GameId.GENSHIN) {
-        const row = await CoreInitializer.genshinRepository.getDailyNote(accountId, roleUid);
-        if (row === null) {
-          return null;
-        }
-        const data = GenshinDailyNoteParser.parse(row.rawJson);
-        const maxResin = data.maxResin > 0 ? data.maxResin : row.maxResin;
-        const result = new StaminaRecovery();
-        result.recoveryTime = StaminaThresholdCalculator.parseGenshinRecoveryTime(data.resinRecoveryTime);
-        result.maxStamina = maxResin > 0 ? maxResin : GameStaminaConstants.GENSHIN_MAX_FALLBACK;
-        result.currentStamina = data.currentResin;
-        return result;
-      }
-      if (gameId === GameId.STARRAIL) {
-        const row = await CoreInitializer.starRailRepository.getDailyNote(accountId, roleUid);
-        if (row === null) {
-          return null;
-        }
-        const data = StarRailDailyNoteParser.parse(row.rawJson);
-        const maxStamina = data.maxStamina > 0 ? data.maxStamina : row.maxStamina;
-        const result = new StaminaRecovery();
-        result.recoveryTime = data.staminaRecoverTime;
-        result.maxStamina = maxStamina > 0 ? maxStamina : GameStaminaConstants.STARRAIL_MAX_FALLBACK;
-        result.currentStamina = data.currentStamina > 0 ? data.currentStamina : row.currentStamina;
-        return result;
-      }
-      if (gameId === GameId.ZZZ) {
-        const row = await CoreInitializer.zzzRepository.getDailyNote(accountId, roleUid);
-        if (row === null) {
-          return null;
-        }
-        const data = ZZZDailyNoteParser.parse(row.rawJson);
-        const maxEnergy = data.maxEnergy > 0 ? data.maxEnergy : row.energyMax;
-        const result = new StaminaRecovery();
-        result.recoveryTime = data.energyRecoverTime;
-        result.maxStamina = maxEnergy > 0 ? maxEnergy : GameStaminaConstants.ZZZ_MAX_FALLBACK;
-        result.currentStamina = data.currentEnergy > 0 ? data.currentEnergy : row.energyCurrent;
-        return result;
-      }
-      return null;
-    } catch (e) {
-      const msg = e instanceof Error ? e.message : `${e}`;
-      Logger.warn(TAG, `loadStaminaRecovery failed for ${gameId}/${roleUid}: ${msg}`);
-      return null;
-    }
+  /** 构建点击通知后启动 App 的 WantAgentInfo */
+  private createNotificationWantAgentInfo(notifId: number): wantAgent.WantAgentInfo {
+    return {
+      wants: [{
+        bundleName: BUNDLE_NAME,
+        abilityName: ABILITY_NAME,
+      }],
+      operationType: wantAgent.OperationType.START_ABILITY,
+      requestCode: notifId,
+      wantAgentFlags: [wantAgent.WantAgentFlags.UPDATE_PRESENT_FLAG],
+    };
   }
 
-  private static getSecondsPerUnit(gameId: GameId): number {
-    if (gameId === GameId.GENSHIN) {
-      return GameStaminaConstants.GENSHIN_SECONDS_PER_UNIT;
-    }
-    if (gameId === GameId.STARRAIL) {
-      return GameStaminaConstants.STARRAIL_SECONDS_PER_UNIT;
-    }
-    return GameStaminaConstants.ZZZ_SECONDS_PER_UNIT;
+  /** 写入提醒状态（三处发布路径共用） */
+  private async saveState(
+    key: string,
+    reminderId: number,
+    recoveryTimeSnapshot: number,
+    threshold: number,
+    scheduledAt: number = Math.floor(Date.now() / 1000),
+  ): Promise<void> {
+    const stateEntry = new NotificationStateEntry();
+    stateEntry.reminderId = reminderId;
+    stateEntry.recoveryTimeSnapshot = recoveryTimeSnapshot;
+    stateEntry.threshold = threshold;
+    stateEntry.scheduledAt = scheduledAt;
+    await NotificationStateStore.getInstance().setEntry(key, stateEntry);
   }
+
+  // ─── 文案 ────────────────────────────────────────────────────
 
   private getStaminaName(gameId: GameId): string {
-    const fallbackName = (gId: GameId): string => {
-      if (gId === GameId.GENSHIN) return 'Resin';
-      if (gId === GameId.STARRAIL) return 'Trailblaze Power';
-      return 'Battery';
-    };
-    
-    try {
-      if (gameId === GameId.GENSHIN) {
-        return this.context?.resourceManager.getStringByNameSync('notification_stamina_genshin') ?? fallbackName(gameId);
-      }
-      if (gameId === GameId.STARRAIL) {
-        return this.context?.resourceManager.getStringByNameSync('notification_stamina_starrail') ?? fallbackName(gameId);
-      }
-      return this.context?.resourceManager.getStringByNameSync('notification_stamina_zzz') ?? fallbackName(gameId);
-    } catch (e) {
-      return fallbackName(gameId);
-    }
+    return this.getResourceString(
+      GameStaminaResources.getStaminaNameKey(gameId),
+      GameStaminaResources.getStaminaNameFallback(gameId),
+    );
   }
 
   private getGameName(gameId: GameId): string {
-    const fallbackName = (gId: GameId): string => {
-      if (gId === GameId.GENSHIN) return 'Genshin Impact';
-      if (gId === GameId.STARRAIL) return 'Honkai: Star Rail';
-      return 'Zenless Zone Zero';
-    };
-    
+    return this.getResourceString(
+      GameStaminaResources.getGameNameKey(gameId),
+      GameStaminaResources.getGameNameFallback(gameId),
+    );
+  }
+
+  /** 取当前语言字符串；context 未初始化或资源缺失时返回 fallback */
+  private getResourceString(key: string, fallback: string): string {
     try {
-      if (gameId === GameId.GENSHIN) {
-        return this.context?.resourceManager.getStringByNameSync('game_name_genshin') ?? fallbackName(gameId);
-      }
-      if (gameId === GameId.STARRAIL) {
-        return this.context?.resourceManager.getStringByNameSync('game_name_starrail') ?? fallbackName(gameId);
-      }
-      return this.context?.resourceManager.getStringByNameSync('game_name_zzz') ?? fallbackName(gameId);
-    } catch (e) {
-      return fallbackName(gameId);
+      return this.context?.resourceManager.getStringByNameSync(key) ?? fallback;
+    } catch (_) {
+      return fallback;
     }
   }
 

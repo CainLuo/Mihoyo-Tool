@@ -1,7 +1,7 @@
 # 通知服务层分析（M5 · 服务层）
 
-> **审查对象**：`features/notification/src/main/ets/model/` —— 5 个文件 / 1,061 行
-> （`StaminaNotificationService` 670 · `NotificationSettingsStore` 115 · `NotificationModels` 104 · `NotificationStateStore` 102 · `StaminaThresholdCalculator` 70）
+> **审查对象**：`features/notification/src/main/ets/model/` —— 6 个文件 / 1,041 行
+> （`StaminaNotificationService` 490 · `NotificationSettingsStore` 115 · `NotificationModels` 181 · `NotificationStateStore` 102 · `StaminaThresholdCalculator` 70 · `StaminaNoteReader` 83）
 > **审查日期**：2026-10-24（2026-10-29 结构迁移后复核，见 §10 第 5 轮）
 > **审查者**：AI 助手（`skills/harmonyos-review` checklist + `skills/arkts-rules` 规则）
 > **代码版本**：`e00e579`（结构迁移后）。文中 `:行号` 未注明文件时指 `StaminaNotificationService.ets`；其他文件按 `features/notification/src/main/ets/` 下的路径给出
@@ -34,10 +34,11 @@
 
 | 文件 | 行数 | 职责 |
 | --- | --- | --- |
-| `model/service/StaminaNotificationService.ets` | 670 | 单例服务：权限 → 读设置 → 读便签 → 算延迟 → 发布/取消代理提醒；STYLE_A 独立通知 / STYLE_B 合并通知；顺带触发 widget 推送 |
+| `model/service/StaminaNotificationService.ets` | 490 | 单例服务：权限 → 读设置 → 读便签 → 算延迟 → 发布/取消代理提醒；STYLE_A 独立通知 / STYLE_B 合并通知；顺带触发 widget 推送 |
+| `model/service/StaminaNoteReader.ets` | 83 | 读取并解析三游戏 daily_note，输出 `StaminaSnapshot`（recoveryTime / maxStamina / currentStamina） |
 | `model/service/NotificationSettingsStore.ets` | 115 | `notification_settings` preferences：全局 `enabled` / `style` + 按 `game_{accountId}_{gameId}` 的阈值 |
 | `model/service/NotificationStateStore.ets` | 102 | `notification_state` preferences：每个 `accountId_roleUid_gameId` 的 `reminderId` / `Recovery_Time` 快照 / 阈值 / 调度时间 |
-| `model/NotificationModels.ets` | 104 | `NotificationStyle`、`GameNotificationConfig`、`NotificationSettings`、`GameStaminaConstants`（含 `REMINDER_LIMIT = 30`） |
+| `model/NotificationModels.ets` | 181 | `NotificationStyle`、`GameNotificationConfig`、`NotificationSettings`、`GameStaminaConstants`（含 `REMINDER_LIMIT = 30` / `getSecondsPerUnit` / `getFallbackMax`）、`GameStaminaResources` |
 | `model/service/StaminaThresholdCalculator.ets` | 70 | 纯函数：`calcDelaySeconds` / `clampThreshold` / `shouldReschedule` / `parseGenshinRecoveryTime` |
 
 ---
@@ -53,8 +54,9 @@ NotificationSettingsViewModel（2 处：:83 / :139）
       ├─ [无条件] await WidgetSyncHook.onDailyNotesSynced(this.context)
       ├─ 读全局设置 enabled && style；无权限则 return
       ├─ 遍历 账号 × 角色
-      │    ├─ STYLE_A：checkAndSchedule() → 每角色一条 reminder
-      │    └─ STYLE_B：buildMergedEntry() → delay ≤ 0 收进列表；否则 scheduleMergedReminder()
+      │    └─ resolveSchedule()：读 daily_note → 读游戏设置 → clamp → 取消旧提醒 → 算延迟
+      │         ├─ STYLE_A：dispatchImmediateOrTimer() → 立即通知或 publishTimerReminder()
+      │         └─ STYLE_B：delay ≤ 0 收进列表；否则 publishTimerReminder()
       └─ STYLE_B：publishMergedNotification() 一次性弹合并通知
 ```
 
@@ -67,10 +69,10 @@ NotificationSettingsViewModel（2 处：:83 / :139）
 
 ### 2.3 与 widget 的解耦
 
-服务层**不再直接 import** widget 的 `WidgetDataBuilder` / `WidgetFormIdStore` / `WidgetDataStoreBuilder`，改为依赖 `basic` 的 `WidgetSyncHook`（`StaminaNotificationService.ets:17`）：
+服务层**不再直接 import** widget 的 `WidgetDataBuilder` / `WidgetFormIdStore` / `WidgetDataStoreBuilder`，改为依赖 `basic` 的 `WidgetSyncHook`（`StaminaNotificationService.ets:26`）：
 
-- `init()` 里 `await WidgetSyncHook.init(context)`（`:59`）；
-- `onDailyNotesSynced()` 里 `await WidgetSyncHook.onDailyNotesSynced(this.context)`（`:97-103`），异常由服务层 catch 记录；
+- `init()` 里 `await WidgetSyncHook.init(context)`（`:68`）；
+- `onDailyNotesSynced()` 里 `await WidgetSyncHook.onDailyNotesSynced(this.context)`（`:103-112`），异常由服务层 catch 记录；
 - 真正的 widget 实现在 `features/widget/.../WidgetSyncHandlerImpl.ets`，由 `EntryAbility.onCreate` 注册（`EntryAbility.ets:16`），且该推送**不受通知设置控制**——即使通知全关，每次 `onDailyNotesSynced()` 仍会刷新并推送 widget。
 
 这是结构迁移中完成的依赖倒置，原先 Refactor_Spec §4 M5 记的"服务向 widget 扇出 3 条边"已收敛为 1 条 `basic` 边。
@@ -115,6 +117,23 @@ NotificationSettingsViewModel（2 处：:83 / :139）
 ---
 
 ## 6. 风险清单
+
+> **行号基线**：M1–M9 / L1–L4 的 `:行号` 仍指 2026-10-24 的 670 行版本（历史审查记录）。M5 真重构后的对应位置见下表；风险结论本身未变，行为修复仍按 §7.2 单独提交。
+>
+> | 原位置（670L） | 现位置（490L） |
+> | --- | --- |
+> | `onDailyNotesSynced` `:94-161` | `:103-185` |
+> | STYLE_A `checkAndSchedule` `:396-452` | `resolveSchedule` `:204-251` + `dispatchImmediateOrTimer` `:264-291` |
+> | STYLE_B `buildMergedEntry` `:204-259` | `resolveSchedule` `:204-251` |
+> | `scheduleReminder` `:506-558` / `scheduleMergedReminder` `:341-391` | `publishTimerReminder` `:377-425` |
+> | `publishImmediateNotification` `:454-504` | `:339-375` |
+> | `publishMergedNotification` `:267-333` | `:293-337` |
+> | `loadStaminaRecovery` `:560-611` | `StaminaNoteReader.read` |
+> | `getSecondsPerUnit` `:613-621` | `GameStaminaConstants.getSecondsPerUnit` |
+> | `getStaminaName` / `getGameName` `:623-661` | `:457-478` |
+> | 3 处空 catch `:189` / `:235` / `:430` | `cancelExistingReminder` `:253-262`（已补日志） |
+> | `BUNDLE_NAME` / `ABILITY_NAME` `:20-21` | `:29-30` |
+> | 状态写回 `:321-326` / `:379-384` / `:493-498` | `saveState` `:441-455` |
 
 ### Medium
 
@@ -172,7 +191,7 @@ NotificationSettingsViewModel（2 处：:83 / :139）
 - **M2 / M6 需要产品与存储设计**：被跳过角色的展示、状态对账都涉及新增 UI 或迁移逻辑，记录不执行。
 - **缺陷 M5 属构建配置**：从 `context.abilityInfo` 读取 bundle / ability，随 uat / mock 打包验证。
 - **M9 是清理项**：3 处空 catch 补日志或加 `scan-ignore`，可随本模块重构一并提交。
-- **不要拆 `StaminaNotificationService`**：670 行确实大，但它与 reminderAgent 的调用序列紧耦合，拆分收益低于回归风险；本轮只允许抽私有方法。
+- **不要拆 `StaminaNotificationService`**：490 行仍然偏大，但它与 reminderAgent 的调用序列紧耦合，拆分收益低于回归风险；M5 已把 daily_note 读取抽到 `StaminaNoteReader`，本轮不再拆调度类。
 - **M3 已撤回**：残余 widget 推送问题在 `WidgetSyncHandlerImpl`，归 M14，不在本轮通知服务改造范围内。
 
 ### 验收
@@ -190,7 +209,7 @@ NotificationSettingsViewModel（2 处：:83 / :139）
 
 ### 7.1 整体观察（skills report-template 要求）
 
-- **代码质量**：两个 preferences store 与 calculator 职责单一，命名一致；`StaminaRecovery` / `MergedNotificationEntry` 用具名类替代匿名对象，符合 ArkTS 约束。扣分项是 670 行单文件、3 处空 catch（M9）与写死的 bundle / ability（M5）。
+- **代码质量**：两个 preferences store 与 calculator 职责单一，命名一致；`StaminaSchedule` 统一了 STYLE_A / STYLE_B 的调度数据，daily_note 读取抽到 `StaminaNoteReader`，服务本体从 670 行降到 490 行。扣分项是写死的 bundle / ability（M5）与仍存在的 30 条上限静默跳过（M2）。
 - **架构**：服务 → 两个 preferences store → 纯函数 calculator 的单向依赖清晰；widget 通过 `WidgetSyncHook` 依赖倒置，不再形成 notification ↔ widget 循环。缺口是 `onDailyNotesSynced` 没有 in-flight / 节流（M4），以及状态表与系统提醒没有对账（M6）。
 - **安全**：权限声明完整，日志不含凭据；`cancelAll` 的"清空本应用全部代理提醒"是未来扩展时的误伤点（§5）。
 - **性能**：每轮同步 O(账号×角色)，且 `getReminderCount()` 在每个角色调度前都调一次 `getValidReminders()`（`:343`、`:515`），角色多时是 O(N) 次系统 IPC；可改为本轮只取一次、发布后本地自增。该点暂未单列缺陷，随 M4 的节流一起优化即可。
@@ -209,10 +228,10 @@ NotificationSettingsViewModel（2 处：:83 / :139）
 
 | 方向 | 内容 |
 | --- | --- |
-| → core | `CoreInitializer`、`Logger`、`GameId`、三个 `*DailyNoteParser` |
+| → core | `StaminaNotificationService`：`CoreInitializer`、`Logger`、`GameId`；`StaminaNoteReader`：三个 `*DailyNoteParser` |
 | → basic | `WidgetSyncHook`（1 条边；widget 实现在 `features/widget` 注册） |
 | → 系统 Kit | `@kit.BackgroundTasksKit`（reminderAgentManager）、`@kit.NotificationKit`、`@kit.ArkData`（preferences）、`@kit.AbilityKit`（wantAgent / common）、`@kit.BasicServicesKit`（`BusinessError`） |
-| ← 调用方 | `features/home/.../viewmodel/HomeViewModel.ets`（`onDailyNotesSynced` 3 处：`:174 / :367 / :384`）、`NotificationSettingsViewModel.ets`（`onDailyNotesSynced` 2 处：`:83 / :139`；另调 `checkPermission` / `requestPermission` / `getReminderCount` / `cancelAll` / `cancelByAccountGame`，并直接使用 `NotificationSettingsStore` / `StaminaThresholdCalculator`）、`entry/src/main/ets/entryability/EntryAbility.ets:40`（`init`） |
+| ← 调用方 | `HomeViewModel.ets:155` + `HomeSyncCoordinator.ets:96 / :114`（`onDailyNotesSynced` 3 处）、`NotificationSettingsViewModel.ets:86 / :137`（`onDailyNotesSynced` 2 处；另调 `checkPermission` / `requestPermission` / `getReminderCount` / `cancelAll` / `cancelByAccountGame`，并直接使用 `NotificationSettingsStore` / `StaminaThresholdCalculator` / `StaminaNoteReader`）、`entry/src/main/ets/entryability/EntryAbility.ets:40`（`init`） |
 | ← 测试 | `features/notification/src/test/StaminaNotificationService.test.ets`、`StaminaThresholdCalculator.test.ets` |
 
 ---
@@ -220,19 +239,19 @@ NotificationSettingsViewModel（2 处：:83 / :139）
 ## 9. 复核命令
 
 ```bash
-# 行数（应为 670 / 115 / 104 / 102 / 70）
+# 行数（应为 490 / 83 / 115 / 102 / 181 / 70）
 wc -l features/notification/src/main/ets/model/NotificationModels.ets \
       features/notification/src/main/ets/model/service/*.ets
 
-# 空 catch（M9，应为 3 处：189 / 235 / 430）
+# 空 catch（M9，应为 0 处；取消路径已补 Logger.warn）
 grep -nE "catch\s*\([^)]*\)\s*\{\s*\}" \
   features/notification/src/main/ets/model/service/StaminaNotificationService.ets
 
-# shouldReschedule 的生产调用（应只剩注释与测试）
+# shouldReschedule 的生产调用（应为 0 处；测试仍保留）
 grep -rn "shouldReschedule" --include="*.ets" features/notification/src/main/ets
 
-# 即时通知写回 reminderId = -1（M7）
-grep -n "reminderId = -1" \
+# 即时通知写回 reminderId = -1（M7，现通过 saveState(..., -1, ...)）
+grep -n "saveState(.*-1" \
   features/notification/src/main/ets/model/service/StaminaNotificationService.ets
 
 # 硬编码 bundle / ability（M5）
@@ -257,5 +276,47 @@ grep -rn "notificationManager.cancel" --include="*.ets" features/notification
 | 第 3 轮（2026-10-24 全面复核） | 设置 key 实际带 `_enabled` / `_threshold` 后缀；`StaminaNotificationService.test.ets` 未 import 服务本体、`hashNotificationId` 为测试内副本；测试直接 import 的是 `NotificationModels` + `StaminaThresholdCalculator`；widget 推送先于通知开关检查；`cancelAll` 当时在 L187 | ✅ 修正 5 处（key 形态 / 唯一被引用文件 / STYLE_B 行号 / L1 行号 / 测试覆盖描述） |
 | 第 4 轮（2026-10-24 逐条事实） | `this.context!` 当时两处均在 try/catch 内（不崩）；设置页已有槽位用量与上限弹窗；`getEntry` 对 `rid < 0` 返回 null；Home 冷启动两次调用可重叠；uat / mock bundle 不同 | ✅ 新增 M7（即时通知每次同步重发）、M8（延迟未扣除已流逝时间）；撤回原 L2（`getReminderCount` + `reminderUsed` 已回读并展示）；改写 M2/M3/M4/M5/L1 与合规表；计数 6M/3L → 8M/2L |
 | 第 5 轮（2026-10-29 结构迁移后复核） | 按 `docs/project-structure.md` 重核路径与行号：`entry/src/main/ets/notification/` → `features/notification/src/main/ets/model/`；服务 691 → 670 行、总计 1,082 → 1,061；`instance()` → `getInstance()`；widget 3 条 import → `basic` 的 `WidgetSyncHook` 1 条边（`EntryAbility.ets:16` 注册实现）；全部 `file:line` 逐条回代码；测试 import 与本地 `hashNotificationId` 副本核对；对照 `skills/harmonyos-review/references/checklist.md`、`skills/arkts-rules/references/spec-quick-ref.md`、`scan-arkts.sh` 重扫 | 撤回 M3（服务层已 await `WidgetSyncHook`，残余在 `WidgetSyncHandlerImpl`，归 M14）；新增 M9（3 处空 catch，`ARKTS-016` 默认 Medium）、L3（`KIT-005` / `ARKTS-011` 错误处理信息不足）、L4（关闭通知不撤回已发布通知）；补「规则 ID」列、整体观察 / 复审建议 / 复核命令 / 页头元数据。计数 8M/2L → **8M/4L**，评级 B 不变，债务 18 → 20，密度 1.7 → 1.9 |
+| 第 6 轮（2026-11-02 M5 真重构） | 服务 670 → 490 行；新增 `StaminaNoteReader`（83 行）统一三游戏 daily_note 读取；`NotificationModels` 104 → 181 行（`getSecondsPerUnit` / `getFallbackMax(GameId)` / `GameStaminaResources`）；`StaminaSchedule` 统一 STYLE_A/B 调度数据；`resolveSchedule` / `publishTimerReminder` / `saveState` / `createNotificationWantAgentInfo` 去重；删除注释掉的 `shouldReschedule` 与 `_style` / `_server` 参数；3 处空 catch 收敛为 1 处并补日志；编译 `bash run.sh uat` → BUILD SUCCESSFUL in 15s 80ms | ✅ 纯重构完成；M1/M2/M4/M5/M6/M7/M8 行为修复仍未执行（单独提交） |
 
 【已核对代码一致性】
+
+---
+
+## 11. M5 服务层真重构记录（2026-11-02）
+
+### 改动
+
+| 类型 | 文件 | 说明 |
+| --- | --- | --- |
+| 新增 | `model/service/StaminaNoteReader.ets`（83L） | 三游戏 `getDailyNote → Parser → 行数据兜底` 的唯一实现，输出 `StaminaSnapshot` |
+| 去重 | `StaminaNotificationService.ets` | `buildMergedEntry` 与 `checkAndSchedule` 合并为 `resolveSchedule`：读快照 → 读设置 → clamp → 取消旧提醒 → 算延迟 → 拼文案数据 |
+| 去重 | `StaminaNotificationService.ets` | `scheduleReminder` 与 `scheduleMergedReminder` 合并为 `publishTimerReminder`；`publishImmediateNotification` / `publishMergedNotification` 共用 `createNotificationWantAgentInfo` 与 `saveState` |
+| 去重 | `StaminaNotificationService.ets` | 两处「取消旧提醒 + removeEntry」合并为 `cancelExistingReminder`；三处 `NotificationStateEntry` 写回合并为 `saveState` |
+| 清理 | `StaminaNotificationService.ets` | 删除注释掉的 `shouldReschedule` 死代码、未使用的 `_style` / `_server` 参数、`StaminaRecovery` / `MergedNotificationEntry` 内部类 |
+| 命名 | `StaminaNotificationService.ets` | `checkAndSchedule` → `dispatchImmediateOrTimer`；`StaminaSchedule` 统一两种样式的调度数据 |
+| 去重 | `NotificationModels.ets` | 新增 `GameStaminaConstants.getSecondsPerUnit`、`GameStaminaResources`（资源 key / Resource / 英文 fallback）；`getFallbackMax` 入参由 `string` 收紧为 `GameId` |
+| 清理 | `StaminaNotificationService.ets` | 3 处空 catch 收敛为 1 处并补 `Logger.warn`（M9 关闭）；索引循环改 for-of |
+
+### 行为等价说明
+
+- `resolveSchedule` 的步骤顺序与原 `checkAndSchedule` / `buildMergedEntry` 一致；STYLE_B 仍然先取消旧提醒再决定「立即合并」或「注册代理提醒」。
+- 服务层 `maxStamina` 仍在读设置前套用 `getFallbackMax`，与原 `loadStaminaRecovery` 一致；设置页仍使用原始值（0 表示无数据）。
+- 两种样式的通知标题 / 正文逐字保留：STYLE_A 即时通知用 `当前/上限，请及时消耗`，STYLE_B 代理提醒用 `已达阈值 阈值/上限`。
+- `publishMergedNotification` 的固定通知 ID、多行格式、状态写回字段均未变。
+- 新增的 `Logger.warn` 只影响取消失败时的日志，不改变「取消失败仍 removeEntry」的原有语义。
+
+### 验收
+
+| 项 | 结果 |
+| --- | --- |
+| 编译 | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 15s 80ms`，安装/启动成功 |
+| 测试契约 | ✅ `NotificationModels.ets` / `StaminaThresholdCalculator.ets` 路径不变；`NotificationStyle` / `GameStaminaConstants` / `GameNotificationSetting` 导出不变；`getFallbackMax(GameId)` 与测试调用一致 |
+| 文件规模 | ✅ Service 670 → 490L；新增 Reader 83L；Models 104 → 181L |
+| 冒烟 | 🔶 待手动：开启通知 → 调低阈值 → 前台/后台各触发一次同步 → 确认提醒时间与文案 |
+
+### 未执行（保留记录）
+
+- M1（每次同步取消重建）、M7（即时通知重复发布）、M4（Home 3 次触发无并发保护）、M8（延迟未扣除已流逝时间）：行为变更，单独提交。
+- M2（30 条上限静默跳过）、M6（状态表对账）：需产品 / 存储设计，保留。
+- M5（bundle / ability 硬编码）：构建配置修复，单独提交。
+- L1–L4：保留记录。
