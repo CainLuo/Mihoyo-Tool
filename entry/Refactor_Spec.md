@@ -359,7 +359,7 @@ entry/src/main/ets/
 | M3 | AppearanceSettings | 🔶 部分完成（失败提示 + 字符串） | — | 1ff4cfe | ✅ 随 M8 构建通过 | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
 | M4 | My | 🔶 部分完成（SettingRow 迁入） | — | 1ff4cfe | ✅ BUILD SUCCESSFUL in 16s 358ms | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
 | M5 | Notification | ✅ 纯重构完成（行为修复待单独提交） | — | 5ca87a1 | ✅ BUILD SUCCESSFUL in 15s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 服务 670→490L + Reader 83L；VM 399→318L；M1/M2/M4/M7/M8 保留 |
-| M6 | Dailynote | ✅ 真重构完成 | — | 待提交 | ✅ BUILD SUCCESSFUL in 15s 175ms | ⚠️ 跳过 | 🔶 待运行 | — | 页面 131/123/123→60/57/57；新增 Scaffold + 3 个 utils；M3/M4 保留 |
+| M6 | Dailynote | ✅ 真重构完成 | — | 7002525 | ✅ BUILD SUCCESSFUL in 15s 175ms | ⚠️ 跳过 | 🔶 待运行 | — | 页面 131/123/123→60/57/57；新增 Scaffold + 3 个 utils；M3/M4 保留 |
 | M7 | MaterialCalc | 🔶 命名核查完成，真重构待执行 | — | 5e9b2a7（记录曾写错文档） | ✅ BUILD SUCCESSFUL in 14s 40ms | ⚠️ 跳过 | 🔶 待运行 | — | 三件套去重未做 |
 | M8 | Home | ✅ 真重构完成 | — | e831292 | ✅ BUILD SUCCESSFUL in 18s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 已拆 4 文件，最大 315L |
 | M9 | Characters | 未开始 | — | — | — | — | — | — | — |
@@ -522,7 +522,7 @@ entry/src/main/ets/
 ---
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-02）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3/M4 部分提交（`1ff4cfe`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（待提交）；M8 真重构完成（`e831292`）；M7 仅完成命名核查，真重构待执行。*
+*进度（2026-11-02）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3/M4 部分提交（`1ff4cfe`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M8 真重构完成（`e831292`）；M7 仅完成命名核查，真重构待执行。*
 
 ---
 
