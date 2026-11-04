@@ -6,7 +6,7 @@
 > **HarmonyOS SDK**：`6.0.2(22)`（`targetSdkVersion` / `compatibleSdkVersion`，见根 `build-profile.json5`）
 > **口径**：skills `harmonyos-review` 官方 A-F 评级
 > **状态**：正文为 `e00e579` 基线的分析结论；2026-10-29 已在代码中修复的条目、仍待决策的条目见 **§8 修复状态**。
-> **已移出共享层的大文件**（归属对应 features 模块）：`MaterialComputeService` → `features/material/model/service/`；`GeetestSignal` / `GeetestCenter` → `features/geetest/`；`DeviceFpCenter` → `features/devicefp/`；`AppearanceManager` → `features/appearance/`。这些文件不再计入 M0 行数，仅在其遗留问题对共享层有影响时在相应条目中引用。
+> **已移出共享层的大文件**（归属对应 features 模块）：`MaterialComputeService` → `features/material/model/service/`（M7 已按 facade 拆为 163L + Result / Utils / Genshin / StarRail / ZZZ 五个文件）；`GeetestSignal` / `GeetestCenter` → `features/geetest/`；`DeviceFpCenter` → `features/devicefp/`；`AppearanceManager` → `features/appearance/`。这些文件不再计入 M0 行数，仅在其遗留问题对共享层有影响时在相应条目中引用。
 >
 > **定位**：M0 是被全 entry 依赖的共享层（Spec §3 要求中心节点原位不动），此前没有独立分析文档。本文件补齐 38 个文件的职责、中心节点与改动风险。
 

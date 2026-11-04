@@ -330,7 +330,7 @@ entry/src/main/ets/
 
 | M | 模块 | 分析文档 | 已知问题 | 建议归属 |
 |---|---|---|---|---|
-| M0 | 共享层 | [shared-layer](../docs/shared-layer-modules-analysis.md) | 0 Critical / 0 High；8 Medium（RouterUtil 静默失败、DialogDedup 释放协议脆弱、模型层混入 ArkUI 类型、MaterialComputeService 550 行 + N+1、themeManager 210 文件中心节点、隐式契约分散且 `SignalMonitorKey` 未被采用 / `AppRoutes` 与 routerMap 对应无编译检查、`MaterialComputeService.compute()` 部分异常未转 `FAILED` 且部分失败仍报 `SUCCESS`、`GeetestCenter` 申请 / 提交验证失败时无任何提示）+ 9 Low（启动主题 fire-and-forget、四处注释与代码不一致、`DarkTheme` 注释示例引用不存在的类、`SyncRetrySignal.accountId` 无读取方、透明色缓存不随深浅色重算、`SegmentedTabItem` 致 VM 反向依赖组件、`PlaceholderState` 装饰器不生效、`TimeFormatUtil.recoveryDesc` 不足 1 分钟显示「0 分钟」、Snackbar 关闭不 `dispose()`）；`HomeViewModel.test.ets` 引用失效属测试资产（不计入，见 §0.4） | M1、L2/L3/L4/L6 与死代码清理（不含冻结的 `AppRoutes.TOOLS` 与 `SignalMonitorKey` 值）随 M0，L9（Snackbar 关闭后 `dispose()`）同；L8 改文案单独提交；L1（改启动时序）留给 M15；L5 与 M3 一起验证；L7 记录；M2（超时释放会改变不重复弹出的语义）记录不执行；`compute()` 兜底、`GeetestCenter` 申请 / 提交失败提示各自单独提交（可感知行为变化）；M3/M4/M5、`SignalMonitorKey` 去留需决策；`@Monitor` 契约已在 §2.4 改正；外观页 High 的修复点在 M0 的 `AppearanceManager.applyColorMode`（内部吞异常），与 M3 协同 |
+| M0 | 共享层 | [shared-layer](../docs/shared-layer-modules-analysis.md) | 0 Critical / 0 High；8 Medium（RouterUtil 静默失败、DialogDedup 释放协议脆弱、模型层混入 ArkUI 类型、MaterialComputeService 550 行 + N+1（550 行已由 M7 拆为 facade 163L + 5 文件，N+1 仍存）、themeManager 210 文件中心节点、隐式契约分散且 `SignalMonitorKey` 未被采用 / `AppRoutes` 与 routerMap 对应无编译检查、`MaterialComputeService.compute()` 部分异常未转 `FAILED` 且部分失败仍报 `SUCCESS`、`GeetestCenter` 申请 / 提交验证失败时无任何提示）+ 9 Low（启动主题 fire-and-forget、四处注释与代码不一致、`DarkTheme` 注释示例引用不存在的类、`SyncRetrySignal.accountId` 无读取方、透明色缓存不随深浅色重算、`SegmentedTabItem` 致 VM 反向依赖组件、`PlaceholderState` 装饰器不生效、`TimeFormatUtil.recoveryDesc` 不足 1 分钟显示「0 分钟」、Snackbar 关闭不 `dispose()`）；`HomeViewModel.test.ets` 引用失效属测试资产（不计入，见 §0.4） | M1、L2/L3/L4/L6 与死代码清理（不含冻结的 `AppRoutes.TOOLS` 与 `SignalMonitorKey` 值）随 M0，L9（Snackbar 关闭后 `dispose()`）同；L8 改文案单独提交；L1（改启动时序）留给 M15；L5 与 M3 一起验证；L7 记录；M2（超时释放会改变不重复弹出的语义）记录不执行；`compute()` 兜底、`GeetestCenter` 申请 / 提交失败提示各自单独提交（可感知行为变化）；M3/M4/M5、`SignalMonitorKey` 去留需决策；`@Monitor` 契约已在 §2.4 改正；外观页 High 的修复点在 M0 的 `AppearanceManager.applyColorMode`（内部吞异常），与 M3 协同 |
 | M1 | Tools | [tools](../docs/tools-module-analysis.md) | 1 High（`loadData()` 无取消标记） | 记录；要修则单独提交 |
 | M2 | PrivacyConsent | [privacy-consent](../docs/privacy-consent-page-module-analysis.md) | 1 Medium（`setAgreed` 失败后仍 `replace(MAIN)`） | 记录；要修则单独提交 |
 | M3 | AppearanceSettings | [appearance-settings-page](../docs/appearance-settings-page-module-analysis.md) | 1 High（主题切换失败被 `AppearanceManager.applyColorMode` 内部吞掉，页面照常 `pop()` 且无提示） | 修复点在 M0 的 `AppearanceManager`（改为返回成功与否或重新抛出），会改变失败时的 UI 行为，与 M3 协同、单独提交 |
@@ -360,7 +360,7 @@ entry/src/main/ets/
 | M4 | My | 🔶 部分完成（SettingRow 迁入） | — | 1ff4cfe | ✅ BUILD SUCCESSFUL in 16s 358ms | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
 | M5 | Notification | ✅ 纯重构完成（行为修复待单独提交） | — | 5ca87a1 | ✅ BUILD SUCCESSFUL in 15s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 服务 670→490L + Reader 83L；VM 399→318L；M1/M2/M4/M7/M8 保留 |
 | M6 | Dailynote | ✅ 真重构完成 | — | 7002525 | ✅ BUILD SUCCESSFUL in 15s 175ms | ⚠️ 跳过 | 🔶 待运行 | — | 页面 131/123/123→60/57/57；新增 Scaffold + 3 个 utils；M3/M4 保留 |
-| M7 | MaterialCalc | ✅ 完成 | — | 36099a9 / 045437f / 41a09bb / 待补 | ✅ BUILD SUCCESSFUL in 14s 73ms | ⚠️ 跳过 | 🔶 待运行 | — | 材料汇总 186→55L；目标配置 342/346/410→261/265/266L；角色选择 493→360L + Card 156L；MaterialCalc 页 111→109L、VM 493→465L；Service 560→163L + 5 文件 |
+| M7 | MaterialCalc | ✅ 完成 | — | 36099a9 / 045437f / 41a09bb / a78d749 | ✅ BUILD SUCCESSFUL in 14s 73ms | ⚠️ 跳过 | 🔶 待运行 | — | 材料汇总 186→55L；目标配置 342/346/410→261/265/266L；角色选择 493→360L + Card 156L；MaterialCalc 页 111→109L、VM 493→465L；Service 560→163L + 5 文件 |
 | M8 | Home | ✅ 真重构完成 | — | e831292 | ✅ BUILD SUCCESSFUL in 18s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 已拆 4 文件，最大 315L |
 | M9 | Characters | 未开始 | — | — | — | — | — | — | — |
 | M10 | CharDetail | 未开始 | — | — | — | — | — | — | — |
@@ -708,7 +708,7 @@ M7 覆盖「材料计算 → 选角色 → 目标配置（×3）→ 材料汇总
 | 1 | MaterialList（三页 + 三 VM） | ✅ 完成 | 36099a9 |
 | 2 | TargetConfig（三页 + 三 VM） | ✅ 完成 | 045437f |
 | 3 | CharacterSelect | ✅ 完成 | 41a09bb |
-| 4 | MaterialCalc 页 + `MaterialComputeService` | ✅ 完成 | 待补 |
+| 4 | MaterialCalc 页 + `MaterialComputeService` | ✅ 完成 | a78d749 |
 
 ### MaterialList 执行记录
 
