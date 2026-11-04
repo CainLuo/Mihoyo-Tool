@@ -28,9 +28,13 @@
 
 | 文件 | 行数 | @Component 版本 | 主要依赖 |
 |------|------|-----------------|----------|
-| `features/material/src/main/ets/pages/GenshinMaterialTargetConfigPage.ets` | 342 | `@ComponentV2` | GenshinMaterialTargetConfigViewModel |
-| `features/material/src/main/ets/pages/StarRailMaterialTargetConfigPage.ets` | 346 | `@ComponentV2` | StarRailMaterialTargetConfigViewModel |
-| `features/material/src/main/ets/pages/ZZZMaterialTargetConfigPage.ets` | 410 | `@ComponentV2` | ZZZMaterialTargetConfigViewModel |
+| `features/material/src/main/ets/pages/GenshinMaterialTargetConfigPage.ets` | 261 | `@ComponentV2` | GenshinMaterialTargetConfigViewModel |
+| `features/material/src/main/ets/pages/StarRailMaterialTargetConfigPage.ets` | 265 | `@ComponentV2` | StarRailMaterialTargetConfigViewModel |
+| `features/material/src/main/ets/pages/ZZZMaterialTargetConfigPage.ets` | 266 | `@ComponentV2` | ZZZMaterialTargetConfigViewModel |
+| `features/material/src/main/ets/views/LevelConfigRow.ets` | 76 | `@ComponentV2` | 三页共用的等级行（当前 / 目标两列） |
+| `features/material/src/main/ets/views/TargetConfigTipCard.ets` | 32 | `@ComponentV2` | 三页共用的顶部提示卡片 |
+
+> 上表为 M7 重构后现状（原 342 / 346 / 410 行）；§2 / §3 / §4 保留重构前基线，便于对照。
 
 > ZZZ 版本多出 68 行，主要是多了一个 `@Builder SkillLevelRow`（L298-358，与 `LevelRow` 逐行同构，只是把 key 拼接移到了 onClick 内），其余是 `getLabelResource` 的 6 个技能 case。三页配置项都是"角色 + 技能 + 武器/光锥"三类，只是顺序与技能数不同。
 >
@@ -164,11 +168,11 @@ ZZZMaterialTargetConfig 在通用模板基础上的差异：
 
 | 优先级 | 编号 | 问题 | 说明 |
 |--------|------|------|------|
-| **中** | M-TARGET-1 | 等级行 `@Builder` 四份同构副本 | `@Builder LevelRow(key, config)`（Genshin / StarRail L236-293、ZZZ L237-294，约 57 行"当前 / 目标"两列 + 点击弹 Picker）三页各一份，ZZZ 又复制为 `SkillLevelRow`（L298-358）；改一处样式要同步四处。建议提取为独立组件 `LevelConfigRow`（入参 `LevelConfigVM` + `onPick(step)` 回调）。 |
-| **中** | M-TARGET-2 | 三页 UI 框架层复制（约 76–90%） | 三文件各 342/346/410 行，`NavDestination + Scroll + TipCard + ForEach + PrimaryButton` 外壳与 `showLevelPicker` / `confirmPicker` / `startCalculation` 逐行相同，差异只在资源 key、配置行顺序、标签映射与路由常量（见 §4.1）。不合并页面，先在本文件登记；若将来新增游戏，再评估 `BaseTargetConfigPage` 容器。 |
-| **低** | M-TARGET-3 | Picker 中间状态存放在实例字段 | `pickerConfigKey` / `pickerStep` / `pickerValue`（L32-34）是普通实例字段，仅用于把 `showLevelPicker` 的参数带到 `onAccept → confirmPicker`；闭包直接捕获 `key` / `step` 即可，字段多余且使 `confirmPicker` 依赖隐式状态。无运行时故障。 |
-| **低** | M-TARGET-4 | 页面标题用错资源 | 三页 `.title()` 用的是材料汇总页的 `genshin/starrail/zzz_material_list_title`（Genshin / StarRail L206、ZZZ L207，值为"原神材料汇总"等），而不是 `material_target_config_title`（"养成目标配置"）；用户在配置页看到的标题与页面用途不符。 |
-| **低** | M-TARGET-5 | Picker 选项硬编码中文"级" | `formatLevel()` 返回 `` `${level} 级` ``（Genshin L323 / StarRail L327 / ZZZ L391），英文 / 繁中环境下 Picker 仍显示简体"级"；`material_target_config_level_suffix` 资源已存在但未使用。 |
+| **中** | M-TARGET-1 | 等级行 `@Builder` 四份同构副本 | ✅ 已关闭（M7）：提取 `views/LevelConfigRow.ets`，三页 `LevelRow` 改为 10 行委托；ZZZ 删除 `SkillLevelRow`，改用同一个 `LevelRow('skill' + skillType, skill)`。 |
+| **中** | M-TARGET-2 | 三页 UI 框架层复制（约 76–90%） | 🔶 部分关闭（M7）：`TipCard` 已提取为 `TargetConfigTipCard`，等级行已共享；`NavDestination + Scroll + 底部按钮` 外壳与 `showLevelPicker` / `startCalculation` 仍各一份，按计划不合并。 |
+| **低** | M-TARGET-3 | Picker 中间状态存放在实例字段 | ✅ 已关闭（M7）：删除 `pickerConfigKey` / `pickerStep` / `pickerValue`，`onAccept` 闭包直接捕获 `key` / `step`，`confirmPicker(key, step, value)` 显式传参。 |
+| **低** | M-TARGET-4 | 页面标题用错资源 | 三页 `.title()` 仍使用材料汇总页标题；UI 文案变更，单独提交。 |
+| **低** | M-TARGET-5 | Picker 选项硬编码中文"级" | `formatLevel()` 仍返回 `` `${level} 级` ``；资源已存在但未使用，属文案变更，单独提交。 |
 
 ### 5.2 改进建议
 
@@ -209,22 +213,23 @@ ZZZMaterialTargetConfig 在通用模板基础上的差异：
 | 页面类型 | `type PickerStep = 'current' | 'target'` 定义在各自页面内，仅本页使用；保持现状 |
 | 内联 Builder | `LevelRow` 是页面内 `@Builder`（Genshin L237），不强制提取；ZZZ 另有 `SkillLevelRow`（L299） |
 
-### 重构范围（建议）
+### 重构范围（已执行）
 
-- 三页配置行顺序不同（原神角色+技能+武器 / 星铁角色+行迹+光锥 / ZZZ 角色+武器+技能），且必须保留三个路由入口，**不建议合并为单页**；M7 不移动这三个页面。
-- 可选的公共外壳提取（NavDestination+Scroll+TipCard+Button）会改变组件树；记录在 M-TARGET-2，不在本轮做。
-- `LevelRow` / `SkillLevelRow` 若提取，必须保证状态归属不变（§6.1）；建议先不动。
+- 三页配置行收敛到 `views/LevelConfigRow.ets`：三份 `LevelRow` 与 ZZZ 的 `SkillLevelRow` 改为共享组件；ZZZ 技能行改用 `LevelRow('skill' + skillType, skill)`，删除 61 行副本。
+- 顶部提示卡片收敛到 `views/TargetConfigTipCard.ets`。
+- 删除 Picker 中间状态字段 `pickerConfigKey` / `pickerStep` / `pickerValue`，`confirmPicker` 改为显式传参。
+- 三页配置顺序、`getLabelResource`、`formatLevel`、`startCalculation` 路由保持不变；三个路由入口与 Builder 名冻结。
+- 三页 342 / 346 / 410 → 261 / 265 / 266 行。
 
 ### 验收
 
 1. 编译通过；`codeLinter` 不新增违规。
 2. 无 Local Test：冒烟——三个游戏目标配置页、等级 Picker、当前/目标切换；带选中角色提交 → 替换为材料清单页（返回直接回工具页）；从选角页右上角无选中进入 → 保存后 toast 并返回。
-3. 重点回归 ZZZ（410 行，6 个技能使用专用 SkillLevelRow）。
+3. 重点回归 ZZZ（6 个技能共用 `LevelRow`）。
 
 ### 已知问题归属
 
-- Medium（`LevelRow` 行内 Builder 偏大 / 三页 UI 外壳复制）：记录，不强制提取或合并。
-- Low（Picker 中间状态存实例字段）：记录，暂不修。
+- Medium（三页 UI 外壳仍复制）：记录，不合并页面；新增游戏时再评估 `BaseTargetConfigPage`。
 - Low（标题用错资源、"级"硬编码）：UI 文案变更，单独提交，不夹带在重构里。
 
 【已核对代码一致性】
@@ -236,3 +241,4 @@ ZZZMaterialTargetConfig 在通用模板基础上的差异：
 | 第 3 轮（全面复核） | ZZZ 结构差异、levelConfigCard 引用统一替换、已知问题归属 | ✅ |
 | 第 4 轮（2026-10-27 逐条复核） | 三页逐行 diff、三个 VM、`pickerStep` 修饰符、ZZZ `SkillLevelRow` 与 `LevelRow` 对比、标题与 Picker 文案资源 | ✅ 修正：`pickerStep` 非 @Local、`SkillLevelRow` 与 `LevelRow` 同构（非"布局不同"）、星铁 4 个行迹、重复率 40–50% → 76–90%、`LevelRow` 无"材料需求概览"、`MaterialTargetConfigParam` 不被 MaterialCalc 使用；新增 2 Low（标题资源、"级"硬编码）；编号重排为 M-TARGET-1~6 |
 | 第 5 轮（2026-10-30 断链修复） | §1 三页路径补全为 `features/material/src/main/ets/pages/`；§37 ViewModel + Model 全量更新为绝对路径；§6 依赖表 8 个相对路径 → `features/material/src/main/ets/{viewmodel,model,model/service}/` + `common/basic/src/main/ets/theme/constants/`；§7 `models/ToolsModels.ets` → 绝对路径 | ✅ 13 处路径全部验证存在 |
+| 第 6 轮（2026-11-04 M7 执行后） | 三页 261 / 265 / 266L；新增 `LevelConfigRow` 76L + `TargetConfigTipCard` 32L；ZZZ `SkillLevelRow` 已删；Picker 实例字段已删；`bash run.sh uat` 通过 | ✅ 行数与结构复核一致 |

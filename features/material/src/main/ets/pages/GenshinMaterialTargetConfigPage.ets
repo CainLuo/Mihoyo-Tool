@@ -13,6 +13,8 @@ import {
 } from '../viewmodel/GenshinMaterialTargetConfigViewModel'
 import { LevelConfigVM, LevelLabelKeys, SkillLevelConfigVM } from '../model/MaterialTargetConfigModels'
 import { MaterialTargetConfigParam } from '../model/ToolsModels'
+import { LevelConfigRow } from '../views/LevelConfigRow'
+import { TargetConfigTipCard } from '../views/TargetConfigTipCard'
 
 type PickerStep = 'current' | 'target'
 
@@ -25,11 +27,6 @@ export struct GenshinMaterialTargetConfigPage {
   @Param private param: MaterialTargetConfigParam | null = null
   private localStack: NavPathStack | null = null
 
-  /** Picker 状态 */
-  private pickerConfigKey: string = ''
-  private pickerStep: PickerStep = 'current'
-  private pickerValue: number = 1
-
   aboutToAppear(): void {
     // 从路由参数获取 accountId 和 roleUid
     const accountId = this.param?.accountId ?? ''
@@ -41,15 +38,7 @@ export struct GenshinMaterialTargetConfigPage {
    * 显示等级选择 Picker（官方 TextPickerDialog）
    */
   private showLevelPicker(key: string, step: PickerStep, config: LevelConfigVM): void {
-    this.pickerConfigKey = key
-    this.pickerStep = step
-
-    if (step === 'current') {
-      this.pickerValue = config.current
-    } else {
-      // 目标等级最小值为当前等级
-      this.pickerValue = Math.max(config.current, config.target)
-    }
+    const initialValue = step === 'current' ? config.current : Math.max(config.current, config.target)
 
     // 构建选项数组
     const range: string[] = []
@@ -59,7 +48,7 @@ export struct GenshinMaterialTargetConfigPage {
     }
 
     // 计算选中索引
-    const selectedIndex = this.pickerValue - minValue
+    const selectedIndex = initialValue - minValue
 
     // 调用官方 TextPickerDialog
     this.getUIContext().showTextPickerDialog({
@@ -69,8 +58,7 @@ export struct GenshinMaterialTargetConfigPage {
       onAccept: (result: TextPickerResult) => {
         // result.index 可能是 number 或 number[]，单列时是 number
         const idx = Array.isArray(result.index) ? result.index[0] : result.index
-        const selectedValue = idx + minValue
-        this.confirmPicker(selectedValue)
+        this.confirmPicker(key, step, idx + minValue)
       },
       onCancel: () => {}
     })
@@ -79,13 +67,13 @@ export struct GenshinMaterialTargetConfigPage {
   /**
    * 确认选择
    */
-  private confirmPicker(value: number): void {
-    if (this.pickerStep === 'current') {
+  private confirmPicker(key: string, step: PickerStep, value: number): void {
+    if (step === 'current') {
       // 选择当前等级：如果新值 > 目标等级，自动调高目标等级
-      this.vm.updateCurrent(this.pickerConfigKey, value)
+      this.vm.updateCurrent(key, value)
     } else {
       // 选择目标等级：直接更新
-      this.vm.updateTarget(this.pickerConfigKey, value)
+      this.vm.updateTarget(key, value)
     }
   }
 
@@ -146,7 +134,7 @@ export struct GenshinMaterialTargetConfigPage {
         Scroll() {
           Column({ space: this.tm.current.value10 }) {
             // 提示卡片
-            this.TipCard($r('app.string.material_target_config_genshin_tip'))
+            TargetConfigTipCard({ tip: $r('app.string.material_target_config_genshin_tip') })
             
             // 角色等级
             this.LevelRow('avatar', this.vm.avatarLevel)
@@ -207,86 +195,20 @@ export struct GenshinMaterialTargetConfigPage {
     })
   }
 
-  // ─── 提示卡片 ─────────────────────────────────────────────────────
-
-  @Builder
-  TipCard(tip: ResourceStr) {
-    Row() {
-      Text('💡')
-        .fontSize(this.tm.current.value16)
-        .margin({ right: this.tm.current.value8 })
-
-      Text(tip)
-        .font(ThemeFonts.FONT_13)
-        .fontColor(this.tm.current.colorTextPrimary)
-        .layoutWeight(1)
-    }
-    .width(this.tm.current.full)
-    .padding(this.tm.current.value12)
-    .backgroundColor(this.tm.current.colorSurfaceCard)
-    .borderRadius(this.tm.current.radius12)
-    .border({ width: 1, color: this.tm.current.colorDivider })
-  }
-
-  // ─── 等级行（横向布局：左当前、右目标）────────────────────────────
+  // ─── 等级行 ─────────────────────────────────────────────────────
 
   @Builder
   LevelRow(key: string, config: LevelConfigVM) {
-    Column() {
-      // 标题
-      Text(this.getLabelResource(config.labelKey))
-        .fontSize(this.tm.current.font12)
-        .fontColor(this.tm.current.colorTextSecondary)
-        .margin({ bottom: this.tm.current.value8 })
-
-      // 横向两列
-      Row({ space: this.tm.current.value8 }) {
-        // 左列：当前等级
-        Column() {
-          Text($r('app.string.material_target_config_current'))
-            .font(ThemeFonts.FONT_11)
-            .fontColor(this.tm.current.colorTextSecondary)
-            .margin({ bottom: this.tm.current.value2 })
-
-          Text(config.current.toString())
-            .font(ThemeFonts.FONT_BOLD_18)
-            .fontColor(this.tm.current.colorTextPrimary)
-        }
-        .layoutWeight(1)
-        .padding(this.tm.current.value8)
-        .backgroundColor(this.tm.current.colorPageBg)
-        .borderRadius(this.tm.current.radius8)
-        .onClick(() => {
-          this.showLevelPicker(key, 'current', config)
-        })
-
-        // 右列：目标等级
-        Column() {
-          Text($r('app.string.material_target_config_target'))
-            .font(ThemeFonts.FONT_11)
-            .fontColor(this.tm.current.colorTextSecondary)
-            .margin({ bottom: this.tm.current.value2 })
-
-          Text(config.target.toString())
-            .font(ThemeFonts.FONT_BOLD_18)
-            .fontColor(this.tm.current.colorPrimary)
-        }
-        .layoutWeight(1)
-        .padding(this.tm.current.value8)
-        .backgroundColor(this.tm.current.colorPageBg)
-        .borderRadius(this.tm.current.radius8)
-        .onClick(() => {
-          this.showLevelPicker(key, 'target', config)
-        })
+    LevelConfigRow({
+      label: this.getLabelResource(config.labelKey),
+      config: config,
+      onPickCurrent: () => {
+        this.showLevelPicker(key, 'current', config)
+      },
+      onPickTarget: () => {
+        this.showLevelPicker(key, 'target', config)
       }
-      .width(this.tm.current.full)
-    }
-    .width(this.tm.current.full)
-    .padding(this.tm.current.value10)
-    .backgroundColor(this.tm.current.colorSurfaceCard)
-    .borderRadius(this.tm.current.radius12)
-    .border({ width: 1, color: this.tm.current.colorDivider })
-    .margin({ bottom: this.tm.current.value10 })
+    })
   }
 
   // ─── 工具方法 ─────────────────────────────────────────────────────
