@@ -28,9 +28,13 @@
 
 | 文件 | 行数 | @Component 版本 | 主要依赖 |
 |------|------|-----------------|----------|
-| `features/material/src/main/ets/pages/GenshinMaterialListPage.ets` | 186 | `@ComponentV2` | GenshinMaterialListViewModel |
-| `features/material/src/main/ets/pages/StarRailMaterialListPage.ets` | 186 | `@ComponentV2` | StarRailMaterialListViewModel |
-| `features/material/src/main/ets/pages/ZZZMaterialListPage.ets` | 186 | `@ComponentV2` | ZZZMaterialListViewModel |
+| `features/material/src/main/ets/pages/GenshinMaterialListPage.ets` | 55 | `@ComponentV2` | GenshinMaterialListViewModel + MaterialListScaffold |
+| `features/material/src/main/ets/pages/StarRailMaterialListPage.ets` | 55 | `@ComponentV2` | StarRailMaterialListViewModel + MaterialListScaffold |
+| `features/material/src/main/ets/pages/ZZZMaterialListPage.ets` | 55 | `@ComponentV2` | ZZZMaterialListViewModel + MaterialListScaffold |
+| `features/material/src/main/ets/views/MaterialListScaffold.ets` | 164 | `@ComponentV2` | 三页共用外壳（标题栏 / 菜单 / Tab / 三态） |
+| `features/material/src/main/ets/utils/MaterialAmountUtil.ets` | 39 | – | 货币材料「万 / 亿」格式化（三处共用） |
+
+> 上表为 M7 重构后现状；§2 / §3 / §4 保留重构前基线，便于对照。
 
 ---
 
@@ -154,12 +158,12 @@
 
 | 优先级 | 编号 | 问题 | 说明 |
 |--------|------|------|------|
-| **中** | M-LIST-1 | 三页骨架复制（约 96% / 180 行） | `Genshin/StarRail/ZZZMaterialList` 各 186 行，除 TAG、VM 类名、`AppRoutes` 目标、`GameId` 外逐行相同；新增第四个游戏要再复制 186 行，改一处外壳要同步改三处。与 DAILY-M1（便签三页）同类问题。 |
-| **中** | M-LIST-2 | 重新计算失败对用户静默 | 三个 VM 的 `syncComputeData()`（`features/material/src/main/ets/viewmodel/GenshinMaterialListViewModel.ets:141-166`、`features/material/src/main/ets/viewmodel/StarRailMaterialListViewModel.ets:120-145`、`features/material/src/main/ets/viewmodel/ZZZMaterialListViewModel.ets:120-145`）把 `no_selection` / `compute_failed` / `no_config` 写进 `@Trace syncErrorMsg`，但三页均不读取该字段（全工程只有 VM 自己引用）；右上角 sync（L46-49）与空态按钮（L135-138）点完只看到按钮短暂禁用，失败后照旧 `loadData()` 展示旧数据，用户无法区分"已是最新"与"计算失败"。 |
-| **低** | M-LIST-3 | 三页日志文案重复且偏调试 | `Logger.info(TAG, 'Button onClick triggered')` 等文案逐页复制；可收敛为统一日志点，但不影响功能。 |
-| **低** | M-LIST-4 | 死导入 / 死代码 | 星铁/ZZZ `import { Logger, GameId } from 'core'`（`StarRailMaterialListPage.ets:15` / `ZZZMaterialListPage.ets:15`）中 `GameId` 未使用，原神文件没有导入；三个 VM 的 `refresh()` / `isRefreshing`（Genshin L74/L114、SR·ZZZ L54/L93）页面无 Refresh 容器、无调用方；`GenshinMaterialListViewModel.formatCurrencyAmount`（静态，无引用）。 |
-| **低** | M-LIST-5 | 星铁 VM 调试残留 | `features/material/src/main/ets/viewmodel/StarRailMaterialListViewModel.ets:255-266` 对 `avatarId === '1510'` 把 rawJson 切成 2000 字符分段但不输出任何内容；L279-280 为空 `if` 体。无副作用，与 starrail-character-detail 的 `'1510'` 残留同判 Low（COMPAT-005）。 |
-| **低** | M-LIST-6 | 数量单位"万/亿"硬编码 | `MaterialGridCard.ets:87-119` 与 `MaterialGridItem.ets:93` 各自私有一份 `formatCurrencyAmount`，直接拼接中文 `'万'` / `'亿'`，英文环境下仍显示中文单位；与 VM 内的静态版本共三份重复实现。 |
+| **中** | M-LIST-1 | 三页骨架复制（约 96% / 180 行） | ✅ 已关闭（M7）：抽 `MaterialListScaffold`，三页各 55 行，仅保留 VM / 路由 / 标题差异。 |
+| **中** | M-LIST-2 | 重新计算失败对用户静默 | 三个 VM 的 `syncComputeData()` 把 `no_selection` / `compute_failed` / `no_config` 写进 `@Trace syncErrorMsg`，但页面仍不读取该字段；失败后照旧 `loadData()` 展示旧数据。属行为变更，单独提交。 |
+| **低** | M-LIST-3 | 三页日志文案重复且偏调试 | ✅ 已关闭（M7）：页面不再打日志，`sync` / `config` / 空态回调集中到 `MaterialListScaffold`。 |
+| **低** | M-LIST-4 | 死导入 / 死代码 | ✅ 已关闭（M7）：删除星铁 / ZZZ 的 `GameId` 死导入、三页 `Logger` 死导入、三个 VM 的 `refresh()` / `isRefreshing`、`GenshinMaterialListViewModel.formatCurrencyAmount`。 |
+| **低** | M-LIST-5 | 星铁 VM 调试残留 | ✅ 已关闭（M7）：删除 `avatarId === '1510'` 分段循环与空 `if` 体。 |
+| **低** | M-LIST-6 | 数量单位"万/亿"硬编码 | 🔶 部分关闭（M7）：三份重复实现合并为 `utils/MaterialAmountUtil.formatCurrencyAmount`；中文单位文案未改，英文环境仍显示「万 / 亿」，留待文案资源化。 |
 
 ### 5.2 改进建议
 
@@ -199,12 +203,14 @@
 | 共享组件 | `features/material/src/main/ets/views/materiallist/`（6 个文件）与 `common/basic/src/main/ets/shares/SegmentedTabBar.ets` 被三页共用，不移动 |
 | 共享模型 | `features/material/src/main/ets/model/MaterialListModels.ets`、`features/material/src/main/ets/model/ToolsModels.ets`（`MaterialTargetConfigParam`）保持原位 |
 
-### 重构范围（建议）
+### 重构范围（已执行）
 
-- 页面级合并（`BaseMaterialList`）不建议在 M7 做：三个路由入口 + 三个 Builder 必须保留，收益主要在 UI 外壳，风险大于收益。
-- `GenshinMaterialListViewModel` 694 行（>500）可拆分，但它**没有测试**，拆分必须保留原文件 facade；建议先记录，不强制。
-- `MaterialListContentView` / `SegmentedTabBar` 已经是共享组件，不要下沉到某个游戏目录。
-- 仅允许等价清理：统一三页的日志文案与重复菜单回调（行为不变）。
+- 三页外壳收敛到 `views/MaterialListScaffold.ets`：标题栏、同步 / 更改配置菜单、视图模式 Tab、LOADING / EMPTY / DATA 三态与空态按钮统一；页面只保留 VM 初始化、参数与回调。
+- 三个路由入口与三个 Builder 保留，`pageSourceFile` / `buildFunction` 不变。
+- 删除死代码：星铁 / ZZZ 的 `GameId` 与三页 `Logger` 死导入、三个 VM 的 `refresh()` / `isRefreshing`、`GenshinMaterialListViewModel.formatCurrencyAmount`、星铁 `'1510'` 调试循环与空 `if`。
+- 三份「万 / 亿」格式化合并为 `utils/MaterialAmountUtil.ets`，输出文案与舍入规则保持不变。
+- `GenshinMaterialListViewModel` 仍 628 行（>500），但它没有测试；本轮只做等价清理，拆分留待后续。
+- `MaterialListContentView` / `SegmentedTabBar` 保持原位。
 
 ### 验收
 
@@ -213,10 +219,9 @@
 
 ### 已知问题归属
 
-- Medium（三页骨架复制 ~96%）：与 M6 同类，记录；不合并页面，只在新增第四游戏前先评估共享外壳。
 - Medium（重新计算失败静默，M-LIST-2）：补 toast / 错误态属行为变更，单独提交，不夹带在重构里。
-- Low（日志文案重复、死导入/死代码、星铁 `'1510'` 残留、万/亿硬编码）：前三项可顺手清理（行为不变），单独提交；万/亿需补资源字符串，属 UI 文案变更。
-- 信息（可提取 BaseMaterialList）：记录，不在本轮做。
+- Low（万/亿中文单位，M-LIST-6 剩余部分）：需补资源字符串，属 UI 文案变更，单独提交。
+- 信息（拆分 `GenshinMaterialListViewModel`）：记录，待补测试后再做。
 
 【已核对代码一致性】
 
@@ -227,3 +232,4 @@
 | 第 3 轮（全面复核） | ContentView 实际 4 个参数；星铁/ZZZ `GameId` 仅 import 未使用；页面未导入 PlaceholderView；StarRail vs ZZZ diff；§7 归属与 §5 对齐 | ✅ 修正 5 处（传参 / 差异描述 / 虚构依赖 / import 说明 / 归属） |
 | 第 4 轮（2026-10-27 逐条复核） | 三个 VM 全文（sync / loadData / 调试代码）、material-list 组件的数量格式化、`SegmentedTabBar` 同 Tab 点击保护、§2.2 diff 全量 | ✅ 新增 1 Medium（sync 失败静默）+ 2 Low（`'1510'` 残留、万/亿硬编码），原 GameId Low 扩为死导入/死代码；补 L162 标题差异；去掉未使用的 RouterUtil；编号重排为 M-LIST-1~7 |
 | 第 5 轮（2026-10-30 断链修复） | 三页 / ViewModel / Model / Content View 全量更新为 `features/material/src/main/ets/` 绝对路径；`SegmentedTabBar` 从 `components/common/` → `common/basic/src/main/ets/shares/`；`PrimaryButtonModifier` 从 `styles/` → `common/basic/src/main/ets/theme/`；§7 测试路径补全 | ✅ 16 处路径全部验证存在 |
+| 第 6 轮（2026-11-04 M7 执行后） | 三页各 55L + `MaterialListScaffold` 164L + `MaterialAmountUtil` 39L；VM 628 / 368 / 421L；死代码与 `'1510'` 残留已删；`bash run.sh uat` 通过 | ✅ 行数与结构复核一致 |

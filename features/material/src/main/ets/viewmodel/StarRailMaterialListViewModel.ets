@@ -43,7 +43,6 @@ export class StarRailMaterialListViewModel {
   @Trace characterMaterials: CharacterMaterialVM[] = [];
   @Trace materialSummaries: MaterialSummaryVM[] = [];
   @Trace materialSections: MaterialSectionVM[] = [];
-  @Trace isRefreshing: boolean = false;
   @Trace isSyncing: boolean = false;
   @Trace syncErrorMsg: string = '';
 
@@ -76,21 +75,6 @@ export class StarRailMaterialListViewModel {
       this.viewMode = MaterialListViewMode.MATERIAL;
     } else {
       this.viewMode = MaterialListViewMode.CHARACTER;
-    }
-  }
-
-  /**
-   * 下拉刷新：重新加载数据。
-   */
-  async refresh(): Promise<void> {
-    if (this.isRefreshing) {
-      return;
-    }
-    this.isRefreshing = true;
-    try {
-      await this.loadData();
-    } finally {
-      this.isRefreshing = false;
     }
   }
 
@@ -240,23 +224,6 @@ export class StarRailMaterialListViewModel {
         continue;
       }
 
-      // 🔍 输出完整的 rawJson（分段，每段 2000 字符，避免日志截断）
-      const rawJsonFull = computeRow.rawJson;
-      const totalLen = rawJsonFull.length;
-      
-      // 针对 1510 输出完整内容
-      if (avatar.avatarId === '1510') {
-        const chunkSize = 2000;
-        let offset = 0;
-        let chunkIndex = 0;
-        while (offset < totalLen) {
-          const end = offset + chunkSize < totalLen ? offset + chunkSize : totalLen;
-          const chunk = rawJsonFull.substring(offset, end);
-          offset = end;
-          chunkIndex++;
-        }
-      }
-
       const vm = new CharacterMaterialVM();
       vm.characterId = avatar.avatarId;
       vm.characterName = avatar.name;
@@ -266,10 +233,6 @@ export class StarRailMaterialListViewModel {
       vm.gameId = GameId.STARRAIL;
 
       const parsed = StarRailComputeParser.parse(computeRow.rawJson);
-
-      // 打印 need_get_materials 用于调试
-      if (parsed.needGetMaterials.length > 0) {
-      }
 
       // need_get_materials 是 API 计算好的"仍需获取"列表
       // item.num 已经是最终需要的数量，直接使用即可

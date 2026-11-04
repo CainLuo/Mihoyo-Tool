@@ -43,7 +43,6 @@ export class ZZZMaterialListViewModel {
   @Trace characterMaterials: CharacterMaterialVM[] = [];
   @Trace materialSummaries: MaterialSummaryVM[] = [];
   @Trace materialSections: MaterialSectionVM[] = [];
-  @Trace isRefreshing: boolean = false;
   @Trace isSyncing: boolean = false;
   @Trace syncErrorMsg: string = '';
 
@@ -76,21 +75,6 @@ export class ZZZMaterialListViewModel {
       this.viewMode = MaterialListViewMode.MATERIAL;
     } else {
       this.viewMode = MaterialListViewMode.CHARACTER;
-    }
-  }
-
-  /**
-   * 下拉刷新：重新加载数据。
-   */
-  async refresh(): Promise<void> {
-    if (this.isRefreshing) {
-      return;
-    }
-    this.isRefreshing = true;
-    try {
-      await this.loadData();
-    } finally {
-      this.isRefreshing = false;
     }
   }
 

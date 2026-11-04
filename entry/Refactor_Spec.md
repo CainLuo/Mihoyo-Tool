@@ -360,7 +360,7 @@ entry/src/main/ets/
 | M4 | My | 🔶 部分完成（SettingRow 迁入） | — | 1ff4cfe | ✅ BUILD SUCCESSFUL in 16s 358ms | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
 | M5 | Notification | ✅ 纯重构完成（行为修复待单独提交） | — | 5ca87a1 | ✅ BUILD SUCCESSFUL in 15s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 服务 670→490L + Reader 83L；VM 399→318L；M1/M2/M4/M7/M8 保留 |
 | M6 | Dailynote | ✅ 真重构完成 | — | 7002525 | ✅ BUILD SUCCESSFUL in 15s 175ms | ⚠️ 跳过 | 🔶 待运行 | — | 页面 131/123/123→60/57/57；新增 Scaffold + 3 个 utils；M3/M4 保留 |
-| M7 | MaterialCalc | 🔶 命名核查完成，真重构待执行 | — | 5e9b2a7（记录曾写错文档） | ✅ BUILD SUCCESSFUL in 14s 40ms | ⚠️ 跳过 | 🔶 待运行 | — | 三件套去重未做 |
+| M7 | MaterialCalc | 🔶 进行中（MaterialList 子区域完成） | — | 待补 | ✅ BUILD SUCCESSFUL in 14s 333ms | ⚠️ 跳过 | 🔶 待运行 | — | 三页 186→55L + Scaffold 164L；VM 死代码与万/亿去重完成；TargetConfig / CharacterSelect 待续 |
 | M8 | Home | ✅ 真重构完成 | — | e831292 | ✅ BUILD SUCCESSFUL in 18s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 已拆 4 文件，最大 315L |
 | M9 | Characters | 未开始 | — | — | — | — | — | — | — |
 | M10 | CharDetail | 未开始 | — | — | — | — | — | — | — |
@@ -522,7 +522,7 @@ entry/src/main/ets/
 ---
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-02）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3/M4 部分提交（`1ff4cfe`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M8 真重构完成（`e831292`）；M7 仅完成命名核查，真重构待执行。*
+*进度（2026-11-04）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3/M4 部分提交（`1ff4cfe`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M8 真重构完成（`e831292`）；M7 MaterialList 子区域完成，TargetConfig / CharacterSelect / MaterialCalc 待续。*
 
 ---
 
@@ -690,3 +690,61 @@ entry/src/main/ets/
 ### 结论
 
 **M6 真重构完成**：三页骨架收敛到 `DailyDetailScaffold`，页面 131/123/123 → 60/57/57 行；VM 加载流程、派遣转换、体力配色各自去重；删除三页无效 window 监听与 `DailyNoteCard` 未使用插槽。行为等价，编译通过。DAILY-M3 / M4 保留待单独提交。
+
+---
+
+## M7 spec — MaterialCalc 模块（2026-11-04 真重构，进行中）
+
+分析依据：[`docs/material-calc-module-analysis.md`](../docs/material-calc-module-analysis.md) / [`docs/material-list-modules-analysis.md`](../docs/material-list-modules-analysis.md) / [`docs/material-target-config-modules-analysis.md`](../docs/material-target-config-modules-analysis.md) / [`docs/material-character-select-module-analysis.md`](../docs/material-character-select-module-analysis.md)。
+
+### 背景说明
+
+M7 覆盖「材料计算 → 选角色 → 目标配置（×3）→ 材料汇总（×3）」链路。四个子区域共 3 个路由入口 + 6 个页面，其中三份材料汇总页 186 行几乎逐行相同；三份目标配置页各有一份 `LevelRow` / `SkillLevelRow`；多个 VM / 组件存在死导入、死字段与重复格式化实现。
+
+### 子区域拆分与顺序
+
+| # | 子区域 | 状态 | 提交 |
+| --- | --- | --- | --- |
+| 1 | MaterialList（三页 + 三 VM） | ✅ 完成 | 待补 |
+| 2 | TargetConfig（三页 + 三 VM） | 🔶 待执行 | — |
+| 3 | CharacterSelect | 🔶 待执行 | — |
+| 4 | MaterialCalc 页 + `MaterialComputeService` | 🔶 待执行 | — |
+
+### MaterialList 执行记录
+
+| 操作 | 文件 | 说明 |
+| --- | --- | --- |
+| 新增 | `views/MaterialListScaffold.ets`（164L） | 标题栏 + 同步/配置菜单 + 视图模式 Tab + 三态 + 空态按钮；内部 `localStack` 处理「更改配置」跳转 |
+| 新增 | `utils/MaterialAmountUtil.ets`（39L） | `formatCurrencyAmount()`，合并三份「万 / 亿」实现 |
+| 修改 | 三个 `*MaterialListPage.ets`（186 → 55L） | 只保留 VM、路由参数与回调；删除 `Logger` / `GameId` 死导入与重复日志 |
+| 修改 | 三个 `*MaterialListViewModel.ets`（686/405/437 → 628/368/421L） | 删除无调用方的 `refresh()` / `isRefreshing`；原神删除静态 `formatCurrencyAmount`；星铁删除 `'1510'` 调试循环与空 `if` |
+| 修改 | `MaterialGridCard.ets` / `MaterialGridItem.ets` | 改用共享 `formatCurrencyAmount`，删除各自私有实现 |
+
+### 契约与冻结项
+
+- 三个 `*MaterialList` 路由与 `GenshinMaterialListPageBuilder` / `StarRailMaterialListPageBuilder` / `ZZZMaterialListPageBuilder` 名冻结。
+- `MaterialTargetConfigParam` 仍在 `model/ToolsModels.ets`；三个 VM 的路径与导出符号不变。
+- M7 无 MaterialList Local Test；`MaterialCalcViewModel.test.ets` 不受本次改动影响。
+
+### 验收记录
+
+| 项 | 结果 |
+| --- | --- |
+| 编译（uat/Debug） | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 14s 333ms`，安装/启动成功 |
+| codeLinter | ⚠️ 项目未配置 codeLinter task，跳过 |
+| Local Test | 🔶 MaterialList 无测试；`MaterialCalcViewModel.test.ets` 需 DevEco GUI 手动运行 |
+| 测试契约 | ✅ 三个 VM 路径与导出符号不变 |
+| 冒烟 | 🔶 待手动：三游戏材料汇总页、两个 Tab、更改配置入口、空态同步 |
+
+### 已知问题记录（不执行）
+
+| ID | 级别 | 描述 | 状态 |
+| --- | --- | --- | --- |
+| M-LIST-2 | Medium | 重新计算失败对用户静默 | 保留，单独提交 |
+| M-LIST-6 | Low | 「万 / 亿」中文单位未资源化 | 保留，属文案变更 |
+| M-CALC-H1 | High | `MaterialCalc` 路由未注册，页面不可达 | 保留，需用户批准改 `custom_router_map.json` |
+| `GenshinMaterialListViewModel` | 信息 | 628L，仍超 500L 阈值 | 无测试，拆分待补测试后再做 |
+
+### 结论
+
+**M7 进行中**：MaterialList 子区域完成——三页 186 → 55L，新增共享 `MaterialListScaffold`，三个 VM 删除死代码，三份「万 / 亿」实现合并；行为等价，编译通过。TargetConfig / CharacterSelect / MaterialCalc 子区域待继续。
