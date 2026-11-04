@@ -360,7 +360,7 @@ entry/src/main/ets/
 | M4 | My | 🔶 部分完成（SettingRow 迁入） | — | 1ff4cfe | ✅ BUILD SUCCESSFUL in 16s 358ms | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
 | M5 | Notification | ✅ 纯重构完成（行为修复待单独提交） | — | 5ca87a1 | ✅ BUILD SUCCESSFUL in 15s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 服务 670→490L + Reader 83L；VM 399→318L；M1/M2/M4/M7/M8 保留 |
 | M6 | Dailynote | ✅ 真重构完成 | — | 7002525 | ✅ BUILD SUCCESSFUL in 15s 175ms | ⚠️ 跳过 | 🔶 待运行 | — | 页面 131/123/123→60/57/57；新增 Scaffold + 3 个 utils；M3/M4 保留 |
-| M7 | MaterialCalc | 🔶 进行中（MaterialList + TargetConfig 完成） | — | 36099a9 / 045437f | ✅ BUILD SUCCESSFUL in 14s 742ms | ⚠️ 跳过 | 🔶 待运行 | — | 三页材料汇总 186→55L；目标配置 342/346/410→261/265/266L；新增 Scaffold / LevelConfigRow / TipCard；CharacterSelect 待续 |
+| M7 | MaterialCalc | 🔶 进行中（MaterialList + TargetConfig + CharacterSelect 完成） | — | 36099a9 / 045437f / 待补 | ✅ BUILD SUCCESSFUL in 13s 720ms | ⚠️ 跳过 | 🔶 待运行 | — | 材料汇总 186→55L；目标配置 342/346/410→261/265/266L；角色选择 493→360L + Card 156L；MaterialCalc 页待续 |
 | M8 | Home | ✅ 真重构完成 | — | e831292 | ✅ BUILD SUCCESSFUL in 18s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 已拆 4 文件，最大 315L |
 | M9 | Characters | 未开始 | — | — | — | — | — | — | — |
 | M10 | CharDetail | 未开始 | — | — | — | — | — | — | — |
@@ -522,7 +522,7 @@ entry/src/main/ets/
 ---
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-04）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3/M4 部分提交（`1ff4cfe`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M8 真重构完成（`e831292`）；M7 MaterialList / TargetConfig 子区域完成，CharacterSelect / MaterialCalc 待续。*
+*进度（2026-11-04）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3/M4 部分提交（`1ff4cfe`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M8 真重构完成（`e831292`）；M7 MaterialList / TargetConfig / CharacterSelect 子区域完成，MaterialCalc 页待续。*
 
 ---
 
@@ -707,7 +707,7 @@ M7 覆盖「材料计算 → 选角色 → 目标配置（×3）→ 材料汇总
 | --- | --- | --- | --- |
 | 1 | MaterialList（三页 + 三 VM） | ✅ 完成 | 36099a9 |
 | 2 | TargetConfig（三页 + 三 VM） | ✅ 完成 | 045437f |
-| 3 | CharacterSelect | 🔶 待执行 | — |
+| 3 | CharacterSelect | ✅ 完成 | 待补 |
 | 4 | MaterialCalc 页 + `MaterialComputeService` | 🔶 待执行 | — |
 
 ### MaterialList 执行记录
@@ -729,21 +729,30 @@ M7 覆盖「材料计算 → 选角色 → 目标配置（×3）→ 材料汇总
 | 修改 | 三个 `*MaterialTargetConfigPage.ets`（342/346/410 → 261/265/266L） | 删除 `TipCard` / `LevelRow` / ZZZ `SkillLevelRow` 四份同构 Builder；ZZZ 技能行改用 `LevelRow('skill' + skillType, skill)` |
 | 修改 | 同上 | 删除 `pickerConfigKey` / `pickerStep` / `pickerValue` 实例字段；`confirmPicker(key, step, value)` 显式传参 |
 
+### CharacterSelect 执行记录
+
+| 操作 | 文件 | 说明 |
+| --- | --- | --- |
+| 新增 | `views/CharacterSelectCard.ets`（156L） | 网格角色卡片，从页面内嵌 struct 提取 |
+| 修改 | `pages/MaterialCharacterSelectPage.ets`（493 → 360L） | 删除内嵌卡片、空 `@Monitor('vm.canStart')`、`@Param detailStack` 与三处回退、`uiContext` 死字段、死导入；新增 `gameId` getter |
+| 修改 | `viewmodel/MaterialCharacterSelectViewModel.ets`（448 → 432L） | 删除未使用的 `getGameColor` / `getGameLogo` / `getGameName` 导入 |
+
 ### 契约与冻结项
 
 - 三个 `*MaterialList` 路由与 `GenshinMaterialListPageBuilder` / `StarRailMaterialListPageBuilder` / `ZZZMaterialListPageBuilder` 名冻结。
-- `MaterialTargetConfigParam` 仍在 `model/ToolsModels.ets`；三个 VM 的路径与导出符号不变。
-- M7 无 MaterialList Local Test；`MaterialCalcViewModel.test.ets` 不受本次改动影响。
+- 三个 `*MaterialTargetConfig` 路由与 Builder 名冻结；`MaterialCharacterSelect` 的 Builder 文件路径 / 函数名冻结。
+- `MaterialTargetConfigParam` 仍在 `model/ToolsModels.ets`；三个 VM 的路径与导出符号不变；`MaterialCharacterSelectRouteParam` 保持 interface。
+- M7 无 MaterialList / TargetConfig / CharacterSelect Local Test；`MaterialCalcViewModel.test.ets` 不受本次改动影响。
 
 ### 验收记录
 
 | 项 | 结果 |
 | --- | --- |
-| 编译（uat/Debug） | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 14s 742ms`，安装/启动成功 |
+| 编译（uat/Debug） | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 13s 720ms`，安装/启动成功 |
 | codeLinter | ⚠️ 项目未配置 codeLinter task，跳过 |
-| Local Test | 🔶 MaterialList / TargetConfig 无测试；`MaterialCalcViewModel.test.ets` 需 DevEco GUI 手动运行 |
+| Local Test | 🔶 MaterialList / TargetConfig / CharacterSelect 无测试；`MaterialCalcViewModel.test.ets` 需 DevEco GUI 手动运行 |
 | 测试契约 | ✅ 三个 VM 路径与导出符号不变 |
-| 冒烟 | 🔶 待手动：三游戏材料汇总页、两个 Tab、更改配置入口、空态同步；三游戏目标配置页、等级 Picker、提交后跳转 |
+| 冒烟 | 🔶 待手动：三游戏材料汇总页、两个 Tab、更改配置入口、空态同步；三游戏目标配置页、等级 Picker、提交后跳转；角色选择页网格 / 多选上限 / 菜单 |
 
 ### 已知问题记录（不执行）
 
@@ -758,4 +767,4 @@ M7 覆盖「材料计算 → 选角色 → 目标配置（×3）→ 材料汇总
 
 ### 结论
 
-**M7 进行中**：MaterialList 与 TargetConfig 子区域完成——材料汇总三页 186 → 55L，新增共享 `MaterialListScaffold`，三个 VM 删除死代码，三份「万 / 亿」实现合并；目标配置三页 342/346/410 → 261/265/266L，新增 `LevelConfigRow` / `TargetConfigTipCard`，ZZZ `SkillLevelRow` 与 Picker 实例字段删除。行为等价，编译通过。CharacterSelect / MaterialCalc 子区域待继续。
+**M7 进行中**：MaterialList / TargetConfig / CharacterSelect 子区域完成——材料汇总三页 186 → 55L，新增共享 `MaterialListScaffold`，三个 VM 删除死代码，三份「万 / 亿」实现合并；目标配置三页 342/346/410 → 261/265/266L，新增 `LevelConfigRow` / `TargetConfigTipCard`，ZZZ `SkillLevelRow` 与 Picker 实例字段删除；角色选择页 493 → 360L，卡片提取为 `CharacterSelectCard`，删除空 `@Monitor`、`detailStack` 回退与死导入。行为等价，编译通过。MaterialCalc 页与 `MaterialComputeService` 待继续。

@@ -17,7 +17,7 @@ import {
   GameId,
   Logger,
 } from 'core';
-import { ViewState, getGameColor, getGameLogo, getGameName, AccountOption, compareCharacter } from 'basic';
+import { ViewState, AccountOption, compareCharacter } from 'basic';
 import { MaterialTargetConfigParam } from '../model/ToolsModels';
 import { MaterialComputeService, MaterialComputeResult } from '../model/service/MaterialComputeService';
 

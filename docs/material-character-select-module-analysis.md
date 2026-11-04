@@ -26,9 +26,12 @@
 
 | 文件 | 类型 | 行数 | 职责 |
 |------|------|------|------|
-| `MaterialCharacterSelectPage.ets` | Page / @ComponentV2 | 493 | 角色选择页——游戏角色网格列表 + 多选（最多 4 个）+ 底部按钮栏 |
-| `viewmodel/MaterialCharacterSelectViewModel.ets` | @ObservedV2 ViewModel | 448 | 账号/角色加载、选中状态、历史记录、调用 `MaterialComputeService` |
+| `MaterialCharacterSelectPage.ets` | Page / @ComponentV2 | 360 | 角色选择页——游戏角色网格列表 + 多选（最多 4 个）+ 底部按钮栏 |
+| `views/CharacterSelectCard.ets` | @ComponentV2 | 156 | 网格角色卡片（原内嵌于页面，M7 提取） |
+| `viewmodel/MaterialCharacterSelectViewModel.ets` | @ObservedV2 ViewModel | 432 | 账号/角色加载、选中状态、历史记录、调用 `MaterialComputeService` |
 | `builders/MaterialCharacterSelectPageBuilder.ets` | 路由 Builder | 22 | routerMap 的 `buildFunction`，把 `param` 强转为 interface 后透传 |
+
+> 行数为 M7 重构后现状（原页面 493 / VM 448）；§2 / §6 保留重构前基线。
 
 **直接导入依赖（15+）**：ThemeManager、UIContext/SymbolGlyphModifier/ComponentContent、AccountSwitchDialog、ViewState、GameId/Logger、MaterialCharacterSelectViewModel/Param/SelectableCharacterVM、MaterialComputeResult、MaterialTargetConfigParam、DialogDedup、MaterialRoutes（materialListRoute/materialTargetConfigRoute）、PlaceholderView、AppRoutes、GameIdUtil、GenshinElement、StarRailElement、ZZZElement。其中 `MaterialCharacterSelectParam`（L15）、`AppRoutes`（L23）、`gameIdToColor`（L24）只被导入、页面内未使用。
 
@@ -104,12 +107,12 @@ MaterialCharacterSelectRouteParam (interface) — accountId / roleUid / gameId
 
 ## 6. 风险清单
 
-- [x] **中优先级**：`CharacterSelectCard` 内嵌在 493 行文件里——建议提取为 `components/materialselect/CharacterSelectCard.ets`
-- [x] **中优先级**：路由参数 `MaterialCharacterSelectRouteParam` 使用 interface 而非 class——与项目其他路由参数风格不一致（如 AppearanceSettingsParam）
-- [ ] **中优先级**：切换账号失败会卡在 LOADING——`selectAccount()`（VM L168-179）先设 `viewState = LOADING`、清空列表，再 `await loadCurrentAccount()`；后者经 `loadCharacters` 调用的 `getAvatarList`（L346 / L362 / L379）不在任何 try-catch 内（`loadHistory` 自带 catch；只有 `init()` 的 L133-162 包了 try）。页面 `showAccountMenu` 的 `onSelect`（L212-214）既不 await 也不 catch，异常变成 unhandled rejection，页面永久转圈。
-- [ ] **低优先级**：@Monitor('vm.canStart') 仅触发 UI 刷新无逻辑——Button.enabled 已绑定 vm.canStart，此 Monitor 可移除
-- [ ] **低优先级**：`this.localStack ?? this.detailStack` 回退模式在三处使用（`openHistory` / `openTargetConfig` / `onStartTap`）——`localStack` 在 `onReady` 就已赋值，Builder 也从不传 `detailStack`，`@Param detailStack` 与 `??` 回退是死代码，徒增"两个栈哪个生效"的阅读成本
-- [ ] **低优先级**：死导入 / 死代码——页面 `MaterialCharacterSelectParam`（L15）、`AppRoutes`（L23）、`gameIdToColor`（L24）未使用；VM 的 `gameIdToColor` / `gameIdToLogo` / `gameIdToName`（VM L21）未使用；`MaterialCharacterSelectViewModelKeys`（VM L63-70）只有 static 字段，`static KEYS = new ...()`（VM L75）得到的是空实例且无引用
+- [x] **中优先级**：`CharacterSelectCard` 内嵌在 493 行文件里——✅ 已提取为 `views/CharacterSelectCard.ets`（M7）
+- [x] **中优先级**：路由参数 `MaterialCharacterSelectRouteParam` 使用 interface 而非 class——与项目其他路由参数风格不一致（如 AppearanceSettingsParam）；保留（改 class 属契约变更）
+- [ ] **中优先级**：切换账号失败会卡在 LOADING——`selectAccount()`（VM L168-179）先设 `viewState = LOADING`、清空列表，再 `await loadCurrentAccount()`；后者经 `loadCharacters` 调用的 `getAvatarList`（L346 / L362 / L379）不在任何 try-catch 内（`loadHistory` 自带 catch；只有 `init()` 的 L133-162 包了 try）。页面 `showAccountMenu` 的 `onSelect`（L212-214）既不 await 也不 catch，异常变成 unhandled rejection，页面永久转圈。属行为变更，单独提交。
+- [x] **低优先级**：@Monitor('vm.canStart') 仅触发 UI 刷新无逻辑——✅ 已删除（M7），Button.enabled 已绑定 vm.canStart
+- [x] **低优先级**：`this.localStack ?? this.detailStack` 回退模式——✅ 已删除 `@Param detailStack` 与三处回退（M7），只保留 `localStack`
+- [x] **低优先级**：死导入 / 死代码——✅ 已删除页面 `MaterialCharacterSelectParam` / `AppRoutes` / `getGameColor` / 未使用图标函数导入、`uiContext` 死字段，以及 VM 的 `getGameColor` / `getGameLogo` / `getGameName` 导入
 
 *本文档仅分析，不修改代码。*
 
@@ -127,12 +130,15 @@ MaterialCharacterSelectRouteParam (interface) — accountId / roleUid / gameId
 | 测试 | `MaterialCharacterSelectViewModel`（448 行）**没有** Local Test；M7 只有 `MaterialCalcViewModel.test.ets` |
 | 共享工具 | `MaterialRoutes`、`GameIdUtil`、`DialogDedup`、`PlaceholderView` 均被多个模块使用，不移动 |
 
-### 重构范围（建议）
+### 重构范围（已执行）
 
-- 页面 493 行、ViewModel 448 行，均接近 500 行阈值；**没有测试保护，不建议在 M7 拆分**。
-- `CharacterSelectCard` 内嵌在页面里，提取到新组件会改变组件树与状态归属；记录为可选，不在本轮做。
-- `MaterialCharacterSelectRouteParam` 从 interface 改 class 会同时改 Builder 与页面，且属于行为/契约变更；不做。
-- 安全的清理：移除空实现的 `@Monitor('vm.canStart')`（如果确认 Button 已绑定响应式状态）、删除页面与 VM 的死导入，必须单独提交。
+- 页面 493 行、ViewModel 448 行，均接近 500 行阈值；本轮**不拆 VM**（无测试保护），只做页面结构清理。
+- `CharacterSelectCard` 提取为 `views/CharacterSelectCard.ets`（156L），页面 493 → 360 行；卡片仍是 `@ComponentV2` + `@Param` 注入，状态归属不变。
+- 删除空实现的 `@Monitor('vm.canStart')`；Button 已绑定 `vm.canStart`。
+- 删除 `@Param detailStack` 与三处 `localStack ?? detailStack` 回退，只保留 `onReady` 获取的 `localStack`。
+- 新增 `private get gameId()`，替换卡片与标题里重复的 `param !== null ? param.gameId : GameId.GENSHIN`。
+- 删除页面 `uiContext` 死字段与死导入（`MaterialCharacterSelectParam` / `AppRoutes` / `getGameColor` / 图标函数），VM 删除未使用的 `getGameColor` / `getGameLogo` / `getGameName` 导入。
+- `MaterialCharacterSelectRouteParam` 保持 interface（改 class 属契约变更）；切换账号失败卡 LOADING 属行为修复，单独提交。
 
 ### 验收
 
@@ -141,8 +147,9 @@ MaterialCharacterSelectRouteParam (interface) — accountId / roleUid / gameId
 
 ### 已知问题归属
 
-- Medium（卡片未提取、Param 用 interface、切换账号失败卡 LOADING）：记录，不在本轮做；最后一项要修需单独提交（行为变更）。
-- Low（空 `@Monitor`、`detailStack ?? localStack` 死回退、死导入）：记录，暂不改；删死导入可随 M7 清理提交。
+- Medium（Param 用 interface）：保留，属契约变更。
+- Medium（切换账号失败卡 LOADING）：单独提交（行为变更）。
+- 页面 / VM 拆分：记录，待补测试后再做。
 
 【已核对代码一致性】
 
@@ -152,3 +159,4 @@ MaterialCharacterSelectRouteParam (interface) — accountId / roleUid / gameId
 | 第 2 轮（结构 + 行为） | aboutToAppear L53-58、@Monitor L63 空实现、GridRow L97 `{xs:4,sm:4,md:6,lg:8}`、menus L149 三项条件、buildBottomBar L232、onStartTap L279、CharacterSelectCard L360 + badgeIcons L368 | ✅ |
 | 第 3 轮（全面复核） | 回退表达式实际 L181/L195/L285；`openHistory` 用 `pushPathByName`；无 Local Test；`NO_CONFIG` 枚举存在且页面有分支；`localStack` 已优先 | ✅ 修正 3 处（replace→push、行号、回退风险描述） |
 | 第 4 轮（2026-10-27 逐条复核） | 摘要 Low 3 / 清单 Low 2 不符；回退分支可达性；DialogDedup release 时机；`selectAccount` 异常路径；导入使用情况；Tools 入口参数类型 | ✅ 撤回 1 条不成立的安全项、Low 回退项改述为死代码；新增 1 Medium（切换账号卡 LOADING）+ 1 Low（死导入）；§1 补 VM / Builder 行；路由参数契约补第三处定义 |
+| 第 5 轮（2026-11-04 M7 执行后） | 页面 360L + `CharacterSelectCard` 156L + VM 432L；`@Monitor` / `detailStack` / `uiContext` / 死导入已删；`bash run.sh uat` 通过 | ✅ 行数与结构复核一致 |
