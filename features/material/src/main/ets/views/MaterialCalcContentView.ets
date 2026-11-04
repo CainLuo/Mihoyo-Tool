@@ -5,7 +5,7 @@
  */
 
 import { themeManager, ThemeManager } from 'basic';
-import { MaterialCalcCharacterVM, SkillTargetVM, MaterialSectionVM, LevelOptionVM } from '../model/MaterialCalcModels';
+import { MaterialCalcCharacterVM, SkillTargetVM, MaterialSectionVM } from '../model/MaterialCalcModels';
 import { MaterialCalcCharacter } from './MaterialCalcCharacter';
 import { MaterialCalcSkills } from './MaterialCalcSkills';
 import { MaterialCalcSection } from './MaterialCalcSection';

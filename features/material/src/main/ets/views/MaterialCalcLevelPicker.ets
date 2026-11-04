@@ -1,14 +1,14 @@
 /**
- * LevelPicker.ets — 等级选择器弹窗组件
+ * MaterialCalcLevelPicker.ets — 材料计算页的等级选择器弹窗
  *
- * 使用 CustomDialog 展示等级选项列表。
+ * 半透明遮罩 + 居中卡片，按 `options` 渲染等级列表。
  */
 
 import { themeManager, ThemeManager } from 'basic';
 import { LevelOptionVM } from '../model/MaterialCalcModels';
 
 @ComponentV2
-export struct LevelPicker {
+export struct MaterialCalcLevelPicker {
   @Param currentLevel: number = 1;
   @Param options: LevelOptionVM[] = [];
   @Param onSelect: (level: number) => void = (_: number) => {};
@@ -42,7 +42,7 @@ export struct LevelPicker {
 
           // 选项列表
           ForEach(this.options, (opt: LevelOptionVM) => {
-            LevelPickerItem({
+            MaterialCalcLevelPickerItem({
               opt: opt,
               isSelected: this.currentLevel === opt.level,
               onSelect: (level: number) => {
@@ -66,12 +66,12 @@ export struct LevelPicker {
 }
 
 /**
- * LevelPickerItem — 等级选择器选项项
+ * MaterialCalcLevelPickerItem — 等级选择器选项项
  *
  * 单个等级选项，显示等级标签并根据 isSelected 决定样式。
  */
 @ComponentV2
-struct LevelPickerItem {
+struct MaterialCalcLevelPickerItem {
   @Param opt: LevelOptionVM = { level: 1, label: '' };
   @Param isSelected: boolean = false;
   @Param onSelect: (level: number) => void = (_: number) => {};
@@ -99,7 +99,7 @@ struct LevelPickerItem {
 
 @Preview
 @ComponentV2
-export struct LevelPickerPreview {
+export struct MaterialCalcLevelPickerPreview {
   @Local isVisible: boolean = true;
   @Local currentLevel: number = 80;
   @Local options: LevelOptionVM[] = [];
@@ -118,7 +118,7 @@ export struct LevelPickerPreview {
 
   build() {
     Column() {
-      LevelPicker({
+      MaterialCalcLevelPicker({
         currentLevel: this.currentLevel,
         options: this.options,
         isVisible: this.isVisible,

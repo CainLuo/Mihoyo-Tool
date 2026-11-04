@@ -13,9 +13,8 @@ import { MaterialCalcViewModel } from '../viewmodel/MaterialCalcViewModel';
 import { MaterialCalcContentView } from '../views/MaterialCalcContentView';
 import { MaterialCalcEmptyView } from '../views/MaterialCalcEmptyView';
 import { MaterialCalcLoadingView } from '../views/MaterialCalcLoadingView';
-import { LevelPicker } from '../views/LevelPicker';
+import { MaterialCalcLevelPicker } from '../views/MaterialCalcLevelPicker';
 import { LevelOptionVM } from '../model/MaterialCalcModels';
-import { GameId } from 'core';
 
 /** 页面参数 */
 export class MaterialCalcParam {
@@ -71,7 +70,7 @@ export struct MaterialCalcPage {
       .backgroundColor(this.tm.current.colorPageBg)
 
       // 等级选择器弹窗
-      LevelPicker({
+      MaterialCalcLevelPicker({
         currentLevel: this.levelPickerType === 'character' ? this.vm.charTargetLevel : this.vm.weaponTargetLevel,
         options: this.levelOptions,
         isVisible: this.shouldShowLevelPicker,

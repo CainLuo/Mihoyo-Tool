@@ -317,57 +317,28 @@ export class MaterialCalcViewModel {
   }
 
   /**
-   * 构建原神技能目标列表。
+   * 构建原神技能目标列表（普攻 / 战技 / 爆发）。
    */
   private buildGenshinSkills(): SkillTargetVM[] {
-    const result: SkillTargetVM[] = [];
-    const skillTypes: SkillTypeDefinition[] = [];
-    
-    const skill1: SkillTypeDefinition = { id: 'normal', name: $r('app.string.skill_normal') };
-    const skill2: SkillTypeDefinition = { id: 'skill', name: $r('app.string.skill_skill') };
-    const skill3: SkillTypeDefinition = { id: 'burst', name: $r('app.string.skill_burst') };
-    skillTypes[skillTypes.length] = skill1;
-    skillTypes[skillTypes.length] = skill2;
-    skillTypes[skillTypes.length] = skill3;
-
-    for (let i = 0; i < skillTypes.length; i++) {
-      const vm = new SkillTargetVM();
-      vm.skillId = skillTypes[i].id;
-      vm.skillName = skillTypes[i].name;
-      vm.currentLevel = 10;
-      vm.targetLevel = 10;
-      vm.maxLevel = 10;
-      result[result.length] = vm;
-    }
-    return result;
+    const skillTypes: SkillTypeDefinition[] = [
+      { id: 'normal', name: $r('app.string.skill_normal') },
+      { id: 'skill', name: $r('app.string.skill_skill') },
+      { id: 'burst', name: $r('app.string.skill_burst') },
+    ];
+    return this.buildSkillTargets(skillTypes, 10, 10);
   }
 
   /**
-   * 构建星铁技能目标列表。
+   * 构建星铁技能目标列表（普攻 / 战技 / 终结技 / 天赋）。
    */
   private buildStarRailSkills(): SkillTargetVM[] {
-    const result: SkillTargetVM[] = [];
-    const skillTypes: SkillTypeDefinition[] = [];
-    
-    const skill1: SkillTypeDefinition = { id: 'basic', name: $r('app.string.skill_basic') };
-    const skill2: SkillTypeDefinition = { id: 'skill', name: $r('app.string.skill_skill') };
-    const skill3: SkillTypeDefinition = { id: 'ultimate', name: $r('app.string.skill_ultimate') };
-    const skill4: SkillTypeDefinition = { id: 'talent', name: $r('app.string.skill_talent') };
-    skillTypes[skillTypes.length] = skill1;
-    skillTypes[skillTypes.length] = skill2;
-    skillTypes[skillTypes.length] = skill3;
-    skillTypes[skillTypes.length] = skill4;
-
-    for (let i = 0; i < skillTypes.length; i++) {
-      const vm = new SkillTargetVM();
-      vm.skillId = skillTypes[i].id;
-      vm.skillName = skillTypes[i].name;
-      vm.currentLevel = 10;
-      vm.targetLevel = 10;
-      vm.maxLevel = 10;
-      result[result.length] = vm;
-    }
-    return result;
+    const skillTypes: SkillTypeDefinition[] = [
+      { id: 'basic', name: $r('app.string.skill_basic') },
+      { id: 'skill', name: $r('app.string.skill_skill') },
+      { id: 'ultimate', name: $r('app.string.skill_ultimate') },
+      { id: 'talent', name: $r('app.string.skill_talent') },
+    ];
+    return this.buildSkillTargets(skillTypes, 10, 10);
   }
 
   /**
@@ -382,9 +353,6 @@ export class MaterialCalcViewModel {
    * - 6: 核心技 (core)
    */
   private buildZZZSkills(): SkillTargetVM[] {
-    const result: SkillTargetVM[] = [];
-
-    // 按照原型顺序：普通攻击、闪避、支援技、特殊技、连携技、核心技
     const skillTypes: SkillTypeDefinition[] = [
       { id: '0', name: $r('app.string.skill_normal') },       // skill_type=0
       { id: '1', name: $r('app.string.skill_dodge') },       // skill_type=1
@@ -393,14 +361,29 @@ export class MaterialCalcViewModel {
       { id: '5', name: $r('app.string.skill_chain') },       // skill_type=5
       { id: '6', name: $r('app.string.skill_core') },        // skill_type=6
     ];
+    return this.buildSkillTargets(skillTypes, 1, 12);
+  }
 
+  /**
+   * 按技能定义批量生成技能目标 VM。
+   *
+   * @param skillTypes 技能 ID 与名称
+   * @param currentLevel 当前等级
+   * @param maxLevel 最高等级（同时作为初始目标等级）
+   */
+  private buildSkillTargets(
+    skillTypes: SkillTypeDefinition[],
+    currentLevel: number,
+    maxLevel: number
+  ): SkillTargetVM[] {
+    const result: SkillTargetVM[] = [];
     for (let i = 0; i < skillTypes.length; i++) {
       const vm = new SkillTargetVM();
       vm.skillId = skillTypes[i].id;
       vm.skillName = skillTypes[i].name;
-      vm.currentLevel = 1;
-      vm.targetLevel = 12;
-      vm.maxLevel = 12;
+      vm.currentLevel = currentLevel;
+      vm.targetLevel = maxLevel;
+      vm.maxLevel = maxLevel;
       result[result.length] = vm;
     }
     return result;
