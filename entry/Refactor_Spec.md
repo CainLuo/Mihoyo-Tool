@@ -360,7 +360,7 @@ entry/src/main/ets/
 | M4 | My | 🔶 部分完成（SettingRow 迁入） | — | 1ff4cfe | ✅ BUILD SUCCESSFUL in 16s 358ms | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
 | M5 | Notification | ✅ 纯重构完成（行为修复待单独提交） | — | 5ca87a1 | ✅ BUILD SUCCESSFUL in 15s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 服务 670→490L + Reader 83L；VM 399→318L；M1/M2/M4/M7/M8 保留 |
 | M6 | Dailynote | ✅ 真重构完成 | — | 7002525 | ✅ BUILD SUCCESSFUL in 15s 175ms | ⚠️ 跳过 | 🔶 待运行 | — | 页面 131/123/123→60/57/57；新增 Scaffold + 3 个 utils；M3/M4 保留 |
-| M7 | MaterialCalc | 🔶 进行中（MaterialList 子区域完成） | — | 待补 | ✅ BUILD SUCCESSFUL in 14s 333ms | ⚠️ 跳过 | 🔶 待运行 | — | 三页 186→55L + Scaffold 164L；VM 死代码与万/亿去重完成；TargetConfig / CharacterSelect 待续 |
+| M7 | MaterialCalc | 🔶 进行中（MaterialList 子区域完成） | — | 36099a9 | ✅ BUILD SUCCESSFUL in 14s 333ms | ⚠️ 跳过 | 🔶 待运行 | — | 三页 186→55L + Scaffold 164L；VM 死代码与万/亿去重完成；TargetConfig / CharacterSelect 待续 |
 | M8 | Home | ✅ 真重构完成 | — | e831292 | ✅ BUILD SUCCESSFUL in 18s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 已拆 4 文件，最大 315L |
 | M9 | Characters | 未开始 | — | — | — | — | — | — | — |
 | M10 | CharDetail | 未开始 | — | — | — | — | — | — | — |
@@ -705,7 +705,7 @@ M7 覆盖「材料计算 → 选角色 → 目标配置（×3）→ 材料汇总
 
 | # | 子区域 | 状态 | 提交 |
 | --- | --- | --- | --- |
-| 1 | MaterialList（三页 + 三 VM） | ✅ 完成 | 待补 |
+| 1 | MaterialList（三页 + 三 VM） | ✅ 完成 | 36099a9 |
 | 2 | TargetConfig（三页 + 三 VM） | 🔶 待执行 | — |
 | 3 | CharacterSelect | 🔶 待执行 | — |
 | 4 | MaterialCalc 页 + `MaterialComputeService` | 🔶 待执行 | — |
