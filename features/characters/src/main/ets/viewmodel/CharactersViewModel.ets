@@ -21,15 +21,13 @@ import {
   GameDataSummary,
   AccountRow,
   GameRoleRow,
-  GenshinCharacterListRow,
-  StarRailAvatarBasicRow,
-  ZZZAvatarBasicRow,
   SyncQueueRunner,
   Logger,
   GameId,
 } from 'core';
-import { ViewState, AppConstants, AccountOption, SegmentedTabItem, compareCharacter, AppRoutes } from 'basic';
+import { ViewState, AccountOption, SegmentedTabItem, AppRoutes } from 'basic';
 import { CharacterDataSource } from './CharacterDataSource';
+import { CharactersDataLoader } from './CharactersDataLoader';
 import { CharDetailRouterParam } from 'chardetail';
 
 
@@ -109,7 +107,7 @@ export class CharactersViewModel {
         this.viewState = ViewState.EMPTY;
         return;
       }
-      this.accountOptions = CharactersViewModel.buildAccountOptions(this.allAccounts);
+      this.accountOptions = CharactersDataLoader.buildAccountOptions(this.allAccounts);
       this.shouldShowAccountSwitcher = this.accountOptions.length > 1;
       // 保留上次选中的账号（账号被删除时 clamp 到最后一个）
       this.selectedAccountIdx = Math.min(this.selectedAccountIdx, this.allAccounts.length - 1);
@@ -164,7 +162,7 @@ export class CharactersViewModel {
     for (let i = 0; i < this.gameTabsInternal.length; i++) {
       const tab = this.gameTabsInternal[i];
       try {
-        if (await CharactersViewModel.shouldSyncCharacters(accountId, tab.roleUid, tab.gameId)) {
+        if (await CharactersDataLoader.shouldSyncCharacters(accountId, tab.roleUid, tab.gameId)) {
           inCooldown = false;
           break;
         }
@@ -302,7 +300,7 @@ export class CharactersViewModel {
         const role = roles[i];
         const tabItem = new SegmentedTabItem(
           `${role.gameId}_${role.roleId}`,
-          CharactersViewModel.getGameNameResource(role.gameId)
+          CharactersDataLoader.getGameNameResource(role.gameId)
         );
         tabItems[tabItems.length] = tabItem;
 
@@ -350,7 +348,7 @@ export class CharactersViewModel {
     const tab = this.gameTabsInternal[this.selectedGameIdx];
     const accountId = this.allAccounts[this.selectedAccountIdx].uid;
     try {
-      const rows = await CharactersViewModel.loadCharacters(accountId, tab.gameId, tab.roleUid);
+      const rows = await CharactersDataLoader.loadCharacters(accountId, tab.gameId, tab.roleUid);
       if (rows.length > 0) {
         this.setCharacters(rows);
         this.viewState = ViewState.DATA;
@@ -369,114 +367,6 @@ export class CharactersViewModel {
     }
   }
 
-  /** 从 Repository 读取角色数据并转换为 GameDataSummary */
-  private static async loadCharacters(
-    accountId: string,
-    gameId: GameId,
-    roleUid: string
-  ): Promise<GameDataSummary[]> {
-    let result: GameDataSummary[] = [];
-    if (gameId === GameId.GENSHIN) {
-      const rows = await CoreInitializer.genshinRepository.getAvatarList(accountId, roleUid);
-      result = CharactersViewModel.buildGenshinSummaries(rows, roleUid);
-    } else if (gameId === GameId.STARRAIL) {
-      const rows = await CoreInitializer.starRailRepository.getAvatarList(accountId, roleUid);
-      result = CharactersViewModel.buildStarRailSummaries(rows, roleUid);
-    } else if (gameId === GameId.ZZZ) {
-      const rows = await CoreInitializer.zzzRepository.getAvatarList(accountId, roleUid);
-      result = CharactersViewModel.buildZZZSummaries(rows, roleUid);
-    }
-    // 星级从高到低，同星级按角色 ID 从大到小
-    result.sort((a: GameDataSummary, b: GameDataSummary) => compareCharacter(a.rarity, a.entityId, b.rarity, b.entityId));
-    return result;
-  }
-
-  /** 将 GenshinCharacterListRow[] 转换为 GameDataSummary[] */
-  private static buildGenshinSummaries(rows: GenshinCharacterListRow[], roleUid: string): GameDataSummary[] {
-    const result: GameDataSummary[] = [];
-    for (let i = 0; i < rows.length; i++) {
-      const r = rows[i];
-      const s = new GameDataSummary();
-      s.gameId = GameId.GENSHIN;
-      s.roleUid = roleUid;
-      s.entityId = r.avatarId;
-      s.name = r.name;
-      s.rarity = r.rarity;
-      s.level = r.level;
-      s.extraInt1 = r.activedConstellationNum;
-      s.extraInt2 = r.fetter;
-      s.extraText1 = r.element;
-      s.extraText2 = `${r.weaponType}`;
-      s.iconUrl = r.icon;
-      s.squareIconUrl = r.sideIcon;
-      s.weaponName = r.weaponName;
-      s.weaponLevel = r.weaponLevel;
-      s.weaponAffix = r.weaponAffixLevel;
-      s.weaponRarity = r.weaponRarity;
-      s.weaponIconUrl = r.weaponIconUrl;
-      s.hasWeaponSlot = true;
-      s.updateTime = r.updateTime;
-      result[result.length] = s;
-    }
-    return result;
-  }
-
-  /** 将 StarRailAvatarBasicRow[] 转换为 GameDataSummary[] */
-  private static buildStarRailSummaries(rows: StarRailAvatarBasicRow[], roleUid: string): GameDataSummary[] {
-    const result: GameDataSummary[] = [];
-    for (let i = 0; i < rows.length; i++) {
-      const r = rows[i];
-      const s = new GameDataSummary();
-      s.gameId = GameId.STARRAIL;
-      s.roleUid = roleUid;
-      s.entityId = r.avatarId;
-      s.name = r.name;
-      s.rarity = r.rarity;
-      s.level = r.level;
-      s.extraInt1 = r.rank;
-      s.extraInt2 = 0;
-      s.extraText1 = r.element;
-      s.extraText2 = `${r.baseType}`;
-      s.iconUrl = r.icon;
-      s.squareIconUrl = r.figurePath;
-      s.weaponName = r.equipName;
-      s.weaponLevel = r.equipLevel;
-      s.weaponAffix = r.equipRank;
-      s.weaponRarity = r.equipRarity;
-      s.weaponIconUrl = r.equipIconUrl;
-      s.hasWeaponSlot = true;
-      s.updateTime = r.updateTime;
-      result[result.length] = s;
-    }
-    return result;
-  }
-
-  /** 将 ZZZAvatarBasicRow[] 转换为 GameDataSummary[] */
-  private static buildZZZSummaries(rows: ZZZAvatarBasicRow[], roleUid: string): GameDataSummary[] {
-    const result: GameDataSummary[] = [];
-    for (let i = 0; i < rows.length; i++) {
-      const r = rows[i];
-      const s = new GameDataSummary();
-      s.gameId = GameId.ZZZ;
-      s.roleUid = roleUid;
-      s.entityId = r.avatarId;
-      s.name = r.nameMi18n;
-      s.fullName = r.fullNameMi18n;
-      s.rarity = r.rarity === 'S' ? 5 : 4;
-      s.level = r.level;
-      s.extraInt1 = r.rank;
-      s.extraInt2 = 0;
-      s.extraText1 = `${r.elementType}`;
-      s.extraText2 = `${r.avatarProfession}`;
-      s.iconUrl = r.hollowIconPath;
-      s.squareIconUrl = r.roleSquareUrl;
-      s.groupIconUrl = r.groupIconPath;
-      s.updateTime = r.updateTime;
-      result[result.length] = s;
-    }
-    return result;
-  }
-
   /** 后台静默同步角色数据，完成后若仍是当前选中 tab 则刷新 UI */
   private syncCharactersInBackground(gameId: GameId, roleUid: string): void {
     if (this.allAccounts.length === 0) { return; }
@@ -488,7 +378,7 @@ export class CharactersViewModel {
         if (this.gameTabsInternal.length > 0 &&
             this.gameTabsInternal[this.selectedGameIdx].gameId === gameId &&
             this.gameTabsInternal[this.selectedGameIdx].roleUid === roleUid) {
-          const rows = await CharactersViewModel.loadCharacters(accountId, gameId, roleUid);
+          const rows = await CharactersDataLoader.loadCharacters(accountId, gameId, roleUid);
           this.setCharacters(rows);
           this.viewState = rows.length > 0 ? ViewState.DATA : ViewState.EMPTY;
         }
@@ -538,51 +428,7 @@ export class CharactersViewModel {
     return '';
   }
 
-  /** 检查指定游戏角色是否需要同步角色数据 */
-  private static async shouldSyncCharacters(accountId: string, roleUid: string, gameId: GameId): Promise<boolean> {
-    if (gameId === GameId.GENSHIN) {
-      return CoreInitializer.genshinRepository.needsAvatarListSync(accountId, roleUid);
-    }
-    if (gameId === GameId.STARRAIL) {
-      return CoreInitializer.starRailRepository.needsAvatarListSync(accountId, roleUid);
-    }
-    if (gameId === GameId.ZZZ) {
-      return CoreInitializer.zzzRepository.needsAvatarListSync(accountId, roleUid);
-    }
-    return true;
-  }
-
-  private static buildAccountOptions(accounts: AccountRow[]): AccountOption[] {
-    const opts: AccountOption[] = [];
-    for (let i = 0; i < accounts.length; i++) {
-      const a = accounts[i];
-      opts[opts.length] = new AccountOption(a.uid, a.username, a.nickname, a.avatarUrl, a.uid);
-    }
-    return opts;
-  }
-
   static toSelectOptions(opts: AccountOption[]): SelectOption[] {
-    const result: SelectOption[] = [];
-    for (let i = 0; i < opts.length; i++) {
-      const so: SelectOption = { value: opts[i].username };
-      result[result.length] = so;
-    }
-    return result;
-  }
-
-  private static getGameNameResource(gameId: GameId): Resource {
-    if (gameId === GameId.GENSHIN) {
-      return $r('app.string.game_name_genshin');
-    }
-    if (gameId === GameId.STARRAIL) {
-      return $r('app.string.game_name_starrail');
-    }
-    if (gameId === GameId.ZZZ) {
-      return $r('app.string.game_name_zzz');
-    }
-    if (gameId === GameId.HONKAI3) {
-      return $r('app.string.game_name_honkai3');
-    }
-    return $r('app.string.game_name_genshin');
+    return CharactersDataLoader.toSelectOptions(opts);
   }
 }

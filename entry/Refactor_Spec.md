@@ -339,7 +339,7 @@ entry/src/main/ets/
 | M6 | Dailynote | [daily-detail](../docs/daily-detail-modules-analysis.md) | 0 High；2 Medium（DAILY-M3 ERROR 显示为不可点击的"点击同步"空态、DAILY-M4 魔神任务卡片无数据源）+ 0 Low | 纯重构已完成（DAILY-M1 / L1 / L2 / I1 关闭，DAILY-M2 确认已修复）；M3 / M4 为行为变更，单独提交 |
 | M7 | MaterialCalc | [material-calc](../docs/material-calc-module-analysis.md) / [material-list](../docs/material-list-modules-analysis.md) / [target-config](../docs/material-target-config-modules-analysis.md) / [character-select](../docs/material-character-select-module-analysis.md) | 0 Critical / **1 High**（`MaterialCalc` 路由未注册、页面不可达）；Medium 11 + Low 13（按 4 份文档 2026-10-27 的执行摘要合计，这 4 份文档第二轮复核未完成，数字待复核） | High 单独提交（需在 `custom_router_map.json` 注册或改由 navDestination 处理，涉及 resources 作用域，需用户批准）；其余记录，去重随模块（不改变 UI 行为） |
 | M8 | Home | [home](../docs/home-module-analysis.md) | 2 High（ViewModel 754 行；Skeleton 动画未停） | 拆分随模块；动画修复随模块 |
-| M9 | Characters | [characters](../docs/characters-module-analysis.md) | 1 High（11 个 `@Monitor` 竞态） | 记录，暂不改行为 |
+| M9 | Characters | [characters](../docs/characters-module-analysis.md) | 0 High（原 H-1 已降为 M-1）；3 Medium + 4 Low | 纯重构已完成；`@Monitor` 收敛 / 冷却 Dialog / 代次保护保留 |
 | M10 | CharDetail | [genshin](../docs/genshin-character-detail-module-analysis.md) / [starrail](../docs/starrail-character-detail-module-analysis.md) / [zzz](../docs/zzz-character-detail-module-analysis.md) | SR 2 High（`parseRawJson` 未设 ERROR、`entityId === '1510'`）；Genshin 1 High（同源 ERROR）；ZZZ 1 High（`parseRawJson` 吞异常仍进 DATA） | 随模块修（三游统一状态兜底） |
 | M11 | AccountDetail | [account-detail](../docs/account-detail-module-analysis.md) | 0 Critical / 0 High；1 Medium（删除无二次确认）+ 1 Low（`as common.UIAbilityContext` 强转）；另有测试 `KEYS` 引用失效（测试资产，不计入评级，阻塞 Local Test） | 记录；要修则单独提交 |
 | M12 | Login | [login](../docs/login-module-analysis.md) / [webview](../docs/webview-page-module-analysis.md) | 0 Critical / 0 High（二维码轮询取消标记已由 `b98abae` 修复，复核撤回；原 SEC-002「Cookie 日志明文」经逐层核查无凭据落盘路径，降为 Medium 加固）；4 Medium / 2 Low；WebView 0 High（2 Low） | 无阻断项；日志脱敏可选（`LoginViewModel.ets:350`，单独提交）；WebView 仅记录 |
@@ -362,7 +362,7 @@ entry/src/main/ets/
 | M6 | Dailynote | ✅ 真重构完成 | — | 7002525 | ✅ BUILD SUCCESSFUL in 15s 175ms | ⚠️ 跳过 | 🔶 待运行 | — | 页面 131/123/123→60/57/57；新增 Scaffold + 3 个 utils；M3/M4 保留 |
 | M7 | MaterialCalc | ✅ 完成 | — | 36099a9 / 045437f / 41a09bb / a78d749 | ✅ BUILD SUCCESSFUL in 14s 73ms | ⚠️ 跳过 | 🔶 待运行 | — | 材料汇总 186→55L；目标配置 342/346/410→261/265/266L；角色选择 493→360L + Card 156L；MaterialCalc 页 111→109L、VM 493→465L；Service 560→163L + 5 文件 |
 | M8 | Home | ✅ 真重构完成 | — | e831292 | ✅ BUILD SUCCESSFUL in 18s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 已拆 4 文件，最大 315L |
-| M9 | Characters | 未开始 | — | — | — | — | — | — | — |
+| M9 | Characters | ✅ 真重构完成 | — | 待补 | ✅ BUILD SUCCESSFUL in 15s 736ms | ⚠️ 跳过 | 🔶 待运行 | — | VM 614→434L；新增 CharactersDataLoader 171L；测试契约不变 |
 | M10 | CharDetail | 未开始 | — | — | — | — | — | — | — |
 | M11 | AccountDetail | 未开始 | — | — | — | — | — | — | — |
 | M12 | Login | 未开始 | — | — | — | — | — | — | — |
@@ -591,7 +591,7 @@ entry/src/main/ets/
 ---
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）。*
+*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）；M9 真重构完成。*
 
 ---
 
@@ -859,3 +859,60 @@ M7 覆盖「材料计算 → 选角色 → 目标配置（×3）→ 材料汇总
 ### 结论
 
 **M7 完成**：MaterialList / TargetConfig / CharacterSelect / MaterialCalc 四个子区域全部完成——材料汇总三页 186 → 55L，新增共享 `MaterialListScaffold`，三个 VM 删除死代码，三份「万 / 亿」实现合并；目标配置三页 342/346/410 → 261/265/266L，新增 `LevelConfigRow` / `TargetConfigTipCard`，ZZZ `SkillLevelRow` 与 Picker 实例字段删除；角色选择页 493 → 360L，卡片提取为 `CharacterSelectCard`，删除空 `@Monitor`、`detailStack` 回退与死导入；MaterialCalc 页 111 → 109L、VM 493 → 465L，`LevelPicker` 统一为 `MaterialCalcLevelPicker`，三份技能构建合并为 `buildSkillTargets`；`MaterialComputeService` 560L 按 facade 拆为 163L + 5 个文件（Result / Utils / 三游戏计算）。行为等价，编译通过。
+
+---
+
+## M9 spec — Characters 模块（2026-11-05 真重构）
+
+分析依据：[`docs/characters-module-analysis.md`](../docs/characters-module-analysis.md)「重构执行记录」。
+
+### 背景说明
+
+模块 10 个文件：`CharactersPage` 161L / `CharactersViewModel` 434L / `CharactersDataLoader` 171L / `CharactersContent` 125L / `CharacterCard` 312L / `CharactersSkeleton` 82L / `CharacterDataSource` 44L / 三游戏 6 个角标与底栏。`CharactersViewModel` 原 614L，混合状态机与无状态数据映射；测试 `features/characters/src/test/CharactersViewModel.test.ets`（176L / 22 用例）冻结 VM 路径、导出名与 `toSelectOptions` 签名。
+
+### 决策
+
+| # | 问题 | 决定 | 依据 |
+| --- | --- | --- | --- |
+| D1 | VM 614L 如何拆 | 只把无状态静态映射移出为 `CharactersDataLoader`，状态与公开方法留在 VM | 保持测试与页面契约；状态机拆分属行为风险 |
+| D2 | `toSelectOptions` 放哪 | 保留在 VM 并委托 loader | 测试直接调用 `CharactersViewModel.toSelectOptions` |
+| D3 | 11 个 `@Monitor` 是否收敛 | 不收敛 | 行为相关改动，风险高（M-1） |
+| D4 | `RefreshCooldownDialog` 是否提取 | 不提取 | 与 Home 共用属可选清理，单独提交 |
+| D5 | 三游戏角标 / 底栏是否合并 | 不合并 | 仅 `CharacterCard` 使用，去重收益有限且改结构 |
+
+### 文件改动清单
+
+| 操作 | 文件 | 说明 |
+| --- | --- | --- |
+| 新增 | `viewmodel/CharactersDataLoader.ets`（171L） | `loadCharacters` / 三游戏 `build*Summaries` / `shouldSyncCharacters` / `buildAccountOptions` / `toSelectOptions` / `getGameNameResource` |
+| 修改 | `viewmodel/CharactersViewModel.ets`（614 → 434L） | 静态映射移出；删除 `GenshinCharacterListRow` / `StarRailAvatarBasicRow` / `ZZZAvatarBasicRow` 与 `AppConstants` / `compareCharacter` 死导入；调用改 `CharactersDataLoader.*` |
+| 修改 | 同上 | `toSelectOptions` 保留原签名，委托 `CharactersDataLoader.toSelectOptions` |
+
+### 契约与冻结项
+
+- `Characters` 为底部 Tab 内嵌页，不在 `custom_router_map.json`；`MainPage.ets` 的 `import { Characters }` 路径在 M15 前冻结。
+- `CharactersViewModel` 文件路径、导出名、`toSelectOptions` 静态签名冻结（Local Test）。
+- `AccountSwitchDialog` 在 `common/basic/shares/`，由 Main / MaterialCharacterSelect 共用，不移动。
+
+### 验收记录
+
+| 项 | 结果 |
+| --- | --- |
+| 编译（uat/Debug） | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 15s 736ms`，安装/启动成功 |
+| codeLinter | ⚠️ 项目未配置 codeLinter task，跳过 |
+| Local Test | 🔶 22 条用例——需 DevEco GUI 手动运行 |
+| 测试契约 | ✅ VM 路径 / 导出名 / `toSelectOptions` 签名不变 |
+| 冒烟 | 🔶 待手动：三游戏角色列表、账号切换、刷新/冷却、分屏、进入角色详情 |
+
+### 已知问题记录（不执行）
+
+| ID | 级别 | 描述 | 状态 |
+| --- | --- | --- | --- |
+| M-1 | Medium | 11 个 `@Monitor` 结构债 | 保留，行为相关 |
+| M-2 | Medium | `RefreshCooldownDialog` 与 Home 复制 | 保留，单独提交 |
+| M-3 | Medium | `loadData` 无代次保护 | 保留，行为相关 |
+| L-4 | Low | `CharacterCard.roleUid` 死参数 | 保留 |
+
+### 结论
+
+**M9 真重构完成**：`CharactersViewModel` 614 → 434L，无状态数据映射整体移入 `CharactersDataLoader`（171L），VM 只保留状态、切换、刷新编排与路由构建；删除行类型与 `AppConstants` / `compareCharacter` 死导入；`toSelectOptions` 由 facade 委托 loader，测试与页面契约不变。行为等价，编译通过。

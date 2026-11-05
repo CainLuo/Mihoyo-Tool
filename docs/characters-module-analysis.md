@@ -30,17 +30,20 @@
 
 | 文件 | 路径 | 行数 | 职责 |
 |------|------|------|------|
-| CharactersPage.ets | `pages/` | 167 | 角色 Tab 页主入口（View 层） |
-| CharactersViewModel.ets | `viewmodel/` | 614 | 角色列表数据加载、账号切换、刷新逻辑 |
-| CharactersContent.ets | `components/characters/` | 129 | 角色卡片列表渲染组件（游戏 Tab / 骨架 / 空态 / Grid） |
-| CharacterCard.ets | `components/characters/` | 313 | 单个角色卡片（按 gameId 分派三游戏角标与底栏） |
-| CharactersSkeleton.ets | `components/characters/` | 83 | LOADING 骨架屏（`animateTo` + `iterations: -1`） |
-| CharacterDataSource.ets | `components/characters/` | 44 | `LazyForEach` 的 `IDataSource` 实现 |
-| `{Genshin,StarRail,ZZZ}{TopLeftBadge,BottomBar}.ets` | `components/characters/{genshin,starrail,zzz}/` | 37/50 · 49/40 · 60/61 | 三游戏卡片角标 / 底栏（仅 `CharacterCard` 使用） |
-| AccountOption.ets | `models/` | 34 | 账号选项模型（同时被 Main 菜单使用） |
-| CharacterSortUtil.ets | `utils/` | 31 | `compareCharacter` 排序 |
+| CharactersPage.ets | `pages/` | 161 | 角色 Tab 页主入口（View 层） |
+| CharactersViewModel.ets | `viewmodel/` | 434 | 角色列表状态机、账号 / 游戏切换、刷新与同步编排 |
+| CharactersDataLoader.ets | `viewmodel/` | 171 | 账号选项、按游戏读取角色摘要、同步判定、Tab 名称（M9 从 VM 拆出） |
+| CharactersContent.ets | `views/` | 125 | 角色卡片列表渲染组件（游戏 Tab / 骨架 / 空态 / Grid） |
+| CharacterCard.ets | `views/` | 312 | 单个角色卡片（按 gameId 分派三游戏角标与底栏） |
+| CharactersSkeleton.ets | `views/` | 82 | LOADING 骨架屏（`animateTo` + `iterations: -1`） |
+| CharacterDataSource.ets | `viewmodel/` | 44 | `LazyForEach` 的 `IDataSource` 实现 |
+| `{Genshin,StarRail,ZZZ}{TopLeftBadge,BottomBar}.ets` | `views/{genshin,starrail,zzz}/` | 36/49 · 48/39 · 59/60 | 三游戏卡片角标 / 底栏（仅 `CharacterCard` 使用） |
+| AccountOptionModel.ets | `common/basic/model/` | 35 | `AccountOption` 模型（同时被 Main 菜单使用） |
+| CharacterSortUtil.ets | `common/basic/utils/` | 31 | `compareCharacter` 排序 |
 
-> `components/characters/AccountSwitchDialog.ets`（149）虽在同目录，但由 `MainPage.ets:14` / `MaterialCharacterSelectPage.ets:10` 使用，不属本页。
+> 行数为 M9 重构后现状；路径已随模块化迁移为 `views/` / `viewmodel/`，§2–§6 保留重构前基线（`105c8d3`）的 `components/characters/` 写法。
+>
+> `common/basic/shares/AccountSwitchDialog.ets`（149）由 `MainPage.ets:14` / `MaterialCharacterSelectPage.ets:10` 使用，不属本页。
 
 ## 2. 架构分析
 
@@ -257,13 +260,13 @@ private scroller: Scroller = new Scroller();
 
 | 关联项 | 说明 |
 |--------|------|
-| M9 ViewModel 重构 | CharactersViewModel（614 行）可能也需要拆分，但规模小于 HomeViewModel（754 行） |
+| M9 ViewModel 重构 | CharactersViewModel（614 行）可能也需要拆分，但规模小于 HomeViewModel（754 行）→ 已拆出 `CharactersDataLoader`，VM 434 行 |
 | 组件去重 | RefreshCooldownDialog 提取可惠及 Home / Characters 两个 Tab 页 |
 | 状态管理优化 | @Monitor 密度是本页最突出的结构债（M-1），但无功能缺陷，属行为相关改动，不宜与目录重构同提交 |
 
 ---
 
-*本文档仅分析，不修改代码。*
+*§1–§9 为重构前基线（`105c8d3`）；M9 重构执行记录见 §10。*
 
 【已核对代码一致性】
 
@@ -273,6 +276,7 @@ private scroller: Scroller = new Scroller();
 | 第 2 轮（关键代码段） | §2.1 @Param/@Local、BusinessError import、M-2 L113-127 | ✅ |
 | 第 3 轮（全面复核） | §6 aboutToDisappear、§5 路由链路、§4 CharactersContent/PlaceholderView、M-3 L126 string concat | ✅ |
 | 第 4 轮（2026-10-27 逐条事实） | §6.1「每个 Monitor 调 loadData」不成立（仅 `:47/:54`）；`notifyMenuState` 调用数 5→5+2；`BusinessError` import 已确认；文件清单补 11 个专属组件 / 模型 / 工具文件；路由目标改为源码实际值 | ✅ H-1 → M-1；原 M-3 → L-3；新增 M-3（`loadData` 无代次，沿用空出的编号）、L-4（`roleUid` 死参数）；计数 0/1/2/2 → 0/0/3/4，评级 B → A，债务 9 → 10 |
+| 第 5 轮（2026-11-05 M9 真重构后） | VM 614 → 434L；新增 `CharactersDataLoader` 171L；页面 161L / Content 125L / Card 312L / Skeleton 82L / DataSource 44L；路径已迁移为 `views/` + `viewmodel/`；测试 176L / 22 用例，从 `basic` 导入 `AccountOption`；`bash run.sh uat` → BUILD SUCCESSFUL in 15s 736ms | ✅ 编译通过；`toSelectOptions` 与 VM 导出/路径未变 |
 
 ---
 
@@ -285,23 +289,35 @@ private scroller: Scroller = new Scroller();
 | 项 | 内容 |
 | --- | --- |
 | 路由 | `Characters` 是底部 Tab 内嵌页，**不在** `custom_router_map.json`；`MainPage.ets:16` 直接 `import { Characters } from './Characters'`，页面路径在 M15 前冻结 |
-| 测试引用（冻结） | `viewmodel/CharactersViewModel.ets`、`constants/ViewState.ets` 被 `entry/src/test/CharactersViewModel.test.ets` 导入；`CharactersViewModel` 导出名不得变。注意 `test:2` 还从 VM 导入 `AccountOption`，但 VM 只 import 未 re-export（类在 `models/AccountOption.ets`），属测试资产缺陷（见 test-suite T6，不计入本页评级） |
-| 共享组件（冻结） | `components/characters/AccountSwitchDialog.ets` 同时被 `MainPage.ets:14` 和 `MaterialCharacterSelectPage.ets:10` 使用，**不能**随 M9 移到别处 |
-| 游戏变体 | `components/characters/{genshin,starrail,zzz}/` 的 BottomBar / TopLeftBadge 只被角色卡片使用；去重收益有限，且会改变 3 个游戏卡片结构 |
-| ViewModel | `CharactersViewModel` 614 行（>500），但测试只覆盖初始状态；拆分需保留原文件 facade；`CHAR_VM_*` 路径常量（`:60-76`）已导出但页面用字面量，未被任何文件引用 |
+| 测试引用（冻结） | `features/characters/src/test/CharactersViewModel.test.ets`（176L / 22 用例）导入 `../main/ets/viewmodel/CharactersViewModel`、`AccountOption` / `ViewState`（来自 `basic`）、`GameId`（来自 `core`）；`CharactersViewModel` 导出名与 `toSelectOptions` 静态方法签名不得变 |
+| 共享组件（冻结） | `common/basic/shares/AccountSwitchDialog.ets` 同时被 `MainPage.ets:14` 和 `MaterialCharacterSelectPage.ets:10` 使用，**不能**随 M9 移到别处 |
+| 游戏变体 | `views/{genshin,starrail,zzz}/` 的 BottomBar / TopLeftBadge 只被角色卡片使用；去重收益有限，且会改变 3 个游戏卡片结构 |
+| ViewModel | `CharactersViewModel` 拆为 facade（434L）+ `CharactersDataLoader`（171L）；`toSelectOptions` 静态方法保留在 facade 并委托 loader（测试冻结） |
 
-### 重构范围（建议）
+### 重构范围（已执行）
 
-- 目录结构已符合 `components/characters/` + 游戏子目录；**没有必须的移动**。
-- `@Monitor` 收敛（11 → 1 个 `MenuState`）是行为相关改动，风险高；建议先记录，不作为 M9 的目录重构内容。
-- `RefreshCooldownDialog` 提取为工具函数属于可选清理，单独提交。
+- 目录结构已符合 `pages/` + `views/` + `viewmodel/` + 游戏子目录；**没有必须的移动**。
+- 新增 `viewmodel/CharactersDataLoader.ets`：把无状态的静态数据映射整体移出 VM——`loadCharacters` / `buildGenshinSummaries` / `buildStarRailSummaries` / `buildZZZSummaries` / `shouldSyncCharacters` / `buildAccountOptions` / `toSelectOptions` / `getGameNameResource`。
+- `CharactersViewModel` 614 → 434 行：删除 3 个行类型导入与 `AppConstants` / `compareCharacter` 死导入，全部静态调用改为 `CharactersDataLoader.*`；`toSelectOptions` 保留原签名并委托 loader，测试与页面引用不变。
+- 不收敛 `@Monitor`（11 → 1）——行为相关改动，风险高，记录不执行。
+- 不提取 `RefreshCooldownDialog`——属可选清理，单独提交。
 - 不移动 `AccountSwitchDialog`（Main / MaterialCharacterSelect 依赖）。
 
 ### 验收
 
 1. 编译通过；`codeLinter` 不新增违规。
-2. DevEco Local Test：`CharactersViewModel.test.ets`（182 行 24 用例，初始状态/Options）——当前为红色基线（`AccountOption` 未导出、`gameTabs` / `KEYS` 不存在等，见 [test-suite-analysis.md](./test-suite-analysis.md) T6），先按 Q-10/Q-11 修测试侧再作为验收门槛。
+2. DevEco Local Test：`features/characters/src/test/CharactersViewModel.test.ets`（176L / 22 用例，初始状态 / `toSelectOptions` / 防重）——需 DevEco GUI 手动运行。
 3. 冒烟：三个游戏角色列表、账号切换、刷新/冷却、分屏模式、进入角色详情。
+
+### 验收记录
+
+| 项 | 结果 |
+|---|---|
+| 编译（uat/Debug） | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 15s 736ms`，安装/启动成功 |
+| codeLinter | ⚠️ 项目未配置 codeLinter task，跳过 |
+| Local Test | 🔶 22 条用例——需 DevEco GUI 手动运行；`toSelectOptions` 仍走 facade 委托 |
+| 测试契约 | ✅ `CharactersViewModel` 导出名、`toSelectOptions` 签名、文件路径均未变 |
+| 冒烟 | 🔶 待手动：三游戏角色列表、账号切换、刷新/冷却、分屏、进入角色详情 |
 
 ### 已知问题归属
 
