@@ -184,7 +184,7 @@ entry/src/main/ets/
 | M1 | Tools | Tools | ToolsViewModel | tools/（1 个文件） | 最小模块；有 Local Test（`ToolsViewModel.test.ets`） |
 | M2 | PrivacyConsent | PrivacyConsentPage | PrivacyConsentViewModel | privacyconsent/（2 个文件） | 有 Local Test；页面不在 routerMap |
 | M3 | AppearanceSettings | AppearanceSettingsPage | AppearanceSettingsViewModel | views/（ThemeModeRow）+ model/AppearanceSettingsModels | 路由文件路径冻结；与 theme 中心节点关联 |
-| M4 | My | My | MyViewModel | my/（6 个文件） | 有 Local Test |
+| M4 | My | My | MyViewModel | views/（6 个：AccountListSection / AccountListItem / AppearanceSection / AboutSection / SectionHeader / SettingRow） | 有 Local Test |
 | M5 | Notification | NotificationSettings | NotificationSettingsViewModel（318L） | `views/`（14）+ `views/NotificationSection.ets` + `model/service/`（6 个，含 `StaminaNoteReader`） | `NotificationModels` 被测试引用；服务层已做纯重构（670 → 490L），行为修复（M1/M2/M4/M7/M8）仍单独提交 |
 | M6 | Dailynote | Genshin/StarRail/ZZZ DailyDetail ×3 | ×3 | dailynote/（views 17 个 + utils 3 个，已分 common/genshin/starrail/zzz） | 三页共用 `DailyDetailScaffold`；VM 共用 `DailyNoteLoader` / `ExpeditionMapper`；仅 Genshin 有测试 |
 | M7 | MaterialCalc | MaterialCalc | MaterialCalcViewModel + MaterialCharacterSelectViewModel + MaterialTargetConfigViewModel ×3 | views/（MaterialCalc 8 个：MaterialCalcLevelPicker / Character / ContentView / EmptyView / Item / LoadingView / Section / Skills）+ materiallist/（6 个）+ `builders/MaterialCharacterSelectPageBuilder.ets` | `MaterialComputeService` facade；`MaterialCalcModels` 被测试引用 |
@@ -356,8 +356,8 @@ entry/src/main/ets/
 | M0 | 共享层 | ✅ 已提交（导出清理 + 工具去重 + 日志） | — | 1ff4cfe | ✅ 随 M8 构建通过 | ⚠️ 跳过 | 🔶 待冒烟 | 文档 13 轮复核 | M8/外观页 High 已补字符串；M7 部分失败待产品决策 |
 | M1 | Tools | ✅ 真重构完成 | — | 82cf004 | ✅ BUILD SUCCESSFUL in 17s 272ms | ⚠️ codeLinter 未配置，跳过 | 🔶 待 DevEco GUI 运行 | 6 Medium/Low 记录不执行 | ToolsModels 拆分 + 死代码清理；LIFE-002/N+1 保留 |
 | M2 | PrivacyConsent | ✅ 重构 + High 修复完成 | — | 8a85078 / ed45262 | ✅ BUILD SUCCESSFUL in 16s 145ms | ⚠️ 跳过 | 🔶 待运行 | — | 步骤常量/model、Footer 去重；不足一屏卡死已修 |
-| M3 | AppearanceSettings | ✅ 真重构完成 | — | 1ff4cfe / 待补 | ✅ BUILD SUCCESSFUL in 15s 856ms | ⚠️ 跳过 | 🔶 待运行 | — | 新增 Models 35L；VM 81→55L；Param/ThemeModeItem 移入 model；标签映射共用 |
-| M4 | My | ✅ 真重构完成 | — | 1ff4cfe / 待补 | ✅ BUILD SUCCESSFUL in 15s 856ms | ⚠️ 跳过 | 🔶 待运行 | — | MyPage 150→135L；VM 116→102L；导航收敛 openDetail；AppearanceSection 72→59L |
+| M3 | AppearanceSettings | ✅ 真重构完成 | — | 1ff4cfe / b6d8309 | ✅ BUILD SUCCESSFUL in 15s 856ms | ⚠️ 跳过 | 🔶 待运行 | — | 新增 Models 35L；VM 81→55L；Param/ThemeModeItem 移入 model；标签映射共用 |
+| M4 | My | ✅ 真重构完成 | — | 1ff4cfe / b6d8309 | ✅ BUILD SUCCESSFUL in 15s 856ms | ⚠️ 跳过 | 🔶 待运行 | — | MyPage 150→135L；VM 116→102L；导航收敛 openDetail；AppearanceSection 72→59L |
 | M5 | Notification | ✅ 纯重构完成（行为修复待单独提交） | — | 5ca87a1 | ✅ BUILD SUCCESSFUL in 15s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 服务 670→490L + Reader 83L；VM 399→318L；M1/M2/M4/M7/M8 保留 |
 | M6 | Dailynote | ✅ 真重构完成 | — | 7002525 | ✅ BUILD SUCCESSFUL in 15s 175ms | ⚠️ 跳过 | 🔶 待运行 | — | 页面 131/123/123→60/57/57；新增 Scaffold + 3 个 utils；M3/M4 保留 |
 | M7 | MaterialCalc | ✅ 完成 | — | 36099a9 / 045437f / 41a09bb / a78d749 | ✅ BUILD SUCCESSFUL in 14s 73ms | ⚠️ 跳过 | 🔶 待运行 | — | 材料汇总 186→55L；目标配置 342/346/410→261/265/266L；角色选择 493→360L + Card 156L；MaterialCalc 页 111→109L、VM 493→465L；Service 560→163L + 5 文件 |
@@ -591,7 +591,7 @@ entry/src/main/ets/
 ---
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）。*
+*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）。*
 
 ---
 
