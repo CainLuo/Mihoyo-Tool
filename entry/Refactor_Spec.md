@@ -364,7 +364,7 @@ entry/src/main/ets/
 | M8 | Home | ✅ 真重构完成 | — | e831292 | ✅ BUILD SUCCESSFUL in 18s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 已拆 4 文件，最大 315L |
 | M9 | Characters | ✅ 真重构完成 | — | fafcabc | ✅ BUILD SUCCESSFUL in 15s 736ms | ⚠️ 跳过 | 🔶 待运行 | — | VM 614→434L；新增 CharactersDataLoader 171L；测试契约不变 |
 | M10 | CharDetail | ✅ 真重构完成（行为修复待单独提交） | — | 81d7e9d | ✅ BUILD SUCCESSFUL in 14s 775ms | ⚠️ 跳过 | 🔶 待运行 | — | 三页 150/137/137→129/116/116L；新增 CharDetailWindowSize 56L + CharDetailHeroScaffold 99L；三游戏 parseRawJson ERROR 兜底保留 |
-| M11 | AccountDetail | ✅ 真重构完成（行为修复待单独提交） | — | 待补 | ✅ BUILD SUCCESSFUL in 34s 393ms | ⚠️ 跳过 | 🔶 待运行 | — | ActionsSection 4 按钮收敛为 Builder；页面结果 Toast 收敛；VM 删除 refreshCookieError 死字段；删除二次确认 / 失败反馈保留 |
+| M11 | AccountDetail | ✅ 真重构完成（行为修复待单独提交） | — | c15d53b | ✅ BUILD SUCCESSFUL in 34s 393ms | ⚠️ 跳过 | 🔶 待运行 | — | ActionsSection 4 按钮收敛为 Builder；页面结果 Toast 收敛；VM 删除 refreshCookieError 死字段；删除二次确认 / 失败反馈保留 |
 | M12 | Login | 未开始 | — | — | — | — | — | — | — |
 | M13 | WidgetConfig | 未开始 | — | — | — | — | — | — | — |
 | M14 | Widget 子系统 | 未开始 | — | — | — | — | — | — | — |
@@ -591,7 +591,7 @@ entry/src/main/ets/
 ---
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）；M9 真重构完成（`fafcabc`）；M10 真重构完成（`81d7e9d`）；M11 真重构完成。*
+*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）；M9 真重构完成（`fafcabc`）；M10 真重构完成（`81d7e9d`）；M11 真重构完成（`c15d53b`）。*
 
 ---
 
