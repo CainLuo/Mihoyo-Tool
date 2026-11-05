@@ -18,7 +18,7 @@
 
 > 口径：skills `harmonyos-review` 官方 A-F 评级（0 Critical + 0 High，Medium ≤ 5）。旧百分制已废弃，原分 92/100 仅作历史参考。
 >
-> 债务点数 = 0×3 + 2×2 + 1×1 = **5**；源行数按 `AccountDetailPage.ets` 148 行计，密度 = 5 ÷ 1.48 ≈ **3.4**/百行。测试资产缺陷（`KEYS` 失效引用）按 README §1.4 不计入。
+> 债务点数 = 0×3 + 2×2 + 1×1 = **5**；源行数按 `AccountDetailPage.ets` 147 行计，密度 = 5 ÷ 1.47 ≈ **3.4**/百行。测试资产缺陷（`KEYS` 失效引用）已随测试迁移移除，不计入评级。
 
 ---
 
@@ -26,16 +26,18 @@
 
 | 文件 | 类型 | 行数 | 职责 |
 |------|------|------|------|
-| `pages/AccountDetailPage.ets` | Page / @ComponentV2 | 148 | 账号详情二级页——展示角色列表 + 重新登录 / 刷新 Cookie / 重新生成设备指纹 / 删除账号 |
-| `viewmodel/AccountDetailViewModel.ets` | @ObservedV2 | 116 | `refreshCookie` / `regenerateDeviceFp` / `deleteAccount` 三个动作 + 结果信号字段 |
-| `components/accountdetail/AccountActionsSection.ets` | @ComponentV2 | 94 | 操作按钮区（过期时多出"重新登录 / 刷新 Cookie"） |
-| `components/accountdetail/AccountHeaderCard.ets` | @ComponentV2 | 70 | 头像 + 昵称 + 角色数 |
-| `components/accountdetail/AccountRolesSection.ets` | @ComponentV2 | 62 | 角色卡列表（空态提示） |
-| `components/accountdetail/AccountRoleCard.ets` | @ComponentV2 | 98 | 单角色卡：Header + 服务器行 + 统计网格 |
-| `components/accountdetail/AccountRoleCardHeader.ets` | @ComponentV2 | 92 | 角色卡头部 |
-| `components/accountdetail/AccountRoleServerRow.ets` | @ComponentV2 | 42 | 服务器 + UID 行 |
-| `components/accountdetail/AccountRoleStatItem.ets` | @ComponentV2 | 41 | 单个统计项 |
-| `entry/src/test/AccountDetailViewModel.test.ets` | 测试 | 31 | 4 条用例：初始 `deleted` / `errorMsg` + 两条 `KEYS` 断言（后者引用不存在的符号） |
+| `pages/AccountDetailPage.ets` | Page / @ComponentV2 | 147 | 账号详情二级页——展示角色列表 + 重新登录 / 刷新 Cookie / 重新生成设备指纹 / 删除账号 |
+| `viewmodel/AccountDetailViewModel.ets` | @ObservedV2 | 103 | `refreshCookie` / `regenerateDeviceFp` / `deleteAccount` 三个动作 + 结果信号字段 |
+| `views/AccountActionsSection.ets` | @ComponentV2 | 82 | 操作按钮区（过期时多出"重新登录 / 刷新 Cookie"），按钮样式收敛到 `actionButton` Builder |
+| `views/AccountHeaderCard.ets` | @ComponentV2 | 69 | 头像 + 昵称 + 角色数 |
+| `views/AccountRolesSection.ets` | @ComponentV2 | 61 | 角色卡列表（空态提示） |
+| `views/AccountRoleCard.ets` | @ComponentV2 | 98 | 单角色卡：Header + 服务器行 + 统计网格 |
+| `views/AccountRoleCardHeader.ets` | @ComponentV2 | 91 | 角色卡头部 |
+| `views/AccountRoleServerRow.ets` | @ComponentV2 | 41 | 服务器 + UID 行 |
+| `views/AccountRoleStatItem.ets` | @ComponentV2 | 40 | 单个统计项 |
+| `features/account/src/test/AccountDetailViewModel.test.ets` | 测试 | 25 | 2 条用例：初始 `isDeleted` / `errorMsg` |
+
+> 行数为 M11 重构后现状；目录已由重构前的 `components/accountdetail/` 迁移到 `views/`（基线 `105c8d3` 的写法保留在 §2–§6）。测试已从 `entry/src/test` 迁到 `features/account/src/test`，且不再引用不存在的 `KEYS`。
 
 > 共享依赖（不归本模块）：`models/MyModels.ets`（`MyAccountVM` 路由参数，由 `MyPage.ets:65/67` 传入）、`components/my/SectionHeader.ets`、`utils/CookieExpiredSignal` / `AccountSignal` / `DeviceFpCenter`、`widget/utils/WidgetFormIdStore`（删除账号时清理卡片配置）。
 
@@ -128,30 +130,45 @@ AccountDetail (@ComponentV2)
 | 项 | 内容 |
 | --- | --- |
 | 路由 | `custom_router_map.json:14-16`：`AccountDetail` → `pages/AccountDetailPage.ets` + `AccountDetailBuilder`，**页面路径与 Builder 名冻结** |
-| 测试引用 | `viewmodel/AccountDetailViewModel.ets`（116 行）被 `entry/src/test/AccountDetailViewModel.test.ets`（31 行）导入，但测试中存在**测试资产缺陷**（不计入评级，阻塞 Local Test）：L22-28 引用 `AccountDetailViewModel.KEYS.deleted/errorMsg`，而源码中不存在 `KEYS` 对象（实际为独立顶层 export const：`ACCOUNT_DETAIL_VM_DELETED` L17, `ACCOUNT_DETAIL_VM_ERROR` L19）。⚠️ 测试编译会失败。 |
-| 组件 | `components/accountdetail/` 7 个文件（HeaderCard / RolesSection / ActionsSection 等），仅本页使用 |
+| 测试引用 | `viewmodel/AccountDetailViewModel.ets` 被 `features/account/src/test/AccountDetailViewModel.test.ets`（25L / 2 用例）导入；原 `KEYS` 失效引用已随测试迁移移除，`isDeleted` / `errorMsg` 字段名冻结 |
+| 组件 | `views/` 下 7 个 accountdetail 组件（HeaderCard / RolesSection / ActionsSection 等），仅本页使用 |
 | 共享模型 | `models/MyModels.ets` 的 `MyAccountVM` 是本页路由参数（`AccountDetailBuilder` 中 `param as MyAccountVM`，`AccountDetailPage.ets:146-148`），归 M4，不移动、不改字段 |
 | 共享单例 | `CookieExpiredSignal.instance()`、`AccountSignal` 属于共享层，不移动 |
 
-### 重构范围（建议）
+### 重构范围（已执行）
 
 - 页面/组件已符合规范：**M11 没有必须的移动**。
-- `AccountDetailViewModel` 116 行，不拆分。
-- 删除账号二次确认（缺少 Dialog）与删除失败反馈 / 收尾是行为修复，必须与目录调整分开提交。
-- `as common.UIAbilityContext` 强转可改 `instanceof`，同样单独提交。
+- `AccountActionsSection` 94 → 82L：4 个同构 `Button` 的字体 / 前景色 / 宽高 / 背景 / 点击逻辑收敛到 `@Builder actionButton(label, color, enabled, onTap)`，过期态与常驻按钮共用。
+- `AccountDetailPage` 143 → 147L：两个结果 Monitor 的 Toast 分支收敛到 `showActionResult(result, success, failed)`，删除重复的 `if SUCCESS / else` 结构（行数略增是因为新增了带注释的公共方法，重复分支已消除）。
+- `AccountDetailViewModel` 108 → 103L：合并两条 `from 'core'` 导入；删除只写不读的 `refreshCookieError` 死字段。
+- `AccountRolesSection` 的 `ForEach` 补 key（`gameId_roleUid`），避免默认 `index + JSON.stringify`；`AccountRoleCard` 删除 `bgImageUrl !== '' ? bgImageUrl : ''` 冗余三元。
+- `AccountDetailViewModel` 116 行基线本就无需拆分，本轮不拆。
+- 删除账号二次确认（缺少 Dialog）与删除失败反馈 / 收尾 / 防重入是行为修复，**未随本轮提交**（见 §6 M1 / M2）。
+- `as common.UIAbilityContext` 强转未改（单独提交）。
 
 ### 验收
 
 1. 编译通过；`codeLinter` 不新增违规。
-2. **修复测试**：`AccountDetailViewModel.test.ets` L22-28 KEYS 引用不存在，需先修复（见 §6 测试资产项）再跑测试。
+2. DevEco Local Test：`features/account/src/test/AccountDetailViewModel.test.ets`（25L / 2 用例）——需 DevEco GUI 手动运行。
 3. 冒烟：账号详情 → 刷新 Cookie / 重新生成设备指纹 / 删除账号 / 重新登录；过期账号提示。
+
+### 验收记录
+
+| 项 | 结果 |
+|---|---|
+| 编译（uat/Debug） | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 34s 393ms`，安装/启动成功 |
+| codeLinter | ⚠️ 项目未配置 codeLinter task，跳过 |
+| Local Test | 🔶 2 条用例——需 DevEco GUI 手动运行 |
+| 测试契约 | ✅ VM 路径 / 导出名 / `isDeleted` / `errorMsg` 未变 |
+| 冒烟 | 🔶 待手动：刷新 Cookie / 重新生成设备指纹 / 删除账号 / 重新登录 / 过期提示 |
 
 ### 已知问题归属
 
-- Medium（删除无二次确认）：建议随 M11 修，单独提交。
-- Medium（删除失败无反馈 / 部分成功不收尾 / 无防重入）：建议随 M11 修，单独提交。
-- 测试资产（KEYS 引用不存在，不计入评级但阻塞 Local Test）：`AccountDetailViewModel.test.ets` L22-28 引用 `AccountDetailViewModel.KEYS.deleted/errorMsg`，源码只有独立 const。需在 §7 重构循环前修复——可在 ViewModel 内加 `static readonly KEYS = { deleted: ACCOUNT_DETAIL_VM_DELETED, errorMsg: ACCOUNT_DETAIL_VM_ERROR }` 或改写测试断言。
-- Low（`getHostContext()` 强转无空值检查）：记录。（`errorMsg` 仅日志已升为 M2 的一部分）
+- Medium（删除无二次确认）：保留，行为修复需单独提交。
+- Medium（删除失败无反馈 / 部分成功不收尾 / 无防重入）：保留，行为修复需单独提交。
+- 测试资产（`KEYS` 引用不存在）：✅ 测试已迁移到 `features/account/src/test` 并改为断言 `isDeleted` / `errorMsg`，不再引用 `KEYS`。
+- Low（`getHostContext()` 强转无空值检查）：保留。
+- 死字段（`refreshCookieError`）：✅ 已删除（只写不读）。
 
 ### 复核记录（2026-10-26 第 4 轮）
 
@@ -170,5 +187,14 @@ AccountDetail (@ComponentV2)
 | 合规 | AbilityContext 行由 ✅ 改为 ⚠️ Low（与 §5/§6 一致）；补 STATE-012 / LIFE-001 / PERF-008 三行 |
 | 风险 | 强转"若返回 null 会崩溃（但已有 null 检查）"两处都不成立：无空值检查，但在 VM try/catch 内不会崩溃；"三个子组件高度复用"不成立（仅本页导入）；`errorMsg` 仅日志由"信息"升为 M2，并补入部分成功不收尾、无防重入、未 `clearExpired` |
 | 计数 | 0H / 1M / 1L（债务 3） → **0H / 2M / 1L（债务 5，密度 3.4）**，评级仍为 **A** |
+
+### 复核记录（2026-11-05 第 6 轮：M11 真重构后）
+
+| 检查项 | 结论 |
+| --- | --- |
+| 文件清单 | 页面 147L、VM 103L、ActionsSection 82L、RolesSection 61L、RoleCard 98L；路径已迁移为 `views/`；测试迁到 `features/account/src/test`（25L / 2 用例） |
+| 代码改动 | `AccountActionsSection` 4 个同构按钮收敛为 `@Builder actionButton`；页面两个结果 Monitor 收敛到 `showActionResult`；VM 合并 core 导入并删除 `refreshCookieError` 死字段；RolesSection 补 ForEach key；RoleCard 删除冗余三元 |
+| 门禁 | `bash run.sh uat` → `BUILD SUCCESSFUL in 34s 393ms`；codeLinter 未配置；Local Test 需 GUI |
+| 结论 | 行为等价；删除二次确认 / 失败反馈等 M1 / M2 仍保留待单独提交 |
 
 【已核对代码一致性】

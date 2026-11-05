@@ -37,12 +37,9 @@ export struct AccountDetailPage {
     const result = this.vm.refreshCookieResult
     if (result === RefreshCookieResult.NONE) { return }
     this.vm.refreshCookieResult = RefreshCookieResult.NONE
-    if (result === RefreshCookieResult.SUCCESS) {
-      showFeedback(this.getUIContext(), FeedbackType.SUCCESS, $r('app.string.account_detail_refresh_cookie_success'))
-    } else {
-      // stoken 不存在或已失效，只能重新登录
-      showFeedback(this.getUIContext(), FeedbackType.ERROR, $r('app.string.account_detail_refresh_cookie_failed'))
-    }
+    this.showActionResult(result,
+      $r('app.string.account_detail_refresh_cookie_success'),
+      $r('app.string.account_detail_refresh_cookie_failed'))
   }
 
   @Monitor('vm.regenerateFpResult')
@@ -50,10 +47,17 @@ export struct AccountDetailPage {
     const result = this.vm.regenerateFpResult
     if (result === RefreshCookieResult.NONE) { return }
     this.vm.regenerateFpResult = RefreshCookieResult.NONE
+    this.showActionResult(result,
+      $r('app.string.device_fp_regenerate_success'),
+      $r('app.string.device_fp_regenerate_failed'))
+  }
+
+  /** 统一把操作结果转成 Toast 提示（刷新 Cookie / 重新生成设备指纹共用） */
+  private showActionResult(result: RefreshCookieResult, success: Resource, failed: Resource): void {
     if (result === RefreshCookieResult.SUCCESS) {
-      showFeedback(this.getUIContext(), FeedbackType.SUCCESS, $r('app.string.device_fp_regenerate_success'))
+      showFeedback(this.getUIContext(), FeedbackType.SUCCESS, success)
     } else {
-      showFeedback(this.getUIContext(), FeedbackType.ERROR, $r('app.string.device_fp_regenerate_failed'))
+      showFeedback(this.getUIContext(), FeedbackType.ERROR, failed)
     }
   }
 

@@ -30,7 +30,7 @@ export struct AccountRolesSection {
       } else {
         ForEach(this.roles, (role: MyGameRoleVM) => {
           AccountRoleCard({ role: role })
-        })
+        }, (role: MyGameRoleVM) => `${role.gameId}_${role.roleUid}`)
       }
     }
     .width(this.tm.current.full)

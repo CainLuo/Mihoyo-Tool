@@ -19,58 +19,46 @@ export struct AccountActionsSection {
   @Param onDelete: () => void = () => {}
   @Local private tm: ThemeManager = themeManager
 
+  /** 操作按钮统一样式：文案 / 前景色 / 是否可用 / 点击回调 */
+  @Builder
+  actionButton(label: ResourceStr, color: ResourceColor, enabled: boolean, onTap: () => void) {
+    Button(label, { type: ButtonType.Normal })
+      .fontSize(this.tm.current.font17)
+      .fontWeight(FontWeight.Normal)
+      .fontColor(color)
+      .width(this.tm.current.full)
+      .height(this.tm.current.value50)
+      .backgroundColor(this.tm.current.colorSurfaceCard)
+      .enabled(enabled)
+      .onClick(() => { onTap() })
+  }
+
   build() {
     Column() {
       if (this.isExpired) {
-        Button($r('app.string.account_detail_relogin'), { type: ButtonType.Normal })
-          .fontSize(this.tm.current.font17)
-          .fontWeight(FontWeight.Normal)
-          .fontColor(this.tm.current.colorPrimary)
-          .width(this.tm.current.full)
-          .height(this.tm.current.value50)
-          .backgroundColor(this.tm.current.colorSurfaceCard)
-          .onClick(() => { this.onRelogin() })
+        this.actionButton($r('app.string.account_detail_relogin'), this.tm.current.colorPrimary, true, this.onRelogin)
 
         Divider().color(this.tm.current.colorDivider)
 
-        Button(this.isRefreshingCookie
-          ? $r('app.string.account_detail_refreshing_cookie')
-          : $r('app.string.account_detail_refresh_cookie'), { type: ButtonType.Normal })
-          .fontSize(this.tm.current.font17)
-          .fontWeight(FontWeight.Normal)
-          .fontColor(this.tm.current.colorPrimary)
-          .width(this.tm.current.full)
-          .height(this.tm.current.value50)
-          .backgroundColor(this.tm.current.colorSurfaceCard)
-          .enabled(!this.isRefreshingCookie)
-          .onClick(() => { this.onRefreshCookie() })
+        this.actionButton(
+          this.isRefreshingCookie
+            ? $r('app.string.account_detail_refreshing_cookie')
+            : $r('app.string.account_detail_refresh_cookie'),
+          this.tm.current.colorPrimary, !this.isRefreshingCookie, this.onRefreshCookie)
 
         Divider().color(this.tm.current.colorDivider)
       }
 
       // 设备指纹全 App 共用（5003 / 10041 设备指纹无效时使用），不论账号是否过期都显示
-      Button(this.isRegeneratingFp
-        ? $r('app.string.device_fp_regenerating')
-        : $r('app.string.device_fp_regenerate'), { type: ButtonType.Normal })
-        .fontSize(this.tm.current.font17)
-        .fontWeight(FontWeight.Normal)
-        .fontColor(this.tm.current.colorPrimary)
-        .width(this.tm.current.full)
-        .height(this.tm.current.value50)
-        .backgroundColor(this.tm.current.colorSurfaceCard)
-        .enabled(!this.isRegeneratingFp)
-        .onClick(() => { this.onRegenerateFp() })
+      this.actionButton(
+        this.isRegeneratingFp
+          ? $r('app.string.device_fp_regenerating')
+          : $r('app.string.device_fp_regenerate'),
+        this.tm.current.colorPrimary, !this.isRegeneratingFp, this.onRegenerateFp)
 
       Divider().color(this.tm.current.colorDivider)
 
-      Button($r('app.string.account_detail_delete'), { type: ButtonType.Normal })
-        .fontSize(this.tm.current.font17)
-        .fontWeight(FontWeight.Normal)
-        .fontColor(this.tm.current.colorDanger)
-        .width(this.tm.current.full)
-        .height(this.tm.current.value50)
-        .backgroundColor(this.tm.current.colorSurfaceCard)
-        .onClick(() => { this.onDelete() })
+      this.actionButton($r('app.string.account_detail_delete'), this.tm.current.colorDanger, true, this.onDelete)
     }
     .width(this.tm.current.full)
     .backgroundColor(this.tm.current.colorSurfaceCard)

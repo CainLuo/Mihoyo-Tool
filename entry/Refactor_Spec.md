@@ -341,7 +341,7 @@ entry/src/main/ets/
 | M8 | Home | [home](../docs/home-module-analysis.md) | 2 High（ViewModel 754 行；Skeleton 动画未停） | 拆分随模块；动画修复随模块 |
 | M9 | Characters | [characters](../docs/characters-module-analysis.md) | 0 High（原 H-1 已降为 M-1）；3 Medium + 4 Low | 纯重构已完成；`@Monitor` 收敛 / 冷却 Dialog / 代次保护保留 |
 | M10 | CharDetail | [genshin](../docs/genshin-character-detail-module-analysis.md) / [starrail](../docs/starrail-character-detail-module-analysis.md) / [zzz](../docs/zzz-character-detail-module-analysis.md) | SR / Genshin / ZZZ 各 1 High（`parseRawJson` 未设 ERROR）；SR `entityId === '1510'` 空循环已删除 | SR/Genshin/ZZZ 各 1 High 保留，行为修复待单独提交（三游统一状态兜底） |
-| M11 | AccountDetail | [account-detail](../docs/account-detail-module-analysis.md) | 0 Critical / 0 High；1 Medium（删除无二次确认）+ 1 Low（`as common.UIAbilityContext` 强转）；另有测试 `KEYS` 引用失效（测试资产，不计入评级，阻塞 Local Test） | 记录；要修则单独提交 |
+| M11 | AccountDetail | [account-detail](../docs/account-detail-module-analysis.md) | 0 Critical / 0 High；2 Medium（删除无二次确认、删除失败无反馈）+ 1 Low（`as common.UIAbilityContext` 强转） | 记录；删除相关行为修复单独提交 |
 | M12 | Login | [login](../docs/login-module-analysis.md) / [webview](../docs/webview-page-module-analysis.md) | 0 Critical / 0 High（二维码轮询取消标记已由 `b98abae` 修复，复核撤回；原 SEC-002「Cookie 日志明文」经逐层核查无凭据落盘路径，降为 Medium 加固）；4 Medium / 2 Low；WebView 0 High（2 Low） | 无阻断项；日志脱敏可选（`LoginViewModel.ets:350`，单独提交）；WebView 仅记录 |
 | M13 | WidgetConfig | [widget-settings](../docs/widget-settings-module-analysis.md) | 0 High；1 Medium（`vm.init()` 失败后静默回退空配置，无错误态/重试；`isLoading` 必被置 false）+ 1 Low | 随模块修 |
 | M14 | Widget 子系统 | [widget-subsystem](../docs/widget-subsystem-modules-analysis.md) / [widget-settings](../docs/widget-settings-module-analysis.md) / [component-dedup](../docs/component-deduplication-review.md) | 0 Critical / 3 High（瞬时更新失败即删用户卡片配置；无数据时展示 Mock 账号与体力；卡片从不显示数据新鲜度）；6 Medium / 3 Low；V1 孤岛（16 个 V1 文件：6 pages + 10 components） | H1/H2 随模块修（各自单提交），H3 需产品决策；装饰器不迁移；form_config 6 条 src 冻结 |
@@ -364,7 +364,7 @@ entry/src/main/ets/
 | M8 | Home | ✅ 真重构完成 | — | e831292 | ✅ BUILD SUCCESSFUL in 18s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 已拆 4 文件，最大 315L |
 | M9 | Characters | ✅ 真重构完成 | — | fafcabc | ✅ BUILD SUCCESSFUL in 15s 736ms | ⚠️ 跳过 | 🔶 待运行 | — | VM 614→434L；新增 CharactersDataLoader 171L；测试契约不变 |
 | M10 | CharDetail | ✅ 真重构完成（行为修复待单独提交） | — | 81d7e9d | ✅ BUILD SUCCESSFUL in 14s 775ms | ⚠️ 跳过 | 🔶 待运行 | — | 三页 150/137/137→129/116/116L；新增 CharDetailWindowSize 56L + CharDetailHeroScaffold 99L；三游戏 parseRawJson ERROR 兜底保留 |
-| M11 | AccountDetail | 未开始 | — | — | — | — | — | — | — |
+| M11 | AccountDetail | ✅ 真重构完成（行为修复待单独提交） | — | 待补 | ✅ BUILD SUCCESSFUL in 34s 393ms | ⚠️ 跳过 | 🔶 待运行 | — | ActionsSection 4 按钮收敛为 Builder；页面结果 Toast 收敛；VM 删除 refreshCookieError 死字段；删除二次确认 / 失败反馈保留 |
 | M12 | Login | 未开始 | — | — | — | — | — | — | — |
 | M13 | WidgetConfig | 未开始 | — | — | — | — | — | — | — |
 | M14 | Widget 子系统 | 未开始 | — | — | — | — | — | — | — |
@@ -591,7 +591,7 @@ entry/src/main/ets/
 ---
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）；M9 真重构完成（`fafcabc`）；M10 真重构完成（`81d7e9d`）。*
+*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）；M9 真重构完成（`fafcabc`）；M10 真重构完成（`81d7e9d`）；M11 真重构完成。*
 
 ---
 
@@ -987,3 +987,64 @@ M10 覆盖三个游戏的角色详情页：`GenshinCharacterDetailPage` 150L / `
 ### 结论
 
 **M10 真重构完成**：三页窗口尺寸逻辑提取为 `CharDetailWindowSize`（56L），页面 150/137/137 → 129/116/116L；星铁 / 绝区零英雄区提取为 `CharDetailHeroScaffold`（99L），Hero 101L → 48/49L；三个 VM 合并导入、删除未使用类型与 `1510` 空循环；删除 `formatStars()` 与 2 处未使用导入；`@ohos.display` → `@kit.ArkUI`。行为等价，编译通过。`parseRawJson` ERROR 兜底保留为行为修复，待单独提交。
+
+---
+
+## M11 spec — AccountDetail 模块（2026-11-05 真重构）
+
+分析依据：[`docs/account-detail-module-analysis.md`](../docs/account-detail-module-analysis.md)。
+
+### 背景说明
+
+M11 覆盖账号详情二级页：`AccountDetailPage` 143L + `AccountDetailViewModel` 108L + `views/` 下 7 个 accountdetail 组件。页面本身干净，主要结构债是 `AccountActionsSection` 里 4 个逐行相同的 `Button` 样式块、页面两个结果 Monitor 中重复的 `if SUCCESS / else` Toast 分支，以及 VM 里只写不读的 `refreshCookieError`。
+
+### 决策
+
+| # | 问题 | 决定 | 依据 |
+| --- | --- | --- | --- |
+| D1 | 4 个同构按钮 | 收敛为 `@Builder actionButton(label, color, enabled, onTap)` | 样式完全一致，仅文案 / 颜色 / 可用态不同 |
+| D2 | 两个结果 Monitor | 提取 `showActionResult(result, success, failed)` | 成功 / 失败分支完全相同，仅资源不同 |
+| D3 | `refreshCookieError` | 删除 | 只写不读的死字段 |
+| D4 | `ForEach` key | 补 `gameId_roleUid` | 避免默认 `index + JSON.stringify` |
+| D5 | 删除二次确认 / 失败反馈 | 不随本提交 | 行为修复，需单独提交（M1 / M2） |
+| D6 | VM 是否拆分 | 不拆 | 103L 远低于 500L 阈值 |
+
+### 文件改动清单
+
+| 操作 | 文件 | 说明 |
+| --- | --- | --- |
+| 修改 | `views/AccountActionsSection.ets`（94 → 82L） | 新增 `@Builder actionButton`，4 个按钮复用 |
+| 修改 | `pages/AccountDetailPage.ets`（143 → 147L） | 新增 `showActionResult()`，两个 Monitor 复用；重复分支消除 |
+| 修改 | `viewmodel/AccountDetailViewModel.ets`（108 → 103L） | 合并 `CoreInitializer` / `Logger` 导入；删除 `refreshCookieError` |
+| 修改 | `views/AccountRolesSection.ets` | `ForEach` 补 key 生成函数 |
+| 修改 | `views/AccountRoleCard.ets` | 删除 `bgImageUrl !== '' ? bgImageUrl : ''` 冗余三元 |
+
+### 契约与冻结项
+
+- `custom_router_map.json:14-16` 的 `AccountDetail` 路由与 `AccountDetailPageBuilder` 名冻结。
+- `viewmodel/AccountDetailViewModel.ets` 路径、导出名、`isDeleted` / `errorMsg` 字段冻结（Local Test）。
+- `MyAccountVM`（`model/MyModels.ets`）是路由参数，归 M4，不移动、不改字段。
+- `CookieExpiredSignal` / `AccountSignal` 属共享层，不移动。
+
+### 验收记录
+
+| 项 | 结果 |
+| --- | --- |
+| 编译（uat/Debug） | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 34s 393ms`，安装/启动成功 |
+| codeLinter | ⚠️ 项目未配置 codeLinter task，跳过 |
+| Local Test | 🔶 `AccountDetailViewModel.test.ets`（25L / 2 用例）需 DevEco GUI 手动运行 |
+| 测试契约 | ✅ VM 路径 / 导出名 / `isDeleted` / `errorMsg` 不变 |
+| 冒烟 | 🔶 待手动：刷新 Cookie、重新生成设备指纹、删除账号、重新登录、过期提示 |
+
+### 已知问题记录（不执行）
+
+| ID | 级别 | 描述 | 状态 |
+| --- | --- | --- | --- |
+| M1 | Medium | 删除账号无二次确认 | 保留，行为修复单独提交 |
+| M2 | Medium | 删除失败无反馈、部分成功不收尾、无防重入、未 `clearExpired` | 保留，行为修复单独提交 |
+| L1 | Low | `getHostContext() as common.UIAbilityContext` 无空值检查 | 保留 |
+| — | — | `refreshCookieError` 死字段 | ✅ 已删除 |
+
+### 结论
+
+**M11 真重构完成**：`AccountActionsSection` 4 个同构按钮收敛为 `@Builder actionButton`（94 → 82L）；页面两个结果 Monitor 收敛到 `showActionResult()`；VM 合并 core 导入并删除 `refreshCookieError` 死字段（108 → 103L）；RolesSection 补 ForEach key，RoleCard 删除冗余三元。行为等价，编译通过。删除二次确认与失败反馈保留为行为修复，待单独提交。

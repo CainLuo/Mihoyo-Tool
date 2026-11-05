@@ -1,8 +1,7 @@
 /**
  * AccountDetailViewModel.ets — 账号详情页 ViewModel
  */
-import { CoreInitializer } from 'core';
-import { Logger } from 'core';
+import { CoreInitializer, Logger } from 'core';
 import { WidgetFormIdStore } from 'widget';
 import { CookieExpiredSignal, AccountSignal } from 'basic';
 import { DeviceFpCenter } from 'verification';
@@ -27,8 +26,6 @@ export class AccountDetailViewModel {
   @Trace isRefreshingCookie: boolean = false;
   /** 刷新 Cookie 结果信号，View 层监听后提示 */
   @Trace refreshCookieResult: RefreshCookieResult = RefreshCookieResult.NONE;
-  /** 刷新失败原因（用于提示） */
-  @Trace refreshCookieError: string = '';
   /** 是否正在重新生成设备指纹 */
   @Trace isRegeneratingFp: boolean = false;
   /** 重新生成设备指纹结果信号（复用 RefreshCookieResult 的取值），View 层监听后提示 */
@@ -74,12 +71,10 @@ export class AccountDetailViewModel {
       Logger.info(TAG, `refreshCookie success: ${username}`);
       CookieExpiredSignal.getInstance().clearExpired(username);
       AccountSignal.getInstance().notify();
-      this.refreshCookieError = '';
       this.refreshCookieResult = RefreshCookieResult.SUCCESS;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `refreshCookie failed: ${username}: ${msg}`);
-      this.refreshCookieError = msg;
       this.refreshCookieResult = RefreshCookieResult.FAILED;
     } finally {
       this.isRefreshingCookie = false;

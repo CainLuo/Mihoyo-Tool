@@ -53,7 +53,7 @@ export struct AccountRoleCard {
         bottom: this.tm.current.value12
       })
       .alignItems(HorizontalAlign.Start)
-      .backgroundImage(this.role.bgImageUrl !== '' ? this.role.bgImageUrl : '')
+      .backgroundImage(this.role.bgImageUrl)
       .backgroundImageSize(ImageSize.Cover)
       .backgroundImagePosition(Alignment.Top)
     }
