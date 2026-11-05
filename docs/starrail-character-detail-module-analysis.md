@@ -26,8 +26,9 @@
 
 | 类别 | 文件路径 | 行数 | 说明 |
 |------|----------|------|------|
-| **Page** | `features/chardetail/src/main/ets/pages/StarRailCharacterDetailPage.ets` | 140 | 角色详情主页面（View） |
-| **ViewModel** | `features/chardetail/src/main/ets/viewmodel/StarRailCharacterDetailViewModel.ets` | 256 | 数据加载 + JSON 解析 + 展示模型构造 |
+| **Page** | `features/chardetail/src/main/ets/pages/StarRailCharacterDetailPage.ets` | 116 | 角色详情主页面（View） |
+| **ViewModel** | `features/chardetail/src/main/ets/viewmodel/StarRailCharacterDetailViewModel.ets` | 239 | 数据加载 + JSON 解析 + 展示模型构造 |
+| **窗口工具** | `features/chardetail/src/main/ets/utils/CharDetailWindowSize.ets` | 56 | 三游戏共用：初始尺寸 + windowSizeChange 订阅 + 断点计算（M10 新增） |
 | **路由参数** | `features/chardetail/src/main/ets/model/CharDetailModels.ets`（CharDetailRouterParam） | 272 | 通用路由参数 + 展示模型（注：目录已改为单数 `model/`，非复数 `models/`） |
 | **状态常量** | `common/basic/src/main/ets/constants/ViewState.ets`（ViewState 枚举） | 18 | 页面四态枚举（共享层） |
 
@@ -195,28 +196,40 @@ aboutToDisappear() { // Line 65
 | 路由 | `custom_router_map.json:29-31`：`StarRailCharacterDetail` → `pages/StarRailCharacterDetailPage.ets` + `StarRailCharacterDetailBuilder`（路由配置保留旧路径），**页面路径与 Builder 名冻结** |
 | 路由参数 | `CharDetailRouterParam`（`model/CharDetailModels.ets`，272 行，目录为单数 `model/`）三游戏共享，字段名不改 |
 | 测试 | `StarRailCharacterDetailViewModel` **没有** Local Test；M10 只有 Genshin 版有测试 |
-| 共享组件 | `components/chardetail/common/` 9 个文件不移动；其中本页经子组件引用 6 个（Loading / Empty / ConsColumn / HeroNameOverlay / SectionLabel / RelicPlaceholder），另 3 个（SkillItem / StatRow / MaterialCalcEntry）只被原神使用 |
-| 游戏组件 | `components/chardetail/starrail/` 11 个文件，仅本页使用 |
+| 共享组件 | `views/common/` 9 个文件不移动；其中本页经子组件引用 6 个（Loading / Empty / ConsColumn / HeroNameOverlay / SectionLabel / RelicPlaceholder），另 3 个（SkillItem / StatRow / MaterialCalcEntry）只被原神使用。M10 新增 `CharDetailHeroScaffold` 供星铁 / 绝区零英雄区共用 |
+| 游戏组件 | `views/starrail/` 11 个文件，仅本页使用 |
 
-### 重构范围（建议）
+### 重构范围（已执行）
 
 - 页面/目录已符合 N-4；**没有必须的目录移动**。
-- `parseRawJson` 的 ERROR 兜底是行为修复，必须与移动分开提交，建议在 M10 内与原神 / ZZZ 一起处理；`entityId === '1510'` 空循环删除无行为变化，可随同一提交或顺手清理。
-- `Monitor` 用字符串 `'vm.networkErrorMsg'` 而非 VM 中的常量：可等价替换，但必须确认常量导出名不变。
-- `@ohos.display` → `@kit.ArkUI` 是等价导包替换，可与目录调整同提交。
-- 遗器按 `pos` 排布会改变展示结果，属行为修复，单独提交。
-- 不要合并 `starrail/` 的 11 个组件到 common（`StarRailCharDetailSkillNode` / 遗器模型是游戏特定的）。
+- 新增 `utils/CharDetailWindowSize.ets`（56L）：三游戏共用窗口尺寸监听与断点计算；页面 140 → 116 行。
+- 新增 `views/common/CharDetailHeroScaffold.ets`（99L）：星铁 / 绝区零英雄区共用骨架（背景渐变、立绘、遮罩、命座纵列、名字叠加层），游戏差异通过 `imageUrl` / `strongOverlay` / `midOverlay` / `@BuilderParam infoContent` 注入；`StarRailCharDetailHero` 101 → 48 行。
+- `@ohos.display` → `@kit.ArkUI` 是等价导包替换（ARKTS-014）。
+- `StarRailCharacterDetailViewModel` 合并 3 条 `from 'core'` 导入，删除未使用的 `StarRailPropertyType` / `StarRailRawSkillNode` 导入；删除 `entityId === '1510'` 空循环（无行为变化）。
+- `parseRawJson` 的 ERROR 兜底是行为修复，未随本提交执行（记录为 High，单独提交）。
+- 不合并 `starrail/` 的 11 个组件到 common（行迹 / 遗器模型是游戏特定的）。
 
 ### 验收
 
 1. 编译通过；`codeLinter` 不新增违规。
 2. 无 Local Test：冒烟——星铁角色详情窄屏/宽屏、行迹/遗器/属性、返回、错误态（构造解析失败数据）。
 
+### 验收记录
+
+| 项 | 结果 |
+|---|---|
+| 编译（uat/Debug） | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 14s 775ms`，安装/启动成功 |
+| codeLinter | ⚠️ 项目未配置 codeLinter task，跳过 |
+| Local Test | 🔶 无测试 |
+| 测试契约 | ✅ 路由 / Builder 名未变 |
+| 冒烟 | 🔶 待手动：窄屏/宽屏、行迹/遗器/属性、返回、错误态 |
+
 ### 已知问题归属
 
-- High（`parseRawJson` 未设 ERROR）：建议随 M10 修，单独提交。
-- Medium（ARKTS-014 `@ohos.display` 导包）：可顺手改。
-- Low（`entityId === '1510'` 残留、Monitor 常量未使用、宽屏左栏无 Scroll、heroHeight 未缓存、初始尺寸取整屏、遗器不按 pos 排布）：`1510` 与 Monitor 常量建议顺手清理，其余记录。
+- High（`parseRawJson` 未设 ERROR）：保留，行为修复需单独提交（三游戏统一）。
+- Medium（ARKTS-014 `@ohos.display` 导包）：✅ 已在本轮改为 `@kit.ArkUI`。
+- Low（`entityId === '1510'` 残留）：✅ 已删除。
+- Low（宽屏左栏无 Scroll、heroHeight 未缓存、初始尺寸取整屏、遗器不按 pos 排布）：记录。
 
 【已核对代码一致性】
 
@@ -226,3 +239,4 @@ aboutToDisappear() { // Line 65
 | 第 2 轮（关键代码段） | L172-179 entityId、L224-230 parseRawJson catch、§7 测试/重构声明 | ✅ |
 | 第 3 轮（全面复核） | 总计 686 / 子组件行数总和 / 路径常量 / 问题优先级归属 | ✅ |
 | 第 4 轮（2026-10-27 逐条复核） | 全部锚点逐行对照；common 引用关系（原文误列 MaterialCalcEntry / StatRow、漏 HeroNameOverlay）；`1510`、Monitor 常量改判 Low；补 ARKTS-014、宽屏左栏、初始尺寸、遗器排布 | 已修正 |
+| 第 5 轮（2026-11-05 M10 真重构后） | 页面 140 → 116L；VM 256 → 239L；Hero 101 → 48L；新增 `CharDetailWindowSize` 56L 与 `CharDetailHeroScaffold` 99L；删除 `1510` 空循环与未使用导入；`bash run.sh uat` → BUILD SUCCESSFUL in 14s 775ms | ✅ 编译通过；路由 / Builder 名未变 |

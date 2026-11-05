@@ -1,8 +1,7 @@
 /**
  * StarRailCharacterDetailPage — 星穹铁道角色详情页（View 层）
  */
-import display from '@ohos.display';
-import { window, UIContext } from '@kit.ArkUI';
+import { UIContext } from '@kit.ArkUI';
 import { themeManager, ThemeManager, ViewState, showFeedback, FeedbackType } from 'basic';
 import { StarRailCharacterDetailViewModel } from '../viewmodel/StarRailCharacterDetailViewModel';
 import { CharDetailLoadingView } from '../views/common/CharDetailLoadingView';
@@ -11,6 +10,7 @@ import { StarRailCharDetailContent } from '../views/starrail/StarRailCharDetailC
 import { StarRailCharDetailHero } from '../views/starrail/StarRailCharDetailHero';
 import { StarRailCharDetailWideLayout } from '../views/starrail/StarRailCharDetailWideLayout';
 import { CharDetailRouterParam } from '../model/CharDetailModels';
+import { CharDetailWindowSize, resolveCharDetailBreakpoint } from '../utils/CharDetailWindowSize';
 
 @ComponentV2
 export struct StarRailCharacterDetailPage {
@@ -22,29 +22,16 @@ export struct StarRailCharacterDetailPage {
   @Local private currentBreakpoint: string = 'xs';
 
   private uiCtx: UIContext | null = null;
-
-  private sizeCallback: (size: window.Size) => void = (size: window.Size) => {
-    const ctx = this.uiCtx;
-    if (ctx !== null) {
-      this.windowWidthVp = ctx.px2vp(size.width);
-      this.windowHeightVp = ctx.px2vp(size.height);
-    }
-  };
+  private windowSize: CharDetailWindowSize | null = null;
 
   aboutToAppear(): void {
-    this.uiCtx = this.getUIContext();
-    const ctx = this.uiCtx;
-    try {
-      const d = display.getDefaultDisplaySync();
-      this.windowWidthVp = ctx.px2vp(d.width);
-      this.windowHeightVp = ctx.px2vp(d.height);
-    } catch (_e) {}
-    try {
-      window.getLastWindow(ctx.getHostContext(), (err, win) => {
-        if (err.code !== 0 || win === undefined) { return; }
-        try { win.on('windowSizeChange', this.sizeCallback); } catch (_e) {}
-      });
-    } catch (_e) {}
+    const ctx = this.getUIContext();
+    this.uiCtx = ctx;
+    this.windowSize = new CharDetailWindowSize(ctx, (w: number, h: number) => {
+      this.windowWidthVp = w;
+      this.windowHeightVp = h;
+    });
+    this.windowSize.attach();
     this.vm.init(this.routerParam.accountId, this.routerParam.roleUid, this.routerParam.entityId);
     this.vm.loadData();
   }
@@ -60,14 +47,10 @@ export struct StarRailCharacterDetailPage {
   }
 
   aboutToDisappear(): void {
-    const ctx = this.uiCtx;
-    if (ctx === null) { return; }
-    try {
-      window.getLastWindow(ctx.getHostContext(), (err, win) => {
-        if (err.code !== 0 || win === undefined) { return; }
-        try { win.off('windowSizeChange', this.sizeCallback); } catch (_e) {}
-      });
-    } catch (_e) {}
+    if (this.windowSize !== null) {
+      this.windowSize.detach();
+      this.windowSize = null;
+    }
   }
 
   private getHeroHeight(): number {
@@ -107,11 +90,7 @@ export struct StarRailCharacterDetailPage {
       .backgroundColor(this.tm.current.bgPageDeep)
       .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
       .onAreaChange((_old, newArea) => {
-        const w = newArea.width as number
-        if (w < 600) { this.currentBreakpoint = 'xs' }
-        else if (w < 840) { this.currentBreakpoint = 'sm' }
-        else if (w < 1200) { this.currentBreakpoint = 'md' }
-        else { this.currentBreakpoint = 'lg' }
+        this.currentBreakpoint = resolveCharDetailBreakpoint(newArea.width as number)
       })
     }
     .title($r('app.string.starrail_char_detail_title'))

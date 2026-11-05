@@ -13,12 +13,6 @@ export struct CharDetailWeaponCard {
   @Param charElement: GenshinElement = GenshinElement.UNKNOWN;
   @Local private tm: ThemeManager = themeManager;
 
-  private formatStars(n: number): string {
-    let s = '';
-    for (let i = 0; i < n; i++) { s += '★'; }
-    return s;
-  }
-
   build() {
     Column({ space: this.tm.current.value8 }) {
       Row({ space: this.tm.current.value10 }) {

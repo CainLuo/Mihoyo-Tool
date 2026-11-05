@@ -5,12 +5,13 @@
  * 从 DB 读取 rawJson，解析为详情展示模型。
  */
 
-import { CoreInitializer, ZZZAvatarInfoRow } from 'core';
 import {
+  CoreInitializer,
+  Logger,
   ZZZAvatarDetailRaw,
-  ZZZRawEquip
+  ZZZAvatarInfoRow,
+  ZZZRawEquip,
 } from 'core';
-import { Logger } from 'core';
 import { ViewState } from 'basic';
 import {
   CharDetailRankItem,

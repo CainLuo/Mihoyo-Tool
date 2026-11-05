@@ -1,8 +1,7 @@
 /**
  * GenshinCharacterDetailPage — 角色详情页（View 层）
  */
-import display from '@ohos.display'
-import { window, UIContext } from '@kit.ArkUI'
+import { UIContext } from '@kit.ArkUI'
 import { themeManager, ThemeManager, ViewState, showFeedback, FeedbackType, AppRoutes } from 'basic'
 import { GenshinCharacterDetailViewModel } from '../viewmodel/GenshinCharacterDetailViewModel'
 import { CharDetailLoadingView } from '../views/common/CharDetailLoadingView'
@@ -11,6 +10,7 @@ import { CharDetailPortraitLayout } from '../views/genshin/CharDetailPortraitLay
 import { CharDetailLandscapeLayout } from '../views/genshin/CharDetailLandscapeLayout'
 import { CharDetailWideLayout } from '../views/genshin/CharDetailWideLayout'
 import { CharDetailRouterParam } from '../model/CharDetailModels'
+import { CharDetailWindowSize, resolveCharDetailBreakpoint } from '../utils/CharDetailWindowSize'
 import { MaterialCalcParam } from 'material'
 
 /** 原神角色详情路由参数（与 CharDetailRouterParam 字段一致，保留别名供 Builder 使用） */
@@ -27,29 +27,16 @@ export struct GenshinCharacterDetailPage {
 
   private uiCtx: UIContext | null = null
   private localStack: NavPathStack | null = null
-
-  private sizeCallback: (size: window.Size) => void = (size: window.Size) => {
-    const ctx = this.uiCtx
-    if (ctx !== null) {
-      this.windowWidthVp = ctx.px2vp(size.width)
-      this.windowHeightVp = ctx.px2vp(size.height)
-    }
-  }
+  private windowSize: CharDetailWindowSize | null = null
 
   aboutToAppear(): void {
-    this.uiCtx = this.getUIContext()
-    const ctx = this.uiCtx
-    try {
-      const d = display.getDefaultDisplaySync()
-      this.windowWidthVp = ctx.px2vp(d.width)
-      this.windowHeightVp = ctx.px2vp(d.height)
-    } catch (_e) {}
-    try {
-      window.getLastWindow(ctx.getHostContext(), (err, win) => {
-        if (err.code !== 0 || win === undefined) { return }
-        try { win.on('windowSizeChange', this.sizeCallback) } catch (_e) {}
-      })
-    } catch (_e) {}
+    const ctx = this.getUIContext()
+    this.uiCtx = ctx
+    this.windowSize = new CharDetailWindowSize(ctx, (w: number, h: number) => {
+      this.windowWidthVp = w
+      this.windowHeightVp = h
+    })
+    this.windowSize.attach()
     this.vm.init(this.routerParam.accountId, this.routerParam.roleUid, this.routerParam.entityId)
     this.vm.loadData()
   }
@@ -65,14 +52,10 @@ export struct GenshinCharacterDetailPage {
   }
 
   aboutToDisappear(): void {
-    const ctx = this.uiCtx
-    if (ctx === null) { return }
-    try {
-      window.getLastWindow(ctx.getHostContext(), (err, win) => {
-        if (err.code !== 0 || win === undefined) { return }
-        try { win.off('windowSizeChange', this.sizeCallback) } catch (_e) {}
-      })
-    } catch (_e) {}
+    if (this.windowSize !== null) {
+      this.windowSize.detach()
+      this.windowSize = null
+    }
   }
 
   private isPhoneLandscape(): boolean {
@@ -119,11 +102,7 @@ export struct GenshinCharacterDetailPage {
       .backgroundColor(this.tm.current.bgPageDeep)
       .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
       .onAreaChange((_old, newArea) => {
-        const w = newArea.width as number
-        if (w < 600) { this.currentBreakpoint = 'xs' }
-        else if (w < 840) { this.currentBreakpoint = 'sm' }
-        else if (w < 1200) { this.currentBreakpoint = 'md' }
-        else { this.currentBreakpoint = 'lg' }
+        this.currentBreakpoint = resolveCharDetailBreakpoint(newArea.width as number)
       })
     }
     .title($r('app.string.char_detail_title'))

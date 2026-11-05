@@ -6,9 +6,12 @@
  * 所有 property_type 数字必须通过 GenshinPropertyType enum 引用，禁止写字面量。
  */
 
-import { CoreInitializer, GenshinPropertyType, GenshinCharacterDetailRow } from 'core';
-import { GenshinCharacterDetailRaw } from 'core';
-import { Logger } from 'core';
+import {
+  CoreInitializer,
+  GenshinCharacterDetailRow,
+  GenshinCharacterDetailRaw,
+  Logger,
+} from 'core';
 import { ViewState, GenshinElement, genshinElementFromString } from 'basic';
 import {
   CharDetailWeapon,
@@ -168,7 +171,8 @@ export class GenshinCharacterDetailViewModel {
               sub.value = r.sub_property_list[j].value ?? '';
               subs[subs.length] = sub;
             }
-          }          relic.subStats = subs;
+          }
+          relic.subStats = subs;
           relics[relics.length] = relic;
         }
       }

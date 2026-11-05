@@ -340,7 +340,7 @@ entry/src/main/ets/
 | M7 | MaterialCalc | [material-calc](../docs/material-calc-module-analysis.md) / [material-list](../docs/material-list-modules-analysis.md) / [target-config](../docs/material-target-config-modules-analysis.md) / [character-select](../docs/material-character-select-module-analysis.md) | 0 Critical / **1 High**（`MaterialCalc` 路由未注册、页面不可达）；Medium 11 + Low 13（按 4 份文档 2026-10-27 的执行摘要合计，这 4 份文档第二轮复核未完成，数字待复核） | High 单独提交（需在 `custom_router_map.json` 注册或改由 navDestination 处理，涉及 resources 作用域，需用户批准）；其余记录，去重随模块（不改变 UI 行为） |
 | M8 | Home | [home](../docs/home-module-analysis.md) | 2 High（ViewModel 754 行；Skeleton 动画未停） | 拆分随模块；动画修复随模块 |
 | M9 | Characters | [characters](../docs/characters-module-analysis.md) | 0 High（原 H-1 已降为 M-1）；3 Medium + 4 Low | 纯重构已完成；`@Monitor` 收敛 / 冷却 Dialog / 代次保护保留 |
-| M10 | CharDetail | [genshin](../docs/genshin-character-detail-module-analysis.md) / [starrail](../docs/starrail-character-detail-module-analysis.md) / [zzz](../docs/zzz-character-detail-module-analysis.md) | SR 2 High（`parseRawJson` 未设 ERROR、`entityId === '1510'`）；Genshin 1 High（同源 ERROR）；ZZZ 1 High（`parseRawJson` 吞异常仍进 DATA） | 随模块修（三游统一状态兜底） |
+| M10 | CharDetail | [genshin](../docs/genshin-character-detail-module-analysis.md) / [starrail](../docs/starrail-character-detail-module-analysis.md) / [zzz](../docs/zzz-character-detail-module-analysis.md) | SR / Genshin / ZZZ 各 1 High（`parseRawJson` 未设 ERROR）；SR `entityId === '1510'` 空循环已删除 | SR/Genshin/ZZZ 各 1 High 保留，行为修复待单独提交（三游统一状态兜底） |
 | M11 | AccountDetail | [account-detail](../docs/account-detail-module-analysis.md) | 0 Critical / 0 High；1 Medium（删除无二次确认）+ 1 Low（`as common.UIAbilityContext` 强转）；另有测试 `KEYS` 引用失效（测试资产，不计入评级，阻塞 Local Test） | 记录；要修则单独提交 |
 | M12 | Login | [login](../docs/login-module-analysis.md) / [webview](../docs/webview-page-module-analysis.md) | 0 Critical / 0 High（二维码轮询取消标记已由 `b98abae` 修复，复核撤回；原 SEC-002「Cookie 日志明文」经逐层核查无凭据落盘路径，降为 Medium 加固）；4 Medium / 2 Low；WebView 0 High（2 Low） | 无阻断项；日志脱敏可选（`LoginViewModel.ets:350`，单独提交）；WebView 仅记录 |
 | M13 | WidgetConfig | [widget-settings](../docs/widget-settings-module-analysis.md) | 0 High；1 Medium（`vm.init()` 失败后静默回退空配置，无错误态/重试；`isLoading` 必被置 false）+ 1 Low | 随模块修 |
@@ -363,7 +363,7 @@ entry/src/main/ets/
 | M7 | MaterialCalc | ✅ 完成 | — | 36099a9 / 045437f / 41a09bb / a78d749 | ✅ BUILD SUCCESSFUL in 14s 73ms | ⚠️ 跳过 | 🔶 待运行 | — | 材料汇总 186→55L；目标配置 342/346/410→261/265/266L；角色选择 493→360L + Card 156L；MaterialCalc 页 111→109L、VM 493→465L；Service 560→163L + 5 文件 |
 | M8 | Home | ✅ 真重构完成 | — | e831292 | ✅ BUILD SUCCESSFUL in 18s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 已拆 4 文件，最大 315L |
 | M9 | Characters | ✅ 真重构完成 | — | fafcabc | ✅ BUILD SUCCESSFUL in 15s 736ms | ⚠️ 跳过 | 🔶 待运行 | — | VM 614→434L；新增 CharactersDataLoader 171L；测试契约不变 |
-| M10 | CharDetail | 未开始 | — | — | — | — | — | — | — |
+| M10 | CharDetail | ✅ 真重构完成（行为修复待单独提交） | — | 待补 | ✅ BUILD SUCCESSFUL in 14s 775ms | ⚠️ 跳过 | 🔶 待运行 | — | 三页 150/137/137→129/116/116L；新增 CharDetailWindowSize 56L + CharDetailHeroScaffold 99L；三游戏 parseRawJson ERROR 兜底保留 |
 | M11 | AccountDetail | 未开始 | — | — | — | — | — | — | — |
 | M12 | Login | 未开始 | — | — | — | — | — | — | — |
 | M13 | WidgetConfig | 未开始 | — | — | — | — | — | — | — |
@@ -591,7 +591,7 @@ entry/src/main/ets/
 ---
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）；M9 真重构完成（`fafcabc`）。*
+*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）；M9 真重构完成（`fafcabc`）；M10 真重构完成。*
 
 ---
 
@@ -916,3 +916,74 @@ M7 覆盖「材料计算 → 选角色 → 目标配置（×3）→ 材料汇总
 ### 结论
 
 **M9 真重构完成**：`CharactersViewModel` 614 → 434L，无状态数据映射整体移入 `CharactersDataLoader`（171L），VM 只保留状态、切换、刷新编排与路由构建；删除行类型与 `AppConstants` / `compareCharacter` 死导入；`toSelectOptions` 由 facade 委托 loader，测试与页面契约不变。行为等价，编译通过。
+
+---
+
+## M10 spec — CharDetail 模块（2026-11-05 真重构）
+
+分析依据：[`docs/genshin-character-detail-module-analysis.md`](../docs/genshin-character-detail-module-analysis.md) / [`docs/starrail-character-detail-module-analysis.md`](../docs/starrail-character-detail-module-analysis.md) / [`docs/zzz-character-detail-module-analysis.md`](../docs/zzz-character-detail-module-analysis.md)。
+
+### 背景说明
+
+M10 覆盖三个游戏的角色详情页：`GenshinCharacterDetailPage` 150L / `StarRailCharacterDetailPage` 137L / `ZZZCharacterDetailPage` 137L，三页各自重复一份「初始 Display 尺寸读取 + `windowSizeChange` 订阅/取消订阅 + 断点计算」逻辑；星铁 / 绝区零英雄区 101L 各自复制一份背景渐变 + 立绘 + 遮罩 + 命座纵列 + 名字叠加层，仅立绘字段、遮罩颜色与名字下方信息不同。三个 VM 存在合并导入、未使用类型导入与死循环等清理项。
+
+### 决策
+
+| # | 问题 | 决定 | 依据 |
+| --- | --- | --- | --- |
+| D1 | 三页窗口尺寸逻辑 | 提取为 `utils/CharDetailWindowSize.ets` | 三份逐行相同，提取无行为变化 |
+| D2 | 星铁 / 绝区零英雄区 | 提取 `views/common/CharDetailHeroScaffold.ets`，差异用参数注入 | 结构相同，仅数据与颜色不同 |
+| D3 | ZZZ 遮罩颜色 | 保留原固定 `#99000000` / `#66000000`，不改主题色 | 避免视觉行为变化 |
+| D4 | 原神 26 个专属组件 | 不合并 | HeroPanel 三分支已参数化，合并会改变组件树 |
+| D5 | `parseRawJson` ERROR 兜底 | 不随本提交执行 | 行为修复，需与纯重构分开提交（三游统一） |
+| D6 | `@ohos.display` | 改 `@kit.ArkUI` | 等价导包替换（ARKTS-014） |
+
+### 文件改动清单
+
+| 操作 | 文件 | 说明 |
+| --- | --- | --- |
+| 新增 | `utils/CharDetailWindowSize.ets`（56L） | 初始尺寸 + `windowSizeChange` 订阅/取消 + `resolveCharDetailBreakpoint()` |
+| 新增 | `views/common/CharDetailHeroScaffold.ets`（99L） | 星铁 / 绝区零英雄区骨架：背景渐变、立绘、遮罩、命座纵列、名字叠加层 |
+| 修改 | `pages/GenshinCharacterDetailPage.ets`（150 → 129L） | 改用窗口工具；`@ohos.display` → `@kit.ArkUI`；断点改调函数 |
+| 修改 | `pages/StarRailCharacterDetailPage.ets`（137 → 116L） | 同上 |
+| 修改 | `pages/ZZZCharacterDetailPage.ets`（137 → 116L） | 同上 |
+| 修改 | `viewmodel/GenshinCharacterDetailViewModel.ets`（235 → 239L） | 合并 3 条 `from 'core'` 导入；删除未使用 `GenshinPropertyType`；修正 `relic.subStats` 错位换行 |
+| 修改 | `viewmodel/StarRailCharacterDetailViewModel.ets`（249 → 239L） | 合并导入；删除未使用 `StarRailPropertyType` / `StarRailRawSkillNode`；删除 `entityId === '1510'` 空循环 |
+| 修改 | `viewmodel/ZZZCharacterDetailViewModel.ets`（258 → 259L） | 合并 3 条 `from 'core'` 导入 |
+| 修改 | `views/starrail/StarRailCharDetailHero.ets`（101 → 48L） | 改用 `CharDetailHeroScaffold`，传入主题遮罩色 |
+| 修改 | `views/zzz/ZZZCharDetailHero.ets`（101 → 49L） | 改用 `CharDetailHeroScaffold`，传固定黑色遮罩 |
+| 修改 | `views/genshin/CharDetailWeaponCard.ets` | 删除未使用私有 `formatStars()` |
+| 修改 | `views/genshin/CharDetailHeroPanelLandscape.ets` / `CharDetailHeroPanelPortrait.ets` | 删除未使用 `getGenshinElementColor` 导入 |
+
+### 契约与冻结项
+
+- `custom_router_map.json` 三条路由与 `GenshinCharacterDetailBuilder` / `StarRailCharacterDetailBuilder` / `ZZZCharacterDetailBuilder` 名冻结。
+- `export type GenshinCharacterDetailParam = CharDetailRouterParam` 别名保留。
+- `MaterialCalcParam` 仍从 `material` 模块导入（M7 冻结）。
+- `viewmodel/GenshinCharacterDetailViewModel.ets` 路径与导出名冻结（Local Test）。
+- `CharDetailRouterParam` 字段名不改。
+
+### 验收记录
+
+| 项 | 结果 |
+| --- | --- |
+| 编译（uat/Debug） | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 14s 775ms`，安装/启动成功 |
+| codeLinter | ⚠️ 项目未配置 codeLinter task，跳过 |
+| Local Test | 🔶 `GenshinCharacterDetailViewModel.test.ets`（84L / 12 用例）需 DevEco GUI 手动运行；星铁 / ZZZ 无测试 |
+| 测试契约 | ✅ VM 路径 / 导出名不变；测试从 `utils/GenshinPropertyUtil` 导入映射 |
+| 冒烟 | 🔶 待手动：三游戏详情页窄屏/宽屏、返回、材料计算入口、错误态、旋转 |
+
+### 已知问题记录（不执行）
+
+| ID | 级别 | 描述 | 状态 |
+| --- | --- | --- | --- |
+| G-CD-0 / SR-CD-0 / ZZZ-CD-0 | High | `parseRawJson` 未设 ERROR，解析失败仍进 DATA | 保留，三游统一行为修复单独提交 |
+| SR-CD-L1 | Low | `entityId === '1510'` 空循环 | ✅ 已删除 |
+| L-1 | Low | 宽屏左栏无 Scroll | 保留 |
+| L-2 | Low | `heroHeight` 未缓存 | 保留 |
+| L-3 | Low | 初始尺寸取整屏 | 保留 |
+| L-4 | Low | 遗器 / 驱动盘不按 `pos` 排布 | 保留，属行为修复 |
+
+### 结论
+
+**M10 真重构完成**：三页窗口尺寸逻辑提取为 `CharDetailWindowSize`（56L），页面 150/137/137 → 129/116/116L；星铁 / 绝区零英雄区提取为 `CharDetailHeroScaffold`（99L），Hero 101L → 48/49L；三个 VM 合并导入、删除未使用类型与 `1510` 空循环；删除 `formatStars()` 与 2 处未使用导入；`@ohos.display` → `@kit.ArkUI`。行为等价，编译通过。`parseRawJson` ERROR 兜底保留为行为修复，待单独提交。

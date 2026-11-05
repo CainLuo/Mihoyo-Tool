@@ -5,15 +5,15 @@
  * 从 DB 读取 rawJson，解析为详情展示模型。
  */
 
-import { CoreInitializer, StarRailAvatarInfoRow, StarRailPropertyType } from 'core';
 import {
+  CoreInitializer,
+  Logger,
   StarRailAvatarDetailRaw,
+  StarRailAvatarInfoRow,
   StarRailRawRelic,
-  StarRailRawSkillNode
 } from 'core';
-import { getStarRailPropertyResource } from '../utils/StarRailPropertyUtil';
-import { Logger } from 'core';
 import { ViewState } from 'basic';
+import { getStarRailPropertyResource } from '../utils/StarRailPropertyUtil';
 import {
   CharDetailRankItem,
   CharDetailHeroProfile,
@@ -160,16 +160,6 @@ export class StarRailCharacterDetailViewModel {
       this.skillsMain = main;
       this.skillsExtra = extra;
       this.skillsAttr = attr;
-
-      // 只在 1510 时输出技能和天赋信息
-      if (this.entityId === '1510') {
-        for (let i = 0; i < main.length; i++) {
-          const s = main[i];
-        }
-        for (let i = 0; i < extra.length; i++) {
-          const s = extra[i];
-        }
-      }
 
       // 光锥
       if (parsed.equip) {

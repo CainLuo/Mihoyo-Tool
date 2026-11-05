@@ -3,7 +3,7 @@
  *
  * 立绘铺满，底部渐变遮罩，左下角名字+等级+好感+技能横行，右侧命座纵列居中。
  */
-import { themeManager, ThemeManager, getGenshinElementColor, GenshinElement, HeroPanelMode, ViewState, TransparentColorCache } from 'basic';
+import { themeManager, ThemeManager, GenshinElement, HeroPanelMode, ViewState, TransparentColorCache } from 'basic';
 import { GenshinCharacterDetailViewModel } from '../../viewmodel/GenshinCharacterDetailViewModel';
 import { CharDetailSkill, CharDetailRankItem } from '../../model/CharDetailModels';
 import { CharDetailConsColumn } from '../common/CharDetailConsColumn';

@@ -29,10 +29,11 @@
 
 | 属性 | 值 |
 |------|-----|
-| 行数 | 140 |
-| ViewModel | `viewmodel/ZZZCharacterDetailViewModel.ets`（265 行） |
-| 模型 / 状态 | `models/CharDetailModels.ets`（272 行，三游戏共享）、`constants/ViewState.ets`（18 行） |
-| 专属子组件 | `components/chardetail/zzz/` 13 个文件 / 710 行（见 2.2） |
+| 行数 | 116 |
+| ViewModel | `viewmodel/ZZZCharacterDetailViewModel.ets`（259 行） |
+| 窗口工具 | `utils/CharDetailWindowSize.ets`（56 行，三游戏共享，M10 新增） |
+| 模型 / 状态 | `model/CharDetailModels.ets`（272 行，三游戏共享）、`common/basic` 的 `ViewState` |
+| 专属子组件 | `views/zzz/` 13 个文件（见 2.2） |
 | @Component 版本 | `@ComponentV2` |
 | Preview | ✅ 包含 `@Preview ZZZCharacterDetailPreview` |
 | Router Builder | ✅ 导出 `ZZZCharacterDetailBuilder` |
@@ -200,28 +201,40 @@
 | --- | --- |
 | 路由 | `custom_router_map.json:34-36`：`ZZZCharacterDetail` → `pages/ZZZCharacterDetailPage.ets` + `ZZZCharacterDetailBuilder`，**页面路径与 Builder 名冻结** |
 | 路由参数 | `CharDetailRouterParam`（`models/CharDetailModels.ets`，272 行）三游戏共享，字段名不改 |
-| 测试 | `ZZZCharacterDetailViewModel`（265 行）**没有** Local Test；M10 只有 Genshin 版有测试 |
-| 共享组件 | `components/chardetail/common/` 9 个文件不移动；本页经子组件引用其中 6 个（Loading / Empty / ConsColumn / HeroNameOverlay / SectionLabel / RelicPlaceholder），另 3 个（SkillItem / StatRow / MaterialCalcEntry）只被原神使用 |
-| 游戏组件 | `components/chardetail/zzz/` 13 个文件，仅本页使用 |
+| 测试 | `ZZZCharacterDetailViewModel`（259 行）**没有** Local Test；M10 只有 Genshin 版有测试 |
+| 共享组件 | `views/common/` 9 个文件不移动；本页经子组件引用其中 6 个（Loading / Empty / ConsColumn / HeroNameOverlay / SectionLabel / RelicPlaceholder），另 3 个（SkillItem / StatRow / MaterialCalcEntry）只被原神使用。M10 新增 `CharDetailHeroScaffold` 供星铁 / 绝区零英雄区共用 |
+| 游戏组件 | `views/zzz/` 13 个文件，仅本页使用 |
 
-### 重构范围（建议）
+### 重构范围（已执行）
 
 - 页面/目录已符合 N-4；**没有必须的目录移动**。
-- `parseRawJson` 的 ERROR 兜底（ZZZ-CD-0）建议在 M10 内修，且三游戏一起修；必须与移动分开提交。
-- `heroHeight()` 改 `@Computed` 是可选优化，不是正确性修复。
-- `@ohos.display` → `@kit.ArkUI` 是等价导包替换，可与目录调整同提交；驱动盘按 `pos` 排布会改变展示结果，属行为修复，单独提交。
-- 不合并 `zzz/` 的 13 个组件到 common（装备/驱动盘/词条模型是游戏特定的）。
+- 新增 `utils/CharDetailWindowSize.ets`（56L）：三游戏共用窗口尺寸监听与断点计算；页面 140 → 116 行。
+- 新增 `views/common/CharDetailHeroScaffold.ets`（99L）：星铁 / 绝区零英雄区共用骨架；`ZZZCharDetailHero` 101 → 49 行。绝区零保留原固定黑色遮罩（`#99000000` / `#66000000`），未改为主题色。
+- `@ohos.display` → `@kit.ArkUI` 是等价导包替换（ARKTS-014）。
+- `ZZZCharacterDetailViewModel` 合并 3 条 `from 'core'` 导入。
+- `parseRawJson` 的 ERROR 兜底（ZZZ-CD-0）是行为修复，未随本提交执行（记录为 High，单独提交，三游戏统一）。
+- 不合并 `zzz/` 的 13 个组件到 common（装备 / 驱动盘 / 词条模型是游戏特定的）。
 
 ### 验收
 
 1. 编译通过；`codeLinter` 不新增违规。
 2. 无 Local Test：冒烟——ZZZ 角色详情窄屏/宽屏、装备/驱动盘/技能/属性、返回、错误态（构造解析失败数据）。
 
+### 验收记录
+
+| 项 | 结果 |
+|---|---|
+| 编译（uat/Debug） | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 14s 775ms`，安装/启动成功 |
+| codeLinter | ⚠️ 项目未配置 codeLinter task，跳过 |
+| Local Test | 🔶 无测试 |
+| 测试契约 | ✅ 路由 / Builder 名未变 |
+| 冒烟 | 🔶 待手动：窄屏/宽屏、装备/驱动盘/技能/属性、返回、错误态 |
+
 ### 已知问题归属
 
-- High（`parseRawJson` 吞异常）：建议随 M10 修，单独提交；修完更新评级。
-- Medium（ARKTS-014 导包）：可顺手改。
-- Low（`heroHeight` 未缓存、初始尺寸取整屏、Monitor 常量未使用、宽屏左栏无 Scroll、驱动盘不按 pos 排布）：Monitor 常量建议顺手清理，其余记录。
+- High（`parseRawJson` 吞异常）：保留，行为修复需单独提交；修完更新评级。
+- Medium（ARKTS-014 导包）：✅ 已在本轮改为 `@kit.ArkUI`。
+- Low（`heroHeight` 未缓存、初始尺寸取整屏、宽屏左栏无 Scroll、驱动盘不按 pos 排布）：记录。
 - 信息（5 处 `catch (_e) {}`）：不计数。
 
 【已核对代码一致性】
@@ -232,5 +245,6 @@
 | 第 2 轮（关键代码段） | L55 Monitor、L76 heroHeight()、L112-118 onAreaChange、catch(_e){} 数量 | ✅ |
 | 第 3 轮（全面复核） | parseRawJson catch、§7 测试声明、子组件逐文件行数 | ✅ |
 | 第 4 轮（2026-10-27 逐条复核） | 摘要口径行写错评级条件（已改为 B 的条件）；三游戏对比表中原神组件名 / 断点 / Hero 逻辑描述不实；`heroHeight` 与星铁统一为 Low；catch 静默统一为信息项；补 ARKTS-014、Monitor 常量、宽屏左栏、驱动盘排布 | 已修正 |
+| 第 5 轮（2026-11-05 M10 真重构后） | 页面 140 → 116L；VM 265 → 259L；Hero 101 → 49L；新增 `CharDetailWindowSize` 56L 与 `CharDetailHeroScaffold` 99L；`@ohos.display` → `@kit.ArkUI`；`bash run.sh uat` → BUILD SUCCESSFUL in 14s 775ms | ✅ 编译通过；路由 / Builder 名未变 |
 
 > 注：ZZZ-CD-2 原文称 catch(_e){} "三个"，实际 5 处（L44/L48/L50/L71/L73），已在 5.1 更正。

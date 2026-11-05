@@ -26,10 +26,13 @@
 
 | 类别 | 文件路径 | 行数 | 说明 |
 |------|----------|------|------|
-| **Page** | `pages/GenshinCharacterDetailPage.ets` | 154 | 角色详情主页面（View） |
-| **ViewModel** | `viewmodel/GenshinCharacterDetailViewModel.ets` | 243 | 数据加载 + JSON 解析 + 展示模型构造 |
-| **路由参数** | `models/CharDetailModels.ets`（CharDetailRouterParam，L11） | 272 | 通用路由参数 + 展示模型 |
-| **状态常量** | `constants/ViewState.ets`（ViewState 枚举） | 18 | 页面四态枚举 |
+| **Page** | `pages/GenshinCharacterDetailPage.ets` | 129 | 角色详情主页面（View） |
+| **ViewModel** | `viewmodel/GenshinCharacterDetailViewModel.ets` | 239 | 数据加载 + JSON 解析 + 展示模型构造 |
+| **窗口工具** | `utils/CharDetailWindowSize.ets` | 56 | 三游戏共用：初始尺寸 + windowSizeChange 订阅 + 断点计算（M10 新增） |
+| **路由参数** | `model/CharDetailModels.ets`（CharDetailRouterParam，L11） | 272 | 通用路由参数 + 展示模型 |
+| **状态常量** | `common/basic` 的 `ViewState` 枚举 | — | 页面四态枚举 |
+
+> 行数为 M10 重构后现状。§1 子组件表沿用重构前基线（`105c8d3`）的 `components/chardetail/` 路径；当前实际目录为 `views/genshin/`、`views/common/`、`views/starrail/`、`views/zzz/`。
 
 ### 子组件（Genshin 专用，共 26 个）
 
@@ -211,30 +214,44 @@ aboutToDisappear() { // Line 71
 | 项 | 内容 |
 | --- | --- |
 | 路由 | `custom_router_map.json:9-11`：`GenshinCharacterDetail` → `pages/GenshinCharacterDetailPage.ets` + `GenshinCharacterDetailBuilder`，**页面路径与 Builder 名冻结** |
-| 跨模块类型 | `pages/GenshinCharacterDetailPage.ets:18` 从 `pages/MaterialCalc` 导入 `MaterialCalcParam` 并 push 材料计算页（L95-100）；两个页面路径互相依赖，都不能随意改 |
-| 路由参数别名 | `export type GenshinCharacterDetailParam = CharDetailRouterParam`（L21），仅本页使用；保持导出名不变 |
-| 测试引用（冻结） | `viewmodel/GenshinCharacterDetailViewModel.ets`、`constants/ViewState.ets` 被 `entry/src/test/GenshinCharacterDetailViewModel.test.ets` 导入 |
-| 共享组件 | `components/chardetail/common/` 9 个文件不移动；本页引用其中 8 个（Loading / Empty / ConsColumn / MaterialCalcEntry / SectionLabel / StatRow / SkillItem / RelicPlaceholder），其中 MaterialCalcEntry / StatRow / SkillItem 只有原神使用 |
-| 游戏组件 | `components/chardetail/genshin/` 26 个文件，仅本页使用；响应式 HeroPanel 三分支不要合并 |
+| 跨模块类型 | `pages/GenshinCharacterDetailPage.ets` 从 `material` 模块导入 `MaterialCalcParam` 并 push 材料计算页；两个模块的页面路径互相依赖，都不能随意改 |
+| 路由参数别名 | `export type GenshinCharacterDetailParam = CharDetailRouterParam`，仅本页使用；保持导出名不变 |
+| 测试引用（冻结） | `viewmodel/GenshinCharacterDetailViewModel.ets` 被 `features/chardetail/src/test/GenshinCharacterDetailViewModel.test.ets`（84L / 12 用例）导入；属性映射已迁到 `utils/GenshinPropertyUtil.ets`，测试直接导入该 util |
+| 共享组件 | `views/common/` 9 个文件不移动；本页引用其中 8 个（Loading / Empty / ConsColumn / MaterialCalcEntry / SectionLabel / StatRow / SkillItem / RelicPlaceholder），其中 MaterialCalcEntry / StatRow / SkillItem 只有原神使用 |
+| 游戏组件 | `views/genshin/` 26 个文件，仅本页使用；响应式 HeroPanel 三分支不要合并 |
 
-### 重构范围（建议）
+### 重构范围（已执行）
 
 - 页面/组件已按 common + genshin 分组；**M10 没有必须的目录移动**。
-- `CharDetailHeroPanel` 的 PORTRAIT / LANDSCAPE / WIDE 三分支已经参数化；不要为了去重把 26 个文件合并成少数大文件（会改变组件树）。
-- `parseRawJson` 的 ERROR 兜底是行为修复，必须与目录调整分开提交（且会影响三游戏一致性）。
-- `MaterialCalcParam` / `MaterialCalc` 页保持原位（M7 已冻结）。
+- 新增 `utils/CharDetailWindowSize.ets`（56L）：三游戏详情页共用的初始尺寸读取、`windowSizeChange` 订阅/取消订阅、`resolveCharDetailBreakpoint()` 断点计算。
+- `GenshinCharacterDetailPage` 154 → 129 行：删除内联 `display` / `window` 逻辑与 `sizeCallback`，改用 `CharDetailWindowSize`；`@ohos.display` → `@kit.ArkUI`（ARKTS-014）；`onAreaChange` 改调断点函数。
+- `GenshinCharacterDetailViewModel` 合并 3 条 `from 'core'` 导入，删除未使用的 `GenshinPropertyType` 导入，修正 `relic.subStats = subs` 的错位换行（无行为变化）。
+- `CharDetailWeaponCard` 删除未使用的私有 `formatStars()`；两个 `CharDetailHeroPanel*` 删除未使用的 `getGenshinElementColor` 导入。
+- `CharDetailHeroPanel` 的 PORTRAIT / LANDSCAPE / WIDE 三分支已经参数化；不合并 26 个组件。
+- `parseRawJson` 的 ERROR 兜底是行为修复，未随本提交执行（记录为 High，单独提交）。
 
 ### 验收
 
 1. 编译通过；`codeLinter` 不新增违规。
-2. DevEco Local Test：`GenshinCharacterDetailViewModel.test.ets`（90 行）通过。**前提**：该测试当前引用了 VM 上不存在的成员——静态方法 `GenshinCharacterDetailViewModel.propertyTypeToResource`（test L58/63/68/73/79，已迁到 `utils/GenshinPropertyUtil.ets`）与 `GenshinCharacterDetailViewModel.KEYS`（test L86），且 `vm.init(1, ...)`（test L51）传 number，编译不过。按 README §1.4 属测试资产问题，不计入本页评级，但需先修测试才能用作验收。
+2. DevEco Local Test：`GenshinCharacterDetailViewModel.test.ets`（84L / 12 用例）——已改为从 `utils/GenshinPropertyUtil` 导入映射，需 DevEco GUI 手动运行。
 3. 冒烟：角色详情竖屏/横屏/宽屏三断点、返回、材料计算入口、错误态；窄屏旋转不残留 window 监听。
+
+### 验收记录
+
+| 项 | 结果 |
+|---|---|
+| 编译（uat/Debug） | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 14s 775ms`，安装/启动成功 |
+| codeLinter | ⚠️ 项目未配置 codeLinter task，跳过 |
+| Local Test | 🔶 12 条用例——需 DevEco GUI 手动运行 |
+| 测试契约 | ✅ VM 路径 / 导出名不变；测试从 utils 导入映射 |
+| 冒烟 | 🔶 待手动：三断点、返回、材料计算入口、错误态、旋转 |
 
 ### 已知问题归属
 
-- High（`parseRawJson` 未设 ERROR）：建议随 M10 修，单独提交。
-- Medium（ARKTS-014 `@ohos.display` 导包）：等价替换，可顺手改。
-- Low（宽屏圣遗物栏无 Scroll、Monitor 常量未使用、初始尺寸取整屏）：Monitor 常量建议顺手清理，其余记录。
+- High（`parseRawJson` 未设 ERROR）：保留，行为修复需单独提交（三游戏统一）。
+- Medium（ARKTS-014 `@ohos.display` 导包）：✅ 已在本轮改为 `@kit.ArkUI`。
+- Low（宽屏圣遗物栏无 Scroll、初始尺寸取整屏）：记录。
+- Low（`formatStars` 死方法、未使用导入）：✅ 已清理。
 
 【已核对代码一致性】
 
@@ -244,3 +261,4 @@ aboutToDisappear() { // Line 71
 | 第 2 轮（关键代码段） | L43 aboutToAppear、L71 aboutToDisappear、L202-205 parseRawJson catch、L18/L95 MaterialCalcParam | ✅ |
 | 第 3 轮（全面复核） | §7 测试文件 90 行、路由映射 L9-11、重构范围/验收声明 | ✅ |
 | 第 4 轮（2026-10-27 逐条复核） | 安全表 parseRawJson 由"中"统一为 High；撤回断点 576 Medium 与 init() Low；Monitor 常量实际存在且未使用；common 引用关系与 `gameId` 未使用；测试文件引用失效成员；补 ARKTS-014、初始尺寸 Low | 已修正 |
+| 第 5 轮（2026-11-05 M10 真重构后） | 页面 154 → 129L；VM 243 → 239L；新增 `utils/CharDetailWindowSize.ets` 56L；`@ohos.display` → `@kit.ArkUI`；删除 `formatStars` 与 2 处未使用导入；测试 84L / 12 用例已从 `utils/GenshinPropertyUtil` 导入；`bash run.sh uat` → BUILD SUCCESSFUL in 14s 775ms | ✅ 编译通过；路由 / Builder 名未变 |
