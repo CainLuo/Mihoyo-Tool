@@ -7,20 +7,15 @@
  * 路由参数：AppearanceSettingsParam（含当前 themeMode 和 onThemeChange 回调）
  */
 
-import { ConfigurationConstant, common } from '@kit.AbilityKit'
+import { common } from '@kit.AbilityKit'
 import { ThemeFonts, themeManager, ThemeManager, showFeedback, FeedbackType } from 'basic'
 import { AppearanceManager } from '../model/service/AppearanceManager'
-import { AppearanceSettingsViewModel, ThemeModeItem } from '../viewmodel/AppearanceSettingsViewModel'
+import { AppearanceSettingsParam, ThemeModeItem } from '../model/AppearanceSettingsModels'
+import { AppearanceSettingsViewModel } from '../viewmodel/AppearanceSettingsViewModel'
 import { ThemeModeRow } from '../views/ThemeModeRow'
 import { Logger } from 'core'
 
 const TAG: string = 'AppearanceSettingsPage'
-
-/** 路由参数 */
-export class AppearanceSettingsParam {
-  themeMode: number = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
-  onThemeChange: (mode: number) => void = (_m: number) => {}
-}
 
 @ComponentV2
 export struct AppearanceSettingsPage {

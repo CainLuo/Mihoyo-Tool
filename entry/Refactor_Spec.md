@@ -183,7 +183,7 @@ entry/src/main/ets/
 | M0 | 共享层 | – | – | `components/common/*`（2）+ `components/SnackbarContent.ets` + shared constants/models/theme/utils/config/styles/builders | 中心节点文件，仅原位编辑，不移动；`builders/MaterialCharacterSelectPageBuilder.ets` M0 只负责位置与函数名冻结，内容随 M7。2026-10-27 复核：根级其余 9 个文件实际只服务单模块——Geetest×5 + `SplitPlaceholder` → M15，`TestRow`/`TestSectionHeader` → M15（TestPage），`SettingRow` → M4（见 shared-layer §1.5） |
 | M1 | Tools | Tools | ToolsViewModel | tools/（1 个文件） | 最小模块；有 Local Test（`ToolsViewModel.test.ets`） |
 | M2 | PrivacyConsent | PrivacyConsentPage | PrivacyConsentViewModel | privacyconsent/（2 个文件） | 有 Local Test；页面不在 routerMap |
-| M3 | AppearanceSettings | AppearanceSettingsPage | AppearanceSettingsViewModel | appearancesettings/（1 个文件） | 路由文件路径冻结；与 theme 中心节点关联 |
+| M3 | AppearanceSettings | AppearanceSettingsPage | AppearanceSettingsViewModel | views/（ThemeModeRow）+ model/AppearanceSettingsModels | 路由文件路径冻结；与 theme 中心节点关联 |
 | M4 | My | My | MyViewModel | my/（6 个文件） | 有 Local Test |
 | M5 | Notification | NotificationSettings | NotificationSettingsViewModel（318L） | `views/`（14）+ `views/NotificationSection.ets` + `model/service/`（6 个，含 `StaminaNoteReader`） | `NotificationModels` 被测试引用；服务层已做纯重构（670 → 490L），行为修复（M1/M2/M4/M7/M8）仍单独提交 |
 | M6 | Dailynote | Genshin/StarRail/ZZZ DailyDetail ×3 | ×3 | dailynote/（views 17 个 + utils 3 个，已分 common/genshin/starrail/zzz） | 三页共用 `DailyDetailScaffold`；VM 共用 `DailyNoteLoader` / `ExpeditionMapper`；仅 Genshin 有测试 |
@@ -356,8 +356,8 @@ entry/src/main/ets/
 | M0 | 共享层 | ✅ 已提交（导出清理 + 工具去重 + 日志） | — | 1ff4cfe | ✅ 随 M8 构建通过 | ⚠️ 跳过 | 🔶 待冒烟 | 文档 13 轮复核 | M8/外观页 High 已补字符串；M7 部分失败待产品决策 |
 | M1 | Tools | ✅ 真重构完成 | — | 82cf004 | ✅ BUILD SUCCESSFUL in 17s 272ms | ⚠️ codeLinter 未配置，跳过 | 🔶 待 DevEco GUI 运行 | 6 Medium/Low 记录不执行 | ToolsModels 拆分 + 死代码清理；LIFE-002/N+1 保留 |
 | M2 | PrivacyConsent | ✅ 重构 + High 修复完成 | — | 8a85078 / ed45262 | ✅ BUILD SUCCESSFUL in 16s 145ms | ⚠️ 跳过 | 🔶 待运行 | — | 步骤常量/model、Footer 去重；不足一屏卡死已修 |
-| M3 | AppearanceSettings | 🔶 部分完成（失败提示 + 字符串） | — | 1ff4cfe | ✅ 随 M8 构建通过 | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
-| M4 | My | 🔶 部分完成（SettingRow 迁入） | — | 1ff4cfe | ✅ BUILD SUCCESSFUL in 16s 358ms | ⚠️ 跳过 | 🔶 待运行 | — | 真重构（组件/VM 复核）待续 |
+| M3 | AppearanceSettings | ✅ 真重构完成 | — | 1ff4cfe / 待补 | ✅ BUILD SUCCESSFUL in 15s 856ms | ⚠️ 跳过 | 🔶 待运行 | — | 新增 Models 35L；VM 81→55L；Param/ThemeModeItem 移入 model；标签映射共用 |
+| M4 | My | ✅ 真重构完成 | — | 1ff4cfe / 待补 | ✅ BUILD SUCCESSFUL in 15s 856ms | ⚠️ 跳过 | 🔶 待运行 | — | MyPage 150→135L；VM 116→102L；导航收敛 openDetail；AppearanceSection 72→59L |
 | M5 | Notification | ✅ 纯重构完成（行为修复待单独提交） | — | 5ca87a1 | ✅ BUILD SUCCESSFUL in 15s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 服务 670→490L + Reader 83L；VM 399→318L；M1/M2/M4/M7/M8 保留 |
 | M6 | Dailynote | ✅ 真重构完成 | — | 7002525 | ✅ BUILD SUCCESSFUL in 15s 175ms | ⚠️ 跳过 | 🔶 待运行 | — | 页面 131/123/123→60/57/57；新增 Scaffold + 3 个 utils；M3/M4 保留 |
 | M7 | MaterialCalc | ✅ 完成 | — | 36099a9 / 045437f / 41a09bb / a78d749 | ✅ BUILD SUCCESSFUL in 14s 73ms | ⚠️ 跳过 | 🔶 待运行 | — | 材料汇总 186→55L；目标配置 342/346/410→261/265/266L；角色选择 493→360L + Card 156L；MaterialCalc 页 111→109L、VM 493→465L；Service 560→163L + 5 文件 |
@@ -402,7 +402,7 @@ entry/src/main/ets/
 
 - **M8、外观页 High**：需要新增失败提示字符串（`resources/**/string.json`），超出 §1 作用域，待用户批准。
 - **M7 部分失败**：是否新增 `PARTIAL` 结果需产品决策。
-- **M2 / M3 / M4 / M5**：按上表记录；M4 随 M7。
+- **M2 / M3 / M4 / M5**：按上表记录；M3 / M4 已于 2026-11-05 完成真重构。
 
 ### 验收
 
@@ -521,8 +521,77 @@ entry/src/main/ets/
 
 ---
 
+## M3 spec — AppearanceSettings 模块（2026-11-05 真重构）
+
+分析依据：[`docs/appearance-settings-page-module-analysis.md`](../docs/appearance-settings-page-module-analysis.md)「重构执行备注」。
+
+### 背景说明
+
+模块 5 个文件：`AppearanceSettingsPage` 163L / `AppearanceSettingsViewModel` 55L / `ThemeModeRow` 86L / `AppearanceSettingsModels` 35L / `AppearanceManager` 114L。无 Local Test；页面路径与 `AppearanceSettingsPageBuilder` 名被 `custom_router_map.json` 冻结。
+
+### 文件改动清单
+
+| 操作 | 文件 | 说明 |
+| --- | --- | --- |
+| 新增 | `model/AppearanceSettingsModels.ets`（35L） | `AppearanceSettingsParam` / `ThemeModeItem` / `getThemeModeLabel()` |
+| 修改 | `pages/AppearanceSettingsPage.ets`（168 → 163L） | 路由参数类移出；改从 model 导入；删除 `ConfigurationConstant` 死导入 |
+| 修改 | `viewmodel/AppearanceSettingsViewModel.ets`（81 → 55L） | 删除无调用方的 `getThemeModeLabel()`；`ThemeModeItem` 移入 model；标签统一走共享函数 |
+| 修改 | `views/ThemeModeRow.ets` | `ThemeModeItem` 改从 model 导入 |
+| 修改 | `Index.ets` | `AppearanceSettingsParam` 改从 model 导出，新增 `getThemeModeLabel` 导出 |
+| 修改 | M4 `views/AppearanceSection.ets` | 删除重复的私有标签映射，改用 settings 导出函数 |
+
+### 验收记录
+
+| 项 | 结果 |
+|---|---|
+| 编译（uat/Debug） | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 15s 856ms`，安装/启动成功 |
+| codeLinter | ⚠️ 项目未配置 codeLinter task，跳过 |
+| Local Test | 🔶 无测试 |
+| 测试契约 | ✅ 无测试引用；路由 / Builder 名未变 |
+| 冒烟 | 🔶 待手动：我的 → 外观设置 → 三种模式切换 → 返回；重启后保持 |
+
+### 结论
+
+**M3 真重构完成**：路由参数与 `ThemeModeItem` 移入模型层，解除 My 页对 page 文件的类型依赖；删除 VM 死方法，标签映射由 settings 统一导出、M4 复用。High（`applyColorMode` 失败仍 pop）与重复点击已在 `1ff4cfe` 修复。
+
+---
+
+## M4 spec — My 模块（2026-11-05 真重构）
+
+分析依据：[`docs/my-module-analysis.md`](../docs/my-module-analysis.md)「重构执行备注」。
+
+### 背景说明
+
+模块文件：`MyPage` 135L / `MyViewModel` 102L / 6 个视图组件 / `MyModels` 89L。`MyViewModel.test.ets` 断言初始 `viewState` / `accounts`，VM 路径与导出符号冻结；`MyAccountVM` 同时是 `ACCOUNT_DETAIL` 路由参数，`MyModels` 不得移动。
+
+### 文件改动清单
+
+| 操作 | 文件 | 说明 |
+| --- | --- | --- |
+| 修改 | `pages/MyPage.ets`（150 → 135L） | 5 处 `isSplit ? replacePath : pushPathByName` 收敛为 `openDetail(name, param)` |
+| 修改 | `viewmodel/MyViewModel.ets`（116 → 102L） | 三条 `from 'core'` 导入合并；头部注释改为「只读 DB，不做网络补充」 |
+| 修改 | `views/AppearanceSection.ets`（72 → 59L） | 删除重复的 `getThemeModeLabel()`，改用 settings 导出函数 |
+| 修改 | `views/SettingRow.ets` | 删除 Preview 中重复的 `.backgroundColor(...)` |
+| 修改 | `pages/MyPage.ets` import | `AppearanceSettingsParam` 仍从 `'settings'` 导入（M3 已移入 model），跨页类型依赖解除 |
+
+### 验收记录
+
+| 项 | 结果 |
+|---|---|
+| 编译（uat/Debug） | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 15s 856ms`，安装/启动成功 |
+| codeLinter | ⚠️ 项目未配置 codeLinter task，跳过 |
+| Local Test | 🔶 `MyViewModel.test.ets` 2 条用例——需 DevEco GUI 手动运行 |
+| 测试契约 | ✅ VM 路径与导出符号不变 |
+| 冒烟 | 🔶 待手动：我的页各 Section、账号列表、外观 / 通知入口；窄屏 push 与宽屏 replacePath；AboutSection 滚动刷新 |
+
+### 结论
+
+**M4 真重构完成**：My 页导航分支收敛，VM 导入与注释修正，外观标签映射与 M3 共用，删除 Preview 死样式行。Medium（`AboutSection` 的 `@Param` 默认实例）与 4 条 Low 保留，属行为变更。
+
+---
+
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-04）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3/M4 部分提交（`1ff4cfe`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M8 真重构完成（`e831292`）；M7 MaterialList / TargetConfig / CharacterSelect 子区域完成，MaterialCalc 页待续。*
+*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）。*
 
 ---
 

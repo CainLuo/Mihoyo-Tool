@@ -12,18 +12,21 @@
 
 | 文件 | 行数 | 角色 | 装饰器模型 |
 | --- | --- | --- | --- |
-| `pages/MyPage.ets` | 150 | 页面入口 | `@ComponentV2` |
-| `viewmodel/MyViewModel.ets` | 116 | 数据 + 业务逻辑（账号加载、日志大小/导出、清理缓存） | `@ObservedV2` + `@Trace` |
-| `components/my/AccountListSection.ets` | 88 | 账号列表容器 | `@ComponentV2` |
-| `components/my/AccountListItem.ets` | 60 | 单个账号行 | `@ComponentV2` |
-| `components/my/AppearanceSection.ets` | 72 | 外观设置入口 | `@ComponentV2` |
-| `components/my/AboutSection.ets` | 72 | 关于 Section | `@ComponentV2` |
-| `components/my/SectionHeader.ets` | 37 | 分区标题 | `@ComponentV2` |
-| `models/MyModels.ets` | 89 | `MyAccountVM` / `MyGameRoleVM` / `GameStatItem` 数据类（普通类，无 `@ObservedV2`） | — |
+| `pages/MyPage.ets` | 135 | 页面入口 | `@ComponentV2` |
+| `viewmodel/MyViewModel.ets` | 102 | 数据 + 业务逻辑（账号加载、日志大小/导出、清理缓存） | `@ObservedV2` + `@Trace` |
+| `views/AccountListSection.ets` | 87 | 账号列表容器 | `@ComponentV2` |
+| `views/AccountListItem.ets` | 59 | 单个账号行 | `@ComponentV2` |
+| `views/AppearanceSection.ets` | 59 | 外观设置入口 | `@ComponentV2` |
+| `views/AboutSection.ets` | 75 | 关于 Section | `@ComponentV2` |
+| `views/SectionHeader.ets` | 36 | 分区标题 | `@ComponentV2` |
+| `views/SettingRow.ets` | 69 | 设置行（My / About / Appearance 共用） | `@ComponentV2` |
+| `model/MyModels.ets` | 89 | `MyAccountVM` / `MyGameRoleVM` / `GameStatItem` 数据类（普通类，无 `@ObservedV2`） | — |
 
-> 同目录的 `NotificationSection.ets`（113 行）虽然放在 `components/my/`，但只被 `pages/NotificationSettingsPage.ets` 使用，归属 **M5**，不在 M4 范围。
+> 行数为 M4 重构后现状（MyPage 150 → 135、VM 116 → 102）；`components/my/` 已随模块化迁移为 `views/`。
+
+> `NotificationSection.ets` 已随 M5 迁移到 notification 模块，不在 M4 范围。
 >
-> `models/MyModels.ets` 不是 My 专属：`MyAccountVM` 还是 `AccountDetail` 的路由参数（`MyPage.ets:65/67`），并被 `LoginViewModel`、`components/accountdetail/` 三个组件导入，归 M4 维护但不得移动。另有 `components/SettingRow.ets`（共享层）被 My / AppearanceSection / AboutSection 使用。
+> `model/MyModels.ets` 不是 My 专属：`MyAccountVM` 还是 `AccountDetail` 的路由参数，并被 `LoginViewModel`、`components/accountdetail/` 三个组件导入，归 M4 维护但不得移动。`views/SettingRow.ets` 被 My / AppearanceSection / AboutSection 使用。
 
 ### 结构树 / 调用链
 
@@ -257,12 +260,15 @@ grep -rEn "MyViewModelKeys" --include='*.ets' features/account/src/main/ets/
 | 组件 | `components/my/` 的 5 个 M4 组件（AccountListSection / AccountListItem / AppearanceSection / AboutSection / SectionHeader）；同目录 `NotificationSection` 归 M5 |
 | 模型 | `models/MyModels.ets` 的 `MyAccountVM` 是 `ACCOUNT_DETAIL` 路由参数（`MyPage.ets:65/67`），并被 Login / AccountDetail 共用，字段与路径不变；`MyPage.ets:101/103` 把 `vm.accounts` 整体作为 `WIDGET_SETTINGS` 路由参数传出 |
 
-### 重构范围（建议）
+### 重构范围（已执行）
 
 - 目录/命名已符合规范：**没有安全的文件移动**。`MyPage.ets` 不能改名（Main 直接 import）；`MyViewModel.ets` 不能移动（测试冻结）。
-- 可选的等价重构：把 `onAccountTap` / `onAddTap` 中重复的 `isSplit` 判断收敛为私有导航方法（行为不变）。
-- `AppearanceSettingsParam` 拆到 `models/` 属于跨模块改动：会同时改 M3 的页面和 M4 的 `MyPage.ets`，默认不在 M4 做；若要做，先在本节登记并单独提交，保留原 page 的导出以免其它引用断裂。
-- 移除 `AboutSection` 的 `@Param vm = new MyViewModel()` 是行为修复（涉及 Preview/默认实例），必须与目录调整分开提交。
+- `MyPage` 5 处重复的 `isSplit ? replacePath : pushPathByName` 收敛为私有 `openDetail(name, param)`（行为不变），150 → 135 行。
+- `MyViewModel` 三条 `from 'core'` 导入合并为一条；头部注释改为与实现一致（只读 DB，不做网络补充），116 → 102 行。
+- `AppearanceSettingsParam` 已随 M3 移入 `settings/model/AppearanceSettingsModels.ets`，`MyPage` 仍从 `'settings'` 导入，import 路径不变；跨页类型依赖已解除。
+- `AppearanceSection` 删除私有 `getThemeModeLabel()`，改用 settings 导出的同一函数（72 → 59 行）。
+- `SettingRow` 删除 Preview 中重复的 `.backgroundColor(...)`（后一行覆盖前一行，无渲染差异）。
+- 不修 `AboutSection` 的 `@Param vm = new MyViewModel()`（属行为修复，单独提交）。
 
 ### 验收
 
@@ -273,7 +279,7 @@ grep -rEn "MyViewModelKeys" --include='*.ets' features/account/src/main/ets/
 ### 已知问题归属
 
 - Medium（`AboutSection` 的 `@Param` 默认实例）：建议随 M4 修，单独提交；仅做目录调整则记录到 Refactor_Spec §11。
-- Medium（`MyPage.ets` 依赖 page 类型）：记录；是否抽取由 M3/M4 协调决定。
+- Medium（`MyPage.ets` 依赖 page 类型）：已随 M3/M4 解决——`AppearanceSettingsParam` 移入 `settings/model/AppearanceSettingsModels.ets`。
 - Low（`onVisibleAreaChange` 重复刷新、`exportLogs` 无反馈、`clearCache` 错误路径与硬编码色、账号列表 key）：均为行为变更，记录；要修则各自单独提交，不与目录调整混合。
 
 【已核对代码一致性】
@@ -285,4 +291,5 @@ grep -rEn "MyViewModelKeys" --include='*.ets' features/account/src/main/ets/
 | 第 3 轮（全面复核） | @Monitor L34、getAbilityContext 双空检、NotificationSection 唯一消费者、MainPage.ets:17 | ✅ |
 | 第 4 轮（2026-10-26 复核） | 补 §合规检查（12 条 checklist）；核实 core `Logger` 已封装 hilog（`Logger.ets:2`）→ 撤回 ARKTS-012 Low | ✅ Low 2→1，债务 6→5 |
 | 第 5 轮（2026-10-27 逐条事实复核） | 重读 My / VM / 5 组件 / MyModels / 测试全文；核对每个锚点与规则编号 | ✅ 模块构成补 `models/MyModels.ets` 与行数列，补齐 README §6 要求的「结构树 / 调用链」章节；纠正规则编号误用（`@Param` 默认实例 ≠ STATE-008；`PERF-007` 不适用）；LIFE-004 锚点 `83-108 → 63-123`；ARKTS-014 不含 `@kit.ArkUI`；TEST-001 实际不覆盖账号加载；`MyViewModelKeys` 无 `@Monitor` 使用方；"懒刷新"不成立；`AppearanceSettingsParam` 示例与现有定义对齐；`navigateTo` 建议去掉 `unknown`。新增 3 条 Low（`exportLogs` 无反馈、`clearCache` 错误路径 / 硬编码色、账号列表 key）。计数 0H/2M/1L → 0H/2M/4L，债务 5 → 8，评级仍为 A |
-| 第 6 轮（M4 命名核查，2026-10-30） | 逐文件命名核查：类名/PascalCase ✅ / 方法名/camelCase ✅ / 变量名/camelCase ✅ / 常量/UPPER_SNAKE_CASE ✅；编译验证 `bash run.sh uat` → BUILD SUCCESSFUL in 16s 358ms | 🔶 命名零违规；M4 真重构（SettingRow 迁入、组件去重、行为等价验证）待执行 |
+| 第 6 轮（M4 命名核查，2026-10-30） | 逐文件命名核查：类名/PascalCase ✅ / 方法名/camelCase ✅ / 变量名/camelCase ✅ / 常量/UPPER_SNAKE_CASE ✅；编译验证 `bash run.sh uat` → BUILD SUCCESSFUL in 16s 358ms | 🔶 命名零违规；M4 真重构待执行 |
+| 第 7 轮（2026-11-05 M4 真重构后） | MyPage 135L / VM 102L / AppearanceSection 59L；`openDetail` 收敛 5 处导航；VM 导入合并；`AppearanceSettingsParam` 已移入 settings model；`bash run.sh uat` → BUILD SUCCESSFUL in 15s 856ms | ✅ 编译通过；Local Test 需 DevEco GUI |

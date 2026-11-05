@@ -6,6 +6,7 @@
  */
 import { ConfigurationConstant } from '@kit.AbilityKit'
 import { themeManager, ThemeManager } from 'basic'
+import { getThemeModeLabel } from 'settings'
 import { SettingRow } from './SettingRow'
 
 @ComponentV2
@@ -14,25 +15,11 @@ export struct AppearanceSection {
   @Param onTap: () => void = () => {}
   @Local private tm: ThemeManager = themeManager
 
-  /**
-   * 返回主题模式对应的本地化标签
-   * 映射逻辑与 AppearanceSettingsViewModel.themeModeLabel 一致
-   */
-  private getThemeModeLabel(mode: number): Resource {
-    if (mode === ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT) {
-      return $r('app.string.my_theme_light')
-    }
-    if (mode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK) {
-      return $r('app.string.my_theme_dark')
-    }
-    return $r('app.string.my_theme_system')
-  }
-
   build() {
     Column() {
       SettingRow({
         label: $r('app.string.my_theme_label'),
-        value: this.getThemeModeLabel(this.themeMode),
+        value: getThemeModeLabel(this.themeMode),
         onTap: this.onTap
       })
     }

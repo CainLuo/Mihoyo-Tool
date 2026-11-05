@@ -2,7 +2,7 @@
  * AppearanceSettingsViewModel.ets
  *
  * 外观设置页 ViewModel，持有当前主题模式状态，提供三种主题选项列表供 View 渲染。
- * ThemeModeItem 定义在同文件，供 AppearanceSettingsPage 使用。
+ * `ThemeModeItem` 与标签映射在 `model/AppearanceSettingsModels.ets`，供页面 / 组件 / My 页共用。
  *
  * 注意：
  *   - ThemeModeItem 必须是 class（ArkTS 严格模式禁止 interface 或对象字面量）
@@ -11,19 +11,7 @@
  */
 
 import { ConfigurationConstant } from '@kit.AbilityKit';
-
-/**
- * 主题模式选项数据模型
- * 对应外观设置页列表中的每一行
- */
-export class ThemeModeItem {
-  /** 对应 ConfigurationConstant.ColorMode 枚举值 */
-  mode: number = 0;
-  /** 本地化标签，如 $r('app.string.my_theme_light') */
-  label: Resource = $r('app.string.my_theme_system');
-  /** 本地化描述，如 $r('app.string.appearance_theme_system_desc') */
-  desc: Resource = $r('app.string.appearance_theme_system_desc');
-}
+import { getThemeModeLabel, ThemeModeItem } from '../model/AppearanceSettingsModels';
 
 @ObservedV2
 export class AppearanceSettingsViewModel {
@@ -39,20 +27,6 @@ export class AppearanceSettingsViewModel {
   }
 
   /**
-   * 返回 ThemeMode 对应的本地化标签
-   * @param mode ConfigurationConstant.ColorMode 枚举值
-   */
-  getThemeModeLabel(mode: number): Resource {
-    if (mode === ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT) {
-      return $r('app.string.my_theme_light');
-    }
-    if (mode === ConfigurationConstant.ColorMode.COLOR_MODE_DARK) {
-      return $r('app.string.my_theme_dark');
-    }
-    return $r('app.string.my_theme_system');
-  }
-
-  /**
    * 返回三种主题模式的选项列表，顺序固定：浅色 → 深色 → 跟随系统
    */
   getThemeItems(): ThemeModeItem[] {
@@ -60,19 +34,19 @@ export class AppearanceSettingsViewModel {
 
     const light = new ThemeModeItem();
     light.mode = ConfigurationConstant.ColorMode.COLOR_MODE_LIGHT;
-    light.label = $r('app.string.my_theme_light');
+    light.label = getThemeModeLabel(light.mode);
     light.desc = $r('app.string.appearance_theme_light_desc');
     items[items.length] = light;
 
     const dark = new ThemeModeItem();
     dark.mode = ConfigurationConstant.ColorMode.COLOR_MODE_DARK;
-    dark.label = $r('app.string.my_theme_dark');
+    dark.label = getThemeModeLabel(dark.mode);
     dark.desc = $r('app.string.appearance_theme_dark_desc');
     items[items.length] = dark;
 
     const system = new ThemeModeItem();
     system.mode = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET;
-    system.label = $r('app.string.my_theme_system');
+    system.label = getThemeModeLabel(system.mode);
     system.desc = $r('app.string.appearance_theme_system_desc');
     items[items.length] = system;
 

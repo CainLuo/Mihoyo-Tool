@@ -1,7 +1,7 @@
 # AppearanceSettingsPage 模块独立分析文档
 
-> 生成时间：2026-10-24 | 作用 scope：`features/settings/src/main/ets/pages/AppearanceSettingsPage.ets`（145 行）+ `AppearanceSettingsViewModel` + appearancesettings 子组件组
-> 代码版本：`105c8d3`（本文档分析基线，2026-10-24 复核）
+> 生成时间：2026-10-24 | 作用 scope：`features/settings/src/main/ets/pages/AppearanceSettingsPage.ets` + `AppearanceSettingsViewModel` + `ThemeModeRow` + `model/AppearanceSettingsModels.ets`
+> 代码版本：`105c8d3`（本文档分析基线，2026-10-24 复核；M3 重构后行数见 §1）
 
 ---
 
@@ -24,12 +24,15 @@
 
 | 文件 | 类型 | 行数 | 职责 |
 |------|------|------|------|
-| `AppearanceSettingsPage.ets` | Page / @ComponentV2 | 145 | 外观设置二级页——主题模式选择（浅色/深色/跟随系统），选中后立即生效并返回 |
-| `AppearanceSettingsViewModel.ets` | ViewModel（`@ObservedV2` + `@Trace`） | 81 | `themeItems` / `themeMode` 状态与初始化 |
-| `components/appearancesettings/ThemeModeRow.ets` | Component（子组件） | 87 | 单个主题选项行（标签 + 描述 + 圆形选中指示；分隔 Divider 由页面 `:82-86` 绘制） |
-| `utils/AppearanceManager.ets` | 共享工具 | 101 | `applyColorMode()` 封装（AbilityContext 桥接） |
+| `features/settings/src/main/ets/pages/AppearanceSettingsPage.ets` | Page / @ComponentV2 | 163 | 外观设置二级页——主题模式选择（浅色/深色/跟随系统），选中后立即生效并返回 |
+| `features/settings/src/main/ets/viewmodel/AppearanceSettingsViewModel.ets` | ViewModel（`@ObservedV2` + `@Trace`） | 55 | `themeMode` 状态、初始化与 `themeItems` 构建 |
+| `features/settings/src/main/ets/views/ThemeModeRow.ets` | Component（子组件） | 86 | 单个主题选项行（标签 + 描述 + 圆形选中指示；分隔 Divider 由页面绘制） |
+| `features/settings/src/main/ets/model/AppearanceSettingsModels.ets` | 模型 | 35 | `AppearanceSettingsParam` / `ThemeModeItem` / `getThemeModeLabel()` |
+| `features/settings/src/main/ets/model/service/AppearanceManager.ets` | 服务 | 114 | `applyColorMode()` / `getCachedColorMode()` / `getSavedColorMode()` / `restoreOnLaunch()` |
 
-**直接导入依赖**：AbilityKit.ConfigurationConstant、ThemeFonts、ThemeManager、AppearanceManager、AppearanceSettingsViewModel、ThemeModeRow、Logger。
+> 行数为 M3 重构后现状；§2–§6 保留重构前基线，便于对照。
+
+**直接导入依赖**：AbilityKit `common`、ThemeFonts、ThemeManager、showFeedback / FeedbackType、AppearanceManager、AppearanceSettingsViewModel、ThemeModeRow、Logger。
 
 ## 2. 架构分析（结构树）
 
@@ -54,8 +57,8 @@ AppearanceSettingsPage (@ComponentV2)
 │           ├── ForEach(this.vm.themeItems()) → ThemeModeRow({ item, isSelected, onSelect })
 │           │   └── Divider 分隔符 (idx < 2)
 │           └── Hint Text ($r('app.string.appearance_settings_hint'))
-├── AppearanceSettingsBuilder (路由 Builder) — 不转发 `_param`；无影响，页面在 onReady 里直接读 `ctx.pathInfo.param`
-└── Preview (@Preview) — AppearanceSettingsPagePreview
+├── AppearanceSettingsPageBuilder (路由 Builder) — 不转发 `_param`；无影响，页面在 onReady 里直接读 `ctx.pathInfo.param`
+└── AppearanceSettingsPagePreview (@Preview)
 ```
 
 **架构模式**：回调传播模式——通过 NavDestinationContext.pathInfo.param 获取外部传入的回调函数，选择主题后通知调用方（一级页）同步更新。
@@ -95,7 +98,7 @@ AppearanceSettingsPage (@ComponentV2)
 - [ ] **低优先级**（原 Medium，降级）：`selectTheme()` 无重复点击保护——`applyColorMode()` 是 fire-and-forget，随后同步执行 `localStack?.pop()`（`:47-67`）；快速连点会重复执行回调与 `pop()`。原文"可能把上一页（My）也弹掉"不成立：My 是 `Main` 的 Tab 根页面，不在 `detailStack` 里（`MyPage.ets:87-89` 把本页 push / replace 到 `detailStack`），通常栈里只有本页，第二次 `pop()` 为空操作。建议加 `if (this.popped) { return }` 标记（可与 High 合并为一个提交）
 - [ ] **低优先级**：`selectTheme` 里的 `vm.init(mode)`（`:60`）紧接着就 `pop()`，选中态更新在离开前不可见，属冗余调用；可收敛到 ViewModel 的 `select(mode)` 一并处理
 
-*本文档仅分析，不修改代码。*
+*§6 为重构前基线；重构执行记录见下文。*
 
 【已核对代码一致性】
 
@@ -105,6 +108,7 @@ AppearanceSettingsPage (@ComponentV2)
 | 第 2 轮（关键代码段） | onReady L38-45、selectTheme L47-67（applyColorMode→pop 异步）、ForEach L74-88 + Divider idx<2 | ✅ |
 | 第 3 轮（全面复核） | custom_router_map L59-61、Builder L128 不传 param、无 Local Test、VM init/themeItems | ✅ 无不一致 |
 | 第 4 轮（2026-10-27 逐条事实） | `AppearanceManager.ets:61-83` 不会 reject；`MyPage.ets:83-90` 唯一入口且始终传参；My 不在 `detailStack` | ✅ High 改写根因与修法；重复点击 Medium → Low；`vm.init` Low 改写；计数 1/2/1 → 1/1/2，评级 B 不变 |
+| 第 5 轮（2026-11-05 M3 真重构后） | 页面 163L / VM 55L / ThemeModeRow 86L / Models 35L / AppearanceManager 114L；`AppearanceSettingsParam` 与 `ThemeModeItem` 已移入 `model/AppearanceSettingsModels.ets`；`getThemeModeLabel()` 由 settings 导出、M4 `AppearanceSection` 复用；`bash run.sh uat` → BUILD SUCCESSFUL in 15s 856ms | ✅ 编译通过，路由 / Builder 名未变 |
 
 ---
 
@@ -116,17 +120,20 @@ AppearanceSettingsPage (@ComponentV2)
 
 | 项 | 内容 |
 | --- | --- |
-| 路由 | `custom_router_map.json` 第 59-61 行：`AppearanceSettings` → `pages/AppearanceSettingsPage.ets` + `AppearanceSettingsBuilder`。**页面文件路径与 Builder 名冻结** |
+| 路由 | `custom_router_map.json` 第 59-61 行：`AppearanceSettings` → `pages/AppearanceSettingsPage.ets` + `AppearanceSettingsPageBuilder`。**页面文件路径与 Builder 名冻结** |
 | N-1 例外 | 本页是 N-1 明确**不能改名**的两个页面之一（另一个是 `WebViewPage.ets`）；除非用户批准修改 `custom_router_map.json`（Refactor_Spec §8 Q-5） |
 | 测试 | `AppearanceSettingsViewModel` **没有** Local Test；验收只能走编译 + 冒烟 |
-| 共享层（冻结） | `theme/ThemeManager.ets`（fan-in 211）、`theme/ThemeFonts.ets`（83）、`utils/AppearanceManager.ets` 均不移动；`ThemeModeRow` 仅本页使用，保持在 `components/appearancesettings/` |
-| 路由参数 | `AppearanceSettingsParam`（`themeMode` + `onThemeChange`）由 `NavDestinationContext.pathInfo.param` 传入，字段名不改 |
+| 共享层（冻结） | `theme/ThemeManager.ets`（fan-in 211）、`theme/ThemeFonts.ets`（83）不移动；`AppearanceManager` 属 settings 模块 `model/service/`，原位不动；`ThemeModeRow` 仅本页使用，保持在 `views/` |
+| 路由参数 | `AppearanceSettingsParam`（`themeMode` + `onThemeChange`）定义在 `model/AppearanceSettingsModels.ets`，由 `NavDestinationContext.pathInfo.param` 传入，字段名不改 |
 
-### 重构范围（建议）
+### 重构范围（已执行）
 
-- 目录/命名已符合规范：**M3 没有安全的文件移动**。只允许在 `.ets` 内做等价重构（例如把 `selectTheme` 的步骤收敛到 ViewModel），不得改路由参数协议。
-- 不拆 `AppearanceSettingsViewModel`（81 行）；不把 `ThemeModeRow` 提到 `components/common/`（没有第二个使用者）。
-- 若做 `applyColorMode` 失败兜底，属于行为修复，必须与目录调整分开提交。
+- 目录/命名已符合规范：**M3 没有安全的文件移动**；页面路径与 `AppearanceSettingsPageBuilder` 名保持不变。
+- 新增 `model/AppearanceSettingsModels.ets`，把 `AppearanceSettingsParam` 从页面文件移到模型层，并收纳 `ThemeModeItem` 与 `getThemeModeLabel()`；`settings/Index.ets` 改从模型层导出，`MyPage` 的 import 路径（`from 'settings'`）不变。
+- `AppearanceSettingsViewModel` 删除无调用方的 `getThemeModeLabel()`（映射改由模型层函数提供），81 → 55 行；`getThemeItems()` 的标签统一走 `getThemeModeLabel()`。
+- `AppearanceSection`（M4）删除重复的私有 `getThemeModeLabel()`，改用 `settings` 导出的同一函数，消除两处映射逻辑。
+- 不拆 `AppearanceSettingsViewModel`；不把 `ThemeModeRow` 提到共享层（没有第二个使用者）。
+- `applyColorMode` 失败兜底已在 `1ff4cfe` 修复（返回 boolean + 页面提示并留在本页），本轮不再改动。
 
 ### 验收
 
@@ -136,8 +143,7 @@ AppearanceSettingsPage (@ComponentV2)
 
 ### 已知问题归属
 
-- High（`applyColorMode` 失败后仍 `pop`）：建议随 M3 修，但单独提交；若本轮只做文档/目录，记录到 Refactor_Spec §11。
+- High（`applyColorMode` 失败后仍 `pop`）：已于 `1ff4cfe` 修复（`AppearanceManager.applyColorMode` 返回 boolean，页面失败时提示并留在本页）。
 - Medium（param 为空时静默失败）：记录，暂不修。
-- High 的修复点在 `utils/AppearanceManager.ets`（M0 共享层；`applyColorMode` 只有本页调用，但同文件的 `getCachedColorMode` / `getSavedColorMode` / `restoreOnLaunch` 被 `MyPage.ets:24 / 50` 与 `EntryAbility.ets:18` 使用），需在 Refactor_Spec §11 的 M0/M3 之间登记归属。
-- Low（`selectTheme` 无重复点击保护，原 Medium）：建议与 High 合并为一个提交（同一函数、同一次行为修复）。
-- Low（`vm.init(mode)` 冗余调用）：可随上述修复一并收敛到 ViewModel。
+- Low（`selectTheme` 无重复点击保护）：已于 `1ff4cfe` 加 `isApplying` 守卫。
+- Low（`vm.init(mode)` 冗余调用）：保留——`pop()` 失败（`localStack` 为空）时仍需更新选中态，删除会改变边界行为。

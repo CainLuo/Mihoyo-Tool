@@ -51,6 +51,15 @@ export struct MyPage {
     })
   }
 
+  /** 窄屏 push / 宽屏 replacePath 统一入口 */
+  private openDetail(name: string, param: Object | null): void {
+    if (this.isSplit) {
+      this.detailStack.replacePath({ name: name, param: param })
+    } else {
+      this.detailStack.pushPathByName(name, param)
+    }
+  }
+
   build() {
     Scroll() {
       Column({ space: this.tm.current.font20 }) {
@@ -58,18 +67,10 @@ export struct MyPage {
         AccountListSection({
           accounts: this.vm.accounts,
           onAccountTap: (account: MyAccountVM) => {
-            if (this.isSplit) {
-              this.detailStack.replacePath({ name: AppRoutes.ACCOUNT_DETAIL, param: account })
-            } else {
-              this.detailStack.pushPathByName(AppRoutes.ACCOUNT_DETAIL, account)
-            }
+            this.openDetail(AppRoutes.ACCOUNT_DETAIL, account)
           },
           onAddTap: () => {
-            if (this.isSplit) {
-              this.detailStack.replacePath({ name: AppRoutes.LOGIN, param: null })
-            } else {
-              this.detailStack.pushPathByName(AppRoutes.LOGIN, null)
-            }
+            this.openDetail(AppRoutes.LOGIN, null)
           }
         })
 
@@ -80,11 +81,7 @@ export struct MyPage {
             const param = new AppearanceSettingsParam()
             param.themeMode = this.themeMode
             param.onThemeChange = (mode: number) => { this.themeMode = mode }
-            if (this.isSplit) {
-              this.detailStack.replacePath({ name: AppRoutes.APPEARANCE_SETTINGS, param: param })
-            } else {
-              this.detailStack.pushPathByName(AppRoutes.APPEARANCE_SETTINGS, param)
-            }
+            this.openDetail(AppRoutes.APPEARANCE_SETTINGS, param)
           }
         })
 
@@ -93,12 +90,7 @@ export struct MyPage {
           SettingRow({
             label: $r('app.string.my_section_widget'),
             onTap: () => {
-              const accounts = this.vm.accounts;
-              if (this.isSplit) {
-                this.detailStack.replacePath({ name: AppRoutes.WIDGET_SETTINGS, param: accounts })
-              } else {
-                this.detailStack.pushPathByName(AppRoutes.WIDGET_SETTINGS, accounts)
-              }
+              this.openDetail(AppRoutes.WIDGET_SETTINGS, this.vm.accounts)
             }
           })
         }
@@ -112,11 +104,7 @@ export struct MyPage {
           SettingRow({
             label: $r('app.string.my_section_notification'),
             onTap: () => {
-              if (this.isSplit) {
-                this.detailStack.replacePath({ name: AppRoutes.NOTIFICATION_SETTINGS, param: null })
-              } else {
-                this.detailStack.pushPathByName(AppRoutes.NOTIFICATION_SETTINGS, null)
-              }
+              this.openDetail(AppRoutes.NOTIFICATION_SETTINGS, null)
             }
           })
         }

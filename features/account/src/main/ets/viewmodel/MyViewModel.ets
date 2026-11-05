@@ -1,12 +1,10 @@
 /**
  * MyViewModel.ets — 我的页面 ViewModel
  *
- * 从 Repository 读取账号和角色数据，通过 AuthRepository 补充网络数据（nickname、avatarUrl、statsJson）。
+ * 从 Repository 读取账号和角色数据（只读 DB，不做网络补充）。
  * 同时管理 About Section 的日志导出和缓存清理逻辑。
  */
-import { CoreInitializer, RoleStatItem } from 'core';
-import { Logger } from 'core';
-import { ApiLogSystem, LogFileManager, LogExporter } from 'core';
+import { ApiLogSystem, CoreInitializer, LogExporter, Logger, LogFileManager, RoleStatItem } from 'core';
 import { bundleManager, common } from '@kit.AbilityKit';
 import { MyAccountVM, MyGameRoleVM, GameStatItem } from '../model/MyModels';
 import { getServerDisplayName, getGameName, getGameColor, getGameLogo, ViewState, showFeedback, FeedbackType } from 'basic';

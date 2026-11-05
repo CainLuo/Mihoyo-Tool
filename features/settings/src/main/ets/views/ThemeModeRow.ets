@@ -4,7 +4,7 @@
  * 用于外观设置页面，显示单个主题模式选项。
  */
 import { ThemeFonts, themeManager, ThemeManager } from 'basic'
-import { ThemeModeItem } from '../viewmodel/AppearanceSettingsViewModel'
+import { ThemeModeItem } from '../model/AppearanceSettingsModels'
 
 @ComponentV2
 export struct ThemeModeRow {
