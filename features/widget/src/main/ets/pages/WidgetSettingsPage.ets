@@ -16,14 +16,12 @@
  * - vm.slotHelper: 封装 Slot 辅助方法（ViewModel 负责初始化）
  */
 import { common } from '@kit.AbilityKit';
-import { themeManager, ThemeManager } from 'basic';
 import { WidgetSettingsViewModel } from '../viewmodel/WidgetSettingsViewModel';
 import { WidgetSettingsLoading } from '../views/WidgetSettingsLoading';
 import { WidgetSettingsMainContent } from '../views/WidgetSettingsMainContent';
 
 @ComponentV2
 export struct WidgetSettingsPage {
-  @Local private tm: ThemeManager = themeManager;
   @Local private vm: WidgetSettingsViewModel = new WidgetSettingsViewModel();
   @Local private isLoading: boolean = true;
   private localStack: NavPathStack | null = null;

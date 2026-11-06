@@ -25,10 +25,13 @@
 
 | 文件 | 类型 | 行数 | 职责 |
 |------|------|------|------|
-| `WidgetSettingsPage.ets` | Page / @ComponentV2 | 65 | Widget 配置步骤流程：2×2 / 2×4 / 4×4 为 尺寸 → Slot → 完成；1×2 多一步「游戏」（`WidgetSettingsViewModel.ets:204-218`） |
-| `viewmodel/WidgetSettingsViewModel.ets` | ViewModel | 676 | `uiState` + `callbacks` + `slotHelper` 三层封装 |
-| `models/WidgetSettingsModels.ets` | Model | 96 | `WidgetSettingsUIState`（`@ObservedV2`）/ `WidgetSettingsCallbacks` / `WidgetSettingsSlotHelper`，回调默认值均为空函数（`:63-78`） |
-| `components/widgetsettings/` | 组件 | 24 文件 / 2,684 | 13 根级（MainContent / SizeStep / GameStep / SlotStep / StepIndicator / BottomButtons / ConfigDone / ConfigPreview / Loading / SizeOption / SizeThumbs / GameTypeOption / SlotOption）+ `preview/` 11 |
+| `pages/WidgetSettingsPage.ets` | Page / @ComponentV2 | 63 | Widget 配置步骤流程：2×2 / 2×4 / 4×4 为 尺寸 → Slot → 完成；1×2 多一步「游戏」 |
+| `viewmodel/WidgetSettingsViewModel.ets` | ViewModel | 447 | `uiState` + `callbacks` + `slotHelper` 三层封装 + 步骤导航 / Slot 选择 |
+| `model/WidgetSettingsModels.ets` | Model | 96 | `WidgetSettingsUIState`（`@ObservedV2`）/ `WidgetSettingsCallbacks` / `WidgetSettingsSlotHelper`，回调默认值均为空函数 |
+| `model/WidgetSettingsSizeConfig.ets` | Model | 56 | 尺寸 → `formName` / `FormDimension` / preset key 映射（M13 新增） |
+| `model/WidgetSettingsAccountGroups.ets` | Model | 61 | `WidgetDataStore` → `MihoyoAccountVM[]` 账号分组（M13 新增） |
+| `model/service/WidgetSettingsConfigSaver.ets` | Service | 96 | 预配置 / pending config 持久化 + 构建并拉起 `openFormManager`（M13 新增） |
+| `views/` | 组件 | 23 文件 / 2,576 | 13 根级（MainContent / SizeStep / GameStep / SlotStep / StepIndicator / BottomButtons / ConfigDone / ConfigPreview / Loading / SizeOption / SizeThumbs / GameTypeOption / SlotOption）+ `preview/` 10 |
 
 **直接导入依赖**：`common`, `ThemeManager`, `WidgetConfigViewModel`, `WidgetSettingsLoading`, `WidgetSettingsMainContent`
 
@@ -85,11 +88,11 @@ WidgetSettings (@ComponentV2)
 
 ## 6. 风险清单
 
-- [x] **中优先级 M1**：`vm.init()` 的 catch 只 `Logger.error` + `this.dataStore = new WidgetDataStore()`（`WidgetSettingsViewModel.ets:107-110`），不 rethrow；页面 `await` 后必执行 `isLoading = false`（`WidgetSettingsPage.ets:31-34`），**不会永久 Loading**。真实缺陷：异常发生在 `:88-97`（Preferences 初始化 / 读取 / RDB 构建 / 保存）时 `initCallbacks()` / `initSlotHelper()` / `syncUIState()` 全部被跳过，`vm.callbacks` 保持 `WidgetSettingsModels.ets:63-78` 的空函数默认值——页面照常渲染尺寸步骤，但**所有按钮点击无响应**，且无错误态/重试。触发条件是 Preferences / RDB 读取失败，概率低。建议 `init()` 返回成功标志或设置 `uiState.error`，页面据此展示错误；回调初始化移到 `try` 之外
-- [x] **中优先级 M2**：「完成」失败无任何反馈。`complete()` 只在 `openFormManager` 外包了 catch 且只写日志（`WidgetSettingsViewModel.ets:501-513`）：设备/模拟器不支持时用户点「完成」后页面不动、无提示；`savePendingConfig()` 的失败同样被内部 catch 吞掉（`:577-580`），之后仍照常 `openFormManager`，`onAddForm` 读不到本次配置，只能靠先行保存的 `savePresetSlots` 预配置兜底（`:486`；它失败时也只写日志，`:669-674`），两者都失败才退回默认 slots，用户同样无感知。建议 `complete()` 返回结果，页面失败时 toast
-- [ ] **低优先级 L1**：`@Local private tm: ThemeManager`（`WidgetSettingsPage.ets:26`）在 `build()` 中从未被引用，属于无用的响应式状态；另 `async aboutToAppear()`（`:31`）的 Promise 不会被框架 await，当前写法依赖 `isLoading` 兜底，行为正确，仅作记录
+- [x] **中优先级 M1**：`vm.init()` 的 catch 只 `Logger.error` + `this.dataStore = new WidgetDataStore()`（`WidgetSettingsViewModel.ets:109-112`），不 rethrow；页面 `await` 后必执行 `isLoading = false`（`WidgetSettingsPage.ets:30-33`），**不会永久 Loading**。真实缺陷：异常发生在 `:86-95`（Preferences 初始化 / 读取 / RDB 构建 / 保存）时 `initCallbacks()` / `initSlotHelper()` / `syncUIState()` 全部被跳过，`vm.callbacks` 保持 `WidgetSettingsModels.ets:63-78` 的空函数默认值——页面照常渲染尺寸步骤，但**所有按钮点击无响应**，且无错误态/重试。触发条件是 Preferences / RDB 读取失败，概率低。建议 `init()` 返回成功标志或设置 `uiState.error`，页面据此展示错误；回调初始化移到 `try` 之外
+- [x] **中优先级 M2**：「完成」失败无任何反馈。`complete()` 只在 `openFormManager` 外包了 catch 且只写日志（`WidgetSettingsConfigSaver.ets:87-96`）：设备/模拟器不支持时用户点「完成」后页面不动、无提示；`savePendingConfig()` 的失败同样被内部 catch 吞掉（`:64-67`），之后仍照常 `openFormManager`，`onAddForm` 读不到本次配置，只能靠先行保存的 `savePresetSlots` 预配置兜底（`:23-34`），两者都失败才退回默认 slots，用户同样无感知。建议 `complete()` 返回结果，页面失败时 toast
+- [x] **低优先级 L1**：未使用的 `@Local private tm: ThemeManager` 已在 M13 删除；`async aboutToAppear()`（`WidgetSettingsPage.ets:30`）的 Promise 不会被框架 await，当前写法依赖 `isLoading` 兜底，行为正确，仅作记录
 
-*本文档仅分析，不修改代码。*
+*M13 已完成纯重构，详见 §7。*
 
 
 
@@ -106,26 +109,30 @@ WidgetSettings (@ComponentV2)
 | 路由 | `custom_router_map.json:64-66`：`WidgetSettings` → `pages/WidgetSettingsPage.ets` + `WidgetSettingsBuilder`，**页面路径与 Builder 名冻结** |
 | 路由常量 | `AppRoutes.WIDGET_SETTINGS = 'WidgetSettings'` 字符串冻结 |
 | 测试 | `WidgetConfigViewModel` **没有** Local Test；现有 widget 测试只覆盖 `Widget2x2ViewModel` / `WidgetDataHelper` / `WidgetPayloadParser` / `WidgetExtraRow*` |
-| 组件 | `components/widgetsettings/` 24 个文件（13 根级 + `preview/` 11）。**并非仅本流程使用**：`components/home/UserGameSection.ets:13` 导入 `WidgetSlotOption`，而 `WidgetSettingsSlotStep.ets:12` 又导入 `home/UserGameSection`——home ↔ widgetconfig 双向耦合，移动/改名任一侧须同步 M8 |
+| 组件 | `views/` 23 个文件（13 根级 + `preview/` 10）。**并非仅本流程使用**：`features/home/.../UserGameSection.ets:13` 导入 `WidgetSlotOption`，而 `WidgetSettingsSlotStep.ets:12` 又导入 `home/UserGameSection`——home ↔ widgetconfig 双向耦合，移动/改名任一侧须同步 M8 |
 | 表单契约 | `form_config.json` 的 6 个 form 指向 `widget/pages/*`，与本设置页无直接路径耦合；M13 不移动这些页面 |
 
-### 重构范围（建议）
+### 重构范围（已执行）
 
-- 页面/目录已符合规范：**M13 没有必须的移动**。
-- `WidgetConfigViewModel` 676 行（>500），但无测试且状态/回调/slotHelper 三层耦合紧；拆分必须保留原文件 facade，且不建议在本轮做。
-- `vm.init()` 失败后回调未初始化、按钮失效（无错误态/重试）是 Medium，建议在 M13 修（`init()` 返回结果 + 页面错误态），与任何目录调整分开提交。不要按“永久 Loading”描述——`isLoading` 必被置 false。
-- 「完成」失败无反馈（M2）同样是行为修复，单独提交。
-- `components/widgetsettings/preview/` 为开发预览组件，保留原位。
+- 页面/目录已符合规范：**M13 没有必须的移动**；`views/preview/` 开发预览组件保留原位。
+- `WidgetSettingsViewModel` 676 → 447 行：拆出 `model/WidgetSettingsSizeConfig.ets`（尺寸映射）、`model/WidgetSettingsAccountGroups.ets`（账号分组）、`model/service/WidgetSettingsConfigSaver.ets`（持久化 + 拉起表单），VM 保留 facade 与状态编排。
+- `goNext` / `goPrev` 的重复步骤数组收敛为 `getStepFlow()`。
+- `complete()` 删除重复的旧 JSDoc，改为调用 `savePresetSlots` / `savePendingConfig` / `buildFormManagerWant` / `openFormManager`。
+- `getSelectedGameIds()` 手写去重改 `indexOf`。
+- 删除页面未使用的 `@Local tm` 与 `basic` 主题导入。
+- `init()` 失败后按钮失效（M1）、「完成」失败无反馈（M2）属行为修复，保留待单独提交。
 
 ### 验收
 
-1. 编译通过；`codeLinter` 不新增违规。
-2. 无 Local Test：冒烟——我的 → 小组件设置 → 尺寸 → Slot → 完成，返回首页/桌面添加卡片；`formProvider` 不可用时观察 Loading/错误路径。
+1. `bash run.sh uat` → `BUILD SUCCESSFUL in 15s 331ms`，安装/启动成功。
+2. `codeLinter` 未配置 task，跳过。
+3. 无 Local Test：冒烟——我的 → 小组件设置 → 尺寸 → Slot → 完成，返回首页/桌面添加卡片；`formProvider` 不可用时观察 Loading/错误路径。
 
 ### 已知问题归属
 
-- Medium ×2（`init()` 失败后按钮全部失效且无错误态；「完成」失败无反馈）：建议随 M13 修，各自单独提交。
-- Low（未使用的 `@Local tm`）：可顺手删除。
+- Medium ×2（`init()` 失败后按钮全部失效且无错误态；「完成」失败无反馈）：保留，各自单独提交。
+- Low（未使用的 `@Local tm`）：✅ 已删除。
+- 跨进程 Preferences key（`widget_configs`）与 want 参数保持不变。
 
 ### 复核记录（2026-10-26 第 4 轮）
 

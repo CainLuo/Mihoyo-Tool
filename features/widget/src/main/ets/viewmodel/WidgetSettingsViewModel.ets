@@ -14,17 +14,21 @@
  * 2. 选择要显示的角色 slots（跨账号多选）
  * 3. 完成 → 调用 formProvider.openFormManager()
  */
-import { formProvider } from '@kit.FormKit';
-import { Want, bundleManager, common } from '@kit.AbilityKit';
-import { BusinessError } from '@kit.BasicServicesKit';
-import { preferences } from '@kit.ArkData';
+import { common } from '@kit.AbilityKit';
 import { Logger, GameId } from 'core';
 import { WidgetSize, WidgetConfig, getMaxSlots } from '../model/WidgetConfigModels';
 import { WidgetSlotRef, WidgetDataStore } from '../model/WidgetDataStoreModels';
 import { WidgetDataStoreManager } from '../model/service/WidgetDataStoreManager';
 import { WidgetDataStoreBuilder } from '../model/service/WidgetDataStoreBuilder';
 import { WidgetSettingsUIState, WidgetSettingsCallbacks, WidgetSettingsSlotHelper, MihoyoAccountVM } from '../model/WidgetSettingsModels';
-import { GameRoleCardVM, getGameLogoByStr } from 'basic';
+import { buildAccountGroups } from '../model/WidgetSettingsAccountGroups';
+import { getFormName, getDimension, getPresetKey } from '../model/WidgetSettingsSizeConfig';
+import {
+  savePresetSlots,
+  savePendingConfig,
+  buildFormManagerWant,
+  openFormManager
+} from '../model/service/WidgetSettingsConfigSaver';
 
 const TAG = 'WIDGET';
 
@@ -196,40 +200,29 @@ export class WidgetSettingsViewModel {
     return this.currentStep !== WidgetSettingsStep.SIZE;
   }
 
+  /** 当前尺寸对应的步骤流程 */
+  private getStepFlow(): WidgetSettingsStep[] {
+    if (this.selectedSize === WidgetSize.SIZE_1X2) {
+      return [WidgetSettingsStep.SIZE, WidgetSettingsStep.GAME, WidgetSettingsStep.SLOT, WidgetSettingsStep.DONE];
+    }
+    return [WidgetSettingsStep.SIZE, WidgetSettingsStep.SLOT, WidgetSettingsStep.DONE];
+  }
+
   /** 前进到下一步 */
   goNext(): void {
-    // 根据尺寸决定步骤流程
-    if (this.selectedSize === WidgetSize.SIZE_1X2) {
-      // 1x2 卡片：SIZE → GAME → SLOT → DONE
-      const steps1x2 = [WidgetSettingsStep.SIZE, WidgetSettingsStep.GAME, WidgetSettingsStep.SLOT, WidgetSettingsStep.DONE];
-      const curIdx = steps1x2.indexOf(this.currentStep);
-      if (curIdx < steps1x2.length - 1 && this.canGoNext()) {
-        this.currentStep = steps1x2[curIdx + 1];
-      }
-    } else {
-      // 其他尺寸：SIZE → SLOT → DONE
-      const stepsOther = [WidgetSettingsStep.SIZE, WidgetSettingsStep.SLOT, WidgetSettingsStep.DONE];
-      const curIdx = stepsOther.indexOf(this.currentStep);
-      if (curIdx < stepsOther.length - 1 && this.canGoNext()) {
-        this.currentStep = stepsOther[curIdx + 1];
-      }
+    const steps = this.getStepFlow();
+    const curIdx = steps.indexOf(this.currentStep);
+    if (curIdx < steps.length - 1 && this.canGoNext()) {
+      this.currentStep = steps[curIdx + 1];
     }
   }
 
   /** 返回上一步 */
   goPrev(): void {
-    if (this.selectedSize === WidgetSize.SIZE_1X2) {
-      const steps1x2 = [WidgetSettingsStep.SIZE, WidgetSettingsStep.GAME, WidgetSettingsStep.SLOT, WidgetSettingsStep.DONE];
-      const curIdx = steps1x2.indexOf(this.currentStep);
-      if (curIdx > 0) {
-        this.currentStep = steps1x2[curIdx - 1];
-      }
-    } else {
-      const stepsOther = [WidgetSettingsStep.SIZE, WidgetSettingsStep.SLOT, WidgetSettingsStep.DONE];
-      const curIdx = stepsOther.indexOf(this.currentStep);
-      if (curIdx > 0) {
-        this.currentStep = stepsOther[curIdx - 1];
-      }
+    const steps = this.getStepFlow();
+    const curIdx = steps.indexOf(this.currentStep);
+    if (curIdx > 0) {
+      this.currentStep = steps[curIdx - 1];
     }
   }
 
@@ -315,69 +308,7 @@ export class WidgetSettingsViewModel {
     if (this.selectedSize === WidgetSize.SIZE_1X2) {
       return [];
     }
-
-    const groups: MihoyoAccountVM[] = [];
-    const accountIds = Object.keys(this.dataStore.data);
-
-    // 游戏排序顺序
-    const gameOrder: Record<string, number> = {
-      'genshin': 0,
-      'starrail': 1,
-      'zzz': 2,
-      'honkai3': 3,
-    };
-
-    for (let i = 0; i < accountIds.length; i++) {
-      const accountId = accountIds[i];
-      const account = this.dataStore.data[accountId];
-      const roleIds = Object.keys(account.slots);
-
-      // 收集该账号下所有 slot
-      const roles: GameRoleCardVM[] = [];
-      for (let j = 0; j < roleIds.length; j++) {
-        const roleId = roleIds[j];
-        const slot = account.slots[roleId];
-        
-        // 构建 GameRoleCardVM（只填充 Widget 配置需要的字段）
-        const role = new GameRoleCardVM(
-          slot.gameId as GameId,
-          '',
-          $r('app.color.color_primary'),
-          roleId,
-          slot.nickname,
-          slot.serverName,
-          null,  // snapshot 不需要
-          '',    // lastSyncDesc 不需要
-          getGameLogoByStr(slot.gameId)
-        );
-        roles.push(role);
-      }
-
-      // 按 gameId 排序
-      for (let a = 0; a < roles.length; a++) {
-        for (let b = a + 1; b < roles.length; b++) {
-          const orderA = gameOrder[roles[a].gameId] ?? 99;
-          const orderB = gameOrder[roles[b].gameId] ?? 99;
-          if (orderA > orderB) {
-            const temp = roles[a];
-            roles[a] = roles[b];
-            roles[b] = temp;
-          }
-        }
-      }
-
-      // 构建 MihoyoAccountVM
-      const vm = new MihoyoAccountVM(
-        accountId,
-        accountId,
-        roles,
-        account.accountName,
-        account.avatarUrl
-      );
-      groups.push(vm);
-    }
-
-    return groups;
+    return buildAccountGroups(this.dataStore);
   }
 
   /** 判断 slot 是否已选中 */
@@ -433,26 +364,9 @@ export class WidgetSettingsViewModel {
 
   /**
    * 完成配置，调用 formProvider.openFormManager()
-   * 
-   * 注意：formProvider.openFormManager() 的 want.parameters 中只能传递标准参数，
-   * 自定义参数（如 widgetConfig）无法传递到 onAddForm()。
-   * 因此需要在调用 openFormManager 之前将配置保存到 Preferences，
-   * 在 onAddForm() 时读取并应用。
-   */
-  /**
-   * 完成配置，调用 formProvider.openFormManager()
-   * 
-   * 重要发现（来自官方文档验证）：
-   * - openFormManager 的 want.parameters 只支持三个标准参数：
-   *   - ohos.extra.param.key.form_dimension
-   *   - ohos.extra.param.key.form_name
-   *   - ohos.extra.param.key.module_name
-   * - 自定义参数无法传递到 onAddForm()
-   * 
-   * 解决方案：
-   * - 使用 formName 作为配置存储的 key（不使用 pending_config_ 前缀）
-   * - 在 onAddForm() 中直接根据 formName 读取配置
-   * - 必须在调用 openFormManager 之前保存配置
+   *
+   * openFormManager 的 want.parameters 只支持三个标准参数，自定义参数无法传递到 onAddForm()。
+   * 因此必须在调用前把配置保存到 Preferences，并在 onAddForm() 时按 formName 读取。
    */
   async complete(): Promise<void> {
     if (this.selectedSlots.length === 0) {
@@ -460,55 +374,37 @@ export class WidgetSettingsViewModel {
       return;
     }
 
-    const formName = this.getFormName();
-    const dimension = this.getDimension();
+    const formName = getFormName(this.selectedSize, this.selectedGameType);
+    const dimension = getDimension(this.selectedSize);
 
     // 构建配置
     const config = new WidgetConfig();
     config.size = this.selectedSize;
     config.slots = this.selectedSlots;
 
-    // 关键：直接使用 formName 作为配置 key（不带前缀）
-    // 这样 onAddForm() 可以根据 want.parameters 中的 formName 直接读取
+    // 直接使用 formName 作为配置 key（不带前缀），onAddForm 据此读取
     const configKey = formName;
     const configJson = config.toJson();
 
-    // 🔧 修复：同时保存预配置到 WidgetDataStore.widgets
-    // 这样 EntryFormAbility 可以从 dataStore.getPresetSlots() 读取
-    const presetKey = this.getPresetKey();
+    // 同时保存预配置到 WidgetDataStore.widgets，供 EntryFormAbility 兜底读取
+    const presetKey = getPresetKey(this.selectedSize);
     const slotKeys: string[] = [];
     for (let i = 0; i < this.selectedSlots.length; i++) {
       slotKeys.push(this.selectedSlots[i].key);
     }
     Logger.info(TAG, `complete: saving preset ${presetKey} with slots=${slotKeys.join(',')}`);
-    await this.savePresetSlots(presetKey, slotKeys);
+    await savePresetSlots(this.dataStore, presetKey, slotKeys);
 
-    const want: Want = {
-      // HAR 的 BuildProfile 没有 BUNDLE_NAME，改为运行时读取本应用包名
-      bundleName: bundleManager.getBundleInfoForSelfSync(bundleManager.BundleFlag.GET_BUNDLE_INFO_DEFAULT).name,
-      abilityName: 'EntryFormAbility',
-      parameters: {
-        'ohos.extra.param.key.form_dimension': dimension,
-        'ohos.extra.param.key.form_name': formName,
-        'ohos.extra.param.key.module_name': 'entry',
-        // 注意：自定义参数无法传递，已验证
-      },
-    };
+    const want = buildFormManagerWant(formName, dimension);
 
     Logger.info(TAG, `complete: formName=${formName} configKey=${configKey} slots=${this.selectedSlots.length} selectedGames=${this.getSelectedGameIds().join(',')}`);
 
-    try {
-      // 关键：必须等待配置保存完成后再调用 openFormManager
-      await this.savePendingConfig(configKey, configJson);
-      Logger.info(TAG, `complete: config saved, key=${configKey} jsonLen=${configJson.length}`);
-      
-      formProvider.openFormManager(want);
-      if (this.onConfigComplete !== null) {
-        this.onConfigComplete();
-      }
-    } catch (e) {
-      const err = e as BusinessError;
-      Logger.error(TAG, `openFormManager failed: code=${err.code} msg=${err.message}`);
+    // 必须等待配置保存完成后再调用 openFormManager
+    await savePendingConfig(this.context, configKey, configJson);
+    Logger.info(TAG, `complete: config saved, key=${configKey} jsonLen=${configJson.length}`);
+
+    if (openFormManager(want) && this.onConfigComplete !== null) {
+      this.onConfigComplete();
     }
   }
 
@@ -518,105 +414,17 @@ export class WidgetSettingsViewModel {
   private getSelectedGameIds(): string[] {
     const gameIds: string[] = [];
     for (let i = 0; i < this.selectedSlots.length; i++) {
-      const slot = this.selectedSlots[i];
-      let found = false;
-      for (let j = 0; j < gameIds.length; j++) {
-        if (gameIds[j] === slot.gameId) {
-          found = true;
-          break;
-        }
-      }
-      if (!found) {
-        gameIds.push(slot.gameId);
+      const gameId = this.selectedSlots[i].gameId;
+      if (gameIds.indexOf(gameId) < 0) {
+        gameIds.push(gameId);
       }
     }
     return gameIds;
   }
 
   /**
-   * 保存 pending config 到 Preferences
-   * 
-   * 注意：此方法在主应用进程执行，onAddForm() 在 FormExtension 进程执行。
-   * 两个进程通过 Preferences 文件共享数据，必须确保 flush() 完成后再调用 openFormManager()。
+   * 获取选中 slots 的摘要信息
    */
-  private async savePendingConfig(key: string, configJson: string): Promise<void> {
-    if (this.context === null) {
-      Logger.error(TAG, 'savePendingConfig: context is null');
-      return;
-    }
-    try {
-      Logger.info(TAG, `savePendingConfig: start saving key=${key} jsonLen=${configJson.length}`);
-      
-      // 关键：先清除缓存，确保获取最新的 Preferences 实例
-      // 这样可以避免多进程间的缓存不一致问题
-      preferences.removePreferencesFromCacheSync(this.context, { name: 'widget_configs' });
-      Logger.info(TAG, `savePendingConfig: cache cleared`);
-      
-      // 获取 Preferences 实例
-      const prefs = await preferences.getPreferences(this.context, 'widget_configs');
-      Logger.info(TAG, `savePendingConfig: prefs instance obtained`);
-      
-      // 写入配置
-      await prefs.put(key, configJson);
-      Logger.info(TAG, `savePendingConfig: put done`);
-      
-      // 刷新到磁盘（使用同步 API 确保数据立即写入）
-      prefs.flushSync();
-      Logger.info(TAG, `savePendingConfig: flushSync done`);
-      
-      // 验证写入：立即读取确认（使用同步 API）
-      const verifyJson = prefs.getSync(key, '') as string;
-      Logger.info(TAG, `savePendingConfig: verify read jsonLen=${verifyJson.length}`);
-      
-      if (verifyJson.length === 0) {
-        Logger.error(TAG, `savePendingConfig: VERIFY FAILED - json is empty after flush!`);
-      } else {
-        Logger.info(TAG, `savePendingConfig: ✅ VERIFY SUCCESS`);
-      }
-    } catch (e) {
-      const err = e as BusinessError;
-      Logger.error(TAG, `savePendingConfig failed: code=${err.code} msg=${err.message}`);
-    }
-  }
-
-  // ── 辅助方法 ─────────────────────────────────────────────────────
-
-  /** 根据选中的尺寸返回对应的 formName */
-  private getFormName(): string {
-    // 1×2 有三个独立模板，根据选中的游戏类型决定
-    if (this.selectedSize === WidgetSize.SIZE_1X2) {
-      if (this.selectedGameType === GameId.STARRAIL) {
-        return 'widget_1x2_starrail';
-      } else if (this.selectedGameType === GameId.ZZZ) {
-        return 'widget_1x2_zzz';
-      }
-      return 'widget_1x2_genshin';
-    }
-    // 其他尺寸使用通用模板名
-    if (this.selectedSize === WidgetSize.SIZE_2X4) {
-      return 'widget_2x4';
-    }
-    if (this.selectedSize === WidgetSize.SIZE_4X4) {
-      return 'widget_4x4';
-    }
-    return 'widget_2x2';
-  }
-
-  /** 根据尺寸返回对应的 FormDimension 数值 */
-  private getDimension(): number {
-    if (this.selectedSize === WidgetSize.SIZE_1X2) {
-      return 1; // Dimension_1_2
-    }
-    if (this.selectedSize === WidgetSize.SIZE_2X4) {
-      return 3; // Dimension_2_4
-    }
-    if (this.selectedSize === WidgetSize.SIZE_4X4) {
-      return 4; // Dimension_4_4
-    }
-    return 2; // Dimension_2_2
-  }
-
-  /** 获取选中 slots 的摘要信息 */
   getSelectedSummary(): string {
     if (this.selectedSlots.length === 0) {
       return '';
@@ -635,41 +443,5 @@ export class WidgetSettingsViewModel {
     if (gameId === GameId.STARRAIL || gameId === 'starrail') return '星穹铁道';
     if (gameId === GameId.ZZZ || gameId === 'zzz') return '绝区零';
     return '未知';
-  }
-
-  /**
-   * 根据选中的尺寸返回对应的 preset key（用于 WidgetDataStore.widgets）
-   * 区别于 getFormName()：preset key 是 widget12/widget22 等，不带游戏后缀
-   */
-  private getPresetKey(): string {
-    if (this.selectedSize === WidgetSize.SIZE_1X2) {
-      return 'widget12';
-    }
-    if (this.selectedSize === WidgetSize.SIZE_2X4) {
-      return 'widget24';
-    }
-    if (this.selectedSize === WidgetSize.SIZE_4X4) {
-      return 'widget44';
-    }
-    return 'widget22';
-  }
-
-  /**
-   * 保存预配置到 WidgetDataStore.widgets
-   * 这样 EntryFormAbility 可以从 dataStore.getPresetSlots() 读取
-   */
-  private async savePresetSlots(presetKey: string, slotKeys: string[]): Promise<void> {
-    Logger.info(TAG, `savePresetSlots: presetKey=${presetKey} slots=${slotKeys.join(',')}`);
-    
-    // 更新内存中的 dataStore
-    this.dataStore.setPresetSlots(presetKey, slotKeys);
-    
-    // 持久化到 Preferences
-    const saved = await WidgetDataStoreManager.save(this.dataStore);
-    if (saved) {
-      Logger.info(TAG, `savePresetSlots: SUCCESS - saved to WidgetDataStore.widgets[${presetKey}]`);
-    } else {
-      Logger.error(TAG, `savePresetSlots: FAILED - could not save to WidgetDataStore`);
-    }
   }
 }

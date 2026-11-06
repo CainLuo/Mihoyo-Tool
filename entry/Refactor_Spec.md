@@ -193,7 +193,7 @@ entry/src/main/ets/
 | M10 | CharDetail | Genshin/StarRail/ZZZ CharacterDetail ×3 | ×3 | chardetail/（common 9 + genshin 26 + starrail 11 + zzz 13 = 59） | 最大去重目标；`CharDetailModels` fan-in 41；仅 Genshin 有测试 |
 | M11 | AccountDetail | AccountDetail | AccountDetailViewModel | accountdetail/（7） | 有 Local Test |
 | M12 | Login | Login (+WebViewPage) | LoginViewModel | views/（19） | **已有根 spec `Refactor_Login_Spec.md`**：其中 build-profile/mock 分离不可执行，只取组件拆分；WebView 路由文件冻结 |
-| M13 | WidgetConfig | WidgetSettings | WidgetConfigViewModel | widgetsettings/（24 = 13 根级 + preview/11） | 无 Local Test |
+| M13 | WidgetConfig | WidgetSettings | WidgetSettingsViewModel | views/（23 = 13 根级 + preview/10） | 无 Local Test |
 | M14 | Widget 子系统 | widget/pages ×6 | widget/viewmodel ×4 | widget/components（10）+ models（4）+ utils（16） | V1 孤岛；与 widgetsyncability + notification 交互；form_config 路径冻结 |
 | M15 | 框架 | MainPage, Index, LaunchPage (+TestPage) | – | – | Navigation 路由 + `@Param` 回调编排；最后执行 |
 
@@ -343,7 +343,7 @@ entry/src/main/ets/
 | M10 | CharDetail | [genshin](../docs/genshin-character-detail-module-analysis.md) / [starrail](../docs/starrail-character-detail-module-analysis.md) / [zzz](../docs/zzz-character-detail-module-analysis.md) | SR / Genshin / ZZZ 各 1 High（`parseRawJson` 未设 ERROR）；SR `entityId === '1510'` 空循环已删除 | SR/Genshin/ZZZ 各 1 High 保留，行为修复待单独提交（三游统一状态兜底） |
 | M11 | AccountDetail | [account-detail](../docs/account-detail-module-analysis.md) | 0 Critical / 0 High；2 Medium（删除无二次确认、删除失败无反馈）+ 1 Low（`as common.UIAbilityContext` 强转） | 记录；删除相关行为修复单独提交 |
 | M12 | Login | [login](../docs/login-module-analysis.md) / [webview](../docs/webview-page-module-analysis.md) | 0 Critical / 0 High（二维码轮询取消标记已由 `b98abae` 修复，复核撤回；原 SEC-002「Cookie 日志明文」经逐层核查无凭据落盘路径，降为 Medium 加固）；4 Medium / 2 Low；WebView 0 High（2 Low） | 无阻断项；三种登录共用 `buildCookie()`、魔法数字收敛、错误提示组件化已执行；日志脱敏 / `@Event` 风格 / 协议后缀行为修复保留，WebView 仅记录 |
-| M13 | WidgetConfig | [widget-settings](../docs/widget-settings-module-analysis.md) | 0 High；1 Medium（`vm.init()` 失败后静默回退空配置，无错误态/重试；`isLoading` 必被置 false）+ 1 Low | 随模块修 |
+| M13 | WidgetConfig | [widget-settings](../docs/widget-settings-module-analysis.md) | 0 High；1 Medium（`vm.init()` 失败后静默回退空配置，无错误态/重试；`isLoading` 必被置 false）+ 1 Low | 随模块修；VM 676→447L 已拆出尺寸映射 / 账号分组 / 持久化；未用 `@Local tm` 已删 |
 | M14 | Widget 子系统 | [widget-subsystem](../docs/widget-subsystem-modules-analysis.md) / [widget-settings](../docs/widget-settings-module-analysis.md) / [component-dedup](../docs/component-deduplication-review.md) | 0 Critical / 3 High（瞬时更新失败即删用户卡片配置；无数据时展示 Mock 账号与体力；卡片从不显示数据新鲜度）；6 Medium / 3 Low；V1 孤岛（16 个 V1 文件：6 pages + 10 components） | H1/H2 随模块修（各自单提交），H3 需产品决策；装饰器不迁移；form_config 6 条 src 冻结 |
 | M15 | 框架 | [main](../docs/main-module-analysis.md) / [index](../docs/index-module-analysis.md) / [launch](../docs/launch-module-analysis.md) / [test-page](../docs/test-page-module-analysis.md) / [ability-startup](../docs/ability-and-startup-modules-analysis.md) | MainPage 2 High（人机验证弹窗关闭时无 callback 地 `off('windowSizeChange')`，注销窗口尺寸监听；返回手势关闭验证框后验证队列永久卡死——10-29 复核恢复）；10 Medium / 6 Low（含 Cookie 过期弹框叠加、窗口 API 未包 try、Tab 根页按返回可能显示空白——待真机确认）；Index / Launch 0 High；TestPage 0 High（入口仅 DEBUG 可见，Q-2）；Ability 0 High / 4 Medium（初始化失败不可见、4 个 AppStorage key 无常量、`loadContent` 无兜底、导出 ability 不校验调用方） | 记录；Main 行为修复后续单独立项；AppStorage 常量可随 M15 |
 
@@ -366,7 +366,7 @@ entry/src/main/ets/
 | M10 | CharDetail | ✅ 真重构完成（行为修复待单独提交） | — | 81d7e9d | ✅ BUILD SUCCESSFUL in 14s 775ms | ⚠️ 跳过 | 🔶 待运行 | — | 三页 150/137/137→129/116/116L；新增 CharDetailWindowSize 56L + CharDetailHeroScaffold 99L；三游戏 parseRawJson ERROR 兜底保留 |
 | M11 | AccountDetail | ✅ 真重构完成（行为修复待单独提交） | — | c15d53b | ✅ BUILD SUCCESSFUL in 34s 393ms | ⚠️ 跳过 | 🔶 待运行 | — | ActionsSection 4 按钮收敛为 Builder；页面结果 Toast 收敛；VM 删除 refreshCookieError 死字段；删除二次确认 / 失败反馈保留 |
 | M12 | Login | ✅ 真重构完成（行为修复待单独提交） | — | f9858e0 | ✅ BUILD SUCCESSFUL in 16s 267ms | ⚠️ 跳过 | 🔶 待运行 | — | 三种登录共用 `buildCookie()`；魔法数字收敛到 `LoginConstants`；新增 `LoginErrorText`；日志脱敏 / `@Event` 风格 / 协议后缀保留 |
-| M13 | WidgetConfig | 未开始 | — | — | — | — | — | — | — |
+| M13 | WidgetConfig | ✅ 真重构完成（行为修复待单独提交） | — | 待补 | ✅ BUILD SUCCESSFUL in 15s 331ms | ⚠️ 跳过 | 无 Local Test（冒烟待手动） | — | VM 676→447L；新增 SizeConfig 56L + AccountGroups 61L + ConfigSaver 96L；步骤流程去重；删除未用 `@Local tm`；M1/M2 行为修复保留 |
 | M14 | Widget 子系统 | 未开始 | — | — | — | — | — | — | — |
 | M15 | 框架 | 未开始 | — | — | — | — | — | — | — |
 
@@ -591,7 +591,7 @@ entry/src/main/ets/
 ---
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）；M9 真重构完成（`fafcabc`）；M10 真重构完成（`81d7e9d`）；M11 真重构完成（`c15d53b`）；M12 真重构完成（`f9858e0`）。*
+*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）；M9 真重构完成（`fafcabc`）；M10 真重构完成（`81d7e9d`）；M11 真重构完成（`c15d53b`）；M12 真重构完成（`f9858e0`）；M13 真重构完成（提交待补）。*
 
 ---
 
@@ -1114,3 +1114,65 @@ M12 覆盖登录页：`LoginPage` 127L + `LoginViewModel` 402L + `views/` 下 18
 ### 结论
 
 **M12 真重构完成**：`LoginViewModel` 三种登录共用 `buildCookie()`，魔法数字收敛到 `LoginConstants`，数组尾部赋值改 `push`；新增 `LoginErrorText` 统一手机号 / Cookie 错误提示。行为等价，`bash run.sh uat` 编译安装通过。日志脱敏、`@Event` 风格、协议语言后缀等行为 / 风格项保留，待单独提交。
+
+---
+
+## M13 spec — WidgetConfig 模块（2026-11-06 真重构）
+
+分析依据：[`docs/widget-settings-module-analysis.md`](../docs/widget-settings-module-analysis.md)。
+
+### 背景说明
+
+M13 覆盖小组件配置页：`WidgetSettingsPage` 65L + `WidgetSettingsViewModel` 676L + `views/` 23 个组件（13 根级 + preview 10）。页面本身只有加载态切换与初始化编排，结构债集中在 676L 的 ViewModel：三份平行的「尺寸 → formName / Dimension / preset key」if-else、`goNext` / `goPrev` 重复的步骤数组、账号分组构建（约 70L）、跨进程持久化与 `openFormManager` 拉起（约 130L）。
+
+### 决策
+
+| # | 问题 | 决定 | 依据 |
+| --- | --- | --- | --- |
+| D1 | 三份尺寸映射 | 抽到 `model/WidgetSettingsSizeConfig.ets`：`getFormName` / `getDimension` / `getPresetKey` | 纯函数、无状态，集中维护跨进程契约值 |
+| D2 | 账号分组构建 | 抽到 `model/WidgetSettingsAccountGroups.ets`：`buildAccountGroups(dataStore)` | 与 VM 状态无关，只依赖 dataStore；排序改用 `Array.sort` |
+| D3 | 持久化 + 拉起表单 | 抽到 `model/service/WidgetSettingsConfigSaver.ets` | Preferences 文件名 / want 参数是跨进程契约，集中一处 |
+| D4 | `goNext` / `goPrev` 重复 | 新增 `getStepFlow()`，两处复用 | 1x2 与其他尺寸的步骤数组只保留一份 |
+| D5 | `complete()` 重复 JSDoc | 删除过期副本，保留一份 | 文档债 |
+| D6 | `getSelectedGameIds` 手写去重 | 改 `indexOf` | 等价、可读 |
+| D7 | 页面未使用的 `@Local tm` | 删除（含 `basic` 主题导入） | 死响应式状态 |
+| D8 | `init()` 失败无错误态 / 「完成」失败无反馈 | 不随本提交 | 行为修复，需单独提交（M1 / M2） |
+
+### 文件改动清单
+
+| 操作 | 文件 | 说明 |
+| --- | --- | --- |
+| 修改 | `viewmodel/WidgetSettingsViewModel.ets`（676 → 447L） | 尺寸映射 / 账号分组 / 持久化改为调用新文件；`getStepFlow()` 去重；删除重复 JSDoc |
+| 新增 | `model/WidgetSettingsSizeConfig.ets`（56L） | `getFormName` / `getDimension` / `getPresetKey` |
+| 新增 | `model/WidgetSettingsAccountGroups.ets`（61L） | `buildAccountGroups(dataStore)` |
+| 新增 | `model/service/WidgetSettingsConfigSaver.ets`（96L） | `savePresetSlots` / `savePendingConfig` / `buildFormManagerWant` / `openFormManager` |
+| 修改 | `pages/WidgetSettingsPage.ets`（65 → 63L） | 删除未使用的 `@Local tm` 与 `basic` 主题导入 |
+
+### 契约与冻结项
+
+- `custom_router_map.json:64-66` 的 `WidgetSettings` 路由与 `WidgetSettingsBuilder` 名冻结。
+- `AppRoutes.WIDGET_SETTINGS = 'WidgetSettings'` 字符串冻结。
+- 跨进程契约不变：Preferences 文件 `widget_configs`、配置 key = `formName`、`widget12/22/24/44` preset key、want 三个标准参数。
+- `WidgetConfigViewModel` 无 Local Test；widget 现有测试只覆盖 `Widget2x2ViewModel` / `WidgetDataHelper` / `WidgetPayloadParser` / `WidgetExtraRow*`。
+- `views/` 23 个组件不移动、不改名；`home/UserGameSection` ↔ `WidgetSlotOption` 的双向引用保持不变（M8）。
+
+### 验收记录
+
+| 项 | 结果 |
+| --- | --- |
+| 编译（uat/Debug） | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 15s 331ms`，安装/启动成功 |
+| codeLinter | ⚠️ 项目未配置 codeLinter task，跳过 |
+| Local Test | — 本模块无 Local Test |
+| 冒烟 | 🔶 待手动：我的 → 小组件设置 → 尺寸 → Slot → 完成；桌面添加卡片；`formProvider` 不可用时观察 Loading / 错误路径 |
+
+### 已知问题记录（不执行）
+
+| ID | 级别 | 描述 | 状态 |
+| --- | --- | --- | --- |
+| M1 | Medium | `init()` 失败后回调未初始化、按钮全部失效且无错误态 | 保留，行为修复单独提交 |
+| M2 | Medium | 「完成」失败无任何反馈（`openFormManager` / 配置保存均只写日志） | 保留，行为修复单独提交 |
+| L1 | Low | 未使用的 `@Local tm` | ✅ 已删除 |
+
+### 结论
+
+**M13 真重构完成**：`WidgetSettingsViewModel` 676 → 447L，拆出尺寸映射（56L）、账号分组（61L）、持久化服务（96L）；`goNext` / `goPrev` 步骤流程去重；删除页面未使用的 `@Local tm`。跨进程 Preferences / want 契约保持不变，行为等价，`bash run.sh uat` 编译安装通过。`init()` 错误态与「完成」失败反馈保留为行为修复，待单独提交。
