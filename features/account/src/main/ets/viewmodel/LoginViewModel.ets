@@ -11,10 +11,17 @@ import {
   CoreInitializer,
   LoginResult,
   BBSRepository,
-  ApiConfig
+  ApiConfig,
+  Logger
 } from 'core';
-import { Logger } from 'core';
-import { LoginTab, PhoneStep, QRCodeStat } from '../constants/LoginConstants';
+import {
+  LoginTab,
+  PhoneStep,
+  QRCodeStat,
+  SMS_COOLDOWN_SECONDS,
+  QR_POLL_INTERVAL_MS,
+  COOLDOWN_TICK_MS
+} from '../constants/LoginConstants';
 import { MyAccountVM, MyGameRoleVM, GameStatItem } from '../model/MyModels';
 import { getServerDisplayName, CookieExpiredSignal, getGameName, getGameColor } from 'basic';
 
@@ -96,7 +103,7 @@ export class LoginViewModel {
     try {
       await AuthRepository.createLoginCaptcha(this.phoneNumber);
       this.phoneStep = PhoneStep.INPUT_CODE;
-      this.startCooldown(60);
+      this.startCooldown(SMS_COOLDOWN_SECONDS);
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `sendSmsCode failed: ${msg}`);
@@ -121,17 +128,9 @@ export class LoginViewModel {
 
       // ltoken 和 cookie_token 通过 stoken 换取（V1 接口）。
       // 原先 v2 stoken 会先调用 V2 接口 getCookieBySToken，国服返回 404 后才退回 V1，现已去掉 V2 调用。
-      const fields = new LoginCookieFields();
-      fields.accountId = aid;
-      fields.ltoken = await AuthRepository.getLTokenBySToken(stoken, mid);
-      fields.cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
-      fields.ltuid = aid;
-      fields.stoken = stoken;
-      fields.mid = mid;
-      // v2 Cookie 字段（设备指纹）
-      fields.deviceFp = ApiConfig.getDeviceFp();
-      fields.mhyUuid = ApiConfig.getDeviceIdSync();
-      const cookie = AuthRepository.buildCookieString(fields);
+      const ltoken = await AuthRepository.getLTokenBySToken(stoken, mid);
+      const cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
+      const cookie = this.buildCookie(aid, aid, stoken, mid, ltoken, cookieToken);
       await this.finalizeLogin(aid, cookie);
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -213,7 +212,7 @@ export class LoginViewModel {
           this.isPollInFlight = false;
         }
       }
-    }, 2000) as number;
+    }, QR_POLL_INTERVAL_MS) as number;
   }
 
   private stopQRCodePoll(): void {
@@ -271,17 +270,7 @@ export class LoginViewModel {
       // 原先会先调用 V2 接口 /account/auth/api/getCookieBySToken，国服返回 404 后才退回此接口，现已去掉 V2 调用。
       const cookieToken = await AuthRepository.getCookieBySToken(stoken, mid);
 
-      const fields = new LoginCookieFields();
-      fields.accountId = confirmed.uid;
-      fields.cookieToken = cookieToken;
-      fields.ltoken = ltoken;
-      fields.ltuid = confirmed.uid;
-      fields.stoken = stoken;
-      fields.mid = mid;
-      // v2 Cookie 字段（设备指纹）
-      fields.deviceFp = ApiConfig.getDeviceFp();
-      fields.mhyUuid = ApiConfig.getDeviceIdSync();
-      const cookie = AuthRepository.buildCookieString(fields);
+      const cookie = this.buildCookie(confirmed.uid, confirmed.uid, stoken, mid, ltoken, cookieToken);
       const isSuccess = await this.finalizeLogin(confirmed.uid, cookie);
       if (!isSuccess) {
         this.qrCodeStat = QRCodeStat.ERROR;
@@ -313,21 +302,14 @@ export class LoginViewModel {
         return;
       }
 
-      // 解析用户输入的 Cookie 字段
-      const fields = new LoginCookieFields();
-      fields.accountId = BBSRepository.extractCookieField(rawCookie, 'account_id');
-      fields.cookieToken = BBSRepository.extractCookieField(rawCookie, 'cookie_token');
-      fields.ltoken = BBSRepository.extractCookieField(rawCookie, 'ltoken');
-      fields.ltuid = BBSRepository.extractCookieField(rawCookie, 'ltuid');
-      fields.stoken = stoken;
-      fields.mid = BBSRepository.extractCookieField(rawCookie, 'mid');
-
-      // 补充 v2 Cookie 字段（设备指纹）
-      fields.deviceFp = ApiConfig.getDeviceFp();
-      fields.mhyUuid = ApiConfig.getDeviceIdSync();
-
-      // 重新构建 Cookie 字符串
-      const cookie = AuthRepository.buildCookieString(fields);
+      // 解析用户输入的 Cookie 字段并重新构建 Cookie 字符串（三种登录方式共用 buildCookie）
+      const cookie = this.buildCookie(
+        BBSRepository.extractCookieField(rawCookie, 'account_id'),
+        BBSRepository.extractCookieField(rawCookie, 'ltuid'),
+        stoken,
+        BBSRepository.extractCookieField(rawCookie, 'mid'),
+        BBSRepository.extractCookieField(rawCookie, 'ltoken'),
+        BBSRepository.extractCookieField(rawCookie, 'cookie_token'));
 
       const bbsDetail = await CoreInitializer.bbsRepository.getBbsAccountDetail(cookie);
       const username = bbsDetail.uid.length > 0 ? bbsDetail.uid : 'unknown';
@@ -360,13 +342,13 @@ export class LoginViewModel {
       const rawStats = RoleStatItem.parseAll(r.statsJson);
       const stats: GameStatItem[] = [];
       for (let j = 0; j < rawStats.length; j++) {
-        stats[stats.length] = new GameStatItem(rawStats[j].name, rawStats[j].value);
+        stats.push(new GameStatItem(rawStats[j].name, rawStats[j].value));
       }
-      roleVMs[roleVMs.length] = new MyGameRoleVM(
+      roleVMs.push(new MyGameRoleVM(
         r.gameId, getGameName(r.gameId), getGameColor(r.gameId),
         r.roleId, r.nickname, getServerDisplayName(r.server, r.gameId) ?? r.server,
         r.level, r.bgImageUrl, stats
-      );
+      ));
     }
     this.loginedAccountVM = new MyAccountVM(
       loginResult.accountId, loginResult.username, roleVMs,
@@ -381,6 +363,22 @@ export class LoginViewModel {
 
   // ─── 工具方法 ─────────────────────────────────────────────────
 
+  /** 填充 Cookie 字段并构造成 Cookie 字符串（手机号 / 二维码 / Cookie 三种登录共用） */
+  private buildCookie(accountId: string, ltuid: string, stoken: string, mid: string,
+                      ltoken: string, cookieToken: string): string {
+    const fields = new LoginCookieFields();
+    fields.accountId = accountId;
+    fields.ltoken = ltoken;
+    fields.cookieToken = cookieToken;
+    fields.ltuid = ltuid;
+    fields.stoken = stoken;
+    fields.mid = mid;
+    // v2 Cookie 字段（设备指纹）
+    fields.deviceFp = ApiConfig.getDeviceFp();
+    fields.mhyUuid = ApiConfig.getDeviceIdSync();
+    return AuthRepository.buildCookieString(fields);
+  }
+
   private startCooldown(seconds: number): void {
     this.stopCooldown();
     this.smsCooldown = seconds;
@@ -390,7 +388,7 @@ export class LoginViewModel {
         this.smsCooldown = 0;
         this.stopCooldown();
       }
-    }, 1000) as number;
+    }, COOLDOWN_TICK_MS) as number;
   }
 
   private stopCooldown(): void {

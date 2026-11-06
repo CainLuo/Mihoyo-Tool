@@ -192,7 +192,7 @@ entry/src/main/ets/
 | M9 | Characters | Characters | CharactersViewModel | characters/（11 个：根级 5 + 3 个游戏子目录共 6） | 三件套去重；有 Local Test |
 | M10 | CharDetail | Genshin/StarRail/ZZZ CharacterDetail ×3 | ×3 | chardetail/（common 9 + genshin 26 + starrail 11 + zzz 13 = 59） | 最大去重目标；`CharDetailModels` fan-in 41；仅 Genshin 有测试 |
 | M11 | AccountDetail | AccountDetail | AccountDetailViewModel | accountdetail/（7） | 有 Local Test |
-| M12 | Login | Login (+WebViewPage) | LoginViewModel | login/（18） | **已有根 spec `Refactor_Login_Spec.md`**：其中 build-profile/mock 分离不可执行，只取组件拆分；WebView 路由文件冻结 |
+| M12 | Login | Login (+WebViewPage) | LoginViewModel | views/（19） | **已有根 spec `Refactor_Login_Spec.md`**：其中 build-profile/mock 分离不可执行，只取组件拆分；WebView 路由文件冻结 |
 | M13 | WidgetConfig | WidgetSettings | WidgetConfigViewModel | widgetsettings/（24 = 13 根级 + preview/11） | 无 Local Test |
 | M14 | Widget 子系统 | widget/pages ×6 | widget/viewmodel ×4 | widget/components（10）+ models（4）+ utils（16） | V1 孤岛；与 widgetsyncability + notification 交互；form_config 路径冻结 |
 | M15 | 框架 | MainPage, Index, LaunchPage (+TestPage) | – | – | Navigation 路由 + `@Param` 回调编排；最后执行 |
@@ -342,7 +342,7 @@ entry/src/main/ets/
 | M9 | Characters | [characters](../docs/characters-module-analysis.md) | 0 High（原 H-1 已降为 M-1）；3 Medium + 4 Low | 纯重构已完成；`@Monitor` 收敛 / 冷却 Dialog / 代次保护保留 |
 | M10 | CharDetail | [genshin](../docs/genshin-character-detail-module-analysis.md) / [starrail](../docs/starrail-character-detail-module-analysis.md) / [zzz](../docs/zzz-character-detail-module-analysis.md) | SR / Genshin / ZZZ 各 1 High（`parseRawJson` 未设 ERROR）；SR `entityId === '1510'` 空循环已删除 | SR/Genshin/ZZZ 各 1 High 保留，行为修复待单独提交（三游统一状态兜底） |
 | M11 | AccountDetail | [account-detail](../docs/account-detail-module-analysis.md) | 0 Critical / 0 High；2 Medium（删除无二次确认、删除失败无反馈）+ 1 Low（`as common.UIAbilityContext` 强转） | 记录；删除相关行为修复单独提交 |
-| M12 | Login | [login](../docs/login-module-analysis.md) / [webview](../docs/webview-page-module-analysis.md) | 0 Critical / 0 High（二维码轮询取消标记已由 `b98abae` 修复，复核撤回；原 SEC-002「Cookie 日志明文」经逐层核查无凭据落盘路径，降为 Medium 加固）；4 Medium / 2 Low；WebView 0 High（2 Low） | 无阻断项；日志脱敏可选（`LoginViewModel.ets:350`，单独提交）；WebView 仅记录 |
+| M12 | Login | [login](../docs/login-module-analysis.md) / [webview](../docs/webview-page-module-analysis.md) | 0 Critical / 0 High（二维码轮询取消标记已由 `b98abae` 修复，复核撤回；原 SEC-002「Cookie 日志明文」经逐层核查无凭据落盘路径，降为 Medium 加固）；4 Medium / 2 Low；WebView 0 High（2 Low） | 无阻断项；三种登录共用 `buildCookie()`、魔法数字收敛、错误提示组件化已执行；日志脱敏 / `@Event` 风格 / 协议后缀行为修复保留，WebView 仅记录 |
 | M13 | WidgetConfig | [widget-settings](../docs/widget-settings-module-analysis.md) | 0 High；1 Medium（`vm.init()` 失败后静默回退空配置，无错误态/重试；`isLoading` 必被置 false）+ 1 Low | 随模块修 |
 | M14 | Widget 子系统 | [widget-subsystem](../docs/widget-subsystem-modules-analysis.md) / [widget-settings](../docs/widget-settings-module-analysis.md) / [component-dedup](../docs/component-deduplication-review.md) | 0 Critical / 3 High（瞬时更新失败即删用户卡片配置；无数据时展示 Mock 账号与体力；卡片从不显示数据新鲜度）；6 Medium / 3 Low；V1 孤岛（16 个 V1 文件：6 pages + 10 components） | H1/H2 随模块修（各自单提交），H3 需产品决策；装饰器不迁移；form_config 6 条 src 冻结 |
 | M15 | 框架 | [main](../docs/main-module-analysis.md) / [index](../docs/index-module-analysis.md) / [launch](../docs/launch-module-analysis.md) / [test-page](../docs/test-page-module-analysis.md) / [ability-startup](../docs/ability-and-startup-modules-analysis.md) | MainPage 2 High（人机验证弹窗关闭时无 callback 地 `off('windowSizeChange')`，注销窗口尺寸监听；返回手势关闭验证框后验证队列永久卡死——10-29 复核恢复）；10 Medium / 6 Low（含 Cookie 过期弹框叠加、窗口 API 未包 try、Tab 根页按返回可能显示空白——待真机确认）；Index / Launch 0 High；TestPage 0 High（入口仅 DEBUG 可见，Q-2）；Ability 0 High / 4 Medium（初始化失败不可见、4 个 AppStorage key 无常量、`loadContent` 无兜底、导出 ability 不校验调用方） | 记录；Main 行为修复后续单独立项；AppStorage 常量可随 M15 |
@@ -365,7 +365,7 @@ entry/src/main/ets/
 | M9 | Characters | ✅ 真重构完成 | — | fafcabc | ✅ BUILD SUCCESSFUL in 15s 736ms | ⚠️ 跳过 | 🔶 待运行 | — | VM 614→434L；新增 CharactersDataLoader 171L；测试契约不变 |
 | M10 | CharDetail | ✅ 真重构完成（行为修复待单独提交） | — | 81d7e9d | ✅ BUILD SUCCESSFUL in 14s 775ms | ⚠️ 跳过 | 🔶 待运行 | — | 三页 150/137/137→129/116/116L；新增 CharDetailWindowSize 56L + CharDetailHeroScaffold 99L；三游戏 parseRawJson ERROR 兜底保留 |
 | M11 | AccountDetail | ✅ 真重构完成（行为修复待单独提交） | — | c15d53b | ✅ BUILD SUCCESSFUL in 34s 393ms | ⚠️ 跳过 | 🔶 待运行 | — | ActionsSection 4 按钮收敛为 Builder；页面结果 Toast 收敛；VM 删除 refreshCookieError 死字段；删除二次确认 / 失败反馈保留 |
-| M12 | Login | 未开始 | — | — | — | — | — | — | — |
+| M12 | Login | ✅ 真重构完成（行为修复待单独提交） | — | 待补 | ✅ BUILD SUCCESSFUL in 16s 267ms | ⚠️ 跳过 | 🔶 待运行 | — | 三种登录共用 `buildCookie()`；魔法数字收敛到 `LoginConstants`；新增 `LoginErrorText`；日志脱敏 / `@Event` 风格 / 协议后缀保留 |
 | M13 | WidgetConfig | 未开始 | — | — | — | — | — | — | — |
 | M14 | Widget 子系统 | 未开始 | — | — | — | — | — | — | — |
 | M15 | 框架 | 未开始 | — | — | — | — | — | — | — |
@@ -591,7 +591,7 @@ entry/src/main/ets/
 ---
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）；M9 真重构完成（`fafcabc`）；M10 真重构完成（`81d7e9d`）；M11 真重构完成（`c15d53b`）。*
+*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）；M9 真重构完成（`fafcabc`）；M10 真重构完成（`81d7e9d`）；M11 真重构完成（`c15d53b`）；M12 真重构完成（提交待补）。*
 
 ---
 
@@ -1048,3 +1048,69 @@ M11 覆盖账号详情二级页：`AccountDetailPage` 143L + `AccountDetailViewM
 ### 结论
 
 **M11 真重构完成**：`AccountActionsSection` 4 个同构按钮收敛为 `@Builder actionButton`（94 → 82L）；页面两个结果 Monitor 收敛到 `showActionResult()`；VM 合并 core 导入并删除 `refreshCookieError` 死字段（108 → 103L）；RolesSection 补 ForEach key，RoleCard 删除冗余三元。行为等价，编译通过。删除二次确认与失败反馈保留为行为修复，待单独提交。
+
+---
+
+## M12 spec — Login 模块（2026-11-06 真重构）
+
+分析依据：[`docs/login-module-analysis.md`](../docs/login-module-analysis.md)。
+
+### 背景说明
+
+M12 覆盖登录页：`LoginPage` 127L + `LoginViewModel` 402L + `views/` 下 18 个组件（本轮新增 1 个共 19 个 / 851L）+ `LoginConstants` 28L。结构债集中在 `LoginViewModel`：手机号 / 二维码 / Cookie 三种登录各自重复填充 `LoginCookieFields`（6 个字段 + 2 个设备指纹字段），以及 60 / 2000 / 1000 三个魔法数字散落在冷却与轮询逻辑中；两个登录组件重复同一段错误提示 `Text`。
+
+### 决策
+
+| # | 问题 | 决定 | 依据 |
+| --- | --- | --- | --- |
+| D1 | 三种登录重复构造 Cookie | 提取私有 `buildCookie(accountId, ltuid, stoken, mid, ltoken, cookieToken)` | 字段填充 + 设备指纹完全一致，仅入参来源不同 |
+| D2 | 魔法数字 | 移入 `LoginConstants`：`SMS_COOLDOWN_SECONDS` / `QR_POLL_INTERVAL_MS` / `COOLDOWN_TICK_MS` | 避免 `startCooldown(60)` / `setInterval(2000)` / `setInterval(1000)` 散落 |
+| D3 | 数组尾部赋值 | `stats[stats.length] =` / `roleVMs[roleVMs.length] =` 改为 `push` | 等价且更符合 ArkTS 惯用写法 |
+| D4 | 错误提示重复 | 新增 `views/LoginErrorText.ets`，`LoginPhone` / `LoginCookie` 复用 | 样式与条件渲染完全一致 |
+| D5 | `@Event` → `@Param` 风格统一 | 不随本提交 | 风格变更，需回归三种登录与协议回调 |
+| D6 | 日志脱敏 | 不随本提交 | 安全加固，行为可感知，单独提交 |
+| D7 | 协议语言后缀重复逻辑 | 不随本提交 | 与 `LegalI18nRouter` 行为不一致，属行为修复 |
+
+### 文件改动清单
+
+| 操作 | 文件 | 说明 |
+| --- | --- | --- |
+| 修改 | `viewmodel/LoginViewModel.ets`（402 → 400L） | 新增 `buildCookie()`；三处登录调用统一；魔法数字改常量；数组赋值改 `push` |
+| 修改 | `constants/LoginConstants.ets`（28 → 37L） | 新增 `SMS_COOLDOWN_SECONDS = 60` / `QR_POLL_INTERVAL_MS = 2000` / `COOLDOWN_TICK_MS = 1000` |
+| 新增 | `views/LoginErrorText.ets`（23L） | 登录错误提示组件（空消息不渲染） |
+| 修改 | `views/LoginPhone.ets`（39 → 34L） | 改用 `LoginErrorText`，删除重复 `Text` |
+| 修改 | `views/LoginCookie.ets`（83 → 78L） | 改用 `LoginErrorText`，删除重复 `Text` |
+
+### 契约与冻结项
+
+- `custom_router_map.json` 的 `Login` 路由与 `LoginBuilder` 名冻结；`pages/LoginPage.ets` 路径冻结。
+- `viewmodel/LoginViewModel.ets`、`constants/LoginConstants.ets` 路径与导出名冻结（`features/account/src/test/LoginViewModel.test.ets` 142L / 19 用例导入）。
+- `errorMsg` 错误码 `phone_empty` / `code_empty` / `cookie_empty` 被测试断言（`test:72/78/132/139`），不得变更。
+- `views/` 19 个组件仅登录页使用，不移动、不改名（路由冻结）。
+- WebView 协议页（`features/legal`）归 M2，本轮不改。
+
+### 验收记录
+
+| 项 | 结果 |
+| --- | --- |
+| 编译（uat/Debug） | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 16s 267ms`，安装/启动成功 |
+| codeLinter | ⚠️ 项目未配置 codeLinter task，跳过 |
+| Local Test | 🔶 `features/account/src/test/LoginViewModel.test.ets`（142L / 19 用例）需 DevEco GUI 手动运行 |
+| 测试契约 | ✅ VM / `LoginConstants` 路径与导出名不变；错误码断言不变 |
+| 冒烟 | 🔶 待手动：手机号 / 二维码 / Cookie 三种登录、协议 WebView、窄屏/宽屏 |
+
+### 已知问题记录（不执行）
+
+| ID | 级别 | 描述 | 状态 |
+| --- | --- | --- | --- |
+| M1 | Medium | 登录日志脱敏（`LoginViewModel` 失败日志） | 保留，单独提交 |
+| M2 | Medium | `@Event` 与全项目 `@Param` 回调风格不统一 | 保留 |
+| M3 | Medium | `finalizeLogin` 复杂度、`@Monitor` 内复位触发字段 | 保留 |
+| M4 | Medium | 错误提示直接显示错误码（空输入时） | 保留，行为修复 |
+| L1 | Low | AlertDialog 生命周期 | 保留 |
+| L2 | Low | 协议语言后缀逻辑与 `LegalI18nRouter` 重复且不一致 | 保留，行为修复 |
+| — | — | 魔法数字 60 / 2000 / 1000 | ✅ 已收敛到常量 |
+
+### 结论
+
+**M12 真重构完成**：`LoginViewModel` 三种登录共用 `buildCookie()`，魔法数字收敛到 `LoginConstants`，数组尾部赋值改 `push`；新增 `LoginErrorText` 统一手机号 / Cookie 错误提示。行为等价，`bash run.sh uat` 编译安装通过。日志脱敏、`@Event` 风格、协议语言后缀等行为 / 风格项保留，待单独提交。

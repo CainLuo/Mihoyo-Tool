@@ -19,7 +19,7 @@
 
 **整体评级：A**（0 Critical + 0 High，Medium 5 ≤ 5）
 
-> 源行数 129（`LoginPage.ets`）；债务点数 = 0×3 + 5×2 + 3×1 = **13**；密度 = 13 ÷ 1.29 ≈ **10.1**/百行。
+> 源行数 127（`LoginPage.ets`）；债务点数 = 0×3 + 5×2 + 3×1 = **13**；密度 = 13 ÷ 1.27 ≈ **10.2**/百行。
 
 > Login 模块功能完整（手机号 / 二维码 / Cookie 三种登录方式），架构分层清晰（Page → ViewModel → Layout）；状态管理正确使用 V2，`@Event` 用法合法但与项目风格不统一。原「二维码轮询无取消标记」High 经基线 `105c8d3` 复核不成立（`b98abae` 已加 `qrGeneration` + `pollInFlight` 双保险），已撤回；原「Cookie 日志明文 token」Critical 经逐层核查同样不成立（`LoginViewModel.ets:350` 只记录 `error.message`，见下节），降为 Medium 加固建议。另有一条 Medium：错误提示直接展示原始异常文本、二维码请求失败被展示为「已过期」（M4）。因此本模块**无 Critical / 无 High**。
 
@@ -29,18 +29,21 @@
 
 | 文件 | 行数 | 职责 |
 | --- | --- | --- |
-| `pages/LoginPage.ets` | 129 | 页面：窄/宽布局切换、协议 WebView 跳转、登录成功跳转、无 stoken 弹窗 |
-| `viewmodel/LoginViewModel.ets` | 415 | 手机号 / 二维码 / Cookie 三种登录、QR 轮询、短信冷却、`finalizeLogin` |
-| `constants/LoginConstants.ets` | 28 | `LoginTab` / `PhoneStep` / `QRCodeStat`（前两者被测试导入，冻结） |
-| `components/login/LoginNarrowLayout.ets` / `LoginWideLayout.ets` | 36 / 61 | 窄屏单栏 / 宽屏两栏 |
-| `components/login/LoginCard.ets` / `LoginTabBar.ets` / `LoginTabItem.ets` / `LoginTabContent.ets` | 31 / 44 / 37 / 28 | 卡片 + Tab 栏 + Tab 内容分发 |
-| `components/login/LoginPhone.ets` / `LoginPhoneInput.ets` / `LoginCodeInput.ets` | 40 / 54 / 83 | 手机号登录（含 `errorMsg` 展示） |
-| `components/login/LoginQRCode.ets` / `LoginQRCodeLoading/Ready/Confirmed/Expired.ets` | 96 / 25 / 36 / 25 / 45 | 二维码登录；`QRCode()` 本地生成（`LoginQRCodeReady.ets:16`） |
-| `components/login/LoginCookie.ets` | 85 | Cookie 登录（含 `errorMsg` 展示） |
-| `components/login/LoginLogoSection.ets` / `LoginFeatureItem.ets` / `LoginAgreement.ets` | 45 / 42 / 39 | 品牌区 / 特性项 / 协议链接 |
-| `entry/src/test/LoginViewModel.test.ets` | 162 | 22 个用例（测试资产，不计入评级） |
+| `pages/LoginPage.ets` | 127 | 页面：窄/宽布局切换、协议 WebView 跳转、登录成功跳转、无 stoken 弹窗 |
+| `viewmodel/LoginViewModel.ets` | 400 | 手机号 / 二维码 / Cookie 三种登录、QR 轮询、短信冷却、`finalizeLogin` |
+| `constants/LoginConstants.ets` | 37 | `LoginTab` / `PhoneStep` / `QRCodeStat`（前两者被测试导入，冻结）+ 冷却 / 轮询常量 |
+| `views/LoginNarrowLayout.ets` / `LoginWideLayout.ets` | 36 / 60 | 窄屏单栏 / 宽屏两栏 |
+| `views/LoginCard.ets` / `LoginTabBar.ets` / `LoginTabItem.ets` / `LoginTabContent.ets` | 31 / 44 / 36 / 28 | 卡片 + Tab 栏 + Tab 内容分发 |
+| `views/LoginPhone.ets` / `LoginPhoneInput.ets` / `LoginCodeInput.ets` | 34 / 53 / 82 | 手机号登录（含 `errorMsg` 展示） |
+| `views/LoginQRCode.ets` / `LoginQRCodeLoading/Ready/Confirmed/Expired.ets` | 96 / 24 / 35 / 24 / 44 | 二维码登录；`QRCode()` 本地生成（`LoginQRCodeReady.ets:15`） |
+| `views/LoginCookie.ets` | 78 | Cookie 登录（含 `errorMsg` 展示） |
+| `views/LoginErrorText.ets` | 23 | 登录错误提示（手机号 / Cookie 共用，M12 新增） |
+| `views/LoginLogoSection.ets` / `LoginFeatureItem.ets` / `LoginAgreement.ets` | 44 / 41 / 38 | 品牌区 / 特性项 / 协议链接 |
+| `features/account/src/test/LoginViewModel.test.ets` | 142 | 19 个用例（测试资产，不计入评级） |
 
-> `components/login/` 合计 18 个文件 852 行。`components/Geetest*.ets` / `utils/GeetestCenter.ets` / `utils/GeetestSignal.ets` **不属于本模块**：Login 链路不导入它们，人机验证由 `MainPage.ets` 统一弹出（见 [main-module-analysis.md](./main-module-analysis.md)）；本次仅在安全复核中顺带确认其日志不含 Cookie。
+> 行数为 M12 重构后现状；目录已由 `components/login/` 迁移到 `views/`（共 19 个文件 851 行）。
+
+> `views/` 合计 19 个文件 851 行。`components/Geetest*.ets` / `utils/GeetestCenter.ets` / `utils/GeetestSignal.ets` **不属于本模块**：Login 链路不导入它们，人机验证由 `MainPage.ets` 统一弹出（见 [main-module-analysis.md](./main-module-analysis.md)）；本次仅在安全复核中顺带确认其日志不含 Cookie。
 
 ## 结构树 / 调用链
 
@@ -115,7 +118,7 @@ this.errorMsg = msg;
 
 | ID | 检查项 | 结论 | 证据 / 说明 |
 | --- | --- | --- | --- |
-| STATE-001 | 不混用 V1 / V2 | ✅ | `LoginPage.ets` 为 `@ComponentV2`，`LoginViewModel` 为 `@ObservedV2`；`components/login/` 18 个文件无 `@State` / `@Prop` / `@Link` |
+| STATE-001 | 不混用 V1 / V2 | ✅ | `LoginPage.ets` 为 `@ComponentV2`，`LoginViewModel` 为 `@ObservedV2`；`views/` 19 个文件无 `@State` / `@Prop` / `@Link` |
 | STATE-002 / STATE-003 | 状态变更走引用替换 | ✅ | VM 字段均为标量或整体赋值，无就地 mutation |
 | STATE-007 | `@Event` 必须带默认值 | ✅（但有风格不统一） | `LoginNarrowLayout.ets:13-14` / `LoginWideLayout.ets:15-16` / `LoginAgreement.ets:10-11` 的 `@Event` 都有 `() => {}` 默认值；与全项目 `@Param` 回调风格不一致（已记 M1） |
 | STATE-012 | `@Monitor` 内不修改触发字段 | ⚠️ Medium | `LoginPage.ets:67-79` 在 `@Monitor('vm.showNoStokenDialog')` 内把它置 `false`；不造成死循环，但职责错位（已记 M3） |
@@ -129,7 +132,7 @@ this.errorMsg = msg;
 | SEC-002 | 敏感数据（Cookie）不入日志 | ⚠️ Medium | `LoginViewModel.ets:350` 拼接 `error.message`，当前不涉 cookie 变量（已复核降级，见 §1） |
 | KIT-003 / KIT-004 | ScanKit 导包与 `ScanType` 新名 | n/a | 二维码由 ArkUI `QRCode()` 组件本地生成（`LoginQRCodeReady.ets:16`），由米游社 App 扫码，本端不扫码、未用 ScanKit |
 | DB-003 | 敏感数据用加密 RdbStore | ❌ 见 Ability 文档（本文档不计数） | Cookie / stoken 由 core `RdbManager.ets:22-25` 以 `SecurityLevel.S1` 存储、未开 `encrypt`，叠加 entry 备份开关；在 [ability-and-startup-modules-analysis.md](./ability-and-startup-modules-analysis.md) 记 High（见 §1「相关问题」） |
-| TEST-001 | 核心逻辑有单测 | ✅（有缺口） | `LoginViewModel.test.ets` 162 行 22 用例（含 `maskedPhone` 3 条，`:88-106`）；`finalizeLogin`、Cookie 字段解析、QR 轮询未覆盖（不计入 L） |
+| TEST-001 | 核心逻辑有单测 | ✅（有缺口） | `LoginViewModel.test.ets` 142 行 19 用例（含 `maskedPhone` 3 条，`:83-99`）；`finalizeLogin`、Cookie 字段解析、QR 轮询未覆盖（不计入 L） |
 
 > 合规结论：无 Critical。唯一的旧 Critical（Cookie 日志）经复核仅剩防御性加固，与 §6 评级依据一致。
 
@@ -192,7 +195,7 @@ if (this.onTapTerms) { this.onTapTerms() }
 | LIFE-004 | `LoginPage.ets:67-79` | `showAlertDialog` 无 dismiss 回调设置关闭标志，关闭时机依赖 `@Monitor` | 换 `customDialog` 获得明确的关闭回调（与 M3 的 STATE-012 一并处理） |
 | 重复逻辑 | `LoginPage.ets:34-43` vs `utils/LegalI18nRouter.ets:13-25` | 协议文件语言后缀在两处各写一份且规则不一致：Login 按「语言含 `Hant` 或地区 HK/TW/MO」判繁体、非中文一律 `-en`；`LegalI18nRouter` 只认 `zh-Hant*` / `zh-HK|TW|MO` 语言码、非中英文回落无后缀文件。同一设备上隐私同意页与登录页可能打开不同语言版本的协议 | Login 改用 `LegalI18nRouter.termsPath()` / `privacyPath()`（行为变更，单独提交） |
 
-> **不计入 L 的技术缺口**（TEST-001，按 README §1.4 口径）：`LoginViewModel.test.ets`（162 行 22 用例，覆盖初始状态 / switchTab / 空输入校验 / `maskedPhone` / `backToPhoneInput` / 路径常量）未覆盖 `finalizeLogin()`、Cookie 字段解析、QR 轮询。属测试资产，记录于此不参与评级。
+> **不计入 L 的技术缺口**（TEST-001，按 README §1.4 口径）：`LoginViewModel.test.ets`（142 行 19 用例，覆盖初始状态 / switchTab / 空输入校验 / `maskedPhone` / `backToPhoneInput`）未覆盖 `finalizeLogin()`、Cookie 字段解析、QR 轮询。属测试资产，记录于此不参与评级。
 
 ---
 
@@ -232,30 +235,34 @@ if (this.onTapTerms) { this.onTapTerms() }
 | 项 | 内容 |
 | --- | --- |
 | 路由 | `custom_router_map.json:19-21`：`Login` → `pages/LoginPage.ets` + `LoginBuilder`，**页面路径与 Builder 名冻结** |
-| 测试引用（冻结） | `viewmodel/LoginViewModel.ets`、`constants/LoginConstants.ets` 被 `entry/src/test/LoginViewModel.test.ets` 导入；`LoginViewModel` / `LOGIN_VM_SUCCESS` / `LOGIN_VM_ACCOUNT_ID` / `LOGIN_VM_ACCOUNT_VM`（`test:2-7`）与 `LoginTab` / `PhoneStep` 导出名不得变；`errorMsg` 错误码 `phone_empty` / `code_empty` / `cookie_empty` 被断言（`test:77/83/137/144`） |
-| 组件 | `components/login/` 18 个文件（**仅 Login 页使用**：LoginPage.ets 直接导入 Narrow/WideLayout，其余为嵌套子组件），不能移动/改名（LoginBuilder 路由冻结） |
+| 测试引用（冻结） | `viewmodel/LoginViewModel.ets`、`constants/LoginConstants.ets` 被 `features/account/src/test/LoginViewModel.test.ets`（142 行 / 19 用例）导入；`LoginViewModel` 与 `LoginTab` / `PhoneStep` 导出名不得变；`errorMsg` 错误码 `phone_empty` / `code_empty` / `cookie_empty` 被断言（`test:72/78/132/139`） |
+| 组件 | `views/` 19 个文件 851 行（**仅 Login 页使用**：LoginPage.ets 直接导入 Narrow/WideLayout，其余为嵌套子组件），不能移动/改名（LoginBuilder 路由冻结） |
 | Login spec | 根 `Refactor_Login_Spec.md` 里的 build-profile / mock 分离超出作用域，只取组件拆分；不要在本轮改 `internal/` 或 product |
-| 文档基线 | `LoginViewModel.ets` 实际 415 行（旧文档写 ~365）；页面 129 行；二维码轮询 High 已撤回（`:216-274` 已有 generation + `pollInFlight`） |
+| 文档基线 | `LoginViewModel.ets` 重构后 400 行；页面 127 行；二维码轮询 High 已撤回（已有 generation + `pollInFlight`） |
 
-### 重构范围（建议）
+### 重构范围（已执行）
 
-- **无 Critical**：本模块没有上架级阻断项。`LoginViewModel.ets:350` 的日志脱敏只是 15 分钟加固，可选；若做，单独提交，不夹带在目录调整里。
-- `components/login/` 已按组件拆分（18 个），不做大规模合并；`LoginNarrowLayout` / `LoginWideLayout` 的响应式拆分保持。
-- `@Event` → `@Param` 只是风格统一，不是必须；若改，需回归三种登录方式与协议回调。
-- QR 轮询结果丢弃已由 generation + `pollInFlight` 实现；Repository 层真正中止请求（AbortSignal）属优化，不强制。
+- **无 Critical**：本模块没有上架级阻断项。日志脱敏属行为/安全加固，保留不动。
+- 三种登录（手机号 / 二维码 / Cookie）共用 `LoginViewModel.buildCookie()`，消除三处 `LoginCookieFields` 重复填充。
+- 魔法数字收敛到 `constants/LoginConstants.ets`：`SMS_COOLDOWN_SECONDS = 60`、`QR_POLL_INTERVAL_MS = 2000`、`COOLDOWN_TICK_MS = 1000`。
+- `stats[stats.length] =` / `roleVMs[roleVMs.length] =` 改为 `push`。
+- 新增 `views/LoginErrorText.ets`，`LoginPhone` / `LoginCookie` 共用错误提示。
+- `views/` 已按组件拆分（19 个），不做大规模合并；`LoginNarrowLayout` / `LoginWideLayout` 的响应式拆分保持。
+- `@Event` 风格、协议语言后缀重复逻辑、Repository 层 AbortSignal 优化保留不动（风格/优化项，非本轮范围）。
 
 ### 验收
 
-1. 编译通过；`codeLinter` 不新增违规。
-2. DevEco Local Test：`LoginViewModel.test.ets`（162 行）通过。
-3. 冒烟：手机号 / 二维码 / Cookie 三种登录；协议/隐私 WebView；窄屏/宽屏；Cookie 失败日志不含 token（`hdc hilog` 抽查）。
+1. `assembleHap -p product=uat -p buildMode=debug` → BUILD SUCCESSFUL。
+2. `bash run.sh uat` → BUILD SUCCESSFUL（模拟器安装冒烟）。
+3. DevEco Local Test：`LoginViewModel.test.ets`（142 行 / 19 用例）需 GUI 手动运行。
+4. 冒烟：手机号 / 二维码 / Cookie 三种登录；协议/隐私 WebView；窄屏/宽屏；Cookie 失败日志不含 token（`hdc hilog` 抽查）。
 
 ### 已知问题归属
 
 - 无 Critical（SEC-002 经逐层核查降为 Medium，见上文复核）。
 - 无 High（QR 轮询原 HIGH 已撤回，见上文复核）。
 - Medium（日志加固、`@Event` 风格、`finalizeLogin` 复杂度、`@Monitor` 复位、错误提示呈现）：记录，不强制；M4 属行为变更，不随目录重构提交。
-- Low（魔法数字、AlertDialog 生命周期、协议语言后缀重复逻辑）：顺手。
+- Low（AlertDialog 生命周期、协议语言后缀重复逻辑）：记录；魔法数字已在 M12 收敛。
 
 ---
 

@@ -2,10 +2,11 @@
  * LoginPhone.ets — 手机号 + 短信验证码登录组件
  */
 import { LoginViewModel } from '../viewmodel/LoginViewModel';
-import { ThemeFonts, themeManager, ThemeManager } from 'basic'
+import { themeManager, ThemeManager } from 'basic'
 import { PhoneStep } from '../constants/LoginConstants';
 import { LoginPhoneInput } from './LoginPhoneInput';
 import { LoginCodeInput } from './LoginCodeInput';
+import { LoginErrorText } from './LoginErrorText';
 
 @ComponentV2
 export struct LoginPhone {
@@ -26,13 +27,7 @@ export struct LoginPhone {
         })
       }
 
-      if (this.vm.errorMsg.length > 0) {
-        Text(this.vm.errorMsg)
-          .font(ThemeFonts.FONT_14)
-          .fontColor(this.tm.current.colorDanger)
-          .width(this.tm.current.full)
-          .textAlign(TextAlign.Center)
-      }
+      LoginErrorText({ message: this.vm.errorMsg })
     }
     .width(this.tm.current.full)
   }

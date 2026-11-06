@@ -26,3 +26,12 @@ export enum QRCodeStat {
   EXPIRED = 'expired',
   ERROR = 'error',
 }
+
+/** 短信验证码冷却秒数 */
+export const SMS_COOLDOWN_SECONDS: number = 60;
+
+/** 二维码轮询间隔（毫秒） */
+export const QR_POLL_INTERVAL_MS: number = 2000;
+
+/** 短信冷却倒计时步长（毫秒） */
+export const COOLDOWN_TICK_MS: number = 1000;

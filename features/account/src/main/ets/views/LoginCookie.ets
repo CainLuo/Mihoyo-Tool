@@ -4,6 +4,7 @@
 
 import { LoginViewModel } from '../viewmodel/LoginViewModel';
 import { ThemeFonts, themeManager, ThemeManager, PrimaryButtonModifier } from 'basic';
+import { LoginErrorText } from './LoginErrorText';
 
 @ComponentV2
 export struct LoginCookie {
@@ -54,13 +55,7 @@ export struct LoginCookie {
         .textAlign(TextAlign.Center)
 
       // 错误提示
-      if (this.vm.errorMsg.length > 0) {
-        Text(this.vm.errorMsg)
-          .font(ThemeFonts.FONT_14)
-          .fontColor(this.tm.current.colorDanger)
-          .width(this.tm.current.full)
-          .textAlign(TextAlign.Center)
-      }
+      LoginErrorText({ message: this.vm.errorMsg })
     }
     .width(this.tm.current.full)
   }
