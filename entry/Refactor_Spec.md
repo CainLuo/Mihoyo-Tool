@@ -345,7 +345,7 @@ entry/src/main/ets/
 | M12 | Login | [login](../docs/login-module-analysis.md) / [webview](../docs/webview-page-module-analysis.md) | 0 Critical / 0 High（二维码轮询取消标记已由 `b98abae` 修复，复核撤回；原 SEC-002「Cookie 日志明文」经逐层核查无凭据落盘路径，降为 Medium 加固）；4 Medium / 2 Low；WebView 0 High（2 Low） | 无阻断项；三种登录共用 `buildCookie()`、魔法数字收敛、错误提示组件化已执行；日志脱敏 / `@Event` 风格 / 协议后缀行为修复保留，WebView 仅记录 |
 | M13 | WidgetConfig | [widget-settings](../docs/widget-settings-module-analysis.md) | 0 High；1 Medium（`vm.init()` 失败后静默回退空配置，无错误态/重试；`isLoading` 必被置 false）+ 1 Low | 随模块修；VM 676→447L 已拆出尺寸映射 / 账号分组 / 持久化；未用 `@Local tm` 已删 |
 | M14 | Widget 子系统 | [widget-subsystem](../docs/widget-subsystem-modules-analysis.md) / [widget-settings](../docs/widget-settings-module-analysis.md) / [component-dedup](../docs/component-deduplication-review.md) | 0 Critical / 3 High（瞬时更新失败即删用户卡片配置；无数据时展示 Mock 账号与体力；卡片从不显示数据新鲜度）；6 Medium / 3 Low；V1 孤岛（16 个 V1 文件：6 pages + 10 components） | H1/H2 保留（各自单提交），H3 需产品决策；装饰器不迁移；form_config 6 条 src 冻结；本轮只重构 preview 组件（2x4 361→218L、4x4 246→238L） |
-| M15 | 框架 | [main](../docs/main-module-analysis.md) / [index](../docs/index-module-analysis.md) / [launch](../docs/launch-module-analysis.md) / [test-page](../docs/test-page-module-analysis.md) / [ability-startup](../docs/ability-and-startup-modules-analysis.md) | MainPage 2 High（人机验证弹窗关闭时无 callback 地 `off('windowSizeChange')`，注销窗口尺寸监听；返回手势关闭验证框后验证队列永久卡死——10-29 复核恢复）；10 Medium / 6 Low（含 Cookie 过期弹框叠加、窗口 API 未包 try、Tab 根页按返回可能显示空白——待真机确认）；Index / Launch 0 High；TestPage 0 High（入口仅 DEBUG 可见，Q-2）；Ability 0 High / 4 Medium（初始化失败不可见、4 个 AppStorage key 无常量、`loadContent` 无兜底、导出 ability 不校验调用方） | 记录；Main 行为修复后续单独立项；AppStorage 常量可随 M15 |
+| M15 | 框架 | [main](../docs/main-module-analysis.md) / [index](../docs/index-module-analysis.md) / [launch](../docs/launch-module-analysis.md) / [test-page](../docs/test-page-module-analysis.md) / [ability-startup](../docs/ability-and-startup-modules-analysis.md) | MainPage 2 High（人机验证弹窗关闭时无 callback 地 `off('windowSizeChange')`，注销窗口尺寸监听；返回手势关闭验证框后验证队列永久卡死——10-29 复核恢复）；10 Medium / 6 Low（含 Cookie 过期弹框叠加、窗口 API 未包 try、Tab 根页按返回可能显示空白——待真机确认）；Index / Launch 0 High；TestPage 0 High（入口仅 DEBUG 可见，Q-2）；Ability 0 High / 4 Medium（初始化失败不可见、4 个 AppStorage key 无常量、`loadContent` 无兜底、导出 ability 不校验调用方） | MainPage 513→473L 已收敛工具栏 / 窗口模式 / 弹窗标签；H1/H2 与 `MainTabContainer` / `DialogArbiter` 大拆分保留；Index / Launch / TestPage 未改 |
 
 > 原则：重构提交**不夹带行为变更**；Critical/High 若要修，先在本表登记并在 `## M<n> spec` 说明，修复与移动分开提交。
 
@@ -368,7 +368,7 @@ entry/src/main/ets/
 | M12 | Login | ✅ 真重构完成（行为修复待单独提交） | — | f9858e0 | ✅ BUILD SUCCESSFUL in 16s 267ms | ⚠️ 跳过 | 🔶 待运行 | — | 三种登录共用 `buildCookie()`；魔法数字收敛到 `LoginConstants`；新增 `LoginErrorText`；日志脱敏 / `@Event` 风格 / 协议后缀保留 |
 | M13 | WidgetConfig | ✅ 真重构完成（行为修复待单独提交） | — | 965bb49 | ✅ BUILD SUCCESSFUL in 15s 331ms | ⚠️ 跳过 | 无 Local Test（冒烟待手动） | — | VM 676→447L；新增 SizeConfig 56L + AccountGroups 61L + ConfigSaver 96L；步骤流程去重；删除未用 `@Local tm`；M1/M2 行为修复保留 |
 | M14 | Widget 子系统 | ✅ 预览组件重构完成（V1 孤岛按契约不动） | — | 1ab3d43 | ✅ BUILD SUCCESSFUL in 15s 218ms | ⚠️ 跳过 | 无 Local Test（冒烟待手动） | — | 2x4 361→218L（extraRow / expeditionAvatar Builder）；4x4 246→238L（dataRow Builder）；清理未用导入；H1/H2/H3 保留 |
-| M15 | 框架 | 未开始 | — | — | — | — | — | — | — |
+| M15 | 框架 | ✅ 真重构完成（行为修复 / 大拆分保留） | — | 待补 | ✅ BUILD SUCCESSFUL in 14s 996ms | ⚠️ 跳过 | 无自动化测试（冒烟待手动） | — | MainPage 513→473L；新增 MainNavigationMode 26L + MainDialogLabels 21L；工具栏 / 窗口模式 / 弹窗标签收敛；Index / Launch / TestPage 未改；H1/H2 保留 |
 
 **回滚策略：**
 - 执行前打基线 tag：`git tag refactor-baseline-2026-10-24`。
@@ -591,7 +591,7 @@ entry/src/main/ets/
 ---
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）；M9 真重构完成（`fafcabc`）；M10 真重构完成（`81d7e9d`）；M11 真重构完成（`c15d53b`）；M12 真重构完成（`f9858e0`）；M13 真重构完成（`965bb49`）；M14 预览组件重构完成（`1ab3d43`）。*
+*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）；M9 真重构完成（`fafcabc`）；M10 真重构完成（`81d7e9d`）；M11 真重构完成（`c15d53b`）；M12 真重构完成（`f9858e0`）；M13 真重构完成（`965bb49`）；M14 预览组件重构完成（`1ab3d43`）；M15 真重构完成（提交待补）。*
 
 ---
 
@@ -1239,3 +1239,65 @@ M14 原范围覆盖整个 Widget 子系统（V1 卡片孤岛 + 两个 ability + 
 ### 结论
 
 **M14 预览组件重构完成**：`Preview2x4SingleGame` 361 → 218L（`extraRow` / `expeditionAvatar` 两个 Builder 消除 14 段重复 markup）；`Preview4x4SingleGame` 246 → 238L（`dataRow` Builder）；清理未使用的 `StaminaColorType` 导入。V1 卡片孤岛、ability、H1/H2/H3 与 M1–M8 按契约保留。行为等价，`bash run.sh uat` 编译安装通过。
+
+---
+
+## M15 spec — 框架模块（2026-11-06 真重构）
+
+分析依据：[`docs/main-module-analysis.md`](../docs/main-module-analysis.md) / [`docs/index-module-analysis.md`](../docs/index-module-analysis.md) / [`docs/launch-module-analysis.md`](../docs/launch-module-analysis.md) / [`docs/test-page-module-analysis.md`](../docs/test-page-module-analysis.md)。
+
+### 背景说明
+
+M15 覆盖应用主框架：`MainPage` 513L（4 Tab 容器 + 标题栏 + 菜单 + 弹窗仲裁）、`Index` 33L、`LaunchPage` 91L、`TestPage` 105L。`Index` / `LaunchPage` / `TestPage` 已足够小且职责单一，本轮不动；结构债集中在 `MainPage`：底部工具栏 4 段同构对象、窗口模式计算、弹窗账号标签、Cookie 队列出队等重复/内联逻辑。
+
+### 决策
+
+| # | 问题 | 决定 | 依据 |
+| --- | --- | --- | --- |
+| D1 | 工具栏 4 段同构对象 | 新增 `switchTab(tab)` + `createTabItem(label, icon, tab)` | 图标 / 选中态 / 切换行为完全一致 |
+| D2 | 窗口模式计算 | 抽到 `utils/MainNavigationMode.ets`：`isLandscapeOrientation` / `resolveNavigationMode` | 纯函数，页面只保留 try/catch 与赋值 |
+| D3 | 弹窗账号标签 | 抽到 `utils/MainDialogLabels.ets`：`getGameAccountLabel` | 人机验证标题与设备指纹提示共用 |
+| D4 | Cookie 队列出队 | 手写循环改 `queue.slice(1)` | 等价、避免中间数组 |
+| D5 | `charMenuItems` 尾部赋值 | 改 `push` | 惯用写法 |
+| D6 | 无用导入 | 删除 `getGameName` / `FailedAccountInfo` / `GameId` | 仅导入未使用 |
+| D7 | `MainTabContainer` / `TitleBarController` / `DialogArbiter` 大拆分 | 不随本提交 | 无自动化测试，需真机回归；拆分会改标题栏协议与弹窗时序 |
+| D8 | H1 / H2 行为修复 | 不随本提交 | 行为变更，需单独提交 |
+
+### 文件改动清单
+
+| 操作 | 文件 | 说明 |
+| --- | --- | --- |
+| 修改 | `pages/MainPage.ets`（513 → 473L） | 工具栏 4 项收敛；窗口模式 / 弹窗标签改调 utils；队列出队改 `slice`；清理无用导入 |
+| 新增 | `utils/MainNavigationMode.ets`（26L） | `isLandscapeOrientation` / `resolveNavigationMode` |
+| 新增 | `utils/MainDialogLabels.ets`（21L） | `getGameAccountLabel` |
+
+### 契约与冻结项
+
+- 4 个 Tab 共享同一个 `NavPathStack`（`this.stack`），`Navigation(this.stack)` 与子页 `detailStack` 入参不变。
+- 标题栏协议 10 个字段（`shouldShowHomeRefresh` / `charAccountOptions` 等）与 `TAB_HOME..TAB_MY` 索引不变。
+- `windowClass` 从 AppStorage 读取的时机不变；启动页 1200ms 下限不变。
+- 三个 `@Monitor`（`cookieExpiredSignal.queue` / `deviceFpInvalidSignal.version` / `geetestSignal.trigger`）与弹窗仲裁状态机不变。
+- `Index` 路由 builder、`LaunchPage` 隐私 / Core 初始化流程、`TestPage` 入口（`BuildProfile.DEBUG`）不变。
+- `custom_router_map.json` 的 `Main` / `Launch` / `TestPage` 路由名与 builder 名冻结。
+
+### 验收记录
+
+| 项 | 结果 |
+| --- | --- |
+| 编译（uat/Debug） | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 14s 996ms`，安装/启动成功 |
+| codeLinter | ⚠️ 项目未配置 codeLinter task，跳过 |
+| Local Test | — 本模块无自动化测试 |
+| 冒烟 | 🔶 待手动：4 Tab 切换 → 二级页返回 → 折叠屏展开/折叠 → 人机验证（含返回手势关闭）→ Cookie 过期（多账号）→ 账号切换 |
+
+### 已知问题记录（不执行）
+
+| ID | 级别 | 描述 | 状态 |
+| --- | --- | --- | --- |
+| H1 | High | 人机验证弹窗关闭时无 callback 地 `off('windowSizeChange')` | 保留，行为修复单独提交 |
+| H2 | High | 返回手势关闭验证框后验证队列永久卡死 | 保留，行为修复单独提交 |
+| M1–M10 | Medium | 弹窗叠加、窗口 API 未包 try、Tab 根页返回等 | 保留 |
+| L1–L6 | Low | 记录 | 保留 |
+
+### 结论
+
+**M15 真重构完成**：`MainPage` 513 → 473L，底部工具栏 4 段同构对象收敛为 `createTabItem` / `switchTab`；窗口模式与弹窗账号标签抽到 `utils/MainNavigationMode.ets`（26L）与 `utils/MainDialogLabels.ets`（21L）；Cookie 队列出队改 `slice(1)`，清理无用导入。`Index` / `LaunchPage` / `TestPage` 未改。4 Tab 共享路由栈、标题栏协议、弹窗仲裁与 H1/H2 均保留。行为等价，`bash run.sh uat` 编译安装通过。

@@ -431,6 +431,22 @@ action: () => {
 
 **拆分顺序**：MainPage 排最后（重构模块 M15）。HomePage / CharactersPage / ToolsPage / MyPage 各自完成 M8–M13 后，再抽 `MainTabContainer` + `TitleBarController` + `DialogArbiter` 三个职责，避免子页与容器同时改动。
 
+### M15 执行记录（2026-11-06）
+
+> 本轮为纯重构，未改 H1 / H2、弹窗仲裁时序、路由栈与 Tab 可见性契约。`MainTabContainer` / `DialogArbiter` 的大拆分保留（无自动化测试，需真机回归），先收敛可安全提取的重复与纯逻辑。
+
+| 项 | 结果 |
+| --- | --- |
+| `MainPage.ets` | 513 → 473L |
+| 工具栏 4 项 | 4 段同构对象收敛为 `createTabItem(label, icon, tab)`（`:385`）+ `switchTab(tab)`（`:376`）；`tabVersion >= 0` 恒真条件移除 |
+| 窗口模式 | 纯逻辑抽到 `utils/MainNavigationMode.ets`（26L）：`isLandscapeOrientation` / `resolveNavigationMode`；`setCurrentMode()`（`:136`）只保留 try/catch 与赋值 |
+| 弹窗标签 | `getGameAccountLabel` 抽到 `utils/MainDialogLabels.ets`（21L）；`getGeetestLabel`（`:182`）与设备指纹提示共用 |
+| 其他 | Cookie 过期队列出队改 `slice(1)`（`:151`）；`charMenuItems` 尾部赋值改 `push`；删除未使用的 `getGameName` / `FailedAccountInfo` / `GameId` 导入 |
+| 编译 | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 14s 996ms`，安装/启动成功 |
+| 冒烟 | 🔶 待手动：4 Tab 切换 → 二级页返回 → 折叠屏展开/折叠 → 人机验证（含返回手势关闭）→ Cookie 过期（多账号）→ 账号切换 |
+
+**保留不变量**：4 Tab 共享 `this.stack`（`:48`，`Navigation(this.stack)` 在 `:403`）；标题栏协议字段、`TAB_HOME..TAB_MY` 索引、`windowClass` 读取时序、`@Monitor` 三个信号均未改；`MainTabContainer` / `TitleBarController` / `DialogArbiter` 三个大拆分与 H1/H2 行为修复留待后续单独立项。
+
 ---
 
 ## 10. 复核命令（可复现）

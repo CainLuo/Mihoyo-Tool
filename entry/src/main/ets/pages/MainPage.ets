@@ -9,15 +9,17 @@ import { ComponentContent, SymbolGlyphModifier } from '@kit.ArkUI'
 import { promptAction } from '@kit.ArkUI'
 import { window } from '@kit.ArkUI'
 import { display } from '@kit.ArkUI'
-import { themeManager, ThemeManager, AccountOption, AccountSwitchDialog, AccountSwitchDialogParams, AppRoutes, splitPlaceholderBuilder, CookieExpiredSignal, getGameName, DialogDedup, showFeedback, FeedbackType } from 'basic'
+import { themeManager, ThemeManager, AccountOption, AccountSwitchDialog, AccountSwitchDialogParams, AppRoutes, splitPlaceholderBuilder, CookieExpiredSignal, DialogDedup, showFeedback, FeedbackType } from 'basic'
 import { HomePage } from 'home'
 import { CharactersPage } from 'characters'
 import { MyPage } from 'account'
 import { ToolsPage } from 'material'
 import { GeetestSignal, GeetestQueueItem, showGeetestDialog, GeetestCenter, DeviceFpCenter, DeviceFpInvalidSignal } from 'verification'
-import { FailedAccountInfo, GameId, GeetestVerifyInput, Logger } from 'core'
+import { GeetestVerifyInput, Logger } from 'core'
 import { common } from '@kit.AbilityKit'
 import BuildProfile from 'BuildProfile'
+import { isLandscapeOrientation, resolveNavigationMode } from '../utils/MainNavigationMode'
+import { getGameAccountLabel } from '../utils/MainDialogLabels'
 
 
 @Builder
@@ -134,19 +136,8 @@ export struct MainPage {
   private setCurrentMode(): void {
     try {
       const orientation = display.getDefaultDisplaySync().orientation
-      const isLandscape = orientation === display.Orientation.LANDSCAPE ||
-        orientation === display.Orientation.LANDSCAPE_INVERTED
-      if (isLandscape) {
-        // 横屏：分屏（WindowStatusType=4）强制单栏，否则分栏
-        this.navMode = (this.currentWindowStatusType === 4)
-          ? NavigationMode.Stack
-          : NavigationMode.Split
-      } else {
-        // 竖屏：窗口宽度 < 520vp 单栏，≥ 520vp 分栏（Auto 模式阈值）
-        this.navMode = this.windowWidthVp < 520
-          ? NavigationMode.Stack
-          : NavigationMode.Split
-      }
+      this.navMode = resolveNavigationMode(
+        isLandscapeOrientation(orientation), this.windowWidthVp, this.currentWindowStatusType)
     } catch (_e) {
       // 获取屏幕方向失败时保持当前模式
     }
@@ -157,11 +148,7 @@ export struct MainPage {
     if (this.cookieExpiredSignal.queue.length === 0) { return }
     const info = this.cookieExpiredSignal.queue[0]
     // 从队列移除
-    const newQueue: FailedAccountInfo[] = []
-    for (let i = 1; i < this.cookieExpiredSignal.queue.length; i++) {
-      newQueue[newQueue.length] = this.cookieExpiredSignal.queue[i]
-    }
-    this.cookieExpiredSignal.queue = newQueue
+    this.cookieExpiredSignal.queue = this.cookieExpiredSignal.queue.slice(1)
 
     const ctx = this.uiCtx
     if (ctx === null) { return }
@@ -193,20 +180,7 @@ export struct MainPage {
 
   /** 验证框标题栏：多账号排队时提示是哪个游戏账号（游戏名 · UID）；取不到游戏 UID 时显示米游社昵称 */
   private getGeetestLabel(item: GeetestQueueItem): string {
-    return this.getGameAccountLabel(item.trigger.gameId, item.trigger.roleId, item.accountName)
-  }
-
-  /** "游戏名 · UID xxx"；roleId 为空时返回 fallback */
-  private getGameAccountLabel(gameId: GameId, roleId: string, fallback: string): string {
-    if (roleId.length === 0) {
-      return fallback
-    }
-    let gameName = ''
-    try {
-      gameName = this.uiCtx?.getHostContext()?.resourceManager.getStringSync(getGameName(gameId).id) ?? ''
-    } catch (_) {
-    }
-    return gameName.length > 0 ? `${gameName} · UID ${roleId}` : `UID ${roleId}`
+    return getGameAccountLabel(this.uiCtx, item.trigger.gameId, item.trigger.roleId, item.accountName)
   }
 
   /** 设备指纹无效（5003 / 10041）：统一提示，可直接重新生成设备指纹 */
@@ -232,7 +206,7 @@ export struct MainPage {
       fallback = ctx.getHostContext()?.resourceManager.getStringSync($r('app.string.device_fp_unknown_account').id) ?? ''
     } catch (_) {
     }
-    const label = this.getGameAccountLabel(signal.gameId, signal.roleUid, fallback)
+    const label = getGameAccountLabel(this.uiCtx, signal.gameId, signal.roleUid, fallback)
     this.isFpPromptShowing = true
     ctx.getPromptAction().showDialog({
       title: $r('app.string.device_fp_invalid_title'),
@@ -343,19 +317,19 @@ export struct MainPage {
   private get charMenuItems(): NavigationMenuItem[] {
     const items: NavigationMenuItem[] = [];
     if (this.shouldShowCharSwitcher) {
-      items[items.length] = {
+      items.push({
         value: 'switch_account',
         symbolIcon: new SymbolGlyphModifier($r('sys.symbol.person_2')),
         action: () => { this.showAccountSwitchSheet() }
-      };
+      });
     }
     if (this.shouldShowCharRefresh) {
-      items[items.length] = {
+      items.push({
         value: 'refresh',
         symbolIcon: new SymbolGlyphModifier($r('sys.symbol.arrow_clockwise')),
         isEnabled: !this.isCharRefreshing,
         action: () => { this.charDoRefresh() }
-      };
+      });
     }
     return items;
   }
@@ -396,6 +370,28 @@ export struct MainPage {
     if (this.selectedTab === TAB_CHARACTERS) { return $r('app.string.characters_tab_title') }
     if (this.selectedTab === TAB_TOOLS) { return $r('app.string.tools_title') }
     return $r('app.string.main_tab_my')
+  }
+
+  /** 切换 Tab：分栏模式下清空共享路由栈 */
+  private switchTab(tab: number): void {
+    this.selectedTab = tab
+    this.tabVersion++
+    if (this.isSplit) {
+      this.stack.clear()
+    }
+  }
+
+  /** 生成底部 Tab 项（图标 / 选中态 / 切换行为一致） */
+  private createTabItem(label: Resource, icon: Resource, tab: number): ToolbarItem {
+    return {
+      value: label,
+      symbolIcon: new SymbolGlyphModifier(icon)
+        .fontColor([this.tm.current.colorTextSecondary]),
+      activeSymbolIcon: new SymbolGlyphModifier(icon)
+        .fontColor([this.tm.current.colorPrimary]),
+      status: this.selectedTab === tab ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
+      action: () => { this.switchTab(tab) }
+    }
   }
 
   build() {
@@ -447,46 +443,10 @@ export struct MainPage {
       .title(this.getTabTitle())
       .menus(this.currentMenuItems)
       .toolbarConfiguration([
-        {
-          value: $r('app.string.main_tab_home'),
-          symbolIcon: new SymbolGlyphModifier($r('sys.symbol.house'))
-            .fontColor([this.tm.current.colorTextSecondary]),
-          activeSymbolIcon: new SymbolGlyphModifier($r('sys.symbol.house'))
-            .fontColor([this.tm.current.colorPrimary]),
-          status: (this.selectedTab === TAB_HOME && this.tabVersion >= 0)
-            ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
-          action: () => { this.selectedTab = TAB_HOME; this.tabVersion++; if (this.isSplit) { this.stack.clear() } }
-        },
-        {
-          value: $r('app.string.characters_tab_title'),
-          symbolIcon: new SymbolGlyphModifier($r('sys.symbol.person'))
-            .fontColor([this.tm.current.colorTextSecondary]),
-          activeSymbolIcon: new SymbolGlyphModifier($r('sys.symbol.person'))
-            .fontColor([this.tm.current.colorPrimary]),
-          status: (this.selectedTab === TAB_CHARACTERS && this.tabVersion >= 0)
-            ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
-          action: () => { this.selectedTab = TAB_CHARACTERS; this.tabVersion++; if (this.isSplit) { this.stack.clear() } }
-        },
-        {
-          value: $r('app.string.tools_title'),
-          symbolIcon: new SymbolGlyphModifier($r('sys.symbol.wrench_and_screwdriver'))
-            .fontColor([this.tm.current.colorTextSecondary]),
-          activeSymbolIcon: new SymbolGlyphModifier($r('sys.symbol.wrench_and_screwdriver'))
-            .fontColor([this.tm.current.colorPrimary]),
-          status: (this.selectedTab === TAB_TOOLS && this.tabVersion >= 0)
-            ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
-          action: () => { this.selectedTab = TAB_TOOLS; this.tabVersion++; if (this.isSplit) { this.stack.clear() } }
-        },
-        {
-          value: $r('app.string.main_tab_my'),
-          symbolIcon: new SymbolGlyphModifier($r('sys.symbol.gearshape'))
-            .fontColor([this.tm.current.colorTextSecondary]),
-          activeSymbolIcon: new SymbolGlyphModifier($r('sys.symbol.gearshape'))
-            .fontColor([this.tm.current.colorPrimary]),
-          status: (this.selectedTab === TAB_MY && this.tabVersion >= 0)
-            ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
-          action: () => { this.selectedTab = TAB_MY; this.tabVersion++; if (this.isSplit) { this.stack.clear() } }
-        }
+        this.createTabItem($r('app.string.main_tab_home'), $r('sys.symbol.house'), TAB_HOME),
+        this.createTabItem($r('app.string.characters_tab_title'), $r('sys.symbol.person'), TAB_CHARACTERS),
+        this.createTabItem($r('app.string.tools_title'), $r('sys.symbol.wrench_and_screwdriver'), TAB_TOOLS),
+        this.createTabItem($r('app.string.main_tab_my'), $r('sys.symbol.gearshape'), TAB_MY),
       ])
       .mode(this.navMode)
       .navBarWidth(0.4 * this.windowWidthVp)
