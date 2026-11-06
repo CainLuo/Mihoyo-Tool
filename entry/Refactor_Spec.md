@@ -366,7 +366,7 @@ entry/src/main/ets/
 | M10 | CharDetail | ✅ 真重构完成（行为修复待单独提交） | — | 81d7e9d | ✅ BUILD SUCCESSFUL in 14s 775ms | ⚠️ 跳过 | 🔶 待运行 | — | 三页 150/137/137→129/116/116L；新增 CharDetailWindowSize 56L + CharDetailHeroScaffold 99L；三游戏 parseRawJson ERROR 兜底保留 |
 | M11 | AccountDetail | ✅ 真重构完成（行为修复待单独提交） | — | c15d53b | ✅ BUILD SUCCESSFUL in 34s 393ms | ⚠️ 跳过 | 🔶 待运行 | — | ActionsSection 4 按钮收敛为 Builder；页面结果 Toast 收敛；VM 删除 refreshCookieError 死字段；删除二次确认 / 失败反馈保留 |
 | M12 | Login | ✅ 真重构完成（行为修复待单独提交） | — | f9858e0 | ✅ BUILD SUCCESSFUL in 16s 267ms | ⚠️ 跳过 | 🔶 待运行 | — | 三种登录共用 `buildCookie()`；魔法数字收敛到 `LoginConstants`；新增 `LoginErrorText`；日志脱敏 / `@Event` 风格 / 协议后缀保留 |
-| M13 | WidgetConfig | ✅ 真重构完成（行为修复待单独提交） | — | 待补 | ✅ BUILD SUCCESSFUL in 15s 331ms | ⚠️ 跳过 | 无 Local Test（冒烟待手动） | — | VM 676→447L；新增 SizeConfig 56L + AccountGroups 61L + ConfigSaver 96L；步骤流程去重；删除未用 `@Local tm`；M1/M2 行为修复保留 |
+| M13 | WidgetConfig | ✅ 真重构完成（行为修复待单独提交） | — | 965bb49 | ✅ BUILD SUCCESSFUL in 15s 331ms | ⚠️ 跳过 | 无 Local Test（冒烟待手动） | — | VM 676→447L；新增 SizeConfig 56L + AccountGroups 61L + ConfigSaver 96L；步骤流程去重；删除未用 `@Local tm`；M1/M2 行为修复保留 |
 | M14 | Widget 子系统 | 未开始 | — | — | — | — | — | — | — |
 | M15 | 框架 | 未开始 | — | — | — | — | — | — | — |
 
@@ -591,7 +591,7 @@ entry/src/main/ets/
 ---
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）；M9 真重构完成（`fafcabc`）；M10 真重构完成（`81d7e9d`）；M11 真重构完成（`c15d53b`）；M12 真重构完成（`f9858e0`）；M13 真重构完成（提交待补）。*
+*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）；M9 真重构完成（`fafcabc`）；M10 真重构完成（`81d7e9d`）；M11 真重构完成（`c15d53b`）；M12 真重构完成（`f9858e0`）；M13 真重构完成（`965bb49`）。*
 
 ---
 
