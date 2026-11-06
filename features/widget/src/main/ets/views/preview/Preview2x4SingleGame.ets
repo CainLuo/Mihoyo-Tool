@@ -37,6 +37,58 @@ export struct Preview2x4SingleGame {
     return getStaminaColor(getStaminaColorType(this.staminaRatio), this.gameId);
   }
 
+  /** 右侧额外数据行（12fp / 弱化标签） */
+  @Builder
+  private extraRow(label: ResourceStr, value: ResourceStr, valueColor: ResourceColor = WidgetColors.WHITE) {
+    Row() {
+      Text(label)
+        .fontSize(12)
+        .fontColor(WidgetColors.WHITE)
+        .opacity(WidgetColors.OPACITY_TEXT_FAINT)
+        .layoutWeight(1)
+
+      Text(value)
+        .fontSize(12)
+        .fontWeight(600)
+        .fontColor(valueColor)
+    }
+    .width('100%')
+    .justifyContent(FlexAlign.SpaceBetween)
+  }
+
+  /** 派遣头像（completed 时带绿色对勾角标） */
+  @Builder
+  private expeditionAvatar(completed: boolean) {
+    Stack({ alignContent: Alignment.BottomEnd }) {
+      Row()
+        .width(24)
+        .height(24)
+        .borderRadius(12)
+        .linearGradient({
+          angle: 135,
+          colors: [['rgba(100,100,120,0.8)', 0], ['rgba(60,60,80,0.8)', 1]]
+        })
+
+      if (completed) {
+        Row() {
+          Text('✓')
+            .fontSize(7)
+            .fontColor('#000000')
+            .fontWeight(700)
+        }
+        .width(10)
+        .height(10)
+        .borderRadius(5)
+        .backgroundColor('#34d399')
+        .justifyContent(FlexAlign.Center)
+        .alignItems(VerticalAlign.Center)
+        .margin({ bottom: -2, right: -2 })
+      }
+    }
+    .width(24)
+    .height(24)
+  }
+
   build() {
     Column() {
       // 主体内容：左右两列
@@ -100,142 +152,22 @@ export struct Preview2x4SingleGame {
         Column({ space: 6 }) {
           if (this.gameId === GameId.GENSHIN) {
             // 原神：洞天宝钱 + 每日委托 + 参量质变仪（去掉探索派遣）
-            Row() {
-              Text($r('app.string.widget_home_coin'))
-                .fontSize(12)
-                .fontColor(WidgetColors.WHITE)
-                .opacity(WidgetColors.OPACITY_TEXT_FAINT)
-                .layoutWeight(1)
-
-              Text('1800/2400')
-                .fontSize(12)
-                .fontWeight(600)
-                .fontColor(WidgetColors.WHITE)
-            }
-            .width('100%')
-            .justifyContent(FlexAlign.SpaceBetween)
-
-            Row() {
-              Text($r('app.string.widget_daily_task'))
-                .fontSize(12)
-                .fontColor(WidgetColors.WHITE)
-                .opacity(WidgetColors.OPACITY_TEXT_FAINT)
-                .layoutWeight(1)
-
-              Text('3/4')
-                .fontSize(12)
-                .fontWeight(600)
-                .fontColor(WidgetColors.WHITE)
-            }
-            .width('100%')
-            .justifyContent(FlexAlign.SpaceBetween)
-
-            Row() {
-              Text($r('app.string.widget_transformer'))
-                .fontSize(12)
-                .fontColor(WidgetColors.WHITE)
-                .opacity(WidgetColors.OPACITY_TEXT_FAINT)
-                .layoutWeight(1)
-
-              Text($r('app.string.widget_transformer_ready'))
-                .fontSize(12)
-                .fontWeight(600)
-                .fontColor(WidgetColors.SUCCESS)
-            }
-            .width('100%')
-            .justifyContent(FlexAlign.SpaceBetween)
+            this.extraRow($r('app.string.widget_home_coin'), '1800/2400')
+            this.extraRow($r('app.string.widget_daily_task'), '3/4')
+            this.extraRow($r('app.string.widget_transformer'), $r('app.string.widget_transformer_ready'),
+              WidgetColors.SUCCESS)
           } else if (this.gameId === GameId.STARRAIL) {
             // 星铁：后备开拓力 + 实训积分 + 模拟宇宙
-            Row() {
-              Text($r('app.string.widget_reserve_stamina'))
-                .fontSize(12)
-                .fontColor(WidgetColors.WHITE)
-                .opacity(WidgetColors.OPACITY_TEXT_FAINT)
-                .layoutWeight(1)
-
-              Text('2400')
-                .fontSize(12)
-                .fontWeight(600)
-                .fontColor(WidgetColors.WHITE)
-            }
-            .width('100%')
-            .justifyContent(FlexAlign.SpaceBetween)
-
-            Row() {
-              Text($r('app.string.widget_train_score'))
-                .fontSize(12)
-                .fontColor(WidgetColors.WHITE)
-                .opacity(WidgetColors.OPACITY_TEXT_FAINT)
-                .layoutWeight(1)
-
-              Text('400/500')
-                .fontSize(12)
-                .fontWeight(600)
-                .fontColor(WidgetColors.WHITE)
-            }
-            .width('100%')
-            .justifyContent(FlexAlign.SpaceBetween)
-
-            Row() {
-              Text($r('app.string.widget_rogue_weekly'))
-                .fontSize(12)
-                .fontColor(WidgetColors.WHITE)
-                .opacity(WidgetColors.OPACITY_TEXT_FAINT)
-                .layoutWeight(1)
-
-              Text('800/1000')
-                .fontSize(12)
-                .fontWeight(600)
-                .fontColor(WidgetColors.WHITE)
-            }
-            .width('100%')
-            .justifyContent(FlexAlign.SpaceBetween)
+            this.extraRow($r('app.string.widget_reserve_stamina'), '2400')
+            this.extraRow($r('app.string.widget_train_score'), '400/500')
+            this.extraRow($r('app.string.widget_rogue_weekly'), '800/1000')
           } else if (this.gameId === GameId.ZZZ) {
             // 绝区零：活跃度 + 录像店 + 刮刮卡
-            Row() {
-              Text($r('app.string.widget_vitality'))
-                .fontSize(12)
-                .fontColor(WidgetColors.WHITE)
-                .opacity(WidgetColors.OPACITY_TEXT_FAINT)
-                .layoutWeight(1)
-
-              Text('300/400')
-                .fontSize(12)
-                .fontWeight(600)
-                .fontColor(WidgetColors.WHITE)
-            }
-            .width('100%')
-            .justifyContent(FlexAlign.SpaceBetween)
-
-            Row() {
-              Text($r('app.string.widget_video_store'))
-                .fontSize(12)
-                .fontColor(WidgetColors.WHITE)
-                .opacity(WidgetColors.OPACITY_TEXT_FAINT)
-                .layoutWeight(1)
-
-              Text($r('app.string.widget_store_open'))
-                .fontSize(12)
-                .fontWeight(600)
-                .fontColor(WidgetColors.SUCCESS)
-            }
-            .width('100%')
-            .justifyContent(FlexAlign.SpaceBetween)
-
-            Row() {
-              Text($r('app.string.widget_card_sign'))
-                .fontSize(12)
-                .fontColor(WidgetColors.WHITE)
-                .opacity(WidgetColors.OPACITY_TEXT_FAINT)
-                .layoutWeight(1)
-
-              Text($r('app.string.widget_card_done'))
-                .fontSize(12)
-                .fontWeight(600)
-                .fontColor(WidgetColors.SUCCESS)
-            }
-            .width('100%')
-            .justifyContent(FlexAlign.SpaceBetween)
+            this.extraRow($r('app.string.widget_vitality'), '300/400')
+            this.extraRow($r('app.string.widget_video_store'), $r('app.string.widget_store_open'),
+              WidgetColors.SUCCESS)
+            this.extraRow($r('app.string.widget_card_sign'), $r('app.string.widget_card_done'),
+              WidgetColors.SUCCESS)
           }
         }
         .layoutWeight(1)
@@ -264,86 +196,11 @@ export struct Preview2x4SingleGame {
               .margin({ right: 2 })
 
             // 5个派遣头像（2个完成，3个进行中）
-            Stack({ alignContent: Alignment.BottomEnd }) {
-              Row()
-                .width(24)
-                .height(24)
-                .borderRadius(12)
-                .linearGradient({
-                  angle: 135,
-                  colors: [['rgba(100,100,120,0.8)', 0], ['rgba(60,60,80,0.8)', 1]]
-                })
-
-              Row() {
-                Text('✓')
-                  .fontSize(7)
-                  .fontColor('#000000')
-                  .fontWeight(700)
-              }
-              .width(10)
-              .height(10)
-              .borderRadius(5)
-              .backgroundColor('#34d399')
-              .justifyContent(FlexAlign.Center)
-              .alignItems(VerticalAlign.Center)
-              .margin({ bottom: -2, right: -2 })
-            }
-            .width(24)
-            .height(24)
-
-            Stack({ alignContent: Alignment.BottomEnd }) {
-              Row()
-                .width(24)
-                .height(24)
-                .borderRadius(12)
-                .linearGradient({
-                  angle: 135,
-                  colors: [['rgba(100,100,120,0.8)', 0], ['rgba(60,60,80,0.8)', 1]]
-                })
-
-              Row() {
-                Text('✓')
-                  .fontSize(7)
-                  .fontColor('#000000')
-                  .fontWeight(700)
-              }
-              .width(10)
-              .height(10)
-              .borderRadius(5)
-              .backgroundColor('#34d399')
-              .justifyContent(FlexAlign.Center)
-              .alignItems(VerticalAlign.Center)
-              .margin({ bottom: -2, right: -2 })
-            }
-            .width(24)
-            .height(24)
-
-            Row()
-              .width(24)
-              .height(24)
-              .borderRadius(12)
-              .linearGradient({
-                angle: 135,
-                colors: [['rgba(100,100,120,0.8)', 0], ['rgba(60,60,80,0.8)', 1]]
-              })
-
-            Row()
-              .width(24)
-              .height(24)
-              .borderRadius(12)
-              .linearGradient({
-                angle: 135,
-                colors: [['rgba(100,100,120,0.8)', 0], ['rgba(60,60,80,0.8)', 1]]
-              })
-
-            Row()
-              .width(24)
-              .height(24)
-              .borderRadius(12)
-              .linearGradient({
-                angle: 135,
-                colors: [['rgba(100,100,120,0.8)', 0], ['rgba(60,60,80,0.8)', 1]]
-              })
+            this.expeditionAvatar(true)
+            this.expeditionAvatar(true)
+            this.expeditionAvatar(false)
+            this.expeditionAvatar(false)
+            this.expeditionAvatar(false)
           }
           .width('100%')
           .justifyContent(FlexAlign.Start)

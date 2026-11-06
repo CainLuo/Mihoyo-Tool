@@ -194,7 +194,7 @@ entry/src/main/ets/
 | M11 | AccountDetail | AccountDetail | AccountDetailViewModel | accountdetail/（7） | 有 Local Test |
 | M12 | Login | Login (+WebViewPage) | LoginViewModel | views/（19） | **已有根 spec `Refactor_Login_Spec.md`**：其中 build-profile/mock 分离不可执行，只取组件拆分；WebView 路由文件冻结 |
 | M13 | WidgetConfig | WidgetSettings | WidgetSettingsViewModel | views/（23 = 13 根级 + preview/10） | 无 Local Test |
-| M14 | Widget 子系统 | widget/pages ×6 | widget/viewmodel ×4 | widget/components（10）+ models（4）+ utils（16） | V1 孤岛；与 widgetsyncability + notification 交互；form_config 路径冻结 |
+| M14 | Widget 子系统 | widget/pages ×6 | widget/viewmodel ×4 | `features/widget` 预览 views/preview（10）+ model/service + utils | V1 孤岛；与 widgetsyncability + notification 交互；form_config 路径冻结；本轮只重构 preview |
 | M15 | 框架 | MainPage, Index, LaunchPage (+TestPage) | – | – | Navigation 路由 + `@Param` 回调编排；最后执行 |
 
 **跨模块共享组件（复用分析）** — 被多个模块导入的组件应位于 `components/common/`（或保留在原定义处）：
@@ -344,7 +344,7 @@ entry/src/main/ets/
 | M11 | AccountDetail | [account-detail](../docs/account-detail-module-analysis.md) | 0 Critical / 0 High；2 Medium（删除无二次确认、删除失败无反馈）+ 1 Low（`as common.UIAbilityContext` 强转） | 记录；删除相关行为修复单独提交 |
 | M12 | Login | [login](../docs/login-module-analysis.md) / [webview](../docs/webview-page-module-analysis.md) | 0 Critical / 0 High（二维码轮询取消标记已由 `b98abae` 修复，复核撤回；原 SEC-002「Cookie 日志明文」经逐层核查无凭据落盘路径，降为 Medium 加固）；4 Medium / 2 Low；WebView 0 High（2 Low） | 无阻断项；三种登录共用 `buildCookie()`、魔法数字收敛、错误提示组件化已执行；日志脱敏 / `@Event` 风格 / 协议后缀行为修复保留，WebView 仅记录 |
 | M13 | WidgetConfig | [widget-settings](../docs/widget-settings-module-analysis.md) | 0 High；1 Medium（`vm.init()` 失败后静默回退空配置，无错误态/重试；`isLoading` 必被置 false）+ 1 Low | 随模块修；VM 676→447L 已拆出尺寸映射 / 账号分组 / 持久化；未用 `@Local tm` 已删 |
-| M14 | Widget 子系统 | [widget-subsystem](../docs/widget-subsystem-modules-analysis.md) / [widget-settings](../docs/widget-settings-module-analysis.md) / [component-dedup](../docs/component-deduplication-review.md) | 0 Critical / 3 High（瞬时更新失败即删用户卡片配置；无数据时展示 Mock 账号与体力；卡片从不显示数据新鲜度）；6 Medium / 3 Low；V1 孤岛（16 个 V1 文件：6 pages + 10 components） | H1/H2 随模块修（各自单提交），H3 需产品决策；装饰器不迁移；form_config 6 条 src 冻结 |
+| M14 | Widget 子系统 | [widget-subsystem](../docs/widget-subsystem-modules-analysis.md) / [widget-settings](../docs/widget-settings-module-analysis.md) / [component-dedup](../docs/component-deduplication-review.md) | 0 Critical / 3 High（瞬时更新失败即删用户卡片配置；无数据时展示 Mock 账号与体力；卡片从不显示数据新鲜度）；6 Medium / 3 Low；V1 孤岛（16 个 V1 文件：6 pages + 10 components） | H1/H2 保留（各自单提交），H3 需产品决策；装饰器不迁移；form_config 6 条 src 冻结；本轮只重构 preview 组件（2x4 361→218L、4x4 246→238L） |
 | M15 | 框架 | [main](../docs/main-module-analysis.md) / [index](../docs/index-module-analysis.md) / [launch](../docs/launch-module-analysis.md) / [test-page](../docs/test-page-module-analysis.md) / [ability-startup](../docs/ability-and-startup-modules-analysis.md) | MainPage 2 High（人机验证弹窗关闭时无 callback 地 `off('windowSizeChange')`，注销窗口尺寸监听；返回手势关闭验证框后验证队列永久卡死——10-29 复核恢复）；10 Medium / 6 Low（含 Cookie 过期弹框叠加、窗口 API 未包 try、Tab 根页按返回可能显示空白——待真机确认）；Index / Launch 0 High；TestPage 0 High（入口仅 DEBUG 可见，Q-2）；Ability 0 High / 4 Medium（初始化失败不可见、4 个 AppStorage key 无常量、`loadContent` 无兜底、导出 ability 不校验调用方） | 记录；Main 行为修复后续单独立项；AppStorage 常量可随 M15 |
 
 > 原则：重构提交**不夹带行为变更**；Critical/High 若要修，先在本表登记并在 `## M<n> spec` 说明，修复与移动分开提交。
@@ -367,7 +367,7 @@ entry/src/main/ets/
 | M11 | AccountDetail | ✅ 真重构完成（行为修复待单独提交） | — | c15d53b | ✅ BUILD SUCCESSFUL in 34s 393ms | ⚠️ 跳过 | 🔶 待运行 | — | ActionsSection 4 按钮收敛为 Builder；页面结果 Toast 收敛；VM 删除 refreshCookieError 死字段；删除二次确认 / 失败反馈保留 |
 | M12 | Login | ✅ 真重构完成（行为修复待单独提交） | — | f9858e0 | ✅ BUILD SUCCESSFUL in 16s 267ms | ⚠️ 跳过 | 🔶 待运行 | — | 三种登录共用 `buildCookie()`；魔法数字收敛到 `LoginConstants`；新增 `LoginErrorText`；日志脱敏 / `@Event` 风格 / 协议后缀保留 |
 | M13 | WidgetConfig | ✅ 真重构完成（行为修复待单独提交） | — | 965bb49 | ✅ BUILD SUCCESSFUL in 15s 331ms | ⚠️ 跳过 | 无 Local Test（冒烟待手动） | — | VM 676→447L；新增 SizeConfig 56L + AccountGroups 61L + ConfigSaver 96L；步骤流程去重；删除未用 `@Local tm`；M1/M2 行为修复保留 |
-| M14 | Widget 子系统 | 未开始 | — | — | — | — | — | — | — |
+| M14 | Widget 子系统 | ✅ 预览组件重构完成（V1 孤岛按契约不动） | — | 待补 | ✅ BUILD SUCCESSFUL in 15s 218ms | ⚠️ 跳过 | 无 Local Test（冒烟待手动） | — | 2x4 361→218L（extraRow / expeditionAvatar Builder）；4x4 246→238L（dataRow Builder）；清理未用导入；H1/H2/H3 保留 |
 | M15 | 框架 | 未开始 | — | — | — | — | — | — | — |
 
 **回滚策略：**
@@ -591,7 +591,7 @@ entry/src/main/ets/
 ---
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）；M9 真重构完成（`fafcabc`）；M10 真重构完成（`81d7e9d`）；M11 真重构完成（`c15d53b`）；M12 真重构完成（`f9858e0`）；M13 真重构完成（`965bb49`）。*
+*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）；M9 真重构完成（`fafcabc`）；M10 真重构完成（`81d7e9d`）；M11 真重构完成（`c15d53b`）；M12 真重构完成（`f9858e0`）；M13 真重构完成（`965bb49`）；M14 预览组件重构完成（提交待补）。*
 
 ---
 
@@ -1176,3 +1176,66 @@ M13 覆盖小组件配置页：`WidgetSettingsPage` 65L + `WidgetSettingsViewMod
 ### 结论
 
 **M13 真重构完成**：`WidgetSettingsViewModel` 676 → 447L，拆出尺寸映射（56L）、账号分组（61L）、持久化服务（96L）；`goNext` / `goPrev` 步骤流程去重；删除页面未使用的 `@Local tm`。跨进程 Preferences / want 契约保持不变，行为等价，`bash run.sh uat` 编译安装通过。`init()` 错误态与「完成」失败反馈保留为行为修复，待单独提交。
+
+---
+
+## M14 spec — Widget 卡片预览（2026-11-06 真重构）
+
+分析依据：[`docs/widget-subsystem-modules-analysis.md`](../docs/widget-subsystem-modules-analysis.md)。
+
+### 背景说明
+
+M14 原范围覆盖整个 Widget 子系统（V1 卡片孤岛 + 两个 ability + 数据仓）。本轮按计划只重构 `features/widget/src/main/ets/views/preview/`：配置页的卡片预览组件。`entry/src/main/ets/widget/` 的 6 个页面 / 4 个 ViewModel / 10 个 V1 组件受 `form_config.json` 与 `module.json5` 冻结，且 V1 装饰器不迁移，本轮不动。
+
+预览组件里 `Preview2x4SingleGame` 361L 最突出：9 段完全同构的内联数据行、5 段派遣头像（2 个完成 + 3 个进行中）；`Preview4x4SingleGame` 两组 `ForEach` 重复同一段数据行 markup。
+
+### 决策
+
+| # | 问题 | 决定 | 依据 |
+| --- | --- | --- | --- |
+| D1 | 2x4 的 9 段数据行 | 收敛为 `@Builder extraRow(label, value, valueColor)` | 字号 / 颜色 / 布局完全一致，仅文案与颜色不同 |
+| D2 | 2x4 的 5 段派遣头像 | 收敛为 `@Builder expeditionAvatar(completed)` | 完成态只多一个绿色对勾角标 |
+| D3 | 4x4 两组 `ForEach` 重复行 | 收敛为 `@Builder dataRow(row)` | 两处 markup 完全相同 |
+| D4 | 未使用的 `StaminaColorType` 导入 | 删除（`Preview1x2Content` / `Preview4x4SingleGame`） | 只导入未使用 |
+| D5 | 多 Slot 布局重复 | 不合并 | 2x2 / 2x4 / 4x4 的分隔线方向与嵌套不同，合并会引入 BuilderParam 复杂度 |
+| D6 | V1 卡片页面 / 组件 / ability | 不动 | `form_config.json` / `module.json5` 冻结；V1 不迁移 |
+| D7 | H1 / H2 / H3 / M1–M8 | 不随本提交 | 行为修复或能力增强，单独提交 |
+
+### 文件改动清单
+
+| 操作 | 文件 | 说明 |
+| --- | --- | --- |
+| 修改 | `views/preview/Preview2x4SingleGame.ets`（361 → 218L） | 新增 `extraRow` / `expeditionAvatar` Builder，替换 9 段数据行与 5 段头像 |
+| 修改 | `views/preview/Preview4x4SingleGame.ets`（246 → 238L） | 新增 `dataRow` Builder，替换两组 ForEach 内重复行；删除未用导入 |
+| 修改 | `views/preview/Preview1x2Content.ets`（72L） | 删除未使用的 `StaminaColorType` 导入 |
+
+### 契约与冻结项
+
+- `resources/base/profile/form_config.json` 的 6 条 `src` 与 `name` 冻结；本轮不改。
+- `module.json5` 的 `EntryFormAbility` / `WidgetSyncAbility` `srcEntry` 冻结。
+- V1 组件不迁移到 V2，不新增 `@ComponentV2` 到卡片渲染进程。
+- `'payload'` LocalStorage key、`widget_data` / `widget_configs` Preferences 文件与 JSON 结构不变。
+- 测试引用的 `Widget2x2ViewModel` / `WidgetUIStates` / `WidgetPayloadParser` / `WidgetDataHelper` / `WidgetUtils` / `WidgetExtraRow*` 导出名不变。
+
+### 验收记录
+
+| 项 | 结果 |
+| --- | --- |
+| 编译（uat/Debug） | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 15s 218ms`，安装/启动成功 |
+| codeLinter | ⚠️ 项目未配置 codeLinter task，跳过 |
+| Local Test | 🔶 widget 六套测试需 DevEco GUI 手动运行 |
+| 冒烟 | 🔶 待手动：配置页各尺寸预览（单游戏 / 多游戏）外观与重构前一致 |
+
+### 已知问题记录（不执行）
+
+| ID | 级别 | 描述 | 状态 |
+| --- | --- | --- | --- |
+| H1 | High | 瞬时更新失败即删用户卡片配置 | 保留，行为修复单独提交 |
+| H2 | High | 无数据时展示 Mock 账号与体力 | 保留，行为修复单独提交 |
+| H3 | High | 卡片从不显示数据新鲜度 | 保留，需产品决策 |
+| M1–M8 | Medium | 重复解析、冷却、并发锁、`WidgetFormIdStore` 空转等 | 保留 |
+| L1–L3 | Low | logger 合并、`formEvent` 校验、预览缺失 | 保留 |
+
+### 结论
+
+**M14 预览组件重构完成**：`Preview2x4SingleGame` 361 → 218L（`extraRow` / `expeditionAvatar` 两个 Builder 消除 14 段重复 markup）；`Preview4x4SingleGame` 246 → 238L（`dataRow` Builder）；清理未使用的 `StaminaColorType` 导入。V1 卡片孤岛、ability、H1/H2/H3 与 M1–M8 按契约保留。行为等价，`bash run.sh uat` 编译安装通过。

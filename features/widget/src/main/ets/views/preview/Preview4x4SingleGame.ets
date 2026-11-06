@@ -10,7 +10,7 @@
  */
 
 import { GameId } from 'core';
-import { WidgetColors, StaminaColorType, DefaultTheme } from 'widgetbase';
+import { WidgetColors, DefaultTheme } from 'widgetbase';
 import { PreviewStamina, getPreviewStaminaData } from '../../model/WidgetPreviewModels';
 import { getWidgetGameName, getStaminaColorType, getStaminaColor, formatRecoveryTime } from '../../utils/WidgetPreviewUtil';
 
@@ -90,6 +90,26 @@ export struct Preview4x4SingleGame {
     return '原粹树脂';
   }
 
+  /** 单行额外数据（12fp / 弱化标签） */
+  @Builder
+  private dataRow(row: ExtraRow) {
+    Row() {
+      Text(row.label)
+        .fontSize(12)
+        .fontColor(WidgetColors.WHITE)
+        .opacity(0.45)
+        .layoutWeight(1)
+
+      Text(row.value)
+        .fontSize(12)
+        .fontWeight(600)
+        .fontColor(row.valueColor)
+    }
+    .width('100%')
+    .justifyContent(FlexAlign.SpaceBetween)
+    .margin({ top: 4, bottom: 4 })
+  }
+
   build() {
     Column() {
       // ── 顶部标题行（固定高度）──
@@ -154,21 +174,7 @@ export struct Preview4x4SingleGame {
       if (this.group1.length > 0) {
         Column() {
           ForEach(this.group1, (row: ExtraRow) => {
-            Row() {
-              Text(row.label)
-                .fontSize(12)
-                .fontColor(WidgetColors.WHITE)
-                .opacity(0.45)
-                .layoutWeight(1)
-
-              Text(row.value)
-                .fontSize(12)
-                .fontWeight(600)
-                .fontColor(row.valueColor)
-            }
-            .width('100%')
-            .justifyContent(FlexAlign.SpaceBetween)
-            .margin({ top: 4, bottom: 4 })
+            this.dataRow(row)
           })
         }
         .width('100%')
@@ -183,21 +189,7 @@ export struct Preview4x4SingleGame {
       if (this.group2.length > 0) {
         Column() {
           ForEach(this.group2, (row: ExtraRow) => {
-            Row() {
-              Text(row.label)
-                .fontSize(12)
-                .fontColor(WidgetColors.WHITE)
-                .opacity(0.45)
-                .layoutWeight(1)
-
-              Text(row.value)
-                .fontSize(12)
-                .fontWeight(600)
-                .fontColor(row.valueColor)
-            }
-            .width('100%')
-            .justifyContent(FlexAlign.SpaceBetween)
-            .margin({ top: 4, bottom: 4 })
+            this.dataRow(row)
           })
         }
         .width('100%')

@@ -283,6 +283,18 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 - **Low 3 项**（logger 合并、`formEvent` 校验、预览缺失）：可顺手做。
 - **测试空白**：`Widget1x2/2x4/4x4ViewModel`（419 行）、`WidgetDataStore`（452）、`WidgetPayloadBuilder`（358）、`WidgetDataStoreBuilder`（365）、`WidgetImageDownloader`（479）、`WidgetUpdateNotifier`（146）均无单测——即**本子系统 3 个 High 所在的文件全部无测试保护**。
 
+### 预览组件执行记录（2026-11-06）
+
+> **范围说明**：本轮 M14 只重构 `features/widget/src/main/ets/views/preview/`（配置页卡片预览），**未改** `entry/src/main/ets/widget/` 的 V1 卡片渲染孤岛与两个 ability —— 它们受 `form_config.json` / `module.json5` 冻结，且按契约不迁移 V1 → V2。H1 / H2 / H3 与 M1–M8 保留，未随本轮提交。
+
+| 项 | 结果 |
+| --- | --- |
+| `Preview2x4SingleGame.ets` | 361 → 218L：9 段内联数据行收敛为 `@Builder extraRow(label, value, valueColor)`；5 段派遣头像收敛为 `@Builder expeditionAvatar(completed)` |
+| `Preview4x4SingleGame.ets` | 246 → 238L：两组 `ForEach` 中重复的数据行收敛为 `@Builder dataRow(row)`；删除未使用的 `StaminaColorType` 导入 |
+| `Preview1x2Content.ets` | 72L：删除未使用的 `StaminaColorType` 导入 |
+| 编译 | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 15s 218ms`，安装/启动成功 |
+| 冒烟 | 🔶 待手动：配置页各尺寸预览（单游戏 / 多游戏）外观应与重构前一致 |
+
 ---
 
 ## 8. 依赖文件索引

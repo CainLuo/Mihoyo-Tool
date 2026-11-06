@@ -8,7 +8,7 @@
  */
 
 import { GameId } from 'core';
-import { WidgetColors, StaminaColorType, DefaultTheme } from 'widgetbase';
+import { WidgetColors, DefaultTheme } from 'widgetbase';
 import { PreviewStamina, getPreviewStaminaData } from '../../model/WidgetPreviewModels';
 import { getWidgetGameName, getStaminaColorType, getStaminaColor, formatRecoveryTime } from '../../utils/WidgetPreviewUtil';
 
