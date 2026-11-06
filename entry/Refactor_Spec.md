@@ -368,7 +368,7 @@ entry/src/main/ets/
 | M12 | Login | ✅ 真重构完成（行为修复待单独提交） | — | f9858e0 | ✅ BUILD SUCCESSFUL in 16s 267ms | ⚠️ 跳过 | 🔶 待运行 | — | 三种登录共用 `buildCookie()`；魔法数字收敛到 `LoginConstants`；新增 `LoginErrorText`；日志脱敏 / `@Event` 风格 / 协议后缀保留 |
 | M13 | WidgetConfig | ✅ 真重构完成（行为修复待单独提交） | — | 965bb49 | ✅ BUILD SUCCESSFUL in 15s 331ms | ⚠️ 跳过 | 无 Local Test（冒烟待手动） | — | VM 676→447L；新增 SizeConfig 56L + AccountGroups 61L + ConfigSaver 96L；步骤流程去重；删除未用 `@Local tm`；M1/M2 行为修复保留 |
 | M14 | Widget 子系统 | ✅ 预览组件重构完成（V1 孤岛按契约不动） | — | 1ab3d43 | ✅ BUILD SUCCESSFUL in 15s 218ms | ⚠️ 跳过 | 无 Local Test（冒烟待手动） | — | 2x4 361→218L（extraRow / expeditionAvatar Builder）；4x4 246→238L（dataRow Builder）；清理未用导入；H1/H2/H3 保留 |
-| M15 | 框架 | ✅ 真重构完成（行为修复 / 大拆分保留） | — | 待补 | ✅ BUILD SUCCESSFUL in 14s 996ms | ⚠️ 跳过 | 无自动化测试（冒烟待手动） | — | MainPage 513→473L；新增 MainNavigationMode 26L + MainDialogLabels 21L；工具栏 / 窗口模式 / 弹窗标签收敛；Index / Launch / TestPage 未改；H1/H2 保留 |
+| M15 | 框架 | ✅ 真重构完成（行为修复 / 大拆分保留） | — | 324e508 | ✅ BUILD SUCCESSFUL in 14s 996ms | ⚠️ 跳过 | 无自动化测试（冒烟待手动） | — | MainPage 513→473L；新增 MainNavigationMode 26L + MainDialogLabels 21L；工具栏 / 窗口模式 / 弹窗标签收敛；Index / Launch / TestPage 未改；H1/H2 保留 |
 
 **回滚策略：**
 - 执行前打基线 tag：`git tag refactor-baseline-2026-10-24`。
@@ -591,7 +591,7 @@ entry/src/main/ets/
 ---
 
 *本文档为规划与执行记录；M0 代码改动见上方 `## M0 spec`。*
-*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）；M9 真重构完成（`fafcabc`）；M10 真重构完成（`81d7e9d`）；M11 真重构完成（`c15d53b`）；M12 真重构完成（`f9858e0`）；M13 真重构完成（`965bb49`）；M14 预览组件重构完成（`1ab3d43`）；M15 真重构完成（提交待补）。*
+*进度（2026-11-05）：M0 已提交（`1ff4cfe`）；M1 真重构完成（`82cf004`）；M2 重构 + High 修复完成（`8a85078` / `ed45262`）；M3 / M4 真重构完成（`b6d8309`）；M5 纯重构完成（`5ca87a1`）；M6 真重构完成（`7002525`）；M7 四个子区域完成（`a78d749`）；M8 真重构完成（`e831292`）；M9 真重构完成（`fafcabc`）；M10 真重构完成（`81d7e9d`）；M11 真重构完成（`c15d53b`）；M12 真重构完成（`f9858e0`）；M13 真重构完成（`965bb49`）；M14 预览组件重构完成（`1ab3d43`）；M15 真重构完成（`324e508`）。*
 
 ---
 
