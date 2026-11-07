@@ -105,7 +105,10 @@ export struct Preview2x4SingleGame {
             .textOverflow({ overflow: TextOverflow.Ellipsis })
 
           // UID 12fp
-          Text($r('app.string.widget_uid_prefix', this.roleId))
+          Text() {
+            Span($r('app.string.widget_uid_prefix'))
+            Span(this.roleId)
+          }
             .fontSize(12)
             .fontColor(WidgetColors.WHITE)
             .opacity(WidgetColors.OPACITY_TEXT_GHOST)

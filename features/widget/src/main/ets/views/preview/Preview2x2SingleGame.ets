@@ -39,7 +39,10 @@ export struct Preview2x2SingleGame {
           .opacity(WidgetColors.OPACITY_TEXT_MEDIUM)
           .maxLines(1)
 
-        Text($r('app.string.widget_uid_prefix', this.roleId))
+        Text() {
+          Span($r('app.string.widget_uid_prefix'))
+          Span(this.roleId)
+        }
           .fontSize(this.theme.font10)
           .fontColor(WidgetColors.WHITE)
           .opacity(WidgetColors.OPACITY_TEXT_GHOST)

@@ -37,7 +37,10 @@ export struct Preview1x2Content {
           .fontColor(WidgetColors.WHITE)
           .opacity(WidgetColors.OPACITY_TEXT_MUTED)
 
-        Text($r('app.string.widget_uid_prefix', this.roleId))
+        Text() {
+          Span($r('app.string.widget_uid_prefix'))
+          Span(this.roleId)
+        }
           .fontSize(this.theme.font9)
           .fontColor(WidgetColors.WHITE)
           .opacity(WidgetColors.OPACITY_TEXT_GHOST)

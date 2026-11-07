@@ -128,7 +128,10 @@ export struct Preview4x4SingleGame {
           .layoutWeight(1)
           .margin({ left: 6 })
 
-        Text($r('app.string.widget_uid_prefix', this.roleId))
+        Text() {
+          Span($r('app.string.widget_uid_prefix'))
+          Span(this.roleId)
+        }
           .fontSize(10)
           .fontColor(WidgetColors.WHITE)
           .opacity(0.35)
