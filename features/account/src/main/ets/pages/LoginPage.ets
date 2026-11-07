@@ -101,6 +101,7 @@ export struct LoginPage {
         this.windowWidth = cur.width as number
       })
     }
+    .id('login_page')
     .title($r('app.string.login_title'))
     .hideTitleBar(false)
     .onReady((ctx: NavDestinationContext) => {

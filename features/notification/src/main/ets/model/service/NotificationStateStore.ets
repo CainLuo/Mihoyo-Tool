@@ -11,6 +11,24 @@ import { NotificationStateEntry } from '../NotificationModels';
 const TAG: string = 'NotificationStateStore';
 const STORE_NAME: string = 'notification_state';
 
+/** 从四项持久化值还原状态；reminderId < 0 表示没有有效调度 */
+export function decodeStateEntry(
+  reminderIdVal: number,
+  recoveryTimeSnapshot: number,
+  threshold: number,
+  scheduledAt: number
+): NotificationStateEntry | null {
+  if (reminderIdVal < 0) {
+    return null;
+  }
+  const entry = new NotificationStateEntry();
+  entry.reminderId = reminderIdVal;
+  entry.recoveryTimeSnapshot = recoveryTimeSnapshot;
+  entry.threshold = threshold;
+  entry.scheduledAt = scheduledAt;
+  return entry;
+}
+
 export class NotificationStateStore {
   private static _instance: NotificationStateStore | null = null;
   private pref: preferences.Preferences | null = null;
@@ -42,12 +60,10 @@ export class NotificationStateStore {
       if (reminderId < 0) {
         return null;
       }
-      const entry = new NotificationStateEntry();
-      entry.reminderId = reminderId;
-      entry.recoveryTimeSnapshot = (await this.pref.get(`${key}_rt`, -1)) as number;
-      entry.threshold = (await this.pref.get(`${key}_th`, 0)) as number;
-      entry.scheduledAt = (await this.pref.get(`${key}_at`, 0)) as number;
-      return entry;
+      const recoveryTimeSnapshot = (await this.pref.get(`${key}_rt`, -1)) as number;
+      const threshold = (await this.pref.get(`${key}_th`, 0)) as number;
+      const scheduledAt = (await this.pref.get(`${key}_at`, 0)) as number;
+      return decodeStateEntry(reminderId, recoveryTimeSnapshot, threshold, scheduledAt);
     } catch (e) {
       const msg = e instanceof Error ? e.message : `${e}`;
       Logger.warn(TAG, `getEntry(${key}) failed: ${msg}`);

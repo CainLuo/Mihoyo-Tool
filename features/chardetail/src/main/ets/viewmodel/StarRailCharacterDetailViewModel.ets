@@ -88,7 +88,12 @@ export class StarRailCharacterDetailViewModel {
         return;
       }
 
-      this.parseRawJson(row.rawJson);
+      const parseError = this.parseRawJson(row.rawJson);
+      if (parseError.length > 0) {
+        this.viewState = ViewState.ERROR;
+        this.networkErrorMsg = `parse failed: ${parseError}`;
+        return;
+      }
       this.viewState = ViewState.DATA;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -98,7 +103,8 @@ export class StarRailCharacterDetailViewModel {
     }
   }
 
-  private parseRawJson(rawJson: string): void {
+  /** 解析角色详情；成功返回空串，失败返回错误信息 */
+  private parseRawJson(rawJson: string): string {
     try {
       const parsed = JSON.parse(rawJson) as StarRailAvatarDetailRaw;
 
@@ -206,9 +212,11 @@ export class StarRailCharacterDetailViewModel {
         }
       }
       this.properties = propList;
+      return '';
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `parseRawJson failed: ${msg}`);
+      return msg;
     }
   }
 

@@ -12,6 +12,37 @@ const KEY_ENABLED: string = 'enabled';
 const KEY_STYLE: string = 'style';
 const KEY_GAME_PREFIX: string = 'game_';
 
+/** 游戏通知设置的存储 key：{accountId}_{gameId}（带 game_ 前缀） */
+export function buildGameSettingKey(accountId: string, gameId: GameId): string {
+  return `${KEY_GAME_PREFIX}${accountId}_${gameId}`;
+}
+
+/** 阈值：有真实上限时取 80%，否则用游戏常量 fallback */
+export function resolveThreshold(gameId: GameId, maxStamina: number): number {
+  if (maxStamina > 0) {
+    return Math.floor(maxStamina * 0.8);
+  }
+  return defaultThresholdForGame(gameId);
+}
+
+/** 只保留已知的通知样式，其余回落 STYLE_A */
+export function normalizeNotificationStyle(styleStr: string): NotificationStyle {
+  return styleStr === NotificationStyle.STYLE_B ? NotificationStyle.STYLE_B : NotificationStyle.STYLE_A;
+}
+
+function defaultThresholdForGame(gameId: GameId): number {
+  if (gameId === GameId.GENSHIN) {
+    return GameStaminaConstants.GENSHIN_DEFAULT_THRESHOLD;
+  }
+  if (gameId === GameId.STARRAIL) {
+    return GameStaminaConstants.STARRAIL_DEFAULT_THRESHOLD;
+  }
+  if (gameId === GameId.ZZZ) {
+    return GameStaminaConstants.ZZZ_DEFAULT_THRESHOLD;
+  }
+  return 0;
+}
+
 export class NotificationSettingsStore {
   private static _instance: NotificationSettingsStore | null = null;
   private pref: preferences.Preferences | null = null;
@@ -40,7 +71,7 @@ export class NotificationSettingsStore {
     try {
       s.isEnabled = (await this.pref.get(KEY_ENABLED, false)) as boolean;
       const styleStr = (await this.pref.get(KEY_STYLE, NotificationStyle.STYLE_A)) as string;
-      s.style = styleStr === NotificationStyle.STYLE_B ? NotificationStyle.STYLE_B : NotificationStyle.STYLE_A;
+      s.style = normalizeNotificationStyle(styleStr);
     } catch (e) {
       const msg = e instanceof Error ? e.message : `${e}`;
       Logger.warn(TAG, `loadGlobal failed: ${msg}`);
@@ -66,14 +97,12 @@ export class NotificationSettingsStore {
   async loadGameSetting(accountId: string, gameId: GameId, maxStamina: number = 0): Promise<GameNotificationSetting> {
     const s = new GameNotificationSetting();
     // 默认阈值：如果有实际 maxStamina 就用 80%，否则用 fallback 常量
-    s.threshold = maxStamina > 0
-      ? Math.floor(maxStamina * 0.8)
-      : NotificationSettingsStore.getDefaultThreshold(gameId);
+    s.threshold = resolveThreshold(gameId, maxStamina);
     if (this.pref === null) {
       return s;
     }
     try {
-      const key = `${KEY_GAME_PREFIX}${accountId}_${gameId}`;
+      const key = buildGameSettingKey(accountId, gameId);
       const enabledKey = `${key}_enabled`;
       const thresholdKey = `${key}_threshold`;
       s.isEnabled = (await this.pref.get(enabledKey, true)) as boolean;
@@ -90,7 +119,7 @@ export class NotificationSettingsStore {
       return;
     }
     try {
-      const key = `${KEY_GAME_PREFIX}${accountId}_${gameId}`;
+      const key = buildGameSettingKey(accountId, gameId);
       await this.pref.put(`${key}_enabled`, setting.isEnabled);
       await this.pref.put(`${key}_threshold`, setting.threshold);
       await this.pref.flush();
@@ -100,16 +129,4 @@ export class NotificationSettingsStore {
     }
   }
 
-  private static getDefaultThreshold(gameId: GameId): number {
-    if (gameId === GameId.GENSHIN) {
-      return GameStaminaConstants.GENSHIN_DEFAULT_THRESHOLD;
-    }
-    if (gameId === GameId.STARRAIL) {
-      return GameStaminaConstants.STARRAIL_DEFAULT_THRESHOLD;
-    }
-    if (gameId === GameId.ZZZ) {
-      return GameStaminaConstants.ZZZ_DEFAULT_THRESHOLD;
-    }
-    return 0;
-  }
 }

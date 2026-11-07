@@ -440,6 +440,7 @@ export struct MainPage {
         .width(this.tm.current.full)
         .height(this.tm.current.full)
       }
+      .id('main_navigation')
       .title(this.getTabTitle())
       .menus(this.currentMenuItems)
       .toolbarConfiguration([

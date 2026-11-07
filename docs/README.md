@@ -1,7 +1,7 @@
 # entry 模块分析索引
 
 > **覆盖范围**：`entry/src/main/ets` 全部 **349 个 `.ets`** = 29 页面 + 195 组件 + 24 ViewModel（`viewmodel/`）+ 40 widget 文件（含 4 个 widget ViewModel）+ 52 共享层（utils/models/constants/theme/config/styles/builders）+ 5 通知服务 + 4 ability；另含 `module.json5` 契约与 `entry/src/test` 的 20 个测试文件
-> **文档数量**：20 份单页面分析 + 3 份家族/模板合并分析 + 4 份跨层/子系统分析 + 3 份专项（去重/组件索引/测试套件）= **30 份**
+> **文档数量**：20 份单页面分析 + 3 份家族/模板合并分析 + 4 份跨层/子系统分析 + 3 份专项（去重/组件索引/测试套件）= **30 份分析**，另加 1 份 2026-11-06 收尾审计（[refactor-completion-audit.md](./refactor-completion-audit.md)）
 > **最后更新**：2026-10-26（全目录逐份复核）
 > **评分口径**：`skills/harmonyos-review` 官方 A-F 评级（统一，见第 1 节）
 > **配套方案**：重构执行以 [`entry/Refactor_Spec.md`](../entry/Refactor_Spec.md) 为准（模块划分、契约冻结、缺陷分诊见其 §4 / §11）
@@ -99,6 +99,7 @@
 **专项文档**（不计入评级）：
 
 - [project-structure.md](./project-structure.md) —— **当前**工程目录结构（2026-10-29 结构迁移完成后，逐文件注释、模块依赖、路由、资源分布）
+- [refactor-completion-audit.md](./refactor-completion-audit.md) —— **2026-11-06 重构收尾审计**：编译 / codeLinter / Local Test 门禁实测结果、剩余 P0–P2 缺口与执行顺序
 - [structure-migration-plan.md](./structure-migration-plan.md) —— 结构迁移计划与执行记录、待办（Local Test、全量冒烟、29 份文档复核）
 - [naming-conventions.md](./naming-conventions.md) —— entry 命名规范（依据 OpenHarmony《ArkTS 编程规范》与官方 codelabs）
 - [naming-rename-map.md](./naming-rename-map.md) —— 2026-10-28 全量改名映射（文件 / 类型 / 常量 / 布尔 / 方法 / 资源 / 测试）；本目录文档中的文件名已按此表更新，`file:line` 行号仍为基线 `105c8d3`
@@ -165,7 +166,7 @@
 1. **深度不完全一致**。早期文档（Home / Characters）用 12 章节模板，中期为控制生成长度压缩到 7 章节，导致部分文档偏薄。**2026-10-26 复核已统一章节骨架与计数口径**：27 份模块文档（20 单页 + 3 家族 + 4 系统层）均含「执行摘要（C/H/M/L）→ 文件/组件清单 → 结构或调用链 → 合规检查 → 风险清单 → 重构执行备注」，并逐份重算了行数、计数与 `file:line` 锚点；Login / Tools / My / Main 四份补齐了缺失的「合规检查」章节，Home 补齐后新增 1 条 Medium（首页组件反向依赖 widget；2026-10-29 结构迁移把 `UserGameSection` 迁入 `common/basic` 并改为 `roleBuilder` 插槽，该 Medium 已解除）。
 2. **证据锚点已机器化核对**：全部文档引用的 `*.ets:行号` 均落在真实文件与行数范围内，引用的文件路径全部存在；表格里的「文件名 → 行数」逐行与 `wc -l` 对过（30/30 一致）。复核方法见文末《7. 全目录复核记录》。
 3. **债务点数为人工分类**，不是 `codeLinter` 或静态工具输出。同一问题在不同文档中可能被判为 High 或 Medium（例如"异步失败后仍照常推进"在 `AppearanceSettingsPage` 记为 High——用户会被 `pop()` 带走且无任何提示；在 `PrivacyConsentPage` 记为 Medium——用户看到的是正常进入主界面），判断依据是**用户是否能感知到故障**。跨文档横向比较时请以评级为准，不要逐一对比点数值。
-4. **评级不代表有测试保护**。`entry/src/test` 的 Local Test 只覆盖 24 个 ViewModel 中的 10 个（AccountDetail / Characters / GenshinCharacterDetail / GenshinDailyDetail / Home / Login / MaterialCalc / My / PrivacyConsent / Tools）；AppearanceSettings、NotificationSettings、WidgetConfig、StarRail·ZZZ CharDetail、StarRail·ZZZ Dailynote、MaterialCharacterSelect、MaterialList / MaterialTargetConfig 以及框架页**没有单测**。A 级只说明代码问题少，不代表重构后能被测试接住。完整矩阵（含 286 条用例与当前红色基线）见 [test-suite-analysis.md](./test-suite-analysis.md)。
+4. **评级不代表有测试保护**。Local Test 已扩展到 14 个模块 / 837 条用例，29 个 ViewModel 全部有测试（含 AppearanceSettings、NotificationSettings、WidgetSettings、三个游戏的 MaterialList / MaterialTargetConfig / CharDetail / DailyDetail 与 4 个 Widget VM）；widget / notification 的 4 个 Store 也已改为可注入并补测。但组件、Ability、设备端 UI 与部分服务层仍无自动化执行结果，A 级只说明代码问题少，不代表重构后能被测试接住。完整测试资产与剩余缺口见 [refactor-completion-audit.md](./refactor-completion-audit.md)。
 
 ---
 

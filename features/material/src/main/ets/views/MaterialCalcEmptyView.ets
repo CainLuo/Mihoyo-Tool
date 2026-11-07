@@ -25,6 +25,7 @@ export struct MaterialCalcEmptyView {
         .fontColor(this.tm.current.colorTextSecondary)
         .textAlign(TextAlign.Center)
     }
+    .id('material_calc_empty')
     .width('100%')
     .layoutWeight(1)
     .justifyContent(FlexAlign.Center)

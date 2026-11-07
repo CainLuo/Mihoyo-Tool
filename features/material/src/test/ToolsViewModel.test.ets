@@ -37,7 +37,7 @@ export default function toolsViewModelTest() {
       const entry = new GameEntryVM();
       expect(entry.accountId).assertEqual('');
       expect(entry.gameId).assertEqual(GameId.GENSHIN);
-      expect(entry.gameName).not.assertNull();
+      expect(entry.gameName !== null).assertTrue();
       expect(entry.characterCount).assertEqual(0);
       expect(entry.computedCount).assertEqual(0);
       expect(entry.hasData).assertEqual(false);

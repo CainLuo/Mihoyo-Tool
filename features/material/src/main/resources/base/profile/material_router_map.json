@@ -34,6 +34,11 @@
       "name": "MaterialCharacterSelect",
       "pageSourceFile": "src/main/ets/pages/MaterialCharacterSelectPage.ets",
       "buildFunction": "MaterialCharacterSelectPageBuilder"
+    },
+    {
+      "name": "MaterialCalc",
+      "pageSourceFile": "src/main/ets/pages/MaterialCalcPage.ets",
+      "buildFunction": "MaterialCalcPageBuilder"
     }
   ]
 }

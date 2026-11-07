@@ -21,7 +21,7 @@ export default function materialCalcViewModelTest() {
 
     it('initial_character_notNull', 0, () => {
       const vm = new MaterialCalcViewModel();
-      expect(vm.character).not.assertNull();
+      expect(vm.character === null).assertFalse();
     });
 
     it('initial_skills_isEmpty', 0, () => {
@@ -90,8 +90,8 @@ export default function materialCalcViewModelTest() {
     it('characterVM_initialValues', 0, () => {
       const char = new MaterialCalcCharacterVM();
       expect(char.characterId).assertEqual('');
-      expect(char.characterName).assertEqual('');
-      expect(char.characterIconUrl).assertEqual('');
+      expect(char.name).assertEqual('');
+      expect(char.iconUrl).assertEqual('');
       expect(char.currentLevel).assertEqual(1);
       expect(char.targetLevel).assertEqual(90);
     });

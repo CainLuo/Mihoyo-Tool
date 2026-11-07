@@ -18,7 +18,7 @@ import { Want } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { preferences } from '@kit.ArkData';
 import { WidgetLogger } from 'widgetbase';
-import { WidgetConfigStore, WidgetDataStoreManager, WidgetPayloadBuilder, WidgetConfig, WidgetSize, WidgetImageDownloader, WidgetMockPayload, WidgetDataStore } from 'widget';
+import { WidgetConfigStore, WidgetDataStoreManager, WidgetPayloadBuilder, WidgetConfig, WidgetSize, WidgetImageDownloader, WidgetDataStore } from 'widget';
 
 const TAG = 'WIDGET';
 
@@ -173,13 +173,12 @@ export default class EntryFormAbility extends FormExtensionAbility {
     dataStore: WidgetDataStore,
     formInfo: FormSpec
   ): formBindingData.FormBindingData {
-    // 数据为空时返回 Mock 数据
+    // 数据为空时也要返回真实空 payload，让卡片展示空态；不能展示 Mock 账号/体力
     if (!dataStore.hasData) {
-      WidgetLogger.warn(TAG, 'dataStore is empty, using mock data');
-      return this.buildMockFormData();
+      WidgetLogger.warn(TAG, 'dataStore is empty, rendering empty payload');
     }
 
-    // 构建 payload
+    // 构建 payload（无数据时 accounts 为空，卡片走 isEmpty 空态）
     const payload = WidgetPayloadBuilder.buildPayload(config, dataStore);
     payload.widgetWidth = formInfo.width;
     payload.widgetHeight = formInfo.height;
@@ -198,15 +197,6 @@ export default class EntryFormAbility extends FormExtensionAbility {
     formDataObj['formImages'] = formImages as Object;
 
     return formBindingData.createFormBindingData(formDataObj);
-  }
-
-  /**
-   * 构建 Mock 表单数据（用于调试）
-   */
-  private buildMockFormData(): formBindingData.FormBindingData {
-    const mockPayload = WidgetMockPayload.buildPayload();
-    const mockRecord: Record<string, string> = { 'payload': mockPayload };
-    return formBindingData.createFormBindingData(mockRecord);
   }
 
   // ── 私有方法：配置保存 ────────────────────────────────────────────────────────

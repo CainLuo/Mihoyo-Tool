@@ -23,6 +23,13 @@ import { WidgetDataStore } from '../WidgetDataStoreModels';
 
 const TAG = 'WIDGET';
 
+/** 单次推送的结果：成功 / 卡片已被移除 / 可重试的失败 */
+export enum WidgetPushResult {
+  SUCCESS = 'success',
+  WIDGET_REMOVED = 'removed',
+  FAILED = 'failed',
+}
+
 export class WidgetUpdateNotifier {
   /**
    * 通知所有已安装的 Widget 刷新
@@ -60,22 +67,27 @@ export class WidgetUpdateNotifier {
       // 遍历每个 Widget 推送更新
       let successCount = 0;
       let removeCount = 0;
+      let failedCount = 0;
 
       for (let i = 0; i < configs.length; i++) {
         const config = configs[i];
-        const isSuccess = await WidgetUpdateNotifier.pushUpdate(config, dataStore);
+        const result = await WidgetUpdateNotifier.pushUpdate(config, dataStore);
 
-        if (isSuccess) {
+        if (result === WidgetPushResult.SUCCESS) {
           successCount++;
-        } else {
-          // Widget 可能已被删除，清理配置
-          Logger.warn(TAG, `[WIDGET_UPDATE] notifyAllWidgets: widget ${config.formId} update failed, removing config`);
+        } else if (result === WidgetPushResult.WIDGET_REMOVED) {
+          // 只有系统明确告知 card / formId 不存在时才清理配置；网络失败不能删用户配置
+          Logger.warn(TAG, `[WIDGET_UPDATE] notifyAllWidgets: widget ${config.formId} was removed, cleaning config`);
           await WidgetConfigStore.deleteConfig(config.formId);
           removeCount++;
+        } else {
+          // 网络 / 权限 / 限流等可重试失败：保留配置，下次同步继续推
+          Logger.warn(TAG, `[WIDGET_UPDATE] notifyAllWidgets: widget ${config.formId} update failed, keeping config`);
+          failedCount++;
         }
       }
 
-      Logger.info(TAG, `[WIDGET_UPDATE] notifyAllWidgets: done, success=${successCount} removed=${removeCount}`);
+      Logger.info(TAG, `[WIDGET_UPDATE] notifyAllWidgets: done, success=${successCount} removed=${removeCount} failed=${failedCount}`);
     } catch (e) {
       const err = e as BusinessError;
       Logger.error(TAG, `[WIDGET_UPDATE] notifyAllWidgets error: code=${err.code} msg=${err.message}`);
@@ -102,7 +114,8 @@ export class WidgetUpdateNotifier {
       }
 
       const dataStore = await WidgetDataStoreManager.load();
-      return await WidgetUpdateNotifier.pushUpdate(config, dataStore);
+      const result = await WidgetUpdateNotifier.pushUpdate(config, dataStore);
+      return result === WidgetPushResult.SUCCESS;
     } catch (e) {
       const err = e as BusinessError;
       Logger.error(TAG, `[WIDGET_UPDATE] notifyWidget error: code=${err.code} msg=${err.message}`);
@@ -115,9 +128,9 @@ export class WidgetUpdateNotifier {
    *
    * @param config Widget 配置
    * @param dataStore 数据存储
-   * @returns true 表示成功，false 表示 Widget 可能已删除
+   * @returns 成功 / 卡片已移除 / 可重试失败
    */
-  private static async pushUpdate(config: WidgetConfig, dataStore: WidgetDataStore): Promise<boolean> {
+  private static async pushUpdate(config: WidgetConfig, dataStore: WidgetDataStore): Promise<WidgetPushResult> {
     try {
       // 构建 payload
       const payload = WidgetPayloadBuilder.buildPayload(config, dataStore);
@@ -128,19 +141,28 @@ export class WidgetUpdateNotifier {
       await formProvider.updateForm(config.formId, formBinding);
 
       Logger.info(TAG, `[WIDGET_UPDATE] pushUpdate: success for ${config.formId}`);
-      return true;
+      return WidgetPushResult.SUCCESS;
     } catch (e) {
       const err = e as BusinessError;
+      const result = WidgetUpdateNotifier.classifyPushError(err.code);
 
-      // 错误码 401 表示 Widget 不存在（已被删除）
-      // 错误码 16500050 表示 formId 不存在
-      if (err.code === 401 || err.code === 16500050) {
+      if (result === WidgetPushResult.WIDGET_REMOVED) {
         Logger.warn(TAG, `[WIDGET_UPDATE] pushUpdate: widget ${config.formId} not found (deleted)`);
-        return false;
+      } else {
+        Logger.error(TAG, `[WIDGET_UPDATE] pushUpdate error for ${config.formId}: code=${err.code} msg=${err.message}`);
       }
-
-      Logger.error(TAG, `[WIDGET_UPDATE] pushUpdate error for ${config.formId}: code=${err.code} msg=${err.message}`);
-      return false;
+      return result;
     }
+  }
+
+  /**
+   * 根据 updateForm 错误码判断卡片是否真的已被移除。
+   * 401 / 16500050 才清理配置；其他错误（网络、权限、限流）都可重试。
+   */
+  static classifyPushError(code: number): WidgetPushResult {
+    if (code === 401 || code === 16500050) {
+      return WidgetPushResult.WIDGET_REMOVED;
+    }
+    return WidgetPushResult.FAILED;
   }
 }

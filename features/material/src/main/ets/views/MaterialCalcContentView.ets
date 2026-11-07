@@ -64,6 +64,7 @@ export struct MaterialCalcContentView {
       .width('100%')
       .padding(16)
     }
+    .id('material_calc_content')
     .width('100%')
     .layoutWeight(1)
     .scrollBar(BarState.Auto)

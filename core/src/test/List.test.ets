@@ -12,6 +12,7 @@ import zzzComputeParserTest from './ZZZComputeParser.test';
 import mihoyoDomainTest from './MihoyoDomain.test';
 import headerBuilderTest from './HeaderBuilder.test';
 import retcodeRegistryTest from './RetcodeRegistry.test';
+import apiErrorHandlerTest from './ApiErrorHandler.test';
 
 export default function testsuite() {
   dsUtilTest();
@@ -28,4 +29,5 @@ export default function testsuite() {
   mihoyoDomainTest();
   headerBuilderTest();
   retcodeRegistryTest();
+  apiErrorHandlerTest();
 }

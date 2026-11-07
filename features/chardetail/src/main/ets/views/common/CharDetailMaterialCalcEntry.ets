@@ -44,6 +44,7 @@ export struct CharDetailMaterialCalcEntry {
       .width(this.tm.current.full)
       .padding(this.tm.current.value16)
     }
+    .id('char_detail_material_calc_entry')
     .width(this.tm.current.full)
     .backgroundColor(this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)

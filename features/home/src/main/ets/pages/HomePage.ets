@@ -146,6 +146,7 @@ export struct HomePage {
       }
       .edgeEffect(EdgeEffect.Spring)
       .scrollBar(BarState.Off)
+      .id('home_scroll')
       .width(this.tm.current.full)
       .height(this.tm.current.full)
       .align(Alignment.Top)

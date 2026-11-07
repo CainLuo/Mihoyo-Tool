@@ -17,6 +17,7 @@ export struct MaterialCalcLoadingView {
         .height(32)
         .color(this.tm.current.colorPrimary)
     }
+    .id('material_calc_loading')
     .width('100%')
     .layoutWeight(1)
     .justifyContent(FlexAlign.Center)

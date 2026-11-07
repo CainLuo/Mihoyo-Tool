@@ -15,6 +15,15 @@ const TAG = 'WIDGET';
 const STORE_NAME = 'widget_form_ids';
 const KEY_PREFIX = 'form_';
 
+/** 从存储 key 中提取 formId；不是卡片 key 时返回 null */
+export function formIdFromStorageKey(key: string): string | null {
+  if (!key.startsWith(KEY_PREFIX)) {
+    return null;
+  }
+  const formId = key.slice(KEY_PREFIX.length);
+  return formId.length > 0 ? formId : null;
+}
+
 /** 单张卡片的配置 */
 export interface WidgetConfig {
   /** 米游社账号 UID */
@@ -104,9 +113,9 @@ export class WidgetFormIdStore {
       const formIds: string[] = [];
       const keys = Object.keys(allKeys);
       for (let i = 0; i < keys.length; i++) {
-        const key = keys[i];
-        if (key.startsWith(KEY_PREFIX)) {
-          formIds.push(key.slice(KEY_PREFIX.length));
+        const formId = formIdFromStorageKey(keys[i]);
+        if (formId !== null) {
+          formIds.push(formId);
         }
       }
       return formIds;

@@ -20,6 +20,23 @@ function getConfigKey(formId: string): string {
   return `form_${formId}`;
 }
 
+/**
+ * 解析单条配置；空串或非法 JSON 返回 null。
+ * 抽成纯函数，便于不使用 Preferences 直接测序列化边界。
+ */
+export function decodeWidgetConfig(json: string): WidgetConfig | null {
+  if (json.length === 0) {
+    return null;
+  }
+  try {
+    JSON.parse(json);
+  } catch (_e) {
+    return null;
+  }
+  const config = WidgetConfig.fromJson(json);
+  return config.formId.length > 0 ? config : null;
+}
+
 export class WidgetConfigStore {
   private static prefs: preferences.Preferences | null = null;
 
@@ -113,8 +130,9 @@ export class WidgetConfigStore {
         const key = keys[i];
         if (key.startsWith('form_')) {
           const json = await WidgetConfigStore.prefs.get(key, '') as string;
-          if (json.length > 0) {
-            configs.push(WidgetConfig.fromJson(json));
+          const config = decodeWidgetConfig(json);
+          if (config !== null) {
+            configs.push(config);
           }
         }
       }

@@ -65,6 +65,7 @@ export struct MaterialCalcPage {
           })
         }
       }
+      .id('material_calc_page')
       .width('100%')
       .height('100%')
       .backgroundColor(this.tm.current.colorPageBg)

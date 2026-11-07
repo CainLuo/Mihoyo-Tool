@@ -71,6 +71,7 @@ export struct MaterialCalcCharacter {
         this.onLevelTap();
       })
     }
+    .id('material_calc_character')
     .width('100%')
     .padding(12)
     .backgroundColor(this.tm.current.colorSurfaceCard)
