@@ -72,6 +72,9 @@ export class WidgetSettingsViewModel {
   /** 配置完成回调 */
   onConfigComplete: WidgetConfigCallback | null = null;
 
+  /** 配置失败回调（无选中角色 / 拉起卡片管理器失败） */
+  onConfigError: WidgetConfigCallback | null = null;
+
   /** Context 用于保存配置 */
   private context: common.UIAbilityContext | null = null;
 
@@ -81,8 +84,9 @@ export class WidgetSettingsViewModel {
    * 初始化数据
    * 从 Preferences 加载数据，如果为空则从 DB 构建
    * @param context UIAbilityContext，用于初始化 Preferences
+   * @returns 初始化成功返回 true；失败返回 false，由页面展示错误态并提供重试
    */
-  async init(context?: common.UIAbilityContext): Promise<void> {
+  async init(context?: common.UIAbilityContext): Promise<boolean> {
     try {
       // 保存 context 用于后续保存配置
       if (context !== undefined) {
@@ -106,9 +110,11 @@ export class WidgetSettingsViewModel {
       this.initSlotHelper();
       // 同步 UI State
       this.syncUIState();
+      return true;
     } catch (e) {
       Logger.error(TAG, `init failed: ${JSON.stringify(e)}`);
       this.dataStore = new WidgetDataStore();
+      return false;
     }
   }
 
@@ -371,6 +377,7 @@ export class WidgetSettingsViewModel {
   async complete(): Promise<void> {
     if (this.selectedSlots.length === 0) {
       Logger.error(TAG, 'complete: no slots selected');
+      this.notifyCompleteFailed();
       return;
     }
 
@@ -403,8 +410,19 @@ export class WidgetSettingsViewModel {
     await savePendingConfig(this.context, configKey, configJson);
     Logger.info(TAG, `complete: config saved, key=${configKey} jsonLen=${configJson.length}`);
 
-    if (openFormManager(want) && this.onConfigComplete !== null) {
-      this.onConfigComplete();
+    if (openFormManager(want)) {
+      if (this.onConfigComplete !== null) {
+        this.onConfigComplete();
+      }
+    } else {
+      this.notifyCompleteFailed();
+    }
+  }
+
+  /** 通知页面「完成」失败，供其提示用户 */
+  private notifyCompleteFailed(): void {
+    if (this.onConfigError !== null) {
+      this.onConfigError();
     }
   }
 
