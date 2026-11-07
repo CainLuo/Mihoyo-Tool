@@ -293,7 +293,8 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | `Preview4x4SingleGame.ets` | 246 → 238L：两组 `ForEach` 中重复的数据行收敛为 `@Builder dataRow(row)`；删除未使用的 `StaminaColorType` 导入 |
 | `Preview1x2Content.ets` | 72L：删除未使用的 `StaminaColorType` 导入 |
 | 编译 | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 15s 218ms`，安装/启动成功 |
-| 冒烟 | 🔶 待手动：配置页各尺寸预览（单游戏 / 多游戏）外观应与重构前一致 |
+| 冒烟 | ✅ 2026-11-07 模拟器实测：1x2 / 2x2 / 2x4 / 4x4 预览均正常渲染，布局与重构前一致 |
+| 已知显示缺陷（非本轮引入） | 四个预览组件的 UID 行只显示 "UID" 无号码：`widget_uid_prefix` 资源值为 `"UID "`（无 `%s`），代码却用 `$r(..., this.roleId)` 传参；真实卡片不走该资源。归入行为修复单独提交 |
 
 ---
 

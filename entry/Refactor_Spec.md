@@ -353,22 +353,51 @@ entry/src/main/ets/
 
 | M | 模块 | 状态 | 分支 | commit | 编译 | codeLinter | Local Test / 冒烟 | review | 遗留 |
 |---|---|---|---|---|---|---|---|---|---|
-| M0 | 共享层 | ✅ 已提交（导出清理 + 工具去重 + 日志） | — | 1ff4cfe | ✅ 随 M8 构建通过 | ⚠️ 跳过 | 🔶 待冒烟 | 文档 13 轮复核 | M8/外观页 High 已补字符串；M7 部分失败待产品决策 |
-| M1 | Tools | ✅ 真重构完成 | — | 82cf004 | ✅ BUILD SUCCESSFUL in 17s 272ms | ⚠️ codeLinter 未配置，跳过 | 🔶 待 DevEco GUI 运行 | 6 Medium/Low 记录不执行 | ToolsModels 拆分 + 死代码清理；LIFE-002/N+1 保留 |
+| M0 | 共享层 | ✅ 已提交（导出清理 + 工具去重 + 日志） | — | 1ff4cfe | ✅ 随 M8 构建通过 | ⚠️ 跳过 | ✅ 冒烟 11-07（首页 / 工具 / 卡片全链路） | 文档 13 轮复核 | M8/外观页 High 已补字符串；M7 部分失败待产品决策 |
+| M1 | Tools | ✅ 真重构完成 | — | 82cf004 | ✅ BUILD SUCCESSFUL in 17s 272ms | ⚠️ codeLinter 未配置，跳过 | ✅ 冒烟 11-07（工具列表 → 原神材料页） | 6 Medium/Low 记录不执行 | ToolsModels 拆分 + 死代码清理；LIFE-002/N+1 保留 |
 | M2 | PrivacyConsent | ✅ 重构 + High 修复完成 | — | 8a85078 / ed45262 | ✅ BUILD SUCCESSFUL in 16s 145ms | ⚠️ 跳过 | 🔶 待运行 | — | 步骤常量/model、Footer 去重；不足一屏卡死已修 |
-| M3 | AppearanceSettings | ✅ 真重构完成 | — | 1ff4cfe / b6d8309 | ✅ BUILD SUCCESSFUL in 15s 856ms | ⚠️ 跳过 | 🔶 待运行 | — | 新增 Models 35L；VM 81→55L；Param/ThemeModeItem 移入 model；标签映射共用 |
-| M4 | My | ✅ 真重构完成 | — | 1ff4cfe / b6d8309 | ✅ BUILD SUCCESSFUL in 15s 856ms | ⚠️ 跳过 | 🔶 待运行 | — | MyPage 150→135L；VM 116→102L；导航收敛 openDetail；AppearanceSection 72→59L |
-| M5 | Notification | ✅ 纯重构完成（行为修复待单独提交） | — | 5ca87a1 | ✅ BUILD SUCCESSFUL in 15s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 服务 670→490L + Reader 83L；VM 399→318L；M1/M2/M4/M7/M8 保留 |
-| M6 | Dailynote | ✅ 真重构完成 | — | 7002525 | ✅ BUILD SUCCESSFUL in 15s 175ms | ⚠️ 跳过 | 🔶 待运行 | — | 页面 131/123/123→60/57/57；新增 Scaffold + 3 个 utils；M3/M4 保留 |
-| M7 | MaterialCalc | ✅ 完成 | — | 36099a9 / 045437f / 41a09bb / a78d749 | ✅ BUILD SUCCESSFUL in 14s 73ms | ⚠️ 跳过 | 🔶 待运行 | — | 材料汇总 186→55L；目标配置 342/346/410→261/265/266L；角色选择 493→360L + Card 156L；MaterialCalc 页 111→109L、VM 493→465L；Service 560→163L + 5 文件 |
-| M8 | Home | ✅ 真重构完成 | — | e831292 | ✅ BUILD SUCCESSFUL in 18s 80ms | ⚠️ 跳过 | 🔶 待运行 | — | 已拆 4 文件，最大 315L |
-| M9 | Characters | ✅ 真重构完成 | — | fafcabc | ✅ BUILD SUCCESSFUL in 15s 736ms | ⚠️ 跳过 | 🔶 待运行 | — | VM 614→434L；新增 CharactersDataLoader 171L；测试契约不变 |
-| M10 | CharDetail | ✅ 真重构完成（行为修复待单独提交） | — | 81d7e9d | ✅ BUILD SUCCESSFUL in 14s 775ms | ⚠️ 跳过 | 🔶 待运行 | — | 三页 150/137/137→129/116/116L；新增 CharDetailWindowSize 56L + CharDetailHeroScaffold 99L；三游戏 parseRawJson ERROR 兜底保留 |
-| M11 | AccountDetail | ✅ 真重构完成（行为修复待单独提交） | — | c15d53b | ✅ BUILD SUCCESSFUL in 34s 393ms | ⚠️ 跳过 | 🔶 待运行 | — | ActionsSection 4 按钮收敛为 Builder；页面结果 Toast 收敛；VM 删除 refreshCookieError 死字段；删除二次确认 / 失败反馈保留 |
-| M12 | Login | ✅ 真重构完成（行为修复待单独提交） | — | f9858e0 | ✅ BUILD SUCCESSFUL in 16s 267ms | ⚠️ 跳过 | 🔶 待运行 | — | 三种登录共用 `buildCookie()`；魔法数字收敛到 `LoginConstants`；新增 `LoginErrorText`；日志脱敏 / `@Event` 风格 / 协议后缀保留 |
-| M13 | WidgetConfig | ✅ 真重构完成（行为修复待单独提交） | — | 965bb49 | ✅ BUILD SUCCESSFUL in 15s 331ms | ⚠️ 跳过 | 无 Local Test（冒烟待手动） | — | VM 676→447L；新增 SizeConfig 56L + AccountGroups 61L + ConfigSaver 96L；步骤流程去重；删除未用 `@Local tm`；M1/M2 行为修复保留 |
-| M14 | Widget 子系统 | ✅ 预览组件重构完成（V1 孤岛按契约不动） | — | 1ab3d43 | ✅ BUILD SUCCESSFUL in 15s 218ms | ⚠️ 跳过 | 无 Local Test（冒烟待手动） | — | 2x4 361→218L（extraRow / expeditionAvatar Builder）；4x4 246→238L（dataRow Builder）；清理未用导入；H1/H2/H3 保留 |
-| M15 | 框架 | ✅ 真重构完成（行为修复 / 大拆分保留） | — | 324e508 | ✅ BUILD SUCCESSFUL in 14s 996ms | ⚠️ 跳过 | 无自动化测试（冒烟待手动） | — | MainPage 513→473L；新增 MainNavigationMode 26L + MainDialogLabels 21L；工具栏 / 窗口模式 / 弹窗标签收敛；Index / Launch / TestPage 未改；H1/H2 保留 |
+| M3 | AppearanceSettings | ✅ 真重构完成 | — | 1ff4cfe / b6d8309 | ✅ BUILD SUCCESSFUL in 15s 856ms | ⚠️ 跳过 | ✅ 冒烟 11-07（浅色 / 深色即时切换） | — | 新增 Models 35L；VM 81→55L；Param/ThemeModeItem 移入 model；标签映射共用 |
+| M4 | My | ✅ 真重构完成 | — | 1ff4cfe / b6d8309 | ✅ BUILD SUCCESSFUL in 15s 856ms | ⚠️ 跳过 | ✅ 冒烟 11-07（我的页渲染 / 添加账号入口） | — | MyPage 150→135L；VM 116→102L；导航收敛 openDetail；AppearanceSection 72→59L |
+| M5 | Notification | ✅ 纯重构完成（行为修复待单独提交） | — | 5ca87a1 | ✅ BUILD SUCCESSFUL in 15s 80ms | ⚠️ 跳过 | ✅ 冒烟 11-07（通知设置页打开） | — | 服务 670→490L + Reader 83L；VM 399→318L；M1/M2/M4/M7/M8 保留 |
+| M6 | Dailynote | ✅ 真重构完成 | — | 7002525 | ✅ BUILD SUCCESSFUL in 15s 175ms | ⚠️ 跳过 | ✅ 冒烟 11-07（首页卡片 → 实时便笺） | — | 页面 131/123/123→60/57/57；新增 Scaffold + 3 个 utils；M3/M4 保留 |
+| M7 | MaterialCalc | ✅ 完成 | — | 36099a9 / 045437f / 41a09bb / a78d749 | ✅ BUILD SUCCESSFUL in 14s 73ms | ⚠️ 跳过 | ✅ 冒烟 11-07（原神材料列表打开） | — | 材料汇总 186→55L；目标配置 342/346/410→261/265/266L；角色选择 493→360L + Card 156L；MaterialCalc 页 111→109L、VM 493→465L；Service 560→163L + 5 文件 |
+| M8 | Home | ✅ 真重构完成 | — | e831292 | ✅ BUILD SUCCESSFUL in 18s 80ms | ⚠️ 跳过 | ✅ 冒烟 11-07（首页数据渲染） | — | 已拆 4 文件，最大 315L |
+| M9 | Characters | ✅ 真重构完成 | — | fafcabc | ✅ BUILD SUCCESSFUL in 15s 736ms | ⚠️ 跳过 | ✅ 冒烟 11-07（角色列表） | — | VM 614→434L；新增 CharactersDataLoader 171L；测试契约不变 |
+| M10 | CharDetail | ✅ 真重构完成（行为修复待单独提交） | — | 81d7e9d | ✅ BUILD SUCCESSFUL in 14s 775ms | ⚠️ 跳过 | ✅ 冒烟 11-07（角色详情打开） | — | 三页 150/137/137→129/116/116L；新增 CharDetailWindowSize 56L + CharDetailHeroScaffold 99L；三游戏 parseRawJson ERROR 兜底保留 |
+| M11 | AccountDetail | ✅ 真重构完成（行为修复待单独提交） | — | c15d53b | ✅ BUILD SUCCESSFUL in 34s 393ms | ⚠️ 跳过 | ✅ 冒烟 11-07（账号详情打开） | — | ActionsSection 4 按钮收敛为 Builder；页面结果 Toast 收敛；VM 删除 refreshCookieError 死字段；删除二次确认 / 失败反馈保留 |
+| M12 | Login | ✅ 真重构完成（行为修复待单独提交） | — | f9858e0 | ✅ BUILD SUCCESSFUL in 16s 267ms | ⚠️ 跳过 | ✅ 冒烟 11-07（三 Tab / 二维码 / Cookie 错误弹窗）；真实登录待账号 | — | 三种登录共用 `buildCookie()`；魔法数字收敛到 `LoginConstants`；新增 `LoginErrorText`；日志脱敏 / `@Event` 风格 / 协议后缀保留 |
+| M13 | WidgetConfig | ✅ 真重构完成（行为修复待单独提交） | — | 965bb49 | ✅ BUILD SUCCESSFUL in 15s 331ms | ⚠️ 跳过 | ✅ 冒烟 11-07（尺寸→Slot→完成 + 拉起系统卡片管理器）；无 Local Test | — | VM 676→447L；新增 SizeConfig 56L + AccountGroups 61L + ConfigSaver 96L；步骤流程去重；删除未用 `@Local tm`；M1/M2 行为修复保留 |
+| M14 | Widget 子系统 | ✅ 预览组件重构完成（V1 孤岛按契约不动） | — | 1ab3d43 | ✅ BUILD SUCCESSFUL in 15s 218ms | ⚠️ 跳过 | ✅ 冒烟 11-07（1x2 / 2x2 / 2x4 / 4x4 预览渲染一致）；无 Local Test | — | 2x4 361→218L（extraRow / expeditionAvatar Builder）；4x4 246→238L（dataRow Builder）；清理未用导入；H1/H2/H3 保留 |
+| M15 | 框架 | ✅ 真重构完成（行为修复 / 大拆分保留） | — | 324e508 | ✅ BUILD SUCCESSFUL in 14s 996ms | ⚠️ 跳过 | ✅ 冒烟 11-07（4 Tab / 二级页返回 / Cookie 过期弹窗 / TestPage）；折叠屏与人机验证待手动 | — | MainPage 513→473L；新增 MainNavigationMode 26L + MainDialogLabels 21L；工具栏 / 窗口模式 / 弹窗标签收敛；Index / Launch / TestPage 未改；H1/H2 保留 |
+
+### 门禁复核（2026-11-06，重构收尾）
+
+上表的 `codeLinter` / `Local Test` 两列写的是“跳过 / 待运行”。收尾时已把这两道门禁跑通，命令与结果如下（可复现）：
+
+| 项 | 命令 | 结果 |
+|---|---|---|
+| main 编译 | `hvigorw assembleHap -p product=uat -p buildMode=debug` | ✅ BUILD SUCCESSFUL |
+| ohosTest 编译 | `bash test-entry.sh` | ✅ BUILD SUCCESSFUL（原 67 个错误已随结构迁移消失） |
+| codeLinter | `node "$DEVECO/plugins/codelinter/index.js" --project "$PWD" --dir '[…]' --config "$PWD/code-linter.json5" --sdkPath "$DEVECO/sdk" --sdkNumberVersion 22 --sdkStringVersion "6.0.2(22)" --workdir "$DEVECO/plugins/codelinter" --logPath /tmp/codelinter.log` | ✅ 381 个 `.ets`：0 error / 1 warn / 1 suggestion，均位于 `features/characters/src/main/ets/views/CharactersContent.ets`（`hp-arkui-set-cache-count-for-lazyforeach-grid`、`hp-arkui-use-reusable-component`） |
+| Local Test | `hvigorw test --mode module -p module=<module>@default -p product=default` | ✅ 837 用例全绿：core 250 / entry 46 / account 28 / characters 35 / chardetail 34 / dailynote 27 / home 28 / legal 10 / material 106 / notification 62 / settings 9 / widget 79 / widgetbase 96 / common.basic 27。29 个 `viewmodel/` 类已全部有测试；widget / notification 的 4 个 Store 已改为注入式并补测；UI 只有 1 条启动冒烟骨架，无设备未执行；`core@ohosTest` 156 条因缺 `TestAbility.ets` 且无设备未执行。详见 [`docs/refactor-completion-audit.md` §2.3](../docs/refactor-completion-audit.md) |
+| 冒烟 | §7.1 清单（模拟器 `127.0.0.1:5555`，uat 包） | ✅ 2026-11-07 执行：4 Tab 切换 / 二级页返回 / 首页数据 / 实时便笺 / 材料列表 / 角色与账号详情 / 主题浅色·深色切换 / 通知设置 / 登录三 Tab（二维码渲染、Cookie 错误弹窗）/ Widget 四步流程 + 拉起系统卡片管理器 / 1x2·2x2·2x4·4x4 预览 / Cookie 过期弹窗 / TestPage。未覆盖：首次隐私弹窗（需清数据）、真实三方式登录（需真实账号）、折叠屏展开折叠、人机验证（需触发风控） |
+
+Local Test 首轮实际是红的，收尾时修掉的测试侧阻塞（不改产品代码）：
+
+1. `entry/src/test/Widget2x2ViewModel.test.ets` 缺 `@ohos/hypium` 导入，48 个编译错误；补齐后 20/20 通过。
+2. `features/material/src/test/*` 仍引用旧字段 `characterName` / `characterIconUrl`（现为 `name` / `iconUrl`），并使用不存在的 `expect(...).not.assertNull()`；改为现有字段与 `assertFalse()` 后 17/17 通过。
+3. `common/widgetbase/src/test/*` 未跟上 `parseExtraRows(rawJson, widgetRawJson, gameId, maxRows)` 新签名、2 参 `it()`、ArkTS 未类型化对象字面量，以及 3 条过期断言（0 秒恢复视为已满、后备开拓力不属于额外行、原神缺字段时按默认上限补齐 3 行）；修正后 96/96 通过。
+
+2026-11-07 又补全了单元测试：新增 `common/basic` 测试模块，以及 4 个 Widget VM、三个游戏的 CharDetail / DailyDetail / MaterialList / MaterialTargetConfig、MaterialCharacterSelect、NotificationSettings、AppearanceSettings、Home 数据层、Characters 数据层、widget 配置 / payload / 预览模型、ApiErrorHandler 等用例；用例总数 503 → 818，全部 ViewModel 至少被执行一次。
+
+> 完整的剩余缺口清单（P0–P2）、代码证据与执行顺序见 [`docs/refactor-completion-audit.md`](../docs/refactor-completion-audit.md)。
+
+### 冒烟发现（2026-11-07）
+
+| 位置 | 现象 | 结论 |
+| --- | --- | --- |
+| `features/widget/.../views/preview/*` 四个预览组件 | 预览里 UID 只显示 "UID"，没有号码（如 `UID 109050292`） | **非本轮回归**：`widget_uid_prefix` 资源值为 `"UID "`（无 `%s` 占位符），而代码写成 `$r('app.string.widget_uid_prefix', this.roleId)`，格式化参数被丢弃。真实桌面卡片不走该资源，不受影响。属显示缺陷，归入行为修复单独提交 |
+| M2 PrivacyConsent | 无法在已有安装上复测首次隐私弹窗 | 需清应用数据后复测，台账保留 🔶 |
 
 **回滚策略：**
 - 执行前打基线 tag：`git tag refactor-baseline-2026-10-24`。
