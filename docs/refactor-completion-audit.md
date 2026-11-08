@@ -4,7 +4,7 @@
 > **审计对象**：`bugfix/refactor-entry-module` 分支上的三层结构（`entry` / `common` / `features`）与 M0–M15 模块重构结果
 > **审计方式**：逐项跑构建 / codeLinter / Local Test，并回代码核对已登记缺陷是否仍然存在
 > **配套文档**：[`entry/Refactor_Spec.md`](../entry/Refactor_Spec.md)（执行台账）、[`structure-migration-plan.md`](./structure-migration-plan.md)（结构迁移）、[`project-structure.md`](./project-structure.md)（当前目录结构）
-> **结论**：代码重构已完成，编译与单元测试执行已通过（**837 条**）；**GAP-01 / 02 / 03 / 04 / 06 已修复**，UI 测试骨架已建立；但**真机冒烟仍未验证**，GAP-05 / 07 等缺陷与收尾债务仍在。
+> **结论**：代码重构已完成，编译与单元测试执行已通过（**837 条**）；**GAP-01 / 02 / 03 / 04 / 05 / 06 已修复**，模拟器主链路冒烟已跑；但**真机冒烟仍未完整**，GAP-07 等缺陷与收尾债务仍在。
 
 ---
 
@@ -21,7 +21,7 @@
 | 设备端单测（ohosTest） | 🔶 不可运行 | `core/src/ohosTest` 156 条 DAO / Repository 用例缺 `TestAbility.ets`，且无设备，未执行；见 §2.3.2 |
 | UI 测试 | 🔶 骨架已建 | 1 条启动冒烟 + 9 个稳定控件 id，见 §2.3.3；**无设备，未执行** |
 | 真机 / 模拟器冒烟 | 🔶 部分执行 | 2026-11-07 模拟器跑完主链路；隐私弹窗、真实登录、折叠屏、人机验证、卡片空态未覆盖，见 §2.4 |
-| 已知用户可见缺陷 | 🔶 部分修复 | GAP-01 / 02 / 03 / 04 / 06 已修；GAP-05 / 07 未修，见第 4 节 P0 |
+| 已知用户可见缺陷 | 🔶 部分修复 | GAP-01 / 02 / 03 / 04 / 05 / 06 已修；GAP-07 未修，见第 4 节 P0 |
 | 重构收尾债务 | 🔶 部分清理 | 测试与 UI 基建已补；大 ViewModel、资源拆分、文档复核仍在，见第 4 节 P1 |
 
 **一句话**：现在可以认为“重构代码写完、能编译、单测覆盖全部 ViewModel 并通过，GAP-01/02/03/06 的行为修复也已落地”，但不能认为“功能已经回归验证”——UI 测试只有骨架、没有设备执行，P0 中的签名口令、通知包名与 MainPage 监听问题仍未处理。
@@ -195,6 +195,8 @@ Local Test 首轮并非全绿：3 个模块的测试根本编译不过。修复�
 | M12 错误码原样显示 | `bae5b61` | `LoginErrorText.toDisplayMessage()` 映射 `phone_empty` / `code_empty` / `cookie_empty`；VM 值不变 | 编译通过；当前 UI 三路径均被禁用按钮拦截，属防御性修复 |
 | GAP-04 窗口监听误注销 | `f038d03` | `GeetestDialog` / `MainPage` 回调存字段后精确 `off('windowSizeChange', cb)`；`disposed` 防止异步补注册 | 编译通过；折叠屏路径待真机 |
 | GAP-04 返回手势队列卡死 | `f038d03` | `showGeetestDialog` 用 `settled` 保证只 resolve 一次，注册 `onWillDismiss` + `onDidDisappear`；`showCurrentGeetest` 补 `catch` | 编译通过；需真机触发人机验证后复测 |
+| GAP-05 通知包名写死 | `a785ca6` | `StaminaNotificationService` 新增 `private get bundleName()` 读 `context.abilityInfo.bundleName`；删除 `BUNDLE_NAME` 常量，两处用法改为 getter | 编译通过；需在 uat 包点一次通知确认跳转 |
+| M11 删除账号无确认 / 失败无提示 | `6372349` | `AccountDetailPage.confirmDelete()` 用 `showAlertDialog` 二次确认（取消 / 红色删除）；`onError` 补 `showFeedback(ERROR, '删除账号失败，请重试')` 并复位 `errorMsg` | 模拟器实测弹窗渲染、取消路径正常；失败提示未构造出触发条件 |
 
 > 说明：`bae5b61` 是一次混合提交（108 个文件），同时包含测试基建、M12 文案修复与 GAP-01 / 06 的修复，未能按“每项单独提交”的约定拆分。
 
@@ -210,11 +212,11 @@ Local Test 首轮并非全绿：3 个模块的测试根本编译不过。修复�
 | GAP-02 | ✅ 已修 | 材料计算页不可达 | [`material_router_map.json:39`](../features/material/src/main/resources/base/profile/material_router_map.json#L39) 已注册 `MaterialCalc` → `MaterialCalcPageBuilder` | 页面与入口均编译通过；仍需真机点一次入口确认嵌套 `NavPathStack` 行为 |
 | GAP-03 | ✅ 已修（×3） | 角色详情解析失败白屏 | 三个 `*CharacterDetailViewModel` 的加载 catch 均置 `ViewState.ERROR`（如 [`GenshinCharacterDetailViewModel.ets:94`](../features/chardetail/src/main/ets/viewmodel/GenshinCharacterDetailViewModel.ets#L94)） | 失败展示错误态；需真机断网回归一次 |
 | GAP-04 | ✅ 已修（`f038d03`） | MainPage 窗口监听误注销；返回手势关闭人机验证后队列卡死 | `GeetestDialog` / `MainPage` 回调存字段后精确 `off('windowSizeChange', cb)`；`showGeetestDialog` 注册 `onWillDismiss` + `onDidDisappear` 收尾，`showCurrentGeetest` 补 `catch` | 需真机回归：折叠屏展开 / 折叠后单双栏切换、返回手势关闭验证框后队列能继续 |
-| GAP-05 | Medium（待定级） | 通知包名写死正式包 | [`StaminaNotificationService.ets:29`](../features/notification/src/main/ets/model/service/StaminaNotificationService.ets#L29) `BUNDLE_NAME = 'com.cainluo.miyoyo.tools'` | uat / mock 包上的 `wantAgent` 可能指向错误应用；应从 ability context 的 bundleName 读取 |
+| GAP-05 | ✅ 已修（`a785ca6`） | 通知包名写死正式包 | `StaminaNotificationService` 新增 `private get bundleName()` 读 `context.abilityInfo.bundleName`，`publishTimerReminder` / `createNotificationWantAgentInfo` 改用该 getter，`BUNDLE_NAME` 常量删除 | uat / mock 包的提醒与通知点击不再跳到正式包；`context` 为 null 时返回空串，会在发布时被 catch 记录 |
 | GAP-06 | ✅ 已修 | 无数据时展示 Mock 账号与体力 | [`EntryFormAbility.ets:177`](../entry/src/main/ets/entryformability/EntryFormAbility.ets#L177) 不再返回 Mock，改为构建空 payload，卡片走 `isEmpty` 空态 | 需真机加一张空数据卡片确认空态文案 |
 | GAP-07 | Critical（SEC-001 / 待复核 DB-003） | 签名口令明文入库；系统备份是否含明文凭据未复核 | [`build-profile.json5`](../build-profile.json5) 的 `signingConfigs` | 轮换口令并迁移到 CI Secret；备份排除范围需单独确认 |
 
-> GAP-01 / 02 / 03 / 04 / 06 已修复并有单测 / 编译验证（GAP-04 于 2026-11-08 由 `f038d03` 修复）；GAP-04 的折叠屏与人机验证路径、GAP-02 / 03 / 06 的入口与空态仍需真机回归；GAP-05 / 07 仍存在。
+> GAP-01 / 02 / 03 / 04 / 05 / 06 已修复并有单测 / 编译验证（GAP-04 于 2026-11-08 由 `f038d03` 修复，GAP-05 由 `a785ca6` 修复）；GAP-04 的折叠屏与人机验证路径、GAP-02 / 03 / 06 的入口与空态仍需真机回归；GAP-07（签名口令入库）仍存在且不在 `.ets` 范围内。
 
 ### P1 · 重构收尾债务
 
@@ -240,9 +242,9 @@ Local Test 首轮并非全绿：3 个模块的测试根本编译不过。修复�
 
 ## 5. 建议执行顺序
 
-1. ~~GAP-01 / 02 / 03 / 06~~：已修复，待真机回归（入口、错误态、卡片空态）。
+1. ~~GAP-01 / 02 / 03 / 05 / 06~~：已修复，待真机回归（入口、错误态、卡片空态、通知跳转）。
 2. **GAP-07（签名口令）**：唯一的 Critical，发版前必须轮换并迁移到 CI Secret。
-3. **GAP-04 真机回归 + GAP-05**：折叠屏单双栏、返回手势关闭验证框需真机验证；通知包名可直接改 context 读取。
+3. **GAP-04 真机回归**：折叠屏单双栏、返回手势关闭验证框需真机验证；GAP-05 已修，需在 uat 包上点一次通知确认跳转。
 4. **UI 测试**：连设备后按 [`ui-test-plan.md`](./ui-test-plan.md) 补首页 → 角色详情 → 材料计算、未登录 → 登录两条链路并实跑。
 5. **GAP-08 ~ GAP-11**：大 VM 拆分、S6、资源拆分，按模块逐步做，每步保持编译 + 837 用例绿；剩余服务层测试按需继续解耦。
 6. **GAP-12**：文档路径 / 计数 / `docs/reviews` / CHANGELOG 一次性收尾。
@@ -286,3 +288,5 @@ codeLinter 命令见 §2.2。
 | 2026-11-06 | 复核测试资产：补计 `core` 238 条本地用例（总数 265 → 503）；补覆盖率、`features/widget` 零测试、`core@ohosTest` 156 条不可运行、UI 测试 0 的现状；GAP-11 改为“单测 + UI 覆盖不足” |
 | 2026-11-07 | 补全单元测试：新增 `common/basic` 测试模块与 widget / notification / settings / 材料 / 角色详情 / 便签 / 首页 / 账号等模块的 VM、模型与工具用例；29 个 ViewModel 全部覆盖，14 个模块 818 条全绿（503 → 818） |
 | 2026-11-07 | 修复 GAP-01 / 02 / 03 / 06；widget / notification 的 4 个 Store 改为注入式并补 16 条用例；新增 9 个控件 id、1 条 UI 启动冒烟与 [`ui-test-plan.md`](./ui-test-plan.md)；总数 818 → 837，编译与 `test-entry.sh` 通过 |
+| 2026-11-08 | 行为修复批次：预览 UID（`db33854`）、M13 错误态（`d01d988`）、M12 错误码文案（`bae5b61`）、GAP-04（`f038d03`）、GAP-05（`a785ca6`）、M11 删除确认与失败提示（`6372349`）；分支 rebase 到 `origin/main` 后 force push |
+| 2026-11-08 | 模拟器（uat 包）冒烟主链路：4 Tab、二级页、首页、便笺、材料、角色 / 账号详情、主题切换、通知设置、登录三 Tab、Widget 四步 + 四尺寸预览、Cookie 过期、TestPage；未覆盖项见 §2.4 |

@@ -106,7 +106,9 @@ AccountDetail (@ComponentV2)
 ## 6. 风险清单
 
 - [x] **中优先级（M1）**：`onDelete` 回调直接执行删除，缺少二次确认——建议 AccountActionsSection 内部集成 Alert 或独立 ConfirmDialog
+  - ✅ 已修（`6372349`）：`AccountDetailPage.confirmDelete()` 用 `showAlertDialog` 二次确认（标题「删除此账号」、说明不可恢复、取消 / 删除双按钮，删除按钮 `colorDanger`），确认后才调用 `vm.deleteAccount()`。模拟器实测弹窗渲染与取消路径正常。
 - [x] **中优先级（M2）**：删除失败对用户不可见，且部分成功时不收尾——`deleteAccount` 的 catch 只写 `errorMsg`（`AccountDetailViewModel.ets:110-114`），页面的 `onError` 仅 `Logger.error`（`AccountDetailPage.ets:70-75`），用户点删除后页面原地不动、无任何提示；DB 删除成功但 `WidgetFormIdStore.remove` 抛错时（`:99-105`）同样落入 catch，账号已删却不 `pop`、也不发 `AccountSignal`，其它 Tab 继续显示该账号；`errorMsg` 不复位，同一错误文本再次出现不会再触发 `@Monitor`；`deleteAccount` 无进行中标记（对比 `refreshCookie` / `regenerateDeviceFp` 的 `:50/:72` 守卫），连点会并发删除；删除成功也未调用 `CookieExpiredSignal.clearExpired(username)`（`refreshCookie` 在 `:83` 有）。建议：失败时 `showFeedback` 错误提示、DB 删除与卡片清理分开处理、加 in-flight 标记（行为变更，单独提交）
+  - 🔶 部分修复（`6372349`）：`onError` 现在会 `showFeedback(ERROR, '删除账号失败，请重试')` 并复位 `errorMsg`。仍未处理：DB 删除成功但卡片清理抛错时账号已删却不 pop / 不发 `AccountSignal`、无 in-flight 标记、成功时未 `CookieExpiredSignal.clearExpired()`。
 - [ ] **测试资产**（不计入评级，见 README §1.4，但阻塞 Local Test）：`AccountDetailViewModel.test.ets` L22-28 引用不存在的 `AccountDetailViewModel.KEYS` 对象（源码为独立 export const `ACCOUNT_DETAIL_VM_DELETED` / `_ERROR`），需修复 KEYS 封装或改写测试断言
 - [ ] **低优先级**：onRegenerateFp 使用 `as common.UIAbilityContext` 强转——可改为 `instanceof` 检查增强类型安全
 - ~~**信息提示**：vm.errorMsg Monitor 仅记录日志不做 UI 反馈~~ → 已并入 M2 计数（与 README §3 对 NotificationSettings / WidgetSettings"静默无响应"记 Medium 的口径一致）
