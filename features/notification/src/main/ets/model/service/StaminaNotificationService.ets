@@ -26,7 +26,6 @@ import {
 import { WidgetSyncHook } from 'basic';
 
 const TAG: string = 'StaminaNotificationService';
-const BUNDLE_NAME: string = 'com.cainluo.miyoyo.tools';
 const ABILITY_NAME: string = 'EntryAbility';
 
 /** 单个角色的提醒调度数据（STYLE_A / STYLE_B 共用） */
@@ -52,6 +51,15 @@ class StaminaSchedule {
 export class StaminaNotificationService {
   private static _instance: StaminaNotificationService | null = null;
   private context: common.UIAbilityContext | null = null;
+
+  /**
+   * 当前应用包名。
+   * 从 ability context 读取，避免 uat / mock 包的通知点击后跳到正式包。
+   */
+  private get bundleName(): string {
+    const ctx = this.context;
+    return ctx !== null ? ctx.abilityInfo.bundleName : '';
+  }
 
   static getInstance(): StaminaNotificationService {
     if (StaminaNotificationService._instance === null) {
@@ -392,7 +400,7 @@ export class StaminaNotificationService {
 
       const notifId = StaminaNotificationService.hashNotificationId(schedule.key);
       const reminderWantAgent: reminderAgentManager.WantAgent = {
-        pkgName: BUNDLE_NAME,
+        pkgName: this.bundleName,
         abilityName: ABILITY_NAME,
       };
       const closeBtn: reminderAgentManager.ActionButton = {
@@ -433,7 +441,7 @@ export class StaminaNotificationService {
   private createNotificationWantAgentInfo(notifId: number): wantAgent.WantAgentInfo {
     return {
       wants: [{
-        bundleName: BUNDLE_NAME,
+        bundleName: this.bundleName,
         abilityName: ABILITY_NAME,
       }],
       operationType: wantAgent.OperationType.START_ABILITY,
