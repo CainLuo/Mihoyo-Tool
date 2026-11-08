@@ -70,7 +70,28 @@ export struct AccountDetailPage {
   onError(_monitor: IMonitor): void {
     const msg = this.vm.errorMsg
     if (msg === '') { return }
+    this.vm.errorMsg = ''
     Logger.error(TAG, `deleteAccount error: ${msg}`)
+    showFeedback(this.getUIContext(), FeedbackType.ERROR, '删除账号失败，请重试')
+  }
+
+  /** 删除账号前二次确认：会同时清除该账号的卡片配置，不可恢复 */
+  private confirmDelete(): void {
+    this.getUIContext().showAlertDialog({
+      title: $r('app.string.account_detail_delete'),
+      message: '删除后该账号的登录信息与卡片配置将被清除，且无法恢复。',
+      primaryButton: {
+        value: $r('app.string.dialog_cancel'),
+        action: () => {}
+      },
+      secondaryButton: {
+        value: '删除',
+        fontColor: this.tm.current.colorDanger,
+        action: () => {
+          this.vm.deleteAccount(this.account.accountId)
+        }
+      }
+    })
   }
 
   build() {
@@ -99,7 +120,7 @@ export struct AccountDetailPage {
             onRegenerateFp: () => {
               this.vm.regenerateDeviceFp(this.getUIContext().getHostContext() as common.UIAbilityContext)
             },
-            onDelete: () => { this.vm.deleteAccount(this.account.accountId) }
+            onDelete: () => { this.confirmDelete() }
           })
 
           Row().height(this.tm.current.value40)
