@@ -40,6 +40,13 @@ export struct GeetestDialog {
   private controller: webview.WebviewController = new webview.WebviewController();
   private bridge: GeetestBridge = new GeetestBridge();
   private win: window.Window | null = null;
+  /** 组件已销毁标记：getLastWindow 异步返回时避免补注册监听 */
+  private disposed: boolean = false;
+
+  /** 窗口尺寸回调存为字段，注销时精确传入，避免清掉同窗口其它监听 */
+  private sizeChangeCallback: (size: window.Size) => void = (size: window.Size) => {
+    this.webHeight = this.calcWebHeight(size.height);
+  };
 
   /** 根据窗口高度（px）计算 Web 组件高度（vp），取 55% 并限制范围 */
   private calcWebHeight(windowHeightPx: number): number {
@@ -57,12 +64,11 @@ export struct GeetestDialog {
     try {
       const ctx = this.getUIContext().getHostContext();
       window.getLastWindow(ctx).then((win) => {
+        if (this.disposed) { return; }
         this.win = win;
         const rect = win.getWindowProperties().windowRect;
         this.webHeight = this.calcWebHeight(rect.height);
-        win.on('windowSizeChange', (size: window.Size) => {
-          this.webHeight = this.calcWebHeight(size.height);
-        });
+        win.on('windowSizeChange', this.sizeChangeCallback);
       }).catch((e: BusinessError) => {
         Logger.warn('GeetestDialog', 'getLastWindow failed: ' + e.message);
       });
@@ -72,9 +78,10 @@ export struct GeetestDialog {
   }
 
   aboutToDisappear(): void {
+    this.disposed = true;
     if (this.win !== null) {
       try {
-        this.win.off('windowSizeChange');
+        this.win.off('windowSizeChange', this.sizeChangeCallback);
       } catch (e) {
         Logger.warn('GeetestDialog', 'off windowSizeChange failed: ' + (e as Error).message);
       }

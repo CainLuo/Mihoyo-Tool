@@ -46,6 +46,19 @@ export struct MainPage {
   private windowClass: window.Window | undefined = AppStorage.get<window.Window>('windowClass')
   private currentWindowStatusType: window.WindowStatusType | undefined =
     this.windowClass?.getWindowStatus()
+  /** 窗口尺寸回调存为字段，注销时精确传入，避免清掉同窗口其它监听 */
+  private windowSizeCallback: (size: window.Size) => void = (_size: window.Size) => {
+    const ctx2 = this.uiCtx
+    if (ctx2 !== null && this.windowClass !== undefined) {
+      try {
+        const rect = this.windowClass.getWindowProperties().windowRect
+        this.windowWidthVp = ctx2.px2vp(rect.width)
+      } catch (_e) {
+        // 获取窗口属性失败时保持当前宽度
+      }
+    }
+    this.setCurrentMode()
+  }
 
   readonly stack: NavPathStack = new NavPathStack()
   private placeholder: ComponentContent<object> | null = null
@@ -97,18 +110,7 @@ export struct MainPage {
     }
     this.setCurrentMode()
     // 监听窗口尺寸变化（折叠屏展开/折叠、旋转）
-    this.windowClass?.on('windowSizeChange', () => {
-      const ctx2 = this.uiCtx
-      if (ctx2 !== null && this.windowClass !== undefined) {
-        try {
-          const rect = this.windowClass.getWindowProperties().windowRect
-          this.windowWidthVp = ctx2.px2vp(rect.width)
-        } catch (_e) {
-          // 获取窗口属性失败时保持当前宽度
-        }
-      }
-      this.setCurrentMode()
-    })
+    this.windowClass?.on('windowSizeChange', this.windowSizeCallback)
     // 监听窗口状态变化（分屏模式检测）
     try {
       this.windowClass?.on('windowStatusChange', (statusType: window.WindowStatusType) => {
@@ -122,7 +124,7 @@ export struct MainPage {
 
   aboutToDisappear(): void {
     try {
-      this.windowClass?.off('windowSizeChange')
+      this.windowClass?.off('windowSizeChange', this.windowSizeCallback)
       this.windowClass?.off('windowStatusChange')
     } catch (_e) {
       // 注销监听失败时忽略
@@ -275,6 +277,8 @@ export struct MainPage {
         progress,
         this.getGeetestLabel(item)
       )
+    } catch (e) {
+      Logger.error('MainPage', 'showGeetestDialog failed: ' + (e as Error).message)
     } finally {
       this.isGeetestShowing = false
     }

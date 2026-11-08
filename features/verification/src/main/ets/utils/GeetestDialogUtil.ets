@@ -74,21 +74,41 @@ export function showGeetestDialog(
 ): Promise<GeetestVerifyInput | null> {
   return new Promise<GeetestVerifyInput | null>((resolve) => {
     let contentNode: ComponentContent<GeetestDialogParams> | null = null;
+    /** 只收尾一次：正常关闭、返回手势、加载失败都走 settle */
+    let settled = false;
+
+    const settle = (result: GeetestVerifyInput | null): void => {
+      if (settled) {
+        return;
+      }
+      settled = true;
+      resolve(result);
+    };
+
+    const disposeNode = (): void => {
+      if (contentNode !== null) {
+        contentNode.dispose();
+        contentNode = null;
+      }
+    };
+
+    const closeNode = (): void => {
+      if (contentNode === null) {
+        return;
+      }
+      uiContext.getPromptAction().closeCustomDialog(contentNode)
+        .then(() => {
+          disposeNode();
+        })
+        .catch((e: BusinessError) => {
+          Logger.warn('GeetestDialog', 'close failed: ' + e.message);
+          disposeNode();
+        });
+    };
 
     const params = new GeetestDialogParams(createResult, (result) => {
-      if (contentNode !== null) {
-        uiContext.getPromptAction().closeCustomDialog(contentNode)
-          .then(() => {
-            if (contentNode !== null) {
-              contentNode.dispose();
-              contentNode = null;
-            }
-          })
-          .catch((e: BusinessError) => {
-            Logger.warn('GeetestDialog', 'close failed: ' + e.message);
-          });
-      }
-      resolve(result);
+      settle(result);
+      closeNode();
     }, progress, accountName);
 
     contentNode = new ComponentContent<GeetestDialogParams>(
@@ -101,12 +121,23 @@ export function showGeetestDialog(
       autoCancel: false,
       alignment: DialogAlignment.Center,
       maskColor: '#80000000',
+      // 返回手势 / 侧滑 / ESC 关闭：按"取消当前项"收尾，否则 Promise 永不 resolve、验证队列永久卡死
+      onWillDismiss: (action: DismissDialogAction) => {
+        settle(null);
+        action.dismiss();
+      },
+      // 兜底：任何关闭路径都保证 Promise 已收尾、节点已释放
+      onDidDisappear: () => {
+        settle(null);
+        disposeNode();
+      },
     };
 
     uiContext.getPromptAction().openCustomDialog(contentNode, dialogOptions)
       .catch((e: BusinessError) => {
         Logger.error('GeetestDialog', 'open failed: ' + e.message);
-        resolve(null);
+        settle(null);
+        disposeNode();
       });
   });
 }
