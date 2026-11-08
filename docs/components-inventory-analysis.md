@@ -12,7 +12,7 @@
 
 | 目录 | 文件数 | 行数 | 归属文档 |
 | --- | --- | --- | --- |
-| `components/`（根级） | 10 | 726 | Refactor_Spec §4 归 **M0**（根级 10 个共享文件，原位不动）；调用方：`GeetestDialogHelper` ← `pages/MainPage.ets:24` + `utils/GeetestSignal.ets:13`、`SnackbarContent` ← `utils/FeedbackUtil.ets:11`、`SettingRow` ← My 页（`pages/MyPage.ets:15`、`my/AppearanceSection.ets:9`、`my/AboutSection.ets:9`）、`SplitPlaceholder` ← `pages/MainPage.ets:20`、`TestRow` / `TestSectionHeader` ← `pages/TestPage.ets:9-10`（Q-2） |
+| `components/`（根级，已不存在） | 10 → 0 | — | M0-M15 重构后原 `entry/src/main/ets/components/` 已删除；组件已拆分迁移：`GeetestDialog` / `GeetestDialogTitleBar` → `verification/views/`（2 个存活，其余被删除）、`SettingRow` → `account/views/`、`SnackbarContent` / `SplitPlaceholder` → `common/basic/shares/`、`TestRow` / `TestSectionHeader` → `entry/views/test/`；另 `AccountSwitchDialog` / `PlaceholderView` / `SegmentedTabBar` / `UserGameSection` / `UserGameSectionHeader` 已迁至 `common/basic/shares/`。详见 [section migration plan](./structure-migration-plan.md)。 |
 | `accountdetail/` | 7 | 499 | [account-detail](./account-detail-module-analysis.md) |
 | `appearancesettings/` | 1 | 87 | [appearance-settings](./appearance-settings-page-module-analysis.md) |
 | `characters/` | 5 | 718 | [characters](./characters-module-analysis.md) |
@@ -32,8 +32,8 @@
 | `notification/` | 14 | 720 | [notification-settings](./notification-settings-module-analysis.md) |
 | `privacyconsent/` | 2 | 209 | [privacy-consent](./privacy-consent-page-module-analysis.md) |
 | `tools/` | 1 | 134 | [tools](./tools-module-analysis.md) |
-| `widgetsettings/` | 13 | 1,492 | [widget-settings](./widget-settings-module-analysis.md) |
-| `widgetsettings/preview/` | 11 | 1,192 | 同上（预览数据是 `models/WidgetPreviewModels` 的占位数据；仅 `WidgetColors` / `StaminaColorType` 取自 [widget-subsystem](./widget-subsystem-modules-analysis.md) 的 `WidgetUIStates`） |
+| `widgetsettings/`（→ `features/widget/views/`） | 13 → 0 | — | M0-M15 后目录重命名为 `features/widget/views/`，内容已迁移。原 `widgetsettings/preview/` 子目录现为 `features/widget/views/preview/` |
+| `widgetsettings/preview/`（→ `features/widget/views/preview/`） | 11 → 0 | — | M0-M15 后已并入父目录；预览数据来自 `features/widget/model/WidgetPreviewModels`，颜色取自 `common/widgetbase/WidgetUIStateModels`（原 `WidgetUIStates`） |
 
 > 目录合计 195 文件 / 14,931 行；`chardetail` 全家族 59 文件 / 3,613 行，是最大的组件簇。
 
@@ -86,6 +86,8 @@
 
 `LoginAgreement`(39) · `LoginCard`(31) · `LoginCodeInput`(83) · `LoginCookie`(85) · `LoginFeatureItem`(42) · `LoginLogoSection`(45) · `LoginNarrowLayout`(36) · `LoginPhone`(40) · `LoginPhoneInput`(54) · `LoginQRCode`(96) · `LoginQRCodeConfirmed`(25) · `LoginQRCodeExpired`(45) · `LoginQRCodeLoading`(25) · `LoginQRCodeReady`(36) · `LoginTabBar`(44) · `LoginTabContent`(28) · `LoginTabItem`(37) · `LoginWideLayout`(61)
 
+> **注**：原根级 `GeetestDialog`（152 行）和 `GeetestDialogTitleBar`（74 行）已迁移至 `verification/views/`（2 个文件，共 232 行），不再列于 login 下。
+
 ### 2.10 material-calc（8 / 781）
 
 `LevelPicker`(137) · `MaterialCalcCharacter`(134) · `MaterialCalcContentView`(81) · `MaterialCalcEmptyView`(43) · `MaterialCalcItem`(130) · `MaterialCalcLoadingView`(34) · `MaterialCalcSection`(115) · `MaterialCalcSkills`(107)
@@ -121,7 +123,7 @@
 
 | 文件 | 行数 | 说明 |
 | --- | --- | --- |
-| `widgetsettings/preview/Preview2x4SingleGame` | 362 | **与 `widget/components/Widget2x4SingleGame`(290) 是两份实现**——预览在设置页里重画了一遍卡片 |
+| `widgetsettings/preview/Preview2x4SingleGame` | 362 | **与 `entry/src/main/ets/widget/views/Widget2x4SingleGame`(290) 是两份实现**——预览在设置页里重画了一遍卡片（桌面 widget 在 entry，设置预览在 feature widget） |
 | `materiallist/CharacterMaterialCard` | 329 | 单角色材料卡（含技能/武器/材料三组） |
 | `characters/CharacterCard` | 313 | 角色卡（含元素、命座、属性摘要） |
 | `widgetsettings/WidgetSizeThumbs` | 255 | 尺寸缩略图 |
@@ -130,7 +132,7 @@
 | `materiallist/MaterialGridCard` | 191 | 按材料汇总的网格卡 |
 | `materiallist/MaterialGridItem` | 177 | 网格单元 |
 | `materiallist/CharacterMaterialSections` | 174 | 角色材料分组 |
-| `GeetestDialog` | 152 | 人机验证弹窗（Web 组件） |
+| `GeetestDialog` | 152 | 人机验证弹窗（Web 组件）；已迁至 `verification/views/`（159 行），原在根级 `components/` |
 
 ---
 
@@ -150,7 +152,7 @@
 
 | 重复 | 证据 | 风险 |
 | --- | --- | --- |
-| **预览组件 vs widget 组件** | `components/widgetsettings/preview/Preview2x4SingleGame`(362) 与 `widget/components/Widget2x4SingleGame`(290)；`Preview4x4SingleGame`(247) 与 `Widget4x4SingleGame`(344)；`Preview2x2SingleGame`(124) 与 `Widget2x2SingleGame`(101) | **最高**：改卡片布局必须同步改预览，否则设置页预览与桌面实际卡片不一致。两份只共享 `WidgetUIStates` 的 `WidgetColors` / `StaminaColorType`；预览数据来自 `models/WidgetPreviewModels`（占位值），颜色/名称/恢复时间计算在 `widgetsettings/preview/WidgetPreviewUtils.ets:15-90`（`gameIdToWidgetName` / `staminaColor` / `recoveryTimeText`）又写了一份，与 `widget/utils/WidgetUtils.ets:46/61/128`（`getStaminaColorByType` / `formatRecoveryTimeText` / `gameNameRes`）平行，渲染层与辅助函数层都分叉 |
+| **预览组件 vs widget 组件** | `features/widget/views/preview/Preview2x4SingleGame`(362) 与 `entry/src/main/ets/widget/views/Widget2x4SingleGame`(290)；`Preview4x4SingleGame`(247) 与 `Entry Widget4x4SingleGame`(344)；`Preview2x2SingleGame`(124) 与 `Entry Widget2x2SingleGame`(101) | **最高**：改卡片布局必须同步改预览，否则设置页预览与桌面实际卡片不一致。两份只共享 `widgetbase/WidgetUIStateModels` 的 `WidgetColors` / `StaminaColorType`；注意原文档中提到的 `widgetsettings/preview/WidgetPreviewUtils.ets`（辅助函数层分叉）已不存在——M0-M15 可能已合并或替换。需进一步验证当前是否仍存在重复 |
 | 原神详情 4 套 Hero 变体 | `CharDetailHeroPanel`(104) + `Portrait`(132) + `Landscape`(132) + `Wide`(133) | 中：响应式布局差异真实存在，但 4 份的标题/等级/属性排布高度相似 |
 | 原神详情 Portrait/Landscape 成对组件 | `PortraitSkillItem`(51)/`LandscapeSkillItem`(25)、`PortraitWeaponCard`(88)/`WeaponCard`(96)、`PortraitRelicsSection`(25)/`RelicsPanel`(118) | 中：同一信息的两种排布 |
 | 三游戏"顶部徽标 / 底部条" | `GenshinTopLeftBadge`(37) · `StarRailTopLeftBadge`(49) · `ZZZTopLeftBadge`(60)；三个 `*BottomBar` | 低：内容差异大（元素/命途/职业），合并收益小 |
@@ -159,23 +161,23 @@
 
 | 组件 | 现状 | 归属 |
 | --- | --- | --- |
-| `TestRow` / `TestSectionHeader` | 生产 `components/` 根级，只被 `pages/TestPage.ets` 使用 | Q-2 决策前保持原位（见 [test-page](./test-page-module-analysis.md) §7） |
-| `SnackbarContent` | 由 `FeedbackUtil` 的 `ComponentContent` 动态加载 | M0（`utils/FeedbackUtil`） |
-| `SettingRow` | 设置类通用行；实际只被 My 页使用（`pages/MyPage.ets:15`、`my/AppearanceSection.ets:9`、`my/AboutSection.ets:9`），外观设置 / 通知设置均未引用 | Spec §4 归 M0；调用方全在 M4 |
-| `SplitPlaceholder` | 分屏占位，只被 Main 使用（`pages/MainPage.ets:20`） | Spec §4 归 M0；唯一调用方 M15 |
-| `characters/AccountSwitchDialog` | 放在 M9 目录，但只被 `pages/MainPage.ets:14`（M15）与 `pages/MaterialCharacterSelectPage.ets:10`（M7）引用，角色列表本身不用 | M9 目录内原位；M7 / M15 重构时注意反向依赖 |
-| `my/NotificationSection` | 放在 M4 目录，只被 `pages/NotificationSettingsPage.ets:6`（M5）引用，内部引 6 个 `notification/*` 组件 | Spec §4 M5：唯一安全移动是迁入 `notification/` |
-| `my/SectionHeader` | `pages/MyPage.ets:11` + `pages/AccountDetailPage.ets:7` | M4 目录；M11 跨目录引用 |
-| `home/UserGameSection` ↔ `widgetsettings/WidgetSlotOption` | `home/UserGameSection.ets:13` 引 `widgetsettings/WidgetSlotOption`，`widgetsettings/WidgetSettingsSlotStep.ets:12` 又引 `home/UserGameSection` —— M8 与 M13 目录互引 | 两模块重构时须同时考虑，不要单边移动 |
+| `TestRow` / `TestSectionHeader` | M0-M15 后迁至 `entry/src/main/ets/views/test/`，只被 `entry/pages/TestPage.ets` 使用 | Q-2 决策前保持原位（见 [test-page](./test-page-module-analysis.md) §7） |
+| `SnackbarContent` | 已迁至 `common/basic/shares/`，被 `common/basic/utils/FeedbackUtil.ets` 引用 | `common/basic` shares |
+| `SettingRow` | 已迁至 `features/account/views/`；被 `Account/AppearanceSection.ets`、`AboutSection.ets`、`MyPage.ets` 引用（均在 account 模块内） | account |
+| `SplitPlaceholder` | 分屏占位，已迁至 `common/basic/shares/`；被 `entry/pages/MainPage.ets`（import from 'basic'）引用 | `common/basic` shares |
+| `AccountSwitchDialog` | 已迁至 `common/basic/shares/`，被 `entry/pages/MainPage.ets` + `features/material/pages/MaterialCharacterSelectPage.ets` 引用（均 import from 'basic'） | `common/basic` shares；M7 / entry 重构时注意反向依赖 |
+| `my/NotificationSection` | 已迁至 `features/notification/views/`（M5）；只被 `features/notification/pages/NotificationSettingsPage.ets` 引用，内部引 6 个 `notification/*` 组件 | ✅ 已归 notification（Spec §4 M5 正确） |
+| `my/SectionHeader` | 已迁至 `features/account/views/`；被 `entry/pages/MyPage.ets` + `features/account/pages/AccountDetailPage.ets` 引用（均 import from 'account'） | account；跨模块调用在 M11 中已处理 |
+| `UserGameSection` ↔ `WidgetSlotOption` | ~~双向互引~~ 已解除：`UserGameSection` 已迁至 `common/basic/shares/`（被 home / widget 通过 'basic' 导入）；`WidgetSlotOption` 在 `widget/views/`，**不再**导入 UserGameSection。M8/M13 可独立重构。 | ✅ 已解除互引 |
 
 ---
 
 ## 5. 结论与执行边界
 
-1. **组件不需要大规模搬家**：195 个文件已经按功能目录分好（15 个一级功能目录；`characters` / `chardetail` / `dailynote` 下按 genshin / starrail / zzz 分子目录，另有 `chardetail/common`、`dailynote/common`、`widgetsettings/preview`，共 12 个二级子目录），与 Refactor_Spec §3 的目标结构一致。
+1. **组件不需要大规模搬家**：M0-M15 重构后，原 `entry/src/main/ets/components/`（根级 10 文件）已拆分——GeetestDialog → verification、SettingRow → account、SnackbarContent/SplitPlaceholder/AccountSwitchDialog 等 → common/basic/shares、其余按功能归入 features/*/views/。当前各 feature module 的 views/ 目录结构基本合理。
 2. **唯一值得做的去重是"预览 vs 卡片"**：两份渲染实现是设置页与桌面不一致的根源；但合并需要 widget 侧抽出可复用渲染单元（V1 限制：预览在 `@ComponentV2` 环境、卡片在 `@Component` 环境，**不能直接复用同一个 struct**）。因此本轮**只记录，不合并**。
 3. **大文件优先拆**：`CharacterMaterialCard`(329) / `CharacterCard`(313) / `WidgetSizeThumbs`(255) 都属"一个文件多个 struct"（前两者第二个 struct 是 `@Preview` 预览：`CharacterMaterialCard.ets:240`、`CharacterCard.ets:240`；`WidgetSizeThumbs` 是 4 个缩略图 struct），可随 M7 / M9 / M13 内部拆分，不改文件路径。
-4. **不要在 M14 之前动 `widgetsettings/preview/`**：它依赖 `widget/models/WidgetUIStates`（§2.5 冻结项）。
+4. **不要在 M14 之前动 `features/widget/views/preview/`**：它依赖 `common/widgetbase/WidgetUIStateModels`（原 `widget/models/WidgetUIStates`，已迁移至 widgetbase）。
 
 ---
 
@@ -189,3 +191,4 @@
 | 第 2 轮（分目录） | 16 个子目录文件数 & 行数、100+ 逐文件行数抽样 | ✅ |
 | 第 3 轮（复核） | §3 体量热点 10 项、§4.3 组件引用路径 | ✅ |
 | 第 4 轮（2026-10-27 全量脚本） | 195 个文件逐个 `wc -l` 与 §2 全部一致；目录数 20→27；按实际 import 重核归属：根级与 `common/` 按 Spec §4 归 M0，`SettingRow` 实际只被 My 页用、`SegmentedTabBar` 实际被材料清单 + 角色列表用；补 `AccountSwitchDialog` / `NotificationSection` / `SectionHeader` / `UserGameSection↔WidgetSlotOption` 跨模块边；预览与卡片的辅助函数层也分叉 | ✅ 已修正 |
+| 第 5 轮（2026-11-08 GAP-12） | M0-M15 重构后根级 `entry/src/main/ets/components/` 已不存在，组件拆分至 verification / account / common/basic/shares；§4.3 所有归属未定条目路径已更新为当前实际位置；§3 widget 路径已修正；§5 结论已更新为 post-M0-M15 状态 | ✅ 已修正 |
