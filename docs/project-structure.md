@@ -103,7 +103,7 @@ widgetbase ─→ （无）
 
 | 项 | 内容 |
 | --- | --- |
-| 代码文件 | 30 个 `.ets` |
+| 代码文件 | 32 个 `.ets` |
 | 依赖 | core、widgetbase、basic、characters、home、account、legal、settings、verification、material、notification、widget |
 | 设备 | phone、tablet、2in1 |
 | 路由 | 路由表只有 `TestPage`；启动页、主页、隐私同意页由 `pages/Index.ets` 的 Navigation 直接承载 |
@@ -123,6 +123,9 @@ entry/src/main/ets/
 │   ├── LaunchPage.ets                    # 启动页：Logo 动画、等待 core 初始化；未同意隐私则转到隐私同意页，否则进入主页
 │   ├── MainPage.ets                      # 主框架：底部 Tab、分栏、全局弹窗与路由
 │   └── TestPage.ets                      # 测试工具页（仅 UAT / Mock）
+├── utils/                                # 工具与配置
+│   ├── MainDialogLabels.ets              # 主页弹窗文案映射
+│   └── MainNavigationMode.ets            # 主页面导航模式枚举
 ├── views/                                # 页面内组件
 │   └── test/                             # 测试页组件
 │       ├── TestRow.ets                   # 测试页操作行（仅 Debug 环境使用）
@@ -161,7 +164,7 @@ entry/src/main/ets/
 
 | 项 | 内容 |
 | --- | --- |
-| 代码文件 | 37 个 `.ets` |
+| 代码文件 | 36 个 `.ets` |
 | 依赖 | core、widgetbase |
 | 对外导出 | 71 个（`Index.ets`），全部导出 |
 | 路由 | 无（由其他页面直接嵌入或调用） |
@@ -188,7 +191,6 @@ common/basic/src/main/ets/
 │   ├── AccountSwitchDialog.ets    # 账号切换弹窗（主框架、选角页共用）
 │   ├── PlaceholderView.ets        # 空态占位视图
 │   ├── SegmentedTabBar.ets        # 通用分段 Tab 选择器
-│   ├── SettingRow.ets             # 设置行（标签 + 值 + 箭头）
 │   ├── SnackbarContent.ets        # 操作反馈 Snackbar 组件
 │   ├── SplitPlaceholder.ets       # 分栏模式右侧无内容时的占位
 │   ├── UserGameSection.ets        # 单个米游社账号的游戏角色区块（账号标题行 + 可折叠的角色列表）

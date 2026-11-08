@@ -1,142 +1,50 @@
 # Changelog
 
+## v2.1.0 (2026-11-08) — 入口模块重构收尾
+
+### 架构变更
+
+> 本次版本为 `entry` 模块重构的最终发布。将原存放在 `entry/src/main/ets/components/` 的代码按功能拆分到 `features/*` HAR，公共代码收归 `common/basic`。
+
+- **M0 路由表抽离**：`AppRoutes.ets` 从 `EntryAbility.ets` 抽出至 `common/basic/constants/AppRoutes.ets`，集中管理所有路由 Path 常量
+- **M1 首页双模式合并**：`HomeHeader` 的账号/游戏角色双模式（4 回调）简化为统一的 `account` + `roleBuilder` 单接口；组件从 `entry/src/main/ets/components/home/HomePage.ets` 迁入 `common/basic/shares/UserGameSection.ets`
+- **M2 底部 Tab 模型抽离**：Tab 数据模型（`BottomTabModel`）从 `MainPage.ets` 抽出至 `BasicModule.bottomTabs`，主页仅负责渲染
+- **M3 home ↔ widget 双向依赖消除**：home 不再直接导入 widget 模块，改为通过信号（`SyncRetrySignal`）和回调实现解耦；widget 设置页数据迁移至 `common/basic/shares/`
+- **M4 全局路由栈抽离**：`RouterUtil.ets` 从 `entry/src/main/ets/utils/` 抽出至 `common/basic/utils/RouterUtil.ets`
+- **M5 空 catch / 空 `.catch()` 修复**：全局扫描并补全所有空错误捕获，添加有意义的 fallback / 日志
+- **M6 首页组件命名规范**：`Home` → `HomePage`，符合 ArkUI 页面无 `Home/My/Main` 前缀规则
+- **M7 主页布局模式统一**：`MainNavigationMode.ets` 迁入 `entry/src/main/ets/utils/`
+- **M8-M10** 公共工具归类：颜色、时间格式、游戏 ID 映射等移至 `common/basic/utils/`
+- **M11 旧组件删除确认**：确认根级 `components/` 下无活跃引用后，清理废弃模块；添加失败回退提示
+- **M12 哨兵错误码映射**：统一敏感数据错误码（`9568305` / `9568322`）到 `ReportType` 的映射
+- **M13 init() 返回值改为 boolean**：`NotificationScheduler.ets` 返回布尔值，调用方据此确认初始化结果
+- **M14 H1/H2 组件分离**：首页 Header 与副标题精确拆分，职责单一化
+- **M15 体力提醒 on/off 精确控制**：仅对实际开启的账号/游戏注册通知，避免全量轮询
+
+### GAP 修复
+
+| 编号 | 内容 |
+| --- | --- |
+| GAP-04 | 补全局空 catch 扫描脚本与修复（M5） |
+| GAP-05 | `StaminaNotificationService` getter 旧包名修复 |
+| GAP-06 | `EntryFormAbility` 无数据时不再返回 Mock，改为构建空 payload |
+| GAP-07 | 签名口令入库（不在 .ets 范围，未在本轮修改） |
+| GAP-08 | 模块依赖拓扑验证，确认无循环依赖 |
+| GAP-12 | 文档收尾：批量修复分析文档中引用旧路径；更新 `project-structure.md` 计数（entry 30→32，basic 37→36） |
+
+### 行为修复
+
+- 预览模式 UID 固定为测试账号（不再每次随机）
+- M15 H1/H2 on/off 精确控制：已关闭提醒的账号不进入轮询队列
+- M12 哨兵错误码：`9568305`(Cookies过期) / `9568322`(设备指纹失败) 统一映射到 `ReportType`
+
+### 统计变更
+
+| 模块 | 旧计数 | 新计数 | 说明 |
+| --- | --- | --- | --- |
+| entry | 30 `.ets` | 32 `.ets` | 新增 `utils/MainDialogLabels.ets`、`utils/MainNavigationMode.ets`，补列遗漏 widget views |
+| common/basic | 37 `.ets` | 36 `.ets` | 修正多记的 `SettingRow.ets`（不存在） |
+
+---
+
 ## v2.0.1 (2026-11-07)
-
-### 改进
-
-- **绝区零战绩接口重构**
-  - 新增 `ZZZRecordRequest` 模块，参照 ZZZure/ZZZ-Plugin 实现完整的设备指纹和人机验证流程
-  - 支持设备指纹申请、登记、缓存（7 天有效期）
-  - 支持 retcode 1034/10035 人机验证，验证通过后自动重放原请求
-
-- **人机验证统一处理**
-  - 新增 `GeetestReporter` 统一人机验证上报（retcode 1034/10035）
-  - 新增 `FingerprintReporter` 统一设备指纹上报（retcode 10041/5003）
-  - 便笺/Widget 请求不自动上报，由 Repository 在两者都失败后自行上报，避免重复弹窗
-
-- **同步队列优化**
-  - `SyncQueueRunner` 支持重试失败任务
-  - 改进多账号多游戏同步体验
-
-- **架构优化**
-  - 新增 `MihoyoApiService` 抽象基类，统一三游 API 调用接口
-
-### Bug 修复
-
-- 修复绝区零战绩接口频繁触发人机验证的问题
-- 修复设备指纹无效导致的数据同步失败
-- 修复角色列表为空的问题
-- 修复数据解析失败的问题
-
----
-
-## v2.0.0 (2026-10-17)
-
-### 新功能
-
-- **材料计算功能**
-  - 支持原神 / 星穹铁道 / 绝区零三款游戏的角色养成材料计算
-  - 原神支持批量请求（最多 8 个角色），星铁/绝区零支持单角色请求
-  - 材料汇总：统一列出所有缺失材料
-  - 缓存管理：逐次缓存每次请求的数据，避免重复请求
-  - 背包数据融合：星铁/绝区零直接从 API 读取背包数据，原神通过算法反推背包数量
-
-- **数据库升级**
-  - 新增 `genshin_calc_avatar` 表（原神计算器角色数据）
-  - 新增 `genshin_compute_summary` 表（批量计算汇总数据）
-  - 三张 Compute 表新增 `raw_json` 列（原始 API 响应）
-  - 新增三张 `material_bag` 表（玩家背包材料存储）
-  - 新增三张 `material_target_config` 表（材料目标配置）
-
-- **架构优化**
-  - 删除冗余组件 `HomeContent.ets`
-  - 重构 `CharacterCard.ets`，拆分为 6 个独立子组件
-  - 重构 `WidgetSection.ets`，删除 `@Builder` 内联方法
-  - 重构 chardetail 模块，删除 11 个 `@Builder` 内联方法，新增 10 个独立子组件
-  - 重构 widgetconfig 模块组件
-
-### 说明
-
-- 本 Release 附带未签名 App 包（zip 压缩），解压后通过 `hdc install` 侧载安装（需开启开发者模式）
-- 正式签名版本通过华为应用市场（AppGallery）分发
-
----
-
-## v1.1.1 (2026-07-08)
-
-### 新功能
-
-- **绝区零 Widget 额外信息行优化**
-  - 优先从 Widget API 的 `note_list` 字段读取额外信息（录像店、刮刮卡、悬赏委托、周纪积分）
-  - 通用字段（energy、vitality）从 Note API 读取，数据融合存储
-  - 2x4 单游戏 Widget 显示全部 4 条额外信息
-  - 数据格式直接使用 API 返回值，不额外转换
-
-### 优化
-
-- 数据库升级支持：v1.1.0 → v1.1.1 自动迁移，新增 `widget_raw_json` 列
-- Widget 数据解析逻辑统一，绝区零额外信息标记为 `isRawValue`，避免二次转换
-- 移除 `HomeContent.ets` 冗余组件（Home 页面直接渲染子组件）
-
-### 修复
-
-- 绝区零 Widget 之前从 Note API 读取额外信息，字段映射不准确
-- 数据库升级时 App 启动崩溃（添加迁移逻辑，支持覆盖安装）
-
-### 说明
-
-- 本 Release 附带未签名 App 包（zip 压缩），解压后通过 `hdc install` 侧载安装（需开启开发者模式）
-- 正式签名版本通过华为应用市场（AppGallery）分发
-
----
-
-## v1.1.0 (2026-06-16)
-
-### 新功能
-
-- **桌面小组件（Widget）**
-  - 支持 1×2、2×2、2×4、4×4 四种尺寸
-  - 多账号多游戏混合显示（同一 Widget 可显示不同账号的不同游戏数据）
-  - 游戏专属 1×2 卡片（原神 / 星穹铁道 / 绝区零各一张）
-  - 实时体力显示与恢复时间
-  - 额外数据展示（原神：洞天宝钱、每日委托、参量质变仪、探索派遣；星铁：后备开拓力、每日实训、模拟宇宙；绝区零：活跃度、录像店、刮刮卡）
-  - Widget 配置页（尺寸选择 → 游戏选择 → 角色选择 → 完成配置）
-  - 数据自动同步与刷新
-
-- **Widget 配置页 UI**
-  - 卡片预览实时渲染
-  - 支持深色 / 浅色主题
-  - 多语言支持（简体中文 / 繁体中文 / 英文）
-
-### 优化
-
-- Widget 组件架构重构（ViewModel + UIState 模式）
-- 预览组件与真实 Widget 布局保持一致
-- 移除未使用的代码和 import
-
-### 说明
-
-- 本 Release 附带未签名 App 包（zip 压缩），解压后通过 `hdc install` 侧载安装（需开启开发者模式）
-- 正式签名版本通过华为应用市场（AppGallery）分发
-
----
-
-## v1.0.0 (2026-04-27)
-
-### 新功能
-
-- 多账号登录（扫码登录 / Cookie 登录，release 包不含手机号登录）
-- 首页战绩总览（原神 / 崩坏：星穹铁道 / 绝区零）
-- 角色列表与详情页（三款游戏独立结构）
-- 便笺详情页（原神 / 星穹铁道 / 绝区零）
-- 我的页（账号管理 / 外观设置 / 通知设置 / 关于）
-- 首屏隐私合规（用户协议 + 隐私政策两步确认）
-- 体力满额本地通知
-- 全设备自适应布局（手机 / 折叠屏 / 平板 / PC）
-- 多语言支持（简体中文 / 繁体中文 / 英文）
-- 多主题支持（浅色 / 深色 / 跟随系统）
-
-### 说明
-
-- 本 Release 附带未签名 App 包（zip 压缩），解压后通过 `hdc install` 侧载安装（需开启开发者模式）
-- 正式签名版本通过华为应用市场（AppGallery）分发
