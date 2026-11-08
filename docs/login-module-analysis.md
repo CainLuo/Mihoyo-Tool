@@ -184,6 +184,7 @@ if (this.onTapTerms) { this.onTapTerms() }
   2. 二维码页不渲染 `errorMsg`，`QRCodeStat.ERROR` 与 `EXPIRED` 共用 `LoginQRCodeExpired`（`:29-33`），显示 `login_qrcode_expired` 文案——网络失败 / `qr_confirm_missing_token`（`:257`）/ `finalizeLogin` 失败都被告知为「二维码已过期」。
 - **影响**：失败本身用户能感知且可重试（刷新按钮可用），不阻断功能，故记 Medium；但错误原因不可读或被误导。
 - **建议**：VM 只产出错误码（`phone_empty` 等已是此形式，且被测试断言），由 View 层映射为 `$r('app.string.*')`（目前 View 层缺这一步）；QR 页为 `ERROR` 单独展示失败文案。保持错误码字符串不变即可不动测试断言（`LoginViewModel.test.ets:77/83/137/144`）；改动属行为变更，不在纯目录重构中夹带。
+- **状态**：🔶 部分修复（`bae5b61`）。`LoginErrorText` 新增 `toDisplayMessage()`，把 `phone_empty` / `code_empty` / `cookie_empty` 映射为「请输入手机号 / 请输入验证码 / 请输入 Cookie」，未识别的值原样展示；VM 错误码不变，测试断言不受影响。因资源文件冻结，文案暂为 `.ets` 内字面量，后续可替换为 `$r('app.string.*')`。注意当前 UI 中「获取验证码」「登录」按钮在输入为空时 `enabled(false)`，这三条哨兵错误码路径实际不可达，属防御性修复；core 技术串透传与 QR `ERROR` / `EXPIRED` 共用文案仍未处理。
 
 ---
 

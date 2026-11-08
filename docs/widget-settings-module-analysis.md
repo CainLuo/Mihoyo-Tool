@@ -122,6 +122,13 @@ WidgetSettings (@ComponentV2)
 - 删除页面未使用的 `@Local tm` 与 `basic` 主题导入。
 - `init()` 失败后按钮失效（M1）、「完成」失败无反馈（M2）属行为修复，保留待单独提交。
 
+### 行为修复（2026-11-08，`d01d988`）
+
+- `WidgetSettingsViewModel.init()` 返回值由 `void` 改为 `Promise<boolean>`：成功 `true`，异常时清空 `dataStore` 并返回 `false`。
+- 新增 `onConfigError` 回调。`complete()` 在「无选中槽位」与「`openFormManager` 返回 false」两条路径调用 `notifyCompleteFailed()`，页面据此弹 toast。
+- `WidgetSettingsPage` 新增 `loadFailed` 状态：加载失败时不再渲染空配置，改为「配置数据加载失败，请重试」+ 重试按钮（`PrimaryButtonModifier`），重试复用 `load()`。
+- 正常路径回归：模拟器实测「尺寸 → Slot → 完成 → 拉起系统卡片管理器」无变化。错误态与失败 toast 属防御路径，未构造出触发条件（「下一步」在 0 槽位时禁用）。
+
 ### 验收
 
 1. `bash run.sh uat` → `BUILD SUCCESSFUL in 15s 331ms`，安装/启动成功。

@@ -281,6 +281,7 @@ action: () => {
 - **问题**：`window.off(type)` 不传 callback 时注销该窗口上此类型的**全部**回调。验证框挂在主窗口内（`openCustomDialog`，非子窗口），`getLastWindow` 返回的是主窗口，于是每次验证框关闭都会把 MainPage 注册在 `:98` 的 `windowSizeChange` 回调一并清掉（缺陷所在：`GeetestDialog` 的生命周期注销，对应 checklist LIFE-001，默认 High）；若当时停在详情页，3 个角色详情页（`features/chardetail/.../pages/*CharacterDetailPage.ets`）与 3 个便笺详情页（`features/dailynote/.../pages/*DailyDetailPage.ets:44/49`）注册的 `sizeCallback` 也会被清掉。`EntryAbility.ets:84-86` 的监听同样会被清掉，但它只写 AppStorage 的 `windowWidthPx`，全工程无读取方，无用户影响；MainPage 自身 `aboutToDisappear`（`:123`）的无 callback `off` 只在 MainPage 销毁时执行（代码中没有 pop / replace 它；但按返回可能把它弹出，见 M10），此时同窗口剩下的只有 EntryAbility 的监听（无读取方），实际无害。官方依据：`apis-arkui/arkts-apis-window-Window.md`「off('windowSizeChange')」——未传 callback 则关闭窗口尺寸变化的监听。落地前用一次真机日志确认 `getLastWindow` 与 `getMainWindow` 返回的对象共用同一监听注册。
 - **影响**：首次人机验证之后，`windowWidthVp` 冻结、`setCurrentMode()` 不再随尺寸变化重算（`windowStatusChange` 仍在，但折叠/展开、旋转不一定改变 status）——折叠屏折叠后仍强制分栏、展开后仍单栏，用户可见且无日志。
 - **建议**：`GeetestDialog` 与 `MainPage` 都把回调存成字段，`off('windowSizeChange', this.cb)` 精确注销（与三个角色详情页 `sizeCallback` 的写法一致，如 `features/chardetail/src/main/ets/pages/GenshinCharacterDetailPage.ets:50/73`）。修复点在 `features/verification/src/main/ets/views/GeetestDialog.ets`，验收挂在重构模块 M15 的折叠屏回归。
+- **状态**：✅ 已修复（`f038d03`）。`GeetestDialog` 新增 `sizeChangeCallback` 字段 + `disposed` 标记（异步 `getLastWindow` 返回时不再补注册）；`MainPage` 新增 `windowSizeCallback` 字段，`aboutToDisappear` 精确注销。折叠屏展开 / 折叠仍待在折叠设备上复测。
 
 #### H2 · 返回手势 / 侧滑 / ESC 关闭人机验证框后，验证队列永久卡死（2026-10-29 恢复）
 - **位置**：`features/verification/src/main/ets/utils/GeetestDialogUtil.ets:100-110`（`openCustomDialog` 只设 `autoCancel: false`，未注册 `onWillDismiss`）、`features/verification/src/main/ets/views/GeetestDialog.ets:74-83`（`aboutToDisappear` 只注销监听，不回调 `onResult`）；受害方 `MainPage.ets:283-330`
@@ -289,6 +290,7 @@ action: () => {
 - **影响**：本次启动内人机验证与设备指纹提示全部失效，需要验证的接口持续失败，直到重启应用。另：该路径下 `GeetestDialogUtil.ets` 的 `contentNode` 也不会被 `dispose()`（只在 `onResult` 路径 `:79-85` 释放）。
 - **同类路径**：若 `showGeetestDialog` 的 Promise 因执行器同步异常而 reject（见「复核撤回」原 M8），`:297-306` 只有 `finally`，`:309-324` 的 `resolveSuccess` / `resolveCancelCurrent` / `resolveCancelAll` 都不会调用，当前项不出队、账号留在 `pendingAccounts`，后果同上（`isGeetestShowing` 会被 `finally` 复位）。低概率。
 - **建议**：`openCustomDialog` 注册 `onWillDismiss`，在其中走与关闭按钮相同的 `onResult(null)`；或在 `GeetestDialog.aboutToDisappear` 中兜底回调一次（需防重复 resolve）；`:297-306` 补 `catch`，异常时调用 `resolveCancelCurrent()`。真机上验证一次返回手势的实际行为。10-27 撤回原 H2 时只核对了关闭按钮、Web 错误、打开失败三条路径，漏了这一条。
+- **状态**：✅ 已修复（`f038d03`）。`GeetestDialogUtil` 用 `settled` 保证只 resolve 一次，注册 `onWillDismiss`（返回手势 / 侧滑 / ESC → 按取消收尾并 `action.dismiss()`）与 `onDidDisappear`（兜底收尾 + 释放 `ComponentContent`）；`MainPage.showCurrentGeetest` 补 `catch`，异常也走取消分支推进队列。返回手势路径需真机触发人机验证后复测。
 
 ### Medium（技术债，下迭代）
 

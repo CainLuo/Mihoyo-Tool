@@ -206,6 +206,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 - **问题**：`pushUpdate` 只有 `err.code === 401 || 16500050` 才代表"卡片已删除"（`:137`），但其余错误（宿主繁忙、更新频率超限、`updateForm` 抛错）也走 `return false`。`notifyAllWidgets` 拿 `false` 就当"卡片已删除"处理，直接 `WidgetConfigStore.deleteConfig(config.formId)`。
 - **影响**：一次偶发失败 → 用户在该卡片上选的游戏/角色槽位被清空，且**没有任何提示**；配置删除后该 formId 不再出现在 `getAllConfigs()`，主应用同步后的 `notifyAllWidgets` 再也不会推送它，只能等 `onUpdateForm` 用 `loadConfig()` 返回的空 `WidgetConfig`（`WidgetConfigStore.ets:64-80`，`formName` 为空 → 走默认 fallback）兜底；重建卡片后需重新配置。
 - **建议**：区分"不存在"与"暂时失败"——只有 401 / 16500050 才删配置，其余记日志并保留；或加失败计数阈值。
+- **状态**：✅ 已修复（`bae5b61`）。`WidgetUpdateNotifier` 新增 `WidgetPushResult`（`SUCCESS` / `WIDGET_REMOVED` / `FAILED`）与 `classifyPushError()`：仅 `401` / `16500050` 清理配置，其余失败只记日志并保留配置，下次同步继续推送。
 
 **H2 · 无数据时卡片展示伪造的账号与体力**
 
@@ -213,6 +214,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 - **问题**：首次添加卡片、或数据仓为空时，`onAddForm` 返回 `WidgetMockData.buildPayload()` —— 内容是 `"测试账号"` / `"旅行者"` / 树脂 152 / 洞天宝钱 1230 等固定假数据，`payload` 里没有任何 `isMock` 标记。
 - **影响**：用户看到的是**看起来完全真实**的体力与恢复时间，无法区分"占位"与"真实数据"。这是产品级误导，不只是调试残留。
 - **建议**：Mock 只允许在 `BuildProfile.DEBUG` 下使用；release 下无数据应返回空态 payload（页面已有 `WidgetEmptyContent`）。
+- **状态**：✅ 已修复（`bae5b61`）。`EntryFormAbility.buildFormData` 删除 Mock 分支：`!dataStore.hasData` 时只记一条 warn 日志，仍用 `WidgetPayloadBuilder.buildPayload` 返回真实空 payload，卡片走 `WidgetEmptyContent` 空态。生产代码已无 `WidgetMockData` / `WidgetMockPayload` 引用（仅测试与 `features/widget/Index.ets` 导出保留）。
 
 **H3 · 卡片从不显示数据新鲜度**
 
@@ -294,7 +296,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | `Preview1x2Content.ets` | 72L：删除未使用的 `StaminaColorType` 导入 |
 | 编译 | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 15s 218ms`，安装/启动成功 |
 | 冒烟 | ✅ 2026-11-07 模拟器实测：1x2 / 2x2 / 2x4 / 4x4 预览均正常渲染，布局与重构前一致 |
-| 已知显示缺陷（非本轮引入） | 四个预览组件的 UID 行只显示 "UID" 无号码：`widget_uid_prefix` 资源值为 `"UID "`（无 `%s`），代码却用 `$r(..., this.roleId)` 传参；真实卡片不走该资源。归入行为修复单独提交 |
+| 已知显示缺陷（非本轮引入） | ✅ 已修复（`db33854`）：四个预览组件的 UID 行改为 `Text() { Span($r('app.string.widget_uid_prefix')); Span(this.roleId) }`，模拟器实测 1×2 / 2×2 / 2×4 / 4×4 均显示 `UID 109050292`。根因是 `widget_uid_prefix` 资源值为 `"UID "`（无 `%s`），`$r(..., this.roleId)` 的格式化参数被丢弃 |
 
 ---
 
