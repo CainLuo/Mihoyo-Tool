@@ -13,7 +13,7 @@
 |------|--------|----------|------|
 | **正常 Page** | 4 | 33–277 | `entry/src/main/ets/pages/` |
 | **Widget Page** | 6 | 82–113 | `entry/src/main/ets/widget/pages/`，运行在 `FormExtensionAbility` 中 |
-| **Widget View** | 10 | 53–337 | `entry/src/main/ets/widget/views/`，Widget 专用子组件 |
+| **Widget View** | 14 | 53–282 | `entry/src/main/ets/widget/views/`，Widget 专用子组件 |
 | **ViewModel** | 4 | 80–162 | `entry/src/main/ets/widget/viewmodel/`，Widget 数据层 |
 | **Ability** | 4 | 16–270 | `EntryAbility` / `WidgetSyncAbility` 等，不纳入拆分 |
 | **Utils** | 2 | 21–26 | 纯工具类，不纳入拆分 |
@@ -39,12 +39,12 @@
 ```
                >250行    100-250行    50-100行     <50行
 Widget Page               -              3            3          -
-Widget View               2              2            6          -
+Widget View               1              5            8          -
 ```
 
 | 优先级 | 文件 | 行数 | 备注 |
 |--------|------|------|------|
-| 🔴 W-V1 | `Widget4x4SingleGame.ets` | **337** | Widget 最大 View，单游戏展示 |
+| ✅ W-V1 | `Widget4x4SingleGame.ets` | **131**（原 337） | 已拆为 Header / StaminaBlock / ExtraRowsGroup / ExpeditionBlock 四个 V1 子组件 |
 | 🔴 W-V2 | `Widget2x4SingleGame.ets` | **282** | Widget 中视图，单游戏展示 |
 | 🟡 W-V3 | `Widget1x2ContentView.ets` | 121 | 小视图内容容器 |
 | 🟢 W-Pages | ×6 Widget Pages | 82–113 | 各尺寸入口页（见下方详细列表） |
@@ -151,13 +151,13 @@ Widget View               2              2            6          -
 | **1x2** (×3游戏共享) | `Widget1x2Genshin.ets` / `Widget1x2StarRail.ets` / `Widget1x2ZZZ.ets` (各 82行) | `Widget1x2ContentView.ets` (121行) + `WidgetEmptyContent.ets` (66行) | ContentView → staminaInfo, gameInfo 等嵌套子组件 |
 | **2x2** | `Widget2x2.ets` (109行) | `Widget2x2SingleGame.ets` (99行) + `Widget1x2ContentView.ets` (121行) + `WidgetEmptyContent.ets` (66行) | SingleGame → Header(56), StaminaBlock(53)+ExtraRows(115); StaminaBlock → StandardStamina(70)/StarRailStamina(91) |
 | **2x4** | `Widget2x4.ets` (110行) | `Widget2x4SingleGame.ets` (282行) + `Widget2x2SingleGame.ets` (99行) | SingleGame → 内部嵌套多个子组件，不 import 其他 views |
-| **4x4** | `Widget4x4.ets` (113行) | `Widget4x4SingleGame.ets` (337行) + `Widget2x4SingleGame.ets` (282行) | SingleGame → 内部嵌套子组件，不 import 其他 views |
+| **4x4** | `Widget4x4.ets` (113行) | `Widget4x4SingleGame.ets` (131行) + `Widget2x4SingleGame.ets` (282行) | SingleGame → Header(65), StaminaBlock(112), ExtraRowsGroup(75)×2, ExpeditionBlock(124) |
 
 ### 5.2 Widget View 复杂度 Top
 
 | 优先级 | 文件 | 行数 | Widget 尺寸 | 问题描述 |
 |--------|------|------|-------------|----------|
-| 🔴 W-V1 | `Widget4x4SingleGame.ets` | **337** | 4x4 | 超大视图，可能需拆分子行 / 子卡片 |
+| ✅ W-V1 | `Widget4x4SingleGame.ets` | **131**（原 337） | 4x4 | 已拆分为 4 个 V1 子组件（Header / StaminaBlock / ExtraRowsGroup / ExpeditionBlock） |
 | 🔴 W-V2 | `Widget2x4SingleGame.ets` | **282** | 2x4 | 大视图，同理需拆分 |
 | 🟡 W-V3 | `Widget1x2ContentView.ets` | 121 | 1x2 | 中等，可评估是否提取 GameCard / InfoRow |
 
@@ -192,11 +192,28 @@ Widget View               2              2            6          -
 | 2 | Normal | TestPage.ets | 105 | 🟡 P1 | （暂无） | ⏳ 待分析 |
 | 3 | Normal | LaunchPage.ets | 91 | 🟢 P2 | （暂无） | ⏳ 待分析 |
 | 4 | Normal | Index.ets | 33 | 🔵 P3 | — | 不拆分 |
-| 5 | Widget | Widget4x4SingleGame.ets | 337 | 🔴 W-V1 | （暂无深度子文档） | ⏳ 待分析 |
+| 5 | Widget | Widget4x4SingleGame.ets | 337 → 131 | ✅ W-V1 | （暂无深度子文档） | ✅ 已完成（拆 4 个 V1 子组件） |
 | 6 | Widget | Widget2x4SingleGame.ets | 282 | 🔴 W-V2 | （暂无深度子文档） | ⏳ 待分析 |
 | 7 | Widget | Widget1x2ContentView.ets | 121 | 🟡 W-V3 | （暂无深度子文档） | ⏳ 待分析 |
 | 8 | Widget | ×6 Pages (82–113) | — | 🟢 W-Pages | （汇总分析） | ⏳ 待分析 |
 | 9 | Widget | ×4 ViewModels (80–162) | — | 🟡 W-VM | （共享评估） | ⏳ 待分析 |
+
+### 6.1 执行记录
+
+#### W-V1 `Widget4x4SingleGame.ets`（2026-11-09）
+
+> 纯结构拆分，布局属性与数据来源逐行对应；未改 `WidgetRoleUIState`、ViewModel 与卡片入口 `Widget4x4.ets`。
+
+| 项 | 结果 |
+| --- | --- |
+| 主文件 | 337 → **131 行** |
+| 新增子组件 | `Widget4x4Header.ets`（65）· `Widget4x4StaminaBlock.ets`（112）· `Widget4x4ExtraRowsGroup.ets`（75）· `Widget4x4ExpeditionBlock.ets`（124） |
+| 复用 | 区块 2 / 区块 3 原为两段同构代码，合并为一个 `Widget4x4ExtraRowsGroup`，以 `showBottomBorder` 区分分隔线 |
+| 保留不变量 | `layoutWeight(1)` 分配（数据行分组与派遣区均分剩余高度）、分隔线条件（分组1 看分组2 是否非空，分组2 看派遣区是否存在）、派遣头像 `memory://` → 网络 URL → 渐变占位三级兜底 |
+| 体系 | 全部 `@Component`（V1）+ `@Prop`，与既有 `Widget2x2*` 子组件风格一致；无 HSP 导入、无网络权限依赖 |
+| 编译 | ✅ `hvigorw assembleHap -p product=uat -p buildMode=debug` → `BUILD SUCCESSFUL` |
+| 安装 | ✅ `bash run.sh uat` 安装/启动成功 |
+| 冒烟 | 🔶 模拟器桌面无法通过注入事件进入编辑态，卡片渲染需在真机/桌面手动添加 4×4 卡片确认 |
 
 ---
 

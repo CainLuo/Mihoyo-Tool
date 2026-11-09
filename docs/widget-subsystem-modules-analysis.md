@@ -48,9 +48,9 @@
 | `widget/viewmodel/Widget2x4ViewModel.ets` | 169 | 同上，横向布局态 |
 | `widget/viewmodel/Widget4x4ViewModel.ets` | 167 | 同上，大卡态 |
 
-### 1.3 组件（10，1,316 行）
+### 1.3 组件（14，1,460 行）
 
-`Widget1x2ContentView`（123）· `Widget2x2Header`（57）· `Widget2x2SingleGame`（101）· `Widget2x2StaminaBlock`（54）· `Widget2x2StandardStamina`（72）· `Widget2x2StarRailStamina`（93）· `Widget2x4SingleGame`（290）· `Widget4x4SingleGame`（344）· `WidgetEmptyContent`（66）· `WidgetExtraDataRows`（116）
+`Widget1x2ContentView`（121）· `Widget2x2Header`（56）· `Widget2x2SingleGame`（99）· `Widget2x2StaminaBlock`（53）· `Widget2x2StandardStamina`（70）· `Widget2x2StarRailStamina`（91）· `Widget2x4SingleGame`（282）· `Widget4x4SingleGame`（131）· `Widget4x4Header`（65）· `Widget4x4StaminaBlock`（112）· `Widget4x4ExtraRowsGroup`（75）· `Widget4x4ExpeditionBlock`（124）· `WidgetEmptyContent`（66）· `WidgetExtraDataRows`（115）
 
 ### 1.4 模型（4，973 行）
 
@@ -297,6 +297,22 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | 编译 | ✅ `bash run.sh uat` → `BUILD SUCCESSFUL in 15s 218ms`，安装/启动成功 |
 | 冒烟 | ✅ 2026-11-07 模拟器实测：1x2 / 2x2 / 2x4 / 4x4 预览均正常渲染，布局与重构前一致 |
 | 已知显示缺陷（非本轮引入） | ✅ 已修复（`db33854`）：四个预览组件的 UID 行改为 `Text() { Span($r('app.string.widget_uid_prefix')); Span(this.roleId) }`，模拟器实测 1×2 / 2×2 / 2×4 / 4×4 均显示 `UID 109050292`。根因是 `widget_uid_prefix` 资源值为 `"UID "`（无 `%s`），`$r(..., this.roleId)` 的格式化参数被丢弃 |
+
+### V1 卡片 View 拆分执行记录（2026-11-09）
+
+> 本轮只拆 `entry/src/main/ets/widget/views/Widget4x4SingleGame.ets`，未改 `widget/pages/`、`widget/viewmodel/`、`form_config.json` 与 ability。
+
+| 项 | 结果 |
+| --- | --- |
+| `Widget4x4SingleGame.ets` | 337 → **131L**：只保留 `role`、分组切分（`getGroup1` / `getGroup2`）与区块组装 |
+| 新增 `Widget4x4Header.ets` | 65L：游戏色圆点 + 游戏名 + UID 行 |
+| 新增 `Widget4x4StaminaBlock.ets` | 112L：体力标签 / 数值 / 恢复时间 / 星铁后备开拓力 + 底部分隔线 |
+| 新增 `Widget4x4ExtraRowsGroup.ets` | 75L：区块 2 / 区块 3 原为同构代码，合并为一个组件，`showBottomBorder` 控制分隔线 |
+| 新增 `Widget4x4ExpeditionBlock.ets` | 124L：原神派遣头像（`memory://` → 网络 URL → 渐变占位三级兜底 + 完成态遮罩与勾勾） |
+| 体系一致性 | 全部 `@Component`（V1）+ `@Prop`，与 `Widget2x2*` 既有子组件一致；未引入 HSP 导入或网络依赖 |
+| 编译 | ✅ `hvigorw assembleHap -p product=uat -p buildMode=debug` → `BUILD SUCCESSFUL` |
+| 安装 | ✅ `bash run.sh uat` 安装/启动成功 |
+| 冒烟 | 🔶 模拟器桌面不接受注入的长按事件，无法进入编辑态添加卡片；4×4 桌面渲染待真机/手动确认 |
 
 ---
 

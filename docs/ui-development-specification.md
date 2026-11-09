@@ -27,7 +27,7 @@
 | **50–100** | 🟡 评估拆分 | 若内部存在 ≥2 个独立 UI 块可提取，建议拆分 |
 | **100–200** | 🟠 必须拆分 | 至少提取 1–2 个核心子组件，目标 ≤150 行 |
 | **200–300** | 🔴 强制拆分 | 必须拆分为 ≤3 个子组件，总行数 ≤200 |
-| **> 300** | ⛔ 必须拆分至 ≤300 | 当前违规文件：MainPage (478 行)、Widget4x4SingleGame (337 行)；此类文件应优先处理，不得新增同类超大组件 |
+| **> 300** | ⛔ 必须拆分至 ≤300 | 当前无违规文件（MainPage 478 → 277、Widget4x4SingleGame 337 → 131 已完成）；不得新增同类超大组件 |
 
 ### 2.2 函数数量阈值
 
@@ -294,7 +294,7 @@ export struct CardView { }
 ### 7.2 代码量限制
 
 - Widget Component 的 build() 行数严格遵循第二章阈值，但建议更激进：
-  - **Widget4x4SingleGame (337 行)** → 目标 ≤300 行（拆 1–2 个子组件）
+  - **Widget4x4SingleGame (337 → 131 行)** → ✅ 已拆为 Header / StaminaBlock / ExtraRowsGroup / ExpeditionBlock 四个 V1 子组件
   - **Widget2x4SingleGame (282 行)** → 目标 ≤250 行（提取独立逻辑块）
   - **Widget1x2ContentView (121 行)** → 已接近 100 行评估线，建议提前拆分 ≥30 行的嵌套区块
 - 上述阈值低于通用标准的原因是：Widget 渲染在独立进程中，代码量直接影响内存占用和响应速度。
@@ -319,7 +319,7 @@ export struct CardView { }
 
 | 优先级 | 标准 | 当前实例 |
 |--------|------|----------|
-| **P0 / W-V1** | >300 行，立即重构 | MainPage (478) [Normal], Widget4x4SingleGame (337) [Widget] |
+| **P0 / W-V1** | >300 行，立即重构 | 暂无（MainPage 478 → 277、Widget4x4SingleGame 337 → 131 已完成） |
 | **P1 / W-V2** | 100–300 行，本周内 | Widget2x4SingleGame (282) [Widget], Widget4x4 (113) [Widget Page], Widget2x4 (110) [Widget Page], Widget2x2 (109) [Widget Page], TestPage (105) [Normal], Widget1x2ContentView (121) [Widget], WidgetExtraDataRows (115) [Widget] |
 | **P2 / W-V3** | 80–100 行，下迭代 | LaunchPage (91) [Normal], Widget1x2Genshin/StarRail/ZZZ (82) [Widget], Widget2x2StarRailStamina (91) [Widget], Widget2x2SingleGame (99) [Widget] |
 | **P3** | <80 行但结构复杂，优化为主 | Index.ets (33) [Normal] |

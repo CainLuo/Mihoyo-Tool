@@ -151,7 +151,11 @@ entry/src/main/ets/
 │       ├── Widget2x2StandardStamina.ets  # 2×2 Widget 标准体力区块组件
 │       ├── Widget2x2StarRailStamina.ets  # 2×2 Widget 星铁体力区块组件
 │       ├── Widget2x4SingleGame.ets       # 2×4 单游戏水平布局
-│       ├── Widget4x4SingleGame.ets       # 4×4 单游戏垂直分块布局
+│       ├── Widget4x4ExpeditionBlock.ets  # 4×4 原神派遣头像区
+│       ├── Widget4x4ExtraRowsGroup.ets   # 4×4 额外数据行分组
+│       ├── Widget4x4Header.ets           # 4×4 顶部标题行
+│       ├── Widget4x4SingleGame.ets       # 4×4 单游戏垂直分块布局（组装 4 个子组件）
+│       ├── Widget4x4StaminaBlock.ets     # 4×4 体力区块
 │       ├── WidgetEmptyContent.ets        # Widget 空态内容组件
 │       └── WidgetExtraDataRows.ets       # Widget 额外数据行组件
 └── widgetsyncability/                    # 卡片数据同步
