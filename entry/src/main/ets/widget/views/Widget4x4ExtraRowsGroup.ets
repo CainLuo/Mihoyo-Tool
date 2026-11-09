@@ -8,6 +8,7 @@
  */
 
 import { WidgetExtraRow, WidgetColors } from 'widgetbase';
+import { WidgetDataRow } from './WidgetDataRow';
 
 @Component
 export struct Widget4x4ExtraRowsGroup {
@@ -20,21 +21,8 @@ export struct Widget4x4ExtraRowsGroup {
   build() {
     Column() {
       ForEach(this.rows, (row: WidgetExtraRow) => {
-        Row() {
-          Text(row.labelResource)
-            .fontSize(12)
-            .fontColor(WidgetColors.WHITE)
-            .opacity(0.45)
-            .layoutWeight(1)
-
-          Text(row.displayValue)
-            .fontSize(12)
-            .fontWeight(600)
-            .fontColor(row.valueColor)
-        }
-        .width('100%')
-        .justifyContent(FlexAlign.SpaceBetween)
-        .margin({ top: 4, bottom: 4 })
+        WidgetDataRow({ row: row, fontSize: 12, labelOpacity: 0.45, valueFontWeight: 600 })
+          .margin({ top: 4, bottom: 4 })
       })
     }
     .width('100%')

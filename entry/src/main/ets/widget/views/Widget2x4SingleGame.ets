@@ -14,7 +14,10 @@
  * - 支持动态尺寸适配
  */
 
-import { WidgetRoleUIState, WidgetExtraRow, StaminaColorType, WidgetColors, ExpeditionAvatar, WidgetGameId, formatRecoveryTimeText, getStaminaColorByType, DefaultTheme } from 'widgetbase';
+import { WidgetRoleUIState, WidgetExtraRow, StaminaColorType, WidgetColors, ExpeditionAvatar, WidgetGameId, DefaultTheme } from 'widgetbase';
+import { Widget2x4InfoColumn } from './Widget2x4InfoColumn';
+import { WidgetDataRow } from './WidgetDataRow';
+import { WidgetExpeditionAvatar } from './WidgetExpeditionAvatar';
 
 @Component
 export struct Widget2x4SingleGame {
@@ -27,73 +30,12 @@ export struct Widget2x4SingleGame {
   /** 主题常量 */
   theme: DefaultTheme = new DefaultTheme();
 
-  /** 获取体力颜色 */
-  private getStaminaColor(): Resource {
-    return getStaminaColorByType(this.role.staminaColorType, this.role.gameId);
-  }
-
   build() {
     Column() {
       // ── 主体内容：左右两列 ──
       Row() {
         // ── 左侧：游戏名 → 角色名 → UID → 体力 → 恢复时间 ──
-        // 原型：gap: 2px，体力区域 margin-top: 4px
-        Column() {
-          // 游戏名 14fp
-          Text(this.role.gameName)
-            .fontSize(14)
-            .fontWeight(500)
-            .fontColor(WidgetColors.WHITE)
-            .opacity(WidgetColors.OPACITY_TEXT_MEDIUM)
-            .maxLines(1)
-            .textOverflow({ overflow: TextOverflow.Ellipsis })
-
-          // 角色名 12fp（如果有）
-          if (this.role.roleName.length > 0) {
-            Text(this.role.roleName)
-              .fontSize(12)
-              .fontColor(WidgetColors.WHITE)
-              .opacity(WidgetColors.OPACITY_TEXT_MUTED)
-              .maxLines(1)
-              .textOverflow({ overflow: TextOverflow.Ellipsis })
-              .margin({ top: 2 })
-          }
-
-          // UID 12fp
-          Text(this.role.roleIdWithPrefix)
-            .fontSize(12)
-            .fontColor(WidgetColors.WHITE)
-            .opacity(WidgetColors.OPACITY_TEXT_GHOST)
-            .maxLines(1)
-            .margin({ top: 2 })
-
-          // 体力数值 22fp（原型：margin-top: 4px）
-          Row() {
-            Text(this.role.currentStamina.toString())
-              .fontSize(22)
-              .fontWeight(700)
-              .fontColor(this.getStaminaColor())
-
-            Text('/' + this.role.maxStamina.toString())
-              .fontSize(14)
-              .fontColor(WidgetColors.WHITE)
-              .opacity(WidgetColors.OPACITY_TEXT_GHOST)
-              .margin({ left: 2 })
-          }
-          .alignItems(VerticalAlign.Bottom)
-          .margin({ top: 4 })
-
-          // 恢复时间 12fp（始终显示，满时显示"已满"）
-          Text(formatRecoveryTimeText(this.role.recoveryTime))
-            .fontSize(12)
-            .fontColor(WidgetColors.WHITE)
-            .opacity(WidgetColors.OPACITY_TEXT_FAINT)
-            .maxLines(1)
-            .margin({ top: 2 })
-        }
-        .justifyContent(FlexAlign.Center)
-        .alignItems(HorizontalAlign.Start)
-        .flexShrink(0)
+        Widget2x4InfoColumn({ role: this.role })
 
         // 分隔线
         Row()
@@ -107,20 +49,12 @@ export struct Widget2x4SingleGame {
         // 数据已在 ViewModel 中按布局限制截取，组件只负责渲染
         Column({ space: 6 }) {
           ForEach(this.role.extraRows, (row: WidgetExtraRow) => {
-            Row() {
-              Text(row.labelResource)
-                .fontSize(12)
-                .fontColor(WidgetColors.WHITE)
-                .opacity(WidgetColors.OPACITY_TEXT_FAINT)
-                .layoutWeight(1)
-
-              Text(row.displayValue)
-                .fontSize(12)
-                .fontWeight(600)
-                .fontColor(row.valueColor)
-            }
-            .width('100%')
-            .justifyContent(FlexAlign.SpaceBetween)
+            WidgetDataRow({
+              row: row,
+              fontSize: 12,
+              labelOpacity: WidgetColors.OPACITY_TEXT_FAINT,
+              valueFontWeight: 600
+            })
           })
         }
         .layoutWeight(1)
@@ -132,9 +66,6 @@ export struct Widget2x4SingleGame {
 
       // ── 底部（原神）：派遣角色头像 ──
       // 原型：margin-top: 8px, padding-top: 8px, border-top: 1px solid rgba(255,255,255,.06)
-      // 头像：纯圆图片，无背景色无 border
-      // 已完成：头像 + 黑透遮罩 + 绿色勾勾（带黑色描边）
-      // 进行中：只显示头像
       if (this.role.gameId === WidgetGameId.GENSHIN && this.role.expeditions.length > 0) {
         Column() {
           // 分隔线（模拟 border-top）
@@ -153,68 +84,7 @@ export struct Widget2x4SingleGame {
               .margin({ right: 2 })
 
             ForEach(this.role.expeditions, (exp: ExpeditionAvatar, idx: number) => {
-              // 每个头像容器
-              Stack({ alignContent: Alignment.BottomEnd }) {
-                // 头像（优先使用 memory:// 格式，否则显示渐变占位图）
-                if (exp.memoryUrl.length > 0) {
-                  Image(exp.memoryUrl)
-                    .width(24)
-                    .height(24)
-                    .borderRadius(12)
-                    .objectFit(ImageFit.Cover)
-                } else if (exp.avatarUrl.length > 0) {
-                  // 兜底：尝试网络图片（可能在 Form 环境中无法加载）
-                  Image(exp.avatarUrl)
-                    .width(24)
-                    .height(24)
-                    .borderRadius(12)
-                    .objectFit(ImageFit.Cover)
-                } else {
-                  // 无 URL 时使用渐变色占位
-                  Row()
-                    .width(24)
-                    .height(24)
-                    .borderRadius(12)
-                    .linearGradient({
-                      angle: 135,
-                      colors: [['rgba(100,100,120,0.8)', 0], ['rgba(60,60,80,0.8)', 1]]
-                    })
-                }
-
-                // 已完成：黑透遮罩覆盖头像
-                if (exp.isFinished) {
-                  Row()
-                    .width(24)
-                    .height(24)
-                    .borderRadius(12)
-                    .backgroundColor('rgba(0,0,0,0.5)')
-                }
-
-                // 已完成：右下角绿色勾勾（带黑色描边）
-                if (exp.isFinished) {
-                  Row() {
-                    Text('✓')
-                      .fontSize(7)
-                      .fontColor('#000000')
-                      .fontWeight(700)
-                  }
-                  .width(10)
-                  .height(10)
-                  .borderRadius(5)
-                  .backgroundColor('#34d399')
-                  .justifyContent(FlexAlign.Center)
-                  .alignItems(VerticalAlign.Center)
-                  .margin({ bottom: -2, right: -2 })
-                  .shadow({
-                    radius: 1.5,
-                    color: '#111118',
-                    offsetX: 0,
-                    offsetY: 0
-                  })
-                }
-              }
-              .width(24)
-              .height(24)
+              WidgetExpeditionAvatar({ exp: exp, avatarSize: 24 })
             }, (exp: ExpeditionAvatar, idx: number) => `exp_${idx}`)
           }
           .width('100%')

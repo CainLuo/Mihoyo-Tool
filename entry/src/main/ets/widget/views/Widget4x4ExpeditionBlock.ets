@@ -8,6 +8,7 @@
  */
 
 import { ExpeditionAvatar, WidgetColors } from 'widgetbase';
+import { WidgetExpeditionAvatar } from './WidgetExpeditionAvatar';
 
 @Component
 export struct Widget4x4ExpeditionBlock {
@@ -24,68 +25,7 @@ export struct Widget4x4ExpeditionBlock {
 
       Row() {
         ForEach(this.expeditions, (exp: ExpeditionAvatar, idx: number) => {
-          // 每个头像容器
-          Stack({ alignContent: Alignment.BottomEnd }) {
-            // 头像（优先使用 memory:// 格式，否则显示渐变占位图）
-            if (exp.memoryUrl.length > 0) {
-              Image(exp.memoryUrl)
-                .width(32)
-                .height(32)
-                .borderRadius(16)
-                .objectFit(ImageFit.Cover)
-            } else if (exp.avatarUrl.length > 0) {
-              // 兜底：尝试网络图片（可能在 Form 环境中无法加载）
-              Image(exp.avatarUrl)
-                .width(32)
-                .height(32)
-                .borderRadius(16)
-                .objectFit(ImageFit.Cover)
-            } else {
-              // 无 URL 时使用渐变色占位
-              Row()
-                .width(32)
-                .height(32)
-                .borderRadius(16)
-                .linearGradient({
-                  angle: 135,
-                  colors: [['rgba(100,100,120,0.8)', 0], ['rgba(60,60,80,0.8)', 1]]
-                })
-            }
-
-            // 已完成：黑透遮罩覆盖头像
-            if (exp.isFinished) {
-              Row()
-                .width(32)
-                .height(32)
-                .borderRadius(16)
-                .backgroundColor('rgba(0,0,0,0.5)')
-            }
-
-            // 已完成：右下角绿色勾勾（带黑色描边）
-            if (exp.isFinished) {
-              Row() {
-                Text('✓')
-                  .fontSize(8)
-                  .fontColor('#000000')
-                  .fontWeight(700)
-              }
-              .width(12)
-              .height(12)
-              .borderRadius(6)
-              .backgroundColor('#34d399')
-              .justifyContent(FlexAlign.Center)
-              .alignItems(VerticalAlign.Center)
-              .margin({ bottom: -2, right: -2 })
-              .shadow({
-                radius: 2,
-                color: '#111118',
-                offsetX: 0,
-                offsetY: 0
-              })
-            }
-          }
-          .width(32)
-          .height(32)
+          WidgetExpeditionAvatar({ exp: exp, avatarSize: 32 })
         }, (exp: ExpeditionAvatar, idx: number) => `exp_${idx}`)
       }
       .width('100%')

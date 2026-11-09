@@ -123,7 +123,7 @@
 
 | 文件 | 行数 | 说明 |
 | --- | --- | --- |
-| `widgetsettings/preview/Preview2x4SingleGame` | 362 | **与 `entry/src/main/ets/widget/views/Widget2x4SingleGame`(290) 是两份实现**——预览在设置页里重画了一遍卡片（桌面 widget 在 entry，设置预览在 feature widget） |
+| `widgetsettings/preview/Preview2x4SingleGame` | 362 | **与 `entry/src/main/ets/widget/views/Widget2x4SingleGame`(152) 是两份实现**——预览在设置页里重画了一遍卡片（桌面 widget 在 entry，设置预览在 feature widget） |
 | `materiallist/CharacterMaterialCard` | 329 | 单角色材料卡（含技能/武器/材料三组） |
 | `characters/CharacterCard` | 313 | 角色卡（含元素、命座、属性摘要） |
 | `widgetsettings/WidgetSizeThumbs` | 255 | 尺寸缩略图 |
@@ -152,7 +152,7 @@
 
 | 重复 | 证据 | 风险 |
 | --- | --- | --- |
-| **预览组件 vs widget 组件** | `features/widget/views/preview/Preview2x4SingleGame`(362) 与 `entry/src/main/ets/widget/views/Widget2x4SingleGame`(282)；`Preview4x4SingleGame`(247) 与 `Entry Widget4x4SingleGame`(131，2026-11-09 已拆为 Header / StaminaBlock / ExtraRowsGroup / ExpeditionBlock 四个子组件，预览侧仍为单文件)；`Preview2x2SingleGame`(124) 与 `Entry Widget2x2SingleGame`(99) | **最高**：改卡片布局必须同步改预览，否则设置页预览与桌面实际卡片不一致。两份只共享 `widgetbase/WidgetUIStateModels` 的 `WidgetColors` / `StaminaColorType`；注意原文档中提到的 `widgetsettings/preview/WidgetPreviewUtils.ets`（辅助函数层分叉）已不存在——M0-M15 可能已合并或替换。需进一步验证当前是否仍存在重复 |
+| **预览组件 vs widget 组件** | `features/widget/views/preview/Preview2x4SingleGame`(362) 与 `entry/src/main/ets/widget/views/Widget2x4SingleGame`(152，2026-11-09 已拆出 InfoColumn 并复用 DataRow / ExpeditionAvatar)；`Preview4x4SingleGame`(247) 与 `Entry Widget4x4SingleGame`(131，2026-11-09 已拆为 Header / StaminaBlock / ExtraRowsGroup / ExpeditionBlock 四个子组件，预览侧仍为单文件)；`Preview2x2SingleGame`(124) 与 `Entry Widget2x2SingleGame`(99) | **最高**：改卡片布局必须同步改预览，否则设置页预览与桌面实际卡片不一致。两份只共享 `widgetbase/WidgetUIStateModels` 的 `WidgetColors` / `StaminaColorType`；注意原文档中提到的 `widgetsettings/preview/WidgetPreviewUtils.ets`（辅助函数层分叉）已不存在——M0-M15 可能已合并或替换。需进一步验证当前是否仍存在重复 |
 | 原神详情 4 套 Hero 变体 | `CharDetailHeroPanel`(104) + `Portrait`(132) + `Landscape`(132) + `Wide`(133) | 中：响应式布局差异真实存在，但 4 份的标题/等级/属性排布高度相似 |
 | 原神详情 Portrait/Landscape 成对组件 | `PortraitSkillItem`(51)/`LandscapeSkillItem`(25)、`PortraitWeaponCard`(88)/`WeaponCard`(96)、`PortraitRelicsSection`(25)/`RelicsPanel`(118) | 中：同一信息的两种排布 |
 | 三游戏"顶部徽标 / 底部条" | `GenshinTopLeftBadge`(37) · `StarRailTopLeftBadge`(49) · `ZZZTopLeftBadge`(60)；三个 `*BottomBar` | 低：内容差异大（元素/命途/职业），合并收益小 |

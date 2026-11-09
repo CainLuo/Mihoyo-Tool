@@ -13,7 +13,7 @@
 |------|--------|----------|------|
 | **正常 Page** | 4 | 33–277 | `entry/src/main/ets/pages/` |
 | **Widget Page** | 6 | 82–113 | `entry/src/main/ets/widget/pages/`，运行在 `FormExtensionAbility` 中 |
-| **Widget View** | 14 | 53–282 | `entry/src/main/ets/widget/views/`，Widget 专用子组件 |
+| **Widget View** | 17 | 53–152 | `entry/src/main/ets/widget/views/`，Widget 专用子组件 |
 | **ViewModel** | 4 | 80–162 | `entry/src/main/ets/widget/viewmodel/`，Widget 数据层 |
 | **Ability** | 4 | 16–270 | `EntryAbility` / `WidgetSyncAbility` 等，不纳入拆分 |
 | **Utils** | 2 | 21–26 | 纯工具类，不纳入拆分 |
@@ -39,13 +39,13 @@
 ```
                >250行    100-250行    50-100行     <50行
 Widget Page               -              3            3          -
-Widget View               1              5            8          -
+Widget View               -              7           10          -
 ```
 
 | 优先级 | 文件 | 行数 | 备注 |
 |--------|------|------|------|
 | ✅ W-V1 | `Widget4x4SingleGame.ets` | **131**（原 337） | 已拆为 Header / StaminaBlock / ExtraRowsGroup / ExpeditionBlock 四个 V1 子组件 |
-| 🔴 W-V2 | `Widget2x4SingleGame.ets` | **282** | Widget 中视图，单游戏展示 |
+| ✅ W-V2 | `Widget2x4SingleGame.ets` | **152**（原 282） | 已拆出 InfoColumn，数据行与派遣头像复用共享组件 |
 | 🟡 W-V3 | `Widget1x2ContentView.ets` | 121 | 小视图内容容器 |
 | 🟢 W-Pages | ×6 Widget Pages | 82–113 | 各尺寸入口页（见下方详细列表） |
 
@@ -150,15 +150,15 @@ Widget View               1              5            8          -
 |-------------|-----------|---------------------|-----------------|
 | **1x2** (×3游戏共享) | `Widget1x2Genshin.ets` / `Widget1x2StarRail.ets` / `Widget1x2ZZZ.ets` (各 82行) | `Widget1x2ContentView.ets` (121行) + `WidgetEmptyContent.ets` (66行) | ContentView → staminaInfo, gameInfo 等嵌套子组件 |
 | **2x2** | `Widget2x2.ets` (109行) | `Widget2x2SingleGame.ets` (99行) + `Widget1x2ContentView.ets` (121行) + `WidgetEmptyContent.ets` (66行) | SingleGame → Header(56), StaminaBlock(53)+ExtraRows(115); StaminaBlock → StandardStamina(70)/StarRailStamina(91) |
-| **2x4** | `Widget2x4.ets` (110行) | `Widget2x4SingleGame.ets` (282行) + `Widget2x2SingleGame.ets` (99行) | SingleGame → 内部嵌套多个子组件，不 import 其他 views |
-| **4x4** | `Widget4x4.ets` (113行) | `Widget4x4SingleGame.ets` (131行) + `Widget2x4SingleGame.ets` (282行) | SingleGame → Header(65), StaminaBlock(112), ExtraRowsGroup(75)×2, ExpeditionBlock(124) |
+| **2x4** | `Widget2x4.ets` (110行) | `Widget2x4SingleGame.ets` (152行) + `Widget2x2SingleGame.ets` (99行) | SingleGame → InfoColumn(106) + 共享 DataRow(64) / ExpeditionAvatar(126) |
+| **4x4** | `Widget4x4.ets` (113行) | `Widget4x4SingleGame.ets` (131行) + `Widget2x4SingleGame.ets` (152行) | SingleGame → Header(65), StaminaBlock(112), ExtraRowsGroup(63)×2, ExpeditionBlock(64) |
 
 ### 5.2 Widget View 复杂度 Top
 
 | 优先级 | 文件 | 行数 | Widget 尺寸 | 问题描述 |
 |--------|------|------|-------------|----------|
 | ✅ W-V1 | `Widget4x4SingleGame.ets` | **131**（原 337） | 4x4 | 已拆分为 4 个 V1 子组件（Header / StaminaBlock / ExtraRowsGroup / ExpeditionBlock） |
-| 🔴 W-V2 | `Widget2x4SingleGame.ets` | **282** | 2x4 | 大视图，同理需拆分 |
+| ✅ W-V2 | `Widget2x4SingleGame.ets` | **152**（原 282） | 2x4 | 已拆出 InfoColumn；数据行 / 派遣头像复用共享组件 |
 | 🟡 W-V3 | `Widget1x2ContentView.ets` | 121 | 1x2 | 中等，可评估是否提取 GameCard / InfoRow |
 
 ### 5.3 Widget ViewModel 共享情况
@@ -193,7 +193,7 @@ Widget View               1              5            8          -
 | 3 | Normal | LaunchPage.ets | 91 | 🟢 P2 | （暂无） | ⏳ 待分析 |
 | 4 | Normal | Index.ets | 33 | 🔵 P3 | — | 不拆分 |
 | 5 | Widget | Widget4x4SingleGame.ets | 337 → 131 | ✅ W-V1 | （暂无深度子文档） | ✅ 已完成（拆 4 个 V1 子组件） |
-| 6 | Widget | Widget2x4SingleGame.ets | 282 | 🔴 W-V2 | （暂无深度子文档） | ⏳ 待分析 |
+| 6 | Widget | Widget2x4SingleGame.ets | 282 → 152 | ✅ W-V2 | （暂无深度子文档） | ✅ 已完成（InfoColumn + 共享组件） |
 | 7 | Widget | Widget1x2ContentView.ets | 121 | 🟡 W-V3 | （暂无深度子文档） | ⏳ 待分析 |
 | 8 | Widget | ×6 Pages (82–113) | — | 🟢 W-Pages | （汇总分析） | ⏳ 待分析 |
 | 9 | Widget | ×4 ViewModels (80–162) | — | 🟡 W-VM | （共享评估） | ⏳ 待分析 |
@@ -214,6 +214,29 @@ Widget View               1              5            8          -
 | 编译 | ✅ `hvigorw assembleHap -p product=uat -p buildMode=debug` → `BUILD SUCCESSFUL` |
 | 安装 | ✅ `bash run.sh uat` 安装/启动成功 |
 | 冒烟 | 🔶 模拟器桌面无法通过注入事件进入编辑态，卡片渲染需在真机/桌面手动添加 4×4 卡片确认 |
+
+#### 共享组件 `WidgetDataRow` / `WidgetExpeditionAvatar`（2026-11-09）
+
+> 2×4 与 4×4 存在两处结构完全一致、仅样式参数不同的重复，抽为共享组件；2×2 / 1×2 未改动（`WidgetExtraDataRows` 保持原样）。
+
+| 项 | 结果 |
+| --- | --- |
+| `WidgetDataRow.ets`（64） | 单行「标签 + 值」，参数 `fontSize` / `labelOpacity` / `valueFontWeight`；替换 2×4 右侧列与 4×4 数据行分组中的两份内联 Row |
+| `WidgetExpeditionAvatar.ets`（126） | 单枚派遣头像（三级图片兜底 + 完成遮罩 + 勾勾），参数 `avatarSize`（24 / 32），勾勾尺寸 / 字号 / 描边按尺寸派生；替换 2×4 与 4×4 两份 60+ 行实现 |
+| 命名注意 | 属性不能命名为 `size`（与 `CustomComponent.size` 通用属性冲突），改用 `avatarSize` |
+| 未合并项 | 体力区块（5 种布局：后备位置 / 有无标签 / 字号 18–40）、标题行（3 种排布）、容器间距——合并会退化为参数爆炸，保留各自实现 |
+
+#### W-V2 `Widget2x4SingleGame.ets`（2026-11-09）
+
+| 项 | 结果 |
+| --- | --- |
+| 主文件 | 282 → **152 行** |
+| 新增子组件 | `Widget2x4InfoColumn.ets`（106）：游戏名 / 角色名 / UID / 体力数值 / 恢复时间 |
+| 复用 | 右侧数据行改用 `WidgetDataRow`（`labelOpacity` = `OPACITY_TEXT_FAINT` 0.4）；底部派遣头像改用 `WidgetExpeditionAvatar`（24） |
+| 保留不变量 | 左右分栏与 1vp 分隔线（`height('50%')`、`opacity(0.08)`、左右 12）、右侧 `Column({ space: 6 })`、底部 `border-top` 与 `margin({ top: 8 })`、`isInNestedContainer` 时的 padding 切换、`flexShrink(0)` |
+| 编译 | ✅ `hvigorw clean assembleHap -p product=uat -p buildMode=debug` → `BUILD SUCCESSFUL`，无本模块新增警告 |
+| 安装 | ✅ `bash run.sh uat` 安装/启动成功，hilog 无异常 |
+| 冒烟 | 🔶 同 W-V1：桌面卡片渲染待真机确认（2×4 单游戏 / 4×4 多游戏两种用法） |
 
 ---
 

@@ -48,9 +48,9 @@
 | `widget/viewmodel/Widget2x4ViewModel.ets` | 169 | 同上，横向布局态 |
 | `widget/viewmodel/Widget4x4ViewModel.ets` | 167 | 同上，大卡态 |
 
-### 1.3 组件（14，1,460 行）
+### 1.3 组件（17，1,554 行）
 
-`Widget1x2ContentView`（121）· `Widget2x2Header`（56）· `Widget2x2SingleGame`（99）· `Widget2x2StaminaBlock`（53）· `Widget2x2StandardStamina`（70）· `Widget2x2StarRailStamina`（91）· `Widget2x4SingleGame`（282）· `Widget4x4SingleGame`（131）· `Widget4x4Header`（65）· `Widget4x4StaminaBlock`（112）· `Widget4x4ExtraRowsGroup`（75）· `Widget4x4ExpeditionBlock`（124）· `WidgetEmptyContent`（66）· `WidgetExtraDataRows`（115）
+`Widget1x2ContentView`（121）· `Widget2x2Header`（56）· `Widget2x2SingleGame`（99）· `Widget2x2StaminaBlock`（53）· `Widget2x2StandardStamina`（70）· `Widget2x2StarRailStamina`（91）· `Widget2x4SingleGame`（152）· `Widget2x4InfoColumn`（106）· `Widget4x4SingleGame`（131）· `Widget4x4Header`（65）· `Widget4x4StaminaBlock`（112）· `Widget4x4ExtraRowsGroup`（63）· `Widget4x4ExpeditionBlock`（64）· `WidgetDataRow`（64）· `WidgetExpeditionAvatar`（126）· `WidgetEmptyContent`（66）· `WidgetExtraDataRows`（115）
 
 ### 1.4 模型（4，973 行）
 
@@ -313,6 +313,23 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | 编译 | ✅ `hvigorw assembleHap -p product=uat -p buildMode=debug` → `BUILD SUCCESSFUL` |
 | 安装 | ✅ `bash run.sh uat` 安装/启动成功 |
 | 冒烟 | 🔶 模拟器桌面不接受注入的长按事件，无法进入编辑态添加卡片；4×4 桌面渲染待真机/手动确认 |
+
+### 2×4 / 4×4 共享组件合并执行记录（2026-11-09）
+
+> 只合并 2×4 与 4×4 之间结构一致的重复；`WidgetExtraDataRows`（2×2 在用）与 1×2 内容组件未改动。
+
+| 项 | 结果 |
+| --- | --- |
+| `WidgetDataRow.ets`（64） | 单行「标签 + 值」；`fontSize` / `labelOpacity` / `valueFontWeight` 三个样式参数，替换 2×4 右侧列与 4×4 分组内的两份内联 Row |
+| `WidgetExpeditionAvatar.ets`（126） | 单枚派遣头像；`avatarSize`（24 / 32）派生勾勾 10/12、字号 7/8、描边 1.5/2；替换两份 60+ 行实现 |
+| `Widget2x4InfoColumn.ets`（106） | 2×4 左侧角色信息列（游戏名 / 角色名 / UID / 体力 / 恢复时间） |
+| `Widget2x4SingleGame.ets` | 282 → **152L** |
+| `Widget4x4ExpeditionBlock.ets` | 124 → 64L（ForEach 内改用共享头像） |
+| `Widget4x4ExtraRowsGroup.ets` | 75 → 63L（ForEach 内改用共享数据行） |
+| 命名注意 | 头像组件属性不能叫 `size`，与 `CustomComponent.size` 通用属性冲突，改用 `avatarSize` |
+| 编译 | ✅ `hvigorw clean assembleHap -p product=uat -p buildMode=debug` → `BUILD SUCCESSFUL` |
+| 安装 | ✅ `bash run.sh uat` 安装/启动成功，hilog 无异常 |
+| 冒烟 | 🔶 桌面卡片渲染待真机确认（2×4 单游戏 / 4×4 单游戏 / 4×4 多游戏三种用法） |
 
 ---
 
