@@ -11,7 +11,7 @@
 
 | 类别 | 文件数 | 行数范围 | 备注 |
 |------|--------|----------|------|
-| **正常 Page** | 4 | 33–478 | `entry/src/main/ets/pages/` |
+| **正常 Page** | 4 | 33–277 | `entry/src/main/ets/pages/` |
 | **Widget Page** | 6 | 82–113 | `entry/src/main/ets/widget/pages/`，运行在 `FormExtensionAbility` 中 |
 | **Widget View** | 10 | 53–337 | `entry/src/main/ets/widget/views/`，Widget 专用子组件 |
 | **ViewModel** | 4 | 80–162 | `entry/src/main/ets/widget/viewmodel/`，Widget 数据层 |
@@ -29,7 +29,7 @@
 
 | 优先级 | 文件 | 行数 | 备注 |
 |--------|------|------|------|
-| 🔴 P0 | `MainPage.ets` | **478** | 应用主框架 + 跨 Tab 事件分发 |
+| ✅ P0 | `MainPage.ets` | **277**（原 478） | 应用主框架 + 跨 Tab 事件分发；M15 二次拆分已完成 |
 | 🟡 P1 | `TestPage.ets` | 105 | 测试页面（>100 行，也应拆分） |
 | 🟢 P2 | `LaunchPage.ets` | 91 | 启动页 |
 | 🔵 P3 | `Index.ets` | 33 | 入口过渡页 |
@@ -115,15 +115,15 @@ Widget View               2              2            6          -
 
 ### Phase 1 — Top Page（核心）
 
-#### ⚠️ P0: `MainPage.ets` (478 行) — 🔴 高优
+#### ✅ P0: `MainPage.ets` (478 → 277 行) — 已完成
 
 | 维度 | 详情 |
 |------|------|
 | **角色** | 应用主框架：Navigation + TabBar + 跨 Tab 全局事件分发（极验/Cookie 过期/设备指纹） |
 | **核心问题** | 约 ~180 行事件调度逻辑与 UI 混在一个 @ComponentV2 中，Page 职责不清 |
-| **拆分方向** | 提取纯逻辑类 `MainEventDispatcher.ets`（非 UI 子组件提取） |
-| **预期效果** | Page 478 → ~250 行 + 新文件 MainEventDispatcher (~180 行) |
-| **子文档** | [`main-module-analysis.md`](./main-module-analysis.md)（整体评级 B，2 High / 11 Medium / 5 Low） |
+| **拆分方向** | 实际拆为三个文件：`MainPageBuilders.ets`（@Builder 外置）、`utils/MainDialogArbiter.ets`（弹窗仲裁）、`utils/MainMenuItems.ets`（标题栏菜单与 Tab 项） |
+| **实际效果** | Page 478 → 277 行；新增 12 + 214 + 80 行三个职责单一文件 |
+| **子文档** | [`main-module-analysis.md`](./main-module-analysis.md)（整体评级 B，2 High / 11 Medium / 5 Low；M15 二次拆分记录见 §9） |
 
 ### Phase 2 — 中等 Page (80–120 行)
 
@@ -188,7 +188,7 @@ Widget View               2              2            6          -
 
 | # | 分类 | 文件 | 行数 | 优先级 | 子文档 | 状态 |
 |---|------|------|------|--------|--------|------|
-| 1 | Normal | MainPage.ets | 478 | 🔴 P0 | `main-module-analysis.md` | ⏳ 待执行 |
+| 1 | Normal | MainPage.ets | 478 → 277 | ✅ P0 | `main-module-analysis.md` | ✅ 已完成（M15 二次拆分） |
 | 2 | Normal | TestPage.ets | 105 | 🟡 P1 | （暂无） | ⏳ 待分析 |
 | 3 | Normal | LaunchPage.ets | 91 | 🟢 P2 | （暂无） | ⏳ 待分析 |
 | 4 | Normal | Index.ets | 33 | 🔵 P3 | — | 不拆分 |

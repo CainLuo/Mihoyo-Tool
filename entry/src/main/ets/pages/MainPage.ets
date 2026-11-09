@@ -5,32 +5,22 @@
  * menus 使用 NavigationMenuItem[] 实现，由系统统一渲染样式。
  * 各 Tab 页的 ViewModel 通过 @Param 回调把状态和操作函数传给 MainPage。
  */
-import { ComponentContent, SymbolGlyphModifier } from '@kit.ArkUI'
-import { promptAction } from '@kit.ArkUI'
+import { ComponentContent } from '@kit.ArkUI'
 import { window } from '@kit.ArkUI'
 import { display } from '@kit.ArkUI'
-import { themeManager, ThemeManager, AccountOption, AccountSwitchDialog, AccountSwitchDialogParams, AppRoutes, splitPlaceholderBuilder, CookieExpiredSignal, DialogDedup, showFeedback, FeedbackType } from 'basic'
+import { themeManager, ThemeManager, AccountOption, AccountSwitchDialogParams, AppRoutes, splitPlaceholderBuilder, CookieExpiredSignal } from 'basic'
 import { HomePage } from 'home'
 import { CharactersPage } from 'characters'
 import { MyPage } from 'account'
 import { ToolsPage } from 'material'
-import { GeetestSignal, GeetestQueueItem, showGeetestDialog, GeetestCenter, DeviceFpCenter, DeviceFpInvalidSignal } from 'verification'
-import { GeetestVerifyInput, Logger } from 'core'
-import { common } from '@kit.AbilityKit'
+import { GeetestSignal, GeetestCenter, DeviceFpCenter, DeviceFpInvalidSignal } from 'verification'
 import BuildProfile from 'BuildProfile'
 import { isLandscapeOrientation, resolveNavigationMode } from '../utils/MainNavigationMode'
-import { getGameAccountLabel } from '../utils/MainDialogLabels'
+import { MainDialogArbiter } from '../utils/MainDialogArbiter'
+import { TAB_HOME, TAB_CHARACTERS, TAB_TOOLS, TAB_MY, resolveTabTitle, buildHomeMenuItems,
+  buildCharMenuItems, buildMyMenuItems, createTabItem } from '../utils/MainMenuItems'
+import { accountSwitchDialogBuilder } from './MainPageBuilders'
 
-
-@Builder
-function accountSwitchDialogBuilder(params: AccountSwitchDialogParams) {
-  AccountSwitchDialog({ params: params })
-}
-
-const TAB_HOME = 0
-const TAB_CHARACTERS = 1
-const TAB_TOOLS = 2
-const TAB_MY = 3
 
 @ComponentV2
 export struct MainPage {
@@ -66,16 +56,8 @@ export struct MainPage {
   @Local private cookieExpiredSignal: CookieExpiredSignal = CookieExpiredSignal.getInstance()
   @Local private geetestSignal: GeetestSignal = GeetestSignal.getInstance()
   @Local private deviceFpInvalidSignal: DeviceFpInvalidSignal = DeviceFpInvalidSignal.getInstance()
-  /** 用户是否请求取消全部验证队列 */
-  private isGeetestCancelAllRequested: boolean = false
-  /**
-   * 人机验证框与"设备指纹无效"提示排队显示，同一时间只显示一个：
-   * 一方显示中时另一方先挂起，关闭后再弹（指纹提示等人机验证队列全部处理完）
-   */
-  private isGeetestShowing: boolean = false
-  private isGeetestPending: boolean = false
-  private isFpPromptShowing: boolean = false
-  private isFpPromptPending: boolean = false
+  /** 全局弹窗仲裁（Cookie 过期 / 人机验证 / 设备指纹无效） */
+  private dialogArbiter: MainDialogArbiter = new MainDialogArbiter()
 
   // ── HomePage 标题栏状态（由 HomePage 页通过 @Param 回调上报）──────────
   @Local private shouldShowHomeRefresh: boolean = false
@@ -93,6 +75,7 @@ export struct MainPage {
 
   aboutToAppear(): void {
     this.uiCtx = this.getUIContext()
+    this.dialogArbiter.attach(this.uiCtx, this.stack, this.geetestSignal, this.deviceFpInvalidSignal)
     // 人机验证（1034 / 10035）统一处理：任何接口遇到都推入 geetestSignal，由本页弹框
     GeetestCenter.init()
     // 设备指纹无效（5003 / 10041）统一处理：任何接口遇到都由本页提示，可重新生成设备指纹
@@ -147,206 +130,35 @@ export struct MainPage {
 
   @Monitor('cookieExpiredSignal.queue')
   onCookieExpiredQueueChanged(_monitor: IMonitor): void {
-    if (this.cookieExpiredSignal.queue.length === 0) { return }
-    const info = this.cookieExpiredSignal.queue[0]
-    // 从队列移除
-    this.cookieExpiredSignal.queue = this.cookieExpiredSignal.queue.slice(1)
-
-    const ctx = this.uiCtx
-    if (ctx === null) { return }
-    // 同一账号的登录过期弹框正在显示时，忽略重复触发
-    const dedupKey = `cookie_expired:${info.username}`
-    if (!DialogDedup.tryAcquire(dedupKey)) {
-      return
-    }
-    ctx.getPromptAction().showDialog({
-      title: $r('app.string.cookie_expired_dialog_title'),
-      message: $r('app.string.cookie_expired_dialog_msg', info.nickname),
-      buttons: [
-        { text: $r('app.string.dialog_cancel'), color: '#999999' },
-        { text: $r('app.string.cookie_expired_go_login'), color: '#E8534A' },
-      ],
-    }).then((result: promptAction.ShowDialogSuccessResponse) => {
-      DialogDedup.release(dedupKey)
-      if (result.index === 1) {
-        this.stack.pushPathByName(AppRoutes.LOGIN, null)
-      }
-      // 若队列还有，继续弹下一个
-      if (this.cookieExpiredSignal.queue.length > 0) {
-        this.cookieExpiredSignal.queue = this.cookieExpiredSignal.queue
-      }
-    }).catch((_: Error | object) => {
-      DialogDedup.release(dedupKey)
-    })
-  }
-
-  /** 验证框标题栏：多账号排队时提示是哪个游戏账号（游戏名 · UID）；取不到游戏 UID 时显示米游社昵称 */
-  private getGeetestLabel(item: GeetestQueueItem): string {
-    return getGameAccountLabel(this.uiCtx, item.trigger.gameId, item.trigger.roleId, item.accountName)
+    this.dialogArbiter.onCookieExpiredQueueChanged(this.cookieExpiredSignal)
   }
 
   /** 设备指纹无效（5003 / 10041）：统一提示，可直接重新生成设备指纹 */
   @Monitor('deviceFpInvalidSignal.version')
   onDeviceFpInvalid(_monitor: IMonitor): void {
-    // 人机验证框显示中或还有排队项：等验证队列处理完再提示
-    if (this.isGeetestShowing || this.geetestSignal.queueLength > 0) {
-      this.isFpPromptPending = true
-      return
-    }
-    this.showDeviceFpPrompt()
-  }
-
-  private showDeviceFpPrompt(): void {
-    const ctx = this.uiCtx
-    if (ctx === null) {
-      DeviceFpCenter.dismiss()
-      return
-    }
-    const signal = this.deviceFpInvalidSignal
-    let fallback = ''
-    try {
-      fallback = ctx.getHostContext()?.resourceManager.getStringSync($r('app.string.device_fp_unknown_account').id) ?? ''
-    } catch (_) {
-    }
-    const label = getGameAccountLabel(this.uiCtx, signal.gameId, signal.roleUid, fallback)
-    this.isFpPromptShowing = true
-    ctx.getPromptAction().showDialog({
-      title: $r('app.string.device_fp_invalid_title'),
-      message: $r('app.string.device_fp_invalid_msg', label, signal.retcode),
-      buttons: [
-        { text: $r('app.string.dialog_cancel'), color: '#999999' },
-        // 弹框按钮宽度有限，用短文案（完整文案"重新生成设备指纹"会被截断）
-        { text: $r('app.string.device_fp_regenerate_short'), color: '#E8534A' },
-      ],
-    }).then((result: promptAction.ShowDialogSuccessResponse) => {
-      this.onDeviceFpPromptClosed()
-      if (result.index !== 1) {
-        DeviceFpCenter.dismiss()
-        return
-      }
-      DeviceFpCenter.regenerate(ctx.getHostContext() as common.UIAbilityContext).then(() => {
-        showFeedback(ctx, FeedbackType.SUCCESS, $r('app.string.device_fp_regenerate_success'))
-      }).catch((e: Error | object) => {
-        Logger.error('Main', `regenerate device fp failed: ${e instanceof Error ? e.message : String(e)}`)
-        showFeedback(ctx, FeedbackType.ERROR, $r('app.string.device_fp_regenerate_failed'))
-      })
-    }).catch((_: Error | object) => {
-      this.onDeviceFpPromptClosed()
-      DeviceFpCenter.dismiss()
-    })
-  }
-
-  /** "设备指纹无效"提示关闭：弹出挂起的人机验证框 */
-  private onDeviceFpPromptClosed(): void {
-    this.isFpPromptShowing = false
-    if (this.isGeetestPending) {
-      this.isGeetestPending = false
-      this.showCurrentGeetest()
-    }
+    this.dialogArbiter.onDeviceFpInvalid(this.deviceFpInvalidSignal, this.geetestSignal.queueLength)
   }
 
   @Monitor('geetestSignal.trigger')
   async onGeetestTriggered(_monitor: IMonitor): Promise<void> {
-    if (this.geetestSignal.trigger === 0) { return }
-    // "设备指纹无效"提示显示中：等它关闭后再弹验证框
-    if (this.isFpPromptShowing) {
-      this.isGeetestPending = true
-      return
-    }
-    await this.showCurrentGeetest()
-  }
-
-  private async showCurrentGeetest(): Promise<void> {
-    const item = this.geetestSignal.getCurrentItem()
-    if (item === null) { return }
-
-    const progress = this.geetestSignal.getProgress()
-    const ctx = this.uiCtx
-    if (ctx === null) { return }
-
-    // 重置"取消全部"标记
-    this.isGeetestCancelAllRequested = false
-
-    // 弹出 Geetest 验证对话框
-    this.isGeetestShowing = true
-    let result: GeetestVerifyInput | null = null
-    try {
-      result = await showGeetestDialog(
-        ctx,
-        item.trigger.createResult,
-        progress,
-        this.getGeetestLabel(item)
-      )
-    } catch (e) {
-      Logger.error('MainPage', 'showGeetestDialog failed: ' + (e as Error).message)
-    } finally {
-      this.isGeetestShowing = false
-    }
-
-    // 处理结果
-    if (result !== null) {
-      // 验证成功，回调原调用方
-      // gt 来自 createResult，challenge 和 validate 来自验证结果
-      const trigger = item.trigger
-      this.geetestSignal.resolveSuccess(
-        trigger.createResult.gt,
-        result.geetest_challenge,
-        result.geetest_validate
-      )
-    } else if (this.isGeetestCancelAllRequested) {
-      // 用户请求取消全部队列
-      this.geetestSignal.resolveCancelAll()
-    } else {
-      // 用户只取消当前项
-      this.geetestSignal.resolveCancelCurrent()
-    }
-    // 人机验证队列全部处理完：弹出挂起的"设备指纹无效"提示
-    if (this.geetestSignal.queueLength === 0 && this.isFpPromptPending) {
-      this.isFpPromptPending = false
-      this.showDeviceFpPrompt()
-    }
+    await this.dialogArbiter.onGeetestTriggered(this.geetestSignal.trigger, this.geetestSignal)
   }
 
 
   private get homeMenuItems(): NavigationMenuItem[] {
-    if (!this.shouldShowHomeRefresh) { return []; }
-    return [{
-      value: 'refresh',
-      symbolIcon: new SymbolGlyphModifier($r('sys.symbol.arrow_clockwise')),
-      isEnabled: !this.isHomeRefreshing,
-      action: () => { this.homeDoRefresh() }
-    }];
+    return buildHomeMenuItems(this.shouldShowHomeRefresh, this.isHomeRefreshing, this.homeDoRefresh)
   }
 
   private get charMenuItems(): NavigationMenuItem[] {
-    const items: NavigationMenuItem[] = [];
-    if (this.shouldShowCharSwitcher) {
-      items.push({
-        value: 'switch_account',
-        symbolIcon: new SymbolGlyphModifier($r('sys.symbol.person_2')),
-        action: () => { this.showAccountSwitchSheet() }
-      });
-    }
-    if (this.shouldShowCharRefresh) {
-      items.push({
-        value: 'refresh',
-        symbolIcon: new SymbolGlyphModifier($r('sys.symbol.arrow_clockwise')),
-        isEnabled: !this.isCharRefreshing,
-        action: () => { this.charDoRefresh() }
-      });
-    }
-    return items;
+    return buildCharMenuItems(this.shouldShowCharSwitcher, this.shouldShowCharRefresh,
+      this.isCharRefreshing, this.charDoRefresh, () => { this.showAccountSwitchSheet() })
   }
 
   private get currentMenuItems(): NavigationMenuItem[] {
     if (this.selectedTab === TAB_HOME) { return this.homeMenuItems; }
     if (this.selectedTab === TAB_CHARACTERS) { return this.charMenuItems; }
-    if (this.selectedTab === TAB_MY && BuildProfile.DEBUG) {
-      return [{
-        value: 'test',
-        symbolIcon: new SymbolGlyphModifier($r('sys.symbol.wrench_and_screwdriver')),
-        action: () => { this.stack.pushPathByName(AppRoutes.TEST_PAGE, null) }
-      }];
+    if (this.selectedTab === TAB_MY) {
+      return buildMyMenuItems(BuildProfile.DEBUG, () => { this.stack.pushPathByName(AppRoutes.TEST_PAGE, null) })
     }
     return [];
   }
@@ -369,13 +181,6 @@ export struct MainPage {
     }).catch((_: Error | object) => {});
   }
 
-  private getTabTitle(): Resource {
-    if (this.selectedTab === TAB_HOME) { return $r('app.string.main_tab_home') }
-    if (this.selectedTab === TAB_CHARACTERS) { return $r('app.string.characters_tab_title') }
-    if (this.selectedTab === TAB_TOOLS) { return $r('app.string.tools_title') }
-    return $r('app.string.main_tab_my')
-  }
-
   /** 切换 Tab：分栏模式下清空共享路由栈 */
   private switchTab(tab: number): void {
     this.selectedTab = tab
@@ -385,17 +190,11 @@ export struct MainPage {
     }
   }
 
-  /** 生成底部 Tab 项（图标 / 选中态 / 切换行为一致） */
-  private createTabItem(label: Resource, icon: Resource, tab: number): ToolbarItem {
-    return {
-      value: label,
-      symbolIcon: new SymbolGlyphModifier(icon)
-        .fontColor([this.tm.current.colorTextSecondary]),
-      activeSymbolIcon: new SymbolGlyphModifier(icon)
-        .fontColor([this.tm.current.colorPrimary]),
-      status: this.selectedTab === tab ? ToolbarItemStatus.ACTIVE : ToolbarItemStatus.NORMAL,
-      action: () => { this.switchTab(tab) }
-    }
+  /** 生成底部 Tab 项（委托 MainMenuItems，注入主题色与切换行为） */
+  private tabItem(label: Resource, icon: Resource, tab: number): ToolbarItem {
+    return createTabItem(label, icon, tab, this.selectedTab,
+      this.tm.current.colorTextSecondary, this.tm.current.colorPrimary,
+      (t: number) => { this.switchTab(t) })
   }
 
   build() {
@@ -445,13 +244,13 @@ export struct MainPage {
         .height(this.tm.current.full)
       }
       .id('main_navigation')
-      .title(this.getTabTitle())
+      .title(resolveTabTitle(this.selectedTab))
       .menus(this.currentMenuItems)
       .toolbarConfiguration([
-        this.createTabItem($r('app.string.main_tab_home'), $r('sys.symbol.house'), TAB_HOME),
-        this.createTabItem($r('app.string.characters_tab_title'), $r('sys.symbol.person'), TAB_CHARACTERS),
-        this.createTabItem($r('app.string.tools_title'), $r('sys.symbol.wrench_and_screwdriver'), TAB_TOOLS),
-        this.createTabItem($r('app.string.main_tab_my'), $r('sys.symbol.gearshape'), TAB_MY),
+        this.tabItem($r('app.string.main_tab_home'), $r('sys.symbol.house'), TAB_HOME),
+        this.tabItem($r('app.string.characters_tab_title'), $r('sys.symbol.person'), TAB_CHARACTERS),
+        this.tabItem($r('app.string.tools_title'), $r('sys.symbol.wrench_and_screwdriver'), TAB_TOOLS),
+        this.tabItem($r('app.string.main_tab_my'), $r('sys.symbol.gearshape'), TAB_MY),
       ])
       .mode(this.navMode)
       .navBarWidth(0.4 * this.windowWidthVp)

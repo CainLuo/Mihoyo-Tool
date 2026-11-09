@@ -449,6 +449,22 @@ action: () => {
 
 **保留不变量**：4 Tab 共享 `this.stack`（`:48`，`Navigation(this.stack)` 在 `:403`）；标题栏协议字段、`TAB_HOME..TAB_MY` 索引、`windowClass` 读取时序、`@Monitor` 三个信号均未改；`MainTabContainer` / `TitleBarController` / `DialogArbiter` 三个大拆分与 H1/H2 行为修复留待后续单独立项。
 
+### M15 二次拆分记录（2026-11-09）
+
+> 承接上一轮，把可安全外置的弹窗仲裁与菜单构建移出 MainPage。仍为纯重构：未改 H1 / H2、弹窗仲裁时序、路由栈与 Tab 可见性契约；`@Monitor` 按 V2 要求保留在组件内，只把回调体委托出去。
+
+| 项 | 结果 |
+| --- | --- |
+| `MainPage.ets` | 473 → 277L（达到规范 ≤300 行目标） |
+| `@Builder` 外置 | 新增 `pages/MainPageBuilders.ets`（12L）：`accountSwitchDialogBuilder` 移出，主文件只 import |
+| 弹窗仲裁 | 新增 `utils/MainDialogArbiter.ets`（214L）：Cookie 过期 / 人机验证 / 设备指纹三态调度与 5 个 boolean 移入普通类；MainPage 三个 `@Monitor` 各保留一行委托 |
+| 标题栏菜单 | 新增 `utils/MainMenuItems.ets`（80L）：`TAB_*` 常量、`resolveTabTitle`、`buildHomeMenuItems` / `buildCharMenuItems` / `buildMyMenuItems`、`createTabItem` |
+| 行为核对 | 三个 `@Monitor` 监听路径不变（`cookieExpiredSignal.queue` / `deviceFpInvalidSignal.version` / `geetestSignal.trigger`）；弹窗优先级、去重 key、队列出队与 resolve 分支逐行对应；菜单顺序、图标、DEBUG 门控不变 |
+| 编译 | ✅ `hvigorw assembleHap -p product=uat -p buildMode=debug` → `BUILD SUCCESSFUL`，无 MainPage 相关新增警告 |
+| 冒烟 | ✅ `bash run.sh uat` 安装/启动成功；模拟器实测 4 Tab 切换、标题栏刷新按钮（首页/角色）、DEBUG 测试入口（我的）正常；hilog 无 MainPage/Arbiter 异常 |
+
+**待真机回归（未覆盖）**：折叠屏展开/折叠、人机验证（含返回手势关闭）、多账号 Cookie 过期叠层、账号切换弹窗、二级页返回。
+
 ---
 
 ## 10. 复核命令（可复现）
