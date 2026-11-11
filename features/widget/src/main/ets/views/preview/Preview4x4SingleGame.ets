@@ -13,40 +13,29 @@ import { GameId } from 'core';
 import { WidgetColors, DefaultTheme } from 'widgetbase';
 import { PreviewStamina, getPreviewStaminaData } from '../../model/WidgetPreviewModels';
 import { getWidgetGameName, getStaminaColorType, getStaminaColor, formatRecoveryTime } from '../../utils/WidgetPreviewUtil';
-
-/** 额外数据行 */
-class ExtraRow {
-  label: ResourceStr = '';
-  value: string = '';
-  valueColor: ResourceColor = WidgetColors.WHITE;
-
-  constructor(label: ResourceStr, value: string, valueColor: ResourceColor = WidgetColors.WHITE) {
-    this.label = label;
-    this.value = value;
-    this.valueColor = valueColor;
-  }
-}
+import { PreviewExtraDataRow, PreviewExtraRow } from './PreviewExtraDataRow';
+import { PreviewExpeditionAvatar } from './PreviewExpeditionAvatar';
 
 /** 获取额外数据行 */
-function getExtraRows(gameId: GameId): ExtraRow[] {
+function getExtraRows(gameId: GameId): PreviewExtraRow[] {
   if (gameId === GameId.GENSHIN) {
     return [
-      new ExtraRow($r('app.string.widget_home_coin'), '1800/2400'),
-      new ExtraRow($r('app.string.widget_daily_task'), '3/4'),
-      new ExtraRow($r('app.string.widget_transformer'), '已就绪', WidgetColors.SUCCESS),
+      new PreviewExtraRow($r('app.string.widget_home_coin'), '1800/2400'),
+      new PreviewExtraRow($r('app.string.widget_daily_task'), '3/4'),
+      new PreviewExtraRow($r('app.string.widget_transformer'), '已就绪', WidgetColors.SUCCESS),
     ];
   } else if (gameId === GameId.STARRAIL) {
     return [
-      new ExtraRow($r('app.string.widget_reserve_stamina'), '2400'),
-      new ExtraRow($r('app.string.widget_train_score'), '400/500'),
-      new ExtraRow($r('app.string.widget_rogue_weekly'), '800/1000'),
-      new ExtraRow($r('app.string.widget_grid_fight'), '1/3'),
+      new PreviewExtraRow($r('app.string.widget_reserve_stamina'), '2400'),
+      new PreviewExtraRow($r('app.string.widget_train_score'), '400/500'),
+      new PreviewExtraRow($r('app.string.widget_rogue_weekly'), '800/1000'),
+      new PreviewExtraRow($r('app.string.widget_grid_fight'), '1/3'),
     ];
   } else if (gameId === GameId.ZZZ) {
     return [
-      new ExtraRow($r('app.string.widget_video_store'), '营业中', WidgetColors.SUCCESS),
-      new ExtraRow($r('app.string.widget_card_sign'), '已完成', WidgetColors.SUCCESS),
-      new ExtraRow('刮刮卡', '已完成', WidgetColors.SUCCESS),
+      new PreviewExtraRow($r('app.string.widget_video_store'), '营业中', WidgetColors.SUCCESS),
+      new PreviewExtraRow($r('app.string.widget_card_sign'), '已完成', WidgetColors.SUCCESS),
+      new PreviewExtraRow('刮刮卡', '已完成', WidgetColors.SUCCESS),
     ];
   }
   return [];
@@ -67,16 +56,16 @@ export struct Preview4x4SingleGame {
     return this.staminaData.max > 0 ? this.staminaData.cur / this.staminaData.max : 0;
   }
 
-  private get extraRows(): ExtraRow[] {
+  private get extraRows(): PreviewExtraRow[] {
     return getExtraRows(this.gameId);
   }
 
-  private get group1(): ExtraRow[] {
+  private get group1(): PreviewExtraRow[] {
     const half = Math.ceil(this.extraRows.length / 2);
     return this.extraRows.slice(0, half);
   }
 
-  private get group2(): ExtraRow[] {
+  private get group2(): PreviewExtraRow[] {
     const half = Math.ceil(this.extraRows.length / 2);
     return this.extraRows.slice(half);
   }
@@ -88,26 +77,6 @@ export struct Preview4x4SingleGame {
       return '电量';
     }
     return '原粹树脂';
-  }
-
-  /** 单行额外数据（12fp / 弱化标签） */
-  @Builder
-  private dataRow(row: ExtraRow) {
-    Row() {
-      Text(row.label)
-        .fontSize(12)
-        .fontColor(WidgetColors.WHITE)
-        .opacity(0.45)
-        .layoutWeight(1)
-
-      Text(row.value)
-        .fontSize(12)
-        .fontWeight(600)
-        .fontColor(row.valueColor)
-    }
-    .width('100%')
-    .justifyContent(FlexAlign.SpaceBetween)
-    .margin({ top: 4, bottom: 4 })
   }
 
   build() {
@@ -176,8 +145,17 @@ export struct Preview4x4SingleGame {
       // ── 区块2：数据行分组1（flex:1）──
       if (this.group1.length > 0) {
         Column() {
-          ForEach(this.group1, (row: ExtraRow) => {
-            this.dataRow(row)
+          ForEach(this.group1, (row: PreviewExtraRow) => {
+            PreviewExtraDataRow({
+              label: row.label,
+              value: row.value,
+              valueColor: row.valueColor,
+              fontSize: 12,
+              labelOpacity: 0.45,
+              valueFontWeight: 600,
+              valueOpacity: 1
+            })
+              .margin({ top: 4, bottom: 4 })
           })
         }
         .width('100%')
@@ -191,8 +169,17 @@ export struct Preview4x4SingleGame {
       // ── 区块3：数据行分组2（flex:1）──
       if (this.group2.length > 0) {
         Column() {
-          ForEach(this.group2, (row: ExtraRow) => {
-            this.dataRow(row)
+          ForEach(this.group2, (row: PreviewExtraRow) => {
+            PreviewExtraDataRow({
+              label: row.label,
+              value: row.value,
+              valueColor: row.valueColor,
+              fontSize: 12,
+              labelOpacity: 0.45,
+              valueFontWeight: 600,
+              valueOpacity: 1
+            })
+              .margin({ top: 4, bottom: 4 })
           })
         }
         .width('100%')
@@ -214,14 +201,7 @@ export struct Preview4x4SingleGame {
 
           Row() {
             ForEach([0, 1, 2, 3], (idx: number) => {
-              Row()
-                .width(32)
-                .height(32)
-                .borderRadius(16)
-                .linearGradient({
-                  angle: 135,
-                  colors: [['rgba(100,100,120,0.8)', 0], ['rgba(60,60,80,0.8)', 1]]
-                })
+              PreviewExpeditionAvatar({ avatarSize: 32 })
             })
           }
           .width('100%')

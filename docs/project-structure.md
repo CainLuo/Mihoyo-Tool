@@ -718,7 +718,8 @@ features/widget/src/main/ets/
         ├── Preview4x4MultiSlot.ets      # Widget 配置预览 4x4 多游戏布局
         ├── Preview4x4SingleGame.ets     # Widget 配置预览 4x4 单游戏内容
         ├── PreviewEmptyContent.ets      # Widget 配置预览空态内容
-        └── PreviewExtraDataRow.ets      # Widget 配置预览额外数据行
+        ├── PreviewExpeditionAvatar.ets  # Widget 配置预览派遣头像（2x4 / 4x4 共享）
+        └── PreviewExtraDataRow.ets      # Widget 配置预览额外数据行（2x2 / 2x4 / 4x4 共享）
 ```
 
 ### 4.13 `features/legal` — 功能模块（HAR）

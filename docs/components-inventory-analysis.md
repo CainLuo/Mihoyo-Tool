@@ -115,7 +115,7 @@
 ### 2.16 widgetconfig（13 + 11 / 2,684）
 
 - 根级（13 / 1,492）：`WidgetConfigDone`(115) · `WidgetConfigPreview`(200) · `WidgetGameTypeOption`(110) · `WidgetSettingsBottomButtons`(96) · `WidgetSettingsGameStep`(65) · `WidgetSettingsLoading`(21) · `WidgetSettingsMainContent`(134) · `WidgetSettingsSizeStep`(54) · `WidgetSettingsSlotStep`(99) · `WidgetSizeOption`(107) · `WidgetSizeThumbs`(255) · `WidgetSlotOption`(143) · `WidgetStepIndicator`(93)
-- preview（11 / 1,192）：`Preview1x2Card`(45) · `Preview1x2Content`(73) · `Preview2x2MultiSlot`(52) · `Preview2x2SingleGame`(124) · `Preview2x4MultiSlot`(57) · `Preview2x4SingleGame`(362) · `Preview4x4MultiSlot`(57) · `Preview4x4SingleGame`(247) · `PreviewEmptyContent`(25) · `PreviewExtraDataRow`(33) · `WidgetPreviewUtils`(117)
+- preview（11 / 967）：`Preview1x2Card`(45) · `Preview1x2Content`(75) · `Preview2x2MultiSlot`(51) · `Preview2x2SingleGame`(126) · `Preview2x4MultiSlot`(56) · `Preview2x4SingleGame`(194) · `Preview4x4MultiSlot`(56) · `Preview4x4SingleGame`(221) · `PreviewEmptyContent`(24) · `PreviewExtraDataRow`(63) · `PreviewExpeditionAvatar`(56)；辅助函数 `utils/WidgetPreviewUtil`(117)
 
 ---
 
@@ -123,11 +123,11 @@
 
 | 文件 | 行数 | 说明 |
 | --- | --- | --- |
-| `widgetsettings/preview/Preview2x4SingleGame` | 362 | **与 `entry/src/main/ets/widget/views/Widget2x4SingleGame`(152) 是两份实现**——预览在设置页里重画了一遍卡片（桌面 widget 在 entry，设置预览在 feature widget） |
+| `widgetsettings/preview/Preview2x4SingleGame` | 194 | **与 `entry/src/main/ets/widget/views/Widget2x4SingleGame`(152) 是两份实现**——预览在设置页里重画了一遍卡片（桌面 widget 在 entry，设置预览在 feature widget）；预览侧数据行 / 派遣头像已抽为 `PreviewExtraDataRow` / `PreviewExpeditionAvatar`（2026-11-11） |
 | `materiallist/CharacterMaterialCard` | 329 | 单角色材料卡（含技能/武器/材料三组） |
 | `characters/CharacterCard` | 313 | 角色卡（含元素、命座、属性摘要） |
 | `widgetsettings/WidgetSizeThumbs` | 255 | 尺寸缩略图 |
-| `widgetsettings/preview/Preview4x4SingleGame` | 247 | 对应 `Widget4x4SingleGame`(131) 的预览版（实际卡片已拆为 5 个 V1 文件） |
+| `widgetsettings/preview/Preview4x4SingleGame` | 221 | 对应 `Widget4x4SingleGame`(131) 的预览版（实际卡片已拆为 5 个 V1 文件；预览侧 2026-11-11 复用 `PreviewExtraDataRow` / `PreviewExpeditionAvatar`） |
 | `widgetsettings/WidgetConfigPreview` | 200 | 预览容器（按尺寸分发） |
 | `materiallist/MaterialGridCard` | 191 | 按材料汇总的网格卡 |
 | `materiallist/MaterialGridItem` | 177 | 网格单元 |
@@ -152,7 +152,7 @@
 
 | 重复 | 证据 | 风险 |
 | --- | --- | --- |
-| **预览组件 vs widget 组件** | `features/widget/views/preview/Preview2x4SingleGame`(362) 与 `entry/src/main/ets/widget/views/Widget2x4SingleGame`(152，2026-11-09 已拆出 InfoColumn 并复用 DataRow / ExpeditionAvatar)；`Preview4x4SingleGame`(247) 与 `Entry Widget4x4SingleGame`(131，2026-11-09 已拆为 Header / StaminaBlock / ExtraRowsGroup / ExpeditionBlock 四个子组件，预览侧仍为单文件)；`Preview2x2SingleGame`(124) 与 `Entry Widget2x2SingleGame`(99) | **最高**：改卡片布局必须同步改预览，否则设置页预览与桌面实际卡片不一致。两份只共享 `widgetbase/WidgetUIStateModels` 的 `WidgetColors` / `StaminaColorType`；注意原文档中提到的 `widgetsettings/preview/WidgetPreviewUtils.ets`（辅助函数层分叉）已不存在——M0-M15 可能已合并或替换。需进一步验证当前是否仍存在重复 |
+| **预览组件 vs widget 组件** | `features/widget/views/preview/Preview2x4SingleGame`(194，2026-11-11 数据行 / 头像复用预览共享件) 与 `entry/src/main/ets/widget/views/Widget2x4SingleGame`(152，2026-11-09 已拆出 InfoColumn 并复用 DataRow / ExpeditionAvatar)；`Preview4x4SingleGame`(221) 与 `Entry Widget4x4SingleGame`(131，2026-11-09 已拆为 Header / StaminaBlock / ExtraRowsGroup / ExpeditionBlock 四个子组件，预览侧仍为单文件)；`Preview2x2SingleGame`(126) 与 `Entry Widget2x2SingleGame`(99) | **最高**：改卡片布局必须同步改预览，否则设置页预览与桌面实际卡片不一致。两份只共享 `widgetbase/WidgetUIStateModels` 的 `WidgetColors` / `StaminaColorType`；`WidgetPreviewUtils` 已迁移为 `features/widget/utils/WidgetPreviewUtil.ets` |
 | 原神详情 4 套 Hero 变体 | `CharDetailHeroPanel`(104) + `Portrait`(132) + `Landscape`(132) + `Wide`(133) | 中：响应式布局差异真实存在，但 4 份的标题/等级/属性排布高度相似 |
 | 原神详情 Portrait/Landscape 成对组件 | `PortraitSkillItem`(51)/`LandscapeSkillItem`(25)、`PortraitWeaponCard`(88)/`WeaponCard`(96)、`PortraitRelicsSection`(25)/`RelicsPanel`(118) | 中：同一信息的两种排布 |
 | 三游戏"顶部徽标 / 底部条" | `GenshinTopLeftBadge`(37) · `StarRailTopLeftBadge`(49) · `ZZZTopLeftBadge`(60)；三个 `*BottomBar` | 低：内容差异大（元素/命途/职业），合并收益小 |

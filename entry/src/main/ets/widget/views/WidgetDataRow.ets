@@ -23,6 +23,9 @@ export struct WidgetDataRow {
   /** 值字重（2×4 / 4×4 均为 600） */
   valueFontWeight: number = 600;
 
+  /** 标签最大行数；0 表示不限制（2×2 数据行需要单行省略） */
+  labelMaxLines: number = 0;
+
   build() {
     Row() {
       Text(this.row.labelResource)
@@ -30,6 +33,8 @@ export struct WidgetDataRow {
         .fontColor(WidgetColors.WHITE)
         .opacity(this.labelOpacity)
         .layoutWeight(1)
+        .maxLines(this.labelMaxLines > 0 ? this.labelMaxLines : 99)
+        .textOverflow({ overflow: TextOverflow.Ellipsis })
 
       Text(this.row.displayValue)
         .fontSize(this.fontSize)

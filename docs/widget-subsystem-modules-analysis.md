@@ -48,9 +48,9 @@
 | `widget/viewmodel/Widget2x4ViewModel.ets` | 169 | 同上，横向布局态 |
 | `widget/viewmodel/Widget4x4ViewModel.ets` | 167 | 同上，大卡态 |
 
-### 1.3 组件（17，1,554 行）
+### 1.3 组件（17，1,552 行）
 
-`Widget1x2ContentView`（121）· `Widget2x2Header`（56）· `Widget2x2SingleGame`（99）· `Widget2x2StaminaBlock`（53）· `Widget2x2StandardStamina`（70）· `Widget2x2StarRailStamina`（91）· `Widget2x4SingleGame`（152）· `Widget2x4InfoColumn`（106）· `Widget4x4SingleGame`（131）· `Widget4x4Header`（65）· `Widget4x4StaminaBlock`（112）· `Widget4x4ExtraRowsGroup`（63）· `Widget4x4ExpeditionBlock`（64）· `WidgetDataRow`（64）· `WidgetExpeditionAvatar`（126）· `WidgetEmptyContent`（66）· `WidgetExtraDataRows`（115）
+`Widget1x2ContentView`（121）· `Widget2x2Header`（56）· `Widget2x2SingleGame`（99）· `Widget2x2StaminaBlock`（53）· `Widget2x2StandardStamina`（70）· `Widget2x2StarRailStamina`（91）· `Widget2x4SingleGame`（152）· `Widget2x4InfoColumn`（106）· `Widget4x4SingleGame`（131）· `Widget4x4Header`（65）· `Widget4x4StaminaBlock`（112）· `Widget4x4ExtraRowsGroup`（63）· `Widget4x4ExpeditionBlock`（64）· `WidgetDataRow`（69）· `WidgetExpeditionAvatar`（126）· `WidgetEmptyContent`（66）· `WidgetExtraDataRows`（108）
 
 ### 1.4 模型（4，973 行）
 
@@ -330,6 +330,32 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | 编译 | ✅ `hvigorw clean assembleHap -p product=uat -p buildMode=debug` → `BUILD SUCCESSFUL` |
 | 安装 | ✅ `bash run.sh uat` 安装/启动成功，hilog 无异常 |
 | 冒烟 | 🔶 桌面卡片渲染待真机确认（2×4 单游戏 / 4×4 单游戏 / 4×4 多游戏三种用法） |
+
+### `WidgetExtraDataRows` 接入共享数据行（2026-11-11）
+
+> 上一轮为控制回归面未动 2×2 卡片；本轮把 2×2 使用的 `WidgetExtraDataRows` 也切到 `WidgetDataRow`，消除第三份数据行实现。
+
+| 项 | 结果 |
+| --- | --- |
+| `WidgetDataRow.ets` | 64 → **69L**：新增 `labelMaxLines`（0 = 不限制，内部按 99 处理），承接 2×2 的标签单行省略 |
+| `WidgetExtraDataRows.ets` | 115 → **108L**：`ForEach` 内改用 `WidgetDataRow`（`fontSize: theme.font11` / `labelOpacity: OPACITY_TEXT_SECONDARY` / `valueFontWeight: Bold` / `labelMaxLines: 1`） |
+| 行为不变量 | 2×2 的字号 11、标签透明度 0.55、值加粗、标签单行省略均保持原样 |
+| 编译 | ✅ `hvigorw assembleHap -p product=uat -p buildMode=debug` → `BUILD SUCCESSFUL` |
+| 冒烟 | 🔶 2×2 桌面卡片渲染待真机确认（模拟器无法进入桌面编辑态） |
+
+### 预览组件去重执行记录（2026-11-11）
+
+> 预览侧是 V2 体系，无法复用 entry 的 V1 卡片组件，只能在预览内部去重。本轮只动 `features/widget/src/main/ets/views/preview/`，未改 entry 的卡片渲染。
+
+| 项 | 结果 |
+| --- | --- |
+| `PreviewExtraDataRow.ets` | 32 → **63L**：新增 `fontSize` / `labelOpacity` / `valueFontWeight` / `valueOpacity`（默认值保持 2×2 的 11 / 0.55 / 400 / 0.95）；导出 `PreviewExtraRow` 数据模型 |
+| 新增 `PreviewExpeditionAvatar.ets` | **56L**：渐变占位头像 + 可选完成勾勾；`avatarSize`（24 / 32）派生勾勾 10/12、字号 7/8 |
+| `Preview2x4SingleGame.ets` | 221 → **194L**：删除 `@Builder extraRow` / `@Builder expeditionAvatar`；数据行改为 `getExtraRows(gameId)` + `ForEach` |
+| `Preview4x4SingleGame.ets` | 241 → **221L**：删除 `@Builder dataRow` 与本地 `ExtraRow` 类，改用共享 `PreviewExtraRow` |
+| 行为不变量 | 行内容 / 行序 / 字号 / 透明度 / 字重、勾勾位置与尺寸均与改造前逐项一致 |
+| 编译 | ✅ `hvigorw assembleHap -p product=uat -p buildMode=debug` → `BUILD SUCCESSFUL` |
+| 冒烟 | ✅ 应用内「我的 → Widget 卡片」实测 2×2 / 2×4 / 4×4 预览渲染与改造前一致 |
 
 ---
 

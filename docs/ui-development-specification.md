@@ -296,7 +296,7 @@ export struct CardView { }
 - Widget Component 的 build() 行数严格遵循第二章阈值，但建议更激进：
   - **Widget4x4SingleGame (337 → 131 行)** → ✅ 已拆为 Header / StaminaBlock / ExtraRowsGroup / ExpeditionBlock 四个 V1 子组件
   - **Widget2x4SingleGame (282 → 152 行)** → ✅ 已拆出 InfoColumn，并复用 WidgetDataRow / WidgetExpeditionAvatar
-  - **Widget1x2ContentView (121 行)** → 已接近 100 行评估线，建议提前拆分 ≥30 行的嵌套区块
+  - **Widget1x2ContentView (121 行)** → ✅ 已评估：组件体约 62 行、单一职责、三游戏共用，**不拆分**
 - 上述阈值低于通用标准的原因是：Widget 渲染在独立进程中，代码量直接影响内存占用和响应速度。
 
 ### 7.3 数据获取限制
@@ -320,7 +320,7 @@ export struct CardView { }
 | 优先级 | 标准 | 当前实例 |
 |--------|------|----------|
 | **P0 / W-V1** | >300 行，立即重构 | 暂无（MainPage 478 → 277、Widget4x4SingleGame 337 → 131 已完成） |
-| **P1 / W-V2** | 100–300 行，本周内 | Widget2x4SingleGame (282 → 152，✅ 已完成) [Widget], Widget4x4 (113) [Widget Page], Widget2x4 (110) [Widget Page], Widget2x2 (109) [Widget Page], TestPage (105) [Normal], Widget1x2ContentView (121) [Widget], WidgetExtraDataRows (115) [Widget] |
+| **P1 / W-V2** | 100–300 行，本周内 | Widget2x4SingleGame (282 → 152，✅ 已完成) [Widget], Widget4x4 (113) [Widget Page], Widget2x4 (110) [Widget Page], Widget2x2 (109) [Widget Page], TestPage (105) [Normal], Widget1x2ContentView (121，✅ 已评估不拆分) [Widget], WidgetExtraDataRows (115 → 108，✅ 已接入共享数据行) [Widget] |
 | **P2 / W-V3** | 80–100 行，下迭代 | LaunchPage (91) [Normal], Widget1x2Genshin/StarRail/ZZZ (82) [Widget], Widget2x2StarRailStamina (91) [Widget], Widget2x2SingleGame (99) [Widget] |
 | **P3** | <80 行但结构复杂，优化为主 | Index.ets (33) [Normal] |
 

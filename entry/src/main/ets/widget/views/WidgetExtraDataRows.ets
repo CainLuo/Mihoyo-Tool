@@ -8,6 +8,7 @@
  */
 
 import { WidgetExtraRow, WidgetColors, DefaultTheme } from 'widgetbase';
+import { WidgetDataRow } from './WidgetDataRow';
 
 @Component
 export struct WidgetExtraDataRows {
@@ -23,21 +24,13 @@ export struct WidgetExtraDataRows {
   build() {
     Column({ space: this.theme.value5 }) {
       ForEach(this.extraRows, (row: WidgetExtraRow, idx: number) => {
-        Row() {
-          Text(row.labelResource)
-            .fontSize(this.theme.font11)
-            .fontColor(WidgetColors.WHITE)
-            .opacity(WidgetColors.OPACITY_TEXT_SECONDARY)
-            .layoutWeight(1)
-            .maxLines(1)
-            .textOverflow({ overflow: TextOverflow.Ellipsis })
-
-          Text(row.displayValue)
-            .fontSize(this.theme.font11)
-            .fontWeight(FontWeight.Bold)
-            .fontColor(row.valueColor)
-        }
-        .width(this.theme.full)
+        WidgetDataRow({
+          row: row,
+          fontSize: this.theme.font11,
+          labelOpacity: WidgetColors.OPACITY_TEXT_SECONDARY,
+          valueFontWeight: FontWeight.Bold,
+          labelMaxLines: 1
+        })
       })
     }
     .width(this.theme.full)
