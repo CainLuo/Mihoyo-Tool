@@ -227,7 +227,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 
 | # | 问题 | 位置 | 说明 |
 | --- | --- | --- | --- |
-| M1 | `build()` 内反复解析 payload | `Widget2x2.ets:64,70,71,75,85,86`（`build()` 内 `getUIState()` **6 次**）+ `:57/61/63`（`getGameIds` / `getIsEmpty` / `getIsSingleGame` 各再 `getParsed()` 1 次），多游戏分支单次渲染最多 8 次 `JSON.parse`（3 + `:70/71/75/85/86` 5 次）；`Widget2x4.ets:54-89` / `Widget4x4.ets:54-90` 各 6 次 `getUIState()` + `:49` 1 次 `getGameIds()`；1×2 三页各 2 次（`:44/48`） | 每次 `getUIState()` 都 `JSON.parse` 整个 payload 并重建 `ParsedPayload` + UIState。V1 没有 computed，且 `build()` 不能声明局部变量——这是限制下的写法，但可以让页面缓存一次（例如在私有字段里记住上次的 `payloadJson` 与解析结果，`payloadJson` 变化时失效；V1 页面不能用 V2 的 `@Local`） |
+| M1 | `build()` 内反复解析 payload | `Widget2x2.ets:57/61/63`（`getGameIds` / `getIsEmpty` / `getIsSingleGame` 各 `getParsed()` 1 次）+ `build()` 内 6 处 `getUIState()`，多游戏分支单次渲染最多 **9 次** `JSON.parse`；`Widget2x4.ets` / `Widget4x4.ets` 各 6 次 `getUIState()` + 1 次 `getGameIds()`（**7 次**）；1×2 三页各 2 次 | 每次 `getUIState()` 都 `JSON.parse` 整个 payload 并重建 `ParsedPayload` + UIState。V1 没有 computed，且 `build()` 不能声明局部变量——这是限制下的写法，但可以让页面缓存一次（私有字段记住上次的 `payloadJson` 与解析结果，`payloadJson` 变化时失效；V1 页面不能用 V2 的 `@Local`）。**✅ 已修复（2026-11-11，见 §7 M1 执行记录）** |
 | M2 | 30 分钟冷却被所有卡片共享，且失败也计入冷却 | `WidgetSyncAbility.ets:40 / 43 / 204 / 224` | `widget_last_sync_time` 是**单个全局 key**：用户点了 1×2 的卡片后，30 分钟内点任何其他卡片都只得到 "In cooldown"；没有 per-form 刷新。另外 `syncAllWidgets` 自己吞掉全部异常（`:131-134`），`refreshAndSave` 失败也只是 `return`（`:122-124`），所以 `:224` 的时间戳在同步失败时照写，`:227` 的 catch 实际不可达——**一次失败的刷新同样锁 30 分钟** |
 | M3 | 同步结果不可见 | `WidgetSyncAbility.ets:237` | `call` 立刻返回 `'Sync started'`，之后失败只写 hilog；卡片侧无法显示"刷新失败" |
 | M4 | `onAddForm` 全同步链路压在 10 秒窗口 | `EntryFormAbility.ets:42 / 45-67`（Preferences 同步读 + `loadFormImagesSync` + payload 构建） | 账号 × 角色多时，图片 fd 读取与 payload 构建都在主线程；没有超时保护 |
@@ -266,7 +266,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 - **只做内部整理**：`widget/` 目录已经按 pages/components/viewmodel/models/utils 分好，**不需要搬文件**；本轮最多统一命名（`WidgetLog` → `WidgetLogger` 合并、`WidgetMockData` 明确标注 debug-only）。
 - **优先修 H1 / H2**：两处都不改变 UI 结构，H1 是 10 行左右的错误码分支，H2 是一个 `BuildProfile.DEBUG` 判断；建议各自单独提交。
 - **H3 需要产品决策**：加"更新于 X 分钟前"会改变卡片视觉，属于行为变更，应单独立项。
-- **M1 可以随 M14 做**：页面内缓存 `ParsedPayload`，不改任何组件接口；但要回归 6 张卡片 × 单/多游戏。
+- **M1 已完成**：页面内缓存 `ParsedPayload` + UIState，不改任何组件接口（2026-11-11，见下方执行记录）；回归 6 张卡片 × 单/多游戏仍待真机。
 - **不要合并 1×2 三页文件**：`src` 冻结，只能抽内部共享 struct。
 - **M4 / M5 属于能力增强**（超时、并发、进度），超出"保持行为"的重构边界，记录不执行。
 - **M7 / M8 是行为修复**：M7 把 `isSyncing = true` 提前到返回前（几行）；M8 需决定删除 `WidgetFormIdStore` / `WidgetDataBuilder` 遗留链路（同时改 notification 与 AccountDetail 两个调用方，跨 M5 / M11）还是改用 `WidgetConfigStore`，均单独提交。
@@ -281,7 +281,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 ### 已知问题归属
 
 - **High 3 项**（配置误删、Mock 数据、无新鲜度标识）：H1 / H2 建议随 M14 修，H3 需产品决策。
-- **Medium 8 项**（重复解析、全局冷却且失败也计冷却、结果不可见、10 秒窗口、串行同步、派遣头像永不更新、并发锁置位过晚、`WidgetFormIdStore` 空转）：M1 可随模块做；M7 / M8 为行为修复单独提交；其余属增强。
+- **Medium 8 项**（重复解析、全局冷却且失败也计冷却、结果不可见、10 秒窗口、串行同步、派遣头像永不更新、并发锁置位过晚、`WidgetFormIdStore` 空转）：**M1 已完成**；M7 / M8 为行为修复单独提交；其余属增强。
 - **Low 3 项**（logger 合并、`formEvent` 校验、预览缺失）：可顺手做。
 - **测试空白**：`Widget1x2/2x4/4x4ViewModel`（419 行）、`WidgetDataStore`（452）、`WidgetPayloadBuilder`（358）、`WidgetDataStoreBuilder`（365）、`WidgetImageDownloader`（479）、`WidgetUpdateNotifier`（146）均无单测——即**本子系统 3 个 High 所在的文件全部无测试保护**。
 
@@ -356,6 +356,22 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | 行为不变量 | 行内容 / 行序 / 字号 / 透明度 / 字重、勾勾位置与尺寸均与改造前逐项一致 |
 | 编译 | ✅ `hvigorw assembleHap -p product=uat -p buildMode=debug` → `BUILD SUCCESSFUL` |
 | 冒烟 | ✅ 应用内「我的 → Widget 卡片」实测 2×2 / 2×4 / 4×4 预览渲染与改造前一致 |
+
+### M1 性能项执行记录（2026-11-11）
+
+> 只改 6 个 Widget 页面的数据读取方式，不动组件接口、`form_config.json`、ability 与 payload 约定。
+
+| 项 | 结果 |
+| --- | --- |
+| 方案 | 页面内按 payload 字符串缓存：私有字段 `cachedPayloadJson` / `cachedParsed` / `cachedUIState` + `ensureCache()`；`getParsed()` / `getUIState()` 先调 `ensureCache()`。payload 未变化时复用缓存，变化时重建 |
+| `Widget2x2.ets` | 单次 build 的 `parsePayload` 调用 **9 → 1**（3 次状态判定 + 6 处 `getUIState()`） |
+| `Widget2x4.ets` / `Widget4x4.ets` | 单次 build **7 → 1**（1 次 `getGameIds()` + 6 处 `getUIState()`） |
+| `Widget1x2{Genshin,StarRail,ZZZ}.ets` | 单次 build **2 → 1** |
+| 行为等价性 | `Widget*ViewModel.buildUIState()` 无 `Date.now()` / `new Date()` 依赖，输入只有 `ParsedPayload`，同一 payload 的解析与 UIState 结果完全确定，缓存不改变渲染结果 |
+| 更新路径 | `@LocalStorageProp('payload')` 变化仍触发 build，`ensureCache()` 读到新字符串后重建缓存；payload 未变时返回同一 UIState 引用，子组件跳过无意义重建（收益来源） |
+| 计数修正 | M1 原记录"2×2 多游戏分支最多 8 次"应为 **9 次**（3 次状态判定 + `build()` 内 6 处 `getUIState()`），本轮一并修正 |
+| 编译 | ✅ `hvigorw assembleHap -p product=uat -p buildMode=debug` → `BUILD SUCCESSFUL in 3 s 58 ms` |
+| 冒烟 | 🔶 桌面卡片渲染待真机确认（6 张卡片 × 单/多游戏 × 空数据） |
 
 ---
 

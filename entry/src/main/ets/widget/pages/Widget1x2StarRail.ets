@@ -30,10 +30,27 @@ let storage: LocalStorage = new LocalStorage();
 struct Widget1x2StarRail {
   @LocalStorageProp('payload') payloadJson: string = '';
 
+  /**
+   * 性能优化：同一 payload 字符串只解析/构建一次 UIState。
+   * build() 中会多次读取 UIState，缓存后避免重复 JSON.parse + ViewModel 计算。
+   */
+  private cachedPayloadJson: string = '';
+  private cachedUIState: Widget1x2UIState =
+    Widget1x2ViewModel.buildUIState(parsePayload(''), WidgetGameId.STARRAIL);
+
+  /** payload 变化时重建缓存，未变化时直接复用 */
+  private ensureCache(): void {
+    if (this.cachedPayloadJson === this.payloadJson) {
+      return;
+    }
+    this.cachedPayloadJson = this.payloadJson;
+    this.cachedUIState = Widget1x2ViewModel.buildUIState(parsePayload(this.payloadJson), WidgetGameId.STARRAIL);
+  }
+
   /** 构建 UIState（在组件方法中调用 ViewModel） */
   private getUIState(): Widget1x2UIState {
-    const parsed = parsePayload(this.payloadJson);
-    return Widget1x2ViewModel.buildUIState(parsed, WidgetGameId.STARRAIL);
+    this.ensureCache();
+    return this.cachedUIState;
   }
 
   build() {

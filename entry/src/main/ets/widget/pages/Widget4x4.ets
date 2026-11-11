@@ -25,8 +25,27 @@ let storage: LocalStorage = new LocalStorage();
 struct Widget4x4 {
   @LocalStorageProp('payload') payloadJson: string = '';
 
+  /**
+   * 性能优化：同一 payload 字符串只解析/构建一次。
+   * build() 中会多次读取 ParsedPayload / UIState，缓存后避免重复 JSON.parse + ViewModel 计算。
+   */
+  private cachedPayloadJson: string = '';
+  private cachedParsed: ParsedPayload = parsePayload('');
+  private cachedUIState: Widget4x4UIState = Widget4x4ViewModel.buildUIState(parsePayload(''));
+
+  /** payload 变化时重建缓存，未变化时直接复用 */
+  private ensureCache(): void {
+    if (this.cachedPayloadJson === this.payloadJson) {
+      return;
+    }
+    this.cachedPayloadJson = this.payloadJson;
+    this.cachedParsed = parsePayload(this.payloadJson);
+    this.cachedUIState = Widget4x4ViewModel.buildUIState(this.cachedParsed);
+  }
+
   private getParsed(): ParsedPayload {
-    return parsePayload(this.payloadJson);
+    this.ensureCache();
+    return this.cachedParsed;
   }
 
   private getGameIds(): string[] {
@@ -34,7 +53,8 @@ struct Widget4x4 {
   }
 
   private getUIState(): Widget4x4UIState {
-    return Widget4x4ViewModel.buildUIState(this.getParsed());
+    this.ensureCache();
+    return this.cachedUIState;
   }
 
   build() {

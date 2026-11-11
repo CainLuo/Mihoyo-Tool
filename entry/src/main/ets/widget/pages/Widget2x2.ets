@@ -22,8 +22,27 @@ let storage: LocalStorage = new LocalStorage();
 struct Widget2x2 {
   @LocalStorageProp('payload') payloadJson: string = '';
 
+  /**
+   * 性能优化：同一 payload 字符串只解析/构建一次。
+   * build() 中会多次读取 ParsedPayload / UIState，缓存后避免重复 JSON.parse + ViewModel 计算。
+   */
+  private cachedPayloadJson: string = '';
+  private cachedParsed: ParsedPayload = parsePayload('');
+  private cachedUIState: Widget2x2UIState = Widget2x2ViewModel.buildUIState(parsePayload(''));
+
+  /** payload 变化时重建缓存，未变化时直接复用 */
+  private ensureCache(): void {
+    if (this.cachedPayloadJson === this.payloadJson) {
+      return;
+    }
+    this.cachedPayloadJson = this.payloadJson;
+    this.cachedParsed = parsePayload(this.payloadJson);
+    this.cachedUIState = Widget2x2ViewModel.buildUIState(this.cachedParsed);
+  }
+
   private getParsed(): ParsedPayload {
-    return parsePayload(this.payloadJson);
+    this.ensureCache();
+    return this.cachedParsed;
   }
 
   private getAllRoles(): ParsedRole[] {
@@ -43,7 +62,8 @@ struct Widget2x2 {
   }
 
   private getUIState(): Widget2x2UIState {
-    return Widget2x2ViewModel.buildUIState(this.getParsed());
+    this.ensureCache();
+    return this.cachedUIState;
   }
 
   build() {
