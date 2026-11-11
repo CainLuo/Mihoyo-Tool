@@ -19,7 +19,7 @@ export DEVECO_SDK_HOME='/Applications/DevEco-Studio.app/Contents/sdk'
 
 TARGET='127.0.0.1:5555'
 AVD="${AVD:-Mate 80 Pro Max}"
-AVD_PATH="$HOME/.Huawei/Emulator/deployed/$AVD"
+EMULATOR_INSTANCE_ROOT="$HOME/.Huawei/Emulator/deployed"
 IMAGE_ROOT="$HOME/Library/Huawei/Sdk"
 
 PRODUCT=''
@@ -120,7 +120,7 @@ if "$HDC" list targets 2>/dev/null | grep -q "$TARGET"; then
   echo "✓ 模拟器已在运行"
 else
   echo "▶ 启动模拟器：$AVD"
-  "$EMULATOR" -hvd "$AVD" -path "$AVD_PATH" -imageRoot "$IMAGE_ROOT" &
+  "$EMULATOR" -start "$AVD" -instancePath "$EMULATOR_INSTANCE_ROOT" -imageRoot "$IMAGE_ROOT" >/dev/null 2>&1 &
   echo "⏳ 等待模拟器就绪（最多 30 秒）..."
   for i in $(seq 1 30); do
     sleep 1
