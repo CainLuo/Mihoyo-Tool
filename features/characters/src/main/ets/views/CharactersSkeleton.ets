@@ -3,6 +3,11 @@
  *
  * 在 CharactersPage 页面 loading 状态时展示，模拟角色卡片网格布局。
  * 仅在 CharactersPage 页面使用。
+ *
+ * 注意：不要用 ctx.animateTo({ iterations: -1 }) 实现无限循环。
+ * animateTo 是全局隐式动画，iterations: -1 会让动画永不结束，
+ * 后续任何布局变化都会被同一个无限动画接管，表现为页面元素持续上下浮动。
+ * 组件级 .animation() 只作用于本组件的属性变化，不会外溢。
  */
 
 import { themeManager, ThemeManager, AppConstants } from 'basic';
@@ -21,24 +26,6 @@ export struct CharactersSkeletonPreview {
 export struct CharactersSkeleton {
   @Local private tm: ThemeManager = themeManager;
   @Local private imgOpacity: number = 1.0;
-  private uiCtx: UIContext | null = null;
-
-  aboutToAppear(): void {
-    this.uiCtx = this.getUIContext();
-    const ctx = this.uiCtx;
-    if (ctx === null) { return; }
-    ctx.animateTo(
-      {
-        duration: this.tm.current.duration800,
-        curve: Curve.EaseInOut,
-        iterations: -1,
-        playMode: PlayMode.Alternate
-      },
-      () => {
-        this.imgOpacity = this.tm.current.opacity03;
-      }
-    );
-  }
 
   build() {
     GridRow({
@@ -56,16 +43,28 @@ export struct CharactersSkeleton {
             Row()
               .width(this.tm.current.full)
               .aspectRatio(1)
-              .backgroundColor(this.tm.current.colorSurfaceSubtle)
               .opacity(this.imgOpacity)
+              .animation({
+                duration: this.tm.current.duration800,
+                curve: Curve.EaseInOut,
+                iterations: -1,
+                playMode: PlayMode.Alternate
+              })
+              .backgroundColor(this.tm.current.colorSurfaceSubtle)
 
             // 模拟等级 + 好感度信息行
             Row()
               .width(this.tm.current.value120)
               .height(this.tm.current.font16)
               .borderRadius(this.tm.current.value4)
-              .backgroundColor(this.tm.current.colorSurfaceSubtle)
               .opacity(this.imgOpacity)
+              .animation({
+                duration: this.tm.current.duration800,
+                curve: Curve.EaseInOut,
+                iterations: -1,
+                playMode: PlayMode.Alternate
+              })
+              .backgroundColor(this.tm.current.colorSurfaceSubtle)
               .margin(this.tm.current.value8)
           }
           .width(this.tm.current.full)
@@ -78,5 +77,8 @@ export struct CharactersSkeleton {
     }
     .width(this.tm.current.full)
     .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })
+    .onAppear(() => {
+      this.imgOpacity = this.tm.current.opacity03;
+    })
   }
 }
