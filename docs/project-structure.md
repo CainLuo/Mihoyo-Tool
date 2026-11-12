@@ -469,11 +469,11 @@ features/chardetail/src/main/ets/
 
 | 项 | 内容 |
 | --- | --- |
-| 代码文件 | 39 个 `.ets` |
+| 代码文件 | 51 个 `.ets` |
 | 依赖 | core、basic |
 | 对外导出 | 2 个（`Index.ets`） |
 | 路由 | `ZZZMaterialList`、`GenshinMaterialTargetConfig`、`StarRailMaterialTargetConfig`、`ZZZMaterialTargetConfig`、`GenshinMaterialList`、`StarRailMaterialList`、`MaterialCharacterSelect` |
-| 本地测试 | MaterialCalcViewModel、ToolsViewModel |
+| 本地测试 | 15 个测试文件：材料计算 / 汇总 / 目标配置 / 选角 / 工具页 ViewModel、`MaterialListAggregator`、`MaterialAmountUtil`、`MaterialComputeUtils`、路由与模型 |
 | 资源 | `base/profile` 1 |
 
 ```
@@ -482,9 +482,15 @@ features/material/src/main/ets/
 │   ├── MaterialCalcModels.ets                     # 材料计算页 UI 模型
 │   ├── MaterialListModels.ets                     # 材料汇总页 UI 模型
 │   ├── MaterialTargetConfigModels.ets             # 养成目标配置页 UI 模型
+│   ├── MaterialTargetModels.ets                   # 养成目标领域模型（技能槽位 / 目标等级 / 路由参数）
 │   ├── ToolsModels.ets                            # 工具页 UI 模型
 │   └── service/                                   # 数据 / 业务服务（存储、网络、计算）
-│       └── MaterialComputeService.ets             # 材料计算服务（选角、汇总、目标配置页共用）
+│       ├── GenshinMaterialCompute.ets             # 原神养成材料计算（facade 按 gameId 分派）
+│       ├── MaterialComputeResult.ets              # 计算服务返回结果（避免循环依赖）
+│       ├── MaterialComputeService.ets             # 材料计算服务 facade（选角、汇总、目标配置页共用）
+│       ├── MaterialComputeUtils.ets               # 计算服务共用工具
+│       ├── StarRailMaterialCompute.ets            # 星穹铁道养成材料计算
+│       └── ZZZMaterialCompute.ets                 # 绝区零养成材料计算
 ├── pages/                                         # 页面
 │   ├── GenshinMaterialListPage.ets                # 原神材料汇总页
 │   ├── GenshinMaterialTargetConfigPage.ets        # 原神养成目标配置页
@@ -496,12 +502,14 @@ features/material/src/main/ets/
 │   ├── ZZZMaterialListPage.ets                    # 绝区零材料汇总页
 │   └── ZZZMaterialTargetConfigPage.ets            # 绝区零养成目标配置页
 ├── utils/                                         # 工具函数
+│   ├── MaterialAmountUtil.ets                     # 货币类材料数量「万 / 亿」格式化
 │   └── MaterialRouteUtil.ets                      # 材料计算相关页面的路由名（按游戏）
 ├── viewmodel/                                     # ViewModel
 │   ├── GenshinMaterialListViewModel.ets           # 原神材料汇总页 ViewModel
 │   ├── GenshinMaterialTargetConfigViewModel.ets   # 原神养成目标配置 ViewModel
 │   ├── MaterialCalcViewModel.ets                  # 材料计算页 ViewModel
 │   ├── MaterialCharacterSelectViewModel.ets       # 角色选择页 ViewModel
+│   ├── MaterialListAggregator.ets                 # 三游戏材料汇总页共用纯函数聚合器（排序 / 汇总 / 分组 / 材料项转换）
 │   ├── StarRailMaterialListViewModel.ets          # 星穹铁道材料汇总页 ViewModel
 │   ├── StarRailMaterialTargetConfigViewModel.ets  # 星穹铁道养成目标配置 ViewModel
 │   ├── ToolsViewModel.ets                         # 工具页 ViewModel
@@ -510,19 +518,23 @@ features/material/src/main/ets/
 └── views/                                         # 页面内组件
     ├── CharacterMaterialCard.ets                  # 角色材料卡片组件（按角色视图）
     ├── CharacterMaterialSections.ets              # 单个角色的材料分组
+    ├── CharacterSelectCard.ets                    # 选角页网格卡片（头像 + 等级 + 选中标记）
     ├── GameEntryCard.ets                          # 工具页游戏入口卡片
-    ├── LevelPicker.ets                            # 等级选择弹窗
+    ├── LevelConfigRow.ets                         # 目标配置页等级行（三游戏共用）
     ├── MaterialCalcCharacter.ets                  # 计算页角色信息 + 等级目标
     ├── MaterialCalcContentView.ets                # 计算页内容
     ├── MaterialCalcEmptyView.ets                  # 计算页空态
     ├── MaterialCalcItem.ets                       # 材料单项（图标、名称、进度、数量）
+    ├── MaterialCalcLevelPicker.ets                # 计算页等级选择器弹窗
     ├── MaterialCalcLoadingView.ets                # 计算页加载中
     ├── MaterialCalcSection.ets                    # 材料 Section 组件
     ├── MaterialCalcSkills.ets                     # 技能目标等级
     ├── MaterialGridCard.ets                       # 材料网格卡片组件（按材料视图）
     ├── MaterialGridItem.ets                       # 材料网格单项（图标 + 缺口数量）
     ├── MaterialListContentView.ets                # 汇总页内容（按角色 / 按材料）
-    └── MaterialSectionView.ets                    # 材料分组（标题 + 网格）
+    ├── MaterialListScaffold.ets                   # 三游戏材料汇总页共用骨架（标题栏 / 菜单 / Tab / 三态）
+    ├── MaterialSectionView.ets                    # 材料分组（标题 + 网格）
+    └── TargetConfigTipCard.ets                    # 目标配置页顶部提示卡片（三游戏共用）
 ```
 
 ### 4.9 `features/account` — 功能模块（HAR）

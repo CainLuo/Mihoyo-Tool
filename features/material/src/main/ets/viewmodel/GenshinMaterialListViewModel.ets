@@ -35,11 +35,14 @@ import {
   WeaponMaterialVM,
   SkillItemVM,
   MaterialSectionVM,
-  MaterialSectionType,
 } from '../model/MaterialListModels';
+import { MaterialListAggregator } from './MaterialListAggregator';
 
 /** 养成计算链路统一日志 tag，过滤：hilog | grep */
 const CALC_TAG: string = 'GenshinCalc';
+
+/** 货币类材料：经验书（104003）、精锻用魔矿（104013）、摩拉（202），单独分组 */
+const CURRENCY_MATERIAL_IDS: Set<string> = new Set<string>(['202', '104003', '104013']);
 
 const TAG: string = 'GenshinMaterialListViewModel';
 
@@ -185,15 +188,9 @@ export class GenshinMaterialListViewModel {
       }
 
       // 已达成目标的角色永远排在最后（同组内保持原顺序）
-      const needed = allCharacterMaterials.filter((c: CharacterMaterialVM) => !c.isTargetReached);
-      const reached = allCharacterMaterials.filter((c: CharacterMaterialVM) => c.isTargetReached);
-      const sorted = needed.concat(reached);
       // 每次加载生成新的渲染 key，保证刷新后列表按新数据重新渲染（顺序 + 内容）
       const loadVersion = Date.now();
-      for (let k = 0; k < sorted.length; k++) {
-        sorted[k].renderKey = `${sorted[k].characterId}_${loadVersion}`;
-      }
-      this.characterMaterials = sorted;
+      this.characterMaterials = MaterialListAggregator.sortCharactersForDisplay(allCharacterMaterials, loadVersion);
 
       // 汇总视图：优先使用整批合计（genshin_compute_summary.overall_consume，接口算好的精确总缺口），
       // 只有当它正好对应当前展示的这批计算结果时才使用；否则回退到按角色估算
@@ -209,14 +206,11 @@ export class GenshinMaterialListViewModel {
         this.materialSummaries = this.buildSummariesFromOverall(summaryRow.overallConsumeJson, charNeeds, allCharacterMaterials);
         Logger.info(PAGE_CALC_TAG, `[${TAG}] loadData: summary from overall_consume, materials=${this.materialSummaries.length}`);
       } else {
-        this.materialSummaries = this.aggregateMaterials(allCharacterMaterials, bagCounts);
+        this.materialSummaries = MaterialListAggregator.aggregateMaterials(allCharacterMaterials, bagCounts);
         Logger.warn(PAGE_CALC_TAG, `[${TAG}] loadData: no matching compute summary (summary=${summaryIds.join(',')}, computed=${computedIds.join(',')}), use estimate`);
       }
-      const sections = this.groupMaterialsIntoSections(this.materialSummaries);
-      for (let k = 0; k < sections.length; k++) {
-        sections[k].renderKey = `${sections[k].type}_${loadVersion}`;
-      }
-      this.materialSections = sections;
+      this.materialSections = MaterialListAggregator.groupIntoSections(this.materialSummaries, CURRENCY_MATERIAL_IDS);
+      MaterialListAggregator.stampSectionKeys(this.materialSections, loadVersion);
       this.viewState = ViewState.DATA;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -351,38 +345,15 @@ export class GenshinMaterialListViewModel {
 
   /**
    * 将解析后的材料数据转换为 MaterialItemVM 数组。
-   * 
+   *
    * 原神 API：返回 lack_num（缺少数量），have = num - lackNum
-   * 
    * 过滤规则：已满足或已超过的材料（have >= need）不显示
    */
   private parseMaterialItems(items: MaterialItemRaw[]): MaterialItemVM[] {
-    const result: MaterialItemVM[] = [];
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      const materialId = `${item.id}`;
-      
-      // 原神：使用 lackNum 计算 have
-      const lackNum = item.lackNum ?? 0;
-      const have = item.num - lackNum;
-      const need = item.num;
-      
-      // 过滤：已满足或已超过的材料不显示
-      if (have >= need) {
-        continue;
-      }
-
-      const vm = new MaterialItemVM();
-      vm.materialId = materialId;
-      vm.name = item.name;
-      vm.iconUrl = item.iconUrl;
-      vm.rarity = typeof item.rarity === 'string' ? parseInt(item.rarity, 10) || 0 : item.rarity;
-      vm.need = need;
-      vm.have = have;
-      
-      result[result.length] = vm;
-    }
-    return result;
+    return MaterialListAggregator.buildMaterialItems(
+      items,
+      (item: MaterialItemRaw): number => item.num - (item.lackNum ?? 0),
+      MaterialListAggregator.rarityFromString);
   }
 
   /**
@@ -474,155 +445,5 @@ export class GenshinMaterialListViewModel {
 
     result.sort((a, b) => (parseInt(b.materialId, 10) || 0) - (parseInt(a.materialId, 10) || 0));
     return result;
-  }
-
-  /**
-   * 将所有角色的材料汇总为按材料视图（没有整批合计时的估算）。
-   * 按 materialId 去重，同一材料的需求量累加。
-   * 已拥有：每个角色的缺口都是计算器针对该角色单独计算的（各自扣除完整背包），不能直接相加；
-   * 取 max(背包数量, 单个角色的最大已拥有量)，且不超过总需求。
-   * 排序规则：按 materialId 从大到小（数值降序）。
-   */
-  private aggregateMaterials(characters: CharacterMaterialVM[], bagCounts: Map<string, number>): MaterialSummaryVM[] {
-    const materialMap: Map<string, MaterialSummaryVM> = new Map();
-    /** 单个角色内同一材料的已拥有量之和，在所有角色中的最大值 */
-    const maxCharHave = new Map<string, number>();
-
-    for (let i = 0; i < characters.length; i++) {
-      const char = characters[i];
-      const charHave = new Map<string, number>();
-      const allMaterials: MaterialItemVM[] = [];
-      
-      // 手动合并数组，避免展开运算符
-      for (let k = 0; k < char.avatarMaterials.length; k++) {
-        allMaterials[allMaterials.length] = char.avatarMaterials[k];
-      }
-      for (let k = 0; k < char.skillMaterials.length; k++) {
-        allMaterials[allMaterials.length] = char.skillMaterials[k];
-      }
-      for (let k = 0; k < char.weaponMaterials.length; k++) {
-        allMaterials[allMaterials.length] = char.weaponMaterials[k];
-      }
-
-      for (let j = 0; j < allMaterials.length; j++) {
-        const mat = allMaterials[j];
-        charHave.set(mat.materialId, (charHave.get(mat.materialId) ?? 0) + mat.have);
-        const existing = materialMap.get(mat.materialId);
-
-        if (existing !== undefined) {
-          // 已存在：累加需求量，添加关联角色（已拥有在循环结束后统一计算）
-          existing.totalNeed += mat.need;
-          
-          // 检查是否已添加过该角色（避免同一角色重复添加）
-          let charExists = false;
-          for (let r = 0; r < existing.relatedCharacters.length; r++) {
-            if (existing.relatedCharacters[r].characterId === char.characterId) {
-              // 已存在该角色，累加需求量
-              existing.relatedCharacters[r].needCount += mat.need;
-              charExists = true;
-              break;
-            }
-          }
-          
-          if (!charExists) {
-            // 不存在该角色，添加新的关联角色
-            const relatedChar = new RelatedCharacterVM();
-            relatedChar.characterId = char.characterId;
-            relatedChar.characterName = char.characterName;
-            relatedChar.characterIconUrl = char.characterIconUrl;
-            relatedChar.needCount = mat.need;
-            existing.relatedCharacters[existing.relatedCharacters.length] = relatedChar;
-          }
-        } else {
-          // 不存在：创建新的汇总项
-          const summary = new MaterialSummaryVM();
-          summary.materialId = mat.materialId;
-          summary.name = mat.name;
-          summary.iconUrl = mat.iconUrl;
-          summary.rarity = mat.rarity;
-          summary.totalHave = 0;
-          summary.totalNeed = mat.need;
-          
-          const relatedChar = new RelatedCharacterVM();
-          relatedChar.characterId = char.characterId;
-          relatedChar.characterName = char.characterName;
-          relatedChar.characterIconUrl = char.characterIconUrl;
-          relatedChar.needCount = mat.need;
-          summary.relatedCharacters = [relatedChar];
-          
-          materialMap.set(mat.materialId, summary);
-        }
-      }
-
-      charHave.forEach((have: number, materialId: string) => {
-        maxCharHave.set(materialId, Math.max(maxCharHave.get(materialId) ?? 0, have));
-      });
-    }
-
-    // 已拥有 = min(总需求, max(背包数量, 单个角色的最大已拥有量))
-    materialMap.forEach((summary: MaterialSummaryVM, materialId: string) => {
-      const have = Math.max(bagCounts.get(materialId) ?? 0, maxCharHave.get(materialId) ?? 0);
-      summary.totalHave = Math.min(have, summary.totalNeed);
-    });
-
-    // 转换为数组并按 materialId 从大到小排列
-    const result: MaterialSummaryVM[] = [];
-    materialMap.forEach((value) => {
-      result[result.length] = value;
-    });
-    result.sort((a, b) => {
-      // 将 materialId 转为数值比较（从大到小）
-      const idA = parseInt(a.materialId, 10) || 0;
-      const idB = parseInt(b.materialId, 10) || 0;
-      return idB - idA;
-    });
-
-    return result;
-  }
-
-  /**
-   * 将材料汇总列表分组为 sections。
-   * 经验书（104003）、精锻用魔矿（104013）、摩拉（202）放在第一个 section。
-   * 其他材料放在第二个 section。
-   */
-  private groupMaterialsIntoSections(materials: MaterialSummaryVM[]): MaterialSectionVM[] {
-    const currencyIds = new Set<string>(['202', '104003', '104013']);
-    
-    const currencyMaterials: MaterialSummaryVM[] = [];
-    const otherMaterials: MaterialSummaryVM[] = [];
-
-    for (let i = 0; i < materials.length; i++) {
-      const mat = materials[i];
-      if (currencyIds.has(mat.materialId)) {
-        currencyMaterials[currencyMaterials.length] = mat;
-      } else {
-        otherMaterials[otherMaterials.length] = mat;
-      }
-    }
-
-    // 对 currencyMaterials 按总需求量排序（从大到小）
-    currencyMaterials.sort((a, b) => b.totalNeed - a.totalNeed);
-
-    const sections: MaterialSectionVM[] = [];
-
-    // 第一个 section：经验书/摩拉/魔矿
-    if (currencyMaterials.length > 0) {
-      const currencySection = new MaterialSectionVM();
-      currencySection.type = MaterialSectionType.CURRENCY;
-      currencySection.title = $r('app.string.material_section_currency');
-      currencySection.materials = currencyMaterials;
-      sections[sections.length] = currencySection;
-    }
-
-    // 第二个 section：其他材料
-    if (otherMaterials.length > 0) {
-      const materialSection = new MaterialSectionVM();
-      materialSection.type = MaterialSectionType.MATERIALS;
-      materialSection.title = $r('app.string.material_section_materials');
-      materialSection.materials = otherMaterials;
-      sections[sections.length] = materialSection;
-    }
-
-    return sections;
   }
 }

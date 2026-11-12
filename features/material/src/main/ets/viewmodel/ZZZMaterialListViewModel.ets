@@ -27,10 +27,9 @@ import {
   MaterialSummaryVM,
   MaterialItemVM,
   MaterialItemRaw,
-  RelatedCharacterVM,
   MaterialSectionVM,
-  MaterialSectionType,
 } from '../model/MaterialListModels';
+import { MaterialListAggregator } from './MaterialListAggregator';
 
 const TAG: string = 'ZZZMaterialListViewModel';
 /** 材料页日志 tag，过滤：hilog | grep */
@@ -151,21 +150,13 @@ export class ZZZMaterialListViewModel {
       }
 
       // 已达成目标的角色永远排在最后（同组内保持原顺序）
-      const needed = allCharacterMaterials.filter((c: CharacterMaterialVM) => !c.isTargetReached);
-      const reached = allCharacterMaterials.filter((c: CharacterMaterialVM) => c.isTargetReached);
-      const sorted = needed.concat(reached);
       // 每次加载生成新的渲染 key，保证刷新后列表按新数据重新渲染（顺序 + 内容）
       const loadVersion = Date.now();
-      for (let k = 0; k < sorted.length; k++) {
-        sorted[k].renderKey = `${sorted[k].characterId}_${loadVersion}`;
-      }
-      this.characterMaterials = sorted;
-      this.materialSummaries = this.aggregateMaterials(allCharacterMaterials);
-      const sections = this.groupMaterialsIntoSections(this.materialSummaries);
-      for (let k = 0; k < sections.length; k++) {
-        sections[k].renderKey = `${sections[k].type}_${loadVersion}`;
-      }
-      this.materialSections = sections;
+      this.characterMaterials = MaterialListAggregator.sortCharactersForDisplay(allCharacterMaterials, loadVersion);
+      // 绝区零没有背包数据，已拥有数量保持 0
+      this.materialSummaries = MaterialListAggregator.aggregateMaterials(allCharacterMaterials, null);
+      this.materialSections = MaterialListAggregator.groupIntoSections(this.materialSummaries, null);
+      MaterialListAggregator.stampSectionKeys(this.materialSections, loadVersion);
       this.viewState = ViewState.DATA;
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
@@ -246,176 +237,22 @@ export class ZZZMaterialListViewModel {
 
   /**
    * 解析 need_get 字段（API 已计算好的缺口列表）。
-   * need_get 中的 num 字段就是缺少数量（cnt）。
+   * need_get 中的 num 字段就是缺少数量（cnt），已拥有按 0 处理。
    */
   private parseNeedGetItems(items: MaterialItemRaw[]): MaterialItemVM[] {
-    Logger.info(TAG, `parseNeedGetItems: items.length=${items.length}`);
-    const result: MaterialItemVM[] = [];
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      const need = item.num;
-      
-      Logger.info(TAG, `parseNeedGetItems: [${i}] id=${item.id}, name=${item.name}, num=${need}`);
-      
-      // 过滤：缺口为 0 的材料不显示
-      if (need <= 0) {
-        Logger.info(TAG, `parseNeedGetItems: [${i}] skipped (need <= 0)`);
-        continue;
-      }
-
-      const vm = new MaterialItemVM();
-      vm.materialId = `${item.id}`;
-      vm.name = item.name;
-      vm.iconUrl = item.iconUrl;
-      vm.rarity = typeof item.rarity === 'string' ? this.parseZZZRarity(item.rarity) : item.rarity;
-      vm.need = need;
-      vm.have = 0; // need_get 是缺口，have = 0
-      
-      result[result.length] = vm;
-    }
-    Logger.info(TAG, `parseNeedGetItems: result.length=${result.length}`);
-    return result;
+    return MaterialListAggregator.buildMaterialItems(
+      items,
+      (_item: MaterialItemRaw): number => 0,
+      MaterialListAggregator.rarityFromZZZString);
   }
 
   /**
    * 将材料数据转换为 MaterialItemVM 数组（从 consume 和背包数据计算）。
    */
-  private parseMaterialItems(
-    items: MaterialItemRaw[],
-    userOwnsMaterials: Map<string, number>
-  ): MaterialItemVM[] {
-    const result: MaterialItemVM[] = [];
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      const materialId = `${item.id}`;
-      
-      const have = userOwnsMaterials.get(materialId) ?? 0;
-      const need = item.num;
-      
-      // 过滤：已满足或已超过的材料不显示
-      if (have >= need) {
-        continue;
-      }
-
-      const vm = new MaterialItemVM();
-      vm.materialId = materialId;
-      vm.name = item.name;
-      vm.iconUrl = item.iconUrl;
-      vm.rarity = typeof item.rarity === 'string' ? this.parseZZZRarity(item.rarity) : item.rarity;
-      vm.need = need;
-      vm.have = have;
-      
-      result[result.length] = vm;
-    }
-    return result;
-  }
-
-  /**
-   * 绝区零稀有度字符串转数字（S=5, A=4, B=3, C=2）。
-   */
-  private parseZZZRarity(rarity: string): number {
-    if (rarity === 'S') return 5;
-    if (rarity === 'A') return 4;
-    if (rarity === 'B') return 3;
-    if (rarity === 'C') return 2;
-    return 0;
-  }
-
-  /**
-   * 将所有角色的材料汇总为按材料视图。
-   */
-  private aggregateMaterials(characters: CharacterMaterialVM[]): MaterialSummaryVM[] {
-    const materialMap: Map<string, MaterialSummaryVM> = new Map();
-
-    for (let i = 0; i < characters.length; i++) {
-      const char = characters[i];
-      const allMaterials: MaterialItemVM[] = [];
-      
-      for (let k = 0; k < char.avatarMaterials.length; k++) {
-        allMaterials[allMaterials.length] = char.avatarMaterials[k];
-      }
-      for (let k = 0; k < char.skillMaterials.length; k++) {
-        allMaterials[allMaterials.length] = char.skillMaterials[k];
-      }
-      for (let k = 0; k < char.weaponMaterials.length; k++) {
-        allMaterials[allMaterials.length] = char.weaponMaterials[k];
-      }
-
-      for (let j = 0; j < allMaterials.length; j++) {
-        const mat = allMaterials[j];
-        const existing = materialMap.get(mat.materialId);
-
-        if (existing !== undefined) {
-          existing.totalNeed += mat.need;
-          
-          let charExists = false;
-          for (let r = 0; r < existing.relatedCharacters.length; r++) {
-            if (existing.relatedCharacters[r].characterId === char.characterId) {
-              existing.relatedCharacters[r].needCount += mat.need;
-              charExists = true;
-              break;
-            }
-          }
-          
-          if (!charExists) {
-            const relatedChar = new RelatedCharacterVM();
-            relatedChar.characterId = char.characterId;
-            relatedChar.characterName = char.characterName;
-            relatedChar.characterIconUrl = char.characterIconUrl;
-            relatedChar.needCount = mat.need;
-            existing.relatedCharacters[existing.relatedCharacters.length] = relatedChar;
-          }
-        } else {
-          const summary = new MaterialSummaryVM();
-          summary.materialId = mat.materialId;
-          summary.name = mat.name;
-          summary.iconUrl = mat.iconUrl;
-          summary.rarity = mat.rarity;
-          summary.totalNeed = mat.need;
-          
-          const relatedChar = new RelatedCharacterVM();
-          relatedChar.characterId = char.characterId;
-          relatedChar.characterName = char.characterName;
-          relatedChar.characterIconUrl = char.characterIconUrl;
-          relatedChar.needCount = mat.need;
-          summary.relatedCharacters[summary.relatedCharacters.length] = relatedChar;
-          
-          materialMap.set(mat.materialId, summary);
-        }
-      }
-    }
-
-    const result: MaterialSummaryVM[] = [];
-    materialMap.forEach((value: MaterialSummaryVM) => {
-      result[result.length] = value;
-    });
-
-    // 按 materialId 数值降序排序
-    result.sort((a: MaterialSummaryVM, b: MaterialSummaryVM) => {
-      const idA = parseInt(a.materialId, 10) || 0;
-      const idB = parseInt(b.materialId, 10) || 0;
-      return idB - idA;
-    });
-
-    return result;
-  }
-
-  /**
-   * 将材料汇总分组为 Section。
-   */
-  private groupMaterialsIntoSections(summaries: MaterialSummaryVM[]): MaterialSectionVM[] {
-    const sections: MaterialSectionVM[] = [];
-
-    if (summaries.length === 0) {
-      return sections;
-    }
-
-    const section = new MaterialSectionVM();
-    section.type = MaterialSectionType.ALL;
-    section.title = $r('app.string.material_section_all');
-    section.materials = summaries;
-    sections[sections.length] = section;
-
-    return sections;
+  private parseMaterialItems(items: MaterialItemRaw[], userOwnsMaterials: Map<string, number>): MaterialItemVM[] {
+    return MaterialListAggregator.buildMaterialItems(
+      items,
+      (item: MaterialItemRaw): number => userOwnsMaterials.get(`${item.id}`) ?? 0,
+      MaterialListAggregator.rarityFromZZZString);
   }
 }

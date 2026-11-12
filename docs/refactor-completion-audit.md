@@ -222,7 +222,7 @@ Local Test 首轮并非全绿：3 个模块的测试根本编译不过。修复�
 
 | ID | 问题 | 现状 / 证据 | 建议 |
 | --- | --- | --- | --- |
-| GAP-08 | 唯一超过 500L 阈值的 ViewModel | [`GenshinMaterialListViewModel.ets`](../features/material/src/main/ets/viewmodel/GenshinMaterialListViewModel.ets) **628L**；三个材料汇总 VM 628 / 368 / 421L，解析与映射结构重复 | 把解析 / 汇总 / 分组抽到 `model/service/` 或独立 mapper，三游戏共用骨架 |
+| GAP-08 | ✅ 已修复（2026-11-12） | 三个材料汇总 VM 628 / 368 / 421L → **449 / 261 / 258L**；角色排序、按材料汇总、分组、材料项转换收敛到新文件 [`MaterialListAggregator.ets`](../features/material/src/main/ets/viewmodel/MaterialListAggregator.ets)（273L，纯函数），差异用参数表达（原神背包 / 货币分组 vs 星铁·绝区零无背包 / 单 `ALL` 分组） | 新增 `MaterialListAggregator.test.ets` 16 条用例（98.58% 行 / 100% 分支）；原神专属 `buildSummariesFromOverall`、`parseSkillItems`、`loadCharacterMaterials` 保留在 VM |
 | GAP-09 | View 层直接调用 service（S6） | Launch / Main / Test / My / PrivacyConsent / AppearanceSettings 六页直接调用 `LegalPreferences` / `CoreInitializer` / `GeetestCenter` / `AppearanceManager` 等；material 四页从 service 导入枚举 | 归入各模块 ViewModel；枚举移到 `model/` |
 | GAP-10 | 资源未按功能拆分 | 共用资源仍集中在 `common/basic`（50 个资源文件）；各 feature 基本只有一张 router map；构建有 `app_name` / `black` / `page_show` 重复警告 | 按 `$r` 引用归属拆分，删除重复定义 |
 | GAP-11 | 测试覆盖不足（UI + 设备端） | 单测 14 个模块 / 837 条全绿，29 个 `viewmodel/` 全部覆盖；widget / notification 的 4 个 Store 已改为可注入并补测；剩余 `WidgetDataStoreBuilder` / `WidgetImageDownloader` / `AppearanceManager` / `StaminaNotificationService` 依赖系统能力；`core/src/ohosTest` 156 条设备测试仍不可运行；UI 只有 1 条启动冒烟骨架、无设备执行；详见 §2.3 | 连接设备后按 [`ui-test-plan.md`](./ui-test-plan.md) 补 3 条主链路并实跑；再评估设备端测试的 `TestAbility` |
@@ -292,3 +292,4 @@ codeLinter 命令见 §2.2。
 | 2026-11-08 | 行为修复批次：预览 UID（`db33854`）、M13 错误态（`d01d988`）、M12 错误码文案（`bae5b61`）、GAP-04（`f038d03`）、GAP-05（`a785ca6`）、M11 删除确认与失败提示（`6372349`）；分支 rebase 到 `origin/main` 后 force push |
 | 2026-11-08 | 模拟器（uat 包）冒烟主链路：4 Tab、二级页、首页、便笺、材料、角色 / 账号详情、主题切换、通知设置、登录三 Tab、Widget 四步 + 四尺寸预览、Cookie 过期、TestPage；未覆盖项见 §2.4 |
 | 2026-11-12 | GAP-17 修复（`b894e90`）：13 个 `BuildProfile.ets` 停止跟踪 + `.gitignore`；GAP-12 收尾：补 `CHANGELOG.md` v2.1.1、`docs/reviews` 评估为不建立 |
+| 2026-11-12 | GAP-08 修复：三个材料汇总 VM 628 / 368 / 421 → 449 / 261 / 258 行，聚合逻辑收敛到 `MaterialListAggregator`（273 行纯函数 + 16 条单测） |

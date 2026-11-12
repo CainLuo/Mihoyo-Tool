@@ -9,6 +9,7 @@ import starRailMaterialTargetConfigViewModelTest from './StarRailMaterialTargetC
 import zzzMaterialTargetConfigViewModelTest from './ZZZMaterialTargetConfigViewModel.test';
 import materialCharacterSelectViewModelTest from './MaterialCharacterSelectViewModel.test';
 import materialAmountUtilTest from './MaterialAmountUtil.test';
+import materialListAggregatorTest from './MaterialListAggregator.test';
 import materialRouteUtilTest from './MaterialRouteUtil.test';
 import materialComputeUtilsTest from './MaterialComputeUtils.test';
 
@@ -24,6 +25,7 @@ export default function testsuite() {
   zzzMaterialTargetConfigViewModelTest();
   materialCharacterSelectViewModelTest();
   materialAmountUtilTest();
+  materialListAggregatorTest();
   materialRouteUtilTest();
   materialComputeUtilsTest();
 }

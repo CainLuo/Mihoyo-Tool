@@ -33,6 +33,10 @@
 | `features/material/src/main/ets/pages/ZZZMaterialListPage.ets` | 55 | `@ComponentV2` | ZZZMaterialListViewModel + MaterialListScaffold |
 | `features/material/src/main/ets/views/MaterialListScaffold.ets` | 164 | `@ComponentV2` | 三页共用外壳（标题栏 / 菜单 / Tab / 三态） |
 | `features/material/src/main/ets/utils/MaterialAmountUtil.ets` | 39 | – | 货币材料「万 / 亿」格式化（三处共用） |
+| `features/material/src/main/ets/viewmodel/GenshinMaterialListViewModel.ets` | 449 | – | 原神材料汇总页 ViewModel（整批 `overall_consume` 精确值 + 按角色估算回退） |
+| `features/material/src/main/ets/viewmodel/StarRailMaterialListViewModel.ets` | 261 | – | 星铁材料汇总页 ViewModel（`need_get` 逐角色） |
+| `features/material/src/main/ets/viewmodel/ZZZMaterialListViewModel.ets` | 258 | – | 绝区零材料汇总页 ViewModel（`need_get` 优先，回退 consume） |
+| `features/material/src/main/ets/viewmodel/MaterialListAggregator.ets` | 273 | – | 三游戏共用纯函数聚合器（排序 / 汇总 / 分组 / 材料项转换） |
 
 > 上表为 M7 重构后现状；§2 / §3 / §4 保留重构前基线，便于对照。
 
@@ -138,10 +142,11 @@
 
 - **结构相同的代码：** 约 180 行/文件（~96%）；差异集中在 L2/L4 注释、L12 VM import、L15 import（星铁/ZZZ 多 `GameId` 未使用）、TAG、struct/VM 类名、路由常量、L162 标题资源、Preview / Builder 名。
 - 星铁 / ZZZ 除 §2.2 列出的命名、ViewModel、路由常量与标题资源差异外逐行一致。
+- **ViewModel 层（2026-11-12 已处理）**：三个 ViewModel 的「角色排序 / 按材料汇总 / 分组 / 材料项转换」逐行重复，已抽到 `viewmodel/MaterialListAggregator.ets`；重复部分从 628 + 368 + 421 行降到 449 + 261 + 258 行（详见 §4.3）。
 
 ### 4.2 合并建议
 
-**当前状态评价：重复程度高但可接受。**
+**页面层：重复程度高但可接受。**
 
 理由：
 1. 三个游戏的数据模型不完全相同，如果合并为泛型参数会增加复杂度。
@@ -149,6 +154,20 @@
 3. MaterialListContentView / SegmentedTabBar 等子组件已提取复用；空/错误态为内联 Column，无独立 ErrorStateView 文件。
 
 **推荐方案（可选）：** 如果未来新增第四游戏，可考虑引入代码生成工具（如脚本自动生成三份文件），而非继续手动复制粘贴。
+
+### 4.3 ViewModel 聚合逻辑去重（2026-11-12）
+
+| 项 | 结果 |
+| --- | --- |
+| 新增 `viewmodel/MaterialListAggregator.ets` | 273 行纯函数聚合器：`sortCharactersForDisplay` / `stampSectionKeys` / `aggregateMaterials` / `groupIntoSections` / `buildMaterialItems` / `rarityFromString` / `rarityFromZZZString` |
+| 差异参数化 | 已拥有数量：原神传 `bagCounts`（`max(背包, 单角色最大已拥有)` 且不超过总需求），星铁 / 绝区零传 `null` 保持 0；分组：原神传货币 id 集合（`202` / `104003` / `104013`）分两组，星铁 / 绝区零传 `null` 只有 `ALL` 分组 |
+| `GenshinMaterialListViewModel` | 628 → **449 行**：保留 `buildSummariesFromOverall`（整批 `overall_consume` 精确值）、`parseSkillItems`、`loadCharacterMaterials` 等原神专属逻辑 |
+| `StarRailMaterialListViewModel` | 368 → **261 行** |
+| `ZZZMaterialListViewModel` | 421 → **258 行**：`parseNeedGetItems` / `parseMaterialItems` / `parseZZZRarity` 改为委托聚合器（顺带删除逐条材料的调试日志） |
+| 行为不变量 | 材料 id 数值降序、同材料同角色需求量累加、关联角色合并、`have >= need` 过滤（绝区零 `need_get` 的 `have = 0` 等价于过滤 `need <= 0`）、货币分组按总需求降序、`renderKey` 规则均与改造前一致 |
+| 单元测试 | 新增 `src/test/MaterialListAggregator.test.ets`（16 条）：覆盖排序 / 汇总 / 背包语义 / 分组 / 材料项过滤 / 稀有度转换；`MaterialListAggregator` 覆盖率 **98.58% 行 / 100% 分支** |
+| 编译 | ✅ `hvigorw assembleHap -p product=uat -p buildMode=debug` → `BUILD SUCCESSFUL` |
+| 测试 | ✅ `hvigorw --mode module -p module=material@default -p product=default test` → 全绿 |
 
 ---
 
@@ -178,6 +197,7 @@
 | 类型 | 文件 |
 |------|------|
 | ViewModel | `features/material/src/main/ets/viewmodel/GenshinMaterialListViewModel.ets` / `features/material/src/main/ets/viewmodel/StarRailMaterialListViewModel.ets` / `features/material/src/main/ets/viewmodel/ZZZMaterialListViewModel.ets` |
+| 共享聚合器 | `features/material/src/main/ets/viewmodel/MaterialListAggregator.ets`（三个材料汇总 ViewModel 共用，纯函数、无状态） |
 | Model | `features/material/src/main/ets/model/MaterialListModels.ets`（共享） |
 | Component | `features/material/src/main/ets/views/MaterialListContentView.ets`（共享） |
 | Component | `common/basic/src/main/ets/shares/SegmentedTabBar.ets`（共享，见 common 层） |
@@ -199,7 +219,7 @@
 | --- | --- |
 | 路由 | `custom_router_map.json:69-71 / 89-91 / 94-96`（ZZZ / Genshin / StarRail）：三条 `*MaterialList` 路由分别指向三个页面与 `GenshinMaterialListBuilder` / `StarRailMaterialListBuilder` / `ZZZMaterialListBuilder`，**页面路径与 Builder 名冻结** |
 | 路由常量 | `AppRoutes.GENSHIN_MATERIAL_LIST` / `STARRAIL_MATERIAL_LIST` / `ZZZ_MATERIAL_LIST` 字符串冻结；目标配置页路由常量同样冻结 |
-| 测试 | 三个 `*MaterialListViewModel` **没有** Local Test；M7 只有 `features/material/src/test/MaterialCalcViewModel.test.ets` |
+| 测试 | 三个 `*MaterialListViewModel` 自 2026-11-07 起有 Local Test（`src/test/*MaterialListViewModel.test.ets`，覆盖状态机 / 切换 / 折叠 / 同步守卫）；2026-11-12 新增 `MaterialListAggregator.test.ets` 覆盖聚合逻辑 |
 | 共享组件 | `features/material/src/main/ets/views/materiallist/`（6 个文件）与 `common/basic/src/main/ets/shares/SegmentedTabBar.ets` 被三页共用，不移动 |
 | 共享模型 | `features/material/src/main/ets/model/MaterialListModels.ets`、`features/material/src/main/ets/model/ToolsModels.ets`（`MaterialTargetConfigParam`）保持原位 |
 
@@ -209,19 +229,20 @@
 - 三个路由入口与三个 Builder 保留，`pageSourceFile` / `buildFunction` 不变。
 - 删除死代码：星铁 / ZZZ 的 `GameId` 与三页 `Logger` 死导入、三个 VM 的 `refresh()` / `isRefreshing`、`GenshinMaterialListViewModel.formatCurrencyAmount`、星铁 `'1510'` 调试循环与空 `if`。
 - 三份「万 / 亿」格式化合并为 `utils/MaterialAmountUtil.ets`，输出文案与舍入规则保持不变。
-- `GenshinMaterialListViewModel` 仍 628 行（>500），但它没有测试；本轮只做等价清理，拆分留待后续。
+- `GenshinMaterialListViewModel` 628 → **449 行**（2026-11-12）：角色排序、按材料汇总、分组、材料项转换抽到 `viewmodel/MaterialListAggregator.ets`；星铁 / 绝区零同步降到 261 / 258 行。
 - `MaterialListContentView` / `SegmentedTabBar` 保持原位。
 
 ### 验收
 
 1. 编译通过；`codeLinter` 不新增违规。
-2. 无 Local Test：按 Refactor_Spec §7.1 冒烟——三个游戏材料汇总页、按角色/按材料两个 Tab、目标配置入口、空/错误态。
+2. Local Test：三个 ViewModel 的状态机用例 + `MaterialListAggregator` 的聚合用例全绿（`material@default` 模块）。
+3. 冒烟：三个游戏材料汇总页、按角色/按材料两个 Tab、目标配置入口、空/错误态。
 
 ### 已知问题归属
 
 - Medium（重新计算失败静默，M-LIST-2）：补 toast / 错误态属行为变更，单独提交，不夹带在重构里。
 - Low（万/亿中文单位，M-LIST-6 剩余部分）：需补资源字符串，属 UI 文案变更，单独提交。
-- 信息（拆分 `GenshinMaterialListViewModel`）：记录，待补测试后再做。
+- ~~信息（拆分 `GenshinMaterialListViewModel`）~~：✅ 已执行（GAP-08，2026-11-12）。
 
 【已核对代码一致性】
 
@@ -233,3 +254,4 @@
 | 第 4 轮（2026-10-27 逐条复核） | 三个 VM 全文（sync / loadData / 调试代码）、material-list 组件的数量格式化、`SegmentedTabBar` 同 Tab 点击保护、§2.2 diff 全量 | ✅ 新增 1 Medium（sync 失败静默）+ 2 Low（`'1510'` 残留、万/亿硬编码），原 GameId Low 扩为死导入/死代码；补 L162 标题差异；去掉未使用的 RouterUtil；编号重排为 M-LIST-1~7 |
 | 第 5 轮（2026-10-30 断链修复） | 三页 / ViewModel / Model / Content View 全量更新为 `features/material/src/main/ets/` 绝对路径；`SegmentedTabBar` 从 `components/common/` → `common/basic/src/main/ets/shares/`；`PrimaryButtonModifier` 从 `styles/` → `common/basic/src/main/ets/theme/`；§7 测试路径补全 | ✅ 16 处路径全部验证存在 |
 | 第 6 轮（2026-11-04 M7 执行后） | 三页各 55L + `MaterialListScaffold` 164L + `MaterialAmountUtil` 39L；VM 628 / 368 / 421L；死代码与 `'1510'` 残留已删；`bash run.sh uat` 通过 | ✅ 行数与结构复核一致 |
+| 第 7 轮（2026-11-12 GAP-08 执行后） | 三个 VM 449 / 261 / 258L + `MaterialListAggregator` 273L；`wc -l` 复核；聚合逻辑全部委托共享件、原神专属逻辑保留；`assembleHap` 通过 + `material@default` 单测全绿（聚合器 98.58% 行 / 100% 分支） | ✅ 行数、调用点与测试现状一致 |
