@@ -14,7 +14,7 @@ import {
   StarRailComputeSkill,
 } from 'core';
 import { MaterialComputeTargets, StarRailSkillSlot } from '../ToolsModels';
-import { MaterialComputeResult } from './MaterialComputeResult';
+import { MaterialComputeResult } from '../MaterialComputeResult';
 import { STARRAIL_TAG, MaterialComputeUtils } from './MaterialComputeUtils';
 
 /** 星铁 skillTreeJson 中的技能项（来自 avatar/info 接口） */

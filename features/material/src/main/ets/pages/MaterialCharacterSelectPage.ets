@@ -12,7 +12,7 @@ import {
   MaterialCharacterSelectViewModel,
   SelectableCharacterVM
 } from '../viewmodel/MaterialCharacterSelectViewModel'
-import { MaterialComputeResult } from '../model/service/MaterialComputeService'
+import { MaterialComputeResult } from '../model/MaterialComputeResult'
 import { MaterialTargetConfigParam } from '../model/ToolsModels'
 import { getMaterialListRoute, getMaterialTargetConfigRoute } from '../utils/MaterialRouteUtil'
 import { CharacterSelectCard } from '../views/CharacterSelectCard'

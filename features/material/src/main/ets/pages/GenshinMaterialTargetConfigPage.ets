@@ -7,7 +7,7 @@
 
 import { themeManager, ThemeManager, ThemeFonts, PrimaryButtonModifier, AppRoutes } from 'basic'
 import { Logger } from 'core'
-import { MaterialComputeResult } from '../model/service/MaterialComputeService'
+import { MaterialComputeResult } from '../model/MaterialComputeResult'
 import {
   GenshinMaterialTargetConfigViewModel
 } from '../viewmodel/GenshinMaterialTargetConfigViewModel'

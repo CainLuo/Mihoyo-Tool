@@ -12,7 +12,7 @@ import {
   Logger,
 } from 'core';
 import { MaterialComputeTargets } from '../ToolsModels';
-import { MaterialComputeResult } from './MaterialComputeResult';
+import { MaterialComputeResult } from '../MaterialComputeResult';
 import { GENSHIN_TAG, MaterialComputeUtils } from './MaterialComputeUtils';
 
 export class GenshinMaterialCompute {

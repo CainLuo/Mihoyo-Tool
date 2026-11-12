@@ -19,7 +19,8 @@ import {
 } from 'core';
 import { ViewState, AccountOption, compareCharacter } from 'basic';
 import { MaterialTargetConfigParam } from '../model/ToolsModels';
-import { MaterialComputeService, MaterialComputeResult } from '../model/service/MaterialComputeService';
+import { MaterialComputeService } from '../model/service/MaterialComputeService'
+import { MaterialComputeResult } from '../model/MaterialComputeResult';
 
 const TAG: string = 'MaterialCharacterSelectViewModel';
 /** 角色 UI State */

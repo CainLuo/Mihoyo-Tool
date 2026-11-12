@@ -1,6 +1,6 @@
 import { describe, it, expect } from '@ohos/hypium';
 import { MaterialComputeUtils } from '../main/ets/model/service/MaterialComputeUtils';
-import { MaterialComputeResult } from '../main/ets/model/service/MaterialComputeResult';
+import { MaterialComputeResult } from '../main/ets/model/MaterialComputeResult';
 
 export default function materialComputeUtilsTest() {
   describe('MaterialComputeUtils', () => {

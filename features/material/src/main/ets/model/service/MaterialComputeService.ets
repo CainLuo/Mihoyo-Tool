@@ -18,13 +18,13 @@ import {
   Logger,
 } from 'core';
 import { MaterialComputeTargets, MaterialTargetConfigParam, StarRailSkillSlot, ZZZSkillType } from '../ToolsModels';
-import { MaterialComputeResult } from './MaterialComputeResult';
+import { MaterialComputeResult } from '../MaterialComputeResult';
 import { GENSHIN_TAG, MaterialComputeUtils } from './MaterialComputeUtils';
 import { GenshinMaterialCompute } from './GenshinMaterialCompute';
 import { StarRailMaterialCompute } from './StarRailMaterialCompute';
 import { ZZZMaterialCompute } from './ZZZMaterialCompute';
 
-export { MaterialComputeResult } from './MaterialComputeResult';
+export { MaterialComputeResult } from '../MaterialComputeResult';
 
 export class MaterialComputeService {
   /** 该游戏 UID 是否已在 DB 中保存过养成目标配置 */

@@ -2,7 +2,7 @@ import { describe, it, expect } from '@ohos/hypium';
 import { GenshinMaterialTargetConfigViewModel } from '../main/ets/viewmodel/GenshinMaterialTargetConfigViewModel';
 import { SkillLevelConfigVM } from '../main/ets/model/MaterialTargetConfigModels';
 import { GenshinTalentSlot, MaterialTargetConfigParam } from '../main/ets/model/ToolsModels';
-import { MaterialComputeResult } from '../main/ets/model/service/MaterialComputeService';
+import { MaterialComputeResult } from '../main/ets/model/MaterialComputeResult';
 import { GameId } from 'core';
 
 function makeSkill(skillType: number, max: number): SkillLevelConfigVM {

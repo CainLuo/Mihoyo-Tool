@@ -24,7 +24,8 @@ import {
 } from 'core';
 import { ViewState } from 'basic';
 import { MaterialTargetConfigParam } from '../model/ToolsModels';
-import { MaterialComputeService, MaterialComputeResult } from '../model/service/MaterialComputeService';
+import { MaterialComputeService } from '../model/service/MaterialComputeService'
+import { MaterialComputeResult } from '../model/MaterialComputeResult';
 import {
   MaterialListViewMode,
   CharacterMaterialVM,

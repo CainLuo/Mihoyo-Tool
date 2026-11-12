@@ -2,7 +2,7 @@ import { describe, it, expect } from '@ohos/hypium';
 import { ZZZMaterialTargetConfigViewModel } from '../main/ets/viewmodel/ZZZMaterialTargetConfigViewModel';
 import { SkillLevelConfigVM } from '../main/ets/model/MaterialTargetConfigModels';
 import { MaterialTargetConfigParam, ZZZSkillType } from '../main/ets/model/ToolsModels';
-import { MaterialComputeResult } from '../main/ets/model/service/MaterialComputeService';
+import { MaterialComputeResult } from '../main/ets/model/MaterialComputeResult';
 import { GameId } from 'core';
 
 function makeSkill(skillType: number): SkillLevelConfigVM {

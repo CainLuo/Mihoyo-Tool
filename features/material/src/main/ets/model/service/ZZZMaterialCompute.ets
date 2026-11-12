@@ -13,7 +13,7 @@ import {
 } from 'core';
 import { MaterialComputeTargets, ZZZSkillTarget, ZZZSkillType } from '../ToolsModels';
 import { ZZZComputeSkill } from '../MaterialTargetConfigModels';
-import { MaterialComputeResult } from './MaterialComputeResult';
+import { MaterialComputeResult } from '../MaterialComputeResult';
 import { ZZZ_TAG, MaterialComputeUtils } from './MaterialComputeUtils';
 
 /** 绝区零 avatar/info rawJson 中的技能项 */

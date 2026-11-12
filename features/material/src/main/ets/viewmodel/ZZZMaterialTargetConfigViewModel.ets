@@ -27,7 +27,8 @@ import {
 } from '../model/MaterialTargetConfigModels'
 import { AccountSignal } from 'basic'
 import { MaterialTargetConfigParam, ZZZSkillType } from '../model/ToolsModels'
-import { MaterialComputeService, MaterialComputeResult } from '../model/service/MaterialComputeService'
+import { MaterialComputeService } from '../model/service/MaterialComputeService'
+import { MaterialComputeResult } from '../model/MaterialComputeResult'
 
 /** 养成目标配置日志 tag，过滤：hilog | grep */
 const CONFIG_TAG: string = 'MaterialTargetConfig'

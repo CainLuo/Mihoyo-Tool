@@ -28,7 +28,8 @@ import {
 } from '../model/MaterialTargetConfigModels'
 import { AccountSignal } from 'basic'
 import { MaterialTargetConfigParam, StarRailSkillSlot } from '../model/ToolsModels'
-import { MaterialComputeService, MaterialComputeResult } from '../model/service/MaterialComputeService'
+import { MaterialComputeService } from '../model/service/MaterialComputeService'
+import { MaterialComputeResult } from '../model/MaterialComputeResult'
 
 const TAG: string = 'StarRailMaterialTargetConfigVM'
 

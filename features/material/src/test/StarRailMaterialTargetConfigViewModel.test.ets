@@ -2,7 +2,7 @@ import { describe, it, expect } from '@ohos/hypium';
 import { StarRailMaterialTargetConfigViewModel } from '../main/ets/viewmodel/StarRailMaterialTargetConfigViewModel';
 import { SkillLevelConfigVM } from '../main/ets/model/MaterialTargetConfigModels';
 import { MaterialTargetConfigParam, StarRailSkillSlot } from '../main/ets/model/ToolsModels';
-import { MaterialComputeResult } from '../main/ets/model/service/MaterialComputeService';
+import { MaterialComputeResult } from '../main/ets/model/MaterialComputeResult';
 import { GameId } from 'core';
 
 function makeSkill(skillType: number, max: number): SkillLevelConfigVM {

@@ -4,7 +4,7 @@
  * 三个游戏的独立计算模块与 `MaterialComputeService` facade 共用。
  */
 
-import { MaterialComputeResult } from './MaterialComputeResult';
+import { MaterialComputeResult } from '../MaterialComputeResult';
 
 export const GENSHIN_TAG: string = 'GenshinCalc';
 export const STARRAIL_TAG: string = 'StarRailCalc';
