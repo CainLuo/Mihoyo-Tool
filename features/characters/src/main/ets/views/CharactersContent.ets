@@ -92,6 +92,8 @@ export struct CharactersContent {
         }
         // 绝区零一行 3 个（卡片内容较少），原神 / 星铁保持一行 2 个
         .columnsTemplate(this.vm.currentGameId === GameId.ZZZ ? '1fr 1fr 1fr' : '1fr 1fr')
+        // 预加载屏幕外的卡片，减少快速滚动时的白块（一屏约 6 张，再缓存一屏）
+        .cachedCount(8)
         .columnsGap(this.tm.current.value12)
         .rowsGap(this.tm.current.value12)
         .padding({

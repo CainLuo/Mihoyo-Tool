@@ -67,8 +67,8 @@ node "$DEVECO/plugins/codelinter/index.js" \
 
 | 文件 | 行 | 级别 | 规则 | 说明 |
 | --- | --- | --- | --- | --- |
-| `features/characters/src/main/ets/views/CharactersContent.ets` | 81 | suggestion | `@performance/hp-arkui-set-cache-count-for-lazyforeach-grid` | Grid 内 `LazyForEach` 未设置 `cachedCount` |
-| `features/characters/src/main/ets/views/CharactersContent.ets` | 84 | warn | `@performance/hp-arkui-use-reusable-component` | 复杂组件建议使用复用组件 |
+| `features/characters/src/main/ets/views/CharactersContent.ets` | 81 | suggestion | `@performance/hp-arkui-set-cache-count-for-lazyforeach-grid` | Grid 内 `LazyForEach` 未设置 `cachedCount` → ✅ 已补 `.cachedCount(8)`（GAP-14，2026-11-12） |
+| `features/characters/src/main/ets/views/CharactersContent.ets` | 84 | warn | `@performance/hp-arkui-use-reusable-component` | 复杂组件建议使用复用组件 → 评估后忽略（`CharacterCard` 纯 `@Param` 展示组件，需真机验证复用状态重置） |
 
 两条都是性能建议，不是正确性问题；当前不新增违规的基线可以记为“0 error + 2 条性能建议”。
 
@@ -233,7 +233,7 @@ Local Test 首轮并非全绿：3 个模块的测试根本编译不过。修复�
 
 | ID | 问题 | 建议 |
 | --- | --- | --- |
-| GAP-14 | `codeLinter` 2 条性能建议 | `CharactersContent.ets` 的 `LazyForEach` 补 `cachedCount`；复用组件评估后决定是否忽略 |
+| GAP-14 | ✅ 已处理（2026-11-12） | Grid 补 `.cachedCount(8)`（一屏约 6 张，缓存一屏）；`@ReusableV2` 复用建议**评估后忽略**：`CharacterCard` 是纯 `@Param` 展示组件、列表规模约百级，且当前无设备可验证复用后的状态重置，收益不抵风险；后续接入真机可再评估 |
 | GAP-15 | 生产路径保留 `TestPage` / `views/test` | Q-2 仍未决；入口仅 DEBUG 可见，但文件仍在主代码里 |
 | GAP-16 | 两个 submodule 处于 dirty 状态 | `PizzaHelperUnited` / `mihoyo-api-collect` 是重构前遗留，不要 stage |
 | GAP-17 | ✅ 已修复（`b894e90`）：13 个 `BuildProfile.ets` 停止跟踪并加入 `.gitignore` | 构建会自动重建，切换 product 跑单测后工作区不再变脏 |

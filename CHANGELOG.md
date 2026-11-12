@@ -16,6 +16,7 @@
 ### 性能
 
 - **Widget 页面缓存 payload 解析**：6 个卡片页面按 payload 字符串缓存 `ParsedPayload` + `UIState`，单次 `build()` 的 `JSON.parse` 从 9（2×2）/ 7（2×4、4×4）/ 2（1×2）次降为 1 次
+- **角色列表 Grid 预加载**：`CharactersContent` 的 `LazyForEach` 补 `.cachedCount(8)`，减少快速滚动时的白块
 
 ### 修复
 
