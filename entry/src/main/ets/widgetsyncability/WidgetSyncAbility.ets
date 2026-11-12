@@ -204,6 +204,10 @@ export default class WidgetSyncAbility extends UIAbility {
           return new SyncParcelable(false, `In cooldown, ${Math.floor(remaining / 60)} minutes remaining`);
         }
 
+        // 先置位并发锁再启动异步链：initCore 期间连点卡片也必须被拦下，
+        // 否则每次点击都会各自启动一条 syncAllWidgets 链（重复请求，更易触发人机验证）
+        isSyncing = true;
+
         // 初始化 core 模块（WidgetSyncAbility 是独立 UIAbility，需要单独初始化）
         CoreInitializer.initCore({ env: APP_ENV, context: this.context })
           .then(async () => {
@@ -214,7 +218,6 @@ export default class WidgetSyncAbility extends UIAbility {
             await WidgetConfigStore.init(this.context);
             
             // 执行同步
-            isSyncing = true;
             try {
               await syncAllWidgets(this.context);
               // 更新上次同步时间
@@ -229,6 +232,8 @@ export default class WidgetSyncAbility extends UIAbility {
           })
           .catch((initErr: Error) => {
             Logger.error(TAG, `CoreInitializer.initCore failed: ${initErr.message}`);
+            // 初始化失败也要释放锁，否则后续点击永远被 "Already syncing" 拦下
+            isSyncing = false;
           });
 
         return new SyncParcelable(true, 'Sync started');

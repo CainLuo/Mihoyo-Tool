@@ -74,6 +74,7 @@ export class WidgetImageDownloader {
     // 下载每个图片
     const filesDir = context.filesDir; // 使用持久化目录（tempDir 会在应用重启后清空）
     const imageNames: Record<string, string> = {}; // 只存相对文件名，不存绝对路径
+    const imageUrls: Record<string, string> = {}; // key → 源 URL，用于判断缓存是否过期
     let successCount = 0;
 
     for (let i = 0; i < urls.length; i++) {
@@ -86,6 +87,8 @@ export class WidgetImageDownloader {
         // 生成文件名（只存相对文件名，在 FormExtension 中用当前 filesDir 拼接）
         const fileName = `${prefsKey}_${i}.png`;
         const filePath = `${filesDir}/${fileName}`;
+        const key = `${prefsKey}_${i}`;
+        const urlKey = `${key}_url`;
 
         // 检查文件是否已存在（避免重复下载）
         let fileExists = false;
@@ -96,21 +99,26 @@ export class WidgetImageDownloader {
           // 文件不存在，需要下载
         }
 
-        // 如果文件已存在，跳过下载
+        // 只有「文件存在且源 URL 未变」才跳过下载；
+        // 派遣角色变化 / 换账号后 URL 会变，必须重新下载，否则卡片一直显示旧头像
         if (fileExists) {
-          const key = `${prefsKey}_${i}`;
-          imageNames[key] = fileName;
-          successCount++;
-          Logger.info(TAG, `[WidgetImage] file already exists: ${key} -> ${filePath}`);
-          continue;
+          const cachedUrl = await prefs.get(urlKey, '') as string;
+          if (cachedUrl === url) {
+            imageNames[key] = fileName;
+            imageUrls[key] = url;
+            successCount++;
+            Logger.info(TAG, `[WidgetImage] cache hit: ${key} -> ${filePath}`);
+            continue;
+          }
+          Logger.info(TAG, `[WidgetImage] cached image stale: ${key}, url changed, re-download`);
         }
 
-        // 下载图片
+        // 下载图片（同文件名覆盖写入）
         const isSuccess = await WidgetImageDownloader.downloadImage(url, filePath);
         if (isSuccess) {
           // 使用统一的 key 格式：{prefsKey}_{index}
-          const key = `${prefsKey}_${i}`;
           imageNames[key] = fileName; // 只存相对文件名
+          imageUrls[key] = url;
           successCount++;
           Logger.info(TAG, `[WidgetImage] downloaded ${key} -> ${filePath}`);
         }
@@ -132,11 +140,12 @@ export class WidgetImageDownloader {
           }
         }
 
-        // 写入新记录（相对文件名）
+        // 写入新记录（相对文件名 + 源 URL）
         const keys = Object.keys(imageNames);
         for (let i = 0; i < keys.length; i++) {
           const key = keys[i];
           await prefs.put(key, imageNames[key]);
+          await prefs.put(`${key}_url`, imageUrls[key]);
         }
         await prefs.flush();
         Logger.info(TAG, `[WidgetImage] saved ${keys.length} image names to prefs`);
@@ -413,8 +422,9 @@ export class WidgetImageDownloader {
         return false;
       }
 
-      // 写入文件
-      const file = fileIo.openSync(filePath, fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE);
+      // 写入文件（TRUNC：同文件名覆盖时必须截断，否则新图比旧图小会残留旧字节）
+      const file = fileIo.openSync(filePath,
+        fileIo.OpenMode.READ_WRITE | fileIo.OpenMode.CREATE | fileIo.OpenMode.TRUNC);
       try {
         const result = response.result;
         if (result instanceof ArrayBuffer) {

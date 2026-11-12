@@ -1,6 +1,6 @@
 # Widget 子系统分析（M14）
 
-> **分析对象**：`entry/src/main/ets/widget/`（28 个文件 / 2,703 行：pages 6·689 + views 17·1,552 + viewmodel 5·462）+ `entryformability/EntryFormAbility.ets`（286 行）+ `widgetsyncability/WidgetSyncAbility.ets`（261 行）
+> **分析对象**：`entry/src/main/ets/widget/`（28 个文件 / 2,703 行：pages 6·689 + views 17·1,552 + viewmodel 5·462）+ `entryformability/EntryFormAbility.ets`（286 行）+ `widgetsyncability/WidgetSyncAbility.ets`（263 行）
 > **分析日期**：2026-10-24
 > **代码版本**：`105c8d3`
 > **HarmonyOS SDK**：`6.0.2(22)`（`targetSdkVersion` / `compatibleSdkVersion`，见根 `build-profile.json5`）
@@ -15,10 +15,12 @@
 | --- | --- |
 | Critical | 0 |
 | High | 3 |
-| Medium | 8 |
+| Medium | 6 |
 | Low | 3 |
 
 **整体评级：B**
+
+> 计数为 2026-11-12 现状：M1 / M6 / M7 已修复（8 → 6 Medium），H1–H3 与 M2 / M3 / M4 / M5 / M8 仍在。债务 3×3 + 6×2 + 3×1 = 24，密度 24 ÷ (7,506/100) ≈ 0.32。
 
 > 架构本身是清楚的：主应用写「数据仓」→ 卡片进程读 payload → 6 个页面各自经 ViewModel 构建 UIState → V1 组件渲染。**没有崩溃级缺陷，但有三处会直接伤害"桌面卡片"这个核心场景**：更新失败会把用户的卡片配置删掉（H1）、无数据时展示伪造的"测试账号"（H2）、卡片从不显示数据有多旧（H3）。三条都不影响主应用，只影响卡片，所以历史上一直没被页面级评审覆盖。2026-10-27 复核另补 2 条 Medium：点击同步的并发锁置位过晚（M7）、`WidgetFormIdStore` 无写入方导致两条调用链空转（M8）。
 >
@@ -70,7 +72,7 @@
 | **数据解析** | `WidgetPayloadParser`（395，被测试引用）· `WidgetDataHelper`（497，被测试引用） |
 | **存储** | `WidgetDataStoreManager`（164）· `WidgetConfigStore`（127）· `WidgetFormIdStore`（132） |
 | **推送** | `WidgetUpdateNotifier`（146） |
-| **图片** | `WidgetImageDownloader`（479） |
+| **图片** | `WidgetImageDownloader`（489） |
 | **展示工具** | `WidgetUtils`（315）· `WidgetExtraRowConfig`（55，被测试引用）· `WidgetExtraRowType`（35，被测试引用） |
 | **日志 / 调试** | `WidgetLogger`（80）· `WidgetLog`（53）· `WidgetMockData`（45） |
 
@@ -79,7 +81,7 @@
 | 文件 | 行数 | 角色 |
 | --- | --- | --- |
 | `entryformability/EntryFormAbility.ets` | 286 | 卡片生命周期：`onAddForm` 同步返回初始数据、`onUpdateForm` / `onFormEvent` 推送、`onRemoveForm` 清配置 |
-| `widgetsyncability/WidgetSyncAbility.ets` | 261 | 卡片点击触发的 `call` 事件：拉取全部账号便笺 → 刷新数据仓 → 推送全部卡片 |
+| `widgetsyncability/WidgetSyncAbility.ets` | 263 | 卡片点击触发的 `call` 事件：拉取全部账号便笺 → 刷新数据仓 → 推送全部卡片 |
 
 ---
 
@@ -132,7 +134,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 卡片 onClick
   → postCardAction({ action: 'call', abilityName: 'WidgetSyncAbility', method: 'sync' })
   → WidgetSyncAbility.onCreate 注册的 callee.on('sync')
-      → isSyncing 并发锁（模块级变量，WidgetSyncAbility.ets:46；检查在 :194，置位却在 initCore 完成后的 :220，见 M7）
+      → isSyncing 并发锁（模块级变量，WidgetSyncAbility.ets:43；检查在 :191，冷却通过后 :209 同步置位，见 M7）
       → 冷却检查：widget_last_sync_time 距今 < 30 分钟则拒绝（:40 / :204）
       → 立即返回 SyncParcelable(true, 'Sync started')（:237）
       → 异步：CoreInitializer.initCore() → syncAllWidgets()
@@ -192,7 +194,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | 项 | 结论 |
 | --- | --- |
 | **凭据落盘** | ✅ 干净。`WidgetDataStore` / `WidgetPayloadBuilder` / `WidgetPayloadParser` / `WidgetModels` 中 **grep `cookie` / `token` 无命中**；数据仓只存 `accountId` / `accountName` / `roleId` / `nickname` / `server` / `rawJson`（便笺原始 JSON） |
-| **网络请求** | ⚠️ 仅 `WidgetImageDownloader` 走网络，下载派遣头像；`http.createHttp()` 在 `finally` 里 `destroy()`（`WidgetImageDownloader.ets:401/434`）。但 URL 直接取自便笺 `rawJson` 的 `avatar_side_icon`（`:468`），**没有 scheme / 域名校验**，并非"只下载 `https://`"；来源是米游社接口，风险低 |
+| **网络请求** | ⚠️ 仅 `WidgetImageDownloader` 走网络，下载派遣头像；`http.createHttp()` 在 `finally` 里 `destroy()`（`WidgetImageDownloader.ets:410/444`）。但 URL 直接取自便笺 `rawJson` 的 `avatar_side_icon`（`:478`），**没有 scheme / 域名校验**，并非"只下载 `https://`"；来源是米游社接口，风险低 |
 | **明文存储** | ⚠️ `preferences: widget_data` 是明文 JSON，但内容不含凭据，可接受 |
 | **日志** | ⚠️ `syncAllWidgets` 打印 `uid` / `roleId` / `gameId`（`WidgetSyncAbility.ets:107` 起），属中等敏感度；没有打印 cookie |
 | **Mock 数据** | ❌ 见 H2：无数据时把"测试账号 / 旅行者 / 树脂 152"当真数据返回给卡片 |
@@ -235,8 +237,8 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | M3 | 同步结果不可见 | `WidgetSyncAbility.ets:237` | `call` 立刻返回 `'Sync started'`，之后失败只写 hilog；卡片侧无法显示"刷新失败" |
 | M4 | `onAddForm` 全同步链路压在 10 秒窗口 | `EntryFormAbility.ets:42 / 45-67`（Preferences 同步读 + `loadFormImagesSync` + payload 构建） | 账号 × 角色多时，图片 fd 读取与 payload 构建都在主线程；没有超时保护 |
 | M5 | 全量同步是串行双层循环 | `WidgetSyncAbility.ets:105-118` | 账号 × 角色逐个 `await syncDailyNote`，无并发上限、无进度、无总超时；一次点击可能是几十个串行网络请求 |
-| M6 | 派遣头像缓存永不更新 | `WidgetImageDownloader.ets:87`（文件名固定为 `${prefsKey}_${i}.png`）、`:91-105`（文件已存在就跳过下载）、`WidgetDataStoreBuilder.ets:234-238`（所有原神角色共用前缀 `exp_avatar`）；`cleanExpiredCache`（`:291`）/ `clearAllCache`（`:257`）/ `clearCache`（`:220`）**全工程无调用点** | 文件名只按序号 0-4 命名且"存在即跳过"，首次下载的 5 张头像会被永久复用：派遣角色变化、换账号、多个原神角色时，2×4 / 4×4 卡片显示的派遣头像都与实际不符。文件数固定 ≤5，并不会"只增不减"，问题是**内容陈旧**而非空间 |
-| M7 | 点击同步的并发锁置位过晚 | `WidgetSyncAbility.ets:194`（检查 `isSyncing`）vs `:211-220`（`initCore()` + 两次 `init` 完成后才 `isSyncing = true`）；冷却时间戳在同步结束后才写（`:224`） | `initCore` 期间连点卡片，每次都能通过并发检查与冷却检查，各自启动一条 `syncAllWidgets` 链，造成账号 × 角色的重复请求（更易触发人机验证）与重复推送。应在返回 `'Sync started'` 前同步置位 |
+| M6 | ✅ 已修复（2026-11-12） | 原 `WidgetImageDownloader.ets:87`（文件名固定 `${prefsKey}_${i}.png`）、`:91-105`（文件已存在就跳过下载） | 修复：下载时把源 URL 记到 `${key}_url`，只有「文件存在 **且 URL 未变**」才跳过；URL 变化（派遣角色变化 / 换账号）重新下载并用 `TRUNC` 覆盖同名文件。旧安装（无 URL 记录）会重下一次，自动纠正历史陈旧头像 |
+| M7 | ✅ 已修复（2026-11-12） | 原 `WidgetSyncAbility.ets:194` 检查 vs `:217` 置位（`initCore()` + 两次 `init` 完成后才置位） | 修复：冷却检查通过后**同步**置位 `isSyncing`，再启动异步链；`initCore` 失败也释放锁。`initCore` 期间连点卡片会被 "Already syncing" 拦下，不再并发起多条 `syncAllWidgets` |
 | M8 | `WidgetFormIdStore` 无写入方，两条调用链空转 | `WidgetFormIdStore.ets:51`（`save()`）全工程**零调用**，`widget_form_ids` 永远为空 → `WidgetDataBuilder.ets:46-49` 的 `buildAndPushForAccount` 恒提前返回（由 `StaminaNotificationService.ets:111-112` 调用）；`AccountDetailViewModel.ets:102-105` 删除账号时的卡片清理恒为 no-op | 这是早于 `WidgetConfigStore`（`widget_configs`）的遗留第二套 formId 存储（还自带同名 `interface WidgetConfig`，`WidgetFormIdStore.ets:19`）。后果：AccountDetail 的清理即使命中也只删 `widget_form_ids`，真正生效的 `widget_configs` 里指向已删账号的 slots 从无清理路径；通知服务那条"逐账号推送"实际不推送（真正的推送靠 `refreshAndSave` 内部的 `notifyAllWidgets`，`WidgetDataStoreBuilder.ets:184-187`）。`WidgetDataBuilder.buildPayload` 等其余方法无外部调用方 |
 
 ### Low（建议优化）
@@ -272,7 +274,8 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 - **M1 已完成**：页面内缓存 `ParsedPayload` + UIState，不改任何组件接口（2026-11-11，见下方执行记录）；回归 6 张卡片 × 单/多游戏仍待真机。
 - **不要合并 1×2 三页文件**：`src` 冻结，只能抽内部共享 struct。
 - **M4 / M5 属于能力增强**（超时、并发、进度），超出"保持行为"的重构边界，记录不执行。
-- **M7 / M8 是行为修复**：M7 把 `isSyncing = true` 提前到返回前（几行）；M8 需决定删除 `WidgetFormIdStore` / `WidgetDataBuilder` 遗留链路（同时改 notification 与 AccountDetail 两个调用方，跨 M5 / M11）还是改用 `WidgetConfigStore`，均单独提交。
+- **M6 / M7 是行为修复**：M6 用「源 URL + 文件」双记录判断缓存是否过期，URL 变化即重下；M7 把 `isSyncing = true` 提前到返回前并在 `initCore` 失败时释放。两项已于 2026-11-12 单独提交。
+- **M8 需决策**：删除 `WidgetFormIdStore` / `WidgetDataBuilder` 遗留链路（同时改 notification 与 AccountDetail 两个调用方，跨 M5 / M11）还是改用 `WidgetConfigStore`，均单独提交。
 
 ### 验收
 
@@ -284,9 +287,9 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 ### 已知问题归属
 
 - **High 3 项**（配置误删、Mock 数据、无新鲜度标识）：H1 / H2 建议随 M14 修，H3 需产品决策。
-- **Medium 8 项**（重复解析、全局冷却且失败也计冷却、结果不可见、10 秒窗口、串行同步、派遣头像永不更新、并发锁置位过晚、`WidgetFormIdStore` 空转）：**M1 已完成**；M7 / M8 为行为修复单独提交；其余属增强。
+- **Medium 8 项**（重复解析、全局冷却且失败也计冷却、结果不可见、10 秒窗口、串行同步、派遣头像永不更新、并发锁置位过晚、`WidgetFormIdStore` 空转）：**M1 / M6 / M7 已完成**；M8 需决策（删除遗留链路 or 改用 `WidgetConfigStore`）；其余（M2 / M3 / M4 / M5）属增强。
 - **Low 3 项**（logger 合并、`formEvent` 校验、预览缺失）：可顺手做。
-- **测试空白**：`WidgetDataStore`（452）、`WidgetPayloadBuilder`（358）、`WidgetDataStoreBuilder`（365）、`WidgetImageDownloader`（479）、`WidgetUpdateNotifier`（146）均无单测——即**本子系统 3 个 High 所在的文件全部无测试保护**。四个 ViewModel 自 2026-11-07 起已有 `entry/src/test` 单测（本轮实测四个均 100% 行覆盖），不再是空白。
+- **测试空白**：`WidgetDataStore`（452）、`WidgetPayloadBuilder`（358）、`WidgetDataStoreBuilder`（365）、`WidgetImageDownloader`（489）、`WidgetUpdateNotifier`（146）均无单测——即**本子系统 3 个 High 所在的文件全部无测试保护**。四个 ViewModel 自 2026-11-07 起已有 `entry/src/test` 单测（本轮实测四个均 100% 行覆盖），不再是空白。
 
 ### 预览组件执行记录（2026-11-06）
 
@@ -376,6 +379,20 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | 编译 | ✅ `hvigorw assembleHap -p product=uat -p buildMode=debug` → `BUILD SUCCESSFUL in 3 s 58 ms` |
 | 冒烟 | 🔶 桌面卡片渲染待真机确认（6 张卡片 × 单/多游戏 × 空数据） |
 
+### M6 / M7 行为修复执行记录（2026-11-12）
+
+> 两项都是行为修复，不改接口、不改 `form_config.json`；提交 `fix(widget): 派遣头像按 URL 判缓存，并发锁提前置位`。
+
+| 项 | 结果 |
+| --- | --- |
+| M6 问题 | 文件名固定 `${prefsKey}_${i}.png` 且「文件存在即跳过」，首次下载的 5 张派遣头像被永久复用：派遣角色变化 / 换账号 / 多个原神角色时，2×4 与 4×4 卡片显示旧头像 |
+| M6 修复 | `downloadAndSave` 额外把源 URL 写入 `${key}_url`；只有「文件存在 **且** URL 相同」才跳过，否则重下。`downloadImage` 打开文件时补 `TRUNC`，避免新图更小时残留旧字节。旧安装没有 `_url` 记录，首次同步会自动重下，纠正历史陈旧头像 |
+| M6 不变量 | 文件名 / prefs key / `loadFormImagesSync` 读取方式 / `hasImage` / `hasAllImages` 均不变；文件数仍 ≤ 5，不产生增量垃圾 |
+| M7 问题 | `isSyncing` 检查在 `:194`，置位却在 `initCore()` + 两次 `init` 之后：`initCore` 期间连点卡片每次都能通过检查，各自启动一条 `syncAllWidgets` 链 |
+| M7 修复 | 冷却检查通过后**同步**置位 `isSyncing = true` 再启动异步链；`initCore` 失败（`.catch`）与同步失败（`finally`）都释放锁，避免锁永久占用 |
+| 编译 | ✅ `hvigorw assembleHap -p product=uat -p buildMode=debug` → `BUILD SUCCESSFUL` |
+| 冒烟 | 🔶 待真机：派遣角色变化后 2×4 / 4×4 头像应更新；冷却期外连点卡片只触发一次同步（hilog 只出现一条 `handleSyncCall: sync completed`） |
+
 ---
 
 ## 8. 依赖文件索引
@@ -418,5 +435,14 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | 第 5 轮改动对抗复核 | 逐条回到代码核实：M7（`WidgetSyncAbility.ets:194` 检查 / `:220` 置位）、M8（`WidgetFormIdStore.save()` 全工程零调用，`widget_form_ids` 仅 `init`/`remove`/读取；`WidgetConfigStore` 用的是另一文件 `widget_configs`）、M2 失败计冷却（`:121-125/131-134/224`）、M6 存在即跳过（`WidgetImageDownloader.ets:87-105`）、H3 推送时刻（`WidgetPayloadBuilder.ets:77`）均成立，行号命中 |
 | 修正 | M1"多游戏分支最多 9 次"→ **8 次**（`:57/61/63` 3 次 + `:70/71/75/85/86` 5 次） |
 | 结论 | 计数不变：0 Critical / 3 High / 8 Medium / 3 Low，债务 28，评级 B；源行数 7,494（`widget/` 6,947 + 两个 ability 547），密度 0.37 |
+
+### 复核记录（2026-11-12 第 7 轮，M6 / M7 修复后）
+
+| 检查项 | 结论 |
+| --- | --- |
+| 行数复核 | `wc -l`：`WidgetImageDownloader.ets` 479 → **489**（+10：URL 记录与 `TRUNC` 注释）、`WidgetSyncAbility.ets` 261 → **263**（+2：锁前置与失败释放）；`widget/` 合计 6,947 → **6,957**，子系统合计 7,506 |
+| M6 命中 | `downloadAndSave` 内新增 `${key}_url` 写入与比对；`downloadImage` 的 `openSync` 已含 `OpenMode.TRUNC`（`:430-431`）；文件名 / prefs key / `loadFormImagesSync` 读取方式未变 |
+| M7 命中 | `isSyncing` 检查 `:191`、置位 `:209`（在 `initCore()` 之前）、`.catch` 释放 `:236`、`finally` 释放 `:230`；冷却检查仍在置位之前 |
+| 结论 | 计数更新：0 Critical / 3 High / 6 Medium（M1 / M6 / M7 关闭后）/ 3 Low，评级 B；债务 24，密度 24 ÷ (7,506/100) ≈ 0.32 |
 
 【已核对代码一致性】
