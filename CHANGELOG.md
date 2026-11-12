@@ -1,5 +1,38 @@
 # Changelog
 
+## v2.1.1（未发布，2026-11-12）— 卡片与页面重构收尾
+
+> `AppScope/app.json5` 的 `versionName` 仍为 `2.0.1`，本节为待发布记录。
+
+### 重构
+
+- **MainPage 478 → 277 行**：弹窗仲裁抽到 `entry/src/main/ets/utils/MainDialogArbiter.ets`，标题栏菜单与 Tab 项抽到 `utils/MainMenuItems.ets`，`@Builder` 外置到 `MainPageBuilders.ets`
+- **Widget4x4SingleGame 337 → 131 行**：拆为 `Widget4x4Header` / `Widget4x4StaminaBlock` / `Widget4x4ExtraRowsGroup` / `Widget4x4ExpeditionBlock`
+- **2×4 / 4×4 共享组件**：新增 `WidgetDataRow` / `WidgetExpeditionAvatar`；`WidgetExtraDataRows`（2×2）接入共享数据行
+- **配置页预览去重**：新增 `PreviewExtraDataRow` / `PreviewExpeditionAvatar`，`Preview2x4SingleGame` 221 → 194 行、`Preview4x4SingleGame` 241 → 221 行
+- **Widget ViewModel 去重**：新增 `WidgetRoleStateBuilder`（`WidgetRoleLayout` 表达尺寸差异），`Widget2x2/2x4/4x4ViewModel` 从 161+162+159 行降到 111+60+60 行；`buildUIState` 签名与类名不变
+
+### 性能
+
+- **Widget 页面缓存 payload 解析**：6 个卡片页面按 payload 字符串缓存 `ParsedPayload` + `UIState`，单次 `build()` 的 `JSON.parse` 从 9（2×2）/ 7（2×4、4×4）/ 2（1×2）次降为 1 次
+
+### 修复
+
+- **「我的」页元素持续上下浮动**：骨架屏使用 `animateTo({ iterations: -1 })` 产生永不结束的全局隐式动画，骨架销毁后仍接管页面布局；改为组件级 `.animation()` + `onAppear` 触发，实测布局静止
+
+### 工程
+
+- `run.sh` 适配 DevEco Studio 6.1 模拟器启动参数（`-start <name> -instancePath <root>`）
+- 停止跟踪构建生成的 13 个 `BuildProfile.ets`（hvigor 每次按 product 重写），修复切换 product 构建后工作区变脏
+
+### 文档
+
+- 新增《HarmonyOS UI 组件与页面开发及重构规范》与《组件拆分分析总索引》
+- 关闭 W-V1 / W-V2 / W-V3 / W-V4 / W-V5 / W-Pages / W-VM 与 M1 待办；`TestPage` / `LaunchPage` 评估为不拆分
+- 修正 Widget 子系统文档的 ViewModel 行数、测试现状与体量统计
+
+---
+
 ## v2.1.0 (2026-11-08) — 入口模块重构收尾
 
 ### 架构变更

@@ -226,7 +226,7 @@ Local Test 首轮并非全绿：3 个模块的测试根本编译不过。修复�
 | GAP-09 | View 层直接调用 service（S6） | Launch / Main / Test / My / PrivacyConsent / AppearanceSettings 六页直接调用 `LegalPreferences` / `CoreInitializer` / `GeetestCenter` / `AppearanceManager` 等；material 四页从 service 导入枚举 | 归入各模块 ViewModel；枚举移到 `model/` |
 | GAP-10 | 资源未按功能拆分 | 共用资源仍集中在 `common/basic`（50 个资源文件）；各 feature 基本只有一张 router map；构建有 `app_name` / `black` / `page_show` 重复警告 | 按 `$r` 引用归属拆分，删除重复定义 |
 | GAP-11 | 测试覆盖不足（UI + 设备端） | 单测 14 个模块 / 837 条全绿，29 个 `viewmodel/` 全部覆盖；widget / notification 的 4 个 Store 已改为可注入并补测；剩余 `WidgetDataStoreBuilder` / `WidgetImageDownloader` / `AppearanceManager` / `StaminaNotificationService` 依赖系统能力；`core/src/ohosTest` 156 条设备测试仍不可运行；UI 只有 1 条启动冒烟骨架、无设备执行；详见 §2.3 | 连接设备后按 [`ui-test-plan.md`](./ui-test-plan.md) 补 3 条主链路并实跑；再评估设备端测试的 `TestAbility` |
-| GAP-12 | ⏳ 文档收尾进行中 | `docs/reviews/` 不存在（16 个模块的审计报告都缺）；“复核其余 30 份分析文档”未做；✅ 旧路径已排查：仅 `components-inventory-analysis.md` 需大幅修正（已修）；其余 8 份分析文档要么路径正确、要么是迁移对照格式，无需修改；⏳ [`project-structure.md`](./project-structure.md) 计数待更新（entry 30→32，basic 37→36）；根 `CHANGELOG.md` 停在 v2.0.1（2026-10-19），重构没有发布级记录 | 继续修 `project-structure.md` 计数 + 补 CHANGELOG |
+| GAP-12 | ✅ 基本完成 | ✅ `project-structure.md` 计数已更新（`bccca38`）；✅ `CHANGELOG.md` 已补 `v2.1.1`（本轮 M1 / W-VM / 骨架屏修复 / GAP-17）；`docs/reviews/` 仍未建立——16 个模块的深度分析已在 `docs/*-module-analysis.md` 中，评估为**不重复建立审计目录**；剩余 30 份分析文档的旧路径已在 `bfbeb09` / `bccca38` 排查完毕 | 如需模块级审计报告再单独立项 |
 | GAP-13 | 未完成功能 TODO | 材料计算技能等级选择器是空实现（[`MaterialCalcPage.ets:63`](../features/material/src/main/ets/pages/MaterialCalcPage.ets#L63)）；材料清单“关联角色详情”未接（[`MaterialListContentView.ets:67`](../features/material/src/main/ets/views/MaterialListContentView.ets#L67)） | 属于功能缺口，不是重构遗留；需产品确认是否本轮补 |
 
 ### P2 · 小项
@@ -236,7 +236,7 @@ Local Test 首轮并非全绿：3 个模块的测试根本编译不过。修复�
 | GAP-14 | `codeLinter` 2 条性能建议 | `CharactersContent.ets` 的 `LazyForEach` 补 `cachedCount`；复用组件评估后决定是否忽略 |
 | GAP-15 | 生产路径保留 `TestPage` / `views/test` | Q-2 仍未决；入口仅 DEBUG 可见，但文件仍在主代码里 |
 | GAP-16 | 两个 submodule 处于 dirty 状态 | `PizzaHelperUnited` / `mihoyo-api-collect` 是重构前遗留，不要 stage |
-| GAP-17 | 构建会重写被跟踪的 `BuildProfile.ets` | 每次切 product 构建后 13 个 `BuildProfile.ets` 变脏；建议加入 `.gitignore` 或改为构建生成目录（需单独评估） |
+| GAP-17 | ✅ 已修复（`b894e90`）：13 个 `BuildProfile.ets` 停止跟踪并加入 `.gitignore` | 构建会自动重建，切换 product 跑单测后工作区不再变脏 |
 
 ---
 
@@ -247,7 +247,8 @@ Local Test 首轮并非全绿：3 个模块的测试根本编译不过。修复�
 3. **GAP-04 真机回归**：折叠屏单双栏、返回手势关闭验证框需真机验证；GAP-05 已修，需在 uat 包上点一次通知确认跳转。
 4. **UI 测试**：连设备后按 [`ui-test-plan.md`](./ui-test-plan.md) 补首页 → 角色详情 → 材料计算、未登录 → 登录两条链路并实跑。
 5. **GAP-08 ~ GAP-11**：大 VM 拆分、S6、资源拆分，按模块逐步做，每步保持编译 + 837 用例绿；剩余服务层测试按需继续解耦。
-6. **GAP-12**：文档路径 / 计数 / `docs/reviews` / CHANGELOG 一次性收尾。
+6. ~~GAP-12~~：文档路径 / 计数 / CHANGELOG 已收尾；`docs/reviews` 评估为不建立（模块分析文档已覆盖）。
+7. ~~GAP-17~~：`BuildProfile.ets` 已停止跟踪（`b894e90`）。
 
 **每步验收**：`assembleHap` 通过 + `codeLinter` 不新增 + 对应模块 `hvigorw test` 全绿；涉及 UI 的再按 §7.1 冒烟。
 
@@ -290,3 +291,4 @@ codeLinter 命令见 §2.2。
 | 2026-11-07 | 修复 GAP-01 / 02 / 03 / 06；widget / notification 的 4 个 Store 改为注入式并补 16 条用例；新增 9 个控件 id、1 条 UI 启动冒烟与 [`ui-test-plan.md`](./ui-test-plan.md)；总数 818 → 837，编译与 `test-entry.sh` 通过 |
 | 2026-11-08 | 行为修复批次：预览 UID（`db33854`）、M13 错误态（`d01d988`）、M12 错误码文案（`bae5b61`）、GAP-04（`f038d03`）、GAP-05（`a785ca6`）、M11 删除确认与失败提示（`6372349`）；分支 rebase 到 `origin/main` 后 force push |
 | 2026-11-08 | 模拟器（uat 包）冒烟主链路：4 Tab、二级页、首页、便笺、材料、角色 / 账号详情、主题切换、通知设置、登录三 Tab、Widget 四步 + 四尺寸预览、Cookie 过期、TestPage；未覆盖项见 §2.4 |
+| 2026-11-12 | GAP-17 修复（`b894e90`）：13 个 `BuildProfile.ets` 停止跟踪 + `.gitignore`；GAP-12 收尾：补 `CHANGELOG.md` v2.1.1、`docs/reviews` 评估为不建立 |
