@@ -320,9 +320,11 @@ export struct CardView { }
 | 优先级 | 标准 | 当前实例 |
 |--------|------|----------|
 | **P0 / W-V1** | >300 行，立即重构 | 暂无（MainPage 478 → 277、Widget4x4SingleGame 337 → 131 已完成） |
-| **P1 / W-V2** | 100–300 行，本周内 | Widget2x4SingleGame (282 → 152，✅ 已完成) [Widget], Widget4x4 (113) [Widget Page], Widget2x4 (110) [Widget Page], Widget2x2 (109) [Widget Page], TestPage (105) [Normal], Widget1x2ContentView (121，✅ 已评估不拆分) [Widget], WidgetExtraDataRows (115 → 108，✅ 已接入共享数据行) [Widget] |
-| **P2 / W-V3** | 80–100 行，下迭代 | LaunchPage (91) [Normal], Widget1x2Genshin/StarRail/ZZZ (82) [Widget], Widget2x2StarRailStamina (91) [Widget], Widget2x2SingleGame (99) [Widget] |
+| **P1 / W-V2** | 100–300 行，本周内 | Widget2x4SingleGame (282 → 152，✅ 已完成) [Widget], Widget4x4 (133，✅ 已评估不拆分) [Widget Page], Widget2x4 (130，✅ 已评估不拆分) [Widget Page], Widget2x2 (129，✅ 已评估不拆分) [Widget Page], TestPage (105，✅ 已评估不拆分) [Normal], Widget1x2ContentView (121，✅ 已评估不拆分) [Widget], WidgetExtraDataRows (115 → 108，✅ 已接入共享数据行) [Widget] |
+| **P2 / W-V3** | 80–100 行，下迭代 | LaunchPage (91，✅ 已评估不拆分) [Normal], Widget1x2Genshin/StarRail/ZZZ (99，✅ 已评估不拆分) [Widget], Widget2x2StarRailStamina (91，✅ 已评估不拆分) [Widget], Widget2x2SingleGame (99，✅ 已评估不拆分) [Widget] |
 | **P3** | <80 行但结构复杂，优化为主 | Index.ets (33) [Normal] |
+
+> **ViewModel 去重（2026-11-11）**：2×2 / 2×4 / 4×4 的角色构建逻辑已收敛到 `widget/viewmodel/WidgetRoleStateBuilder.ets`，三个 ViewModel 从 161+162+159 行降到 111+60+60 行；`buildUIState` 签名与类名不变，单测四个 ViewModel 均 100% 行覆盖。
 
 ### 8.2 重构执行步骤
 

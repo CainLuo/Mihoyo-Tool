@@ -1,6 +1,6 @@
 # Widget 子系统分析（M14）
 
-> **分析对象**：`entry/src/main/ets/widget/`（40 个文件 / 6,947 行）+ `entryformability/EntryFormAbility.ets`（286 行）+ `widgetsyncability/WidgetSyncAbility.ets`（261 行）
+> **分析对象**：`entry/src/main/ets/widget/`（28 个文件 / 2,703 行：pages 6·689 + views 17·1,552 + viewmodel 5·462）+ `entryformability/EntryFormAbility.ets`（286 行）+ `widgetsyncability/WidgetSyncAbility.ets`（261 行）
 > **分析日期**：2026-10-24
 > **代码版本**：`105c8d3`
 > **HarmonyOS SDK**：`6.0.2(22)`（`targetSdkVersion` / `compatibleSdkVersion`，见根 `build-profile.json5`）
@@ -32,21 +32,22 @@
 
 | 文件 | 行数 | 尺寸 | 布局 |
 | --- | --- | --- | --- |
-| `widget/pages/Widget1x2Genshin.ets` | 85 | 1×2 | 单角色迷你卡（原神） |
-| `widget/pages/Widget1x2StarRail.ets` | 85 | 1×2 | 单角色迷你卡（星铁） |
-| `widget/pages/Widget1x2ZZZ.ets` | 85 | 1×2 | 单角色迷你卡（绝区零） |
-| `widget/pages/Widget2x2.ets` | 112 | 2×2 | 单游戏详细 / 双游戏上下分栏 |
-| `widget/pages/Widget2x4.ets` | 113 | 2×4 | 单游戏横排 / 双游戏左右分栏 |
-| `widget/pages/Widget4x4.ets` | 116 | 4×4 | 单游戏大卡 / 双游戏上下分栏 |
+| `widget/pages/Widget1x2Genshin.ets` | 99 | 1×2 | 单角色迷你卡（原神） |
+| `widget/pages/Widget1x2StarRail.ets` | 99 | 1×2 | 单角色迷你卡（星铁） |
+| `widget/pages/Widget1x2ZZZ.ets` | 99 | 1×2 | 单角色迷你卡（绝区零） |
+| `widget/pages/Widget2x2.ets` | 129 | 2×2 | 单游戏详细 / 双游戏上下分栏 |
+| `widget/pages/Widget2x4.ets` | 130 | 2×4 | 单游戏横排 / 双游戏左右分栏 |
+| `widget/pages/Widget4x4.ets` | 133 | 4×4 | 单游戏大卡 / 双游戏上下分栏 |
 
-### 1.2 ViewModel（4，588 行）
+### 1.2 ViewModel（5，462 行）
 
 | 文件 | 行数 | 职责 |
 | --- | --- | --- |
-| `widget/viewmodel/Widget1x2ViewModel.ets` | 83 | 按 `gameId` 过滤后取首个角色 |
-| `widget/viewmodel/Widget2x2ViewModel.ets` | 169 | 单游戏详细态 / 多游戏最多 2 个 |
-| `widget/viewmodel/Widget2x4ViewModel.ets` | 169 | 同上，横向布局态 |
-| `widget/viewmodel/Widget4x4ViewModel.ets` | 167 | 同上，大卡态 |
+| `widget/viewmodel/WidgetRoleStateBuilder.ets` | 151 | 角色 UIState 共享构建器（2×2 / 2×4 / 4×4 共用，布局差异由 `WidgetRoleLayout` 表达） |
+| `widget/viewmodel/Widget1x2ViewModel.ets` | 80 | 按 `gameId` 过滤后取首个角色（产出紧凑的 `Widget1x2RoleUIState`） |
+| `widget/viewmodel/Widget2x2ViewModel.ets` | 111 | 单游戏详细态 / 多游戏最多 2 个 |
+| `widget/viewmodel/Widget2x4ViewModel.ets` | 60 | 同上，横向布局态 |
+| `widget/viewmodel/Widget4x4ViewModel.ets` | 60 | 同上，大卡态 |
 
 ### 1.3 组件（17，1,552 行）
 
@@ -123,7 +124,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
    →  V1 组件（@Prop role / state / gameColor）
 ```
 
-6 个页面都用同一套写法：`payload` 字符串 → `parsePayload()`（2×2 / 2×4 / 4×4 经页面私有 `getParsed()`，1×2 三页直接在 `getUIState()` 内调用）→ ViewModel 静态方法 → 组件。ViewModel 完全无状态，可单测（4 个里只有 `Widget2x2ViewModel` 有测试）。
+6 个页面都用同一套写法：`payload` 字符串 → `parsePayload()`（2×2 / 2×4 / 4×4 经页面私有 `getParsed()`，1×2 三页直接在 `getUIState()` 内调用）→ ViewModel 静态方法 → 组件。ViewModel 完全无状态，四个 ViewModel 均有 `entry/src/test` 单测。
 
 ### 2.5 点击刷新链路
 
@@ -172,7 +173,9 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 
 ### 4.3 4 个 ViewModel 高度同构
 
-`Widget2x2` / `2x4` / `4x4` 三个 ViewModel 都是"空态 → 单游戏详细态 → 多游戏最多 2 个"，差异只在 UIState 类型和 stamin 区块选择。`Widget1x2ViewModel` 是"按游戏过滤取首个"。**同构但类型不同**（ArkTS 无泛型 UIState），合并收益低、风险高。
+`Widget2x2` / `2x4` / `4x4` 三个 ViewModel 都是"空态 → 单游戏详细态 → 多游戏最多 2 个"，差异只在 UIState 类型和 stamina 区块选择。`Widget1x2ViewModel` 是"按游戏过滤取首个"。
+
+**已处理（2026-11-11）**：三者共有的「`ParsedRole` → `WidgetRoleUIState`」逻辑（角色字段 / 体力 / 额外数据行 / 派遣头像 / 多游戏去重）已抽到 `WidgetRoleStateBuilder`，布局差异用 `WidgetRoleLayout`（`COMPACT_2X2` / `GRID_2X4` / `GRID_4X4`）表达。三个 ViewModel 只保留 `buildUIState` 分支，161+162+159 → 111+60+60 行。`Widget1x2ViewModel` 产出 `Widget1x2RoleUIState`，结构不同，保留独立实现。
 
 ### 4.4 真正可去的重复
 
@@ -180,7 +183,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | --- | --- | --- |
 | 两套 logger | `WidgetLog`（53 行，仅 `WidgetPayloadBuilder` 用）与 `WidgetLogger`（80 行，4 处用）职责完全重叠 | 合并为 `WidgetLogger`（可逆、低风险） |
 | 主题常量 | `WidgetUtils` 内自带 `WidgetColors` / 渐变函数，与 `theme/DefaultTheme` 有重叠取值 | 保留（卡片进程不适合依赖单例主题），仅记录 |
-| 1×2 三页 | §4.1 | 可抽出 `Widget1x2Page(gameId)` 共享页面壳；但**页面名被 `form_config.json` 的 `src` 冻结**，只能"内部共享"，不能改文件名 |
+| 1×2 三页 | §4.1 | **已评估不抽（2026-11-11）**：三页只差一个 `WidgetGameId` 常量，抽 `Widget1x2Page(gameId)` 需在卡片数据链路（`@LocalStorageProp` → `@Prop`）多加一跳，且桌面渲染无法在模拟器验证；页面名被 `form_config.json` 的 `src` 冻结，收益为负 |
 
 ---
 
@@ -283,7 +286,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 - **High 3 项**（配置误删、Mock 数据、无新鲜度标识）：H1 / H2 建议随 M14 修，H3 需产品决策。
 - **Medium 8 项**（重复解析、全局冷却且失败也计冷却、结果不可见、10 秒窗口、串行同步、派遣头像永不更新、并发锁置位过晚、`WidgetFormIdStore` 空转）：**M1 已完成**；M7 / M8 为行为修复单独提交；其余属增强。
 - **Low 3 项**（logger 合并、`formEvent` 校验、预览缺失）：可顺手做。
-- **测试空白**：`Widget1x2/2x4/4x4ViewModel`（419 行）、`WidgetDataStore`（452）、`WidgetPayloadBuilder`（358）、`WidgetDataStoreBuilder`（365）、`WidgetImageDownloader`（479）、`WidgetUpdateNotifier`（146）均无单测——即**本子系统 3 个 High 所在的文件全部无测试保护**。
+- **测试空白**：`WidgetDataStore`（452）、`WidgetPayloadBuilder`（358）、`WidgetDataStoreBuilder`（365）、`WidgetImageDownloader`（479）、`WidgetUpdateNotifier`（146）均无单测——即**本子系统 3 个 High 所在的文件全部无测试保护**。四个 ViewModel 自 2026-11-07 起已有 `entry/src/test` 单测（本轮实测四个均 100% 行覆盖），不再是空白。
 
 ### 预览组件执行记录（2026-11-06）
 
@@ -379,7 +382,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 
 | 方向 | 内容 |
 | --- | --- |
-| 页面 → ViewModel | 6 个页面各依赖 1 个 ViewModel（1×2 三页共用 `Widget1x2ViewModel`） |
+| 页面 → ViewModel | 6 个页面各依赖 1 个 ViewModel（1×2 三页共用 `Widget1x2ViewModel`）；2×2 / 2×4 / 4×4 的 ViewModel 再依赖共享构建器 `WidgetRoleStateBuilder` |
 | 页面 / 组件 → 工具 | `WidgetPayloadParser`（parsePayload）、`WidgetUtils`（渐变 / 游戏色 / 体力色 / 时间格式化）、`WidgetDataHelper`（额外数据行） |
 | 工具 → core | `WidgetDataStoreBuilder`、`WidgetDataBuilder`、`WidgetImageDownloader`、`WidgetUpdateNotifier` 依赖 `'core'`（RDB / Logger / Repository）。注意 `WidgetImageDownloader.ets:37` 导入 `core` 的 `Logger`，因此 `EntryFormAbility` 经它**间接导入了 core（HSP）**，与 `EntryFormAbility.ets:5` 头注释"FormExtensionAbility 不能导入 HSP 模块"的自述约束相悖；重构时不要再扩大这条边 |
 | ability → widget | `EntryFormAbility` → `WidgetConfigStore` / `WidgetDataStoreManager` / `WidgetPayloadBuilder` / `WidgetImageDownloader` / `WidgetMockData`；`WidgetSyncAbility` → 同上 + `WidgetDataStoreBuilder` / `WidgetUpdateNotifier` |

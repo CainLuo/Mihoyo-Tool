@@ -12,9 +12,9 @@
 | 类别 | 文件数 | 行数范围 | 备注 |
 |------|--------|----------|------|
 | **正常 Page** | 4 | 33–277 | `entry/src/main/ets/pages/` |
-| **Widget Page** | 6 | 82–113 | `entry/src/main/ets/widget/pages/`，运行在 `FormExtensionAbility` 中 |
+| **Widget Page** | 6 | 99–133 | `entry/src/main/ets/widget/pages/`，运行在 `FormExtensionAbility` 中 |
 | **Widget View** | 17 | 53–152 | `entry/src/main/ets/widget/views/`，Widget 专用子组件 |
-| **ViewModel** | 4 | 80–162 | `entry/src/main/ets/widget/viewmodel/`，Widget 数据层 |
+| **ViewModel** | 5 | 60–151 | `entry/src/main/ets/widget/viewmodel/`，Widget 数据层（含共享构建器 `WidgetRoleStateBuilder`） |
 | **Ability** | 4 | 16–270 | `EntryAbility` / `WidgetSyncAbility` 等，不纳入拆分 |
 | **Utils** | 2 | 21–26 | 纯工具类，不纳入拆分 |
 
@@ -30,8 +30,8 @@
 | 优先级 | 文件 | 行数 | 备注 |
 |--------|------|------|------|
 | ✅ P0 | `MainPage.ets` | **277**（原 478） | 应用主框架 + 跨 Tab 事件分发；M15 二次拆分已完成 |
-| 🟡 P1 | `TestPage.ets` | 105 | 测试页面（>100 行，也应拆分） |
-| 🟢 P2 | `LaunchPage.ets` | 91 | 启动页 |
+| 🟡 P1 | `TestPage.ets` | 105 | ✅ 已评估不拆分：页面体 43 行，已用 `TestSectionHeader` / `TestRow` 子组件；其余为 3 个测试方法与 Preview |
+| 🟢 P2 | `LaunchPage.ets` | 91 | ✅ 已评估不拆分：单一职责（Logo 动画 + 初始化等待 + 路由 replace），无重复结构 |
 | 🔵 P3 | `Index.ets` | 33 | 入口过渡页 |
 
 ### 1.3 Widget 复杂度分布
@@ -46,8 +46,9 @@ Widget View               -              7           10          -
 |--------|------|------|------|
 | ✅ W-V1 | `Widget4x4SingleGame.ets` | **131**（原 337） | 已拆为 Header / StaminaBlock / ExtraRowsGroup / ExpeditionBlock 四个 V1 子组件 |
 | ✅ W-V2 | `Widget2x4SingleGame.ets` | **152**（原 282） | 已拆出 InfoColumn，数据行与派遣头像复用共享组件 |
-| 🟡 W-V3 | `Widget1x2ContentView.ets` | 121 | 小视图内容容器 |
-| 🟢 W-Pages | ×6 Widget Pages | 82–113 | 各尺寸入口页（见下方详细列表） |
+| ✅ W-V3 | `Widget1x2ContentView.ets` | 121 | 小视图内容容器（已评估不拆分） |
+| ✅ W-Pages | ×6 Widget Pages | 99–133 | 已评估不拆分：均为尺寸入口/分支调度，组件体约 60 行（详见 6.1） |
+| ✅ W-VM | ×4 ViewModels | 60–151 | 已收敛共享构建器 `WidgetRoleStateBuilder`（详见 6.1） |
 
 ---
 
@@ -129,8 +130,8 @@ Widget View               -              7           10          -
 
 | # | 文件 | 行数 | 优先级 | 拆分方向 | 子文档 |
 |---|------|------|--------|----------|--------|
-| 🟡 P1-1 | `TestPage.ets` | 105 | 🟡 P1 | 测试页面，视业务逻辑复杂度决定 | （暂无） |
-| 🟢 P2-1 | `LaunchPage.ets` | 91 | 🟢 P2 | 启动页，简单过渡逻辑 | （暂无） |
+| ✅ P1-1 | `TestPage.ets` | 105 | 🟡 P1 | 已评估：页面体 43 行且已用 `TestSectionHeader` / `TestRow`，不再拆分 | （暂无） |
+| ✅ P2-1 | `LaunchPage.ets` | 91 | 🟢 P2 | 已评估：单一职责，不再拆分 | （暂无） |
 
 ### Phase 3 — 入口/过渡 Page (<50 行)
 
@@ -148,10 +149,10 @@ Widget View               -              7           10          -
 
 | Widget 尺寸 | Page 文件 | Views (直接 import) | View 嵌套子组件 |
 |-------------|-----------|---------------------|-----------------|
-| **1x2** (×3游戏共享) | `Widget1x2Genshin.ets` / `Widget1x2StarRail.ets` / `Widget1x2ZZZ.ets` (各 82行) | `Widget1x2ContentView.ets` (121行) + `WidgetEmptyContent.ets` (66行) | ContentView → staminaInfo, gameInfo 等嵌套子组件 |
-| **2x2** | `Widget2x2.ets` (109行) | `Widget2x2SingleGame.ets` (99行) + `Widget1x2ContentView.ets` (121行) + `WidgetEmptyContent.ets` (66行) | SingleGame → Header(56), StaminaBlock(53)+ExtraRows(108); StaminaBlock → StandardStamina(70)/StarRailStamina(91) |
-| **2x4** | `Widget2x4.ets` (110行) | `Widget2x4SingleGame.ets` (152行) + `Widget2x2SingleGame.ets` (99行) | SingleGame → InfoColumn(106) + 共享 DataRow(64) / ExpeditionAvatar(126) |
-| **4x4** | `Widget4x4.ets` (113行) | `Widget4x4SingleGame.ets` (131行) + `Widget2x4SingleGame.ets` (152行) | SingleGame → Header(65), StaminaBlock(112), ExtraRowsGroup(63)×2, ExpeditionBlock(64) |
+| **1x2** (×3游戏共享) | `Widget1x2Genshin.ets` / `Widget1x2StarRail.ets` / `Widget1x2ZZZ.ets` (各 99行) | `Widget1x2ContentView.ets` (121行) + `WidgetEmptyContent.ets` (66行) | ContentView → staminaInfo, gameInfo 等嵌套子组件 |
+| **2x2** | `Widget2x2.ets` (129行) | `Widget2x2SingleGame.ets` (99行) + `Widget1x2ContentView.ets` (121行) + `WidgetEmptyContent.ets` (66行) | SingleGame → Header(56), StaminaBlock(53)+ExtraRows(108); StaminaBlock → StandardStamina(70)/StarRailStamina(91) |
+| **2x4** | `Widget2x4.ets` (130行) | `Widget2x4SingleGame.ets` (152行) + `Widget2x2SingleGame.ets` (99行) | SingleGame → InfoColumn(106) + 共享 DataRow(69) / ExpeditionAvatar(126) |
+| **4x4** | `Widget4x4.ets` (133行) | `Widget4x4SingleGame.ets` (131行) + `Widget2x4SingleGame.ets` (152行) | SingleGame → Header(65), StaminaBlock(112), ExtraRowsGroup(63)×2, ExpeditionBlock(64) |
 
 ### 5.2 Widget View 复杂度 Top
 
@@ -160,17 +161,20 @@ Widget View               -              7           10          -
 | ✅ W-V1 | `Widget4x4SingleGame.ets` | **131**（原 337） | 4x4 | 已拆分为 4 个 V1 子组件（Header / StaminaBlock / ExtraRowsGroup / ExpeditionBlock） |
 | ✅ W-V2 | `Widget2x4SingleGame.ets` | **152**（原 282） | 2x4 | 已拆出 InfoColumn；数据行 / 派遣头像复用共享组件 |
 | ✅ W-V3 | `Widget1x2ContentView.ets` | 121 | 1x2 | 已评估：组件体约 62 行（其余为文件头注释与 import），单一职责、三游戏共用、无重复结构 → **不拆分**（详见 6.1） |
+| ✅ W-V4 | `Widget2x2SingleGame.ets` | 99 | 2x2 | 已评估：组件体 26 行，已委托 Header / StaminaBlock / ExtraDataRows 三个子组件，其余为 Preview → **不拆分** |
+| ✅ W-V5 | `Widget2x2StarRailStamina.ets` | 91 | 2x2 | 已评估：组件体 45 行，单一「左体力 + 右后备开拓力」布局，与 `Widget2x2StandardStamina` 排布不同 → **不拆分** |
 
 ### 5.3 Widget ViewModel 共享情况
 
 | Viewmodel | 行数 | 用途 | 可复用性 |
 |-----------|------|------|----------|
 | `Widget1x2ViewModel.ets` | 80 | 小视图数据模型 | — |
-| `Widget2x2ViewModel.ets` | 161 | 中视图数据模型 | — |
-| `Widget2x4ViewModel.ets` | 162 | 大视图数据模型 | — |
-| `Widget4x4ViewModel.ets` | 159 | 最大视图数据模型 | — |
+| `Widget2x2ViewModel.ets` | 111（原 161） | 中视图数据模型 | 单游戏角色构建委托 `WidgetRoleStateBuilder` |
+| `Widget2x4ViewModel.ets` | 60（原 162） | 大视图数据模型 | 全部角色构建委托 `WidgetRoleStateBuilder` |
+| `Widget4x4ViewModel.ets` | 60（原 159） | 最大视图数据模型 | 全部角色构建委托 `WidgetRoleStateBuilder` |
+| `WidgetRoleStateBuilder.ets` | 151 | 角色 UIState 共享构建器 | 2×2 / 2×4 / 4×4 共用；布局差异以 `WidgetRoleLayout` 表达 |
 
-> **注意：** Widget ViewModel 按尺寸分装，但底层数据逻辑（获取角色/体力/材料等）可能大量重复。可评估提取共享 base VM 到 HAR。
+> **已收敛（2026-11-11）**：原三个 ViewModel 的「ParsedRole → WidgetRoleUIState」逻辑逐行重复（角色字段 / 体力 / 额外数据行 / 派遣头像 / 多游戏去重），已抽到 `WidgetRoleStateBuilder`。`Widget1x2ViewModel` 产出的是 `Widget1x2RoleUIState`（紧凑模型），结构不同，保留独立实现。
 
 ### 5.4 Widget 拆分策略建议
 
@@ -189,14 +193,14 @@ Widget View               -              7           10          -
 | # | 分类 | 文件 | 行数 | 优先级 | 子文档 | 状态 |
 |---|------|------|------|--------|--------|------|
 | 1 | Normal | MainPage.ets | 478 → 277 | ✅ P0 | `main-module-analysis.md` | ✅ 已完成（M15 二次拆分） |
-| 2 | Normal | TestPage.ets | 105 | 🟡 P1 | （暂无） | ⏳ 待分析 |
-| 3 | Normal | LaunchPage.ets | 91 | 🟢 P2 | （暂无） | ⏳ 待分析 |
+| 2 | Normal | TestPage.ets | 105 | ✅ P1 | （暂无） | ✅ 已评估（不拆分，页面体 43 行且已拆子组件） |
+| 3 | Normal | LaunchPage.ets | 91 | ✅ P2 | （暂无） | ✅ 已评估（不拆分，单一职责） |
 | 4 | Normal | Index.ets | 33 | 🔵 P3 | — | 不拆分 |
 | 5 | Widget | Widget4x4SingleGame.ets | 337 → 131 | ✅ W-V1 | （暂无深度子文档） | ✅ 已完成（拆 4 个 V1 子组件） |
 | 6 | Widget | Widget2x4SingleGame.ets | 282 → 152 | ✅ W-V2 | （暂无深度子文档） | ✅ 已完成（InfoColumn + 共享组件） |
 | 7 | Widget | Widget1x2ContentView.ets | 121 | ✅ W-V3 | （暂无深度子文档） | ✅ 已评估（不拆分，组件体 ~62 行） |
-| 8 | Widget | ×6 Pages (82–113) | — | 🟢 W-Pages | （汇总分析） | ⏳ 待分析 |
-| 9 | Widget | ×4 ViewModels (80–162) | — | 🟡 W-VM | （共享评估） | ⏳ 待分析 |
+| 8 | Widget | ×6 Pages (99–133) | — | ✅ W-Pages | （汇总分析） | ✅ 已评估（不拆分，均为入口/分支调度） |
+| 9 | Widget | ×4 ViewModels (60–151) | — | ✅ W-VM | （共享评估） | ✅ 已完成（抽 `WidgetRoleStateBuilder`） |
 
 ### 6.1 执行记录
 
@@ -261,6 +265,38 @@ Widget View               -              7           10          -
 | 编译 | ✅ `hvigorw assembleHap -p product=uat -p buildMode=debug` → `BUILD SUCCESSFUL` |
 | 冒烟 | ✅ 应用内「我的 → Widget 卡片」实测：2×2（3 行数据）、2×4（3 行数据 + 5 头像含 2 勾勾）、4×4（两分组 + 4 头像）渲染与改造前一致 |
 
+#### W-VM ViewModel 共享构建器（2026-11-11）
+
+> 三个尺寸 ViewModel 的「`ParsedRole` → `WidgetRoleUIState`」逻辑逐行重复，本轮只把公共部分搬到纯函数构建器，`buildUIState` 签名与三个类名保持不变（`entry/src/test` 四个测试文件直接引用）。
+
+| 项 | 结果 |
+| --- | --- |
+| 新增 `WidgetRoleStateBuilder.ets` | 151 行：`buildRoleUIState(role, layout)` / `buildMultiGameStates(roles, maxGames, layout)` / `buildExtraRows` / `convertExtraRows` |
+| 布局差异 | `WidgetRoleLayout` 三值：`COMPACT_2X2`（不显示角色名 / 派遣头像，额外行固定 3）、`GRID_2X4`（解析 3/4 行、展示 3/4 行）、`GRID_4X4`（不限制解析、展示 6 行） |
+| `Widget2x2ViewModel.ets` | 161 → **111 行**：单游戏委托 `COMPACT_2X2`；多游戏仍用紧凑的 `Widget1x2RoleUIState`（结构不同，未合并） |
+| `Widget2x4ViewModel.ets` | 162 → **60 行**：单游戏 / 多游戏均委托 `GRID_2X4` |
+| `Widget4x4ViewModel.ets` | 159 → **60 行**：单游戏 / 多游戏均委托 `GRID_4X4` |
+| 行为不变量 | 角色字段、体力计算、星铁后备开拓力、原神「去掉第一条额外行 + 派遣头像」、多游戏按游戏去重取首个角色，逐项与原实现一致 |
+| 单元测试 | ✅ `hvigorw --mode module -p module=entry@default -p product=default test` → `BUILD SUCCESSFUL`；覆盖率：`Widget1x2ViewModel` / `Widget2x2ViewModel` / `Widget2x4ViewModel` / `Widget4x4ViewModel` 均 **100% 行 + 100% 函数**，`WidgetRoleStateBuilder` **96.88% 行 / 100% 函数**（未覆盖的仅「同游戏重复角色」的 `break` 分支） |
+| 编译 | ✅ `hvigorw assembleHap -p product=uat -p buildMode=debug` → `BUILD SUCCESSFUL` |
+| 冒烟 | 🔶 桌面卡片渲染待真机确认 |
+
+#### W-Pages 六个 Widget 入口页（2026-11-11，评估结论：不拆分）
+
+| 项 | 结果 |
+| --- | --- |
+| 体量构成 | 1×2 三页各 99 行、2×2 129、2×4 130、4×4 133；其中文件头注释 + import + M1 缓存块约 45–55 行，`build()` 组件体 55–65 行 |
+| 职责 | 只做「读 `@LocalStorageProp('payload')` → 选分支 → 传 UIState」，无业务计算、无重复片段 |
+| 为何不拆 | 1) `form_config.json` 的 `src` 冻结，页面本身必须存在；2) 再拆一层等于把 60 行的分支调度切成「页面 + 内容组件」，并在卡片数据链路上多加一次 `@Prop` 传递，收益为负；3) 真正重复的 1×2 三页只差一个 `WidgetGameId` 常量，抽共享 struct 同样会引入额外的 `@Prop` 跳转，且桌面渲染无法在模拟器验证 |
+| 结论 | **不拆分**；如后续真机回归发现 1×2 三页需要同步改动，再评估抽 `Widget1x2Page` 共享 struct |
+
+#### P1 / P2 Normal Page 评估（2026-11-11，结论：不拆分）
+
+| 文件 | 结论 |
+| --- | --- |
+| `TestPage.ets`（105） | 页面体 43 行，列表项已抽为 `TestSectionHeader` / `TestRow`；剩余 28 行是 3 个测试方法（每个 5–9 行）。再拆只会产生「为 3 个按钮各建一个组件」的空壳 → **不拆分** |
+| `LaunchPage.ets`（91） | 页面体 29 行（Logo + 两行文字），逻辑 34 行（入场动画 / 隐私判断 / 等待 Core 后 replace），单一职责且无重复 → **不拆分** |
+
 ---
 
 ## 七、已合并的 features/ Page（不在此总索引中）
@@ -277,6 +313,6 @@ Widget View               -              7           10          -
 - Widget View 来源：`find ./entry/src/main/ets/widget/views -name '*.ets'`
 - Widget ViewModel 来源：`find ./entry/src/main/ets/widget/viewmodel -name '*.ets'`
 - Ability 清单来源：`grep -l '@Entry(Ability)' entry/src/main/ets/`
-- 更新时间：2026-11-09
+- 更新时间：2026-11-11
 
 【已核对代码一致性】

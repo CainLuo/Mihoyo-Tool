@@ -6,14 +6,18 @@
  * - 构建 2x4 专用的 UIState (View)
  *
  * 2x4 Widget 特性：
- * - 单游戏：详细布局（体力环 + 额外数据行）
+ * - 单游戏：详细布局（体力环 + 数据行）— Widget2x4SingleGame
  * - 多游戏（2个）：两个 Widget2x2SingleGame 横向排列 + Divider
+ *
+ * 角色 UIState 的公共构建逻辑（角色字段 / 体力 / 额外数据行 / 派遣头像）
+ * 见 WidgetRoleStateBuilder，本文件只保留 2x4 的尺寸差异。
  *
  * 数据流：
  *   EntryFormAbility → parsePayload() → ParsedPayload → ViewModel.buildUIState() → UIState
  */
 
-import { Widget2x4UIState, WidgetRoleUIState, WidgetExtraRow, ParsedPayload, ParsedRole, WidgetDataHelper, ParsedExtraRow, WidgetGameId, getGameName, getGameColor, getGameNameRes } from 'widgetbase';
+import { Widget2x4UIState, ParsedPayload } from 'widgetbase';
+import { WidgetRoleStateBuilder, WidgetRoleLayout } from './WidgetRoleStateBuilder';
 
 /**
  * 2x4 Widget ViewModel
@@ -40,123 +44,17 @@ export class Widget2x4ViewModel {
     if (parsed.isSingleGame) {
       // 单游戏模式：详细布局
       result.isSingleGame = true;
-      result.singleGameState = Widget2x4ViewModel.buildRoleUIState(roles[0]);
+      result.singleGameState = WidgetRoleStateBuilder.buildRoleUIState(roles[0], WidgetRoleLayout.GRID_2X4);
     } else {
       // 多游戏模式：两个 WidgetRoleUIState 横向排列
       result.isSingleGame = false;
-      result.multiGameStates = Widget2x4ViewModel.buildMultiGameStates(
+      result.multiGameStates = WidgetRoleStateBuilder.buildMultiGameStates(
         roles,
-        Widget2x4ViewModel.MAX_GAMES_2X4
+        Widget2x4ViewModel.MAX_GAMES_2X4,
+        WidgetRoleLayout.GRID_2X4
       );
     }
 
-    return result;
-  }
-
-  /**
-   * 构建单个角色的详细 UIState（单游戏模式）
-   */
-  private static buildRoleUIState(role: ParsedRole): WidgetRoleUIState {
-    const state = new WidgetRoleUIState();
-
-    state.gameId = role.gameId;
-    state.gameName = getGameName(role.gameId);
-    state.gameNameResource = getGameNameRes(role.gameId);
-    state.gameColor = getGameColor(role.gameId);
-    state.roleId = role.roleId;
-    state.roleIdWithPrefix = 'UID ' + role.roleId;
-    // 角色名：使用角色昵称 + 等级（如果有）
-    state.roleName = Widget2x4ViewModel.buildRoleName(role);
-    state.currentStamina = role.currentStamina;
-    state.maxStamina = role.maxStamina;
-    state.recoverySeconds = role.recoverySeconds;
-
-    // 使用 WidgetDataHelper 工具函数计算展示字段
-    state.isFull = WidgetDataHelper.calcIsFull(role.currentStamina, role.maxStamina, role.recoverySeconds);
-    state.recoveryTime = WidgetDataHelper.formatRecoveryTime(role.recoverySeconds, state.isFull);
-    state.staminaColorType = WidgetDataHelper.calcStaminaColorType(role.currentStamina, role.maxStamina);
-
-    // 星铁专属：后备开拓力
-    if (role.isStarRail()) {
-      state.reserveStamina = WidgetDataHelper.parseReserveStamina(role.rawJson);
-    }
-
-    // 解析额外数据行
-    // 原神：去掉第一条（探索派遣），因为改在底部显示
-    // 星铁：保留全部（最多 3 条）
-    // 绝区零：保留全部（最多 4 条，note_list 有 4 条）
-    const maxRows = role.gameId === WidgetGameId.GENSHIN ? 4 : 
-                    role.gameId === WidgetGameId.ZZZ ? 4 : 3;
-    const extraRows = WidgetDataHelper.parseExtraRows(role.rawJson, role.widgetRawJson, role.gameId, maxRows);
-    const filteredRows = role.gameId === WidgetGameId.GENSHIN ? extraRows.slice(1) : extraRows;
-    const finalMaxRows = role.gameId === WidgetGameId.ZZZ ? 4 : 3;
-    state.extraRows = Widget2x4ViewModel.convertExtraRows(filteredRows.slice(0, finalMaxRows));
-
-    // 原神专属：解析派遣角色头像
-    // formImagesKey 使用 'exp_avatar' 前缀，与 FormExtensionAbility 中的 key 对应
-    if (role.gameId === WidgetGameId.GENSHIN) {
-      state.expeditions = WidgetDataHelper.parseExpeditions(role.rawJson, 'exp_avatar');
-    }
-
-    return state;
-  }
-
-  /**
-   * 构建角色名显示文字
-   * 格式：昵称 或空
-   */
-  private static buildRoleName(role: ParsedRole): string {
-    return role.nickname;
-  }
-
-  /**
-   * 构建多游戏的 UIState 数组（2x4 多游戏模式）
-   *
-   * 按游戏 ID 去重，每个游戏只显示第一个角色，最多 2 个游戏。
-   */
-  private static buildMultiGameStates(
-    roles: ParsedRole[],
-    maxGames: number
-  ): WidgetRoleUIState[] {
-    const result: WidgetRoleUIState[] = [];
-    const addedGameIds: string[] = [];
-
-    for (let i = 0; i < roles.length && addedGameIds.length < maxGames; i++) {
-      const role = roles[i];
-
-      // 检查该游戏是否已添加
-      let alreadyAdded = false;
-      for (let j = 0; j < addedGameIds.length; j++) {
-        if (addedGameIds[j] === role.gameId) {
-          alreadyAdded = true;
-          break;
-        }
-      }
-
-      if (!alreadyAdded) {
-        result.push(Widget2x4ViewModel.buildRoleUIState(role));
-        addedGameIds.push(role.gameId);
-      }
-    }
-
-    return result;
-  }
-
-  /**
-   * 转换额外数据行
-   */
-  private static convertExtraRows(rows: ParsedExtraRow[]): WidgetExtraRow[] {
-    const result: WidgetExtraRow[] = [];
-    for (let i = 0; i < rows.length; i++) {
-      const row = new WidgetExtraRow();
-      row.label = rows[i].label;
-      row.labelResource = WidgetDataHelper.getExtraRowLabelResource(rows[i].label);
-      row.value = rows[i].value;
-      // 如果 value 已经是最终格式（如绝区零 note_list），直接使用，不再转换
-      row.displayValue = rows[i].isRawValue ? rows[i].value : WidgetDataHelper.getExtraRowValueDisplay(rows[i].value);
-      row.valueColor = rows[i].valueColor;
-      result.push(row);
-    }
     return result;
   }
 }
