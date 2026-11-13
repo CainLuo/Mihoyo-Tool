@@ -2,7 +2,7 @@
  * WidgetModels.ets — Widget 数据模型
  *
  * 数据流：
- *   WidgetDataBuilder（主进程）→ JSON 字符串 → LocalStorage → @Entry 组件 → fromJson() → 子组件
+ *   WidgetPayloadBuilder（主进程）→ JSON 字符串 → LocalStorage → @Entry 组件 → fromJson() → 子组件
  *
  * 每个游戏的数据序列化为一个 JSON 字符串，用单个 LocalStorage key 传递，
  * 避免在 @Entry 组件里平铺几十个 @LocalStorageProp 字段。

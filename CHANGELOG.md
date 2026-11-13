@@ -27,6 +27,7 @@
 
 ### 工程
 
+- **删除 Widget 遗留 formId 链路（M8）**：`WidgetFormIdStore`（141 行）与 `WidgetDataBuilder`（228 行）自 `WidgetConfigStore` 上线后即无写入方，`buildAndPushForAccount` 与删账号时的卡片清理都是恒 no-op。现整条链路连同 `WidgetSyncHook.init`、`account` 模块对 `widget` 的依赖一并删除；卡片推送仍走 `WidgetDataStoreBuilder.refreshAndSave` → `WidgetUpdateNotifier.notifyAllWidgets`，行为零变更
 - **资源按模块归属拆分（GAP-10）**：428 条字符串 / 20 个颜色 / 2 张图片从 `common/basic` 下沉到实际引用它们的模块；`common/basic` 只保留跨模块共用资源（51 条字符串 / 16 色 / 42 图）。`app_name` 只留 AppScope（代码改用 `common/basic` 的 `app_display_name`）、`black` 只留 `common/basic`，本工程的资源重复告警清零（剩余 `page_show` 来自第三方 axios / crypto-js）
 - `run.sh` 适配 DevEco Studio 6.1 模拟器启动参数（`-start <name> -instancePath <root>`）
 - 停止跟踪构建生成的 13 个 `BuildProfile.ets`（hvigor 每次按 product 重写），修复切换 product 构建后工作区变脏

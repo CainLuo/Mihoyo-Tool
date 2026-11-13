@@ -6,7 +6,6 @@ export { WidgetDataStore } from './src/main/ets/model/WidgetDataStoreModels';
 export { WidgetConfigStore } from './src/main/ets/model/service/WidgetConfigStore';
 export { WidgetDataStoreBuilder } from './src/main/ets/model/service/WidgetDataStoreBuilder';
 export { WidgetDataStoreManager } from './src/main/ets/model/service/WidgetDataStoreManager';
-export { WidgetFormIdStore } from './src/main/ets/model/service/WidgetFormIdStore';
 export { WidgetImageDownloader } from './src/main/ets/model/service/WidgetImageDownloader';
 export { WidgetMockPayload } from './src/main/ets/model/service/WidgetMockPayload';
 export { WidgetPayloadBuilder } from './src/main/ets/model/service/WidgetPayloadBuilder';

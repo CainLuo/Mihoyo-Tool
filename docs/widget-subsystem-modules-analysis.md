@@ -1,6 +1,6 @@
 # Widget 子系统分析（M14）
 
-> **分析对象**：`entry/src/main/ets/widget/`（28 个文件 / 2,703 行：pages 6·689 + views 17·1,552 + viewmodel 5·462）+ `entryformability/EntryFormAbility.ets`（286 行）+ `widgetsyncability/WidgetSyncAbility.ets`（263 行）
+> **分析对象**：`entry/src/main/ets/widget/`（28 个文件 / 2,703 行：pages 6·689 + views 17·1,552 + viewmodel 5·462）+ `entryformability/EntryFormAbility.ets`（270 行）+ `widgetsyncability/WidgetSyncAbility.ets`（263 行）
 > **分析日期**：2026-10-24
 > **代码版本**：`105c8d3`
 > **HarmonyOS SDK**：`6.0.2(22)`（`targetSdkVersion` / `compatibleSdkVersion`，见根 `build-profile.json5`）
@@ -14,15 +14,15 @@
 | 优先级 | 数量 |
 | --- | --- |
 | Critical | 0 |
-| High | 3 |
-| Medium | 6 |
+| High | 1 |
+| Medium | 4 |
 | Low | 3 |
 
 **整体评级：B**
 
-> 计数为 2026-11-12 现状：M1 / M6 / M7 已修复（8 → 6 Medium），H1–H3 与 M2 / M3 / M4 / M5 / M8 仍在。债务 3×3 + 6×2 + 3×1 = 24，密度 24 ÷ (7,506/100) ≈ 0.32。
+> 计数为 2026-11-13 现状：H1 / H2 已修复（`bae5b61`，对应审计 GAP-01 / GAP-06），M1 / M6 / M7 / M8 已修复（8 → 4 Medium）；**H3 待产品决策**，M2 / M3 / M4 / M5 仍在（M4 / M5 属能力增强）。债务 1×3 + 4×2 + 3×1 = 14；体量按 2026-11-13 实测口径见 §7 第 8 轮复核（旧记录里的 7,506 行基线已漂移）。
 
-> 架构本身是清楚的：主应用写「数据仓」→ 卡片进程读 payload → 6 个页面各自经 ViewModel 构建 UIState → V1 组件渲染。**没有崩溃级缺陷，但有三处会直接伤害"桌面卡片"这个核心场景**：更新失败会把用户的卡片配置删掉（H1）、无数据时展示伪造的"测试账号"（H2）、卡片从不显示数据有多旧（H3）。三条都不影响主应用，只影响卡片，所以历史上一直没被页面级评审覆盖。2026-10-27 复核另补 2 条 Medium：点击同步的并发锁置位过晚（M7）、`WidgetFormIdStore` 无写入方导致两条调用链空转（M8）。
+> 架构本身是清楚的：主应用写「数据仓」→ 卡片进程读 payload → 6 个页面各自经 ViewModel 构建 UIState → V1 组件渲染。**曾经有三处会直接伤害"桌面卡片"这个核心场景**：更新失败会把用户的卡片配置删掉（H1，已修）、无数据时展示伪造的"测试账号"（H2，已修）、卡片从不显示数据有多旧（H3，待决策）。这三条都不影响主应用，只影响卡片，所以历史上一直没被页面级评审覆盖。2026-10-27 复核另补 2 条 Medium：点击同步的并发锁置位过晚（M7，已修）、`WidgetFormIdStore` 无写入方导致两条调用链空转（M8，已删）。
 >
 > 另有结构性事实需要先说清楚：widget **是 V1 孤岛**（16 个文件使用 `@Component`，0 个 `@ComponentV2`），这是卡片渲染引擎的限制，不是技术债——本轮重构**不迁移**装饰器。
 
@@ -64,14 +64,14 @@
 | `widget/models/WidgetConfig.ets` | 151 | 单个卡片的配置（尺寸 / slots / formName） |
 | `widget/models/WidgetDataStore.ets` | 452 | 全局数据仓（账号 → 角色 → rawJson），写入 `preferences` |
 
-### 1.5 工具（16，3,474 行）
+### 1.5 工具（14，3,164 行）
 
 | 分组 | 文件（行数） |
 | --- | --- |
-| **数据构建** | `WidgetDataBuilder`（228）· `WidgetDataStoreBuilder`（365）· `WidgetPayloadBuilder`（358） |
+| **数据构建** | `WidgetDataStoreBuilder`（365）· `WidgetPayloadBuilder`（358） |
 | **数据解析** | `WidgetPayloadParser`（395，被测试引用）· `WidgetDataHelper`（497，被测试引用） |
-| **存储** | `WidgetDataStoreManager`（164）· `WidgetConfigStore`（127）· `WidgetFormIdStore`（132） |
-| **推送** | `WidgetUpdateNotifier`（146） |
+| **存储** | `WidgetDataStoreManager`（164）· `WidgetConfigStore`（145） |
+| **推送** | `WidgetUpdateNotifier`（168） |
 | **图片** | `WidgetImageDownloader`（489） |
 | **展示工具** | `WidgetUtils`（315）· `WidgetExtraRowConfig`（55，被测试引用）· `WidgetExtraRowType`（35，被测试引用） |
 | **日志 / 调试** | `WidgetLogger`（80）· `WidgetLog`（53）· `WidgetMockData`（45） |
@@ -239,7 +239,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | M5 | 全量同步是串行双层循环 | `WidgetSyncAbility.ets:105-118` | 账号 × 角色逐个 `await syncDailyNote`，无并发上限、无进度、无总超时；一次点击可能是几十个串行网络请求 |
 | M6 | ✅ 已修复（2026-11-12） | 原 `WidgetImageDownloader.ets:87`（文件名固定 `${prefsKey}_${i}.png`）、`:91-105`（文件已存在就跳过下载） | 修复：下载时把源 URL 记到 `${key}_url`，只有「文件存在 **且 URL 未变**」才跳过；URL 变化（派遣角色变化 / 换账号）重新下载并用 `TRUNC` 覆盖同名文件。旧安装（无 URL 记录）会重下一次，自动纠正历史陈旧头像 |
 | M7 | ✅ 已修复（2026-11-12） | 原 `WidgetSyncAbility.ets:194` 检查 vs `:217` 置位（`initCore()` + 两次 `init` 完成后才置位） | 修复：冷却检查通过后**同步**置位 `isSyncing`，再启动异步链；`initCore` 失败也释放锁。`initCore` 期间连点卡片会被 "Already syncing" 拦下，不再并发起多条 `syncAllWidgets` |
-| M8 | `WidgetFormIdStore` 无写入方，两条调用链空转 | `WidgetFormIdStore.ets:51`（`save()`）全工程**零调用**，`widget_form_ids` 永远为空 → `WidgetDataBuilder.ets:46-49` 的 `buildAndPushForAccount` 恒提前返回（由 `StaminaNotificationService.ets:111-112` 调用）；`AccountDetailViewModel.ets:102-105` 删除账号时的卡片清理恒为 no-op | 这是早于 `WidgetConfigStore`（`widget_configs`）的遗留第二套 formId 存储（还自带同名 `interface WidgetConfig`，`WidgetFormIdStore.ets:19`）。后果：AccountDetail 的清理即使命中也只删 `widget_form_ids`，真正生效的 `widget_configs` 里指向已删账号的 slots 从无清理路径；通知服务那条"逐账号推送"实际不推送（真正的推送靠 `refreshAndSave` 内部的 `notifyAllWidgets`，`WidgetDataStoreBuilder.ets:184-187`）。`WidgetDataBuilder.buildPayload` 等其余方法无外部调用方 |
+| M8 | ✅ 已修复（2026-11-13） | 原：`WidgetFormIdStore.save()` 全工程零调用 → `widget_form_ids` 永远为空，`WidgetDataBuilder.buildAndPushForAccount` 恒提前返回，`AccountDetailViewModel.deleteAccount` 的卡片清理恒为 no-op | 修复：整条遗留链路删除（`WidgetFormIdStore.ets` 141 行 + `WidgetDataBuilder.ets` 228 行 + `WidgetFormIdStore.test.ets` 3 条用例），`WidgetSyncHandlerImpl` 只留 `refreshAndSave`，`WidgetSyncHook.init` 与通知服务 init 里的调用一并删除，`AccountDetailViewModel` 去掉 no-op 清理。真正的卡片推送一直由 `WidgetDataStoreBuilder.refreshAndSave` → `WidgetUpdateNotifier.notifyAllWidgets` 负责，行为零变更 |
 
 ### Low（建议优化）
 
@@ -275,7 +275,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 - **不要合并 1×2 三页文件**：`src` 冻结，只能抽内部共享 struct。
 - **M4 / M5 属于能力增强**（超时、并发、进度），超出"保持行为"的重构边界，记录不执行。
 - **M6 / M7 是行为修复**：M6 用「源 URL + 文件」双记录判断缓存是否过期，URL 变化即重下；M7 把 `isSyncing = true` 提前到返回前并在 `initCore` 失败时释放。两项已于 2026-11-12 单独提交。
-- **M8 需决策**：删除 `WidgetFormIdStore` / `WidgetDataBuilder` 遗留链路（同时改 notification 与 AccountDetail 两个调用方，跨 M5 / M11）还是改用 `WidgetConfigStore`，均单独提交。
+- **M8 已按「删除遗留链路」执行**（2026-11-13）：删 `WidgetFormIdStore` / `WidgetDataBuilder` 与对应测试，`WidgetSyncHandlerImpl` 只保留 `refreshAndSave`，`WidgetSyncHook` 去掉只为它存在的 `init` 接口，`AccountDetailViewModel` 去掉恒 no-op 的清理；行为零变更，单独提交。**遗留缺陷另立**：「删除账号后 `widget_configs` 里指向该账号的 slots 无人清理」需要 `deleteAccount` 拿到 context 后按 `slot.accountId` 过滤，属行为变更，未随本次提交。
 
 ### 验收
 
@@ -287,7 +287,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 ### 已知问题归属
 
 - **High 3 项**（配置误删、Mock 数据、无新鲜度标识）：H1 / H2 建议随 M14 修，H3 需产品决策。
-- **Medium 8 项**（重复解析、全局冷却且失败也计冷却、结果不可见、10 秒窗口、串行同步、派遣头像永不更新、并发锁置位过晚、`WidgetFormIdStore` 空转）：**M1 / M6 / M7 已完成**；M8 需决策（删除遗留链路 or 改用 `WidgetConfigStore`）；其余（M2 / M3 / M4 / M5）属增强。
+- **Medium 8 项**（重复解析、全局冷却且失败也计冷却、结果不可见、10 秒窗口、串行同步、派遣头像永不更新、并发锁置位过晚、`WidgetFormIdStore` 空转）：**M1 / M6 / M7 / M8 已完成**（M8 走删除路线）；其余（M2 / M3 / M4 / M5）属增强或待决策。
 - **Low 3 项**（logger 合并、`formEvent` 校验、预览缺失）：可顺手做。
 - **测试空白**：`WidgetDataStore`（452）、`WidgetPayloadBuilder`（358）、`WidgetDataStoreBuilder`（365）、`WidgetImageDownloader`（489）、`WidgetUpdateNotifier`（146）均无单测——即**本子系统 3 个 High 所在的文件全部无测试保护**。四个 ViewModel 自 2026-11-07 起已有 `entry/src/test` 单测（本轮实测四个均 100% 行覆盖），不再是空白。
 
@@ -401,9 +401,9 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | --- | --- |
 | 页面 → ViewModel | 6 个页面各依赖 1 个 ViewModel（1×2 三页共用 `Widget1x2ViewModel`）；2×2 / 2×4 / 4×4 的 ViewModel 再依赖共享构建器 `WidgetRoleStateBuilder` |
 | 页面 / 组件 → 工具 | `WidgetPayloadParser`（parsePayload）、`WidgetUtils`（渐变 / 游戏色 / 体力色 / 时间格式化）、`WidgetDataHelper`（额外数据行） |
-| 工具 → core | `WidgetDataStoreBuilder`、`WidgetDataBuilder`、`WidgetImageDownloader`、`WidgetUpdateNotifier` 依赖 `'core'`（RDB / Logger / Repository）。注意 `WidgetImageDownloader.ets:37` 导入 `core` 的 `Logger`，因此 `EntryFormAbility` 经它**间接导入了 core（HSP）**，与 `EntryFormAbility.ets:5` 头注释"FormExtensionAbility 不能导入 HSP 模块"的自述约束相悖；重构时不要再扩大这条边 |
+| 工具 → core | `WidgetDataStoreBuilder`、`WidgetImageDownloader`、`WidgetUpdateNotifier` 依赖 `'core'`（RDB / Logger / Repository）。注意 `WidgetImageDownloader.ets:37` 导入 `core` 的 `Logger`，因此 `EntryFormAbility` 经它**间接导入了 core（HSP）**，与 `EntryFormAbility.ets:5` 头注释"FormExtensionAbility 不能导入 HSP 模块"的自述约束相悖；重构时不要再扩大这条边 |
 | ability → widget | `EntryFormAbility` → `WidgetConfigStore` / `WidgetDataStoreManager` / `WidgetPayloadBuilder` / `WidgetImageDownloader` / `WidgetMockData`；`WidgetSyncAbility` → 同上 + `WidgetDataStoreBuilder` / `WidgetUpdateNotifier` |
-| notification → widget | `notification/StaminaNotificationService.ets:17-19` 反向导入 `WidgetDataBuilder` / `WidgetFormIdStore` / `WidgetDataStoreBuilder`（**3 条边**，与 Refactor_Spec §4 M5 的"服务向 widget 扇出 3 条"一致）；widget **不**反向依赖 notification |
+| notification → widget | **已无直接依赖**（2026-11-13 复核）：`features/notification/oh-package.json5` 只声明 `widgetbase`；便笺同步后的卡片刷新走 `basic` 的 `WidgetSyncHook` 回调，实现 `WidgetSyncHandlerImpl` 在 `EntryAbility.onCreate` 注册。原「`StaminaNotificationService` 反向导入 `WidgetDataBuilder` / `WidgetFormIdStore` / `WidgetDataStoreBuilder` 3 条边」已随 M8 与 Hook 改造消失 |
 
 ---
 
@@ -444,5 +444,17 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | M6 命中 | `downloadAndSave` 内新增 `${key}_url` 写入与比对；`downloadImage` 的 `openSync` 已含 `OpenMode.TRUNC`（`:430-431`）；文件名 / prefs key / `loadFormImagesSync` 读取方式未变 |
 | M7 命中 | `isSyncing` 检查 `:191`、置位 `:209`（在 `initCore()` 之前）、`.catch` 释放 `:236`、`finally` 释放 `:230`；冷却检查仍在置位之前 |
 | 结论 | 计数更新：0 Critical / 3 High / 6 Medium（M1 / M6 / M7 关闭后）/ 3 Low，评级 B；债务 24，密度 24 ÷ (7,506/100) ≈ 0.32 |
+
+### 复核记录（2026-11-13 第 8 轮，M8 删除后）
+
+| 检查项 | 结论 |
+| --- | --- |
+| 删除范围 | `WidgetFormIdStore.ets`（141 行）、`WidgetDataBuilder.ets`（228 行）、`WidgetFormIdStore.test.ets`（3 条用例）删除；`features/widget/Index.ets` 去掉 `WidgetFormIdStore` 导出；全仓 `WidgetFormIdStore` / `WidgetDataBuilder` / `formIdFromStorageKey` 零引用（仅 `WidgetGameSnapshotModel` 头注释改为 `WidgetPayloadBuilder`） |
+| 调用方 | `WidgetSyncHandlerImpl` 只剩 `refreshAndSave`（`CoreInitializer` import 一并删除）；`WidgetSyncHook` 去掉 `init` 接口与静态方法（只为 formId store 存在）；`StaminaNotificationService.init` 去掉 `WidgetSyncHook.init` 调用；`AccountDetailViewModel.deleteAccount` 去掉恒 no-op 的清理与 `widget` 依赖 import |
+| 行为等价 | 被删链路原本恒提前返回：`getFormIdsByAccount()` 依赖的 `widget_form_ids` 无写入方。卡片推送一直由 `WidgetDataStoreBuilder.refreshAndSave` → `WidgetUpdateNotifier.notifyAllWidgets` 完成，未受影响 |
+| 验证 | `assembleHap`（uat/debug）成功；`widget@default`（76 条）/ `account@default` / `notification@default` / `basic@default` / `entry@default` 单测全绿 |
+| 计数 | 0 Critical / 1 High（H3）/ 4 Medium（M2 / M3 / M4 / M5）/ 3 Low，评级 B；债务 14 |
+| 体量实测 | `features/widget/src/main/ets/` 44 文件 **6,060 行**（删除前 6,429）、`entry/src/main/ets/widget/` 28 文件 2,703 行、`EntryFormAbility` 270 行、`WidgetSyncAbility` 263 行；旧记录的 7,506 行基线自 M14 预览去重后未再校准，本轮以实测为准 |
+| 遗留 | 「删除账号后 `widget_configs` 里指向该账号的 slots 无人清理」是真实缺陷（原 M8 的后果之一），修法需给 `deleteAccount` 传 context 并按 `slot.accountId` 过滤，属行为变更，未随本次提交 |
 
 【已核对代码一致性】

@@ -10,7 +10,6 @@ import widgetMockPayloadTest from './WidgetMockPayload.test';
 import widgetSettingsModelsTest from './WidgetSettingsModels.test';
 import widgetUpdateNotifierTest from './WidgetUpdateNotifier.test';
 import widgetConfigStoreTest from './WidgetConfigStore.test';
-import widgetFormIdStoreTest from './WidgetFormIdStore.test';
 
 export default function testsuite() {
   widgetConfigModelsTest();
@@ -25,5 +24,4 @@ export default function testsuite() {
   widgetSettingsModelsTest();
   widgetUpdateNotifierTest();
   widgetConfigStoreTest();
-  widgetFormIdStoreTest();
 }

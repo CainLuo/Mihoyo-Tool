@@ -295,3 +295,4 @@ codeLinter 命令见 §2.2。
 | 2026-11-12 | GAP-08 修复：三个材料汇总 VM 628 / 368 / 421 → 449 / 261 / 258 行，聚合逻辑收敛到 `MaterialListAggregator`（273 行纯函数 + 16 条单测） |
 | 2026-11-12 | GAP-09 修复：六页 Model 直调收敛到 ViewModel（新增 `LaunchViewModel` / `MainPageViewModel` / `TestViewModel`，`MyViewModel` / `PrivacyConsentViewModel` / `AppearanceSettingsViewModel` 补方法）；`MaterialComputeResult` 枚举移到 `model/` |
 | 2026-11-13 | GAP-10 修复：428 条字符串 / 20 个颜色 / 2 张图片按 `$r` 引用归属从 `common/basic` 下沉到各模块；`app_name`（改 `app_display_name`）、`black` 重复定义清理；`assembleHap` + 13 个模块单测全绿 |
+| 2026-11-13 | Widget M8 修复：删除 `WidgetFormIdStore` / `WidgetDataBuilder` 遗留链路（369 行）与 3 条测试，`WidgetSyncHook` 去掉 `init`，`account` 去掉 `widget` 依赖；行为零变更 |

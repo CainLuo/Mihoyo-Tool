@@ -54,7 +54,7 @@ features/home/
 ```
 entry ──→ 除 chardetail、dailynote 外的 9 个 feature，以及 basic、widgetbase、core
 
-account ────→ legal、settings、verification、widget
+account ────→ legal、settings、verification
 home ───────→ dailynote、notification
 characters ─→ chardetail ─→ material
 
@@ -73,7 +73,7 @@ widgetbase ─→ （无）
 | `features/characters` | core、widgetbase、basic、chardetail |
 | `features/chardetail` | core、widgetbase、basic、material |
 | `features/material` | core、basic |
-| `features/account` | core、widgetbase、basic、settings、legal、widget、verification |
+| `features/account` | core、widgetbase、basic、settings、legal、verification |
 | `features/settings` | core、basic |
 | `features/notification` | core、widgetbase、basic |
 | `features/widget` | core、widgetbase、basic |
@@ -681,11 +681,11 @@ features/notification/src/main/ets/
 
 | 项 | 内容 |
 | --- | --- |
-| 代码文件 | 42 个 `.ets` |
+| 代码文件 | 44 个 `.ets` |
 | 依赖 | core、widgetbase、basic |
-| 对外导出 | 12 个（`Index.ets`） |
+| 对外导出 | 11 个（`Index.ets`） |
 | 路由 | `WidgetSettings` |
-| 本地测试 | 无 |
+| 本地测试 | 12 个测试文件 / 76 条：模型（Config / DataStore / GameSnapshot / Preview / Settings）、`WidgetPayloadBuilder`、`WidgetMockPayload`、`WidgetUpdateNotifier`、`WidgetConfigStore`、`WidgetSettingsViewModel`、`WidgetPreviewUtil`、`WidgetSettingsSizeConfig` |
 | 资源 | `base/string` 27、`en/string` 27、`zh_HK/string` 27、`base/profile` 1 |
 
 ```
@@ -698,10 +698,8 @@ features/widget/src/main/ets/
 │   ├── WidgetSettingsModels.ets         # Widget 配置页的 UI State 模型
 │   └── service/                         # 数据 / 业务服务（存储、网络、计算）
 │       ├── WidgetConfigStore.ets        # Widget 配置存储管理器
-│       ├── WidgetDataBuilder.ets        # 从 DB 读体力数据，构建并推送卡片 payload
 │       ├── WidgetDataStoreBuilder.ets   # Widget 数据构建器（v2）
 │       ├── WidgetDataStoreManager.ets   # Widget 全局数据存储管理器（v2）
-│       ├── WidgetFormIdStore.ets        # formId 持久化存储工具
 │       ├── WidgetImageDownloader.ets    # Widget 网络图片下载器
 │       ├── WidgetMockPayload.ets        # Widget Mock 数据
 │       ├── WidgetPayloadBuilder.ets     # Widget Payload 构建器
@@ -817,10 +815,10 @@ features/verification/src/main/ets/
 | 问题 | 位置 | 处理时机 |
 | --- | --- | --- |
 | 两个重复的卡片日志类 `WidgetLog` 与 `WidgetLogger` | features/widget、common/widgetbase | M14（要改逻辑） |
-| 4 组同名不同定义的类型（如 material 的 `MaterialItemRaw`） | material / widget / chardetail | M1–M15 |
+| 3 组同名不同定义的类型（`MaterialItemRaw` / `MaterialSectionVM`、`ZZZSkillItem`） | material / chardetail | M1–M15 |
 | `MaterialCalcPage` 没有注册路由，页面不可达 | features/material | 已知 High 缺陷 |
 | 星铁养成目标配置页把"级"写死为中文，预留的 `material_target_config_level_suffix` 未接入 | features/material | M1–M15 |
-| 通知服务把包名写死为正式包，uat / mock 包上可能指向错误的应用 | features/notification | 复核 notification 文档时定级 |
+| 删除账号后，`widget_configs` 里指向该账号的 slot 无人清理（卡片仍显示已删账号的角色） | features/account / widget | 待排期（需给 `deleteAccount` 传 context，属行为变更） |
 | `entry/src/ohosTest` 里是 core 的测试 | entry | 不在本次范围 |
 
 ## 7. 新增文件放哪里

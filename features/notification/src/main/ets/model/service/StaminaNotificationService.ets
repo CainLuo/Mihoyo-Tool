@@ -72,8 +72,6 @@ export class StaminaNotificationService {
     this.context = context;
     await NotificationSettingsStore.getInstance().init(context);
     await NotificationStateStore.getInstance().init(context);
-    // 初始化卡片推送（WidgetFormIdStore 等），实现由 widget 功能在 EntryAbility 中注册
-    await WidgetSyncHook.init(context);
     Logger.info(TAG, 'init done');
   }
 

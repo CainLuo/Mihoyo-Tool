@@ -9,7 +9,6 @@
     basic: "file:../../common/basic",
     settings: "file:../settings",
     legal: "file:../legal",
-    widget: "file:../widget",
     verification: "file:../verification",
   },
   devDependencies: {
