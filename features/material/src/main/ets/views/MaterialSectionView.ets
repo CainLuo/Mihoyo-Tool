@@ -6,12 +6,12 @@
  */
 
 import { themeManager, ThemeManager, ThemeFonts } from 'basic';
-import { MaterialSummaryVM, MaterialSectionVM, MaterialSectionType } from '../model/MaterialListModels';
+import { MaterialSummaryVM, MaterialSummarySectionVM, MaterialSectionType } from '../model/MaterialListModels';
 import { MaterialGridCard } from './MaterialGridCard';
 
 @ComponentV2
 export struct MaterialSectionView {
-  @Param section: MaterialSectionVM = new MaterialSectionVM();
+  @Param section: MaterialSummarySectionVM = new MaterialSummarySectionVM();
   @Param onMaterialTap: (material: MaterialSummaryVM) => void = (_: MaterialSummaryVM) => {};
 
   @Local private tm: ThemeManager = themeManager;
@@ -49,7 +49,7 @@ export struct MaterialSectionView {
 @Preview
 @ComponentV2
 export struct MaterialSectionViewPreview {
-  @Local section: MaterialSectionVM = new MaterialSectionVM();
+  @Local section: MaterialSummarySectionVM = new MaterialSummarySectionVM();
 
   aboutToAppear(): void {
     this.section.type = MaterialSectionType.CURRENCY;

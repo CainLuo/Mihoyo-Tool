@@ -18,7 +18,7 @@ import {
 import {
   CharacterMaterialVM,
   MaterialListViewMode,
-  MaterialSectionVM,
+  MaterialSummarySectionVM,
 } from '../model/MaterialListModels'
 import { MaterialTargetConfigParam } from '../model/ToolsModels'
 import { MaterialListContentView } from './MaterialListContentView'
@@ -32,7 +32,7 @@ export struct MaterialListScaffold {
   @Param viewState: ViewState = ViewState.LOADING
   @Param viewMode: MaterialListViewMode = MaterialListViewMode.CHARACTER
   @Param characterMaterials: CharacterMaterialVM[] = []
-  @Param materialSections: MaterialSectionVM[] = []
+  @Param materialSections: MaterialSummarySectionVM[] = []
   @Param isSyncing: boolean = false
   /** 当前选中信息，随「更改配置」菜单传给目标配置页 */
   @Param selection: MaterialTargetConfigParam | null = null

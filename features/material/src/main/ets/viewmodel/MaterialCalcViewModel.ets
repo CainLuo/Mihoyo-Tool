@@ -27,13 +27,13 @@ import { ViewState } from 'basic';
 import {
   SkillTargetVM,
   MaterialCalcItemVM,
-  MaterialSectionVM,
+  MaterialCalcSectionVM,
   MaterialCalcCharacterVM,
   MaterialCalcWeaponVM,
   LevelOptionVM,
-  MaterialItemRaw,
   SkillTypeDefinition,
 } from '../model/MaterialCalcModels';
+import { MaterialItemRaw } from '../model/MaterialRawModels';
 
 const TAG: string = 'MaterialCalcViewModel';
 
@@ -43,8 +43,8 @@ export class MaterialCalcViewModel {
   @Trace character: MaterialCalcCharacterVM = new MaterialCalcCharacterVM();
   @Trace weapon: MaterialCalcWeaponVM | null = null;
   @Trace skills: SkillTargetVM[] = [];
-  @Trace avatarSection: MaterialSectionVM = new MaterialSectionVM();
-  @Trace weaponSection: MaterialSectionVM = new MaterialSectionVM();
+  @Trace avatarSection: MaterialCalcSectionVM = new MaterialCalcSectionVM();
+  @Trace weaponSection: MaterialCalcSectionVM = new MaterialCalcSectionVM();
   @Trace isRefreshing: boolean = false;
 
   @Trace charCurrentLevel: number = 1;
@@ -403,8 +403,8 @@ export class MaterialCalcViewModel {
     title: ResourceStr,
     items: MaterialItemRaw[],
     userOwnsMaterials?: Map<string, number>
-  ): MaterialSectionVM {
-    const section = new MaterialSectionVM();
+  ): MaterialCalcSectionVM {
+    const section = new MaterialCalcSectionVM();
     section.title = title;
 
     let totalHave = 0;

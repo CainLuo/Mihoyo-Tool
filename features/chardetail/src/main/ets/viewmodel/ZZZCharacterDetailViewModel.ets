@@ -17,7 +17,7 @@ import {
   CharDetailRankItem,
   CharDetailHeroProfile,
   ZZZCharDetailSkill,
-  ZZZSkillItem,
+  ZZZCharDetailSkillItem,
   ZZZCharDetailWeapon,
   ZZZSubStat,
   ZZZCharDetailEquip,
@@ -137,10 +137,10 @@ export class ZZZCharacterDetailViewModel {
           const skill = new ZZZCharDetailSkill();
           skill.skillType = s.skill_type ?? 0;
           skill.level = s.level ?? 0;
-          const items: ZZZSkillItem[] = [];
+          const items: ZZZCharDetailSkillItem[] = [];
           if (s.items) {
             for (let j = 0; j < s.items.length; j++) {
-              const si = new ZZZSkillItem();
+              const si = new ZZZCharDetailSkillItem();
               si.title = s.items[j].title ?? '';
               si.text = s.items[j].text ?? '';
               items[items.length] = si;

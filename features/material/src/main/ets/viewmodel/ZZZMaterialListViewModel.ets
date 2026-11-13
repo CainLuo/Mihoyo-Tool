@@ -27,9 +27,9 @@ import {
   CharacterMaterialVM,
   MaterialSummaryVM,
   MaterialItemVM,
-  MaterialItemRaw,
-  MaterialSectionVM,
+  MaterialSummarySectionVM,
 } from '../model/MaterialListModels';
+import { MaterialItemRaw } from '../model/MaterialRawModels';
 import { MaterialListAggregator } from './MaterialListAggregator';
 
 const TAG: string = 'ZZZMaterialListViewModel';
@@ -42,7 +42,7 @@ export class ZZZMaterialListViewModel {
   @Trace viewMode: MaterialListViewMode = MaterialListViewMode.CHARACTER;
   @Trace characterMaterials: CharacterMaterialVM[] = [];
   @Trace materialSummaries: MaterialSummaryVM[] = [];
-  @Trace materialSections: MaterialSectionVM[] = [];
+  @Trace materialSections: MaterialSummarySectionVM[] = [];
   @Trace isSyncing: boolean = false;
   @Trace syncErrorMsg: string = '';
 

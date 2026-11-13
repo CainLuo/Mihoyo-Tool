@@ -5,12 +5,12 @@
  */
 
 import { themeManager, ThemeManager } from 'basic';
-import { MaterialSectionVM, MaterialCalcItemVM } from '../model/MaterialCalcModels';
+import { MaterialCalcSectionVM, MaterialCalcItemVM } from '../model/MaterialCalcModels';
 import { MaterialCalcItem } from './MaterialCalcItem';
 
 @ComponentV2
 export struct MaterialCalcSection {
-  @Param section: MaterialSectionVM = new MaterialSectionVM();
+  @Param section: MaterialCalcSectionVM = new MaterialCalcSectionVM();
   @Param iconName: string = '👤';
   @Param onWeaponLevelTap: (() => void) | null = null;
 
@@ -87,7 +87,7 @@ export struct MaterialCalcSection {
 @Preview
 @ComponentV2
 export struct MaterialCalcSectionPreview {
-  @Local section: MaterialSectionVM = new MaterialSectionVM();
+  @Local section: MaterialCalcSectionVM = new MaterialCalcSectionVM();
 
   aboutToAppear(): void {
     this.section.title = $r('app.string.material_section_avatar');

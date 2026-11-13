@@ -813,7 +813,6 @@ features/verification/src/main/ets/
 
 | 问题 | 位置 | 处理时机 |
 | --- | --- | --- |
-| 3 组同名不同定义的类型（`MaterialItemRaw` / `MaterialSectionVM`、`ZZZSkillItem`） | material / chardetail | M1–M15 |
 | `MaterialCalcPage` 没有注册路由，页面不可达 | features/material | 已知 High 缺陷 |
 | 星铁养成目标配置页把"级"写死为中文，预留的 `material_target_config_level_suffix` 未接入 | features/material | M1–M15 |
 | 删除账号后，`widget_configs` 里指向该账号的 slot 无人清理（卡片仍显示已删账号的角色） | features/account / widget | 待排期（需给 `deleteAccount` 传 context，属行为变更） |

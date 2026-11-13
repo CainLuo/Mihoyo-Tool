@@ -14,12 +14,12 @@
 import {
   CharacterMaterialVM,
   MaterialItemVM,
-  MaterialItemRaw,
-  MaterialSectionVM,
+  MaterialSummarySectionVM,
   MaterialSectionType,
   MaterialSummaryVM,
   RelatedCharacterVM,
 } from '../model/MaterialListModels';
+import { MaterialItemRaw } from '../model/MaterialRawModels';
 
 /** 材料「已拥有数量」取值策略 */
 export type MaterialHaveResolver = (item: MaterialItemRaw) => number;
@@ -43,7 +43,7 @@ export class MaterialListAggregator {
   }
 
   /** 为分组生成渲染 key（type + 本次加载版本号） */
-  static stampSectionKeys(sections: MaterialSectionVM[], loadVersion: number): void {
+  static stampSectionKeys(sections: MaterialSummarySectionVM[], loadVersion: number): void {
     for (let i = 0; i < sections.length; i++) {
       sections[i].renderKey = `${sections[i].type}_${loadVersion}`;
     }
@@ -139,14 +139,14 @@ export class MaterialListAggregator {
    *   第一个是货币（按总需求量降序），第二个是其他材料。
    *   传 null 时（星铁 / 绝区零）只产生一个 ALL 分组。
    */
-  static groupIntoSections(materials: MaterialSummaryVM[], currencyIds: Set<string> | null): MaterialSectionVM[] {
-    const sections: MaterialSectionVM[] = [];
+  static groupIntoSections(materials: MaterialSummaryVM[], currencyIds: Set<string> | null): MaterialSummarySectionVM[] {
+    const sections: MaterialSummarySectionVM[] = [];
 
     if (currencyIds === null) {
       if (materials.length === 0) {
         return sections;
       }
-      const section = new MaterialSectionVM();
+      const section = new MaterialSummarySectionVM();
       section.type = MaterialSectionType.ALL;
       section.title = $r('app.string.material_section_all');
       section.materials = materials;
@@ -171,7 +171,7 @@ export class MaterialListAggregator {
 
     // 第一个 section：经验书 / 摩拉 / 魔矿
     if (currencyMaterials.length > 0) {
-      const currencySection = new MaterialSectionVM();
+      const currencySection = new MaterialSummarySectionVM();
       currencySection.type = MaterialSectionType.CURRENCY;
       currencySection.title = $r('app.string.material_section_currency');
       currencySection.materials = currencyMaterials;
@@ -180,7 +180,7 @@ export class MaterialListAggregator {
 
     // 第二个 section：其他材料
     if (otherMaterials.length > 0) {
-      const materialSection = new MaterialSectionVM();
+      const materialSection = new MaterialSummarySectionVM();
       materialSection.type = MaterialSectionType.MATERIALS;
       materialSection.title = $r('app.string.material_section_materials');
       materialSection.materials = otherMaterials;

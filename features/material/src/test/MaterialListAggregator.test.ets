@@ -2,11 +2,11 @@ import { describe, it, expect } from '@ohos/hypium';
 import { MaterialListAggregator } from '../main/ets/viewmodel/MaterialListAggregator';
 import {
   CharacterMaterialVM,
-  MaterialItemRaw,
   MaterialItemVM,
   MaterialSectionType,
   MaterialSummaryVM,
 } from '../main/ets/model/MaterialListModels';
+import { MaterialItemRaw } from '../main/ets/model/MaterialRawModels';
 
 function makeItem(id: string, need: number, have: number, rarity: number): MaterialItemVM {
   const item = new MaterialItemVM();

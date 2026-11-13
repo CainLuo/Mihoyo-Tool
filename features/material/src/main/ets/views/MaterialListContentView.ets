@@ -12,7 +12,7 @@
  */
 
 import { themeManager, ThemeManager } from 'basic'
-import { MaterialListViewMode, CharacterMaterialVM, MaterialSummaryVM, MaterialSectionVM } from '../model/MaterialListModels'
+import { MaterialListViewMode, CharacterMaterialVM, MaterialSummaryVM, MaterialSummarySectionVM } from '../model/MaterialListModels'
 import { CharacterMaterialCard } from './CharacterMaterialCard'
 import { MaterialSectionView } from './MaterialSectionView'
 
@@ -20,7 +20,7 @@ import { MaterialSectionView } from './MaterialSectionView'
 export struct MaterialListContentView {
   @Param viewMode: MaterialListViewMode = MaterialListViewMode.CHARACTER
   @Param characterMaterials: CharacterMaterialVM[] = []
-  @Param materialSections: MaterialSectionVM[] = []
+  @Param materialSections: MaterialSummarySectionVM[] = []
   @Param onToggleCharacterExpand: (characterId: string) => void = (_: string) => {}
 
   @Local private tm: ThemeManager = themeManager
@@ -59,7 +59,7 @@ export struct MaterialListContentView {
       // Tab 1: 按材料视图（分 section）
       TabContent() {
         List({ space: this.tm.current.value20 }) {
-          ForEach(this.materialSections, (section: MaterialSectionVM) => {
+          ForEach(this.materialSections, (section: MaterialSummarySectionVM) => {
             ListItem() {
               MaterialSectionView({
                 section: section,
@@ -68,7 +68,7 @@ export struct MaterialListContentView {
                 }
               })
             }
-          }, (section: MaterialSectionVM) => section.renderKey.length > 0 ? section.renderKey : `${section.type}`)
+          }, (section: MaterialSummarySectionVM) => section.renderKey.length > 0 ? section.renderKey : `${section.type}`)
         }
         .width(this.tm.current.full)
         .height(this.tm.current.full)

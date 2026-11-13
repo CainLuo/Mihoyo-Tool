@@ -28,7 +28,7 @@ import {
   MaterialSummaryVM,
   MaterialItemVM,
   WeaponMaterialVM,
-  MaterialSectionVM,
+  MaterialSummarySectionVM,
 } from '../model/MaterialListModels';
 import { MaterialListAggregator } from './MaterialListAggregator';
 
@@ -42,7 +42,7 @@ export class StarRailMaterialListViewModel {
   @Trace viewMode: MaterialListViewMode = MaterialListViewMode.CHARACTER;
   @Trace characterMaterials: CharacterMaterialVM[] = [];
   @Trace materialSummaries: MaterialSummaryVM[] = [];
-  @Trace materialSections: MaterialSectionVM[] = [];
+  @Trace materialSections: MaterialSummarySectionVM[] = [];
   @Trace isSyncing: boolean = false;
   @Trace syncErrorMsg: string = '';
 

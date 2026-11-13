@@ -31,12 +31,12 @@ import {
   CharacterMaterialVM,
   MaterialSummaryVM,
   MaterialItemVM,
-  MaterialItemRaw,
   RelatedCharacterVM,
   WeaponMaterialVM,
   SkillItemVM,
-  MaterialSectionVM,
+  MaterialSummarySectionVM,
 } from '../model/MaterialListModels';
+import { MaterialItemRaw } from '../model/MaterialRawModels';
 import { MaterialListAggregator } from './MaterialListAggregator';
 
 /** 养成计算链路统一日志 tag，过滤：hilog | grep */
@@ -66,7 +66,7 @@ export class GenshinMaterialListViewModel {
   @Trace viewMode: MaterialListViewMode = MaterialListViewMode.CHARACTER;
   @Trace characterMaterials: CharacterMaterialVM[] = [];
   @Trace materialSummaries: MaterialSummaryVM[] = [];
-  @Trace materialSections: MaterialSectionVM[] = [];
+  @Trace materialSections: MaterialSummarySectionVM[] = [];
   @Trace isSyncing: boolean = false;
   @Trace syncErrorMsg: string = '';
 

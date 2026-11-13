@@ -5,7 +5,7 @@
  */
 
 import { themeManager, ThemeManager } from 'basic';
-import { MaterialCalcCharacterVM, SkillTargetVM, MaterialSectionVM } from '../model/MaterialCalcModels';
+import { MaterialCalcCharacterVM, SkillTargetVM, MaterialCalcSectionVM } from '../model/MaterialCalcModels';
 import { MaterialCalcCharacter } from './MaterialCalcCharacter';
 import { MaterialCalcSkills } from './MaterialCalcSkills';
 import { MaterialCalcSection } from './MaterialCalcSection';
@@ -14,8 +14,8 @@ import { MaterialCalcSection } from './MaterialCalcSection';
 export struct MaterialCalcContentView {
   @Param character: MaterialCalcCharacterVM = new MaterialCalcCharacterVM();
   @Param skills: SkillTargetVM[] = [];
-  @Param avatarSection: MaterialSectionVM = new MaterialSectionVM();
-  @Param weaponSection: MaterialSectionVM = new MaterialSectionVM();
+  @Param avatarSection: MaterialCalcSectionVM = new MaterialCalcSectionVM();
+  @Param weaponSection: MaterialCalcSectionVM = new MaterialCalcSectionVM();
   @Param onCharacterLevelTap: () => void = () => {};
   @Param onWeaponLevelTap: () => void = () => {};
   @Param onSkillTap: (skillId: string) => void = (_: string) => {};

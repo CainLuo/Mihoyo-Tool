@@ -33,7 +33,7 @@
 |------|------|------|------|
 | `features/material/src/main/ets/pages/MaterialCalcPage.ets` | Page / @ComponentV2 | 109 | 单角色材料计算页，支持角色/武器/技能目标等级设置 |
 | `features/material/src/main/ets/viewmodel/MaterialCalcViewModel.ets` | @ObservedV2 ViewModel | 465 | 读本地 DB 组装角色/技能/材料 Section；目标等级 setter |
-| `features/material/src/main/ets/model/MaterialCalcModels.ets` | 模型 | 165 | `MaterialCalcCharacterVM` / `SkillTargetVM` / `MaterialSectionVM` / `LevelOptionVM` 等（被测试引用） |
+| `features/material/src/main/ets/model/MaterialCalcModels.ets` | 模型 | 146 | `MaterialCalcCharacterVM` / `SkillTargetVM` / `MaterialCalcSectionVM` / `LevelOptionVM` 等（被测试引用）；`MaterialItemRaw` 已上移到 `MaterialRawModels` |
 | `features/material/src/main/ets/views/`（8 个） | 子组件 | 781 | MaterialCalcLevelPicker 137 / MaterialCalcCharacter 134 / MaterialCalcContentView 81 / MaterialCalcEmptyView 43 / MaterialCalcItem 130 / MaterialCalcLoadingView 34 / MaterialCalcSection 115 / MaterialCalcSkills 107 |
 
 > 行数为 M7 重构后现状（原页面 111 / VM 493 / 组件 781）；§2–§6 保留重构前基线，便于对照。
@@ -133,7 +133,7 @@ MaterialCalc (@ComponentV2)
 - [ ] **低优先级**：`onSkillTap: () => {}` 为空实现——若 UI 展示"技能等级"点击区域但无响应会造成用户困惑；要么实现要么隐藏该交互元素
 - [ ] **低优先级**：内容区底部显示「下拉刷新」提示（`MaterialCalcContentView.ets:56-62`，`material_calc_refresh_hint`），但页面没有 `Refresh` 容器，`vm.refresh()`（VM L116-126）无调用方。**保留原因**：`MaterialCalcViewModel.test.ets:32-35` 断言 `vm.isRefreshing === false`，删除字段/方法需同步改测试，而本轮测试文件冻结；是否删除待测试更新后决定。
 - [ ] **低优先级**：`MaterialCalcSection.ets:62-63` 硬编码中文文案 `缺少 ${deficitCount} 个材料` / `材料已足够`，未走 `$r('app.string.*')`，英文/繁中环境下仍显示简体中文
-- [ ] **信息**：`MaterialCalcModels.ets` 中 `MaterialSectionVM.iconUrl`、`SkillTargetVM.iconUrl`、`MaterialCalcCharacterVM.maxLevel`、`MaterialCalcWeaponVM.maxLevel` 无读取方；属模型层死字段，待后续统一清理。
+- [ ] **信息**：`MaterialCalcModels.ets` 中 `MaterialCalcSectionVM.iconUrl`、`SkillTargetVM.iconUrl`、`MaterialCalcCharacterVM.maxLevel`、`MaterialCalcWeaponVM.maxLevel` 无读取方；属模型层死字段，待后续统一清理。
 
 *§6 为重构前基线分析；重构执行记录见下文。*
 

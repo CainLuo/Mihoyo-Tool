@@ -176,7 +176,7 @@ export class StarRailCharDetailProperty {
 // ─── 绝区零专用模型 ─────────────────────────────────────────────
 
 /** 绝区零技能条目（skills[].items[] 中的单个技能） */
-export class ZZZSkillItem {
+export class ZZZCharDetailSkillItem {
   /** 技能标题 */
   title: string = '';
   /** 技能描述 */
@@ -190,7 +190,7 @@ export class ZZZCharDetailSkill {
   /** 等级 */
   level: number = 0;
   /** 技能条目列表 */
-  items: ZZZSkillItem[] = [];
+  items: ZZZCharDetailSkillItem[] = [];
 }
 
 /** 绝区零音擎（武器）详情 */
