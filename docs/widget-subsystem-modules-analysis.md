@@ -64,7 +64,7 @@
 | `widget/models/WidgetConfig.ets` | 151 | 单个卡片的配置（尺寸 / slots / formName） |
 | `widget/models/WidgetDataStore.ets` | 452 | 全局数据仓（账号 → 角色 → rawJson），写入 `preferences` |
 
-### 1.5 工具（14，3,164 行）
+### 1.5 工具（13，3,111 行）
 
 | 分组 | 文件（行数） |
 | --- | --- |
@@ -74,7 +74,7 @@
 | **推送** | `WidgetUpdateNotifier`（168） |
 | **图片** | `WidgetImageDownloader`（489） |
 | **展示工具** | `WidgetUtils`（315）· `WidgetExtraRowConfig`（55，被测试引用）· `WidgetExtraRowType`（35，被测试引用） |
-| **日志 / 调试** | `WidgetLogger`（80）· `WidgetLog`（53）· `WidgetMockData`（45） |
+| **日志 / 调试** | `WidgetLogger`（80）· `WidgetMockData`（45） |
 
 ### 1.6 子系统外的两个 ability
 
@@ -183,7 +183,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 
 | 重复 | 证据 | 建议 |
 | --- | --- | --- |
-| 两套 logger | `WidgetLog`（53 行，仅 `WidgetPayloadBuilder` 用）与 `WidgetLogger`（80 行，4 处用）职责完全重叠 | 合并为 `WidgetLogger`（可逆、低风险） |
+| ~~两套 logger~~ | ✅ 已修复（2026-11-13）：`WidgetLog`（53 行）唯一的引用是 `WidgetPayloadBuilder` 的未使用 import，属死代码，已删除；日志统一用 `WidgetLogger` | 已完成 |
 | 主题常量 | `WidgetUtils` 内自带 `WidgetColors` / 渐变函数，与 `theme/DefaultTheme` 有重叠取值 | 保留（卡片进程不适合依赖单例主题），仅记录 |
 | 1×2 三页 | §4.1 | **已评估不抽（2026-11-11）**：三页只差一个 `WidgetGameId` 常量，抽 `Widget1x2Page(gameId)` 需在卡片数据链路（`@LocalStorageProp` → `@Prop`）多加一跳，且桌面渲染无法在模拟器验证；页面名被 `form_config.json` 的 `src` 冻结，收益为负 |
 
@@ -245,7 +245,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 
 | # | 问题 | 位置 | 说明 |
 | --- | --- | --- | --- |
-| L1 | 两套 logger 并存 | `WidgetLog.ets`（53）vs `WidgetLogger.ets`（80） | 职责重叠，`WidgetLog` 只有 1 个调用方 |
+| L1 | ✅ 已修复（2026-11-13） | 原：`WidgetLog.ets`（53）vs `WidgetLogger.ets`（80）并存 | `WidgetLog` 的唯一引用是未使用的 import，已删除 |
 | L2 | `onFormEvent` 忽略 `message` | `EntryFormAbility.ets:87-89` | 任何 `formEvent` 都对该 formId 触发 `pushUpdate`，不校验内容；而 6 个页面的点击只发 `action: 'call'`（如 `Widget2x2.ets:104`），从不发 `message`，该回调目前没有触发源 |
 | L3 | 页面级只有 1×2 三页有 `@Preview` | `widget/pages/Widget1x2*.ets:73` | 9 个组件文件各有 `@Preview`（`WidgetEmptyContent` 无），但 2×2 / 2×4 / 4×4 页面的空态 / 单游戏 / 多游戏分支组合只能上真机验证；建议补页面级 `@Preview`（不改页面结构） |
 
@@ -268,7 +268,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 
 ### 重构范围（建议）
 
-- **只做内部整理**：`widget/` 目录已经按 pages/components/viewmodel/models/utils 分好，**不需要搬文件**；本轮最多统一命名（`WidgetLog` → `WidgetLogger` 合并、`WidgetMockData` 明确标注 debug-only）。
+- **只做内部整理**：`widget/` 目录已经按 pages/components/viewmodel/models/utils 分好，**不需要搬文件**；本轮只做了 `WidgetLog` 删除（2026-11-13，死代码）与 `WidgetMockData` 的 debug-only 标注。
 - **优先修 H1 / H2**：两处都不改变 UI 结构，H1 是 10 行左右的错误码分支，H2 是一个 `BuildProfile.DEBUG` 判断；建议各自单独提交。
 - **H3 需要产品决策**：加"更新于 X 分钟前"会改变卡片视觉，属于行为变更，应单独立项。
 - **M1 已完成**：页面内缓存 `ParsedPayload` + UIState，不改任何组件接口（2026-11-11，见下方执行记录）；回归 6 张卡片 × 单/多游戏仍待真机。
@@ -454,7 +454,16 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | 行为等价 | 被删链路原本恒提前返回：`getFormIdsByAccount()` 依赖的 `widget_form_ids` 无写入方。卡片推送一直由 `WidgetDataStoreBuilder.refreshAndSave` → `WidgetUpdateNotifier.notifyAllWidgets` 完成，未受影响 |
 | 验证 | `assembleHap`（uat/debug）成功；`widget@default`（76 条）/ `account@default` / `notification@default` / `basic@default` / `entry@default` 单测全绿 |
 | 计数 | 0 Critical / 1 High（H3）/ 4 Medium（M2 / M3 / M4 / M5）/ 3 Low，评级 B；债务 14 |
-| 体量实测 | `features/widget/src/main/ets/` 44 文件 **6,060 行**（删除前 6,429）、`entry/src/main/ets/widget/` 28 文件 2,703 行、`EntryFormAbility` 270 行、`WidgetSyncAbility` 263 行；旧记录的 7,506 行基线自 M14 预览去重后未再校准，本轮以实测为准 |
+| 体量实测 | `features/widget/src/main/ets/` 43 文件 **6,006 行**（两轮删除前 6,428）、`entry/src/main/ets/widget/` 28 文件 2,703 行、`EntryFormAbility` 270 行、`WidgetSyncAbility` 263 行；旧记录的 7,506 行基线自 M14 预览去重后未再校准，本轮以实测为准 |
 | 遗留 | 「删除账号后 `widget_configs` 里指向该账号的 slots 无人清理」是真实缺陷（原 M8 的后果之一），修法需给 `deleteAccount` 传 context 并按 `slot.accountId` 过滤，属行为变更，未随本次提交 |
+
+### 复核记录（2026-11-13 第 9 轮，L1 / S7 日志类清理）
+
+| 检查项 | 结论 |
+| --- | --- |
+| 死代码确认 | 全仓 `WidgetLog` 只有 1 处引用：`WidgetPayloadBuilder.ets:12` 的 `import { WidgetLog } from '../../utils/WidgetLog'`，文件内无任何 `WidgetLog.` 调用 |
+| 处理 | 删除 `features/widget/src/main/ets/utils/WidgetLog.ets`（53 行）与该未使用 import；日志统一走 `widgetbase` 的 `WidgetLogger`（含 release 环境降级），卡片进程仍不依赖 core（HSP） |
+| 体量 | `features/widget/src/main/ets/` 44 → **43 文件**，6,060 → **6,006 行** |
+| 验证 | `assembleHap`（uat/debug）成功；`widget@default` 76 条单测全绿 |
 
 【已核对代码一致性】

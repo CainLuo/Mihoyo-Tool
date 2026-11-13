@@ -681,7 +681,7 @@ features/notification/src/main/ets/
 
 | 项 | 内容 |
 | --- | --- |
-| 代码文件 | 44 个 `.ets` |
+| 代码文件 | 43 个 `.ets` |
 | 依赖 | core、widgetbase、basic |
 | 对外导出 | 11 个（`Index.ets`） |
 | 路由 | `WidgetSettings` |
@@ -708,8 +708,7 @@ features/widget/src/main/ets/
 ├── pages/                               # 页面
 │   └── WidgetSettingsPage.ets           # 小组件设置页
 ├── utils/                               # 工具函数
-│   ├── WidgetLog.ets                    # 卡片日志（与 widgetbase 的 WidgetLogger 重复，待 M14 合并）
-│   └── WidgetPreviewUtil.ets            # Widget 预览组件工具函数
+│   └── WidgetPreviewUtil.ets            # Widget 预览组件工具函数（日志统一用 widgetbase 的 WidgetLogger）
 ├── viewmodel/                           # ViewModel
 │   └── WidgetSettingsViewModel.ets      # 小组件设置 ViewModel
 └── views/                               # 页面内组件
@@ -814,7 +813,6 @@ features/verification/src/main/ets/
 
 | 问题 | 位置 | 处理时机 |
 | --- | --- | --- |
-| 两个重复的卡片日志类 `WidgetLog` 与 `WidgetLogger` | features/widget、common/widgetbase | M14（要改逻辑） |
 | 3 组同名不同定义的类型（`MaterialItemRaw` / `MaterialSectionVM`、`ZZZSkillItem`） | material / chardetail | M1–M15 |
 | `MaterialCalcPage` 没有注册路由，页面不可达 | features/material | 已知 High 缺陷 |
 | 星铁养成目标配置页把"级"写死为中文，预留的 `material_target_config_level_suffix` 未接入 | features/material | M1–M15 |

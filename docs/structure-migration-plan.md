@@ -157,7 +157,7 @@ entry/src/main/ets/
 | S4 | `pages/MaterialCharacterSelectPageBuilder.ets` 单独成文件，其余页面的 `XxxPageBuilder` 都写在页面文件内 | material | 合并进页面文件 + 路由表 |
 | S5 | 空目录 `entry/src/main/resources/dark/element`（2b 移走深色颜色后残留） | entry | 删除 |
 | S6 | ✅ 已修复（2026-11-12）：六页的 Model 直调收敛到 ViewModel（`LaunchViewModel` / `MainPageViewModel` / `TestViewModel` 新增；`MyViewModel` / `PrivacyConsentViewModel` / `AppearanceSettingsViewModel` 补方法）；`MaterialComputeResult` 枚举移到 `model/`。原问题：View 层直接访问 Model 层（官方 MVVM 不允许），**直接调用服务的页面 6 个**：`LaunchPage`（`LegalPreferences.hasAgreed`、`CoreInitializer.waitForReady`）、`MainPage`（`GeetestCenter` / `DeviceFpCenter`）、`TestPage`（core 的 Repository）、`MyPage`（`AppearanceManager`）、`PrivacyConsentPage`（`LegalPreferences.setAgreed`）、`AppearanceSettingsPage`（`AppearanceManager.applyColorMode`）。另有 material 的 4 个页面只从 `model/service/MaterialComputeService.ets` 导入枚举 `MaterialComputeResult`（不调用服务），枚举应移到 `model/`。2026-10-29 复核更正：初版只扫了相对路径 import，漏了按包名导入的 LaunchPage / MainPage / MyPage，并把 material 4 页的枚举导入误算为调用 | entry / account / legal / settings / material | ~~改逻辑~~ 已完成 |
-| S7 | widget 有两个日志类：`features/widget/utils/WidgetLog`（注释仍写"core 是 HSP"，与实际不符）与 `widgetbase/utils/WidgetLogger` | widget / widgetbase | **改逻辑**（合并），归入 M14 |
+| S7 | ✅ 已修复（2026-11-13）：`features/widget/utils/WidgetLog` 实为死代码（唯一引用是 `WidgetPayloadBuilder` 的未使用 import），直接删除，日志统一用 `widgetbase/utils/WidgetLogger`。原问题：widget 有两个日志类 `WidgetLog` 与 `WidgetLogger` | widget / widgetbase | ~~改逻辑~~ 已完成 |
 | S8 | `entry/hmrouter_config.json` 无任何代码引用（工程未使用 HMRouter），迁移前即存在 | entry 根目录 | 待用户确认是否删除 |
 | S9 | ✅ 已修复（2026-11-13，GAP-10）：按 `$r` 引用归属把只被单个模块引用的 428 条字符串 / 20 个颜色 / 2 张图片从 `common/basic` 下沉到对应模块，`common/basic` 只留跨模块共用资源；2c 阶段"资源仍全部在 basic（P6 决定）"的结论作废 | 全部模块 | 已完成 |
 

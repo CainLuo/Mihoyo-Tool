@@ -9,7 +9,6 @@
  * - 输出格式兼容 Widget 组件（accounts[].games[].roles[]）
  */
 
-import { WidgetLog } from '../../utils/WidgetLog';
 import { WidgetDataStore, WidgetSlotRef } from '../WidgetDataStoreModels';
 import { WidgetConfig, WidgetSize, getMaxSlots } from '../WidgetConfigModels';
 
