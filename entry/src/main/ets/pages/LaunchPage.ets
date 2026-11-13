@@ -69,7 +69,7 @@ export struct LaunchPage {
           .scale({ x: this.logoScale, y: this.logoScale })
           .opacity(this.logoOpacity)
 
-        Text($r('app.string.app_name'))
+        Text($r('app.string.app_display_name'))
           .font(ThemeFonts.FONT_BOLD_26)
           .fontColor(this.tm.current.colorTextPrimary)
           .opacity(this.logoOpacity)

@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "geetest_dialog_title",
+      "value": "請完成安全驗證"
+    },
+    {
+      "name": "geetest_dialog_close",
+      "value": "✕"
+    },
+    {
+      "name": "geetest_progress_format",
+      "value": "驗證中 (%d/%d)"
+    }
+  ]
+}

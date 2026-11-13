@@ -15,7 +15,7 @@ export struct LoginLogoSection {
         .height(this.logoSize)
         .borderRadius(this.tm.current.value28)
 
-      Text($r('app.string.app_name'))
+      Text($r('app.string.app_display_name'))
         .font(ThemeFonts.FONT_BOLD_20)
         .fontColor(this.tm.current.colorTextPrimary)
 

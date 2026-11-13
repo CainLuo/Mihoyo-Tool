@@ -1,0 +1,248 @@
+{
+  "string": [
+    {
+      "name": "login_title",
+      "value": "歡迎登入"
+    },
+    {
+      "name": "login_button",
+      "value": "登入"
+    },
+    {
+      "name": "login_cookie_placeholder",
+      "value": "請貼上米遊社 Cookie"
+    },
+    {
+      "name": "login_tab_phone",
+      "value": "手機號"
+    },
+    {
+      "name": "login_tab_qrcode",
+      "value": "掃碼"
+    },
+    {
+      "name": "login_tab_cookie",
+      "value": "Cookie"
+    },
+    {
+      "name": "login_phone_placeholder",
+      "value": "請輸入手機號"
+    },
+    {
+      "name": "login_send_sms_button",
+      "value": "獲取驗證碼"
+    },
+    {
+      "name": "login_code_placeholder",
+      "value": "請輸入驗證碼"
+    },
+    {
+      "name": "login_back_to_phone",
+      "value": "重新輸入手機號"
+    },
+    {
+      "name": "login_resend_sms",
+      "value": "重新發送"
+    },
+    {
+      "name": "login_sms_cooldown_seconds",
+      "value": "%ds"
+    },
+    {
+      "name": "login_qrcode_loading",
+      "value": "二維碼載入中..."
+    },
+    {
+      "name": "login_qrcode_hint",
+      "value": "使用米遊社 App 掃碼登入"
+    },
+    {
+      "name": "login_qrcode_scanned",
+      "value": "已掃碼，請在 App 內確認"
+    },
+    {
+      "name": "login_qrcode_confirmed",
+      "value": "登入中..."
+    },
+    {
+      "name": "login_qrcode_expired",
+      "value": "二維碼已過期，請刷新"
+    },
+    {
+      "name": "login_qrcode_refresh",
+      "value": "刷新二維碼"
+    },
+    {
+      "name": "login_cookie_hint",
+      "value": "Cookie 必須包含 stoken 字段，建議通過手機號或二維碼登錄"
+    },
+    {
+      "name": "login_cookie_no_stoken",
+      "value": "Cookie 缺少 stoken 字段，便笺同步將無法正常工作。請使用手機號或二維碼登錄，或提供包含 stoken 的完整 Cookie"
+    },
+    {
+      "name": "login_cookie_no_stoken_title",
+      "value": "Cookie 不完整"
+    },
+    {
+      "name": "my_section_account",
+      "value": "帳號管理"
+    },
+    {
+      "name": "my_section_appearance",
+      "value": "外觀設定"
+    },
+    {
+      "name": "my_section_about",
+      "value": "關於"
+    },
+    {
+      "name": "my_account_empty",
+      "value": "暫無帳號，點擊新增"
+    },
+    {
+      "name": "my_account_add",
+      "value": "+ 新增帳號"
+    },
+    {
+      "name": "my_theme_label",
+      "value": "主題"
+    },
+    {
+      "name": "my_about_version",
+      "value": "版本"
+    },
+    {
+      "name": "my_export_logs",
+      "value": "導出日誌"
+    },
+    {
+      "name": "my_clear_cache",
+      "value": "清理緩存"
+    },
+    {
+      "name": "my_clear_cache_confirm_title",
+      "value": "確認清理"
+    },
+    {
+      "name": "my_clear_cache_confirm_msg",
+      "value": "將刪除所有本地日誌文件，此操作不可撤銷"
+    },
+    {
+      "name": "my_clear_cache_success",
+      "value": "已釋放 %s"
+    },
+    {
+      "name": "my_clear_cache_failed",
+      "value": "清理完成，%d 個文件刪除失敗"
+    },
+    {
+      "name": "my_export_logs_failed",
+      "value": "導出失敗，請重試"
+    },
+    {
+      "name": "account_detail_title",
+      "value": "帳號詳情"
+    },
+    {
+      "name": "account_detail_section_roles",
+      "value": "綁定的遊戲角色"
+    },
+    {
+      "name": "account_detail_section_actions",
+      "value": "操作"
+    },
+    {
+      "name": "account_detail_relogin",
+      "value": "重新登入"
+    },
+    {
+      "name": "account_detail_refresh_cookie",
+      "value": "刷新 Cookie"
+    },
+    {
+      "name": "account_detail_refreshing_cookie",
+      "value": "刷新中…"
+    },
+    {
+      "name": "account_detail_refresh_cookie_success",
+      "value": "Cookie 已刷新"
+    },
+    {
+      "name": "account_detail_refresh_cookie_failed",
+      "value": "刷新 Cookie 失敗，請重新登入"
+    },
+    {
+      "name": "account_detail_expired_tip",
+      "value": "該帳號登入已過期"
+    },
+    {
+      "name": "account_detail_delete",
+      "value": "刪除此帳號"
+    },
+    {
+      "name": "login_agreement_prefix",
+      "value": "登入即表示您同意"
+    },
+    {
+      "name": "login_agreement_terms",
+      "value": "用戶協議"
+    },
+    {
+      "name": "login_agreement_and",
+      "value": "與"
+    },
+    {
+      "name": "login_agreement_privacy",
+      "value": "隱私政策"
+    },
+    {
+      "name": "login_cookie_security_hint",
+      "value": "Cookie 僅存儲在本地設備，不會上傳至任何伺服器"
+    },
+    {
+      "name": "login_brand_desc",
+      "value": "多款遊戲數據一站式查看"
+    },
+    {
+      "name": "login_brand_feature1",
+      "value": "角色列表 · 詳情查看"
+    },
+    {
+      "name": "login_brand_feature2",
+      "value": "即時便箋 · 樹脂提醒"
+    },
+    {
+      "name": "login_sms_sent_to_prefix",
+      "value": "驗證碼已發送至"
+    },
+    {
+      "name": "login_phone_label",
+      "value": "手機號"
+    },
+    {
+      "name": "login_code_label",
+      "value": "驗證碼"
+    },
+    {
+      "name": "login_cookie_label",
+      "value": "Cookie"
+    },
+    {
+      "name": "login_phone_hint",
+      "value": "僅支持中國大陸手機號"
+    },
+    {
+      "name": "my_section_widget",
+      "value": "Widget 卡片"
+    },
+    {
+      "name": "device_fp_regenerate",
+      "value": "重新生成設備指紋"
+    },
+    {
+      "name": "device_fp_regenerating",
+      "value": "重新生成中…"
+    }
+  ]
+}

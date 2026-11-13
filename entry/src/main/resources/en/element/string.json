@@ -51,6 +51,78 @@
     {
       "name": "widget_4x4_desc",
       "value": "Show complete game stamina data"
+    },
+    {
+      "name": "main_tab_home",
+      "value": "Home"
+    },
+    {
+      "name": "main_tab_my",
+      "value": "My"
+    },
+    {
+      "name": "characters_tab_title",
+      "value": "Characters"
+    },
+    {
+      "name": "cookie_expired_dialog_title",
+      "value": "Session Expired"
+    },
+    {
+      "name": "cookie_expired_dialog_msg",
+      "value": "The session for %s has expired. Please log in again to continue."
+    },
+    {
+      "name": "cookie_expired_go_login",
+      "value": "Log In"
+    },
+    {
+      "name": "test_page_title",
+      "value": "Test Tools"
+    },
+    {
+      "name": "test_t1_done",
+      "value": "T1 set, please restart App"
+    },
+    {
+      "name": "test_t3_done",
+      "value": "T3 set, please restart App"
+    },
+    {
+      "name": "test_failed",
+      "value": "Setup failed, check logs"
+    },
+    {
+      "name": "widget_no_account",
+      "value": "Please add an account in the app"
+    },
+    {
+      "name": "widget_reserve_prefix",
+      "value": "Reserved "
+    },
+    {
+      "name": "a11y_widget_card",
+      "value": "Widget card, tap to sync data"
+    },
+    {
+      "name": "tools_title",
+      "value": "Tools"
+    },
+    {
+      "name": "device_fp_invalid_title",
+      "value": "Device fingerprint invalid"
+    },
+    {
+      "name": "device_fp_invalid_msg",
+      "value": "A request for %s returned an invalid device fingerprint (error %d), usually due to miHoYo risk control. Regenerate the device fingerprint and try again."
+    },
+    {
+      "name": "device_fp_unknown_account",
+      "value": "miHoYo account"
+    },
+    {
+      "name": "device_fp_regenerate_short",
+      "value": "Regenerate"
     }
   ]
 }

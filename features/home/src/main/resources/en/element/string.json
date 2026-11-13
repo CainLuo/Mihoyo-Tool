@@ -1,0 +1,96 @@
+{
+  "string": [
+    {
+      "name": "sync_not_synced",
+      "value": "Not synced"
+    },
+    {
+      "name": "sync_minutes_ago",
+      "value": "%d min ago"
+    },
+    {
+      "name": "sync_hours_ago",
+      "value": "%d hr ago"
+    },
+    {
+      "name": "sync_long_ago",
+      "value": "Over 1 day ago"
+    },
+    {
+      "name": "starrail_stamina_title",
+      "value": "Trailblaze Power"
+    },
+    {
+      "name": "starrail_reserve_stamina_title",
+      "value": "Reserved Trailblaze Power"
+    },
+    {
+      "name": "starrail_train_score_title",
+      "value": "Daily Training"
+    },
+    {
+      "name": "starrail_cocoon_title",
+      "value": "Echo of War"
+    },
+    {
+      "name": "starrail_rogue_score_title",
+      "value": "Simulated Universe Score"
+    },
+    {
+      "name": "starrail_tourn_score_title",
+      "value": "Divergent Universe Score"
+    },
+    {
+      "name": "zzz_energy_title",
+      "value": "Battery Charge"
+    },
+    {
+      "name": "zzz_vitality_title",
+      "value": "Daily Engagement"
+    },
+    {
+      "name": "zzz_card_sign_title",
+      "value": "Scratch Card"
+    },
+    {
+      "name": "zzz_card_sign_done",
+      "value": "Completed"
+    },
+    {
+      "name": "zzz_card_sign_todo",
+      "value": "Not Done"
+    },
+    {
+      "name": "zzz_video_store_title",
+      "value": "Video Store"
+    },
+    {
+      "name": "zzz_video_store_done",
+      "value": "Revenue Available"
+    },
+    {
+      "name": "zzz_video_store_open",
+      "value": "Currently Open"
+    },
+    {
+      "name": "zzz_video_store_closed",
+      "value": "Waiting to Open"
+    },
+    {
+      "name": "home_refresh_cooldown_title",
+      "value": "Refresh Rate Limited"
+    },
+    {
+      "name": "home_refresh_cooldown_msg",
+      "value": "Synced within 30 minutes. Frequent refreshes may trigger CAPTCHA. Continue anyway?"
+    },
+    {
+      "name": "feedback_home_refresh_success",
+      "value": "Stats updated"
+    },
+    {
+      "name": "a11y_game_card",
+      "value": "%s game card, tap to view details"
+    }
+  ]
+}

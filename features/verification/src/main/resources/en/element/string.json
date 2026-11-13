@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "geetest_dialog_title",
+      "value": "Complete Security Verification"
+    },
+    {
+      "name": "geetest_dialog_close",
+      "value": "✕"
+    },
+    {
+      "name": "geetest_progress_format",
+      "value": "Verifying (%d/%d)"
+    }
+  ]
+}

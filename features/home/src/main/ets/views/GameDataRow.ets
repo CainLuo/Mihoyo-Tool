@@ -7,7 +7,7 @@ import { themeManager, ThemeManager, ThemeFonts } from 'basic';
 
 @ComponentV2
 export struct GameDataRow {
-  @Param label: Resource = $r('app.string.app_name');
+  @Param label: Resource = $r('app.string.app_display_name');
   @Param value: ResourceStr = '';
   @Param valueColor: ResourceColor = $r('app.color.gray_900');
   @Local private tm: ThemeManager = themeManager;

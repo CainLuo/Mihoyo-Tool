@@ -14,7 +14,7 @@ export struct NotificationBubbleHeader {
         .height(this.tm.current.value12)
         .borderRadius(this.tm.current.value4)
 
-      Text($r('app.string.app_name'))
+      Text($r('app.string.app_display_name'))
         .font(ThemeFonts.FONT_11)
         .fontColor(this.tm.current.colorTextSecondary)
 

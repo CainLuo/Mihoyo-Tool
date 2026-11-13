@@ -91,6 +91,78 @@
     {
       "name": "widget_4x4_desc",
       "value": "显示游戏体力完整数据"
+    },
+    {
+      "name": "main_tab_home",
+      "value": "首页"
+    },
+    {
+      "name": "main_tab_my",
+      "value": "我的"
+    },
+    {
+      "name": "characters_tab_title",
+      "value": "角色"
+    },
+    {
+      "name": "cookie_expired_dialog_title",
+      "value": "登录已过期"
+    },
+    {
+      "name": "cookie_expired_dialog_msg",
+      "value": "%s 的登录凭证已过期，请重新登录以继续使用"
+    },
+    {
+      "name": "cookie_expired_go_login",
+      "value": "去登录"
+    },
+    {
+      "name": "test_page_title",
+      "value": "测试工具"
+    },
+    {
+      "name": "test_t1_done",
+      "value": "T1 已设置，请重启 App"
+    },
+    {
+      "name": "test_t3_done",
+      "value": "T3 已设置，请重启 App"
+    },
+    {
+      "name": "test_failed",
+      "value": "设置失败，请查看日志"
+    },
+    {
+      "name": "widget_no_account",
+      "value": "请在应用内添加账号"
+    },
+    {
+      "name": "widget_reserve_prefix",
+      "value": "后备 "
+    },
+    {
+      "name": "a11y_widget_card",
+      "value": "Widget 卡片，点击同步数据"
+    },
+    {
+      "name": "tools_title",
+      "value": "工具"
+    },
+    {
+      "name": "device_fp_invalid_title",
+      "value": "设备指纹无效"
+    },
+    {
+      "name": "device_fp_invalid_msg",
+      "value": "%s 的请求返回设备指纹无效（错误码 %d），通常是被米游社风控。可以重新生成设备指纹后重试。"
+    },
+    {
+      "name": "device_fp_unknown_account",
+      "value": "米游社账号"
+    },
+    {
+      "name": "device_fp_regenerate_short",
+      "value": "重新生成"
     }
   ]
 }

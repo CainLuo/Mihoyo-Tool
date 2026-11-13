@@ -1,0 +1,400 @@
+{
+  "string": [
+    {
+      "name": "char_detail_title",
+      "value": "Character Detail"
+    },
+    {
+      "name": "char_detail_hp",
+      "value": "HP"
+    },
+    {
+      "name": "char_detail_atk",
+      "value": "ATK"
+    },
+    {
+      "name": "char_detail_def",
+      "value": "DEF"
+    },
+    {
+      "name": "char_detail_em",
+      "value": "Elemental Mastery"
+    },
+    {
+      "name": "char_detail_cr",
+      "value": "CRIT Rate"
+    },
+    {
+      "name": "char_detail_cd",
+      "value": "CRIT DMG"
+    },
+    {
+      "name": "char_detail_er",
+      "value": "Energy Recharge"
+    },
+    {
+      "name": "char_detail_heal",
+      "value": "Healing Bonus"
+    },
+    {
+      "name": "char_detail_weapon_atk",
+      "value": "Base ATK"
+    },
+    {
+      "name": "char_detail_no_data",
+      "value": "No data"
+    },
+    {
+      "name": "char_detail_fetter_label",
+      "value": "Fetter"
+    },
+    {
+      "name": "char_detail_relic_lv_prefix",
+      "value": "+%d"
+    },
+    {
+      "name": "char_detail_weapon_refine_prefix",
+      "value": "R%d"
+    },
+    {
+      "name": "char_detail_weapon_lv_prefix",
+      "value": "Lv.%d"
+    },
+    {
+      "name": "prop_hp_flat",
+      "value": "HP"
+    },
+    {
+      "name": "prop_hp_pct",
+      "value": "HP%"
+    },
+    {
+      "name": "prop_base_atk",
+      "value": "Base ATK"
+    },
+    {
+      "name": "prop_atk_flat",
+      "value": "ATK"
+    },
+    {
+      "name": "prop_atk_pct",
+      "value": "ATK%"
+    },
+    {
+      "name": "prop_def_flat",
+      "value": "DEF"
+    },
+    {
+      "name": "prop_def_pct",
+      "value": "DEF%"
+    },
+    {
+      "name": "prop_base_hp",
+      "value": "Base HP"
+    },
+    {
+      "name": "prop_base_def",
+      "value": "Base DEF"
+    },
+    {
+      "name": "prop_crit_rate",
+      "value": "CRIT Rate"
+    },
+    {
+      "name": "prop_crit_dmg",
+      "value": "CRIT DMG"
+    },
+    {
+      "name": "prop_energy_recharge",
+      "value": "Energy Recharge"
+    },
+    {
+      "name": "prop_healing_bonus",
+      "value": "Healing Bonus"
+    },
+    {
+      "name": "prop_incoming_healing",
+      "value": "Incoming Healing"
+    },
+    {
+      "name": "prop_elemental_mastery",
+      "value": "Elemental Mastery"
+    },
+    {
+      "name": "prop_pyro_dmg",
+      "value": "Pyro DMG Bonus"
+    },
+    {
+      "name": "prop_electro_dmg",
+      "value": "Electro DMG Bonus"
+    },
+    {
+      "name": "prop_hydro_dmg",
+      "value": "Hydro DMG Bonus"
+    },
+    {
+      "name": "prop_dendro_dmg",
+      "value": "Dendro DMG Bonus"
+    },
+    {
+      "name": "prop_anemo_dmg",
+      "value": "Anemo DMG Bonus"
+    },
+    {
+      "name": "prop_geo_dmg",
+      "value": "Geo DMG Bonus"
+    },
+    {
+      "name": "prop_cryo_dmg",
+      "value": "Cryo DMG Bonus"
+    },
+    {
+      "name": "prop_physical_dmg",
+      "value": "Physical DMG Bonus"
+    },
+    {
+      "name": "prop_cooldown_reduction",
+      "value": "CD Reduction"
+    },
+    {
+      "name": "prop_shield_strength",
+      "value": "Shield Strength"
+    },
+    {
+      "name": "starrail_char_detail_title",
+      "value": "Character Detail"
+    },
+    {
+      "name": "starrail_char_detail_skills_main",
+      "value": "Main Skills"
+    },
+    {
+      "name": "starrail_char_detail_skills_extra",
+      "value": "Bonus Abilities"
+    },
+    {
+      "name": "starrail_char_detail_skills_attr",
+      "value": "Stat Boosts"
+    },
+    {
+      "name": "starrail_char_detail_equip_title",
+      "value": "Light Cone"
+    },
+    {
+      "name": "starrail_char_detail_no_equip",
+      "value": "No Light Cone"
+    },
+    {
+      "name": "starrail_char_detail_relics_title",
+      "value": "Relics"
+    },
+    {
+      "name": "starrail_char_detail_props_title",
+      "value": "Stats"
+    },
+    {
+      "name": "starrail_char_detail_rank_prefix",
+      "value": "E%d"
+    },
+    {
+      "name": "sr_prop_hp",
+      "value": "HP"
+    },
+    {
+      "name": "sr_prop_atk",
+      "value": "ATK"
+    },
+    {
+      "name": "sr_prop_def",
+      "value": "DEF"
+    },
+    {
+      "name": "sr_prop_spd",
+      "value": "SPD"
+    },
+    {
+      "name": "sr_prop_crit_rate",
+      "value": "CRIT Rate"
+    },
+    {
+      "name": "sr_prop_crit_dmg",
+      "value": "CRIT DMG"
+    },
+    {
+      "name": "sr_prop_effect_hit",
+      "value": "Effect Hit Rate"
+    },
+    {
+      "name": "sr_prop_energy_regen",
+      "value": "Energy Regeneration Rate"
+    },
+    {
+      "name": "sr_prop_effect_res",
+      "value": "Effect RES"
+    },
+    {
+      "name": "sr_prop_break_dmg",
+      "value": "Break Effect"
+    },
+    {
+      "name": "sr_prop_healing_bonus",
+      "value": "Outgoing Healing Boost"
+    },
+    {
+      "name": "sr_prop_hp_pct",
+      "value": "HP%"
+    },
+    {
+      "name": "sr_prop_atk_pct",
+      "value": "ATK%"
+    },
+    {
+      "name": "sr_prop_def_pct",
+      "value": "DEF%"
+    },
+    {
+      "name": "sr_prop_spd_pct",
+      "value": "SPD%"
+    },
+    {
+      "name": "sr_prop_physical_dmg",
+      "value": "Physical DMG Boost"
+    },
+    {
+      "name": "sr_prop_fire_dmg",
+      "value": "Fire DMG Boost"
+    },
+    {
+      "name": "sr_prop_ice_dmg",
+      "value": "Ice DMG Boost"
+    },
+    {
+      "name": "sr_prop_lightning_dmg",
+      "value": "Lightning DMG Boost"
+    },
+    {
+      "name": "sr_prop_wind_dmg",
+      "value": "Wind DMG Boost"
+    },
+    {
+      "name": "sr_prop_quantum_dmg",
+      "value": "Quantum DMG Boost"
+    },
+    {
+      "name": "sr_prop_imaginary_dmg",
+      "value": "Imaginary DMG Boost"
+    },
+    {
+      "name": "sr_prop_unknown_71",
+      "value": "Euphoria"
+    },
+    {
+      "name": "zzz_char_detail_title",
+      "value": "Agent Detail"
+    },
+    {
+      "name": "zzz_char_detail_skills_title",
+      "value": "Skills"
+    },
+    {
+      "name": "zzz_char_detail_weapon_title",
+      "value": "W-Engine"
+    },
+    {
+      "name": "zzz_char_detail_no_weapon",
+      "value": "No W-Engine"
+    },
+    {
+      "name": "zzz_char_detail_equip_title",
+      "value": "Drive Discs"
+    },
+    {
+      "name": "zzz_char_detail_props_title",
+      "value": "Stats"
+    },
+    {
+      "name": "zzz_char_detail_suit_pieces",
+      "value": "%d pcs"
+    },
+    {
+      "name": "zzz_char_detail_rank_prefix",
+      "value": "M%d"
+    },
+    {
+      "name": "char_detail_section_skills",
+      "value": "Skills"
+    },
+    {
+      "name": "char_detail_skill_default_name",
+      "value": "Skill %d"
+    },
+    {
+      "name": "char_detail_section_weapon",
+      "value": "Weapon"
+    },
+    {
+      "name": "char_detail_section_stats",
+      "value": "Stats"
+    },
+    {
+      "name": "char_detail_section_relics",
+      "value": "Artifacts"
+    },
+    {
+      "name": "char_detail_no_weapon",
+      "value": "No Weapon"
+    },
+    {
+      "name": "char_detail_relic_pos_flower",
+      "value": "Flower of Life"
+    },
+    {
+      "name": "char_detail_relic_pos_plume",
+      "value": "Plume of Death"
+    },
+    {
+      "name": "char_detail_relic_pos_sands",
+      "value": "Sands of Eon"
+    },
+    {
+      "name": "char_detail_relic_pos_goblet",
+      "value": "Goblet of Eonothem"
+    },
+    {
+      "name": "char_detail_relic_pos_circlet",
+      "value": "Circlet of Logos"
+    },
+    {
+      "name": "starrail_relic_pos_head",
+      "value": "Head"
+    },
+    {
+      "name": "starrail_relic_pos_hand",
+      "value": "Hands"
+    },
+    {
+      "name": "starrail_relic_pos_body",
+      "value": "Body"
+    },
+    {
+      "name": "starrail_relic_pos_feet",
+      "value": "Feet"
+    },
+    {
+      "name": "starrail_relic_pos_sphere",
+      "value": "Planar Sphere"
+    },
+    {
+      "name": "starrail_relic_pos_rope",
+      "value": "Link Rope"
+    },
+    {
+      "name": "char_detail_material_calc_title",
+      "value": "Upgrade Calculator"
+    },
+    {
+      "name": "char_detail_material_calc_desc",
+      "value": "Check materials needed for character upgrade"
+    }
+  ]
+}

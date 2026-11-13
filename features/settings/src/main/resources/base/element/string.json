@@ -1,0 +1,40 @@
+{
+  "string": [
+    {
+      "name": "my_theme_light",
+      "value": "浅色"
+    },
+    {
+      "name": "my_theme_dark",
+      "value": "深色"
+    },
+    {
+      "name": "my_theme_system",
+      "value": "跟随系统"
+    },
+    {
+      "name": "appearance_settings_title",
+      "value": "外观设置"
+    },
+    {
+      "name": "appearance_theme_light_desc",
+      "value": "始终使用浅色界面"
+    },
+    {
+      "name": "appearance_theme_dark_desc",
+      "value": "始终使用深色界面"
+    },
+    {
+      "name": "appearance_theme_system_desc",
+      "value": "跟随系统深色/浅色模式自动切换"
+    },
+    {
+      "name": "appearance_settings_hint",
+      "value": "选择「跟随系统」时，应用会根据系统设置自动切换深色/浅色模式。"
+    },
+    {
+      "name": "appearance_apply_failed",
+      "value": "切换外观失败，请重试"
+    }
+  ]
+}

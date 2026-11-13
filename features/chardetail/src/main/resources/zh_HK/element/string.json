@@ -1,0 +1,400 @@
+{
+  "string": [
+    {
+      "name": "char_detail_title",
+      "value": "角色詳情"
+    },
+    {
+      "name": "char_detail_hp",
+      "value": "生命值"
+    },
+    {
+      "name": "char_detail_atk",
+      "value": "攻擊力"
+    },
+    {
+      "name": "char_detail_def",
+      "value": "防禦力"
+    },
+    {
+      "name": "char_detail_em",
+      "value": "元素精通"
+    },
+    {
+      "name": "char_detail_cr",
+      "value": "暴擊率"
+    },
+    {
+      "name": "char_detail_cd",
+      "value": "暴擊傷害"
+    },
+    {
+      "name": "char_detail_er",
+      "value": "元素充能"
+    },
+    {
+      "name": "char_detail_heal",
+      "value": "治療加成"
+    },
+    {
+      "name": "char_detail_weapon_atk",
+      "value": "基礎攻擊"
+    },
+    {
+      "name": "char_detail_no_data",
+      "value": "暫無數據"
+    },
+    {
+      "name": "char_detail_fetter_label",
+      "value": "好感"
+    },
+    {
+      "name": "char_detail_relic_lv_prefix",
+      "value": "+%d"
+    },
+    {
+      "name": "char_detail_weapon_refine_prefix",
+      "value": "R%d"
+    },
+    {
+      "name": "char_detail_weapon_lv_prefix",
+      "value": "Lv.%d"
+    },
+    {
+      "name": "prop_hp_flat",
+      "value": "HP"
+    },
+    {
+      "name": "prop_hp_pct",
+      "value": "HP%"
+    },
+    {
+      "name": "prop_base_atk",
+      "value": "基礎攻擊力"
+    },
+    {
+      "name": "prop_atk_flat",
+      "value": "攻擊力"
+    },
+    {
+      "name": "prop_atk_pct",
+      "value": "攻擊力%"
+    },
+    {
+      "name": "prop_def_flat",
+      "value": "防禦力"
+    },
+    {
+      "name": "prop_def_pct",
+      "value": "防禦力%"
+    },
+    {
+      "name": "prop_base_hp",
+      "value": "基礎生命值"
+    },
+    {
+      "name": "prop_base_def",
+      "value": "基礎防禦力"
+    },
+    {
+      "name": "prop_crit_rate",
+      "value": "暴擊率"
+    },
+    {
+      "name": "prop_crit_dmg",
+      "value": "暴擊傷害"
+    },
+    {
+      "name": "prop_energy_recharge",
+      "value": "元素充能效率"
+    },
+    {
+      "name": "prop_healing_bonus",
+      "value": "治療加成"
+    },
+    {
+      "name": "prop_incoming_healing",
+      "value": "受治療加成"
+    },
+    {
+      "name": "prop_elemental_mastery",
+      "value": "元素精通"
+    },
+    {
+      "name": "prop_pyro_dmg",
+      "value": "火元素傷害加成"
+    },
+    {
+      "name": "prop_electro_dmg",
+      "value": "雷元素傷害加成"
+    },
+    {
+      "name": "prop_hydro_dmg",
+      "value": "水元素傷害加成"
+    },
+    {
+      "name": "prop_dendro_dmg",
+      "value": "草元素傷害加成"
+    },
+    {
+      "name": "prop_anemo_dmg",
+      "value": "風元素傷害加成"
+    },
+    {
+      "name": "prop_geo_dmg",
+      "value": "岩元素傷害加成"
+    },
+    {
+      "name": "prop_cryo_dmg",
+      "value": "冰元素傷害加成"
+    },
+    {
+      "name": "prop_physical_dmg",
+      "value": "物理傷害加成"
+    },
+    {
+      "name": "prop_cooldown_reduction",
+      "value": "冷卻縮減"
+    },
+    {
+      "name": "prop_shield_strength",
+      "value": "護盾強效"
+    },
+    {
+      "name": "starrail_char_detail_title",
+      "value": "角色詳情"
+    },
+    {
+      "name": "starrail_char_detail_skills_main",
+      "value": "主要技能"
+    },
+    {
+      "name": "starrail_char_detail_skills_extra",
+      "value": "額外能力"
+    },
+    {
+      "name": "starrail_char_detail_skills_attr",
+      "value": "屬性加成"
+    },
+    {
+      "name": "starrail_char_detail_equip_title",
+      "value": "光錐"
+    },
+    {
+      "name": "starrail_char_detail_no_equip",
+      "value": "未裝備光錐"
+    },
+    {
+      "name": "starrail_char_detail_relics_title",
+      "value": "遺器"
+    },
+    {
+      "name": "starrail_char_detail_props_title",
+      "value": "屬性面板"
+    },
+    {
+      "name": "starrail_char_detail_rank_prefix",
+      "value": "%d命"
+    },
+    {
+      "name": "sr_prop_hp",
+      "value": "生命值"
+    },
+    {
+      "name": "sr_prop_atk",
+      "value": "攻擊力"
+    },
+    {
+      "name": "sr_prop_def",
+      "value": "防禦力"
+    },
+    {
+      "name": "sr_prop_spd",
+      "value": "速度"
+    },
+    {
+      "name": "sr_prop_crit_rate",
+      "value": "暴擊率"
+    },
+    {
+      "name": "sr_prop_crit_dmg",
+      "value": "暴擊傷害"
+    },
+    {
+      "name": "sr_prop_effect_hit",
+      "value": "效果命中"
+    },
+    {
+      "name": "sr_prop_energy_regen",
+      "value": "能量恢復效率"
+    },
+    {
+      "name": "sr_prop_effect_res",
+      "value": "效果抵抗"
+    },
+    {
+      "name": "sr_prop_break_dmg",
+      "value": "擊破特攻"
+    },
+    {
+      "name": "sr_prop_healing_bonus",
+      "value": "治療量加成"
+    },
+    {
+      "name": "sr_prop_hp_pct",
+      "value": "生命值%"
+    },
+    {
+      "name": "sr_prop_atk_pct",
+      "value": "攻擊力%"
+    },
+    {
+      "name": "sr_prop_def_pct",
+      "value": "防禦力%"
+    },
+    {
+      "name": "sr_prop_spd_pct",
+      "value": "速度%"
+    },
+    {
+      "name": "sr_prop_physical_dmg",
+      "value": "物理屬性傷害提高"
+    },
+    {
+      "name": "sr_prop_fire_dmg",
+      "value": "火屬性傷害提高"
+    },
+    {
+      "name": "sr_prop_ice_dmg",
+      "value": "冰屬性傷害提高"
+    },
+    {
+      "name": "sr_prop_lightning_dmg",
+      "value": "雷屬性傷害提高"
+    },
+    {
+      "name": "sr_prop_wind_dmg",
+      "value": "風屬性傷害提高"
+    },
+    {
+      "name": "sr_prop_quantum_dmg",
+      "value": "量子屬性傷害提高"
+    },
+    {
+      "name": "sr_prop_imaginary_dmg",
+      "value": "虛數屬性傷害提高"
+    },
+    {
+      "name": "sr_prop_unknown_71",
+      "value": "歡愉度"
+    },
+    {
+      "name": "zzz_char_detail_title",
+      "value": "代理人詳情"
+    },
+    {
+      "name": "zzz_char_detail_skills_title",
+      "value": "技能"
+    },
+    {
+      "name": "zzz_char_detail_weapon_title",
+      "value": "音擎"
+    },
+    {
+      "name": "zzz_char_detail_no_weapon",
+      "value": "未裝備音擎"
+    },
+    {
+      "name": "zzz_char_detail_equip_title",
+      "value": "驅動盤"
+    },
+    {
+      "name": "zzz_char_detail_props_title",
+      "value": "屬性面板"
+    },
+    {
+      "name": "zzz_char_detail_suit_pieces",
+      "value": "%d件"
+    },
+    {
+      "name": "zzz_char_detail_rank_prefix",
+      "value": "%d影"
+    },
+    {
+      "name": "char_detail_section_skills",
+      "value": "技能"
+    },
+    {
+      "name": "char_detail_skill_default_name",
+      "value": "技能 %d"
+    },
+    {
+      "name": "char_detail_section_weapon",
+      "value": "武器"
+    },
+    {
+      "name": "char_detail_section_stats",
+      "value": "屬性面板"
+    },
+    {
+      "name": "char_detail_section_relics",
+      "value": "聖遺物"
+    },
+    {
+      "name": "char_detail_no_weapon",
+      "value": "未裝備武器"
+    },
+    {
+      "name": "char_detail_relic_pos_flower",
+      "value": "生之花"
+    },
+    {
+      "name": "char_detail_relic_pos_plume",
+      "value": "死之羽"
+    },
+    {
+      "name": "char_detail_relic_pos_sands",
+      "value": "時之沙"
+    },
+    {
+      "name": "char_detail_relic_pos_goblet",
+      "value": "空之杯"
+    },
+    {
+      "name": "char_detail_relic_pos_circlet",
+      "value": "理之冠"
+    },
+    {
+      "name": "starrail_relic_pos_head",
+      "value": "頭部"
+    },
+    {
+      "name": "starrail_relic_pos_hand",
+      "value": "手部"
+    },
+    {
+      "name": "starrail_relic_pos_body",
+      "value": "軀幹"
+    },
+    {
+      "name": "starrail_relic_pos_feet",
+      "value": "腳部"
+    },
+    {
+      "name": "starrail_relic_pos_sphere",
+      "value": "位面球"
+    },
+    {
+      "name": "starrail_relic_pos_rope",
+      "value": "連結繩"
+    },
+    {
+      "name": "char_detail_material_calc_title",
+      "value": "養成計算"
+    },
+    {
+      "name": "char_detail_material_calc_desc",
+      "value": "查看角色升級所需材料"
+    }
+  ]
+}
