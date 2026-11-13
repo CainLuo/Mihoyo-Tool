@@ -34,7 +34,7 @@
 | `utils/LegalI18nRouter.ets` | 共享工具 | 36 | 协议/政策本地化路径（Launch 也用） |
 | `utils/LegalPreferences.ets` | 共享工具 | 48 | 同意状态持久化（Launch 也用） |
 
-**直接导入依赖**：`common`, `ThemeFonts`, `BusinessError`, `ThemeManager`, `PrivacyConsentViewModel`, `LegalI18nRouter`, `LegalPreferences`, `RouterUtil`, `AppRoutes`, `Logger`, 2 个子组件
+**直接导入依赖**：`common`, `ThemeFonts`, `BusinessError`, `ThemeManager`, `PrivacyConsentViewModel`（含 `agree()`）, `LegalI18nRouter`, `RouterUtil`, `AppRoutes`, `Logger`, 2 个子组件（`LegalPreferences` 只在 ViewModel 内使用）
 
 ## 2. 架构分析（结构树）
 
@@ -94,7 +94,7 @@ PrivacyConsentPage (@ComponentV2)
 ## 6. 风险清单
 
 - [ ] **高优先级**：协议/政策内容不足一屏时永远无法"滑到底"，用户卡死在隐私页。滚动检测脚本的条件是 `if(sh>ih && st+ih>=sh-50)`（`components/privacyconsent/PrivacyConsentWebView.ets:22`），`sh` 取 `max(body.scrollHeight, documentElement.scrollHeight)`，内容短于视口时 `sh == ih`，`onReachedBottom` 一次也不会触发；`setTimeout(check,500)`（`:27`）同样被这个条件拦下。于是 `canProceed` 恒为 false，"下一步"、"同意并继续"、"不同意，退出"三个按钮全部禁用（`PrivacyConsentFooter.ets:42 / 57 / 69`）。`LegalI18nRouter.ets:24` 对非中文、非英文的系统语言返回无后缀的 fallback 文件，而 `rawfile/legal/privacy.html` / `terms.html` 只有 1.5 KB 左右的占位文本（正文约 10 行），任何手机都一屏装得下——**系统语言为日语、韩语等时必现**；中文版在平板 / 折叠屏展开态也可能不足一屏。建议条件改为 `st+ih>=sh-50`（去掉 `sh>ih`，不足一屏即视为已读），并让"不同意，退出"不受阅读进度限制（行为修复，单独提交）
-- [ ] **中优先级**：`handleAgree()` 中 `await LegalPreferences.setAgreed(ctx)` 失败后仍执行 `RouterUtil.replace(MAIN)`，可能导致用户未保存同意记录就进入主界面；建议 catch 分支显示 Toast 或返回重试
+- [ ] **中优先级**：`handleAgree()` 写库失败后仍执行 `RouterUtil.replace(MAIN)`，可能导致用户未保存同意记录就进入主界面；建议 catch 分支显示 Toast 或返回重试（2026-11-12 仅把 `setAgreed` 收进 `PrivacyConsentViewModel.agree()`，失败仍只记日志，行为未变）
 - [ ] **低优先级**：两步流程无进度指示（如步骤条），用户可能不确定当前处于第几步
 
 *本文档仅分析，不修改代码。*
@@ -197,3 +197,11 @@ if (sh <= ih) {
 **验证**：`bash run.sh uat` → `BUILD SUCCESSFUL in 16s 145ms`；VM 的 `markTermsRead` / `markPrivacyRead` 幂等，重复上报无副作用。
 
 **遗留**：Medium（`setAgreed` 失败后仍 `replace(MAIN)`）未修；若持久化失败，用户下次启动会再次看到隐私页。
+
+### 复核记录（2026-11-12 第 6 轮，GAP-09）
+
+| 检查项 | 结论 |
+| --- | --- |
+| 分层 | 页面 129 行（原 134）；`handleAgree` 改为 `await this.vm.agree(ctx)`，`LegalPreferences` / `Logger` 的写库调用移入 `PrivacyConsentViewModel`（67 行）；页面仍保留 `Logger` 记录 `terminateSelf` 失败 |
+| 行为 | 写库失败仍只记日志并继续 `replace(MAIN)`，与改造前一致 |
+| 验证 | `assembleHap` + `legal@default` 单测通过 |

@@ -1,7 +1,7 @@
 /**
  * MyPage — 我的页面（View 层，普通内容组件）
  */
-import { ConfigurationConstant, common } from '@kit.AbilityKit'
+import { common } from '@kit.AbilityKit'
 import { themeManager, ThemeManager, AppRoutes, AccountSignal } from 'basic'
 import { SettingRow } from '../views/SettingRow'
 import { MyAccountVM } from '../model/MyModels'
@@ -9,7 +9,7 @@ import { AccountListSection } from '../views/AccountListSection'
 import { AppearanceSection } from '../views/AppearanceSection'
 import { AboutSection } from '../views/AboutSection'
 import { SectionHeader } from '../views/SectionHeader'
-import { AppearanceManager, AppearanceSettingsParam } from 'settings'
+import { AppearanceSettingsParam } from 'settings'
 import { MyViewModel } from '../viewmodel/MyViewModel'
 
 @ComponentV2
@@ -18,7 +18,7 @@ export struct MyPage {
   @Param isSplit: boolean = false
   @Local private tm: ThemeManager = themeManager
   @Local private vm: MyViewModel = new MyViewModel()
-  @Local private themeMode: number = AppearanceManager.getCachedColorMode()
+  @Local private themeMode: number = MyViewModel.getCachedThemeMode()
   @Local private signal: AccountSignal = AccountSignal.getInstance()
   private uiCtx: UIContext | null = null
 
@@ -44,10 +44,8 @@ export struct MyPage {
   private loadSavedColorMode(): void {
     const abilityCtx = this.getAbilityContext()
     if (abilityCtx === null) { return }
-    AppearanceManager.getSavedColorMode(abilityCtx).then((mode: number) => {
+    this.vm.loadSavedColorMode(abilityCtx).then((mode: number) => {
       this.themeMode = mode
-    }).catch((_e: Error | object) => {
-      this.themeMode = ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET
     })
   }
 

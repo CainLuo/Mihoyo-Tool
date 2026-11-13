@@ -9,8 +9,13 @@
  */
 
 import { PrivacyConsentStep } from '../model/PrivacyConsentModels';
+import { common } from '@kit.AbilityKit';
+import { Logger } from 'core';
+import { LegalPreferences } from '../model/service/LegalPreferences';
 
 export { PrivacyConsentStep } from '../model/PrivacyConsentModels';
+
+const TAG: string = 'PrivacyConsentViewModel';
 
 @ObservedV2
 export class PrivacyConsentViewModel {
@@ -46,5 +51,17 @@ export class PrivacyConsentViewModel {
   /** 标记隐私政策已滑到底部（不可逆） */
   markPrivacyRead(): void {
     this.isPrivacyScrolledToBottom = true;
+  }
+
+  /**
+   * 记录用户已同意隐私协议。
+   * 写库失败只记日志，调用方仍继续跳转（与原页面行为一致）。
+   */
+  async agree(ctx: common.UIAbilityContext): Promise<void> {
+    try {
+      await LegalPreferences.setAgreed(ctx);
+    } catch (e) {
+      Logger.error(TAG, `setAgreed failed: ${(e as Error).message}`);
+    }
   }
 }

@@ -10,8 +10,9 @@
  *   - $r() 返回 Resource 类型，不是 string
  */
 
-import { ConfigurationConstant } from '@kit.AbilityKit';
+import { ConfigurationConstant, common } from '@kit.AbilityKit';
 import { getThemeModeLabel, ThemeModeItem } from '../model/AppearanceSettingsModels';
+import { AppearanceManager } from '../model/service/AppearanceManager';
 
 @ObservedV2
 export class AppearanceSettingsViewModel {
@@ -24,6 +25,13 @@ export class AppearanceSettingsViewModel {
    */
   init(mode: number): void {
     this.themeMode = mode;
+  }
+
+  /**
+   * 应用颜色模式。系统拒绝时返回 false，由页面提示并留在当前页。
+   */
+  applyColorMode(ctx: common.UIAbilityContext, mode: number): Promise<boolean> {
+    return AppearanceManager.applyColorMode(ctx, mode);
   }
 
   /**

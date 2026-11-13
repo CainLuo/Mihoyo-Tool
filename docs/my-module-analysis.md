@@ -13,7 +13,7 @@
 | 文件 | 行数 | 角色 | 装饰器模型 |
 | --- | --- | --- | --- |
 | `pages/MyPage.ets` | 135 | 页面入口 | `@ComponentV2` |
-| `viewmodel/MyViewModel.ets` | 102 | 数据 + 业务逻辑（账号加载、日志大小/导出、清理缓存） | `@ObservedV2` + `@Trace` |
+| `viewmodel/MyViewModel.ets` | 117 | 数据 + 业务逻辑（账号加载、日志大小/导出、清理缓存、主题模式读取） | `@ObservedV2` + `@Trace` |
 | `views/AccountListSection.ets` | 87 | 账号列表容器 | `@ComponentV2` |
 | `views/AccountListItem.ets` | 59 | 单个账号行 | `@ComponentV2` |
 | `views/AppearanceSection.ets` | 59 | 外观设置入口 | `@ComponentV2` |
@@ -293,3 +293,4 @@ grep -rEn "MyViewModelKeys" --include='*.ets' features/account/src/main/ets/
 | 第 5 轮（2026-10-27 逐条事实复核） | 重读 My / VM / 5 组件 / MyModels / 测试全文；核对每个锚点与规则编号 | ✅ 模块构成补 `models/MyModels.ets` 与行数列，补齐 README §6 要求的「结构树 / 调用链」章节；纠正规则编号误用（`@Param` 默认实例 ≠ STATE-008；`PERF-007` 不适用）；LIFE-004 锚点 `83-108 → 63-123`；ARKTS-014 不含 `@kit.ArkUI`；TEST-001 实际不覆盖账号加载；`MyViewModelKeys` 无 `@Monitor` 使用方；"懒刷新"不成立；`AppearanceSettingsParam` 示例与现有定义对齐；`navigateTo` 建议去掉 `unknown`。新增 3 条 Low（`exportLogs` 无反馈、`clearCache` 错误路径 / 硬编码色、账号列表 key）。计数 0H/2M/1L → 0H/2M/4L，债务 5 → 8，评级仍为 A |
 | 第 6 轮（M4 命名核查，2026-10-30） | 逐文件命名核查：类名/PascalCase ✅ / 方法名/camelCase ✅ / 变量名/camelCase ✅ / 常量/UPPER_SNAKE_CASE ✅；编译验证 `bash run.sh uat` → BUILD SUCCESSFUL in 16s 358ms | 🔶 命名零违规；M4 真重构待执行 |
 | 第 7 轮（2026-11-05 M4 真重构后） | MyPage 135L / VM 102L / AppearanceSection 59L；`openDetail` 收敛 5 处导航；VM 导入合并；`AppearanceSettingsParam` 已移入 settings model；`bash run.sh uat` → BUILD SUCCESSFUL in 15s 856ms | ✅ 编译通过；Local Test 需 DevEco GUI |
+| 第 8 轮（2026-11-12 GAP-09） | MyPage 133L / VM 117L；页面不再导入 `AppearanceManager`：首帧模式改用 `MyViewModel.getCachedThemeMode()`，异步读取改为 `vm.loadSavedColorMode(ctx)`（失败回落「跟随系统」）；`assembleHap` + `account@default` 单测通过 | ✅ 分层收口，行为不变 |

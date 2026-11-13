@@ -32,7 +32,7 @@
 
 > 行数为 M3 重构后现状；§2–§6 保留重构前基线，便于对照。
 
-**直接导入依赖**：AbilityKit `common`、ThemeFonts、ThemeManager、showFeedback / FeedbackType、AppearanceManager、AppearanceSettingsViewModel、ThemeModeRow、Logger。
+**直接导入依赖**：AbilityKit `common`、ThemeFonts、ThemeManager、showFeedback / FeedbackType、AppearanceSettingsViewModel（`applyColorMode()`）、AppearanceSettingsParam / ThemeModeItem、ThemeModeRow、Logger（页面不再直接导入 `AppearanceManager`）。
 
 ## 2. 架构分析（结构树）
 
@@ -47,7 +47,7 @@ AppearanceSettingsPage (@ComponentV2)
 ├── onReady(ctx) → localStack + param 提取 (AppearanceSettingsParam)
 │   └── vm.init(param.themeMode) / onThemeChange = param.onThemeChange
 ├── selectTheme(mode: number) — 核心交互函数
-│   ├── AppearanceManager.applyColorMode(abilityCtx, mode)
+│   ├── vm.applyColorMode(abilityCtx, mode)
 │   ├── vm.init(mode) — 更新选中状态
 │   ├── onThemeChange(mode) — 通知调用方（回调传播）
 │   └── this.localStack?.pop() — 返回上一页
@@ -147,3 +147,11 @@ AppearanceSettingsPage (@ComponentV2)
 - Medium（param 为空时静默失败）：记录，暂不修。
 - Low（`selectTheme` 无重复点击保护）：已于 `1ff4cfe` 加 `isApplying` 守卫。
 - Low（`vm.init(mode)` 冗余调用）：保留——`pop()` 失败（`localStack` 为空）时仍需更新选中态，删除会改变边界行为。
+
+### 复核记录（2026-11-12 第 6 轮，GAP-09）
+
+| 检查项 | 结论 |
+| --- | --- |
+| 分层 | 页面 162 行（原 163）；`selectTheme` 改为 `this.vm.applyColorMode(hostCtx, mode)`，`AppearanceManager` 只在 `AppearanceSettingsViewModel`（63 行）内引用 |
+| 行为 | `isApplying` 守卫、失败提示并留在本页、成功 `vm.init` + `onThemeChange` + `pop` 顺序均未变 |
+| 验证 | `assembleHap` + `settings@default` 单测通过 |

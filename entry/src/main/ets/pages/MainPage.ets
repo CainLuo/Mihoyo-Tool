@@ -13,8 +13,9 @@ import { HomePage } from 'home'
 import { CharactersPage } from 'characters'
 import { MyPage } from 'account'
 import { ToolsPage } from 'material'
-import { GeetestSignal, GeetestCenter, DeviceFpCenter, DeviceFpInvalidSignal } from 'verification'
+import { GeetestSignal, DeviceFpInvalidSignal } from 'verification'
 import BuildProfile from 'BuildProfile'
+import { MainPageViewModel } from '../viewmodel/MainPageViewModel'
 import { isLandscapeOrientation, resolveNavigationMode } from '../utils/MainNavigationMode'
 import { MainDialogArbiter } from '../utils/MainDialogArbiter'
 import { TAB_HOME, TAB_CHARACTERS, TAB_TOOLS, TAB_MY, resolveTabTitle, buildHomeMenuItems,
@@ -58,6 +59,7 @@ export struct MainPage {
   @Local private deviceFpInvalidSignal: DeviceFpInvalidSignal = DeviceFpInvalidSignal.getInstance()
   /** 全局弹窗仲裁（Cookie 过期 / 人机验证 / 设备指纹无效） */
   private dialogArbiter: MainDialogArbiter = new MainDialogArbiter()
+  private viewModel: MainPageViewModel = new MainPageViewModel()
 
   // ── HomePage 标题栏状态（由 HomePage 页通过 @Param 回调上报）──────────
   @Local private shouldShowHomeRefresh: boolean = false
@@ -75,11 +77,10 @@ export struct MainPage {
 
   aboutToAppear(): void {
     this.uiCtx = this.getUIContext()
-    this.dialogArbiter.attach(this.uiCtx, this.stack, this.geetestSignal, this.deviceFpInvalidSignal)
-    // 人机验证（1034 / 10035）统一处理：任何接口遇到都推入 geetestSignal，由本页弹框
-    GeetestCenter.init()
-    // 设备指纹无效（5003 / 10041）统一处理：任何接口遇到都由本页提示，可重新生成设备指纹
-    DeviceFpCenter.init()
+    this.dialogArbiter.attach(this.uiCtx, this.stack, this.geetestSignal, this.deviceFpInvalidSignal, this.viewModel)
+    // 人机验证（1034 / 10035）与设备指纹无效（5003 / 10041）统一处理：
+    // 任何接口遇到都推入信号，由本页弹框；中心服务初始化收敛在 ViewModel
+    this.viewModel.initVerificationCenters()
     this.placeholder = new ComponentContent(this.uiCtx, wrapBuilder(splitPlaceholderBuilder))
     // 初始化窗口宽度和模式
     const ctx = this.uiCtx

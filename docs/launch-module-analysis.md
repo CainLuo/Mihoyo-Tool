@@ -27,10 +27,11 @@
 
 | 文件 | 类型 | 行数 | 职责 |
 |------|------|------|------|
-| `LaunchPage.ets` | Page / @ComponentV2 | 94 | 启动闪屏页，含 Logo 动画 + 隐私合规检查 |
-| `PrivacyConsentPage.ets` | Page（间接依赖） | 113 | 由 Launch 在用户未同意时替换导航 |
+| `LaunchPage.ets` | Page / @ComponentV2 | 91 | 启动闪屏页，含 Logo 动画 + 隐私合规检查（Model 访问经 `LaunchViewModel`） |
+| `PrivacyConsentPage.ets` | Page（间接依赖） | 129 | 由 Launch 在用户未同意时替换导航 |
+| `viewmodel/LaunchViewModel.ets` | ViewModel | 21 | 隐私协议判断 + 等待 Core 就绪 |
 
-**直接导入依赖**：`CoreInitializer`, `ThemeManager`, `AppRoutes`, `RouterUtil`, `LegalPreferences`, `common`, `Logger`, `ThemeFonts`
+**直接导入依赖**：`LaunchViewModel`, `ThemeManager`, `AppRoutes`, `RouterUtil`, `common`, `Logger`, `ThemeFonts`（页面不再直接导入 `CoreInitializer` / `LegalPreferences`）
 
 ## 2. 架构分析（结构树）
 
@@ -44,10 +45,10 @@ Launch (@ComponentV2)
 │   ├── this.uiCtx = this.getUIContext()
 │   ├── animateTo(600ms, Logo 淡入放大)
 │   └── checkPrivacyAndProceed()
-│       ├── LegalPreferences.hasAgreed(ctx) → true → navigateToMain()
+│       ├── viewModel.hasAgreed(ctx) → true → navigateToMain()
 │       └── false → RouterUtil.replace(PRIVACY_CONSENT)
 ├── navigateToMain()
-│   ├── Promise.all([CoreInitializer.waitForReady(), minDelay 1200ms])
+│   ├── Promise.all([viewModel.waitForReady(), minDelay 1200ms])
 │   │   → RouterUtil.replace(MAIN)
 │   └── catch → RouterUtil.replace(MAIN)（降级；实际不可达，见 H1）
 └── build()
@@ -129,3 +130,4 @@ Launch (@ComponentV2)
 | 第 2 轮（关键代码段） | aboutToAppear L30-38、checkPrivacyAndProceed L40-49、navigateToMain L51-63（1200ms + catch 降级） | ✅ |
 | 第 3 轮（全面复核） | 未注册 custom_router_map、无测试、image 资源名修正（ic_app_logo） | ✅ 修正 1 处 |
 | 第 4 轮（2026-10-27 逐条复核） | 连带读 `core/.../CoreInitializer.ets`（`readyPromise` 无 reject）、`LegalPreferences.hasAgreed`、`EntryAbility` initCore 失败路径 | catch 降级不可达 → 原 L1 升为 H1；原 L2 改号 L1 并修正行号 `:43-46` → `:41` 与「会崩溃」的错误描述；§3「UI 线程安全」改为通过。计数 0/0/0/2 → **0/1/0/1**，评级 A → **B**，债务 2 → 4 |
+| 第 5 轮（2026-11-12 GAP-09） | 页面 94 → 91 行；新增 `viewmodel/LaunchViewModel.ets`（21 行）；`checkPrivacyAndProceed` / `navigateToMain` 改为调用 `viewModel.hasAgreed` / `waitForReady`，调用时机与 1200ms 下限不变；编译 + `entry@default` 单测通过 | ✅ 分层收口，行为不变 |

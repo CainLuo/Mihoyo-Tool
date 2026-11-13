@@ -9,7 +9,6 @@
 
 import { common } from '@kit.AbilityKit'
 import { ThemeFonts, themeManager, ThemeManager, showFeedback, FeedbackType } from 'basic'
-import { AppearanceManager } from '../model/service/AppearanceManager'
 import { AppearanceSettingsParam, ThemeModeItem } from '../model/AppearanceSettingsModels'
 import { AppearanceSettingsViewModel } from '../viewmodel/AppearanceSettingsViewModel'
 import { ThemeModeRow } from '../views/ThemeModeRow'
@@ -53,7 +52,7 @@ export struct AppearanceSettingsPage {
     }
 
     this.isApplying = true
-    AppearanceManager.applyColorMode(hostCtx as common.UIAbilityContext, mode)
+    this.vm.applyColorMode(hostCtx as common.UIAbilityContext, mode)
       .then((applied: boolean) => {
         this.isApplying = false
         if (!applied) {

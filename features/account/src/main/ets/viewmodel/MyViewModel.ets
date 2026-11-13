@@ -5,9 +5,10 @@
  * 同时管理 About Section 的日志导出和缓存清理逻辑。
  */
 import { ApiLogSystem, CoreInitializer, LogExporter, Logger, LogFileManager, RoleStatItem } from 'core';
-import { bundleManager, common } from '@kit.AbilityKit';
+import { bundleManager, common, ConfigurationConstant } from '@kit.AbilityKit';
 import { MyAccountVM, MyGameRoleVM, GameStatItem } from '../model/MyModels';
 import { getServerDisplayName, getGameName, getGameColor, getGameLogo, ViewState, showFeedback, FeedbackType } from 'basic';
+import { AppearanceManager } from 'settings';
 
 const TAG: string = 'MyViewModel';
 
@@ -17,6 +18,20 @@ export class MyViewModel {
   @Trace accounts: MyAccountVM[] = [];
   /** 日志文件大小（格式化后的字符串，如 '1.2 MB'） */
   @Trace logSize: string = '0 KB';
+
+  /** 当前缓存的主题模式（首帧渲染用，避免闪烁） */
+  static getCachedThemeMode(): number {
+    return AppearanceManager.getCachedColorMode();
+  }
+
+  /** 读取已保存的主题模式；读取失败回落到「跟随系统」 */
+  async loadSavedColorMode(ctx: common.UIAbilityContext): Promise<number> {
+    try {
+      return await AppearanceManager.getSavedColorMode(ctx);
+    } catch (_e) {
+      return ConfigurationConstant.ColorMode.COLOR_MODE_NOT_SET;
+    }
+  }
 
   /** 刷新日志文件大小显示 */
   refreshLogSize(): void {

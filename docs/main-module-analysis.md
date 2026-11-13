@@ -230,9 +230,9 @@ onDeviceFpPromptClosed: isFpPromptShowing = false；若 isGeetestPending → sho
 
 **改进方向**：改为 `type DialogState = 'idle' | 'geetest' | 'fpPrompt'` 单一枚举 + 一个待处理队列，可消除 4 个 boolean 与非法状态。
 
-> **时序风险（未确认可达，不计入评级）**：人机验证的全局监听只在 `MainPage.aboutToAppear` 注册（`GeetestCenter.init()` `:82`）；在此之前 core 上报 1034 / 10035 时 `GeetestReporter.report()` 因监听为 null 直接返回（`core/src/main/ets/base/network/GeetestReporter.ets:27-30`），启动页 / 隐私页阶段的验证请求会被静默丢弃。设备指纹同理：监听只在 `DeviceFpCenter.init()`（`:84`）注册，之前 `FingerprintReporter.report()` 因监听为 null 直接返回（`core/src/main/ets/base/network/FingerprintReporter.ets:24-27`）。是否有接口在 MainPage 出现前遇到 1034 / 5003 尚未确认。
+> **时序风险（未确认可达，不计入评级）**：人机验证的全局监听只在 `MainPage.aboutToAppear` 注册（`MainPageViewModel.initVerificationCenters()`，由 `MainPage` 在 `aboutToAppear` 调用）；在此之前 core 上报 1034 / 10035 时 `GeetestReporter.report()` 因监听为 null 直接返回（`core/src/main/ets/base/network/GeetestReporter.ets:27-30`），启动页 / 隐私页阶段的验证请求会被静默丢弃。设备指纹同理：监听只在 `DeviceFpCenter.init()` 注册，之前 `FingerprintReporter.report()` 因监听为 null 直接返回（`core/src/main/ets/base/network/FingerprintReporter.ets:24-27`）。是否有接口在 MainPage 出现前遇到 1034 / 5003 尚未确认。
 
-> **分层说明（不计入评级）**：MainPage 没有 ViewModel，直接调用 verification 模块的服务类（`GeetestCenter.init()` `:82`、`DeviceFpCenter.init()` `:84`、`DeviceFpCenter.regenerate()` / `dismiss()` `:226/248/251/259`），不符合官方 MVVM「View 不直接访问 Model」的分层要求。checklist 没有对应条目，不单列缺陷；重构模块 M15 抽 `DialogArbiter` 时一并移入 ViewModel（见 §9、[project-structure.md](./project-structure.md) §6）。
+> **分层说明（不计入评级）**：✅ 已修复（2026-11-12，GAP-09）。`MainPage` 不再直接调用 verification 服务：`GeetestCenter.init()` / `DeviceFpCenter.init()` 收进 `MainPageViewModel.initVerificationCenters()`，`DeviceFpCenter.regenerate()` / `dismiss()` 收进 `MainPageViewModel` 并注入 `MainDialogArbiter`；页面只保留信号与弹框 UI。
 
 ### 5.3 响应式导航模式
 
@@ -387,7 +387,7 @@ action: () => {
 ### 7.1 整体观察（skills report-template 要求）
 
 - **代码质量**：命名（`TAB_HOME..TAB_MY` 常量、布尔 `is/should` 前缀）与模块级 `@Builder` 是本文件的两个亮点；扣分项是 `tabVersion >= 0`、`currentWindowStatusType === 4` 两处未注释的语义 hack（M1 / M3）。
-- **架构**：单容器 + 全局信号仲裁，符合「顶层统一调度全局弹窗」的思路；但 View 直接调用 `GeetestCenter` / `DeviceFpCenter`（无 ViewModel），弹窗仲裁靠 4 个 boolean 手写状态机（M5），标题栏协议散落 10 个字段（M2）。
+- **架构**：单容器 + 全局信号仲裁，符合「顶层统一调度全局弹窗」的思路；Model 访问已收进 `MainPageViewModel`（GAP-09），弹窗仲裁仍靠 4 个 boolean 手写状态机（M5），标题栏协议散落 10 个字段（M2）。
 - **测试覆盖**：MainPage 无单测；`entry/src/test` 只有 `LocalUnit` / `Widget2x2ViewModel` 两套，M15 拆分只能靠真机回归（§9）。
 - **文档**：文件头注释准确描述了 Navigation 的职责；但 `:141` 的 `4`（M3）与 `:145` 的 520vp（M4）注释与官方语义不符，改代码时须同步。
 
@@ -429,7 +429,7 @@ action: () => {
 - `TestPage` 入口已由 `BuildProfile.DEBUG` 隔离（`MainPage.ets:366`），release 不会暴露（mock / uat 以 debug 模式构建，可见）；但该页仍在 entry 的 `custom_router_map.json` 注册（见 [`test-page-module-analysis.md`](./test-page-module-analysis.md) §7，决策 Q-2）。
 - 依赖 `'core'` 的 `GeetestVerifyInput` / `FailedAccountInfo`，拆分期间不要顺手改 Core 类型签名。
 
-**分层（重构模块 M15 一并处理）**：MainPage 没有 ViewModel，弹窗仲裁直接调用 verification 的 `GeetestCenter` / `DeviceFpCenter`（§5.2 分层说明）。抽 `DialogArbiter` 时放进 ViewModel，MainPage 只保留弹窗 UI。
+**分层（2026-11-12 GAP-09 已完成）**：`MainPageViewModel` 承接 `GeetestCenter` / `DeviceFpCenter` 的初始化与 `regenerate` / `dismiss`，`MainDialogArbiter` 通过 `attach()` 注入 ViewModel 后不再直接调用 verification 服务；MainPage 只保留弹窗 UI。
 
 **拆分顺序**：MainPage 排最后（重构模块 M15）。HomePage / CharactersPage / ToolsPage / MyPage 各自完成 M8–M13 后，再抽 `MainTabContainer` + `TitleBarController` + `DialogArbiter` 三个职责，避免子页与容器同时改动。
 
@@ -510,5 +510,6 @@ grep -nE "[^0-9](100|[2-9][0-9]{2}|[0-9]{4})" entry/src/main/ets/pages/MainPage.
 | 第 9 轮（2026-10-29 独立审稿第 3 轮） | 新审稿人从头核对：全部行号、计数、官方文档表述无误；报 14 项，逐项回代码复核全部成立 | 新增 M10（Tab 根页按返回可能弹出 MainPage 显示空白，待真机确认）；H2 补 reject 同类路径与 `contentNode` 未释放；M3 补横屏分支不看窗口宽度；H1 改按 LIFE-001 计（默认 High，原挂在 COMPAT-004 未说明理由）；MainPage 自身 off 的前提改为「销毁时」；补 COMPAT-005 行（在 TestPage 文档计数）、时序风险补设备指纹、L7 补日志 tag、STATE-008 改指 M6、HomePage 行号、§8 补 GeetestDialog。未采纳：菜单 `value` 英文（官方说明 API 10 起不显示，审稿人也标低置信）；Refactor_Spec §2.1 的 `Main` 属迁移前快照（已标注）。计数 0/2/9/6 → **0/2/10/6**，评级 B，债务 30 → 32 |
 | 第 10 轮（2026-10-29 按 skills 复核） | 对照 `skills/harmonyos-review/references/checklist.md`、`skills/harmonyos-review/references/report-template.md`、`skills/arkts-rules/references/spec-quick-ref.md`、`skills/state-management/SKILL.md`、`skills/harmonyos-development/SKILL.md` 重扫；代码事实（513 行、29 字段、13 import / 33 符号、全部 `file:line`、GeetestSignal / GeetestCenter / CookieExpiredSignal / EntryAbility / Index / LaunchPage 引用）逐条回核 | 结论与计数不变（0/2/10/6，B，债务 32，密度 6.2）。修正 4 处与 skills 的偏差：① §3.5「@Monitor 只能监听 @Local 等」表述过窄，补 `@ObservedV2` + `@Trace` 用法与 `state-management` 范例 5 出处；② 问题清单补「规则 ID」列（M3 / M4 → COMPAT-004、ARKTS-013；M7 / M8 → STATE-013 / STATE-012；M10 → NAV-001 同类；H2 → LIFE-004 + KIT-005；L2 → ARKTS-016；L7 → AGC-RJ-014），架构类无对应条目记 `—`；③ 合规检查补 `ARKTS-016` / `AGC-RJ-014` / `NAV-001` 三行，并把 `LIFE-004` 由 ✅ 改为 ⚠️（与 H2 一致）；④ 按 report-template 补「整体观察」「复审建议」「复核命令」附录，页头补审查者 / targetSDK / 代码版本 / 路径说明 |
 | 第 11 轮（2026-10-29 严重级对齐 scan-arkts） | 按 `skills/arkts-rules/references/scan-arkts.sh` 的默认级别复核 `ARKTS-016`：该脚本把空 catch 判为 Medium（且仅在文件含 `await` 时触发），MainPage 含 `await`（`:44-46` 等） | 原 L2（10 处静默吞异常）升为 **M11**，L 表保留 `~~L2~~` 改判说明；§5.3、合规表 `ARKTS-016` / `KIT-005` 行同步改指 M11；§10 复核命令注释同步。计数 0/2/10/6 → **0/2/11/5**，评级 B 不变，债务 32 → 33，密度 6.2 → 6.4 |
+| 第 12 轮（2026-11-12 GAP-09） | MainPage 277 → 278 行；新增 `viewmodel/MainPageViewModel.ets`（26 行）；`initVerificationCenters()` 在 `aboutToAppear` 原位置调用，`MainDialogArbiter.attach()` 增加 ViewModel 参数，`regenerate` / `dismiss` 经 VM 转发；编译 + `entry@default` 单测通过 | ✅ 分层收口，初始化时机与弹框时序不变 |
 
 【已核对代码一致性】

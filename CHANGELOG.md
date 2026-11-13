@@ -12,6 +12,7 @@
 - **配置页预览去重**：新增 `PreviewExtraDataRow` / `PreviewExpeditionAvatar`，`Preview2x4SingleGame` 221 → 194 行、`Preview4x4SingleGame` 241 → 221 行
 - **Widget ViewModel 去重**：新增 `WidgetRoleStateBuilder`（`WidgetRoleLayout` 表达尺寸差异），`Widget2x2/2x4/4x4ViewModel` 从 161+162+159 行降到 111+60+60 行；`buildUIState` 签名与类名不变
 - **材料汇总 ViewModel 去重**：新增 `MaterialListAggregator`（纯函数），三个游戏的材料汇总 VM 从 628+368+421 行降到 449+261+258 行；原神背包 / 货币分组差异用参数表达，新增 16 条聚合单测
+- **View 层与 Model 层解耦（GAP-09）**：新增 `LaunchViewModel` / `MainPageViewModel` / `TestViewModel`，`MyViewModel` / `PrivacyConsentViewModel` / `AppearanceSettingsViewModel` 各补一层方法；六页不再直接调用 `LegalPreferences` / `CoreInitializer` / `GeetestCenter` / `AppearanceManager`。`MaterialComputeResult` 枚举移到 `model/`，页面与 VM 不再从 service 导入枚举
 
 ### 性能
 

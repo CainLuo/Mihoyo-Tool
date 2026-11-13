@@ -160,3 +160,4 @@ MaterialCharacterSelectRouteParam (interface) — accountId / roleUid / gameId
 | 第 3 轮（全面复核） | 回退表达式实际 L181/L195/L285；`openHistory` 用 `pushPathByName`；无 Local Test；`NO_CONFIG` 枚举存在且页面有分支；`localStack` 已优先 | ✅ 修正 3 处（replace→push、行号、回退风险描述） |
 | 第 4 轮（2026-10-27 逐条复核） | 摘要 Low 3 / 清单 Low 2 不符；回退分支可达性；DialogDedup release 时机；`selectAccount` 异常路径；导入使用情况；Tools 入口参数类型 | ✅ 撤回 1 条不成立的安全项、Low 回退项改述为死代码；新增 1 Medium（切换账号卡 LOADING）+ 1 Low（死导入）；§1 补 VM / Builder 行；路由参数契约补第三处定义 |
 | 第 5 轮（2026-11-04 M7 执行后） | 页面 360L + `CharacterSelectCard` 156L + VM 432L；`@Monitor` / `detailStack` / `uiContext` / 死导入已删；`bash run.sh uat` 通过 | ✅ 行数与结构复核一致 |
+| 第 6 轮（2026-11-12 GAP-09） | `MaterialComputeResult` 改从 `model/MaterialComputeResult.ets` 导入（不再经 `MaterialComputeService` 转出）；页面 / VM 行数与逻辑未变；编译 + `material@default` 单测通过 | ✅ 导入路径一致 |

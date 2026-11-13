@@ -9,11 +9,10 @@
  * 路由：Navigation 入口页，由 Index.ets 通过 initialStack 指定。
  */
 
-import { CoreInitializer } from 'core';
 import { ThemeFonts, AppRoutes, RouterUtil, themeManager, ThemeManager } from 'basic'
 import { Logger } from 'core';
 import { common } from '@kit.AbilityKit';
-import { LegalPreferences } from 'legal';
+import { LaunchViewModel } from '../viewmodel/LaunchViewModel';
 
 const TAG: string = 'Launch';
 
@@ -22,6 +21,7 @@ export struct LaunchPage {
   @Local private tm: ThemeManager = themeManager;
   @Local private logoScale: number = 0.8;
   @Local private logoOpacity: number = 0;
+  private viewModel: LaunchViewModel = new LaunchViewModel();
   private uiCtx: UIContext | null = null;
 
   aboutToAppear(): void {
@@ -36,7 +36,7 @@ export struct LaunchPage {
 
   private checkPrivacyAndProceed(): void {
     const ctx = this.getUIContext().getHostContext() as common.UIAbilityContext;
-    const agreed = LegalPreferences.hasAgreed(ctx);
+    const agreed = this.viewModel.hasAgreed(ctx);
     if (agreed) {
       this.navigateToMain();
     } else {
@@ -48,7 +48,7 @@ export struct LaunchPage {
   private navigateToMain(): void {
     // 等 Core 就绪 + 最短展示 1200ms，两者取最长
     const minDelay = new Promise<void>((resolve) => setTimeout(resolve, 1200));
-    Promise.all([CoreInitializer.waitForReady(), minDelay])
+    Promise.all([this.viewModel.waitForReady(), minDelay])
       .then(() => {
         Logger.info(TAG, 'core ready, navigate to Main');
         RouterUtil.replace(AppRoutes.MAIN);

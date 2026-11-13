@@ -11,8 +11,9 @@
 import { promptAction } from '@kit.ArkUI'
 import { common } from '@kit.AbilityKit'
 import { AppRoutes, CookieExpiredSignal, DialogDedup, FeedbackType, showFeedback } from 'basic'
-import { DeviceFpCenter, DeviceFpInvalidSignal, GeetestQueueItem, GeetestSignal, showGeetestDialog } from 'verification'
+import { DeviceFpInvalidSignal, GeetestQueueItem, GeetestSignal, showGeetestDialog } from 'verification'
 import { FailedAccountInfo, GeetestVerifyInput, Logger } from 'core'
+import { MainPageViewModel } from '../viewmodel/MainPageViewModel'
 import { getGameAccountLabel } from './MainDialogLabels'
 
 export class MainDialogArbiter {
@@ -20,6 +21,7 @@ export class MainDialogArbiter {
   private stack: NavPathStack | null = null
   private geetestSignal: GeetestSignal | null = null
   private deviceFpInvalidSignal: DeviceFpInvalidSignal | null = null
+  private viewModel: MainPageViewModel | null = null
 
   /** 用户是否请求取消全部验证队列（当前无入口置 true，保留原有语义） */
   private isGeetestCancelAllRequested: boolean = false
@@ -28,13 +30,15 @@ export class MainDialogArbiter {
   private isFpPromptShowing: boolean = false
   private isFpPromptPending: boolean = false
 
-  /** 组件挂载时注入 UI 上下文、共享路由栈与两个全局信号 */
+  /** 组件挂载时注入 UI 上下文、共享路由栈、两个全局信号与 ViewModel */
   attach(uiCtx: UIContext | null, stack: NavPathStack,
-         geetestSignal: GeetestSignal, deviceFpInvalidSignal: DeviceFpInvalidSignal): void {
+         geetestSignal: GeetestSignal, deviceFpInvalidSignal: DeviceFpInvalidSignal,
+         viewModel: MainPageViewModel): void {
     this.uiCtx = uiCtx
     this.stack = stack
     this.geetestSignal = geetestSignal
     this.deviceFpInvalidSignal = deviceFpInvalidSignal
+    this.viewModel = viewModel
   }
 
   /** Cookie 过期队列变化：逐个弹框提示重新登录 */
@@ -102,7 +106,7 @@ export class MainDialogArbiter {
   private showDeviceFpPrompt(signal: DeviceFpInvalidSignal): void {
     const ctx = this.uiCtx
     if (ctx === null) {
-      DeviceFpCenter.dismiss()
+      this.viewModel?.dismissDeviceFp()
       return
     }
     let fallback = ''
@@ -123,10 +127,14 @@ export class MainDialogArbiter {
     }).then((result: promptAction.ShowDialogSuccessResponse) => {
       this.onDeviceFpPromptClosed()
       if (result.index !== 1) {
-        DeviceFpCenter.dismiss()
+        this.viewModel?.dismissDeviceFp()
         return
       }
-      DeviceFpCenter.regenerate(ctx.getHostContext() as common.UIAbilityContext).then(() => {
+      const vm = this.viewModel
+      if (vm === null) {
+        return
+      }
+      vm.regenerateDeviceFp(ctx.getHostContext() as common.UIAbilityContext).then(() => {
         showFeedback(ctx, FeedbackType.SUCCESS, $r('app.string.device_fp_regenerate_success'))
       }).catch((e: Error | object) => {
         Logger.error('Main', `regenerate device fp failed: ${e instanceof Error ? e.message : String(e)}`)
@@ -134,7 +142,7 @@ export class MainDialogArbiter {
       })
     }).catch((_: Error | object) => {
       this.onDeviceFpPromptClosed()
-      DeviceFpCenter.dismiss()
+      this.viewModel?.dismissDeviceFp()
     })
   }
 

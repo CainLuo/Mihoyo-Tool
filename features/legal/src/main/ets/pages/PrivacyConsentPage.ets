@@ -10,7 +10,6 @@ import { ThemeFonts, themeManager, ThemeManager, RouterUtil, AppRoutes } from 'b
 import { BusinessError } from '@kit.BasicServicesKit';
 import { PrivacyConsentStep, PrivacyConsentViewModel } from '../viewmodel/PrivacyConsentViewModel';
 import { LegalI18nRouter } from '../utils/LegalI18nUtil';
-import { LegalPreferences } from '../model/service/LegalPreferences';
 import { Logger } from 'core';
 import { PrivacyConsentFooter } from '../views/PrivacyConsentFooter';
 import { PrivacyConsentWebView } from '../views/PrivacyConsentWebView';
@@ -50,11 +49,7 @@ export struct PrivacyConsentPage {
 
   private async handleAgree(): Promise<void> {
     const ctx = this.getUIContext().getHostContext() as common.UIAbilityContext;
-    try {
-      await LegalPreferences.setAgreed(ctx);
-    } catch (e) {
-      Logger.error(TAG, `setAgreed failed: ${(e as Error).message}`);
-    }
+    await this.vm.agree(ctx);
     RouterUtil.replace(AppRoutes.MAIN);
   }
 

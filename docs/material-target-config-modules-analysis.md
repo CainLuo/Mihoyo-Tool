@@ -111,7 +111,7 @@ ZZZMaterialTargetConfig 在通用模板基础上的差异：
 | `ThemeManager + ThemeFonts` | 主题系统 |
 | `PrimaryButtonModifier` | 按钮样式 |
 | `AppRoutes` + `localStack` | 路由导航（replacePathByName） |
-| MaterialComputeResult | 计算服务返回值类型 |
+| MaterialComputeResult | 计算服务返回值类型（2026-11-12 起从 `model/MaterialComputeResult.ets` 导入，不再经 service 转出） |
 
 **复用率：中等。** `LevelRow` / `SkillLevelRow` 目前作为页面内 @Builder 存在，未提取为独立组件。四份 Builder 逐行同构，只依赖 `LevelConfigVM` + 点击回调，提取难度低；游戏差异全部在 VM 的配置项与 `getLabelResource` 的 case 里。
 
@@ -242,3 +242,4 @@ ZZZMaterialTargetConfig 在通用模板基础上的差异：
 | 第 4 轮（2026-10-27 逐条复核） | 三页逐行 diff、三个 VM、`pickerStep` 修饰符、ZZZ `SkillLevelRow` 与 `LevelRow` 对比、标题与 Picker 文案资源 | ✅ 修正：`pickerStep` 非 @Local、`SkillLevelRow` 与 `LevelRow` 同构（非"布局不同"）、星铁 4 个行迹、重复率 40–50% → 76–90%、`LevelRow` 无"材料需求概览"、`MaterialTargetConfigParam` 不被 MaterialCalc 使用；新增 2 Low（标题资源、"级"硬编码）；编号重排为 M-TARGET-1~6 |
 | 第 5 轮（2026-10-30 断链修复） | §1 三页路径补全为 `features/material/src/main/ets/pages/`；§37 ViewModel + Model 全量更新为绝对路径；§6 依赖表 8 个相对路径 → `features/material/src/main/ets/{viewmodel,model,model/service}/` + `common/basic/src/main/ets/theme/constants/`；§7 `models/ToolsModels.ets` → 绝对路径 | ✅ 13 处路径全部验证存在 |
 | 第 6 轮（2026-11-04 M7 执行后） | 三页 261 / 265 / 266L；新增 `LevelConfigRow` 76L + `TargetConfigTipCard` 32L；ZZZ `SkillLevelRow` 已删；Picker 实例字段已删；`bash run.sh uat` 通过 | ✅ 行数与结构复核一致 |
+| 第 7 轮（2026-11-12 GAP-09） | `MaterialComputeResult` 从 `model/service/` 移到 `model/`；三个目标配置页与 VM 改为直接从 `model/MaterialComputeResult.ets` 导入，`MaterialComputeService` 不再转出枚举；编译 + `material@default` 单测通过 | ✅ 路径与导入一致 |

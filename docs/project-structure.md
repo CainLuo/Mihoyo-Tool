@@ -103,7 +103,7 @@ widgetbase ─→ （无）
 
 | 项 | 内容 |
 | --- | --- |
-| 代码文件 | 32 个 `.ets` |
+| 代码文件 | 46 个 `.ets` |
 | 依赖 | core、widgetbase、basic、characters、home、account、legal、settings、verification、material、notification、widget |
 | 设备 | phone、tablet、2in1 |
 | 路由 | 路由表只有 `TestPage`；启动页、主页、隐私同意页由 `pages/Index.ets` 的 Navigation 直接承载 |
@@ -122,10 +122,17 @@ entry/src/main/ets/
 │   ├── Index.ets                         # 应用根页面：创建根 Navigation，先进入启动页；承载启动页、主页、隐私同意页
 │   ├── LaunchPage.ets                    # 启动页：Logo 动画、等待 core 初始化；未同意隐私则转到隐私同意页，否则进入主页
 │   ├── MainPage.ets                      # 主框架：底部 Tab、分栏、全局弹窗与路由
+│   ├── MainPageBuilders.ets              # 主页 @Builder（账号切换弹窗等）
 │   └── TestPage.ets                      # 测试工具页（仅 UAT / Mock）
 ├── utils/                                # 工具与配置
+│   ├── MainDialogArbiter.ets             # 主页弹窗仲裁（人机验证 / Cookie 过期 / 设备指纹）
 │   ├── MainDialogLabels.ets              # 主页弹窗文案映射
+│   ├── MainMenuItems.ets                 # 主页标题栏菜单与底部 Tab 项构建
 │   └── MainNavigationMode.ets            # 主页面导航模式枚举
+├── viewmodel/                            # 页面 ViewModel
+│   ├── LaunchViewModel.ets               # 启动页：隐私协议判断、等待 Core 就绪
+│   ├── MainPageViewModel.ets             # 主页：人机验证 / 设备指纹中心初始化
+│   └── TestViewModel.ets                 # 测试页：调试动作（改写 Cookie、触发过期弹框）
 ├── views/                                # 页面内组件
 │   └── test/                             # 测试页组件
 │       ├── TestRow.ets                   # 测试页操作行（仅 Debug 环境使用）
@@ -142,7 +149,8 @@ entry/src/main/ets/
 │   │   ├── Widget1x2ViewModel.ets        # 1×2 卡片 ViewModel
 │   │   ├── Widget2x2ViewModel.ets        # 2×2 卡片 ViewModel
 │   │   ├── Widget2x4ViewModel.ets        # 2×4 卡片 ViewModel
-│   │   └── Widget4x4ViewModel.ets        # 4×4 卡片 ViewModel
+│   │   ├── Widget4x4ViewModel.ets        # 4×4 卡片 ViewModel
+│   │   └── WidgetRoleStateBuilder.ets    # 2×2 / 2×4 / 4×4 共用的角色状态构建（布局差异用枚举表达）
 │   └── views/                            # 卡片组件
 │       ├── Widget1x2ContentView.ets      # 1×2 迷你卡片内容组件
 │       ├── Widget2x2Header.ets           # 2×2 Widget 头部组件

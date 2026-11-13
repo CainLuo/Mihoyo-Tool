@@ -1,6 +1,6 @@
 # TestPage 模块独立分析文档
 
-> 生成时间：2026-10-24 | 作用 scope：`entry/src/main/ets/pages/TestPage.ets`（106 行）| **不修改代码**
+> 生成时间：2026-10-24 | 作用 scope：`entry/src/main/ets/pages/TestPage.ets`（102 行）+ `entry/src/main/ets/viewmodel/TestViewModel.ets`（29 行）| **不修改代码**
 > 代码版本：`105c8d3`（本文档分析基线，2026-10-24 复核）
 
 ---
@@ -26,9 +26,10 @@
 
 | 文件 | 类型 | 行数 | 职责 |
 |------|------|------|------|
-| `TestPage.ets` | Page / @ComponentV2 | 106 | 测试工具页（仅 `BuildProfile.DEBUG` 构建可见；mock / uat 以 debug 模式构建，见 `run.sh:84-97`）——Cookie 刷新/过期手动测试场景集中地 |
+| `TestPage.ets` | Page / @ComponentV2 | 102 | 测试工具页（仅 `BuildProfile.DEBUG` 构建可见；mock / uat 以 debug 模式构建，见 `run.sh:84-97`）——Cookie 刷新/过期手动测试场景集中地 |
+| `viewmodel/TestViewModel.ets` | ViewModel | 29 | 调试动作：改写 Cookie、清 stoken、推送假过期信号 |
 
-**直接导入依赖**：ThemeManager、CoreInitializer/FailedAccountInfo、CookieExpiredSignal、TestSectionHeader、TestRow。
+**直接导入依赖**：ThemeManager、TestViewModel、TestSectionHeader、TestRow（页面不再直接导入 `CoreInitializer` / `FailedAccountInfo` / `CookieExpiredSignal`）。
 
 ## 2. 架构分析（结构树）
 
@@ -42,14 +43,14 @@ TestPage (@ComponentV2；由 TestPageBuilder 经 routerMap 渲染，压在 Main 
 │           ├── TestRow(T1) → onTestT1() — 设置 update_time 为 8 天前（有 stoken）
 │           ├── TestRow(T2) → onTestT2() — 直接触发 CookieExpiredSignal
 │           └── TestRow(T3) → onTestT3() — 设置 update_time 为 8 天前（无 stoken）
-├── onTestT1() — CoreInitializer.bbsRepository.setAllUpdateTimeTo8DaysAgo() + Toast
-├── onTestT2() — FailedAccountInfo + CookieExpiredSignal.instance().push(fakeInfo)
-└── onTestT3() — CoreInitializer.bbsRepository.setAllCookieWithoutStoken() + Toast
+├── onTestT1() — viewModel.setUpdateTimeTo8DaysAgo() + Toast
+├── onTestT2() — viewModel.triggerCookieExpired()
+└── onTestT3() — viewModel.setAllCookieWithoutStoken() + Toast
 
 TestPageBuilder(_name, _param) — 路由 Builder（参数未使用）
 ```
 
-**架构模式**：纯操作面板——无状态管理、无 ViewModel，直接操作服务层 + 信号类进行手动测试。
+**架构模式**：操作面板——页面只管按钮与 Toast，调试动作集中在 `TestViewModel`（纯转发，不做依赖注入），满足「View 不直接访问 Model」。
 
 ## 3. ArkTS 合规性检查
 
@@ -93,7 +94,7 @@ TestPageBuilder(_name, _param) — 路由 Builder（参数未使用）
 **决策归属（Q-2）**：TestPage 是保留为长期手测面板、还是移出主包，属于产品/构建决策，不在 M15 拆分范围内。在决策前：
 
 1. **不要**把 TestPage 迁移到新目录或改 Builder 名；
-2. **不要**给它补依赖注入 / ViewModel——它故意直连 `CoreInitializer.bbsRepository` 与 `CookieExpiredSignal`；
+2. **不要**给它补依赖注入——`TestViewModel` 只做静态转发，仍直连 `CoreInitializer.bbsRepository` 与 `CookieExpiredSignal`；保持「无参数、无注入、无状态」的调试页定位（GAP-09 仅把 Model 调用移出 View）；
 3. 若要移出 release 包，应通过 `build-profile.json5` 的 target `source` / 条件编译实现，并同步删除 routerMap 条目，而不是只删 Main 的按钮。
 
 **测试**：本身即测试工具，无自动化测试；改动后手测 T1/T2/T3 三个场景能正常触发对应信号，并确认 release 包内该入口不可见。
@@ -119,5 +120,13 @@ TestPageBuilder(_name, _param) — 路由 Builder（参数未使用）
 | 原 L2 | 全文件无 `Logger` 调用、已有文件头注释，撤回 |
 | 新增 | COMPAT-005：release 包保留 debug-only 页面与 routerMap 条目，T3 为破坏性操作，记为 L1 |
 | 结论 | 0 / 0 / 0 / **1**，债务 2 → 1，密度 1.9 → 0.9，评级 A 不变 |
+
+### 复核记录（2026-11-12 第 6 轮，GAP-09）
+
+| 检查项 | 结论 |
+| --- | --- |
+| 分层 | 页面 102 行（原 106）；新增 `viewmodel/TestViewModel.ets`（29 行），T1/T2/T3 的 Model 调用与假数据构造移入；页面只保留 Toast 与按钮 |
+| 行为 | T1/T3 仍调用同一 Repository 方法并在成功 / 失败时 Toast；T2 的假账号字段（昵称 / 米游社 ID / 非网络错误）与改造前一致 |
+| 验证 | `assembleHap` + `entry@default` 单测通过 |
 
 【已核对代码一致性】
