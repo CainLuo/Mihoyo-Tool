@@ -43,7 +43,7 @@ features/home/
     ├── main/
     │   ├── module.json5   # type: har；有页面的模块在这里声明 routerMap
     │   ├── ets/           # 代码，按下面第 3 节的目录约定分层
-    │   └── resources/     # 只有路由表（base/profile/<模块>_router_map.json）；共用资源在 common/basic
+    │   └── resources/     # 路由表（base/profile/<模块>_router_map.json）+ 本模块专属字符串/颜色/图片；跨模块共用资源在 common/basic
     └── test/              # 本地单元测试 + List.test.ets
 ```
 
@@ -108,7 +108,7 @@ widgetbase ─→ （无）
 | 设备 | phone、tablet、2in1 |
 | 路由 | 路由表只有 `TestPage`；启动页、主页、隐私同意页由 `pages/Index.ets` 的 Navigation 直接承载 |
 | 本地测试 | LocalUnit、Widget2x2ViewModel |
-| 资源 | `base/color` 1、`base/string` 23、`base/media` 4、`base/profile` 4、`dark/media` 1、`en/string` 13、`zh_HK/string` 13、`rawfile` 8 |
+| 资源 | `base/color` 3、`base/string` 41、`base/media` 4、`base/profile` 4、`dark/media` 1、`en/string` 31、`zh_HK/string` 31、`rawfile` 8 |
 
 ```
 entry/src/main/ets/
@@ -175,7 +175,7 @@ entry/src/main/ets/
 
 ### 4.2 `common/basic` — 公共模块（HAR）
 
-各功能共用的代码与资源：主题、通用组件、工具函数、常量、全局信号、账号角色数据。共用的字符串 / 颜色 / 图片也放在这里。
+各功能共用的代码与资源：主题、通用组件、工具函数、常量、全局信号、账号角色数据。被两个及以上模块引用的字符串 / 颜色 / 图片留在这里，只被单个模块引用的已下沉到该模块（见第 5 节）。
 
 | 项 | 内容 |
 | --- | --- |
@@ -184,7 +184,7 @@ entry/src/main/ets/
 | 对外导出 | 71 个（`Index.ets`），全部导出 |
 | 路由 | 无（由其他页面直接嵌入或调用） |
 | 本地测试 | 无 |
-| 资源 | `base/color` 31、`base/string` 479、`base/media` 44、`dark/color` 2、`dark/media` 1、`en/string` 471、`zh_HK/string` 470 |
+| 资源 | `base/color` 16、`base/string` 51、`base/media` 42、`dark/color` 2、`dark/media` 1、`en/string` 45、`zh_HK/string` 44 |
 
 ```
 common/basic/src/main/ets/
@@ -274,7 +274,7 @@ common/widgetbase/src/main/ets/
 | 对外导出 | 1 个（`Index.ets`） |
 | 路由 | 无（由其他页面直接嵌入或调用） |
 | 本地测试 | HomeViewModel |
-| 资源 | 无 |
+| 资源 | `base/string` 23、`en/string` 23、`zh_HK/string` 23 |
 
 ```
 features/home/src/main/ets/
@@ -304,7 +304,7 @@ features/home/src/main/ets/
 | 对外导出 | 3 个（`Index.ets`） |
 | 路由 | `GenshinDailyDetail`、`StarRailDailyDetail`、`ZZZDailyDetail` |
 | 本地测试 | GenshinDailyDetailViewModel |
-| 资源 | `base/profile` 1 |
+| 资源 | `base/string` 59、`en/string` 59、`zh_HK/string` 59、`base/profile` 1 |
 
 ```
 features/dailynote/src/main/ets/
@@ -352,7 +352,7 @@ features/dailynote/src/main/ets/
 | 对外导出 | 1 个（`Index.ets`） |
 | 路由 | 无（由其他页面直接嵌入或调用） |
 | 本地测试 | CharactersViewModel |
-| 资源 | 无 |
+| 资源 | `base/color` 2、`base/string` 19、`base/media` 2、`en/string` 19、`zh_HK/string` 19 |
 
 ```
 features/characters/src/main/ets/
@@ -387,7 +387,7 @@ features/characters/src/main/ets/
 | 对外导出 | 1 个（`Index.ets`） |
 | 路由 | `GenshinCharacterDetail`、`StarRailCharacterDetail`、`ZZZCharacterDetail` |
 | 本地测试 | GenshinCharacterDetailViewModel |
-| 资源 | `base/profile` 1 |
+| 资源 | `base/string` 99、`en/string` 99、`zh_HK/string` 99、`base/profile` 1 |
 
 ```
 features/chardetail/src/main/ets/
@@ -482,7 +482,7 @@ features/chardetail/src/main/ets/
 | 对外导出 | 2 个（`Index.ets`） |
 | 路由 | `ZZZMaterialList`、`GenshinMaterialTargetConfig`、`StarRailMaterialTargetConfig`、`ZZZMaterialTargetConfig`、`GenshinMaterialList`、`StarRailMaterialList`、`MaterialCharacterSelect` |
 | 本地测试 | 15 个测试文件：材料计算 / 汇总 / 目标配置 / 选角 / 工具页 ViewModel、`MaterialListAggregator`、`MaterialAmountUtil`、`MaterialComputeUtils`、路由与模型 |
-| 资源 | `base/profile` 1 |
+| 资源 | `base/color` 9、`base/string` 74、`en/string` 72、`zh_HK/string` 72、`base/profile` 1 |
 
 ```
 features/material/src/main/ets/
@@ -556,7 +556,7 @@ features/material/src/main/ets/
 | 对外导出 | 1 个（`Index.ets`） |
 | 路由 | `AccountDetail`、`Login` |
 | 本地测试 | AccountDetailViewModel、LoginViewModel、MyViewModel |
-| 资源 | `base/profile` 1 |
+| 资源 | `base/string` 61、`en/string` 61、`zh_HK/string` 61、`base/profile` 1 |
 
 ```
 features/account/src/main/ets/
@@ -616,7 +616,7 @@ features/account/src/main/ets/
 | 对外导出 | 2 个（`Index.ets`） |
 | 路由 | `AppearanceSettings` |
 | 本地测试 | 无 |
-| 资源 | `base/profile` 1 |
+| 资源 | `base/string` 9、`en/string` 9、`zh_HK/string` 9、`base/profile` 1 |
 
 ```
 features/settings/src/main/ets/
@@ -642,7 +642,7 @@ features/settings/src/main/ets/
 | 对外导出 | 1 个（`Index.ets`） |
 | 路由 | `NotificationSettings` |
 | 本地测试 | StaminaNotificationService、StaminaThresholdCalculator |
-| 资源 | `base/profile` 1 |
+| 资源 | `base/color` 1、`base/string` 31、`en/string` 31、`zh_HK/string` 31、`base/profile` 1 |
 
 ```
 features/notification/src/main/ets/
@@ -686,7 +686,7 @@ features/notification/src/main/ets/
 | 对外导出 | 12 个（`Index.ets`） |
 | 路由 | `WidgetSettings` |
 | 本地测试 | 无 |
-| 资源 | `base/profile` 1 |
+| 资源 | `base/string` 27、`en/string` 27、`zh_HK/string` 27、`base/profile` 1 |
 
 ```
 features/widget/src/main/ets/
@@ -753,7 +753,7 @@ features/widget/src/main/ets/
 | 对外导出 | 3 个（`Index.ets`） |
 | 路由 | `WebView` |
 | 本地测试 | PrivacyConsentViewModel |
-| 资源 | `base/profile` 1 |
+| 资源 | `base/string` 6、`en/string` 6、`zh_HK/string` 6、`base/profile` 1 |
 
 ```
 features/legal/src/main/ets/
@@ -783,7 +783,7 @@ features/legal/src/main/ets/
 | 对外导出 | 6 个（`Index.ets`） |
 | 路由 | 无（由其他页面直接嵌入或调用） |
 | 本地测试 | 无 |
-| 资源 | 无 |
+| 资源 | `base/string` 3、`en/string` 3、`zh_HK/string` 3 |
 
 ```
 features/verification/src/main/ets/
@@ -805,23 +805,22 @@ features/verification/src/main/ets/
 
 ## 5. 资源分布
 
-- **entry**：只留配置文件要用的（Ability / 卡片名称与说明、权限说明、应用图标 `ic_app_logo`、`layered_image`）和协议 HTML（`rawfile/legal/`）。
+- **entry**：配置文件要用的（Ability / 卡片名称与说明、权限说明、应用图标 `ic_app_logo`、`layered_image`）、卡片页面用到的 3 个卡片配色（`widget_bg`、`widget_gradient_1/2`）、应用外壳页（启动页 / 主页面 / 测试页）专属字符串，以及协议 HTML（`rawfile/legal/`）。
 - **common/widgetbase**：卡片页面用到的颜色（含深色）和字符串。
-- **common/basic**：其余所有共用资源。功能模块目前没有自己的字符串 / 颜色 / 图片，只有路由表；按功能细拆放在 M1–M15 各模块重构时做。
-- `ic_app_logo`、`black` 在 entry 和 basic 各有一份（entry 的给配置文件用，basic 的给功能代码用，内容相同）；`app_name` 的默认值在 AppScope 与 basic 各有一份。
+- **common/basic**：跨两个及以上模块共用的资源——时间格式、通用对话框按钮、游戏名 / 服务器名、空态提示等 51 条字符串、16 个颜色、42 张图片（游戏 logo、元素 / 命途 / 职业图标等）。
+- **各 feature 模块**：只被本模块引用的字符串 / 颜色 / 图片已下沉（GAP-10，2026-11-13）。判定口径：在 `.ets` / `.ts` 中出现 `app.string|color|media.<name>` 或按名取值的字符串字面量，且只命中一个模块。跨模块共用的一律留在 `common/basic`。
+- 重复定义已清理：`app_name` 只在 AppScope（启动器应用名），代码里的应用名改用 `common/basic` 的 `app_display_name`；`black` 只在 `common/basic`（entry 的 `module.json5` 通过依赖解析）。`page_show` 的冲突来自第三方 `@ohos/axios` 与 `@ohos/crypto-js`，与本工程无关。
 - 2026-10-29 已删除所有未被引用的资源；`material_target_config_level_suffix` 暂未使用但保留（见第 6 节）。
 
 ## 6. 尚未解决的结构问题
 
 | 问题 | 位置 | 处理时机 |
 | --- | --- | --- |
-| 6 个页面直接调用数据层服务（官方 MVVM 不允许）：LaunchPage、MainPage、TestPage、MyPage、PrivacyConsentPage、AppearanceSettingsPage；另有 material 4 个页面从服务文件导入枚举 `MaterialComputeResult`，枚举应移到 `model/` | entry / account / legal / settings / material | M1–M15（要改逻辑） |
 | 两个重复的卡片日志类 `WidgetLog` 与 `WidgetLogger` | features/widget、common/widgetbase | M14（要改逻辑） |
 | 4 组同名不同定义的类型（如 material 的 `MaterialItemRaw`） | material / widget / chardetail | M1–M15 |
 | `MaterialCalcPage` 没有注册路由，页面不可达 | features/material | 已知 High 缺陷 |
 | 星铁养成目标配置页把"级"写死为中文，预留的 `material_target_config_level_suffix` 未接入 | features/material | M1–M15 |
 | 通知服务把包名写死为正式包，uat / mock 包上可能指向错误的应用 | features/notification | 复核 notification 文档时定级 |
-| 资源未按功能拆分 | common/basic | M1–M15 |
 | `entry/src/ohosTest` 里是 core 的测试 | entry | 不在本次范围 |
 
 ## 7. 新增文件放哪里

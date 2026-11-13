@@ -1,6 +1,6 @@
 # Changelog
 
-## v2.1.1（未发布，2026-11-12）— 卡片与页面重构收尾
+## v2.1.1（未发布，2026-11-13）— 卡片与页面重构收尾
 
 > `AppScope/app.json5` 的 `versionName` 仍为 `2.0.1`，本节为待发布记录。
 
@@ -27,6 +27,7 @@
 
 ### 工程
 
+- **资源按模块归属拆分（GAP-10）**：428 条字符串 / 20 个颜色 / 2 张图片从 `common/basic` 下沉到实际引用它们的模块；`common/basic` 只保留跨模块共用资源（51 条字符串 / 16 色 / 42 图）。`app_name` 只留 AppScope（代码改用 `common/basic` 的 `app_display_name`）、`black` 只留 `common/basic`，本工程的资源重复告警清零（剩余 `page_show` 来自第三方 axios / crypto-js）
 - `run.sh` 适配 DevEco Studio 6.1 模拟器启动参数（`-start <name> -instancePath <root>`）
 - 停止跟踪构建生成的 13 个 `BuildProfile.ets`（hvigor 每次按 product 重写），修复切换 product 构建后工作区变脏
 
