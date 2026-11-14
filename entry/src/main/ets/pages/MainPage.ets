@@ -35,8 +35,17 @@ export struct MainPage {
   @Local private windowWidthVp: number = 360
 
   private windowClass: window.Window | undefined = AppStorage.get<window.Window>('windowClass')
-  private currentWindowStatusType: window.WindowStatusType | undefined =
-    this.windowClass?.getWindowStatus()
+  private currentWindowStatusType: window.WindowStatusType | undefined = this.readWindowStatus()
+
+  /** 读取窗口状态；部分设备 / 分屏场景会抛 801 / 1300002，失败时按未定义处理 */
+  private readWindowStatus(): window.WindowStatusType | undefined {
+    try {
+      return this.windowClass?.getWindowStatus()
+    } catch (_e) {
+      return undefined
+    }
+  }
+
   /** 窗口尺寸回调存为字段，注销时精确传入，避免清掉同窗口其它监听 */
   private windowSizeCallback: (size: window.Size) => void = (_size: window.Size) => {
     const ctx2 = this.uiCtx
@@ -94,7 +103,11 @@ export struct MainPage {
     }
     this.setCurrentMode()
     // 监听窗口尺寸变化（折叠屏展开/折叠、旋转）
-    this.windowClass?.on('windowSizeChange', this.windowSizeCallback)
+    try {
+      this.windowClass?.on('windowSizeChange', this.windowSizeCallback)
+    } catch (_e) {
+      // 注册窗口尺寸监听失败时忽略
+    }
     // 监听窗口状态变化（分屏模式检测）
     try {
       this.windowClass?.on('windowStatusChange', (statusType: window.WindowStatusType) => {
