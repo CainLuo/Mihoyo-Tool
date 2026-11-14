@@ -56,13 +56,6 @@ export class HomeViewModel {
   /** 非空时 View 弹系统 Alert，弹完后 View 应将其清空 */
   @Trace networkErrorMsg: string = '';
 
-  /**
-   * 当前同步是否为自动触发（冷启动/30分钟定时器）。
-   * true = 自动同步，错误静默处理（只记日志）
-   * false = 用户手动触发，错误通过 Snackbar 提示
-   */
-  private isAutoSync: boolean = true;
-
   /** 手动刷新冷却信号（切换时触发 View 弹 Dialog） */
   @Trace isRefreshCoolingDown: boolean = false;
 
@@ -127,7 +120,7 @@ export class HomeViewModel {
 
     if (hasAccountsButNoCards) {
       try {
-        await this.syncAllDailyNotes();
+        await this.syncAllDailyNotes(true);
         await this.reloadFromLocal();
       } catch (e) {
         const msg = e instanceof Error ? e.message : `${e}`;
@@ -142,11 +135,11 @@ export class HomeViewModel {
       if (!hasAnySnapshot) {
         // 首次登录，DB 里没有 daily note，等待同步完成
         try {
-          await this.syncIfNeeded();
+          await this.syncIfNeeded(true);
           await this.reloadFromLocal();
         } catch (_) {}
       } else {
-        this.syncIfNeeded().then(() => this.reloadFromLocal()).catch((_: Error | object) => {});
+        this.syncIfNeeded(true).then(() => this.reloadFromLocal()).catch((_: Error | object) => {});
       }
     }
     this.startAutoRefresh();
@@ -200,7 +193,7 @@ export class HomeViewModel {
   handleColdStartRefreshResult(result: ColdStartRefreshResult): void {
     HomeSyncCoordinator.handleColdStartRefreshResult(
       result,
-      () => this.syncIfNeeded().then(() => this.reloadFromLocal())
+      () => this.syncIfNeeded(true).then(() => this.reloadFromLocal())
     );
   }
 
@@ -215,10 +208,9 @@ export class HomeViewModel {
 
   /** 手动/强制刷新共用的同步 + 重载流程 */
   private async performRefresh(): Promise<void> {
-    this.isAutoSync = false;
     this.isRefreshing = true;
     try {
-      await this.syncAllDailyNotes();
+      await this.syncAllDailyNotes(false);
       AppStorage.setOrCreate('homeLastRefreshTime', Math.floor(Date.now() / 1000));
       await this.reloadFromLocal();
       this.refreshResult = 'success';
@@ -232,15 +224,15 @@ export class HomeViewModel {
   }
 
   /** 按需同步：委托 HomeSyncCoordinator，手动模式下上报错误 */
-  private async syncIfNeeded(): Promise<void> {
-    await HomeSyncCoordinator.syncIfNeeded(this.isAutoSync, (msg: string) => {
+  private async syncIfNeeded(auto: boolean): Promise<void> {
+    await HomeSyncCoordinator.syncIfNeeded(auto, (msg: string) => {
       this.networkErrorMsg = msg;
     });
   }
 
   /** 全量同步：委托 HomeSyncCoordinator，手动模式下上报错误 */
-  private async syncAllDailyNotes(): Promise<void> {
-    await HomeSyncCoordinator.syncAllDailyNotes(this.isAutoSync, (msg: string) => {
+  private async syncAllDailyNotes(auto: boolean): Promise<void> {
+    await HomeSyncCoordinator.syncAllDailyNotes(auto, (msg: string) => {
       this.networkErrorMsg = msg;
     });
   }
@@ -249,7 +241,7 @@ export class HomeViewModel {
     this.stopAutoRefresh();
     this.autoRefreshTimer = setInterval(() => {
       Logger.info(TAG, 'auto refresh triggered');
-      this.syncIfNeeded().then(() => {
+      this.syncIfNeeded(true).then(() => {
         this.reloadFromLocal().catch((e: Error) => {
           Logger.warn(TAG, `auto refresh fetchFromLocal failed: ${e.message}`);
         });
