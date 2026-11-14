@@ -239,7 +239,12 @@ export struct GenshinMaterialTargetConfigPage {
    * 格式化等级显示（Picker 选项）
    */
   private formatLevel(level: number): string {
-    return `${level} 级`
+    const context = this.getUIContext().getHostContext()
+    if (context === undefined) {
+      return `${level}`
+    }
+    return context.resourceManager.getStringSync(
+      $r('app.string.material_target_config_level_suffix').id, level)
   }
 }
 

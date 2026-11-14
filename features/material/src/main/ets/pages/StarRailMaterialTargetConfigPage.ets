@@ -241,9 +241,12 @@ export struct StarRailMaterialTargetConfigPage {
    * 格式化等级显示（Picker 选项）
    */
   private formatLevel(level: number): string {
-    // 无法在运行时动态拼接 $r()，使用硬编码格式
-    // 已在 string.json 中配置 material_target_config_level_suffix
-    return `${level} 级`
+    const context = this.getUIContext().getHostContext()
+    if (context === undefined) {
+      return `${level}`
+    }
+    return context.resourceManager.getStringSync(
+      $r('app.string.material_target_config_level_suffix').id, level)
   }
 }
 
