@@ -126,6 +126,10 @@ export struct MainPage {
     } catch (_e) {
       // 注销监听失败时忽略
     }
+    if (this.placeholder !== null) {
+      this.placeholder.dispose()
+      this.placeholder = null
+    }
   }
 
   /**
@@ -191,7 +195,9 @@ export struct MainPage {
       offset: { dx: 0, dy: 0 },
       maskColor: '#80000000',
       isModal: true,
-      autoCancel: true
+      autoCancel: true,
+      // 任何关闭路径（点选 / 点遮罩 / 返回手势）都释放节点，避免 ComponentContent 泄漏
+      onDidDisappear: () => { content.dispose(); }
     }).catch((_: Error | object) => {});
   }
 
