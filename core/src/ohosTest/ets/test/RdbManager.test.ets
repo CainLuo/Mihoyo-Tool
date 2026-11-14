@@ -18,8 +18,8 @@ async function getContext(): Promise<common.UIAbilityContext> {
 async function insertTestAccount(username: string): Promise<void> {
   await RdbManager.upsertRow(
     TableName.ACCOUNT,
-    ['username', 'cookie', 'stoken', 'stuid', 'mid', 'is_active', 'create_time', 'update_time', 'uid', 'nickname', 'avatar_url', 'introduce'],
-    [username, 'cookie_val', '', '', '', 0, 1000, 1000, 'uid_' + username, 'nick_' + username, '', '']
+    ['username', 'cookie', 'is_active', 'create_time', 'update_time', 'uid', 'nickname', 'avatar_url', 'introduce', 'raw_json'],
+    [username, 'cookie_val', 0, 1000, 1000, 'uid_' + username, 'nick_' + username, '', '', '']
   );
 }
 
@@ -153,8 +153,8 @@ export default function rdbManagerTest() {
       // 再次 upsert，nickname 改变
       await RdbManager.upsertRow(
         TableName.ACCOUNT,
-        ['username', 'cookie', 'stoken', 'stuid', 'mid', 'is_active', 'create_time', 'update_time', 'uid', 'nickname', 'avatar_url', 'introduce'],
-        [username, 'cookie_val', '', '', '', 0, 1000, 2000, 'uid_' + username, 'updated_nick', '', '']
+        ['username', 'cookie', 'is_active', 'create_time', 'update_time', 'uid', 'nickname', 'avatar_url', 'introduce', 'raw_json'],
+        [username, 'cookie_val', 0, 1000, 2000, 'uid_' + username, 'updated_nick', '', '', '']
       );
 
       const pred = new relationalStore.RdbPredicates('account_table');
@@ -325,8 +325,8 @@ export default function rdbManagerTest() {
       await deleteTestAccount(username);
 
       await RdbManager.executeSql(
-        "INSERT OR REPLACE INTO account_table (username, cookie, stoken, stuid, mid, is_active, create_time, update_time, uid, nickname, avatar_url, introduce) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        [username, '', '', '', '', 0, 0, 0, '', 'exec_nick', '', '']
+        "INSERT OR REPLACE INTO account_table (username, cookie, is_active, create_time, update_time, uid, nickname, avatar_url, introduce, raw_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        [username, '', 0, 0, 0, '', 'exec_nick', '', '', '']
       );
 
       const pred = new relationalStore.RdbPredicates('account_table');

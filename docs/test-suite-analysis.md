@@ -76,7 +76,7 @@
 | 入口 | `List.test.ets` 的 `testsuite()` 依次调用 19 个套件 | 任一文件编译失败 → 整套失败（当前即如此） |
 | CLI | `hvigorw tasks --mode module -p module=entry@default` 只有 `tasks` / `taskTree` / `init`，**没有 test 任务** | 只能在 DevEco Studio 里 Run Test（`Refactor_Spec` §0.3） |
 | 脚本 | `test-entry.sh` 只 `assembleHap` entry@ohosTest HAP（编译验证）；`test-core.sh` 改为执行 `core@default` 本地单测 | `test-entry.sh` 仍不是测试执行器 |
-| ohosTest | `entry/src/ohosTest/ets/test/core/*` 的 12 个 core 用例副本已于 2026-11-14 删除（与 `core/src/test` 重复，仅 import 路径不同）；entry 侧只保留 `Ability.test` + `ui/MainFlow.test`。`core@ohosTest` 仍有存量 API 漂移编译错误 | 不在本次门禁内（§0.4） |
+| ohosTest | `entry/src/ohosTest/ets/test/core/*` 的 12 个 core 用例副本已于 2026-11-14 删除（与 `core/src/test` 重复，仅 import 路径不同）；entry 侧只保留 `Ability.test` + `ui/MainFlow.test`。`core@ohosTest` 存量 API 漂移已于 2026-11-14 修复，`genOnDeviceTestHap` 编译通过；无设备未执行 | 不在本次门禁内（§0.4） |
 
 ---
 

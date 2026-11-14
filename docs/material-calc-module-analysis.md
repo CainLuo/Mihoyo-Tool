@@ -19,9 +19,9 @@
 
 > 口径：skills `harmonyos-review` 官方 A-F 评级（0 Critical + High ≤ 3）。旧百分制已废弃，原分 88/100 仅作历史参考。
 >
-> **High 判定理由**：`MaterialCalc` 既不在 `custom_router_map.json`，也不在任何 `.navDestination()` Builder 中，角色详情里的「材料计算」入口点击后无法打开本页——用户可直接感知（按 README §4 第 3 点"用户能否感知故障"口径）。其余 Medium 均以该入口修通为前提才会暴露。
+> **High 判定理由**：`MaterialCalc` 既不在 `custom_router_map.json`，也不在任何 `.navDestination()` Builder 中，角色详情里的「材料计算」入口点击后无法打开本页——用户可直接感知（按 README §4 第 3 点"用户能否感知故障"口径）。**2026-11-14：H-1 已随 GAP-02 修复**，`MaterialCalc` 已注册到 `material_router_map.json`。其余 Medium 均以该入口修通为前提才会暴露。
 >
-> **为何「目标等级设置占位实现」定 Medium 而非 High**：按"用户能否感知故障"口径，当前用户根本进不了本页，能感知到的只有 H-1（入口无效），该故障只在 H-1 计一次；占位实现、EMPTY 被覆盖、材料行回退、init 卡 LOADING 四条均为入口后的潜伏缺陷，统一记 Medium。修 H-1 让页面可达时，应同步重评这四条（届时它们都会变成用户可感知故障，至少占位实现与材料行回退应升 High）。
+> **为何「目标等级设置占位实现」定 Medium 而非 High**：按"用户能否感知故障"口径，H-1 修复前用户根本进不了本页，能感知到的只有 H-1（入口无效），该故障只在 H-1 计一次；占位实现、EMPTY 被覆盖、材料行回退、init 卡 LOADING 四条均为入口后的潜伏缺陷，统一记 Medium。修 H-1 让页面可达时，应同步重评这四条（届时它们都会变成用户可感知故障，至少占位实现与材料行回退应升 High）。
 >
 > **债务点数**：1×3 + 4×2 + 3×1 = 14；密度 14 ÷ (111/100) ≈ 12.6（源行数只计页面文件 `MaterialCalcPage.ets` 111 行，与 README §2 口径一致）。
 
@@ -125,7 +125,7 @@ MaterialCalc (@ComponentV2)
 
 > 下列行号为 M7 重构后（2026-11-04）的当前行号；结论本身未变。
 
-- [ ] **高优先级（H-1）**：页面不可达——`MaterialCalc` 未注册到 `resources/base/profile/custom_router_map.json`，`MainPage.ets:415` 的内层 `Navigation(this.stack)` 无 `.navDestination()`，`Index.ets:8-16` 的 `pageBuilder` 也无此分支；`GenshinCharacterDetailPage.ets:100` 的 `pushPathByName(AppRoutes.MATERIAL_CALC, ...)` 找不到目标页，角色详情的「材料计算」卡片点击无效。**修复建议**：在 routerMap 补 `{ name: 'MaterialCalc', pageSourceFile: 'src/main/ets/pages/MaterialCalcPage.ets', buildFunction: 'MaterialCalcPageBuilder' }`（属行为变更，单独提交）。
+- [x] **高优先级（H-1）✅ 已修复（GAP-02）**：原 `MaterialCalc` 未注册路由，角色详情「材料计算」点击无效。现已在 `features/material/src/main/resources/base/profile/material_router_map.json:39-41` 注册 `MaterialCalc` → `MaterialCalcPageBuilder`，入口与页面均编译通过；仍需真机点一次确认嵌套 `NavPathStack` 行为。
 - [ ] **中优先级**：`vm.init()` 的前置查询失败会让页面卡在 LOADING —— `init()` 在 L69 先设 `viewState = LOADING`，随后 L72 `await CoreInitializer.bbsRepository.getGameRoles(accountId)` **不在任何 try-catch 内**（`loadData()` 自己的 try-catch 只覆盖 `loadData()` 内部）。页面 `aboutToAppear`（`MaterialCalcPage.ets:36`）直接调用 `this.vm.init(...)`，既不 `await` 也不 `catch`，因此 DB/仓库异常会变成 unhandled rejection，且 LOADING 永远不会离开。**修复建议**：把 `getGameRoles` 包进 try-catch，失败时 `viewState = EMPTY`（或 ERROR 并补页面分支），或让页面 `init().catch(...)` 兜底。
 - [ ] **中优先级**：目标等级设置链路是占位实现——`setCharTargetLevel` / `setWeaponTargetLevel`（VM L86-98）只改 `charTargetLevel` / `weaponTargetLevel`，`recalculateMaterials()`（L460-463）为空；角色卡显示的是 `character.targetLevel`（`MaterialCalcCharacter.ets:56`），从未被 setter 更新；武器按钮文案硬编码 `'Lv.80→90 ▼'`（`MaterialCalcSection.ets:44`）；技能等级固定为 `10/10`（原神/星铁，`buildSkillTargets(..., 10, 10)`，L328 / L341）或 `1/12`（ZZZ，L364），并非角色真实数据。用户选择等级后界面与材料均无变化。
 - [ ] **中优先级**：角色不存在时 EMPTY 被覆盖为 DATA——`loadGenshinData/StarRailData/ZZZData` 在找不到 avatar 时设 `EMPTY` 后 `return`（L169-171 / L230-232 / L285-287），但 `loadData()` 随后无条件执行 L154 `viewState = DATA`，页面显示空白角色卡而不是 EmptyView。
@@ -147,9 +147,9 @@ MaterialCalc (@ComponentV2)
 
 | 项 | 内容 |
 | --- | --- |
-| 路由 | `MaterialCalc` **不在** `custom_router_map.json`；由 `GenshinCharacterDetailPage.ets:100` 用 `AppRoutes.MATERIAL_CALC` push——**当前无法解析，见 H-1** |
+| 路由 | ✅ 已注册：`features/material/src/main/resources/base/profile/material_router_map.json:39-41` 的 `MaterialCalc` → `MaterialCalcPageBuilder`；`GenshinCharacterDetailPage.ets:100` 用 `AppRoutes.MATERIAL_CALC` push |
 | 路由参数 | `MaterialCalcParam` 定义在 `pages/MaterialCalcPage.ets:22`，被 `GenshinCharacterDetailPage.ets:18` 直接 import。**类名与页面路径冻结**，否则 M10 编译失败 |
-| Builder | `MaterialCalcPageBuilder` 在页面末尾（`MaterialCalcPage.ets:107-109`），本页不在 routerMap，Builder 目前无引用；修 H-1 时它将成为 routerMap 的 `buildFunction`，届时名称冻结 |
+| Builder | `MaterialCalcPageBuilder` 在页面末尾（`MaterialCalcPage.ets:107-109`），已是 routerMap 的 `buildFunction`，名称冻结 |
 | 测试引用（冻结） | `viewmodel/MaterialCalcViewModel.ets`、`constants/ViewState.ets`、`model/MaterialCalcModels.ets` 被 `entry/src/test/MaterialCalcViewModel.test.ets` 导入 |
 | 组件 | `features/material/src/main/ets/views/` 下 8 个文件（MaterialCalcLevelPicker / MaterialCalcCharacter / MaterialCalcContentView / MaterialCalcEmptyView / MaterialCalcItem / MaterialCalcLoadingView / MaterialCalcSection / MaterialCalcSkills），仅本页使用 |
 
@@ -168,11 +168,11 @@ MaterialCalc (@ComponentV2)
 
 1. 编译通过；`codeLinter` 不新增违规。
 2. DevEco Local Test：`MaterialCalcViewModel.test.ets`（100 行）通过（注意：该测试仍引用 `characterName` / `characterIconUrl` 等模型已不存在的字段，属测试自身陈旧，未在本轮修改）。
-3. 冒烟：角色详情 → 材料计算 → 角色/武器等级 Picker。**注意**：H-1 未修前该入口打不开，冒烟只能确认"点击无效"这一现状不被重构改变；本页也没有"开始计算 → 材料清单"的跳转（材料清单由 Tools → MaterialCharacterSelect → TargetConfig 链路进入）。
+3. 冒烟：角色详情 → 材料计算 → 角色/武器等级 Picker。H-1 已修，可直接走入口；本页也没有"开始计算 → 材料清单"的跳转（材料清单由 Tools → MaterialCharacterSelect → TargetConfig 链路进入）。
 
 ### 已知问题归属
 
-- High（H-1 页面未注册路由）：行为变更，单独提交；需同步 Refactor_Spec §11 与 genshin-character-detail 文档的入口说明。
+- High（H-1 页面未注册路由）：✅ 已修复（GAP-02），路由表与入口已同步。
 - Medium（`vm.init()` 失败无兜底、等级设置占位实现、EMPTY 被覆盖为 DATA、原神材料行回退到其他角色）：记录；要修则单独提交。
 - Low（`onSkillTap` 空实现、刷新提示无实现、Section 硬编码中文）：不在重构范围。
 - 信息（模型层 4 个死字段）：记录，待模型层统一清理。

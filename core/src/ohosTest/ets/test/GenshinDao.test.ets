@@ -116,9 +116,6 @@ export default function genshinDaoTest() {
     acc.id = 10001;
     acc.username = 'genshin_dao_test_account';
     acc.cookie = '';
-    acc.stoken = '';
-    acc.stuid = '';
-    acc.mid = '';
     acc.isActive = 0;
     acc.createTime = 0;
     acc.updateTime = 0;

@@ -39,9 +39,6 @@ export default function syncMetaDaoTest() {
     acc.id = 10004;
     acc.username = 'sync_dao_test_account';
     acc.cookie = '';
-    acc.stoken = '';
-    acc.stuid = '';
-    acc.mid = '';
     acc.isActive = 0;
     acc.createTime = 0;
     acc.updateTime = 0;

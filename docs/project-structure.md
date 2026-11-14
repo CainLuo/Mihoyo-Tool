@@ -502,7 +502,7 @@ features/material/src/main/ets/
 ├── pages/                                         # 页面
 │   ├── GenshinMaterialListPage.ets                # 原神材料汇总页
 │   ├── GenshinMaterialTargetConfigPage.ets        # 原神养成目标配置页
-│   ├── MaterialCalcPage.ets                       # 单角色材料计算页（路由未注册，见已知缺陷）
+│   ├── MaterialCalcPage.ets                       # 单角色材料计算页（路由名 MaterialCalc）
 │   ├── MaterialCharacterSelectPage.ets            # 选角页（多选，最多 4 个）
 │   ├── StarRailMaterialListPage.ets               # 星铁材料汇总页
 │   ├── StarRailMaterialTargetConfigPage.ets       # 星铁养成目标配置页
@@ -813,7 +813,6 @@ features/verification/src/main/ets/
 
 | 问题 | 位置 | 处理时机 |
 | --- | --- | --- |
-| `MaterialCalcPage` 没有注册路由，页面不可达 | features/material | 已知 High 缺陷 |
 | 星铁养成目标配置页把"级"写死为中文，预留的 `material_target_config_level_suffix` 未接入 | features/material | M1–M15 |
 | 删除账号后，`widget_configs` 里指向该账号的 slot 无人清理（卡片仍显示已删账号的角色） | features/account / widget | 待排期（需给 `deleteAccount` 传 context，属行为变更） |
 

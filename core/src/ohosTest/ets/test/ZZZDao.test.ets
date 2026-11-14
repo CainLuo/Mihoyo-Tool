@@ -108,9 +108,6 @@ export default function zzzDaoTest() {
     acc.id = 10003;
     acc.username = 'zzz_dao_test_account';
     acc.cookie = '';
-    acc.stoken = '';
-    acc.stuid = '';
-    acc.mid = '';
     acc.isActive = 0;
     acc.createTime = 0;
     acc.updateTime = 0;

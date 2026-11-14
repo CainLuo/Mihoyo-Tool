@@ -26,9 +26,9 @@
 1. M8（人机验证申请 / 提交失败提示）与外观页 High（切换失败不再静默返回）需新增提示字符串（改 `resources`）。
 2. 材料计算"部分角色失败"是否新增结果并提示。
 
-**结构迁移中新发现（未修，待定级）**：`features/notification/.../StaminaNotificationService.ets:20` 把包名写死为正式包 `com.cainluo.miyoyo.tools`，用于通知的 `bundleName` / `pkgName`（289、351、468、523 行）；uat / mock 包名不同（`.uat` / `.mock`），这两个包上相关调用可能指向错误的应用。按"只移动文件"未改，复核 notification 文档时核实影响并定级。
+**结构迁移中新发现（✅ 已修复，GAP-05 / `a785ca6`）**：原 `features/notification/.../StaminaNotificationService.ets:20` 把包名写死为正式包 `com.cainluo.miyoyo.tools`，用于通知的 `bundleName` / `pkgName`（289、351、468、523 行）；uat / mock 包名不同（`.uat` / `.mock`），这两个包上相关调用可能指向错误的应用。现已改为读 `context.abilityInfo.bundleName`（`a785ca6`），uat / mock 包不再指向正式包。
 
-**未修复的 High 缺陷**（单独提交，不混入结构迁移；⚠️ 2026-10-29 发现此清单与 README 不一致——README 中 PrivacyConsent、Launch、Ability 均为 0 High。清单来源待复核各自文档时逐条核实，核实前不作为结论引用）：隐私页内容不足一屏时无法继续（PrivacyConsent）；core 初始化失败卡启动页（Launch）；MaterialCalc 页面不可达（路由未注册）；小组件更新瞬时失败删除卡片配置（Widget H1）；系统备份含明文凭据（Ability，DB-003）；角色详情解析失败显示空白（CharDetail ×3）；GeetestDialog 移除主窗口尺寸监听（Main H1）；返回手势关闭人机验证框后验证队列永久卡死（Main H2，2026-10-29 文档复核恢复）。
+**当时未修复的 High 缺陷**（单独提交，不混入结构迁移；截至 2026-11-14，下列除签名口令 GAP-07 外均已修复）：隐私页内容不足一屏时无法继续（PrivacyConsent）；core 初始化失败卡启动页（Launch）；MaterialCalc 页面不可达（路由未注册）；小组件更新瞬时失败删除卡片配置（Widget H1）；系统备份含明文凭据（Ability，DB-003）；角色详情解析失败显示空白（CharDetail ×3）；GeetestDialog 移除主窗口尺寸监听（Main H1）；返回手势关闭人机验证框后验证队列永久卡死（Main H2，2026-10-29 文档复核恢复）。
 
 ## 状态总览
 

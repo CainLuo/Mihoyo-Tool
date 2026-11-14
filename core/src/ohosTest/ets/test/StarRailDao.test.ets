@@ -118,9 +118,6 @@ export default function starRailDaoTest() {
     acc.id = 10002;
     acc.username = 'sr_dao_test_account';
     acc.cookie = '';
-    acc.stoken = '';
-    acc.stuid = '';
-    acc.mid = '';
     acc.isActive = 0;
     acc.createTime = 0;
     acc.updateTime = 0;

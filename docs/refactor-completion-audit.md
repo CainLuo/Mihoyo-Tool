@@ -4,7 +4,7 @@
 > **审计对象**：`bugfix/refactor-entry-module` 分支上的三层结构（`entry` / `common` / `features`）与 M0–M15 模块重构结果
 > **审计方式**：逐项跑构建 / codeLinter / Local Test，并回代码核对已登记缺陷是否仍然存在
 > **配套文档**：[`entry/Refactor_Spec.md`](../entry/Refactor_Spec.md)（执行台账）、[`structure-migration-plan.md`](./structure-migration-plan.md)（结构迁移）、[`project-structure.md`](./project-structure.md)（当前目录结构）
-> **结论**：代码重构已完成，编译与单元测试执行已通过（**837 条**）；**GAP-01 / 02 / 03 / 04 / 05 / 06 已修复**，模拟器主链路冒烟已跑；但**真机冒烟仍未完整**，GAP-07 等缺陷与收尾债务仍在。
+> **结论**：代码重构已完成，编译与单元测试执行已通过（**850 条**）；**GAP-01 / 02 / 03 / 04 / 05 / 06 已修复**，模拟器主链路冒烟已跑；但**真机冒烟仍未完整**，GAP-07 等缺陷与收尾债务仍在。
 
 ---
 
@@ -17,8 +17,8 @@
 | 编译（uat / Debug） | ✅ 通过 | clean 后 `assembleHap` 成功 |
 | ohosTest 编译 | ✅ 通过 | 原 67 个错误已随结构迁移消失 |
 | codeLinter | ✅ 通过 | 381 个 `.ets`：0 error / 1 warn / 1 suggestion |
-| Local Test | ✅ 通过 | 14 个模块、**837 用例全绿**；29 个 `viewmodel/` 类全部有测试；widget / notification 的 Store 已可注入并补测，见 §2.3.1 |
-| 设备端单测（ohosTest） | 🔶 不可运行 | `core/src/ohosTest` 156 条 DAO / Repository 用例存在 API 漂移编译错误，且无设备，未执行；见 §2.3.2 |
+| Local Test | ✅ 通过 | 14 个模块、**850 用例全绿**；29 个 `viewmodel/` 类全部有测试；widget / notification 的 Store 已可注入并补测，见 §2.3.1 |
+| 设备端单测（ohosTest） | ✅ 编译通过 / 🔶 未执行 | `core/src/ohosTest` 12 个套件 / **154 条** DAO / Repository 用例已修复 API 漂移并编译通过；无设备，未执行；见 §2.3.2 |
 | UI 测试 | 🔶 骨架已建 | 1 条启动冒烟 + 9 个稳定控件 id，见 §2.3.3；**无设备，未执行** |
 | 真机 / 模拟器冒烟 | 🔶 部分执行 | 2026-11-07 模拟器跑完主链路；隐私弹窗、真实登录、折叠屏、人机验证、卡片空态未覆盖，见 §2.4 |
 | 已知用户可见缺陷 | 🔶 部分修复 | GAP-01 / 02 / 03 / 04 / 05 / 06 已修；GAP-07 未修，见第 4 节 P0 |
@@ -38,13 +38,11 @@
 | main 编译 | `hvigorw assembleHap -p product=uat -p buildMode=debug` | ✅ `BUILD SUCCESSFUL in 14s 285ms` |
 | ohosTest 编译 | `bash test-entry.sh` | ✅ `BUILD SUCCESSFUL in 14s 381ms` |
 
-构建残留警告（不阻断，但属于资源拆分遗留）：
+构建残留警告（不阻断）：
 
 | 警告 | 来源 | 影响 |
 | --- | --- | --- |
-| `'app_name' conflict, first declared` | `AppScope` 与 `common/basic` 各定义一份，值相同（米悠悠） | 当前无可见影响；拆分资源时应删掉 basic 中的副本 |
-| `'black' conflict, first declared` | `entry` 与 `common/basic` 各定义一份，值相同（`#000000`） | 同上 |
-| `'page_show' conflict` ×6 | 依赖 / HAR 资源带入（`page from npm package`） | 需在资源清理时确认来源 |
+| `'page_show' conflict` ×6 | 第三方 `@ohos/axios` 与 `@ohos/crypto-js` 各自声明 | 工程资源无此 key，不在本工程范围；`app_name` / `black` 重复已随 GAP-10 清除 |
 
 ### 2.2 codeLinter
 
@@ -91,14 +89,14 @@ hvigorw test --mode module -p module=<module>@default -p product=default
 | `dailynote` | 27 | 27 | 0 | 三个游戏便签 VM + Loader / 派遣 / 模型 |
 | `home` | 28 | 28 | 0 | VM + Presenter / DataLoader / SyncCoordinator |
 | `legal` | 10 | 10 | 0 | — |
-| `material` | 106 | 106 | 0 | 4 个 VM + 计算 / 目标配置 / 选角 / 工具函数 |
+| `material` | 122 | 122 | 0 | 4 个 VM + 计算 / 目标配置 / 选角 / 工具函数 |
 | `notification` | 62 | 62 | 0 | 阈值 / 模型 + 设置 VM + 两个 Store |
 | `settings` | 9 | 9 | 0 | 外观设置 VM + 模型 |
-| `widget` | 79 | 79 | 0 | 配置 / 数据 / payload / 预览 / 设置 VM + 配置 Store / 推送分类 |
+| `widget` | 76 | 76 | 0 | 配置 / 数据 / payload / 预览 / 设置 VM + 配置 Store / 推送分类 |
 | `widgetbase` | 96 | 96 | 0 | 解析 / 数据工具 / 额外行 |
 | `common/basic` | 27 | 27 | 0 | 角色排序 / 游戏 ID / 弹框去重 / 透明色 / 账号模型 |
 | `core` | 250 | 250 | 0 | 解析器 / DSUtil / RowModels / Retcode / ApiErrorHandler / Header / Domain / ColdStart |
-| **合计** | **837** | **837** | **0** | 14 个模块 |
+| **合计** | **850** | **850** | **0** | 14 个模块 |
 
 仍没有测试目录的模块：`features/verification`（页面 / 服务依赖设备能力）。
 
@@ -116,16 +114,16 @@ hvigorw test --mode module -p module=<module>@default -p product=default
 | `characters` | 292 / 8,964（3.3%） | `widget` | 889 / 11,080（8.0%） |
 | `chardetail` | 277 / 10,700（2.6%） | `dailynote` | 337 / 8,900（3.8%） |
 
-- **29 个 `viewmodel/` 类已全部有测试**，另有 102 个 `src/test` 测试文件、837 条用例；此前 0 覆盖的 `Genshin/StarRail/ZZZMaterialList`、三个 `MaterialTargetConfig`、`MaterialCharacterSelect`、`StarRail/ZZZCharDetail`、`StarRail/ZZZDailynote`、`HomeDataLoader`、`HomeSyncCoordinator`、`NotificationSettings`、`WidgetSettings` 与 `Widget1x2/2x4/4x4` 均已补上。
+- **29 个 `viewmodel/` 类已全部有测试**，另有 102 个 `src/test` 测试文件、850 条用例；此前 0 覆盖的 `Genshin/StarRail/ZZZMaterialList`、三个 `MaterialTargetConfig`、`MaterialCharacterSelect`、`StarRail/ZZZCharDetail`、`StarRail/ZZZDailynote`、`HomeDataLoader`、`HomeSyncCoordinator`、`NotificationSettings`、`WidgetSettings` 与 `Widget1x2/2x4/4x4` 均已补上。
 - 覆盖率仍偏低的原因是统计口径包含依赖模块源码与大量 View / Ability 文件；纯逻辑层的保护已明显好于上一版：`WidgetDataUtil` 87.0%、`WidgetPayloadUtil` 82.5%、`StaminaThresholdCalculator` 100%、`Widget2x2ViewModel` 100%。
 - 2026-11-07 已把 `WidgetConfigStore` / `WidgetFormIdStore` / `NotificationSettingsStore` / `NotificationStateStore` 的 preferences 依赖改为可注入接口，并补 16 条单测；`WidgetUpdateNotifier.classifyPushError` 也可直接测。
 - 仍未覆盖：`features/widget` 的 `WidgetDataStoreBuilder` / `WidgetImageDownloader`（依赖 FormKit、网络与 DB，Local Test 不可运行）、`settings/AppearanceManager`、`StaminaNotificationService` 的调度本体，以及全部组件与 Ability 的 UI 行为。
 - `StaminaNotificationService.test.ets` 仍是测试内复制的 `hashNotificationId`，服务本体调度逻辑未直接测。
 
-#### 2.3.2 设备端测试：156 条存在，但当前跑不了
+#### 2.3.2 设备端测试：154 条已编译，当前无设备执行
 
-- `core/src/ohosTest` 有 12 个套件 / **156 条**用例（`RdbManager`、4 个游戏的 DAO / Repository、`MaterialBagDao`）。
-- `genOnDeviceTestHap`（`-p module=core@ohosTest`）当前因存量用例 API 漂移而编译失败（`getContext(this)`、`any`、Repository 方法改名等），与本次迁移无关；`hdc list targets` 返回 `[Empty]`，也没有设备可执行。
+- `core/src/ohosTest` 有 12 个套件 / **154 条**用例（`RdbManager`、4 个游戏的 DAO / Repository、`MaterialBagDao`）。
+- 2026-11-14 已修复存量用例的 API 漂移（`AccountRow` 字段、`GameId` 枚举、材料背包 DAO 的 roleUid 参数、StarRail Repository 的 upsert 方法、hypium `assertNull` 等），`genOnDeviceTestHap` 编译通过；`hdc list targets` 返回 `[Empty]`，无设备可执行。
 - `entry/src/ohosTest` 原有 12 个套件 / **225 条**是 `core/src/test` 解析器用例的副本（仅 import 路径不同），2026-11-14 已删除；`core/src/test` 仍保留并运行同一批用例。entry 侧只剩 `Ability.test` + `ui/MainFlow.test`。
 - 因此“ohosTest 编译通过”只是**编译验证**，不是设备端执行结果。
 
@@ -184,7 +182,7 @@ Local Test 首轮并非全绿：3 个模块的测试根本编译不过。修复�
 | GAP-02 | [`material_router_map.json`](../features/material/src/main/resources/base/profile/material_router_map.json) 注册 `MaterialCalc` → `MaterialCalcPageBuilder` | `assembleHap` 通过，路由表可被父级 navDestination 解析 |
 | GAP-03 | 三个 `*CharacterDetailViewModel` 的加载 catch 置 `ViewState.ERROR`，失败不再白屏 | chardetail 34 条全绿，含错误态断言 |
 | GAP-06 | [`EntryFormAbility`](../entry/src/main/ets/entryformability/EntryFormAbility.ets) 无数据时不再返回 Mock，改传真实空 payload，卡片走 `isEmpty` 空态 | `assembleHap` 通过 |
-| 测试基建 | 新增 `common/basic/src/test`、`entry/src/ohosTest/ets/test/ui`、`docs/ui-test-plan.md`；widget / notification 的 4 个 Store 改为 `PreferencesLike` 注入 | 14 个模块 837 条全绿；`test-entry.sh` 通过 |
+| 测试基建 | 新增 `common/basic/src/test`、`entry/src/ohosTest/ets/test/ui`、`docs/ui-test-plan.md`；widget / notification 的 4 个 Store 改为 `PreferencesLike` 注入 | 14 个模块 850 条全绿；`test-entry.sh` 通过 |
 
 ### 3.2 2026-11-08 行为修复批次
 
@@ -225,7 +223,7 @@ Local Test 首轮并非全绿：3 个模块的测试根本编译不过。修复�
 | GAP-08 | ✅ 已修复（2026-11-12） | 三个材料汇总 VM 628 / 368 / 421L → **449 / 261 / 258L**；角色排序、按材料汇总、分组、材料项转换收敛到新文件 [`MaterialListAggregator.ets`](../features/material/src/main/ets/viewmodel/MaterialListAggregator.ets)（273L，纯函数），差异用参数表达（原神背包 / 货币分组 vs 星铁·绝区零无背包 / 单 `ALL` 分组） | 新增 `MaterialListAggregator.test.ets` 16 条用例（98.58% 行 / 100% 分支）；原神专属 `buildSummariesFromOverall`、`parseSkillItems`、`loadCharacterMaterials` 保留在 VM |
 | GAP-09 | ✅ 已修复（2026-11-12） | 六页的 Model 层直调收敛到 ViewModel：`LaunchPage` → 新增 `LaunchViewModel`（隐私判断 / 等待 Core）、`MainPage` → 新增 `MainPageViewModel`（`GeetestCenter` / `DeviceFpCenter` 初始化）、`TestPage` → 新增 `TestViewModel`（改写 Cookie / 触发过期弹框）、`MyPage` → `MyViewModel` 新增主题模式读取、`PrivacyConsentPage` → `PrivacyConsentViewModel.agree()`、`AppearanceSettingsPage` → `AppearanceSettingsViewModel.applyColorMode()`；`MaterialComputeResult` 枚举从 `model/service/` 移到 `model/`，4 页 / 7 VM 改为直接从 model 导入 | 页面只保留 UI 与路由；初始化时机、失败降级（隐私写库失败仍跳转、主题读取失败回落跟随系统）与改造前一致 |
 | GAP-10 | ✅ 已修复（2026-11-13） | 按 `$r` 引用归属拆分资源：只被单个模块引用的 428 条字符串 / 20 个颜色 / 2 张图片从 `common/basic` 下沉到对应模块（entry 41 条 + 3 色、account 61、chardetail 99、material 74 + 9 色、dailynote 59、notification 31 + 1 色、widget 27、home 23、characters 19 + 2 色 + 2 图、settings 9、legal 6、verification 3）；`common/basic` 只剩 51 条跨模块共用字符串 / 16 色 / 42 图 | 重复定义清理：`app_name` 只留 AppScope、代码改用 `common/basic` 的 `app_display_name`；`black` 只留 `common/basic`；`page_show` 冲突来自第三方 `@ohos/axios` / `@ohos/crypto-js`，不在本工程范围 |
-| GAP-11 | 测试覆盖不足（UI + 设备端） | 单测 14 个模块 / 837 条全绿，29 个 `viewmodel/` 全部覆盖；widget / notification 的 4 个 Store 已改为可注入并补测；剩余 `WidgetDataStoreBuilder` / `WidgetImageDownloader` / `AppearanceManager` / `StaminaNotificationService` 依赖系统能力；`core/src/ohosTest` 156 条设备测试仍不可运行；UI 只有 1 条启动冒烟骨架、无设备执行；详见 §2.3 | 连接设备后按 [`ui-test-plan.md`](./ui-test-plan.md) 补 3 条主链路并实跑；再评估设备端测试的 `TestAbility` |
+| GAP-11 | 测试覆盖不足（UI + 设备端） | 单测 14 个模块 / 850 条全绿，29 个 `viewmodel/` 全部覆盖；widget / notification 的 4 个 Store 已改为可注入并补测；剩余 `WidgetDataStoreBuilder` / `WidgetImageDownloader` / `AppearanceManager` / `StaminaNotificationService` 依赖系统能力；`core/src/ohosTest` 154 条设备测试已编译通过但无设备执行；UI 只有 1 条启动冒烟骨架、无设备执行；详见 §2.3 | 连接设备后按 [`ui-test-plan.md`](./ui-test-plan.md) 补 3 条主链路并实跑；再评估设备端测试的 `TestAbility` |
 | GAP-12 | ✅ 基本完成 | ✅ `project-structure.md` 计数已更新（`bccca38`）；✅ `CHANGELOG.md` 已补 `v2.1.1`（本轮 M1 / W-VM / 骨架屏修复 / GAP-17）；`docs/reviews/` 仍未建立——16 个模块的深度分析已在 `docs/*-module-analysis.md` 中，评估为**不重复建立审计目录**；剩余 30 份分析文档的旧路径已在 `bfbeb09` / `bccca38` 排查完毕 | 如需模块级审计报告再单独立项 |
 | GAP-13 | 未完成功能 TODO | 材料计算技能等级选择器是空实现（[`MaterialCalcPage.ets:63`](../features/material/src/main/ets/pages/MaterialCalcPage.ets#L63)）；材料清单“关联角色详情”未接（[`MaterialListContentView.ets:67`](../features/material/src/main/ets/views/MaterialListContentView.ets#L67)） | 属于功能缺口，不是重构遗留；需产品确认是否本轮补 |
 
@@ -298,3 +296,4 @@ codeLinter 命令见 §2.2。
 | 2026-11-13 | Widget M8 修复：删除 `WidgetFormIdStore` / `WidgetDataBuilder` 遗留链路（369 行）与 3 条测试，`WidgetSyncHook` 去掉 `init`，`account` 去掉 `widget` 依赖；行为零变更 |
 | 2026-11-13 | 同名类型清理：`MaterialItemRaw` 两份合并到 `MaterialRawModels`；两个 `MaterialSectionVM` 改名 `MaterialSummarySectionVM` / `MaterialCalcSectionVM`；模型 `ZZZSkillItem` 改名 `ZZZCharDetailSkillItem`；`assembleHap` + material 122 / chardetail 34 条单测全绿 |
 | 2026-11-14 | 测试归属修正：删除 `entry/src/ohosTest/ets/test/core/` 下 12 个与 `core/src/test` 重复的用例（225 条，仅 import 路径不同）；`test-core.sh` 改为执行 `core@default` 本地单测（250 条）；entry ohosTest 只保留 Ability + UI 冒烟 |
+| 2026-11-14 | `core@ohosTest` 存量用例修复：`AccountRow` 删除字段（stoken/stuid/mid）、`GameId` 枚举、材料背包 DAO 的 roleUid 参数、StarRail Repository 已删除的 upsert 方法、hypium `assertNull`；12 套件 / 154 条编译通过（无设备未执行）。同步清理 `MaterialCalcPage` 路由、`app_name`/`black` 资源警告等过期文档 |
