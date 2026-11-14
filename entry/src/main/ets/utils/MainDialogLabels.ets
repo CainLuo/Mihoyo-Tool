@@ -12,10 +12,20 @@ export function getGameAccountLabel(uiCtx: UIContext | null, gameId: GameId, rol
   if (roleId.length === 0) {
     return fallback;
   }
-  let gameName = '';
-  try {
-    gameName = uiCtx?.getHostContext()?.resourceManager.getStringSync(getGameName(gameId).id) ?? '';
-  } catch (_) {
+  const context = uiCtx?.getHostContext();
+  if (context === undefined) {
+    return roleId;
   }
-  return gameName.length > 0 ? `${gameName} · UID ${roleId}` : `UID ${roleId}`;
+  try {
+    const rm = context.resourceManager;
+    const uidText = rm.getStringSync($r('app.string.common_uid_format').id, roleId);
+    const gameName = rm.getStringSync(getGameName(gameId).id);
+    if (gameName.length === 0) {
+      return uidText;
+    }
+    const dot = rm.getStringSync($r('app.string.common_dot_separator').id);
+    return `${gameName} ${dot} ${uidText}`;
+  } catch (_e) {
+    return roleId;
+  }
 }
