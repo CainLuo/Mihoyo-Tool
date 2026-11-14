@@ -77,8 +77,15 @@ export default class EntryFormAbility extends FormExtensionAbility {
 
   /**
    * 卡片内点击刷新按钮触发
+   *
+   * 卡片统一使用 `postCardAction({ action: 'call' })`，message 为空串。
+   * 其它消息类型目前没有定义，收到时只记日志、不触发刷新，避免未知 payload 引起误刷新。
    */
-  onFormEvent(formId: string, _message: string): void {
+  onFormEvent(formId: string, message: string): void {
+    if (message.length > 0) {
+      WidgetLogger.warn(TAG, `onFormEvent: unsupported message="${message}", ignored`);
+      return;
+    }
     this.pushUpdate(formId);
   }
 
