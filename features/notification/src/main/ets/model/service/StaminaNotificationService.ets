@@ -235,8 +235,12 @@ export class StaminaNotificationService {
     const key = `${accountId}_${roleUid}_${gameId}`;
     await this.cancelExistingReminder(key);
 
-    const delaySeconds = StaminaThresholdCalculator.calcDelaySeconds(
-      snapshot.recoveryTime, threshold, maxStamina, GameStaminaConstants.getSecondsPerUnit(gameId),
+    const delaySeconds = StaminaThresholdCalculator.adjustDelayForElapsed(
+      StaminaThresholdCalculator.calcDelaySeconds(
+        snapshot.recoveryTime, threshold, maxStamina, GameStaminaConstants.getSecondsPerUnit(gameId),
+      ),
+      snapshot.updateTime,
+      Math.floor(Date.now() / 1000),
     );
 
     const schedule = new StaminaSchedule();

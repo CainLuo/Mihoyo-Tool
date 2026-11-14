@@ -33,6 +33,28 @@ export class StaminaThresholdCalculator {
   }
 
   /**
+   * 扣除快照生成至今已流逝的秒数。
+   *
+   * `recoveryTime` 是拉取那一刻的「距满值剩余秒数」。若直接用 DB 里的旧快照
+   * （冷启动、30 分钟内跳过同步），延迟会多出「上次拉取距今」的时长，
+   * 提醒因此推迟弹出。
+   *
+   * @param delaySeconds calcDelaySeconds 的结果
+   * @param updateTime 快照数据更新时间（Unix 秒，0 表示未知）
+   * @param nowSeconds 当前时间（Unix 秒）
+   */
+  static adjustDelayForElapsed(delaySeconds: number, updateTime: number, nowSeconds: number): number {
+    if (delaySeconds <= 0 || updateTime <= 0) {
+      return delaySeconds;
+    }
+    const elapsed = nowSeconds - updateTime;
+    if (elapsed <= 0) {
+      return delaySeconds;
+    }
+    return Math.max(0, delaySeconds - elapsed);
+  }
+
+  /**
    * 解析原神 resin_recovery_time 字符串为整数秒数。
    * API 返回的是字符串（如 "22825"），需要 parseInt。
    */

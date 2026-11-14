@@ -28,6 +28,8 @@ export class StaminaSnapshot {
   maxStamina: number = 0;
   /** 当前体力 */
   currentStamina: number = 0;
+  /** 快照对应的数据更新时间（Unix 秒，0 表示未知） */
+  updateTime: number = 0;
 }
 
 export class StaminaNoteReader {
@@ -47,6 +49,7 @@ export class StaminaNoteReader {
         snapshot.recoveryTime = StaminaThresholdCalculator.parseGenshinRecoveryTime(data.resinRecoveryTime);
         snapshot.maxStamina = data.maxResin > 0 ? data.maxResin : row.maxResin;
         snapshot.currentStamina = data.currentResin;
+        snapshot.updateTime = row.updateTime;
         return snapshot;
       }
       if (gameId === GameId.STARRAIL) {
@@ -59,6 +62,7 @@ export class StaminaNoteReader {
         snapshot.recoveryTime = data.staminaRecoverTime;
         snapshot.maxStamina = data.maxStamina > 0 ? data.maxStamina : row.maxStamina;
         snapshot.currentStamina = data.currentStamina > 0 ? data.currentStamina : row.currentStamina;
+        snapshot.updateTime = row.updateTime;
         return snapshot;
       }
       if (gameId === GameId.ZZZ) {
@@ -71,6 +75,7 @@ export class StaminaNoteReader {
         snapshot.recoveryTime = data.energyRecoverTime;
         snapshot.maxStamina = data.maxEnergy > 0 ? data.maxEnergy : row.energyMax;
         snapshot.currentStamina = data.currentEnergy > 0 ? data.currentEnergy : row.energyCurrent;
+        snapshot.updateTime = row.updateTime;
         return snapshot;
       }
       return null;

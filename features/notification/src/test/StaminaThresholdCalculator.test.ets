@@ -175,5 +175,33 @@ export default function staminaThresholdCalculatorTest() {
       expect(result).assertEqual(200);
     });
 
+    // ─── adjustDelayForElapsed 测试 ───────────────────────────────────
+
+    it('adjustDelayForElapsed: 扣除快照距今的已流逝时间', 0, () => {
+      // 延迟 1000 秒，快照 400 秒前生成 → 实际还需 600 秒
+      const result = StaminaThresholdCalculator.adjustDelayForElapsed(1000, 1000, 1400);
+      expect(result).assertEqual(600);
+    });
+
+    it('adjustDelayForElapsed: 已流逝超过延迟时归零', 0, () => {
+      const result = StaminaThresholdCalculator.adjustDelayForElapsed(1000, 1000, 5000);
+      expect(result).assertEqual(0);
+    });
+
+    it('adjustDelayForElapsed: 延迟已为非正数时原样返回', 0, () => {
+      const result = StaminaThresholdCalculator.adjustDelayForElapsed(-100, 1000, 5000);
+      expect(result).assertEqual(-100);
+    });
+
+    it('adjustDelayForElapsed: updateTime 未知（0）时原样返回', 0, () => {
+      const result = StaminaThresholdCalculator.adjustDelayForElapsed(1000, 0, 5000);
+      expect(result).assertEqual(1000);
+    });
+
+    it('adjustDelayForElapsed: 快照时间晚于当前时间时原样返回', 0, () => {
+      const result = StaminaThresholdCalculator.adjustDelayForElapsed(1000, 5000, 1000);
+      expect(result).assertEqual(1000);
+    });
+
   });
 }
