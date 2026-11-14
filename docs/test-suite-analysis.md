@@ -75,8 +75,8 @@
 | 套件类型 | `entry/src/test` 是 **Local Test**（宿主机运行，不能碰 `@kit.*` 系统 API） | 只能测纯逻辑；任何依赖 preferences / reminderAgent / UI 的代码都测不到 |
 | 入口 | `List.test.ets` 的 `testsuite()` 依次调用 19 个套件 | 任一文件编译失败 → 整套失败（当前即如此） |
 | CLI | `hvigorw tasks --mode module -p module=entry@default` 只有 `tasks` / `taskTree` / `init`，**没有 test 任务** | 只能在 DevEco Studio 里 Run Test（`Refactor_Spec` §0.3） |
-| 脚本 | `test-entry.sh` / `test-core.sh` 只 `assembleHap` ohosTest HAP（编译验证） | 不是测试执行器 |
-| ohosTest | `log.md` 记录的编译失败原因是引用已不存在的 `../main/ets/parsers/*`；但当前 `entry/src/ohosTest/ets/test/core/*.test.ets` 已改为从 `'core'` 导入（如 `GenshinComputeParser.test.ets:12`），全目录不再出现 `parsers/`——该日志可能已过期，现状未验证 | 不在本次门禁内（§0.4） |
+| 脚本 | `test-entry.sh` 只 `assembleHap` entry@ohosTest HAP（编译验证）；`test-core.sh` 改为执行 `core@default` 本地单测 | `test-entry.sh` 仍不是测试执行器 |
+| ohosTest | `entry/src/ohosTest/ets/test/core/*` 的 12 个 core 用例副本已于 2026-11-14 删除（与 `core/src/test` 重复，仅 import 路径不同）；entry 侧只保留 `Ability.test` + `ui/MainFlow.test`。`core@ohosTest` 仍有存量 API 漂移编译错误 | 不在本次门禁内（§0.4） |
 
 ---
 

@@ -18,7 +18,7 @@
 | ohosTest 编译 | ✅ 通过 | 原 67 个错误已随结构迁移消失 |
 | codeLinter | ✅ 通过 | 381 个 `.ets`：0 error / 1 warn / 1 suggestion |
 | Local Test | ✅ 通过 | 14 个模块、**837 用例全绿**；29 个 `viewmodel/` 类全部有测试；widget / notification 的 Store 已可注入并补测，见 §2.3.1 |
-| 设备端单测（ohosTest） | 🔶 不可运行 | `core/src/ohosTest` 156 条 DAO / Repository 用例缺 `TestAbility.ets`，且无设备，未执行；见 §2.3.2 |
+| 设备端单测（ohosTest） | 🔶 不可运行 | `core/src/ohosTest` 156 条 DAO / Repository 用例存在 API 漂移编译错误，且无设备，未执行；见 §2.3.2 |
 | UI 测试 | 🔶 骨架已建 | 1 条启动冒烟 + 9 个稳定控件 id，见 §2.3.3；**无设备，未执行** |
 | 真机 / 模拟器冒烟 | 🔶 部分执行 | 2026-11-07 模拟器跑完主链路；隐私弹窗、真实登录、折叠屏、人机验证、卡片空态未覆盖，见 §2.4 |
 | 已知用户可见缺陷 | 🔶 部分修复 | GAP-01 / 02 / 03 / 04 / 05 / 06 已修；GAP-07 未修，见第 4 节 P0 |
@@ -125,8 +125,8 @@ hvigorw test --mode module -p module=<module>@default -p product=default
 #### 2.3.2 设备端测试：156 条存在，但当前跑不了
 
 - `core/src/ohosTest` 有 12 个套件 / **156 条**用例（`RdbManager`、4 个游戏的 DAO / Repository、`MaterialBagDao`）。
-- `hvigorw test --mode module -p module=core@ohosTest -p product=default` 在打包阶段失败：`TestAbility.ets` 不存在；`hdc list targets` 返回 `[Empty]`，也没有设备可执行。
-- `entry/src/ohosTest` 的 13 个套件 / **226 条**是 `core/src/test` 解析器用例的副本；`bash test-entry.sh` 只 `assembleHap`，不执行测试。
+- `genOnDeviceTestHap`（`-p module=core@ohosTest`）当前因存量用例 API 漂移而编译失败（`getContext(this)`、`any`、Repository 方法改名等），与本次迁移无关；`hdc list targets` 返回 `[Empty]`，也没有设备可执行。
+- `entry/src/ohosTest` 原有 12 个套件 / **225 条**是 `core/src/test` 解析器用例的副本（仅 import 路径不同），2026-11-14 已删除；`core/src/test` 仍保留并运行同一批用例。entry 侧只剩 `Ability.test` + `ui/MainFlow.test`。
 - 因此“ohosTest 编译通过”只是**编译验证**，不是设备端执行结果。
 
 #### 2.3.3 UI 测试：骨架已建，未执行
@@ -297,3 +297,4 @@ codeLinter 命令见 §2.2。
 | 2026-11-13 | GAP-10 修复：428 条字符串 / 20 个颜色 / 2 张图片按 `$r` 引用归属从 `common/basic` 下沉到各模块；`app_name`（改 `app_display_name`）、`black` 重复定义清理；`assembleHap` + 13 个模块单测全绿 |
 | 2026-11-13 | Widget M8 修复：删除 `WidgetFormIdStore` / `WidgetDataBuilder` 遗留链路（369 行）与 3 条测试，`WidgetSyncHook` 去掉 `init`，`account` 去掉 `widget` 依赖；行为零变更 |
 | 2026-11-13 | 同名类型清理：`MaterialItemRaw` 两份合并到 `MaterialRawModels`；两个 `MaterialSectionVM` 改名 `MaterialSummarySectionVM` / `MaterialCalcSectionVM`；模型 `ZZZSkillItem` 改名 `ZZZCharDetailSkillItem`；`assembleHap` + material 122 / chardetail 34 条单测全绿 |
+| 2026-11-14 | 测试归属修正：删除 `entry/src/ohosTest/ets/test/core/` 下 12 个与 `core/src/test` 重复的用例（225 条，仅 import 路径不同）；`test-core.sh` 改为执行 `core@default` 本地单测（250 条）；entry ohosTest 只保留 Ability + UI 冒烟 |
