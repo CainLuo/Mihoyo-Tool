@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@ohos/hypium';
-import { GameId, ZZZCardSign, ZZZVideoStoreState } from 'core';
+import { GameId } from 'core';
 import { GameDataRowVM, GameNoteSnapshotVM, GameRoleCardVM, MihoyoAccountVM } from '../main/ets/model/AccountRoleModels';
 
 export default function accountRoleModelsTest() {
@@ -19,17 +19,6 @@ export default function accountRoleModelsTest() {
       expect(vm.primaryRecoverySeconds).assertEqual(3600);
       expect(vm.secondaryLabel).assertEqual('派遣');
       expect(vm.isFull).assertFalse();
-    });
-
-    it('GameNoteSnapshotVM 默认专属字段为 -1', 0, () => {
-      const vm = new GameNoteSnapshotVM('树脂', 0, 200, 0, '', '', true);
-      expect(vm.expeditionCurrent).assertEqual(-1);
-      expect(vm.homeCoinCurrent).assertEqual(-1);
-      expect(vm.dailyTaskFinished).assertEqual(-1);
-      expect(vm.reserveStamina).assertEqual(-1);
-      expect(vm.vitalityCurrent).assertEqual(-1);
-      expect(vm.scratchCardSign).assertEqual(ZZZCardSign.UNKNOWN);
-      expect(vm.videoStoreState).assertEqual(ZZZVideoStoreState.UNKNOWN);
     });
 
     it('GameRoleCardVM 构造函数赋值', 0, () => {

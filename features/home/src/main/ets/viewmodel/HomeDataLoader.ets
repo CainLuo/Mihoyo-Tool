@@ -12,9 +12,7 @@ import {
   GenshinDailyNoteParser,
   Logger,
   StarRailDailyNoteParser,
-  ZZZCardSign,
   ZZZDailyNoteParser,
-  ZZZVideoStoreState,
 } from 'core';
 import {
   GameDataRowVM,
@@ -92,14 +90,6 @@ export class HomeDataLoader {
         const snap = new GameNoteSnapshotVM(
           $r('app.string.daily_note_resin_title'), data.currentResin, data.maxResin, recoverySeconds, '', '', isFull
         );
-        snap.expeditionCurrent = data.expeditions.length;
-        snap.expeditionMax = data.maxExpeditionNum;
-        snap.homeCoinCurrent = data.currentHomeCoin;
-        snap.homeCoinMax = data.maxHomeCoin;
-        snap.dailyTaskFinished = data.finishedTaskNum;
-        snap.dailyTaskTotal = data.totalTaskNum;
-        snap.isDailyTaskAllReceived = data.isExtraTaskRewardReceived;
-
         // 数据行：由 VM 决定显示哪些行及颜色，View 层直接 ForEach
         const rows: GameDataRowVM[] = [];
         if (data.expeditions.length >= 0) {
@@ -153,16 +143,6 @@ export class HomeDataLoader {
         const snap = new GameNoteSnapshotVM(
           $r('app.string.starrail_stamina_title'), stamina, maxStamina, recoverySeconds, '', '', isFull
         );
-        snap.reserveStamina = data.currentReserveStamina;
-        snap.trainScoreCurrent = data.currentTrainScore;
-        snap.trainScoreMax = data.maxTrainScore;
-        snap.weeklyCocoonCnt = data.weeklyCocoonCnt;
-        snap.weeklyCocoonLimit = data.weeklyCocoonLimit;
-        snap.rogueScoreCurrent = data.currentRogueScore;
-        snap.rogueScoreMax = data.maxRogueScore;
-        snap.tournScoreCurrent = data.rogueTournWeeklyCur;
-        snap.tournScoreMax = data.rogueTournWeeklyMax;
-
         // 数据行
         const starRailRows: GameDataRowVM[] = [];
         if (data.currentReserveStamina >= 0) {
@@ -226,19 +206,6 @@ export class HomeDataLoader {
         const snap = new GameNoteSnapshotVM(
           $r('app.string.zzz_energy_title'), energy, maxEnergy, recoverySeconds, '', '', isFull
         );
-        snap.vitalityCurrent = data.currentVitality;
-        snap.vitalityMax = data.maxVitality;
-        snap.scratchCardSign = data.cardSign === 'CardSignDone' ? ZZZCardSign.DONE : ZZZCardSign.TODO;
-        if (data.videoStoreState === 'SaleStateDone') {
-          snap.videoStoreState = ZZZVideoStoreState.DONE;
-        } else if (data.videoStoreState === 'SaleStateDoing') {
-          snap.videoStoreState = ZZZVideoStoreState.OPEN;
-        } else if (data.videoStoreState === 'SaleStateNo') {
-          snap.videoStoreState = ZZZVideoStoreState.CLOSED;
-        } else {
-          snap.videoStoreState = ZZZVideoStoreState.UNKNOWN;
-        }
-
         // 数据行
         const zzzRows: GameDataRowVM[] = [];
         if (data.currentVitality >= 0) {

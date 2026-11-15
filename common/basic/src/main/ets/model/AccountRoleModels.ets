@@ -6,7 +6,6 @@
  * 供首页（HomePage）与小组件设置（WidgetSettingsSlotStep）共用；
  * 角色详情专用的模型（CharDetailRouterParam 等）不在这里，见 features/chardetail 的 CharDetailModels.
  */
-import { ZZZVideoStoreState, ZZZCardSign } from 'core';
 import { GameId } from 'core';
 
 /**
@@ -59,54 +58,6 @@ export class GameNoteSnapshotVM {
    * 原神满了 = danger，其他游戏满了 = primary，未满按比例。
    */
   primaryColor: ResourceColor = $r('app.color.color_primary');
-
-  // ── 原神专属字段 ──────────────────────────────────────────────
-  /** 探索派遣当前人数（-1 表示无此数据） */
-  expeditionCurrent: number = -1
-  /** 探索派遣上限 */
-  expeditionMax: number = 0
-
-  /** 洞天财瓮当前值（-1 表示无此数据） */
-  homeCoinCurrent: number = -1
-  /** 洞天财瓮上限 */
-  homeCoinMax: number = 0
-
-  /** 每日委托已完成数（-1 表示无此数据） */
-  dailyTaskFinished: number = -1
-  /** 每日委托总数 */
-  dailyTaskTotal: number = 0
-  /** 每日委托奖励是否已全部领取 */
-  isDailyTaskAllReceived: boolean = false
-
-  // ── 崩铁专属字段 ──────────────────────────────────────────────
-  /** 后备开拓力（-1 表示无此数据，无封顶值） */
-  reserveStamina: number = -1
-  /** 每日实训当前积分（-1 表示无此数据） */
-  trainScoreCurrent: number = -1
-  /** 每日实训积分上限 */
-  trainScoreMax: number = 0
-  /** 历战余响剩余次数（-1 表示无此数据） */
-  weeklyCocoonCnt: number = -1
-  /** 历战余响总次数 */
-  weeklyCocoonLimit: number = 0
-  /** 模拟宇宙本周积分（-1 表示无此数据） */
-  rogueScoreCurrent: number = -1
-  /** 模拟宇宙本周积分上限 */
-  rogueScoreMax: number = 0
-  /** 货币战争本周积分（-1 表示无此数据） */
-  tournScoreCurrent: number = -1
-  /** 货币战争本周积分上限 */
-  tournScoreMax: number = 0
-
-  // ── 绝区零专属字段 ──────────────────────────────────────────────
-  /** 今日活跃度当前值（-1 表示无此数据） */
-  vitalityCurrent: number = -1
-  /** 今日活跃度上限 */
-  vitalityMax: number = 0
-  /** 刮刮卡/占卜状态 */
-  scratchCardSign: ZZZCardSign = ZZZCardSign.UNKNOWN
-  /** 录像店经营状态 */
-  videoStoreState: ZZZVideoStoreState = ZZZVideoStoreState.UNKNOWN
 
   constructor(
     primaryLabel: ResourceStr,
