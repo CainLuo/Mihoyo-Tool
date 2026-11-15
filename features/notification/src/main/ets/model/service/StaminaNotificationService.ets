@@ -128,7 +128,10 @@ export class StaminaNotificationService {
     }
 
     const isMergedStyle = globalSettings.style === NotificationStyle.STYLE_B;
+    // 全部已达标角色（合并文案要展示完整列表）
     const mergedSchedules: StaminaSchedule[] = [];
+    // 本轮是否有新的阈值跨越（没有则跳过发布，避免重复响铃）
+    let hasNewCrossing = false;
 
     try {
       const accounts = await CoreInitializer.bbsRepository.getAllAccounts();
@@ -147,10 +150,15 @@ export class StaminaNotificationService {
 
           if (isMergedStyle) {
             if (schedule.delaySeconds <= 0) {
-              // 已到达阈值：收集到合并列表
+              // 已到达阈值：合并列表保留全部达标角色，但有新跨越时才发布
               mergedSchedules.push(schedule);
+              if (await this.shouldPublishImmediate(schedule)) {
+                hasNewCrossing = true;
+              }
             } else {
-              // 未到达阈值：发布代理提醒，到期后触发合并通知
+              // 未到达阈值：清除去重标记，下次跨越阈值时重新通知
+              await this.clearNotifyMarker(schedule.key);
+              // 发布代理提醒，到期后触发合并通知
               await this.publishTimerReminder(
                 schedule,
                 `${schedule.staminaName}已达阈值 ${schedule.threshold}/${schedule.maxStamina}`,
@@ -162,9 +170,16 @@ export class StaminaNotificationService {
         }
       }
 
-      // STYLE_B：发布合并通知
+      // STYLE_B：有新跨越时发布合并通知（内容包含全部达标角色）
       if (isMergedStyle && mergedSchedules.length > 0) {
-        await this.publishMergedNotification(mergedSchedules);
+        if (hasNewCrossing) {
+          await this.publishMergedNotification(mergedSchedules);
+        } else {
+          Logger.info(
+            TAG,
+            `skip merged notification: ${mergedSchedules.length} roles already notified at current threshold`,
+          );
+        }
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : `${e}`;
@@ -194,6 +209,8 @@ export class StaminaNotificationService {
         }
         const key = `${accountId}_${role.roleId}_${gameId}`;
         await this.cancelExistingReminder(key);
+        // 用户主动关闭该游戏的通知：一并清除去重标记，重新开启后仍能收到一次提醒
+        await NotificationStateStore.getInstance().clearNotifyMarker(key);
       }
     } catch (e) {
       const msg = e instanceof Error ? e.message : `${e}`;
@@ -283,16 +300,46 @@ export class StaminaNotificationService {
     );
 
     if (schedule.delaySeconds <= 0) {
+      if (!await this.shouldPublishImmediate(schedule)) {
+        Logger.info(
+          TAG,
+          `skip immediate notification (already notified at threshold ${schedule.threshold}): ${schedule.key}`,
+        );
+        return;
+      }
       const title = `${schedule.gameName} · ${schedule.displayName}`;
       const body = `${schedule.staminaName}已达 ${schedule.currentStamina}/${schedule.maxStamina}，请及时消耗`;
       const sub = `${schedule.server} · UID ${schedule.roleUid}`;
       await this.publishImmediateNotification(schedule, title, body, sub);
     } else {
+      // 体力回落到阈值以下：清除去重标记，下次跨越阈值时重新通知
+      await this.clearNotifyMarker(schedule.key);
       await this.publishTimerReminder(
         schedule,
         `${schedule.staminaName}已达 ${schedule.currentStamina}/${schedule.maxStamina}，请及时消耗`,
       );
     }
+  }
+
+  /**
+   * 判断是否应发布即时通知（阈值跨越去重）。
+   * 体力仍在阈值上且阈值未变时跳过，避免每次同步都重复响铃。
+   */
+  private async shouldPublishImmediate(schedule: StaminaSchedule): Promise<boolean> {
+    const marker = await NotificationStateStore.getInstance().getNotifyMarker(schedule.key);
+    const notifiedThreshold = marker === null ? -1 : marker.threshold;
+    return StaminaThresholdCalculator.shouldNotifyImmediate(
+      schedule.delaySeconds, notifiedThreshold, schedule.threshold,
+    );
+  }
+
+  /** 仅在存在标记时才写 preferences，避免每次同步都 flush */
+  private async clearNotifyMarker(key: string): Promise<void> {
+    const marker = await NotificationStateStore.getInstance().getNotifyMarker(key);
+    if (marker === null) {
+      return;
+    }
+    await NotificationStateStore.getInstance().clearNotifyMarker(key);
   }
 
   // ─── 通知发布 ────────────────────────────────────────────────
@@ -338,11 +385,9 @@ export class StaminaNotificationService {
       };
       await notificationManager.publish(request);
 
-      const now = Math.floor(Date.now() / 1000);
+      // 记录「已按当前阈值通知」，体力仍在阈值上时后续同步不再重复发布
       for (const schedule of schedules) {
-        await this.saveState(
-          schedule.key, -1, schedule.recoveryTimeSnapshot, schedule.threshold, now,
-        );
+        await NotificationStateStore.getInstance().setNotifyMarker(schedule.key, schedule.threshold);
       }
       Logger.info(TAG, `merged notification sent for ${schedules.length} roles`);
     } catch (e) {
@@ -377,7 +422,8 @@ export class StaminaNotificationService {
       };
       await notificationManager.publish(request);
 
-      await this.saveState(schedule.key, -1, schedule.recoveryTimeSnapshot, schedule.threshold);
+      // 记录「已按当前阈值通知」，体力仍在阈值上时后续同步不再重复发布
+      await NotificationStateStore.getInstance().setNotifyMarker(schedule.key, schedule.threshold);
       Logger.info(TAG, `immediate notification sent: ${schedule.key}`);
     } catch (e) {
       const msg = e instanceof Error ? e.message : `${e}`;
@@ -452,7 +498,7 @@ export class StaminaNotificationService {
     };
   }
 
-  /** 写入提醒状态（三处发布路径共用） */
+  /** 写入代理提醒状态（仅 publishTimerReminder 使用；即时通知的状态由 NotifyMarker 记录） */
   private async saveState(
     key: string,
     reminderId: number,

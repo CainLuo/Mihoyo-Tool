@@ -55,6 +55,30 @@ export class StaminaThresholdCalculator {
   }
 
   /**
+   * 判断是否应发送「已达阈值」的即时通知（阈值跨越去重）。
+   *
+   * 即时通知代表「刚刚跨过阈值」这一事件，而不是「当前仍在阈值上」这一状态。
+   * 标记里记录上次通知时的阈值：
+   *   - 体力仍在阈值上且阈值未变 → 已通知过，跳过（避免每次同步都重复响铃）；
+   *   - 用户改了阈值 → 视为新的通知条件，重新通知；
+   *   - 体力回落到阈值以下 → 调用方清除标记，下次跨越时再通知。
+   *
+   * @param delaySeconds 距达到阈值的剩余秒数（≤ 0 表示已达标）
+   * @param notifiedThreshold 上次发送即时通知时的阈值（-1 表示从未通知）
+   * @param threshold 当前生效的阈值
+   */
+  static shouldNotifyImmediate(
+    delaySeconds: number,
+    notifiedThreshold: number,
+    threshold: number,
+  ): boolean {
+    if (delaySeconds > 0) {
+      return false;
+    }
+    return notifiedThreshold !== threshold;
+  }
+
+  /**
    * 解析原神 resin_recovery_time 字符串为整数秒数。
    * API 返回的是字符串（如 "22825"），需要 parseInt。
    */

@@ -67,6 +67,19 @@ export class NotificationStateEntry {
   scheduledAt: number = 0;
 }
 
+/**
+ * 持久化到 preferences 的「即时通知已发送」标记，key = "{accountId}_{roleUid}_{gameId}"。
+ *
+ * 单独存放而不复用 NotificationStateEntry：后者的 `reminderId < 0` 表示「没有有效代理提醒」，
+ * 读回时直接丢弃，无法表达「已发过即时通知」。
+ */
+export class NotifyMarker {
+  /** 发送即时通知时的阈值（-1 表示从未通知） */
+  threshold: number = -1;
+  /** 发送时刻（Unix 时间戳，秒） */
+  notifiedAt: number = 0;
+}
+
 /** 游戏常量（每点恢复秒数） */
 export class GameStaminaConstants {
   /**

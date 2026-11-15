@@ -175,6 +175,27 @@ export default function staminaThresholdCalculatorTest() {
       expect(result).assertEqual(200);
     });
 
+    // ─── shouldNotifyImmediate 测试 ───────────────────────────────────
+
+    it('shouldNotifyImmediate: 从未通知且已达标时返回 true', 0, () => {
+      expect(StaminaThresholdCalculator.shouldNotifyImmediate(-100, -1, 160)).assertTrue();
+      expect(StaminaThresholdCalculator.shouldNotifyImmediate(0, -1, 160)).assertTrue();
+    });
+
+    it('shouldNotifyImmediate: 同一阈值已通知过则跳过', 0, () => {
+      expect(StaminaThresholdCalculator.shouldNotifyImmediate(-100, 160, 160)).assertFalse();
+      expect(StaminaThresholdCalculator.shouldNotifyImmediate(0, 160, 160)).assertFalse();
+    });
+
+    it('shouldNotifyImmediate: 用户改了阈值后重新通知', 0, () => {
+      expect(StaminaThresholdCalculator.shouldNotifyImmediate(0, 160, 180)).assertTrue();
+    });
+
+    it('shouldNotifyImmediate: 未达阈值时不通知', 0, () => {
+      expect(StaminaThresholdCalculator.shouldNotifyImmediate(600, -1, 160)).assertFalse();
+      expect(StaminaThresholdCalculator.shouldNotifyImmediate(1, 160, 160)).assertFalse();
+    });
+
     // ─── adjustDelayForElapsed 测试 ───────────────────────────────────
 
     it('adjustDelayForElapsed: 扣除快照距今的已流逝时间', 0, () => {

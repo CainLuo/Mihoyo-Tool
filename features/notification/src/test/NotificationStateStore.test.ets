@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@ohos/hypium';
-import { decodeStateEntry } from '../main/ets/model/service/NotificationStateStore';
+import { decodeNotifyMarker, decodeStateEntry } from '../main/ets/model/service/NotificationStateStore';
 
 export default function notificationStateStoreTest() {
   describe('NotificationStateStore.decodeStateEntry', () => {
@@ -25,6 +25,32 @@ export default function notificationStateStoreTest() {
       expect(entry !== null).assertTrue();
       if (entry !== null) {
         expect(entry.reminderId).assertEqual(0);
+      }
+    });
+
+  });
+
+  describe('NotificationStateStore.decodeNotifyMarker', () => {
+
+    it('threshold 为负表示从未发送即时通知', 0, () => {
+      expect(decodeNotifyMarker(-1, 0) === null).assertTrue();
+      expect(decodeNotifyMarker(-100, 1700000000) === null).assertTrue();
+    });
+
+    it('有效标记还原阈值与通知时间', 0, () => {
+      const marker = decodeNotifyMarker(160, 1700000000);
+      expect(marker !== null).assertTrue();
+      if (marker !== null) {
+        expect(marker.threshold).assertEqual(160);
+        expect(marker.notifiedAt).assertEqual(1700000000);
+      }
+    });
+
+    it('threshold 为 0 也是有效值', 0, () => {
+      const marker = decodeNotifyMarker(0, 0);
+      expect(marker !== null).assertTrue();
+      if (marker !== null) {
+        expect(marker.threshold).assertEqual(0);
       }
     });
 
