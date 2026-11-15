@@ -6,6 +6,7 @@
  * 各 Tab 页的 ViewModel 通过 @Param 回调把状态和操作函数传给 MainPage。
  */
 import { ComponentContent } from '@kit.ArkUI'
+import { Logger } from 'core'
 import { window } from '@kit.ArkUI'
 import { display } from '@kit.ArkUI'
 import { themeManager, ThemeManager, AccountOption, AccountSwitchDialogParams, AppRoutes, splitPlaceholderBuilder, CookieExpiredSignal } from 'basic'
@@ -188,7 +189,11 @@ export struct MainPage {
     params.selectedIdx = this.charSelectedIdx;
     params.onSelect = (idx: number) => { this.charDoSelectAccount(idx); };
     const content = new ComponentContent(ctx, wrapBuilder(accountSwitchDialogBuilder), params);
-    params.onClose = () => { ctx.getPromptAction().closeCustomDialog(content); };
+    params.onClose = () => {
+      ctx.getPromptAction().closeCustomDialog(content).catch((e: Error) => {
+        Logger.warn('Main', 'close account switch sheet failed: ' + e.message)
+      })
+    };
     ctx.getPromptAction().openCustomDialog(content, {
       alignment: DialogAlignment.Bottom,
       offset: { dx: 0, dy: 0 },

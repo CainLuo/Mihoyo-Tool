@@ -151,7 +151,9 @@ export class MainDialogArbiter {
       this.isGeetestPending = false
       const signal = this.geetestSignal
       if (signal !== null) {
-        this.showCurrentGeetest(signal)
+        this.showCurrentGeetest(signal).catch((e: Error) => {
+          Logger.error('MainPage', 'showCurrentGeetest failed: ' + e.message)
+        })
       }
     }
   }
