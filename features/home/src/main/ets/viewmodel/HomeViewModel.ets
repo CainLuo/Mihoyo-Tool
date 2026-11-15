@@ -137,22 +137,30 @@ export class HomeViewModel {
         try {
           await this.syncIfNeeded(true);
           await this.reloadFromLocal();
-        } catch (_) {}
+        } catch (e) {
+          Logger.warn(TAG, `first-login sync failed: ${e instanceof Error ? e.message : `${e}`}`);
+        }
       } else {
-        this.syncIfNeeded(true).then(() => this.reloadFromLocal()).catch((_: Error | object) => {});
+        this.syncIfNeeded(true).then(() => this.reloadFromLocal()).catch((e: Error | object) => {
+          Logger.warn(TAG, `background sync failed: ${e instanceof Error ? e.message : `${e}`}`);
+        });
       }
     }
     this.startAutoRefresh();
 
     // 冷启动后推送 Widget 数据（无论是否同步，都推送最新数据）
-    StaminaNotificationService.getInstance().onDailyNotesSynced().catch((_: Error | object) => {});
+    StaminaNotificationService.getInstance().onDailyNotesSynced().catch((e: Error | object) => {
+      Logger.warn(TAG, `onDailyNotesSynced failed: ${e instanceof Error ? e.message : `${e}`}`);
+    });
 
     // 冷启动 Cookie 检查：首屏渲染完成后异步触发，不阻塞 UI
     ColdStartCookieChecker.checkAndRefreshAll(CoreInitializer.bbsRepository)
       .then((result: ColdStartRefreshResult) => {
         this.handleColdStartRefreshResult(result);
       })
-      .catch((_: Error | object) => {});
+      .catch((e: Error | object) => {
+        Logger.warn(TAG, `cold start cookie check failed: ${e instanceof Error ? e.message : `${e}`}`);
+      });
   }
 
   /**
