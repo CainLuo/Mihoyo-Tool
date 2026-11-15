@@ -17,7 +17,7 @@
 | --- | --- |
 | Critical | 0 |
 | High | 0 |
-| Medium | 8 |
+| Medium | 5 |
 | Low | 4 |
 
 **整体评级：B**
@@ -25,6 +25,8 @@
 > 服务层的设计是合理的：用 `reminderAgentManager` 注册**系统级代理提醒**（App 被杀也能弹），纯函数 `StaminaThresholdCalculator` 单独可测，设置与状态分两个 preferences 文件互不污染，并且有 49 条单测（`StaminaNotificationService.test.ets` 26 + `StaminaThresholdCalculator.test.ets` 23）。**注意**：前者并未 import 服务本体，而是复制了一份 `hashNotificationId` 逻辑来测（见 §7），真实覆盖集中在阈值计算与模型常量。
 >
 > 主要问题在"调度节流"和"静默跳过"：每次便签同步都会**先取消再重建**提醒（本该生效的 `shouldReschedule` 判断在生产代码里被注释掉了），已达阈值的角色每次同步都会被**重发一次即时通知**（状态表读不回 `reminderId = -1` 的条目），延迟又按缓存快照计算、未扣除已流逝时间，提醒会被推迟；30 条上限命中时只在日志里留一行，设置页只能看到槽位用量，看不到是哪些角色被跳过。
+>
+> **2026-11-15 修复**：M8 已扣除快照已流逝时间（`StaminaNoteReader` 透出 `updateTime`，`StaminaThresholdCalculator.adjustDelayForElapsed` 纯函数 + 5 条单测）；M9 涉及的 3 处 `cancelReminder` 静默 catch 在重构后只剩 1 处且已带 `Logger.warn`，条目关闭；M5（bundle 写死）此前已随 GAP-05 修复。Medium 8 → 5，债务 20 → 14。
 >
 > 2026-10-29 复核撤回原 M3：服务层已改为 `await WidgetSyncHook.onDailyNotesSynced(this.context)`（`:97-103`），原先"循环内 fire-and-forget + `this.context!`"的代码已迁到 widget 侧；同时新增 M9（3 处空 catch）与 L3 / L4（错误处理、通知撤回）。
 
@@ -85,8 +87,8 @@ NotificationSettingsViewModel（2 处：:83 / :139）
 | --- | --- | --- | --- |
 | `ARKTS-001` / `ARKTS-012` | 无 `any` / `console.*`；另 grep `var` | ✅ 0 处 | 全目录 grep 无命中 |
 | `ARKTS-010` | 类字段在声明或 constructor 中初始化 | ✅ | 单例 `_instance` + 静态 `getInstance()`（`:47-52`），`context` 声明即初始化 |
-| `KIT-005` / `ARKTS-011` | Kit Promise 都有 catch，`BusinessError` 判 code | ⚠️ | 3 处空 catch（M9）；`checkPermission` 失败静默返回 `false`（`:77-79`，L3）；只有 `scheduleReminder` / `scheduleMergedReminder` 记录 `BusinessError.code`（`:385-389` / `:552-556`），其余只记 `message` |
-| `ARKTS-016` | 空 catch 块不以静默吞错收场 | ❌ | `:189` / `:235` / `:430` 三处 `catch (_) {}`（M9） |
+| `KIT-005` / `ARKTS-011` | Kit Promise 都有 catch，`BusinessError` 判 code | ⚠️ | M9 的空 catch 已消除；`checkPermission` 失败静默返回 `false`（`:77-79`，L3）；只有 `scheduleReminder` / `scheduleMergedReminder` 记录 `BusinessError.code`（`:385-389` / `:552-556`），其余只记 `message` |
+| `ARKTS-016` | 空 catch 块不以静默吞错收场 | ✅ | 重构后仅剩 `cancelExistingReminder` 一处 `cancelReminder` catch，且已带 `Logger.warn`（M9 关闭） |
 | — | 非空断言 | ⚠️ 1 处 | `this.context!`（`requestPermission` `:65`）；`init()` 之前调用会静默失败（L1） |
 | — | 硬编码 bundle / ability | ✅ 已修 | bundle 改为 `this.bundleName`（读 `context.abilityInfo.bundleName`，`a785ca6`）；`ABILITY_NAME = 'EntryAbility'` 仍为常量（各 product 一致） |
 | `KIT-006` | Background Tasks Kit 不滥用 | ✅ | 仅用 `reminderAgentManager` 注册代理提醒，`PUBLISH_AGENT_REMINDER` 已在 `entry/src/main/module.json5:17-23` 声明 |
@@ -142,11 +144,11 @@ NotificationSettingsViewModel（2 处：:83 / :139）
 | M1 | — | 每次同步都**取消并重建**已有提醒，`shouldReschedule` 跳过的逻辑被注释掉 | STYLE_A：`:423-426`（`shouldReschedule` 判断整段被 `//` 注释）、`:427-432`（直接 `cancelReminder` + `removeEntry`）；STYLE_B：`:229-237`（同样是先取消再重建） | 便签每次刷新（Home 进前台 / 手动刷新 / 设置页改动）都会让所有提醒重建一次：系统通知列表抖动，"再过 2 分钟回满"的提醒可能因重建而推迟。`StaminaThresholdCalculator.shouldReschedule` 专为此写了纯函数且有 3 条单测（`StaminaThresholdCalculator.test.ets:124-139`），却没被任何生产代码调用。建议恢复注入这条判断（单独提交，行为变更） |
 | M2 | — | 30 条上限命中后**静默跳过** | `:343-347`（STYLE_B）与 `:515-519`（STYLE_A），均只打一行 `reminder limit reached (...), skip` 后 `return` | 用户有 3 账号 × 多角色时很容易超过 30 条；超出的角色收不到提醒，游戏开关仍显示"已开启"。设置页已有槽位用量（`NotificationSettingsViewModel.ets:27-28` 的 `reminderUsed / reminderLimit`，`:31-37` 按比例变色）与开启前的上限弹窗（`:112-118`），但后台同步中被跳过的**是哪些角色**无从得知。建议服务层返回被跳过的 key 列表供设置页标注，或在超限时降级为 STYLE_B 合并 |
 | M4 | — | `onDailyNotesSynced()` 被 Home 触发 3 次，且服务无并发保护 | `features/home/src/main/ets/viewmodel/HomeViewModel.ets:174 / :367 / :384`（均为 `catch((_: Error \| object) => {})` 静默）；服务 `onDailyNotesSynced`（`:94-161`）无 in-flight 标记 | 首页冷启动、下拉刷新、强制刷新、自动刷新定时器都会触发一轮 O(账号×角色) 的遍历 + 全量提醒重建（即 M1）。冷启动时 `HomeViewModel.ets:162` 的 `syncIfNeeded()` 未 await，`:174` 的冷启动推送与 `syncIfNeeded` 末尾的 `:367` 两次调用可能重叠：两轮各自"读旧条目 → 取消 → 发布"，状态表只留后写的 `reminderId`，先发布的那条成为孤儿提醒（重复弹出且占用 30 条槽位）。建议服务层加 in-flight 合并 + "最小间隔"（如 60s） |
-| M5 | — | `wantAgent` 目标写死 bundle 与 ability 名 | `:20-21`（`BUNDLE_NAME` / `ABILITY_NAME`），用于 `:289 / :351 / :468 / :523` | uat / mock product 的 bundle 分别是 `com.cainluo.miyoyo.tools.uat` / `.mock`（`build-profile.json5:64 / 83`），这两个包点击通知会去拉起正式包或失败；建议从 `context.abilityInfo` 读取。✅ 已修（`a785ca6`）：新增 `private get bundleName()` 读 `this.context.abilityInfo.bundleName`，`publishTimerReminder` 与 `createNotificationWantAgentInfo` 改用该 getter；`context` 为 null 时返回空串（该路径本就需要 context，会在发布时抛错并被 catch 记录） |
+| ~~M5~~ ✅ | — | `wantAgent` 目标写死 bundle 与 ability 名 | `:20-21`（`BUNDLE_NAME` / `ABILITY_NAME`），用于 `:289 / :351 / :468 / :523` | uat / mock product 的 bundle 分别是 `com.cainluo.miyoyo.tools.uat` / `.mock`（`build-profile.json5:64 / 83`），这两个包点击通知会去拉起正式包或失败；建议从 `context.abilityInfo` 读取。✅ 已修（`a785ca6`）：新增 `private get bundleName()` 读 `this.context.abilityInfo.bundleName`，`publishTimerReminder` 与 `createNotificationWantAgentInfo` 改用该 getter；`context` 为 null 时返回空串（该路径本就需要 context，会在发布时抛错并被 catch 记录） |
 | M6 | — | 状态表与系统提醒**没有对账** | `NotificationStateStore.ets:35-56`（只按 key 读，`reminderId < 0` 视为不存在）；全文件无"校验系统中是否仍存在该 reminderId"的逻辑 | 系统清理、用户手动关闭通知、卸载重装后，`notification_state` 里会留下失效 reminderId；`getReminderCount()`（`:83-92`）只用 `getValidReminders().length` 取总数，不逐条核对。建议启动时用 `getValidReminders()` 与状态表做一次差集清理 |
 | M7 | — | 已达阈值的角色**每次同步都重发即时通知** | 即时通知写入的状态是 `reminderId = -1`（`:493-498`、`:321-326`），而 `NotificationStateStore.getEntry()` 对 `reminderId < 0` 直接返回 `null`（`NotificationStateStore.ets:42-44`）；STYLE_A `:447-448`、STYLE_B `:136-138 → :154-156` 因此每轮都会重新 `publish` | "已经通知过"的事实写进了状态表却永远读不回来，只要体力仍高于阈值，每次首页同步（M4 的各触发点）都会以同一 ID 重新发布并再次提醒。注意：仅恢复 M1 的 `shouldReschedule` 也拦不住这条（`getEntry` 先返回了 `null`）。建议 `getEntry` 区分"无条目"与"已即时通知"，与 M1 一并修（行为变更，单独提交） |
-| M8 | — | 延迟按**缓存快照的相对秒数**计算，未扣除已流逝时间 | `:574 / :587 / :600` 直接取 DB `rawJson` 里的"距满值剩余秒数"，`:239-241`、`:434-436` 用它算延迟；全文件未读取 row 上的 `updateTime`（`core/src/main/ets/GenshinKit/db/GenshinDao.ets:227` 已映射，`GenshinRows.ets:92` 单位秒；星铁 / 绝区零同构） | `onDailyNotesSynced` 经常在**没有重新拉取**的数据上运行：冷启动 `HomeViewModel.ets:174` 直接用库存数据，`syncIfNeeded` 对 30 分钟内同步过的角色跳过拉取（`HomeViewModel.ets:355-362`）。此时算出的延迟比真实值多出"距上次拉取的时长"，提醒按这个偏差**推迟弹出**；叠加 M1 的取消重建，每轮都会把原本正确的提醒替换成更晚的那条；即时通知正文的体力值也是旧值。建议 `delay -= now - row.updateTime`（单独提交，行为变更） |
-| M9 | `ARKTS-016` | 3 处 `catch (_) {}` 静默吞掉 `cancelReminder` 失败 | `:189`（`cancelByAccountGame`）、`:235`（`buildMergedEntry`）、`:430`（`checkAndSchedule`） | 取消失败时状态条目仍被 `removeEntry` 删掉，系统中可能残留一条无人管理的提醒；由于没有日志，排查时只能看到"提醒没消失"的结果。`scan-arkts.sh` 对该规则默认 Medium（文件含 `await` 时触发），本文件含大量 `await`，按工具口径计 Medium。建议补一行 `Logger.warn`（含 `BusinessError.code`），或在确认是 cleanup 容错处加 `// scan-ignore: ARKTS-016` 并注明原因 |
+| ~~M8~~ ✅ | — | 延迟按**缓存快照的相对秒数**计算，未扣除已流逝时间 | `:574 / :587 / :600` 直接取 DB `rawJson` 里的"距满值剩余秒数"，`:239-241`、`:434-436` 用它算延迟；全文件未读取 row 上的 `updateTime`（`core/src/main/ets/GenshinKit/db/GenshinDao.ets:227` 已映射，`GenshinRows.ets:92` 单位秒；星铁 / 绝区零同构） | `onDailyNotesSynced` 经常在**没有重新拉取**的数据上运行：冷启动 `HomeViewModel.ets:174` 直接用库存数据，`syncIfNeeded` 对 30 分钟内同步过的角色跳过拉取（`HomeViewModel.ets:355-362`）。此时算出的延迟比真实值多出"距上次拉取的时长"，提醒按这个偏差**推迟弹出**；叠加 M1 的取消重建，每轮都会把原本正确的提醒替换成更晚的那条；即时通知正文的体力值也是旧值。建议 `delay -= now - row.updateTime`（单独提交，行为变更） |
+| ~~M9~~ ✅ | `ARKTS-016` | 3 处 `catch (_) {}` 静默吞掉 `cancelReminder` 失败 | `:189`（`cancelByAccountGame`）、`:235`（`buildMergedEntry`）、`:430`（`checkAndSchedule`） | 取消失败时状态条目仍被 `removeEntry` 删掉，系统中可能残留一条无人管理的提醒；由于没有日志，排查时只能看到"提醒没消失"的结果。`scan-arkts.sh` 对该规则默认 Medium（文件含 `await` 时触发），本文件含大量 `await`，按工具口径计 Medium。建议补一行 `Logger.warn`（含 `BusinessError.code`），或在确认是 cleanup 容错处加 `// scan-ignore: ARKTS-016` 并注明原因 |
 
 ### Low
 
@@ -278,6 +280,7 @@ grep -rn "notificationManager.cancel" --include="*.ets" features/notification
 | 第 5 轮（2026-10-29 结构迁移后复核） | 按 `docs/project-structure.md` 重核路径与行号：`entry/src/main/ets/notification/` → `features/notification/src/main/ets/model/`；服务 691 → 670 行、总计 1,082 → 1,061；`instance()` → `getInstance()`；widget 3 条 import → `basic` 的 `WidgetSyncHook` 1 条边（`EntryAbility.ets:16` 注册实现）；全部 `file:line` 逐条回代码；测试 import 与本地 `hashNotificationId` 副本核对；对照 `skills/harmonyos-review/references/checklist.md`、`skills/arkts-rules/references/spec-quick-ref.md`、`scan-arkts.sh` 重扫 | 撤回 M3（服务层已 await `WidgetSyncHook`，残余在 `WidgetSyncHandlerImpl`，归 M14）；新增 M9（3 处空 catch，`ARKTS-016` 默认 Medium）、L3（`KIT-005` / `ARKTS-011` 错误处理信息不足）、L4（关闭通知不撤回已发布通知）；补「规则 ID」列、整体观察 / 复审建议 / 复核命令 / 页头元数据。计数 8M/2L → **8M/4L**，评级 B 不变，债务 18 → 20，密度 1.7 → 1.9 |
 | 第 6 轮（2026-11-02 M5 真重构） | 服务 670 → 490 行；新增 `StaminaNoteReader`（83 行）统一三游戏 daily_note 读取；`NotificationModels` 104 → 181 行（`getSecondsPerUnit` / `getFallbackMax(GameId)` / `GameStaminaResources`）；`StaminaSchedule` 统一 STYLE_A/B 调度数据；`resolveSchedule` / `publishTimerReminder` / `saveState` / `createNotificationWantAgentInfo` 去重；删除注释掉的 `shouldReschedule` 与 `_style` / `_server` 参数；3 处空 catch 收敛为 1 处并补日志；编译 `bash run.sh uat` → BUILD SUCCESSFUL in 15s 80ms | ✅ 纯重构完成；M1/M2/M4/M5/M6/M7/M8 行为修复仍未执行（单独提交） |
 
+| 第 N 轮（2026-11-15 技术债修复） | 复核 M8 / M9 / M5 的代码现状；`notification@default` 62 → 67 条单测 | M8 新增 `StaminaSnapshot.updateTime` 与 `adjustDelayForElapsed`（含 5 条用例）；M9 仅剩的 `cancelReminder` catch 已有日志；M5 已随 GAP-05 修复 |
 【已核对代码一致性】
 
 ---

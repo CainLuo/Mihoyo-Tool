@@ -246,7 +246,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | # | 问题 | 位置 | 说明 |
 | --- | --- | --- | --- |
 | L1 | ✅ 已修复（2026-11-13） | 原：`WidgetLog.ets`（53）vs `WidgetLogger.ets`（80）并存 | `WidgetLog` 的唯一引用是未使用的 import，已删除 |
-| L2 | `onFormEvent` 忽略 `message` | `EntryFormAbility.ets:87-89` | 任何 `formEvent` 都对该 formId 触发 `pushUpdate`，不校验内容；而 6 个页面的点击只发 `action: 'call'`（如 `Widget2x2.ets:104`），从不发 `message`，该回调目前没有触发源 |
+| ~~L2~~ ✅ | `onFormEvent` 忽略 `message` | `EntryFormAbility.ets:87-89` | 任何 `formEvent` 都对该 formId 触发 `pushUpdate`，不校验内容；而 6 个页面的点击只发 `action: 'call'`（如 `Widget2x2.ets:104`），从不发 `message`，该回调目前没有触发源 |
 | L3 | 页面级只有 1×2 三页有 `@Preview` | `widget/pages/Widget1x2*.ets:73` | 9 个组件文件各有 `@Preview`（`WidgetEmptyContent` 无），但 2×2 / 2×4 / 4×4 页面的空态 / 单游戏 / 多游戏分支组合只能上真机验证；建议补页面级 `@Preview`（不改页面结构） |
 
 ---
@@ -288,7 +288,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 
 - **High 3 项**（配置误删、Mock 数据、无新鲜度标识）：H1 / H2 建议随 M14 修，H3 需产品决策。
 - **Medium 8 项**（重复解析、全局冷却且失败也计冷却、结果不可见、10 秒窗口、串行同步、派遣头像永不更新、并发锁置位过晚、`WidgetFormIdStore` 空转）：**M1 / M6 / M7 / M8 已完成**（M8 走删除路线）；其余（M2 / M3 / M4 / M5）属增强或待决策。
-- **Low 3 项**（logger 合并、`formEvent` 校验、预览缺失）：可顺手做。
+- **Low 2 项**（logger 合并、预览缺失）：`formEvent` 校验已于 2026-11-15 修复——非空 `message` 只记日志、不触发刷新。
 - **测试空白**：`WidgetDataStore`（452）、`WidgetPayloadBuilder`（358）、`WidgetDataStoreBuilder`（365）、`WidgetImageDownloader`（489）、`WidgetUpdateNotifier`（146）均无单测——即**本子系统 3 个 High 所在的文件全部无测试保护**。四个 ViewModel 自 2026-11-07 起已有 `entry/src/test` 单测（本轮实测四个均 100% 行覆盖），不再是空白。
 
 ### 预览组件执行记录（2026-11-06）
@@ -453,7 +453,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | 调用方 | `WidgetSyncHandlerImpl` 只剩 `refreshAndSave`（`CoreInitializer` import 一并删除）；`WidgetSyncHook` 去掉 `init` 接口与静态方法（只为 formId store 存在）；`StaminaNotificationService.init` 去掉 `WidgetSyncHook.init` 调用；`AccountDetailViewModel.deleteAccount` 去掉恒 no-op 的清理与 `widget` 依赖 import |
 | 行为等价 | 被删链路原本恒提前返回：`getFormIdsByAccount()` 依赖的 `widget_form_ids` 无写入方。卡片推送一直由 `WidgetDataStoreBuilder.refreshAndSave` → `WidgetUpdateNotifier.notifyAllWidgets` 完成，未受影响 |
 | 验证 | `assembleHap`（uat/debug）成功；`widget@default`（76 条）/ `account@default` / `notification@default` / `basic@default` / `entry@default` 单测全绿 |
-| 计数 | 0 Critical / 1 High（H3）/ 4 Medium（M2 / M3 / M4 / M5）/ 3 Low，评级 B；债务 14 |
+| 计数 | 0 Critical / 1 High（H3）/ 4 Medium（M2 / M3 / M4 / M5）/ 2 Low，评级 B；债务 13（L2 于 2026-11-15 修复） |
 | 体量实测 | `features/widget/src/main/ets/` 43 文件 **6,006 行**（两轮删除前 6,428）、`entry/src/main/ets/widget/` 28 文件 2,703 行、`EntryFormAbility` 270 行、`WidgetSyncAbility` 263 行；旧记录的 7,506 行基线自 M14 预览去重后未再校准，本轮以实测为准 |
 | 遗留 | 「删除账号后 `widget_configs` 里指向该账号的 slots 无人清理」是真实缺陷（原 M8 的后果之一），修法需给 `deleteAccount` 传 context 并按 `slot.accountId` 过滤，属行为变更，未随本次提交 |
 

@@ -17,16 +17,18 @@
 | --- | --- |
 | Critical | 0 |
 | High | 0 |
-| Medium | 6 |
+| Medium | 3 |
 | Low | 5 |
 
 **整体评级：B**
 
-> 一句话结论：首页 View 层本身干净，问题集中在 ViewModel。**手动刷新一次后 `isAutoSync` 永不复位，后台同步开始弹错误 toast；单角色失败被吞掉，手动刷新仍报成功**（M1）。其次是与 ArkUI 复用规则相关的 ForEach key 覆盖不全（M2）、728 行 / 10 种职责（M3）、20 个无读取方的游戏专属字段（M4）、4 处空 catch + 6 处空 `.catch`（M5）与三层 ForEach（M6）。
+> 一句话结论：首页 View 层本身干净，问题集中在 ViewModel。~~手动刷新一次后 `isAutoSync` 永不复位、后台同步开始弹错误 toast；单角色失败被吞掉，手动刷新仍报成功~~（M1，✅ 2026-11-15 已修复）。~~20 个无读取方的游戏专属字段~~（M4，✅ 已删除）、~~4 处空 catch + 6 处空 `.catch` 静默吞错~~（M5，✅ 已补日志）同样已修复。剩余是与 ArkUI 复用规则相关的 ForEach key 覆盖不全（M2）、728 行 / 10 种职责（M3）与三层 ForEach 未用 `LazyForEach`（M6）。
+>
+> **2026-11-15 修复**：M1 改为 `syncIfNeeded(auto)` / `syncAllDailyNotes(auto)` 显式传参，删除 `isAutoSync` 字段；M4 删除 `GameNoteSnapshotVM` 上 20 个无读取方的游戏专属字段及 `HomeDataLoader` 的写入；M5 为冷启动、后台同步、通知推送、Cookie 检查的失败路径补日志。
 >
 > 结构迁移已解除原 M1（`UserGameSection` 双模式）与原 M3（home ↔ widget 双向依赖）：`UserGameSection` 已迁入 `common/basic`，改为 `roleBuilder` 插槽，Home 注入 `GameToolCard`、WidgetSettings 注入 `WidgetSlotOption`，两边不再互相 import。
 >
-> 债务点数 = 6×2 + 5×1 = **17**；源行数按 `HomePage.ets` 185 行计（与 README 口径一致，不含 ViewModel / 组件），密度 = 17 ÷ 1.85 ≈ **9.2**/百行。
+> 债务点数 = 3×2 + 5×1 = **11**（2026-11-15 修复 M1 / M4 / M5 后；修复前 17）；源行数按 `HomePage.ets` 185 行计（与 README 口径一致，不含 ViewModel / 组件），密度 = 11 ÷ 1.85 ≈ **5.9**/百行。
 
 ---
 
@@ -149,7 +151,7 @@ loadData()（:121-182）
 | PERF-008 | 列表项带 `key` | ⚠️ 已记 M2 | 外层 key 只含 `accountId` + 各角色 `roleUid:primaryCurrent`（`HomePage.ets:134-141`）；中层 key = `roleUid + gameId`（`UserGameSection.ets:41`）；内层 key 仅为下标 `row_${idx}`（`GameToolCardContent.ets:39`） |
 | ARKTS-001 | 无 `any` / `unknown` / `var` | ✅ | HomePage / ViewModel / views / UserGameSection grep 均无命中 |
 | ARKTS-012 | 日志走 hilog，不用 `console.*` | ✅ | 统一 `Logger`（core），无 `console.` |
-| ARKTS-016 | 空 catch 块不以静默吞错收场 | ❌ 已记 M5 | `HomeViewModel.ets:160 / :167 / :263 / :447` 四处 `catch (_) {}`；另有 6 处空 `.catch`（`:168 / :174 / :181 / :264 / :367 / :384`）。`scan-arkts.sh` 对该规则默认 Medium（文件含 `await` 时触发），本文件含大量 `await` |
+| ARKTS-016 | 空 catch 块不以静默吞错收场 | ✅ 已修 M5 | `HomeViewModel.ets:160 / :167 / :263 / :447` 四处 `catch (_) {}`；另有 6 处空 `.catch`（`:168 / :174 / :181 / :264 / :367 / :384`）。`scan-arkts.sh` 对该规则默认 Medium（文件含 `await` 时触发），本文件含大量 `await` |
 | KIT-005 / ARKTS-011 | Kit Promise 都有 catch，`BusinessError` 判 code | ⚠️ 已记 M5 | `StaminaNotificationService.getInstance().onDailyNotesSynced()` 的 3 处调用都有 `.catch`，但都是空函数；`HomePage.ets:79` 的 `showDialog` catch 有 `BusinessError` 类型与日志；VM 内其余 catch 只记 `message`，不判 `code` |
 | COMPAT-004 | 多端断点适配 | ✅ / 由 Main 承担 | Home 只接 `isSplit` 一个标识（`HomePage.ets:17`），断点判定在 `MainPage.ets`；折叠屏修复属 Main 文档的 H1 / M3 / M7 |
 | TEST-001 | 核心逻辑有单测 | ⚠️ 覆盖不足，不计入评级 | `features/home/src/test/HomeViewModel.test.ets`（105 行、14 条）覆盖初始态 / 刷新防重 / `dispose` / 颜色；**未覆盖** `syncDescKey` / `getPrimaryColor` / `buildCardTapRoute` / `loadDailyNoteSnapshot` / 同步错误语义。旧文档「import 路径错误、Local Test 无法编译」已随结构迁移修复：当前 `:2-4` 的 `HomeViewModel` / `ViewState` / `getGameColorByStr` / `GameId` 均可解析 |
@@ -165,11 +167,11 @@ loadData()（:121-182）
 
 | # | 规则 ID | 问题 | 位置 | 说明 | 建议 |
 | --- | --- | --- | --- | --- | --- |
-| M1 | — | **`isAutoSync` 置 false 后永不复位；手动刷新部分失败仍报成功** | `HomeViewModel.ets:70`（初值 `true`）、`:197` / `:222`（`refresh` / `forceRefresh` 置 `false`）、`:336-338`（错误上报条件）、`:205` / `:230`（`refreshResult = 'success'`） | `isAutoSync` 全文件只有初值 `true` 与两处置 `false`，**没有任何复位**。用户手动刷新一次（或 Geetest 通过触发 `forceRefresh`）之后，30 分钟定时器（`:276-291`）、`loadData` / 账号变更时的 `syncIfNeeded`（`:346-368`）中的单角色失败都会写 `networkErrorMsg`，**后台同步开始弹错误 toast**，与 `:65-69` 注释「自动同步静默」相反。另外 `syncDailyNote` 吞掉所有单角色异常（`:303-341`），`refresh` / `forceRefresh` 照常走到 `refreshResult = 'success'`，用户会同时看到错误 toast 与「刷新成功」toast | 在 `refresh` / `forceRefresh` 的 `finally` 中复位 `isAutoSync = true`；`syncDailyNote` 返回成功/失败，`syncAllDailyNotes` 汇总失败数后决定 `refreshResult`（行为变更，单独提交） |
+| ~~M1~~ ✅ | — | **`isAutoSync` 置 false 后永不复位；手动刷新部分失败仍报成功** | `HomeViewModel.ets:70`（初值 `true`）、`:197` / `:222`（`refresh` / `forceRefresh` 置 `false`）、`:336-338`（错误上报条件）、`:205` / `:230`（`refreshResult = 'success'`） | `isAutoSync` 全文件只有初值 `true` 与两处置 `false`，**没有任何复位**。用户手动刷新一次（或 Geetest 通过触发 `forceRefresh`）之后，30 分钟定时器（`:276-291`）、`loadData` / 账号变更时的 `syncIfNeeded`（`:346-368`）中的单角色失败都会写 `networkErrorMsg`，**后台同步开始弹错误 toast**，与 `:65-69` 注释「自动同步静默」相反。另外 `syncDailyNote` 吞掉所有单角色异常（`:303-341`），`refresh` / `forceRefresh` 照常走到 `refreshResult = 'success'`，用户会同时看到错误 toast 与「刷新成功」toast | 在 `refresh` / `forceRefresh` 的 `finally` 中复位 `isAutoSync = true`；`syncDailyNote` 返回成功/失败，`syncAllDailyNotes` 汇总失败数后决定 `refreshResult`（行为变更，单独提交） |
 | M2 | PERF-008 | **首页 / 角色 / 数据行三级 ForEach key 覆盖不全，次要数据可能不刷新**（需真机确认） | `HomePage.ets:134-141`；`UserGameSection.ets:41`；`GameToolCardContent.ets:39`；`HomeViewModel.ets:448-458` | 外层 key 只由 `accountId` + 各角色 `roleUid:primaryCurrent` 组成；中层 key 只有 `roleUid + gameId`；内层 key 仅为下标。`MihoyoAccountVM` / `GameRoleCardVM` / `GameDataRowVM` 都是普通类（无 `@ObservedV2`），按 ForEach 的键值复用规则，key 不变时该项不会重新渲染：主体力未变（典型如树脂已满停在上限）时，`dataRows`（派遣/洞天/委托/实训等）、`lastSyncDesc`（「x 分钟前」）、账号昵称/头像、角色昵称/服务器的更新不会反映到 UI。外层 key 拼入 `primaryCurrent` 本身说明作者已遇到过这一刷新问题，但只覆盖了主数值 | 给 VM 增加单调递增的 `version` 字段并并入三层 key，或把 `dataRows` / `lastSyncDesc` / 昵称头像的摘要并入 key；M8 拆分时一并处理（行为变更，单独提交） |
 | M3 | — | **`HomeViewModel` 职责过重**（728 行，10 种职责） | `HomeViewModel.ets` 全文 | 数据加载、状态机、刷新冷却、错误上报、冷启动 Cookie 检查、单角色/按需/全量同步、三游戏便笺解析、卡片组装、路由参数、通知触发、自动刷新定时器全部集中在一个类；难以维护、难以测试。纯结构性技术债，用户无感知（按跨文档口径记 Medium） | 按 §5 拆分为 3 个文件，保留 `HomeViewModel` facade 与导出符号；`refresh` / `forceRefresh` 的重复代码一并收敛 |
-| M4 | — | **`GameNoteSnapshotVM` 字段膨胀，20 个游戏专属字段无读取方** | `AccountRoleModels.ets:61-107`；写入点 `HomeViewModel.ets:483-489`（原神）/ `:544-552`（星铁）/ `:615-625`（绝区零） | 除通用 `primary*` / `secondary*` / `dataRows` / `primaryColor` 外，类里塞入三游戏专属字段（原神 7 个 / 星铁 9 个 / 绝区零 4 个），新增游戏仍需扩类。这些字段只在 `loadDailyNoteSnapshot()` 写入，`features/home`、`entry/src/test`、`common/basic/src/test` 中**没有任何读取方**；UI 全部走 `dataRows`（`GameToolCardContent.ets:30-40`）。与「ViewModel 决定数据行、View 只渲染」的设计目标不符 | 删除无读取字段，或改为 `extraRows: GameDataRowVM[]` 数据驱动；属模型契约变更，M8 后单独提交 |
-| M5 | ARKTS-016、KIT-005、ARKTS-011 | **4 处空 catch + 6 处空 `.catch` 静默吞错** | `HomeViewModel.ets:160 / :167 / :263 / :447`（`catch (_) {}`）；`:168 / :174 / :181 / :264 / :367 / :384`（`.catch((_: Error \| object) => {})`） | `:160` / `:167` 吞掉首次登录 `syncIfNeeded` / `fetchFromLocal` 失败，页面可能停在「有账号但无卡片」；`:263` 吞掉冷启动 Cookie 刷新后的重读失败；`:447` 吞掉 `getDailyNoteLastSyncTime` 失败并静默显示「从未同步」；6 处空 `.catch` 让通知 / Widget 推送、冷启动 Cookie 检查失败完全无日志。`scan-arkts.sh` 对 `ARKTS-016` 默认 Medium；`KIT-005` 在 checklist 默认 High，但这里只是少日志 / 少提示，不改变已成功路径，按工具口径与影响记 Medium | 每处补一行 `Logger.warn`（含 `BusinessError.code` 或 `error.message`）；确认是 cleanup 容错的加 `// scan-ignore: ARKTS-016` 并注明原因；通知推送的 3 处至少记录一次失败日志 |
+| ~~M4~~ ✅ | — | **`GameNoteSnapshotVM` 字段膨胀，20 个游戏专属字段无读取方** | `AccountRoleModels.ets:61-107`；写入点 `HomeViewModel.ets:483-489`（原神）/ `:544-552`（星铁）/ `:615-625`（绝区零） | 除通用 `primary*` / `secondary*` / `dataRows` / `primaryColor` 外，类里塞入三游戏专属字段（原神 7 个 / 星铁 9 个 / 绝区零 4 个），新增游戏仍需扩类。这些字段只在 `loadDailyNoteSnapshot()` 写入，`features/home`、`entry/src/test`、`common/basic/src/test` 中**没有任何读取方**；UI 全部走 `dataRows`（`GameToolCardContent.ets:30-40`）。与「ViewModel 决定数据行、View 只渲染」的设计目标不符 | 删除无读取字段，或改为 `extraRows: GameDataRowVM[]` 数据驱动；属模型契约变更，M8 后单独提交 |
+| ~~M5~~ ✅ | ARKTS-016、KIT-005、ARKTS-011 | **4 处空 catch + 6 处空 `.catch` 静默吞错** | `HomeViewModel.ets:160 / :167 / :263 / :447`（`catch (_) {}`）；`:168 / :174 / :181 / :264 / :367 / :384`（`.catch((_: Error \| object) => {})`） | `:160` / `:167` 吞掉首次登录 `syncIfNeeded` / `fetchFromLocal` 失败，页面可能停在「有账号但无卡片」；`:263` 吞掉冷启动 Cookie 刷新后的重读失败；`:447` 吞掉 `getDailyNoteLastSyncTime` 失败并静默显示「从未同步」；6 处空 `.catch` 让通知 / Widget 推送、冷启动 Cookie 检查失败完全无日志。`scan-arkts.sh` 对 `ARKTS-016` 默认 Medium；`KIT-005` 在 checklist 默认 High，但这里只是少日志 / 少提示，不改变已成功路径，按工具口径与影响记 Medium | 每处补一行 `Logger.warn`（含 `BusinessError.code` 或 `error.message`）；确认是 cleanup 容错的加 `// scan-ignore: ARKTS-016` 并注明原因；通知推送的 3 处至少记录一次失败日志 |
 | M6 | PERF-002 | **三层 ForEach 嵌套，未使用 `LazyForEach`** | `HomePage.ets:129` → `UserGameSection.ets:39` → `GameToolCardContent.ets:33` | 账号 × 游戏角色 × 数据行的三重 ForEach；当前账号 / 角色 / 数据行规模为个位数～十几，实际卡顿风险低，按结构性技术债记 Medium。新增游戏或数据行时会放大 | 暂不强制改 `LazyForEach`（需要 `IDataSource` 包装 + 数据源可变，收益低于风险）；M8 拆分时评估最外层是否值得懒加载，并保留 `@Reusable` 优化空间 |
 
 ### Low（持续观察）
@@ -358,4 +360,5 @@ grep -c "it(" features/home/src/test/HomeViewModel.test.ets
 | 第 8 轮（2026-10-31 M8 命名核查） | 对 `features/home/src/main/ets/` 共 10 文件逐标识符核对：Page×1 / ViewModel×1 / Views×8；类名 PascalCase ✅、方法 camelCase ✅、变量 camelCase ✅、无前缀下划线违规；import 路径均正确指向 `basic` / `core`；编译验证 `bash run.sh uat` | 🔶 命名零违规；仅初步核查，未做真重构 |
 | 第 9 轮（2026-11-01 M8 真重构） | `HomeViewModel` 728L 拆为 4 文件：facade 303L + `HomeDataLoader` 315L + `HomeSyncCoordinator` 137L + `HomeCardPresenter` 65L；保留 `HomeViewModel` 类名 / 导出符号 / 静态方法（测试契约）；命名修正 `blockW/H/R` → `blockWidth/Height/Radius`、`vhsValue/Color` → `videoStoreValue/Color`、`zzzisFull` → `isFull`、`srRows` → `starRailRows`、`expCur/expMax` → `expeditionCurrent/expeditionMax`、`coinCur/coinMax` → `homeCoinCurrent/homeCoinMax`、`cardSignDone` → `isCardSignDone`、`syncDescResource(key)` → `syncKey`；删除废弃空方法 `showNextCookieExpiredDialog`；编译验证 `bash run.sh uat` → BUILD SUCCESSFUL in 18s 80ms | ✅ **M8 真重构完成**：最大文件 315L（<500），同步/加载/错误提示/冷却/定时器逻辑逐方法对照保持等价；测试路径 `viewmodel/HomeViewModel.ets` 与 `HomeViewModel.getGameColor` 导出不变 |
 
+| 第 N 轮（2026-11-15 技术债修复） | 复核 M1 / M4 / M5 的代码现状 | M1 显式传参（`home@default` 28 条通过）；M4 删除 20 个字段与写入（`common/basic` 26 条通过）；M5 补 4 处日志。Medium 6 → 3，债务 17 → 11 |
 【已核对代码一致性】
