@@ -1,7 +1,7 @@
 # 通知服务层分析（M5 · 服务层）
 
-> **审查对象**：`features/notification/src/main/ets/model/` —— 6 个文件 / 1,261 行（2026-11-15 重新统计）
-> （`StaminaNotificationService` 549 · `NotificationSettingsStore` 132 · `NotificationModels` 194 · `NotificationStateStore` 182 · `StaminaThresholdCalculator` 116 · `StaminaNoteReader` 88）
+> **审查对象**：`features/notification/src/main/ets/model/` —— 7 个文件 / 1,330 行（2026-11-15 重新统计）
+> （`StaminaNotificationService` 570 · `NotificationSettingsStore` 132 · `NotificationModels` 194 · `NotificationStateStore` 182 · `StaminaThresholdCalculator` 116 · `StaminaNoteReader` 88 · `CoalescingRunner` 48）
 > **审查日期**：2026-10-24（2026-10-29 结构迁移后复核，见 §10 第 5 轮）
 > **审查者**：AI 助手（`skills/harmonyos-review` checklist + `skills/arkts-rules` 规则）
 > **代码版本**：`e00e579`（结构迁移后）。文中 `:行号` 未注明文件时指 `StaminaNotificationService.ets`；其他文件按 `features/notification/src/main/ets/` 下的路径给出
@@ -17,16 +17,16 @@
 | --- | --- |
 | Critical | 0 |
 | High | 0 |
-| Medium | 4 |
+| Medium | 3 |
 | Low | 4 |
 
 **整体评级：B**
 
-> 服务层的设计是合理的：用 `reminderAgentManager` 注册**系统级代理提醒**（App 被杀也能弹），纯函数 `StaminaThresholdCalculator` 单独可测，设置与状态分两个 preferences 文件互不污染，并且有 74 条单测（`StaminaNotificationService` 26 · `StaminaThresholdCalculator` 32 · `NotificationStateStore` 6 · `NotificationSettingsStore` 5 · `NotificationSettingsViewModel` 5）。**注意**：前者并未 import 服务本体，而是复制了一份 `hashNotificationId` 逻辑来测（见 §7），真实覆盖集中在阈值计算与模型常量。
+> 服务层的设计是合理的：用 `reminderAgentManager` 注册**系统级代理提醒**（App 被杀也能弹），纯函数 `StaminaThresholdCalculator` 单独可测，设置与状态分两个 preferences 文件互不污染，并且有 77 条单测（`StaminaNotificationService` 26 · `StaminaThresholdCalculator` 32 · `NotificationStateStore` 6 · `NotificationSettingsStore` 5 · `NotificationSettingsViewModel` 5 · `CoalescingRunner` 3）。**注意**：前者并未 import 服务本体，而是复制了一份 `hashNotificationId` 逻辑来测（见 §7），真实覆盖集中在阈值计算与模型常量。
 >
 > 主要问题在"调度节流"和"静默跳过"：每次便签同步都会**先取消再重建**提醒（本该生效的 `shouldReschedule` 判断在生产代码里被注释掉了），~~已达阈值的角色每次同步都会被重发一次即时通知（状态表读不回 `reminderId = -1` 的条目）~~（M7，✅ 2026-11-15 已按阈值跨越去重）、~~延迟又按缓存快照计算、未扣除已流逝时间，提醒会被推迟~~（M8，✅ 已扣除）；30 条上限命中时只在日志里留一行，设置页只能看到槽位用量，看不到是哪些角色被跳过。
 >
-> **2026-11-15 修复**：M8 已扣除快照已流逝时间（`StaminaNoteReader` 透出 `updateTime`，`StaminaThresholdCalculator.adjustDelayForElapsed` 纯函数 + 5 条单测）；M9 涉及的 3 处 `cancelReminder` 静默 catch 在重构后只剩 1 处且已带 `Logger.warn`，条目关闭；M5（bundle 写死）此前已随 GAP-05 修复；M7 改为独立 `NotifyMarker` + 纯函数 `shouldNotifyImmediate`，体力仍在阈值上时不再重复发布（`e2fa9c6`）。Medium 8 → 4，债务 20 → 12。
+> **2026-11-15 修复**：M8 已扣除快照已流逝时间（`StaminaNoteReader` 透出 `updateTime`，`StaminaThresholdCalculator.adjustDelayForElapsed` 纯函数 + 5 条单测）；M9 涉及的 3 处 `cancelReminder` 静默 catch 在重构后只剩 1 处且已带 `Logger.warn`，条目关闭；M5（bundle 写死）此前已随 GAP-05 修复；M7 改为独立 `NotifyMarker` + 纯函数 `shouldNotifyImmediate`，体力仍在阈值上时不再重复发布（`e2fa9c6`）；M4 用 `CoalescingRunner` 串行化 `onDailyNotesSynced`（并发触发合并为一轮 + 尾随重跑，避免孤儿提醒）。Medium 8 → 3，债务 20 → 10。
 >
 > 2026-10-29 复核撤回原 M3：服务层已改为 `await WidgetSyncHook.onDailyNotesSynced(this.context)`（`:97-103`），原先"循环内 fire-and-forget + `this.context!`"的代码已迁到 widget 侧；同时新增 M9（3 处空 catch）与 L3 / L4（错误处理、通知撤回）。
 
@@ -143,7 +143,7 @@ NotificationSettingsViewModel（2 处：:83 / :139）
 | --- | --- | --- | --- | --- |
 | M1 | — | 每次同步都**取消并重建**已有提醒，`shouldReschedule` 跳过的逻辑被注释掉 | STYLE_A：`:423-426`（`shouldReschedule` 判断整段被 `//` 注释）、`:427-432`（直接 `cancelReminder` + `removeEntry`）；STYLE_B：`:229-237`（同样是先取消再重建） | 便签每次刷新（Home 进前台 / 手动刷新 / 设置页改动）都会让所有提醒重建一次：系统通知列表抖动，"再过 2 分钟回满"的提醒可能因重建而推迟。`StaminaThresholdCalculator.shouldReschedule` 专为此写了纯函数且有 3 条单测（`StaminaThresholdCalculator.test.ets:124-139`），却没被任何生产代码调用。建议恢复注入这条判断（单独提交，行为变更） |
 | M2 | — | 30 条上限命中后**静默跳过** | `:343-347`（STYLE_B）与 `:515-519`（STYLE_A），均只打一行 `reminder limit reached (...), skip` 后 `return` | 用户有 3 账号 × 多角色时很容易超过 30 条；超出的角色收不到提醒，游戏开关仍显示"已开启"。设置页已有槽位用量（`NotificationSettingsViewModel.ets:27-28` 的 `reminderUsed / reminderLimit`，`:31-37` 按比例变色）与开启前的上限弹窗（`:112-118`），但后台同步中被跳过的**是哪些角色**无从得知。建议服务层返回被跳过的 key 列表供设置页标注，或在超限时降级为 STYLE_B 合并 |
-| M4 | — | `onDailyNotesSynced()` 被 Home 触发 3 次，且服务无并发保护 | `features/home/src/main/ets/viewmodel/HomeViewModel.ets:174 / :367 / :384`（均为 `catch((_: Error \| object) => {})` 静默）；服务 `onDailyNotesSynced`（`:94-161`）无 in-flight 标记 | 首页冷启动、下拉刷新、强制刷新、自动刷新定时器都会触发一轮 O(账号×角色) 的遍历 + 全量提醒重建（即 M1）。冷启动时 `HomeViewModel.ets:162` 的 `syncIfNeeded()` 未 await，`:174` 的冷启动推送与 `syncIfNeeded` 末尾的 `:367` 两次调用可能重叠：两轮各自"读旧条目 → 取消 → 发布"，状态表只留后写的 `reminderId`，先发布的那条成为孤儿提醒（重复弹出且占用 30 条槽位）。建议服务层加 in-flight 合并 + "最小间隔"（如 60s） |
+| ~~M4~~ ✅ | — | `onDailyNotesSynced()` 被 Home 触发 3 次，且服务无并发保护 | `features/home/src/main/ets/viewmodel/HomeViewModel.ets:174 / :367 / :384`（均为 `catch((_: Error \| object) => {})` 静默）；服务 `onDailyNotesSynced`（`:94-161`）无 in-flight 标记 | 首页冷启动、下拉刷新、强制刷新、自动刷新定时器都会触发一轮 O(账号×角色) 的遍历 + 全量提醒重建（即 M1）。冷启动时 `HomeViewModel.ets:162` 的 `syncIfNeeded()` 未 await，`:174` 的冷启动推送与 `syncIfNeeded` 末尾的 `:367` 两次调用可能重叠：两轮各自"读旧条目 → 取消 → 发布"，状态表只留后写的 `reminderId`，先发布的那条成为孤儿提醒（重复弹出且占用 30 条槽位）。建议服务层加 in-flight 合并 + "最小间隔"（如 60s）。✅ 已修（`1479f29`）：新增 `CoalescingRunner`，并发触发共享同一轮 Promise 并登记一次尾随重跑，孤儿提醒不再产生；**未加时间节流**——按时间丢弃重跑会把「同步完成后的新一轮」数据一起丢掉，与 M4 要解决的问题相悖 |
 | ~~M5~~ ✅ | — | `wantAgent` 目标写死 bundle 与 ability 名 | `:20-21`（`BUNDLE_NAME` / `ABILITY_NAME`），用于 `:289 / :351 / :468 / :523` | uat / mock product 的 bundle 分别是 `com.cainluo.miyoyo.tools.uat` / `.mock`（`build-profile.json5:64 / 83`），这两个包点击通知会去拉起正式包或失败；建议从 `context.abilityInfo` 读取。✅ 已修（`a785ca6`）：新增 `private get bundleName()` 读 `this.context.abilityInfo.bundleName`，`publishTimerReminder` 与 `createNotificationWantAgentInfo` 改用该 getter；`context` 为 null 时返回空串（该路径本就需要 context，会在发布时抛错并被 catch 记录） |
 | M6 | — | 状态表与系统提醒**没有对账** | `NotificationStateStore.ets:35-56`（只按 key 读，`reminderId < 0` 视为不存在）；全文件无"校验系统中是否仍存在该 reminderId"的逻辑 | 系统清理、用户手动关闭通知、卸载重装后，`notification_state` 里会留下失效 reminderId；`getReminderCount()`（`:83-92`）只用 `getValidReminders().length` 取总数，不逐条核对。建议启动时用 `getValidReminders()` 与状态表做一次差集清理 |
 | ~~M7~~ ✅ | — | 已达阈值的角色**每次同步都重发即时通知** | 即时通知写入的状态是 `reminderId = -1`（`:493-498`、`:321-326`），而 `NotificationStateStore.getEntry()` 对 `reminderId < 0` 直接返回 `null`（`NotificationStateStore.ets:42-44`）；STYLE_A `:447-448`、STYLE_B `:136-138 → :154-156` 因此每轮都会重新 `publish` | "已经通知过"的事实写进了状态表却永远读不回来，只要体力仍高于阈值，每次首页同步（M4 的各触发点）都会以同一 ID 重新发布并再次提醒。注意：仅恢复 M1 的 `shouldReschedule` 也拦不住这条（`getEntry` 先返回了 `null`）。建议 `getEntry` 区分"无条目"与"已即时通知"，与 M1 一并修（行为变更，单独提交）。✅ 已修（`e2fa9c6`）：新增独立 `NotifyMarker`（`{key}_nth` 已通知阈值 / `{key}_nat` 通知时间）与纯函数 `StaminaThresholdCalculator.shouldNotifyImmediate`；体力仍在阈值上且阈值未变时跳过发布，回落到阈值以下、用户改阈值或重新开启通知时清除标记；STYLE_B 合并列表仍包含全部达标角色，但有新跨越才发布 |
@@ -187,7 +187,7 @@ NotificationSettingsViewModel（2 处：:83 / :139）
 ### 重构范围（建议）
 
 - **M1 可随重构模块 M5 修**：把 `shouldReschedule` 真正用上，跳过未变化的提醒。这是行为变更（减少重复发布），需要单独提交 + 冒烟"提醒仍能按时弹出"。
-- **M4 是稳定性修复**：服务层 in-flight 合并 + 最小间隔，不改 UI。
+- ~~**M4 是稳定性修复**：服务层 in-flight 合并 + 最小间隔，不改 UI~~ ✅ 已修（`1479f29`）：`CoalescingRunner` 做 in-flight 合并 + 尾随重跑；时间节流有意不加（会丢弃同步完成后的新一轮）。
 - **M8 是时间基准修复**：扣除 `now - updateTime` 会让提醒提前到正确时刻，属行为变更，单独提交并冒烟"30 分钟内二次进首页，提醒时间不后移"。
 - ~~**M7 与 M1 同一提交**~~ ✅ 已单独修复（`e2fa9c6`）：不复用 `getEntry`，改用独立 `NotifyMarker`（`_nth` / `_nat`），由 `shouldNotifyImmediate` 判定阈值跨越；仍需真机冒烟「体力高于阈值时多次刷新首页只提醒一次」。
 - **M2 / M6 需要产品与存储设计**：被跳过角色的展示、状态对账都涉及新增 UI 或迁移逻辑，记录不执行。
@@ -205,21 +205,21 @@ NotificationSettingsViewModel（2 处：:83 / :139）
 
 ### 已知问题归属
 
-- Medium 4 项：M1 / M4 待排期；M2 / M6 需产品与存储设计（M5 / M7 / M8 / M9 已修复）。
+- Medium 3 项：M1 待排期；M2 / M6 需产品与存储设计（M4 / M5 / M7 / M8 / M9 已修复）。
 - Low 4 项：L1 / L2 / L3 / L4 记录。
 - 覆盖情况：服务层有 **74 条单测**（`StaminaNotificationService` 26 · `StaminaThresholdCalculator` 32 · `NotificationStateStore` 6 · `NotificationSettingsStore` 5 · `NotificationSettingsViewModel` 5）。`StaminaNotificationService.test.ets` 只 import `NotificationModels`（+ `GameId`），**没有 import 服务本体**；`hashNotificationId` 的 6 条用例测的是测试文件内 `:18-24` 的本地副本，服务实现改动不会被发现。真实被测的是 `StaminaThresholdCalculator` 纯函数（32 条，真实 import）与 `NotificationStateStore` 的两个解码函数（6 条）。`onDailyNotesSynced` / `publishMergedNotification` / 状态对账**无测试**。
 
 ### 7.1 整体观察（skills report-template 要求）
 
 - **代码质量**：两个 preferences store 与 calculator 职责单一，命名一致；`StaminaSchedule` 统一了 STYLE_A / STYLE_B 的调度数据，daily_note 读取抽到 `StaminaNoteReader`，服务本体从 670 行降到 549 行（含阈值跨越去重逻辑）。扣分项是写死的 bundle / ability（M5）与仍存在的 30 条上限静默跳过（M2）。
-- **架构**：服务 → 两个 preferences store → 纯函数 calculator 的单向依赖清晰；widget 通过 `WidgetSyncHook` 依赖倒置，不再形成 notification ↔ widget 循环。缺口是 `onDailyNotesSynced` 没有 in-flight / 节流（M4），以及状态表与系统提醒没有对账（M6）。
+- **架构**：服务 → 两个 preferences store → 纯函数 calculator 的单向依赖清晰；widget 通过 `WidgetSyncHook` 依赖倒置，不再形成 notification ↔ widget 循环。`onDailyNotesSynced` 已用 `CoalescingRunner` 串行化（M4）；缺口是状态表与系统提醒没有对账（M6）。
 - **安全**：权限声明完整，日志不含凭据；`cancelAll` 的"清空本应用全部代理提醒"是未来扩展时的误伤点（§5）。
-- **性能**：每轮同步 O(账号×角色)，且 `getReminderCount()` 在每个角色调度前都调一次 `getValidReminders()`（`:343`、`:515`），角色多时是 O(N) 次系统 IPC；可改为本轮只取一次、发布后本地自增。该点暂未单列缺陷，随 M4 的节流一起优化即可。
+- **性能**：每轮同步 O(账号×角色)，且 `getReminderCount()` 在每个角色调度前都调一次 `getValidReminders()`（`:343`、`:515`），角色多时是 O(N) 次系统 IPC；可改为本轮只取一次、发布后本地自增。该点暂未单列缺陷；M4 只做并发合并、未引入时间节流，因此该优化仍待排期。
 
 ### 7.2 复审建议
 
 1. ~~**先修行为正确性**：M1 + M7 一个提交，M8 一个提交~~ ✅ M7（`e2fa9c6`）与 M8（`189d01b`）已修，M1 待排期；M7 仍需真机冒烟「体力高于阈值时多次刷新首页只提醒一次」。
-2. **再修稳定性**：M4 的 in-flight 合并与最小间隔，避免冷启动两条链路互相覆盖状态。
+2. ~~**再修稳定性**：M4 的 in-flight 合并与最小间隔~~ ✅ 已修（`1479f29`）：`CoalescingRunner` 合并并发触发并尾随重跑，冷启动两条链路不再互相覆盖状态。
 3. **产品决策项**：M2（被跳过角色可见性）与 M6（状态对账）需要设置页 / 存储迁移配合，单独排期。
 4. **收尾**：M9 + L3 + L4 可合并为一个"错误处理与通知撤回"清理提交。
 5. **真机回归**：30 条上限、uat / mock 通知点击、关闭总开关后通知栏清空（L4）、重启后设置保持。
@@ -281,6 +281,7 @@ grep -rn "notificationManager.cancel" --include="*.ets" features/notification
 | 第 6 轮（2026-11-02 M5 真重构） | 服务 670 → 490 行；新增 `StaminaNoteReader`（83 行）统一三游戏 daily_note 读取；`NotificationModels` 104 → 181 行（`getSecondsPerUnit` / `getFallbackMax(GameId)` / `GameStaminaResources`）；`StaminaSchedule` 统一 STYLE_A/B 调度数据；`resolveSchedule` / `publishTimerReminder` / `saveState` / `createNotificationWantAgentInfo` 去重；删除注释掉的 `shouldReschedule` 与 `_style` / `_server` 参数；3 处空 catch 收敛为 1 处并补日志；编译 `bash run.sh uat` → BUILD SUCCESSFUL in 15s 80ms | ✅ 纯重构完成；M1/M2/M4/M5/M6/M7/M8 行为修复仍未执行（单独提交） |
 
 | 第 7 轮（2026-11-15 技术债修复） | 复核 M8 / M9 / M5 的代码现状；`notification@default` 62 → 67 条单测 | M8 新增 `StaminaSnapshot.updateTime` 与 `adjustDelayForElapsed`（含 5 条用例）；M9 仅剩的 `cancelReminder` catch 已有日志；M5 已随 GAP-05 修复 |
+| 第 9 轮（2026-11-15 M4 并发合并） | 复核 M4：`onDailyNotesSynced` 无 in-flight 标记，冷启动推送与 `syncIfNeeded` 末尾两轮可重叠；服务 549 → 570 行，新增 `CoalescingRunner`（48 行） | 并发触发共享同一轮 Promise，并登记一次尾随重跑；所有调用方 `await` 返回时本轮与重跑都已完成。`notification@default` 74 → 77 条单测 |
 | 第 8 轮（2026-11-15 M7 阈值跨越去重） | 复核 M7：即时通知路径原先只写 `saveState(..., -1, ...)`，`getEntry` 对 `rid < 0` 返回 null，去重标记读不回来；六个文件行数重统计为 549 / 132 / 194 / 182 / 116 / 88 | 新增 `NotifyMarker` 与 `NotificationStateStore.getNotifyMarker / setNotifyMarker / clearNotifyMarker`、纯函数 `StaminaThresholdCalculator.shouldNotifyImmediate`；STYLE_A / STYLE_B 发布前判定，发布成功后写标记；体力回落、改阈值、重开通知时清除标记。`notification@default` 67 → 74 条单测 |
 【已核对代码一致性】
 
@@ -320,7 +321,7 @@ grep -rn "notificationManager.cancel" --include="*.ets" features/notification
 
 ### 未执行（保留记录）
 
-- M1（每次同步取消重建）、M4（Home 3 次触发无并发保护）：行为变更，单独提交。（M7 / M8 已于 2026-11-15 修复）
+- M1（每次同步取消重建）：行为变更，单独提交。（M4 / M7 / M8 已于 2026-11-15 修复）
 - M2（30 条上限静默跳过）、M6（状态表对账）：需产品 / 存储设计，保留。
 - M5（bundle / ability 硬编码）：构建配置修复，单独提交。
 - L1–L4：保留记录。
