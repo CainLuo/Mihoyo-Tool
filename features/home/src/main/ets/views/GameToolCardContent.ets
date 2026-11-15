@@ -36,7 +36,7 @@ export struct GameToolCardContent {
             value: row.value,
             valueColor: row.valueColor
           })
-        }, (row: GameDataRowVM, idx: number) => `row_${idx}`)
+        }, (row: GameDataRowVM, idx: number) => `${idx}_${row.renderKey()}`)
       }
     }
     .width(this.tm.current.full)

@@ -131,14 +131,7 @@ export struct HomePage {
               account: account,
               roleBuilder: (role: GameRoleCardVM): void => { this.homeRoleCardBuilder(account, role) }
             })
-          }, (account: MihoyoAccountVM) => {
-            let key = account.accountId;
-            for (let i = 0; i < account.roles.length; i++) {
-              const r = account.roles[i];
-              key += `_${r.roleUid}:${r.snapshot !== null ? r.snapshot.primaryCurrent : 'x'}`;
-            }
-            return key;
-          })
+          }, (account: MihoyoAccountVM) => account.renderKey())
           Row().height(this.tm.current.value40)
         }
         .width(this.tm.current.full)

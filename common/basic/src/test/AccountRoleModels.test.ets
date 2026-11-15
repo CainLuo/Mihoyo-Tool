@@ -81,5 +81,53 @@ export default function accountRoleModelsTest() {
       expect(account.roles.length).assertEqual(0);
     });
 
+    // ─── renderKey（ForEach key 覆盖全部展示字段） ───────────────────
+
+    it('renderKey: 内容相同则 key 相同', 0, () => {
+      const a = new GameNoteSnapshotVM('树脂', 140, 200, 3600, '派遣', '5/5', false);
+      const b = new GameNoteSnapshotVM('树脂', 140, 200, 3600, '派遣', '5/5', false);
+      expect(a.renderKey()).assertEqual(b.renderKey());
+    });
+
+    it('renderKey: 次要指标变化会改变 key', 0, () => {
+      const a = new GameNoteSnapshotVM('树脂', 140, 200, 3600, '派遣', '3/5', false);
+      const b = new GameNoteSnapshotVM('树脂', 140, 200, 3600, '派遣', '5/5', false);
+      expect(a.renderKey() === b.renderKey()).assertFalse();
+    });
+
+    it('renderKey: 数据行值变化会改变 key', 0, () => {
+      const a = new GameNoteSnapshotVM('树脂', 140, 200, 3600, '', '', false);
+      a.dataRows = [new GameDataRowVM($r('app.string.dialog_confirm'), '3/5', $r('app.color.color_primary'))];
+      const b = new GameNoteSnapshotVM('树脂', 140, 200, 3600, '', '', false);
+      b.dataRows = [new GameDataRowVM($r('app.string.dialog_confirm'), '5/5', $r('app.color.color_primary'))];
+      expect(a.renderKey() === b.renderKey()).assertFalse();
+    });
+
+    it('renderKey: 数据行数量变化会改变 key', 0, () => {
+      const a = new GameNoteSnapshotVM('树脂', 140, 200, 3600, '', '', false);
+      const b = new GameNoteSnapshotVM('树脂', 140, 200, 3600, '', '', false);
+      b.dataRows = [new GameDataRowVM($r('app.string.dialog_confirm'), '5/5', $r('app.color.color_primary'))];
+      expect(a.renderKey() === b.renderKey()).assertFalse();
+    });
+
+    it('renderKey: 角色快照从 null 变为有数据会改变 key', 0, () => {
+      const withoutSnap = new GameRoleCardVM(
+        GameId.GENSHIN, '原神', $r('app.color.color_primary'), '1', '旅行者', '天空岛', null, ''
+      );
+      const withSnap = new GameRoleCardVM(
+        GameId.GENSHIN, '原神', $r('app.color.color_primary'), '1', '旅行者', '天空岛',
+        new GameNoteSnapshotVM('树脂', 0, 200, 0, '', '', false), ''
+      );
+      expect(withoutSnap.renderKey() === withSnap.renderKey()).assertFalse();
+    });
+
+    it('renderKey: 账号昵称与头像变化会改变 key', 0, () => {
+      const a = new MihoyoAccountVM('acc1', 'user1', [], '昵称', 'https://example.com/a.png');
+      const b = new MihoyoAccountVM('acc1', 'user1', [], '新昵称', 'https://example.com/a.png');
+      const c = new MihoyoAccountVM('acc1', 'user1', [], '昵称', 'https://example.com/b.png');
+      expect(a.renderKey() === b.renderKey()).assertFalse();
+      expect(a.renderKey() === c.renderKey()).assertFalse();
+    });
+
   });
 }

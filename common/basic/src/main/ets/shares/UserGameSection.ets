@@ -38,7 +38,7 @@ export struct UserGameSection {
         Column({ space: this.tm.current.value12 }) {
           ForEach(this.account.roles, (role: GameRoleCardVM) => {
             this.roleBuilder(role)
-          }, (role: GameRoleCardVM) => role.roleUid + role.gameId)
+          }, (role: GameRoleCardVM) => role.renderKey())
         }
         .width(this.tm.current.full)
         .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })

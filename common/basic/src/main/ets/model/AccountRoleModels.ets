@@ -9,6 +9,21 @@
 import { GameId } from 'core';
 
 /**
+ * 把展示用的 Resource / ResourceColor / 字符串统一成可比较的 key 片段。
+ * Resource 取资源 id（不同语言下 id 相同，切换语言时由全局刷新重建列表）。
+ */
+function resourceKeyOf(value: ResourceStr | ResourceColor): string {
+  if (typeof value === 'string') {
+    return value;
+  }
+  if (typeof value === 'number') {
+    return `n${value}`;
+  }
+  const res = value as Resource;
+  return `r${res.id}`;
+}
+
+/**
  * 游戏便签数据行 ViewModel
  *
  * 由 HomeViewModel 在解析 daily_note 时填充，View 层直接渲染，不做任何业务判断。
@@ -25,6 +40,16 @@ export class GameDataRowVM {
     this.label = label;
     this.value = value;
     this.valueColor = valueColor;
+  }
+
+  /**
+   * 渲染指纹，供 ForEach 的 keyGenerator 使用。
+   *
+   * ForEach 只按 key 做身份比较：key 不变时 ArkUI 复用旧节点、不会把新数据传给子组件，
+   * 因此必须把「会影响显示」的字段全部编进 key，否则体力不变而次要数据变化时界面不刷新。
+   */
+  renderKey(): string {
+    return `${resourceKeyOf(this.label)}|${resourceKeyOf(this.value)}|${resourceKeyOf(this.valueColor)}`;
   }
 }
 
@@ -76,6 +101,22 @@ export class GameNoteSnapshotVM {
     this.secondaryDesc = secondaryDesc
     this.isFull = isFull
   }
+
+  /** 渲染指纹，供 ForEach 的 keyGenerator 使用（含全部展示字段与数据行） */
+  renderKey(): string {
+    const rows: string[] = [];
+    for (let i = 0; i < this.dataRows.length; i++) {
+      rows.push(this.dataRows[i].renderKey());
+    }
+    return [
+      resourceKeyOf(this.primaryLabel),
+      `${this.primaryCurrent}/${this.primaryMax}/${this.primaryRecoverySeconds}`,
+      `${this.secondaryLabel}|${this.secondaryDesc}`,
+      this.isFull ? '1' : '0',
+      resourceKeyOf(this.primaryColor),
+      rows.join(';'),
+    ].join('|');
+  }
 }
 
 /** 单个游戏角色卡片 ViewModel */
@@ -120,6 +161,22 @@ export class GameRoleCardVM {
     this.snapshot = snapshot
     this.lastSyncDesc = lastSyncDesc
   }
+
+  /** 渲染指纹，供 ForEach 的 keyGenerator 使用（含卡片头部与内容区全部展示字段） */
+  renderKey(): string {
+    const snapshotKey = this.snapshot === null ? 'null' : this.snapshot.renderKey();
+    return [
+      `${this.gameId}`,
+      this.gameName,
+      resourceKeyOf(this.gameColor),
+      `r${this.logoResource.id}`,
+      this.roleUid,
+      this.nickname,
+      resourceKeyOf(this.server),
+      this.lastSyncDesc,
+      snapshotKey,
+    ].join('|');
+  }
 }
 
 /** 单个米游社账号 ViewModel */
@@ -141,5 +198,20 @@ export class MihoyoAccountVM {
     this.roles = roles
     this.nickname = nickname
     this.avatarUrl = avatarUrl
+  }
+
+  /** 渲染指纹，供 ForEach 的 keyGenerator 使用（含标题行的昵称 / 头像 / 角色数） */
+  renderKey(): string {
+    const roleKeys: string[] = [];
+    for (let i = 0; i < this.roles.length; i++) {
+      roleKeys.push(this.roles[i].renderKey());
+    }
+    return [
+      this.accountId,
+      this.username,
+      this.nickname,
+      this.avatarUrl,
+      roleKeys.join(';'),
+    ].join('|');
   }
 }
