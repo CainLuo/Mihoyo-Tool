@@ -17,12 +17,12 @@
 | --- | --- |
 | Critical | 0 |
 | High | 2 |
-| Medium | 7 |
+| Medium | 6 |
 | Low | 1 |
 
 **整体评级：B**
 
-> **2026-11-15 修复**：M1（删除无读取方的 `tabVersion`）、M3（按官方 `WindowStatusType` 枚举区分分屏 / 悬浮窗）、M9（窗口状态读取与尺寸监听补 try）、M11（补齐静默 catch 日志与 Promise 处理）、L4（删除"取消全部"死分支）、L5（`closeCustomDialog` / `showCurrentGeetest` 补 catch）、L6（`ComponentContent` 关闭后 `dispose()`）、L7（弹窗账号标签改用 `common_uid_format` / `common_dot_separator` 资源）已修复，提交见 `git log 2026-11-15`。
+> **2026-11-15 修复**：M1（删除无读取方的 `tabVersion`）、M3（按官方 `WindowStatusType` 枚举区分分屏 / 悬浮窗）、M9（窗口状态读取与尺寸监听补 try）、M11（补齐静默 catch 日志与 Promise 处理）、L4（删除"取消全部"死分支）、L5（`closeCustomDialog` / `showCurrentGeetest` 补 catch）、L6（`ComponentContent` 关闭后 `dispose()`）、L7（弹窗账号标签改用 `common_uid_format` / `common_dot_separator` 资源）已修复，提交见 `git log 2026-11-15`。M6 在 `504d607`（MainPage 478 → 277 行）时已随 `MainMenuItems.createTabItem()` 一并消除，本轮仅复核并关闭。
 >
 > 一句话结论：MainPage 是全应用唯一的框架容器，Navigation + Tab + 标题栏协议 + 弹窗仲裁 + 折叠屏适配五件事压在一个 513 行文件里。没有阻断性问题；两个 High：**窗口尺寸监听会被人机验证弹窗整体注销**（H1），首次人机验证之后折叠屏展开/折叠不再切换单双栏；**用返回手势 / 侧滑 / ESC 关闭人机验证弹窗后，验证队列永久卡死**（H2，2026-10-29 复核恢复：10-27 以「用户始终能通过 UI 关闭」撤回原 H2 的理由漏了返回手势这条关闭路径）。原「共享路由栈」High 经 10-27 复核撤回，`windowClass` 快照降为 Medium（M7），见 §6「复核撤回 / 改判」。另有一项待真机确认的 Medium：在首页等 Tab 根页按返回，可能把 MainPage 本身从根栈弹出、显示空白页（M10）。
 
@@ -302,7 +302,7 @@ action: () => {
 | ~~M3~~ ✅ | COMPAT-004 | `:136-143` | `currentWindowStatusType === 4` 魔数，且命中语义与注释相反：官方定义 `4 = FLOATING`（自由悬浮窗），`5 = SPLIT_SCREEN`（分屏）。另外横屏分支完全不看窗口宽度，方向取自屏幕（`display.getDefaultDisplaySync()` `:136`）而非窗口，于是分屏（5）等窄的横屏窗口也被强制分栏（最小需 240 + 320 = 560vp）；只把 4 换成 `SPLIT_SCREEN` 解决不了这一点 | 横竖屏都按窗口宽度阈值决定单双栏；状态判断改用 `window.WindowStatusType` 枚举，并核对实际行为 |
 | M4 | COMPAT-004、ARKTS-013 | `:146/492-494` | 分栏宽度参数互相矛盾：① `navBarWidth(0.4 × width)` 被 `navBarWidthRange([240,400])` 两端 clamp（> 1000vp 压到 400、< 600vp 抬到 240，见官方 `arkui-ts/ts-basic-components-navigation.md` 表 1「navBarWidth 最终取值」）；② 竖屏 ≥ 520vp 即强制分栏，但 240 + `minContentWidth` 320 = 560vp，520-560vp 窗口内容区被压到 `minContentWidth` 以下；③ `:145` 注释称 520vp 是「Auto 模式阈值」，官方 Auto 阈值 API 10 起为 600vp（`.opencode/skills/harmonyos-development/SKILL.md:984`），API 9 及之前才是 520vp | 只保留 range 或把系数纳入 range 计算；分栏阈值与 range + minContentWidth 对齐（或直接用官方 600vp），并改注释 |
 | M5 | — | `:60-63` | 4 个 boolean 表达 3 状态机，非法组合（两个 Showing 同时为 true）无法排除；交接也容易漏：`showCurrentGeetest` 在 `:285`（无当前项）、`:289`（`uiCtx` 为 null）提前返回时跳过 `:326-329` 的挂起检查，若 `isFpPromptPending` 为 true，指纹提示不再弹出且 `DeviceFpCenter` 的 `isShowing` 保持 true（`features/verification/.../model/service/DeviceFpCenter.ets:53/56`），本次启动内不再提示（边缘路径） | 改为单一枚举 `DialogState` + 待处理队列 |
-| M6 | — | `:450-489` | 4 个 toolbar item 结构完全重复（每个约 10 行），仅图标/文案/Tab 常量不同 | 用 Tab 配置数组 `map` 生成 `ToolbarItem[]` 传给 `toolbarConfiguration`（它接收普通数组；`ForEach` 是组件树语法，不能用在属性里） |
+| ~~M6~~ ✅ | — | `:450-489` | 4 个 toolbar item 结构完全重复（每个约 10 行），仅图标/文案/Tab 常量不同 | 用 Tab 配置数组 `map` 生成 `ToolbarItem[]` 传给 `toolbarConfiguration`（它接收普通数组；`ForEach` 是组件树语法，不能用在属性里）。✅ 已随 MainPage 拆分修复（`504d607`）：结构抽到 `utils/MainMenuItems.ets` 的 `createTabItem()`，`build()` 只剩 4 行调用；剩余差异只是「文案 / 图标 / Tab 常量」这组数据，再套一层配置数组收益不抵改动，不再处理 |
 | M7 | STATE-013 | `:44-46` | `windowClass` 在字段初始化时从 AppStorage 一次性读取；写入方 `EntryAbility.ets:68-70` 在 `getMainWindow().then` 里异步写，与 `loadContent`（`EntryAbility.ets:94`）并行。正常路径靠启动页至少 1200ms（`entry/src/main/ets/pages/LaunchPage.ets:49-50`）或隐私页的用户操作把 MainPage 的构造推迟到写入之后，所以一般拿得到；但这是未声明的时序契约——`getMainWindow` 失败（`EntryAbility.ets:91-92` 只记日志）或超过 1.2s 时，`windowClass` 为 `undefined`，`:98` 与 `:112` 的可选链让两处监听静默跳过，MainPage 侧无任何日志；`windowWidthVp` 停在默认 360（`:42`），竖屏下始终单栏（平板也是）（原 H3，按"正常路径用户不可感知"降为 Medium） | `aboutToAppear` 中读取并在 `undefined` 时打日志；或由 EntryAbility 写入后再触发一次读取。不要改成 `@StorageLink`：它是 V1 装饰器，不能用在 `@ComponentV2` 中（STATE-001） |
 | M8 | STATE-012 | `:155-192` | Cookie 过期弹框不排队：`:164` 在 `@Monitor('cookieExpiredSignal.queue')` 回调内重新赋值被监听的 `queue`，官方说明这会再次触发回调（`state-management/arkts-new-monitor.md`「避免在 @Monitor 中再次更改被监听的属性」），于是 N 个过期账号会让回调连续执行 N+1 次、一次性出队，N 个弹框同时叠加（`DialogDedup` 只按账号去重）；`:185-187`「若队列还有，继续弹下一个」的同引用赋值不会触发 `@Monitor`（严格相等比较），是无效代码。Cookie 弹框也不参与人机验证 / 指纹提示的仲裁，可与它们叠加。另：`:164` 先出队、`:167` 再判断 `ctx === null`，理论上会丢一项（`aboutToAppear` 后不可达） | 回调内不改 `queue`：弹框关闭后显式调用「处理下一项」的方法（出队 + 弹框）；纳入弹窗仲裁（见 M5） |
 | ~~M9~~ ✅ | — | `:45-46/98` | 窗口 API 异常保护不一致：`:46` 在字段初始化中调用 `getWindowStatus()`，未包 try，官方列出的 801（能力不支持）/ 1300002（窗口状态异常）一旦抛出，MainPage 无法构造；`:98` `on('windowSizeChange')` 未包 try（相邻 `:111-118` 的 `on('windowStatusChange')` 有）。目标设备 phone / tablet / 2in1 正常不会抛，触发概率低 | 移到 `aboutToAppear` 并包 try，失败时打日志 |
@@ -378,10 +378,10 @@ action: () => {
 |------|------|
 | Critical | 0 —— 无安全漏洞、无数据丢失、无阻断上架问题 |
 | High | 2 —— H1 窗口尺寸监听被验证弹窗注销（用户可见：折叠/展开后单双栏不再切换）；H2 返回手势关闭验证框后验证队列永久卡死（用户可见：本次启动内验证与指纹提示全部失效） |
-| Medium | 7 —— M2、M4–M8、M10（M1 / M3 / M9 / M11 已于 2026-11-15 修复；M7 为原 H3 降级；M8 由原 L3 升级；M10 待真机确认） |
+| Medium | 6 —— M2、M4、M5、M7、M8、M10（M1 / M3 / M6 / M9 / M11 已于 2026-11-15 修复；M7 为原 H3 降级；M8 由原 L3 升级；M10 待真机确认） |
 | Low | 1 —— L1（L4–L7 已于 2026-11-15 修复；L2 升 M11；L3 并入 M8） |
 
-按 skills 评级表：`0 Critical + High ≤ 3` → **B**。债务点数 = 2×3 + 7×2 + 1×1 = **21**（2026-11-15 修复 M1/M3/M9/M11 与 L4–L7 后；修复前为 33）。
+按 skills 评级表：`0 Critical + High ≤ 3` → **B**。债务点数 = 2×3 + 6×2 + 1×1 = **19**（2026-11-15 修复 M1/M3/M6/M9/M11 与 L4–L7 后；修复前为 33）。
 
 > **关于旧版 85 分的差异**：旧文档给的是"架构 17/20 + ArkTS 18/20 + 复用 16/20 + 异常 13/20 + 性能 15/15 + 代码质量 **6/5**"，总分 85。其中 `代码质量 6/5` 是非法分值，且"异常处理 13/20"没有转化为可执行的 High 项。新版只把会导致可见故障的问题计为 High（2026-10-27 复核后为 1 项，2026-10-29 复核后为 2 项）。
 
@@ -514,4 +514,5 @@ grep -nE "[^0-9](100|[2-9][0-9]{2}|[0-9]{4})" entry/src/main/ets/pages/MainPage.
 | 第 12 轮（2026-11-12 GAP-09） | MainPage 277 → 278 行；新增 `viewmodel/MainPageViewModel.ets`（26 行）；`initVerificationCenters()` 在 `aboutToAppear` 原位置调用，`MainDialogArbiter.attach()` 增加 ViewModel 参数，`regenerate` / `dismiss` 经 VM 转发；编译 + `entry@default` 单测通过 | ✅ 分层收口，初始化时机与弹框时序不变 |
 
 | 第 13 轮（2026-11-15 技术债修复） | 逐条回代码验证 M1 / M3 / M9 / M11 / L4 / L5 / L6 / L7；`tabVersion` 已无读取方，`isGeetestCancelAllRequested` 已无置 true 路径 | M1 删除 `tabVersion`；M3 改用 `window.WindowStatusType` 枚举（分屏 5 / 悬浮窗 4 均走堆叠）；M9 窗口状态读取抽 `readWindowStatus()` 包 try、`windowSizeChange` 注册补 try；M11 补日志与 Promise catch；L4 删除死分支；L5 补 `closeCustomDialog` / `showCurrentGeetest` 的 catch；L6 弹窗与分栏占位 `dispose()`；L7 账号标签改用 `common_uid_format` / `common_dot_separator`。Medium 11 → 7、Low 5 → 1，债务 33 → 21；`entry@default` 47 条单测通过 |
+| 第 14 轮（2026-11-15 M6 复核） | 回代码确认 `build()` 的 `toolbarConfiguration` 只剩 4 行 `tabItem(...)` 调用，结构在 `utils/MainMenuItems.ets:createTabItem()` 中只有一份 | M6 关闭（实际修复于 `504d607`）；Medium 7 → 6，债务 21 → 19；未再引入配置数组（剩余仅为数据差异） |
 【已核对代码一致性】
