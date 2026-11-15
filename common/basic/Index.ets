@@ -1,7 +1,7 @@
 // basic 导出文件：主题、通用组件、通用工具、常量、全局信号
 //
 // 只导出跨模块（≥2 个 feature）实际使用的符号。仅供 basic 内部使用的实现
-// （SnackbarParams / SnackbarContent / UserGameSectionHeader、ColorUtil 的 Alpha / applyAlpha）
+// （SnackbarParams / SnackbarContent、ColorUtil 的 Alpha / applyAlpha）
 // 与各文件的 @Preview 结构体不在此导出——需要时用相对路径直接 import。
 // 只服务单一 feature 的组件也不放在这里（SettingRow 已随 M0 移入 features/account/views/）。
 
@@ -27,6 +27,7 @@ export { PlaceholderState, PlaceholderView } from './src/main/ets/shares/Placeho
 export { SegmentedTabBar } from './src/main/ets/shares/SegmentedTabBar';
 export { SplitPlaceholder, splitPlaceholderBuilder } from './src/main/ets/shares/SplitPlaceholder';
 export { UserGameSection } from './src/main/ets/shares/UserGameSection';
+export { UserGameSectionHeader } from './src/main/ets/shares/UserGameSectionHeader';
 
 // signals
 export { AccountSignal } from './src/main/ets/signals/AccountSignal';

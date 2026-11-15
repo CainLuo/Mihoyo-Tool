@@ -4,8 +4,9 @@
  * ViewModel 由 HomePage 自己持有。
  * 通过 @Param 回调把操作函数和状态上报给 MainPage，由 MainPage 挂到 Navigation.menus()。
  */
-import { themeManager, ThemeManager, MihoyoAccountVM, GameRoleCardVM, UserGameSection, PlaceholderView, PlaceholderState, AccountSignal, SyncRetrySignal, ViewState, AppRoutes, showFeedback, DialogDedup, FeedbackType } from 'basic'
+import { themeManager, ThemeManager, GameRoleCardVM, UserGameSectionHeader, PlaceholderView, PlaceholderState, AccountSignal, SyncRetrySignal, ViewState, AppRoutes, showFeedback, DialogDedup, FeedbackType } from 'basic'
 import { HomeViewModel } from '../viewmodel/HomeViewModel'
+import { buildHomeListItems, HomeListDataSource, HomeListItem, HomeRoleItem, toggleCollapsedAccount } from '../viewmodel/HomeListDataSource'
 import { HomeSkeletonView } from '../views/HomeSkeletonView'
 import { GameToolCard } from '../views/GameToolCard'
 import { Logger } from 'core'
@@ -22,8 +23,11 @@ export struct HomePage {
   @Local private tm: ThemeManager = themeManager
   @Local private signal: AccountSignal = AccountSignal.getInstance()
   @Local private syncRetry: SyncRetrySignal = SyncRetrySignal.getInstance()
+  /** 已折叠的账号 ID：列表内容由 rebuildList 显式推给数据源，无需参与状态观察 */
+  private collapsedAccountIds: string[] = []
+  /** 账号 + 角色扁平化列表的数据源（LazyForEach 用） */
+  private listSource: HomeListDataSource = new HomeListDataSource()
   private uiCtx: UIContext | null = null
-  private scroller: Scroller = new Scroller()
 
   aboutToAppear(): void {
     this.uiCtx = this.getUIContext()
@@ -43,6 +47,23 @@ export struct HomePage {
   @Monitor('vm.viewState')
   onViewStateChanged(_monitor: IMonitor): void {
     this.onMenuStateChange(this.vm.viewState === ViewState.DATA, this.vm.isRefreshing)
+  }
+
+  /** 账号 / 角色数据变化：重建扁平列表（LazyForEach 不会跟着普通数组自动刷新） */
+  @Monitor('vm.accounts')
+  onAccountsChanged(_monitor: IMonitor): void {
+    this.rebuildList()
+  }
+
+  /** 按当前账号数据与折叠状态重建扁平列表 */
+  private rebuildList(): void {
+    this.listSource.setItems(buildHomeListItems(this.vm.accounts, this.collapsedAccountIds))
+  }
+
+  /** 折叠 / 展开某个账号 */
+  private toggleAccount(accountId: string): void {
+    this.collapsedAccountIds = toggleCollapsedAccount(this.collapsedAccountIds, accountId)
+    this.rebuildList()
   }
 
   @Monitor('vm.isRefreshing')
@@ -124,37 +145,45 @@ export struct HomePage {
         } as PlaceholderState
       })
     } else {
-      Scroll(this.scroller) {
-        Column({ space: this.tm.current.font20 }) {
-          ForEach(this.vm.accounts, (account: MihoyoAccountVM) => {
-            UserGameSection({
-              account: account,
-              roleBuilder: (role: GameRoleCardVM): void => { this.homeRoleCardBuilder(account, role) }
-            })
-          }, (account: MihoyoAccountVM) => account.renderKey())
-          Row().height(this.tm.current.value40)
-        }
-        .width(this.tm.current.full)
-        .padding({ top: this.tm.current.value8 })
+      List() {
+        LazyForEach(this.listSource, (item: HomeListItem, index: number) => {
+          ListItem() {
+            if (item instanceof HomeRoleItem) {
+              // 自定义组件的通用属性作用于其根节点，因此用 Column 包一层做左右留白，
+              // 避免 padding 落在卡片内部把内容挤窄。
+              Column() {
+                GameToolCard({
+                  card: item.role,
+                  onTap: (card: GameRoleCardVM) => {
+                    this.navigateToDetail(item.account.accountId, card)
+                  }
+                })
+              }
+              .width(this.tm.current.full)
+              .padding({ left: this.tm.current.font16, right: this.tm.current.font16 })
+            } else {
+              UserGameSectionHeader({
+                account: item.account,
+                isCollapsed: item.isCollapsed,
+                onToggle: () => { this.toggleAccount(item.account.accountId) }
+              })
+            }
+          }
+          .width(this.tm.current.full)
+          .margin({
+            top: item instanceof HomeRoleItem
+              ? (item.isFirstRoleInSection ? this.tm.current.value8 : this.tm.current.value12)
+              : (index === 0 ? 0 : this.tm.current.font20)
+          })
+        }, (item: HomeListItem) => item.key)
       }
       .edgeEffect(EdgeEffect.Spring)
       .scrollBar(BarState.Off)
       .id('home_scroll')
       .width(this.tm.current.full)
       .height(this.tm.current.full)
-      .align(Alignment.Top)
+      .padding({ top: this.tm.current.value8, bottom: this.tm.current.value40 })
     }
-  }
-
-  /** 首页的角色卡片：点击跳转详情 */
-  @Builder
-  homeRoleCardBuilder(account: MihoyoAccountVM, role: GameRoleCardVM) {
-    GameToolCard({
-      card: role,
-      onTap: (card: GameRoleCardVM) => {
-        this.navigateToDetail(account.accountId, card)
-      }
-    })
   }
 
   private navigateToDetail(accountId: string, card: GameRoleCardVM): void {

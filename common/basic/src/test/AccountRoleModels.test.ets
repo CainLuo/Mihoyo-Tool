@@ -129,5 +129,24 @@ export default function accountRoleModelsTest() {
       expect(a.renderKey() === c.renderKey()).assertFalse();
     });
 
+    it('headerKey: 不受角色内容影响', 0, () => {
+      const a = new MihoyoAccountVM('acc1', 'user1', [
+        new GameRoleCardVM(GameId.GENSHIN, '原神', $r('app.color.color_primary'), '1', '甲', '天空岛', null, '')
+      ], '昵称', '');
+      const b = new MihoyoAccountVM('acc1', 'user1', [
+        new GameRoleCardVM(GameId.GENSHIN, '原神', $r('app.color.color_primary'), '1', '乙', '天空岛', null, '')
+      ], '昵称', '');
+      expect(a.headerKey()).assertEqual(b.headerKey());
+      expect(a.renderKey() === b.renderKey()).assertFalse();
+    });
+
+    it('headerKey: 角色数量变化会改变 key', 0, () => {
+      const a = new MihoyoAccountVM('acc1', 'user1', [], '昵称', '');
+      const b = new MihoyoAccountVM('acc1', 'user1', [
+        new GameRoleCardVM(GameId.GENSHIN, '原神', $r('app.color.color_primary'), '1', '甲', '天空岛', null, '')
+      ], '昵称', '');
+      expect(a.headerKey() === b.headerKey()).assertFalse();
+    });
+
   });
 }

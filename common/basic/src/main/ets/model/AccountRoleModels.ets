@@ -214,4 +214,20 @@ export class MihoyoAccountVM {
       roleKeys.join(';'),
     ].join('|');
   }
+
+  /**
+   * 账号标题行的渲染指纹（头像 / 昵称 / 用户名 / 游戏数），不含角色内容。
+   *
+   * 首页把账号标题行与角色卡片压平成同一条列表，标题行只显示这几个字段；
+   * 用 renderKey() 会让任一角色数据变化都重建标题行，故单独提供。
+   */
+  headerKey(): string {
+    return [
+      this.accountId,
+      this.username,
+      this.nickname,
+      this.avatarUrl,
+      `${this.roles.length}`,
+    ].join('|');
+  }
 }

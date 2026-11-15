@@ -1,7 +1,7 @@
 /**
  * UserGameSectionHeader — 账号区块标题行（头像 + 昵称 + 游戏数 + 折叠箭头）
  *
- * 仅在 UserGameSection 中使用。
+ * 仅在 UserGameSection 与首页扁平列表（HomePage）中使用。
  */
 import { themeManager, ThemeManager } from '../theme/ThemeManager';
 import { ThemeFonts } from '../theme/ThemeFonts'
