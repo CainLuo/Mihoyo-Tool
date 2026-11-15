@@ -27,7 +27,6 @@ import { accountSwitchDialogBuilder } from './MainPageBuilders'
 export struct MainPage {
   @Local private tm: ThemeManager = themeManager
   @Local private selectedTab: number = TAB_HOME
-  @Local private tabVersion: number = 0
   @Local private isSplit: boolean = false
   /** 当前 Navigation 显示模式，由 setCurrentMode() 综合屏幕方向和窗口状态计算 */
   @Local private navMode: NavigationMode = NavigationMode.Stack
@@ -204,7 +203,6 @@ export struct MainPage {
   /** 切换 Tab：分栏模式下清空共享路由栈 */
   private switchTab(tab: number): void {
     this.selectedTab = tab
-    this.tabVersion++
     if (this.isSplit) {
       this.stack.clear()
     }

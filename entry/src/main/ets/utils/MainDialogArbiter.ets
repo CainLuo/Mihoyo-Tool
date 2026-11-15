@@ -23,8 +23,6 @@ export class MainDialogArbiter {
   private deviceFpInvalidSignal: DeviceFpInvalidSignal | null = null
   private viewModel: MainPageViewModel | null = null
 
-  /** 用户是否请求取消全部验证队列（当前无入口置 true，保留原有语义） */
-  private isGeetestCancelAllRequested: boolean = false
   private isGeetestShowing: boolean = false
   private isGeetestPending: boolean = false
   private isFpPromptShowing: boolean = false
@@ -170,9 +168,6 @@ export class MainDialogArbiter {
       return
     }
 
-    // 重置"取消全部"标记
-    this.isGeetestCancelAllRequested = false
-
     // 弹出 Geetest 验证对话框
     this.isGeetestShowing = true
     let result: GeetestVerifyInput | null = null
@@ -198,9 +193,6 @@ export class MainDialogArbiter {
         result.geetest_challenge,
         result.geetest_validate
       )
-    } else if (this.isGeetestCancelAllRequested) {
-      // 用户请求取消全部队列
-      signal.resolveCancelAll()
     } else {
       // 用户只取消当前项
       signal.resolveCancelCurrent()
