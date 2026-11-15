@@ -143,6 +143,8 @@
 
 `HomePage.ets` / `HomeViewModel.ets` 的 6 项技术债（`isAutoSync` 不复位且部分失败仍报成功、三级 ForEach key 覆盖不全、VM 728 行 10 种职责、20 个无读取方的游戏专属字段、4 处空 catch + 6 处空 `.catch`、三层 ForEach）建议随 M8（Home 重构）处理；L4 / L5（迁移残留、未使用的 `widgetbase` 依赖）可顺手清理。
 
+> 2026-11-15 复核：上述 6 项已全部关闭（M1/M2/M3/M4/M5/M6），Home 当前 0 Medium，详见 [home-module-analysis.md](./home-module-analysis.md)。
+
 > 复核调整：`MyPage.ets`（`@Param` 默认实例父组件始终传参）、`NotificationSettingsPage.ets`（`context=null` 已有空值保护，不崩溃）、`WidgetSettingsPage.ets`（`init()` 内部已 catch，不会永久 Loading）三项原 High 按实际影响降为 Medium，已从 P1 移出。
 
 ### 观察项（高密度但体量小）
