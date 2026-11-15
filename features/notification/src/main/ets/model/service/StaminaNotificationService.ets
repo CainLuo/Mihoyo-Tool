@@ -13,6 +13,7 @@ import { notificationManager } from '@kit.NotificationKit';
 import { wantAgent, common } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { CoreInitializer, Logger, GameId } from 'core';
+import { CoalescingRunner } from './CoalescingRunner';
 import { StaminaThresholdCalculator } from './StaminaThresholdCalculator';
 import { NotificationSettingsStore } from './NotificationSettingsStore';
 import { NotificationStateStore } from './NotificationStateStore';
@@ -51,6 +52,13 @@ class StaminaSchedule {
 export class StaminaNotificationService {
   private static _instance: StaminaNotificationService | null = null;
   private context: common.UIAbilityContext | null = null;
+
+  /**
+   * 通知同步的串行化执行器。
+   * Home 冷启动 / 按需同步 / 全量同步 / 设置页会重复触发，两轮并发会各自「读旧条目 → 取消 → 发布」，
+   * 状态表只留后写的 reminderId，先发布的那条成为孤儿提醒。这里合并并发触发并补跑一轮。
+   */
+  private readonly syncRunner: CoalescingRunner = new CoalescingRunner(() => this.syncOnce());
 
   /**
    * 当前应用包名。
@@ -106,7 +114,20 @@ export class StaminaNotificationService {
     }
   }
 
+  /**
+   * 便签同步后重新评估通知与 Widget 数据。
+   *
+   * 并发触发会合并到同一轮，并补跑一轮（见 `CoalescingRunner`）；
+   * 所有调用方共享同一 Promise，`await` 返回时本轮与尾随重跑都已完成。
+   */
   async onDailyNotesSynced(): Promise<void> {
+    if (this.syncRunner.isRunning()) {
+      Logger.info(TAG, 'onDailyNotesSynced: run in flight, request trailing rerun');
+    }
+    return this.syncRunner.run();
+  }
+
+  private async syncOnce(): Promise<void> {
     Logger.info(TAG, '[WIDGET_DEBUG] onDailyNotesSynced: start');
     // Widget 数据推送不依赖通知设置，始终执行
     try {
