@@ -1,6 +1,6 @@
 # Main 模块分析
 
-> **审查对象**：`entry/src/main/ets/pages/MainPage.ets`（513 行，`struct MainPage`）
+> **审查对象**：`entry/src/main/ets/pages/MainPage.ets`（304 行，`struct MainPage`；`504d607` 拆分后）
 > **审查日期**：2026-10-24（2026-10-27、2026-10-29 多轮逐条复核；第 10 轮见 §11）
 > **审查者**：AI 助手（`skills/harmonyos-review` checklist 全量扫描 + 独立审稿）
 > **代码版本**：`e00e579`（First refactor，结构迁移后的代码）。文中 `:行号` 未注明文件时指 `MainPage.ets`；其他文件按迁移后的路径给出（见 [project-structure.md](./project-structure.md)）
@@ -16,15 +16,15 @@
 | 优先级 | 数量 |
 | --- | --- |
 | Critical | 0 |
-| High | 2 |
+| High | 0 |
 | Medium | 6 |
 | Low | 1 |
 
-**整体评级：B**
+**整体评级：A**
 
 > **2026-11-15 修复**：M1（删除无读取方的 `tabVersion`）、M3（按官方 `WindowStatusType` 枚举区分分屏 / 悬浮窗）、M9（窗口状态读取与尺寸监听补 try）、M11（补齐静默 catch 日志与 Promise 处理）、L4（删除"取消全部"死分支）、L5（`closeCustomDialog` / `showCurrentGeetest` 补 catch）、L6（`ComponentContent` 关闭后 `dispose()`）、L7（弹窗账号标签改用 `common_uid_format` / `common_dot_separator` 资源）已修复，提交见 `git log 2026-11-15`。M6 在 `504d607`（MainPage 478 → 277 行）时已随 `MainMenuItems.createTabItem()` 一并消除，本轮仅复核并关闭。
 >
-> 一句话结论：MainPage 是全应用唯一的框架容器，Navigation + Tab + 标题栏协议 + 弹窗仲裁 + 折叠屏适配五件事压在一个 513 行文件里。没有阻断性问题；两个 High：**窗口尺寸监听会被人机验证弹窗整体注销**（H1），首次人机验证之后折叠屏展开/折叠不再切换单双栏；**用返回手势 / 侧滑 / ESC 关闭人机验证弹窗后，验证队列永久卡死**（H2，2026-10-29 复核恢复：10-27 以「用户始终能通过 UI 关闭」撤回原 H2 的理由漏了返回手势这条关闭路径）。原「共享路由栈」High 经 10-27 复核撤回，`windowClass` 快照降为 Medium（M7），见 §6「复核撤回 / 改判」。另有一项待真机确认的 Medium：在首页等 Tab 根页按返回，可能把 MainPage 本身从根栈弹出、显示空白页（M10）。
+> 一句话结论：MainPage 是全应用唯一的框架容器，Navigation + Tab + 标题栏协议 + 弹窗仲裁 + 折叠屏适配五件事压在一个 304 行文件里。没有阻断性问题；原两个 High（H1 窗口尺寸监听被人机验证弹窗整体注销、H2 返回手势关闭验证框后队列永久卡死）**已于 `f038d03` 修复**，本轮复核确认并关闭，当前 0 High。原「共享路由栈」High 经 10-27 复核撤回，`windowClass` 快照降为 Medium（M7），见 §6「复核撤回 / 改判」。另有一项待真机确认的 Medium：在首页等 Tab 根页按返回，可能把 MainPage 本身从根栈弹出、显示空白页（M10）。
 
 ---
 
@@ -33,7 +33,7 @@
 | 属性 | 值 |
 |------|-----|
 | 位置 | `entry` 模块 `pages/`（应用框架页，留在入口模块） |
-| 行数 | 513（全项目页面文件中最大，其次 `features/material/.../MaterialCharacterSelectPage.ets` 499 行） |
+| 行数 | 304（`504d607` 拆分后；全项目页面文件中第二大，最大为 `features/material/.../MaterialCharacterSelectPage.ets` 360 行） |
 | 装饰器 | `@ComponentV2` |
 | 导出 | `MainPage`、`MainPagePreview` |
 | 入口关系 | 由 `pages/Index.ets` 的 `pageBuilder` 分发，是 4 个 Tab 的唯一宿主 |
@@ -283,6 +283,7 @@ action: () => {
 - **影响**：首次人机验证之后，`windowWidthVp` 冻结、`setCurrentMode()` 不再随尺寸变化重算（`windowStatusChange` 仍在，但折叠/展开、旋转不一定改变 status）——折叠屏折叠后仍强制分栏、展开后仍单栏，用户可见且无日志。
 - **建议**：`GeetestDialog` 与 `MainPage` 都把回调存成字段，`off('windowSizeChange', this.cb)` 精确注销（与三个角色详情页 `sizeCallback` 的写法一致，如 `features/chardetail/src/main/ets/pages/GenshinCharacterDetailPage.ets:50/73`）。修复点在 `features/verification/src/main/ets/views/GeetestDialog.ets`，验收挂在重构模块 M15 的折叠屏回归。
 - **状态**：✅ 已修复（`f038d03`）。`GeetestDialog` 新增 `sizeChangeCallback` 字段 + `disposed` 标记（异步 `getLastWindow` 返回时不再补注册）；`MainPage` 新增 `windowSizeCallback` 字段，`aboutToDisappear` 精确注销。折叠屏展开 / 折叠仍待在折叠设备上复测。
+- **2026-11-15 同源收敛**：`windowStatusChange` 的匿名回调也存成 `windowStatusCallback` 字段并精确注销——`EntryAbility.ets:88` 在同一主窗口上注册了同类型监听（写 `AppStorage['windowStatusType']`），原来的 `off('windowStatusChange')` 会把它的监听一起清掉。
 
 #### H2 · 返回手势 / 侧滑 / ESC 关闭人机验证框后，验证队列永久卡死（2026-10-29 恢复）
 - **位置**：`features/verification/src/main/ets/utils/GeetestDialogUtil.ets:100-110`（`openCustomDialog` 只设 `autoCancel: false`，未注册 `onWillDismiss`）、`features/verification/src/main/ets/views/GeetestDialog.ets:74-83`（`aboutToDisappear` 只注销监听，不回调 `onResult`）；受害方 `MainPage.ets:283-330`
@@ -339,7 +340,7 @@ action: () => {
 - ✅ 模块级 `@Builder accountSwitchDialogBuilder`（`:23-26`），**没有**写成内联 `@Builder`，符合规范。
 - ✅ `TAB_HOME..TAB_MY` 用命名常量（`:28-31`），未在 build 中散落 0-3 字面量。
 - ✅ 测试页入口用 `BuildProfile.DEBUG` 隔离（`:366`），release 构建不会暴露。
-- ✅ `aboutToDisappear` 有 `off('windowSizeChange')` / `off('windowStatusChange')`（`:121-128`）；不带 callback 的写法在这里实际无害（只在 MainPage 销毁时执行），但与 H1 是同一写法，建议一并改为精确注销。
+- ✅ `aboutToDisappear` 的 `off('windowSizeChange', this.windowSizeCallback)` / `off('windowStatusChange', this.windowStatusCallback)` 都带 callback 精确注销（`:126-133`）；`windowStatusChange` 原来不带 callback，会连带注销 `EntryAbility` 在主窗口上的同类型监听，2026-11-15 已一并收敛。
 - ✅ 回调兜底空实现（`:68/76/77`），未就绪时点击不会崩溃。
 - ✅ Cookie 过期弹窗用 `DialogDedup` 去重（`:169-172`），避免同账号重复弹框。
 - ✅ `has` 保护：`windowClass?.on(...)`、`uiCtx === null` 早返回都做了。
@@ -355,8 +356,8 @@ action: () => {
 | STATE-008 | `build()` 无 await / 副作用 | ✅（对象分配偏高，不计入风险） | `build()`（`:401-502`）无 await、无赋值副作用；但每次 build 都新建 `SymbolGlyphModifier`：4 个 toolbar item 共 8 个（`:452-484`），菜单 getter 另有 `:337/348/355/369`，建议随 M6 一并抽常量 |
 | STATE-012 | `@Monitor` 内不修改触发字段 | ❌ 已记 M8 | `:164` 在 `@Monitor('cookieExpiredSignal.queue')` 内重新赋值 `queue`，每出队一项就重触发一次，靠"队列空则 return"收敛；后果是多个过期弹框同时叠加。按实际影响（可关闭、不丢数据）记 Medium |
 | STATE-013 | 跨页面共享状态用 AppStorage | ✅ 存在但为一次性快照（已记 M7） | `:44` `AppStorage.get<window.Window>('windowClass')` 只在字段初始化时读一次 |
-| LIFE-001 | `aboutToDisappear` 取消监听 | ⚠️ 已记 H1 | 缺陷在 MainPage 承载的 `GeetestDialog`：`GeetestDialog.ets:77` 不带 callback 的 `off` 注销了 MainPage 与详情页的回调（H1，按 checklist 默认 High）。MainPage 自身 `:121-128` 同样不带 callback，但只在 MainPage 销毁时执行，实际无害；修 H1 时建议一并改为精确注销 |
-| LIFE-004 | 页面跳转 / 关闭前清理弹窗状态 | ⚠️ 部分（已记 H2） | Cookie 弹框在 then / catch 两条路径都 `DialogDedup.release`（`:181` / `:190`）；指纹提示在 then / catch 两条路径都经 `onDeviceFpPromptClosed()`（`:246` / `:258`）清理 `isFpPromptShowing`；但人机验证框用返回手势关闭时没有清理路径（H2） |
+| LIFE-001 | `aboutToDisappear` 取消监听 | ✅ 已修 H1 | 缺陷在 MainPage 承载的 `GeetestDialog`：`GeetestDialog.ets:77` 不带 callback 的 `off` 注销了 MainPage 与详情页的回调（H1，按 checklist 默认 High）。MainPage 自身 `:121-128` 同样不带 callback，但只在 MainPage 销毁时执行，实际无害；修 H1 时建议一并改为精确注销 |
+| LIFE-004 | 页面跳转 / 关闭前清理弹窗状态 | ✅ 已修 H2 | Cookie 弹框在 then / catch 两条路径都 `DialogDedup.release`（`:181` / `:190`）；指纹提示在 then / catch 两条路径都经 `onDeviceFpPromptClosed()`（`:246` / `:258`）清理 `isFpPromptShowing`；但人机验证框用返回手势关闭时没有清理路径（H2） |
 | NAV-001 | 不把栈弹空导致白屏 | ⚠️ 同类（已记 M10，待真机确认） | 外层 `Index` 栈只有 MainPage 一个页面；Tab 根页按返回可能把它弹出（M10）。`spec-quick-ref.md:53` 的 NAV-001 针对 `NavPathStack.pop()` 到空栈，症状相同、触发路径不同 |
 | ARKTS-012 | 日志走 hilog | ✅ | 统一 `Logger`（core），无 `console.*` |
 | ARKTS-011 | 错误处理用 `BusinessError` 类型断言 | ⚠️ 已记 L5 | 所有 catch 都是 `(_e)` 或 `Error \| object`，没有收窄为 `BusinessError` |
@@ -364,7 +365,7 @@ action: () => {
 | ARKTS-016 | 空 catch 块不以静默吞错收场 | ❌ 已记 M11 | `:92/104/116/125/150/207/233` 完全空；`:189/257/391` 只做一行清理，均无日志（此条只在 `arkts-rules/references/spec-quick-ref.md:30` 定义；`scan-arkts.sh` 默认 Medium，本文按工具口径记 Medium） |
 | AGC-RJ-014 | UI 不硬编码中文字符串 | ⚠️ 已记 L7 | `:209` 的「UID」与「 · 」分隔符没有走资源字符串（`spec-quick-ref.md:80`）；`:254` 日志 tag `'Main'` 属命名遗留，不是 UI 文案 |
 | PERF-008 | 列表项带 key | n/a | MainPage 的 4 个 Tab 是静态写死的，无 `ForEach` |
-| COMPAT-004 | 折叠屏 / 分屏适配 | ⚠️ 已记 M3 / M4 / M7（H1 的后果也体现在这里，缺陷本身按 LIFE-001 计） | 断点判定集中在 `setCurrentMode()`（`:134-153`）；尺寸监听会被验证弹窗注销（H1），分屏判定用了 FLOATING 的值（M3），分栏阈值与宽度范围矛盾（M4），`windowClass` 为一次性快照（M7） |
+| COMPAT-004 | 折叠屏 / 分屏适配 | ⚠️ 已记 M3 / M4 / M7（H1 已修，缺陷本身按 LIFE-001 计） | 断点判定集中在 `setCurrentMode()`（`:134-153`）；尺寸监听被验证弹窗注销的问题已修（H1），分屏判定用了 FLOATING 的值（M3），分栏阈值与宽度范围矛盾（M4），`windowClass` 为一次性快照（M7） |
 | KIT-005 | Kit Promise 都有 catch，BusinessError 判 code | ⚠️ 已记 L5 | `showDialog`（`:173` / `:237`）与 `openCustomDialog`（`:385`）有 catch（`:189` / `:257` / `:391`，最后一处为空，已记 M11）；`:384` `closeCustomDialog` 无 catch；所有 catch 都不判 `code` |
 | SEC-002 | 敏感数据不入日志 | ✅ | 去重 key 只含 `username`（`:169`，即米游社 account_id），`DialogDedup.tryAcquire` 会把 key 明文写入日志（`common/basic/.../utils/DialogDedupUtil.ets:23`），但不是 cookie / token；弹框文案只用 `nickname`（`:175`） |
 | COMPAT-005 | release 不保留 debug-only 代码 | ⚠️ 不在本文计数 | `:366` `BuildProfile.DEBUG` 只隐藏菜单入口，`TestPage` 与其路由仍编译进 release；已在 [test-page-module-analysis.md](./test-page-module-analysis.md) L1 计数，此处不重复计 |
@@ -377,11 +378,11 @@ action: () => {
 | 维度 | 结论 |
 |------|------|
 | Critical | 0 —— 无安全漏洞、无数据丢失、无阻断上架问题 |
-| High | 2 —— H1 窗口尺寸监听被验证弹窗注销（用户可见：折叠/展开后单双栏不再切换）；H2 返回手势关闭验证框后验证队列永久卡死（用户可见：本次启动内验证与指纹提示全部失效） |
+| High | 0 —— H1（窗口尺寸监听被验证弹窗注销）与 H2（返回手势关闭验证框后队列永久卡死）已于 `f038d03` 修复：`MainPage.windowSizeCallback` 字段 + 精确 `off`，`GeetestDialogUtil` 的 `settled` + `onWillDismiss` + `onDidDisappear` 收尾 |
 | Medium | 6 —— M2、M4、M5、M7、M8、M10（M1 / M3 / M6 / M9 / M11 已于 2026-11-15 修复；M7 为原 H3 降级；M8 由原 L3 升级；M10 待真机确认） |
 | Low | 1 —— L1（L4–L7 已于 2026-11-15 修复；L2 升 M11；L3 并入 M8） |
 
-按 skills 评级表：`0 Critical + High ≤ 3` → **B**。债务点数 = 2×3 + 6×2 + 1×1 = **19**（2026-11-15 修复 M1/M3/M6/M9/M11 与 L4–L7 后；修复前为 33）。
+按 skills 评级表：`0 Critical + 0 High` → **A**。债务点数 = 6×2 + 1×1 = **13**（2026-11-15 关闭 H1/H2 并修复 M1/M3/M6/M9/M11 与 L4–L7 后；修复前为 33）。
 
 > **关于旧版 85 分的差异**：旧文档给的是"架构 17/20 + ArkTS 18/20 + 复用 16/20 + 异常 13/20 + 性能 15/15 + 代码质量 **6/5**"，总分 85。其中 `代码质量 6/5` 是非法分值，且"异常处理 13/20"没有转化为可执行的 High 项。新版只把会导致可见故障的问题计为 High（2026-10-27 复核后为 1 项，2026-10-29 复核后为 2 项）。
 
@@ -394,7 +395,7 @@ action: () => {
 
 ### 7.2 复审建议
 
-修完 H1 / H2 后：`hvigorw codeLinter` → 真机回归「人机验证后折叠/展开」「验证框弹出后用返回手势关闭」「多账号 Cookie 同时过期」「Tab 根页按返回（确认 M10）」；通过后再进入 M15 拆分。完整回归清单见 §9「测试与验证」。
+H1 / H2 的代码已修，剩余的是真机回归：`hvigorw codeLinter` → 「人机验证后折叠/展开」「验证框弹出后用返回手势关闭」「多账号 Cookie 同时过期」「Tab 根页按返回（确认 M10）」；M15 大拆分仍待单独立项。完整回归清单见 §9「测试与验证」。
 
 ---
 
@@ -421,7 +422,7 @@ action: () => {
 
 1. **4 个 Tab 共享一个 `NavPathStack`** 是当前导航契约（子页通过 `detailStack` 拿到同一实例，`:406/418/439/441`；内层 `Navigation(this.stack)` 无 `.navDestination()`，二级页全靠各模块 routerMap 解析）。"分栏切 Tab 清栈、单栏不清"与 Tab 栏可见性是配套的（§5.4），拆分时不要顺手改成各 Tab 独立栈，否则 4 个子页的 `detailStack` 入参与 MainPage 内的 push 点（`:183`、`:370`）都要一起改，属行为变更。
 2. **标题栏协议 10 个字段**（`:65-77`）是 HomePage / CharactersPage 与 MainPage 之间的隐式接口（ToolsPage 只收 `detailStack`，MyPage 只收 `detailStack` / `isSplit`，`:439/441`）。抽 `TabMenuState` 必须同步改这 2 个子页的调用点，不能用 wrapper 兼容两套入参。
-3. **`windowClass` 时序来自 EntryAbility 写入 AppStorage**（M7），并依赖启动页的 1200ms 下限；抽 `MainTabContainer` 时不要把读取提前到更早的时机。H1（无 callback 的 `off`）修复前，折叠屏回归必须包含「触发一次人机验证后再折叠/展开」；H2 修复后回归必须包含「验证框弹出后用返回手势关闭，再触发一次验证」；M10 确认 / 修复后回归「Tab 根页按返回」。
+3. **`windowClass` 时序来自 EntryAbility 写入 AppStorage**（M7），并依赖启动页的 1200ms 下限；抽 `MainTabContainer` 时不要把读取提前到更早的时机。H1 / H2 已修，但回归仍必须包含「触发一次人机验证后再折叠/展开」（H1）与「验证框弹出后用返回手势关闭，再触发一次验证」（H2）；M10 确认 / 修复后回归「Tab 根页按返回」。
 4. **`TAB_HOME..TAB_MY` 索引**（`:28-31`）在 visibility（`:416-442`）、标题（`:395-397`）、菜单（`:364-366`）、toolbar 状态（`:456-488`）四处一致使用，改动时必须同步；它们与 `AppRoutes`、分栏布局无关。
 
 **测试与验证**
@@ -480,10 +481,10 @@ grep -nE "\bany\b|\bunknown\b|\bvar\b|= *function|@ohos\.|delete |for \(.* in |#
 # 静默吞异常（M11 的 10 处）
 grep -nE "catch \(" entry/src/main/ets/pages/MainPage.ets
 
-# 尺寸监听注册 / 注销（H1 的受害链路）
+# 尺寸 / 状态监听注册与精确注销（H1 修复后应成对带 callback）
 grep -rn "windowSizeChange" entry/src/main/ets features/verification features/chardetail features/dailynote
 
-# 弹窗关闭路径（H2 缺少 onWillDismiss）
+# 弹窗关闭路径（H2 修复后应命中 onWillDismiss / onDidDisappear）
 grep -rnE "onWillDismiss|openCustomDialog|closeCustomDialog|autoCancel" entry/src/main features/verification
 
 # 魔法数字（ARKTS-013：≥ 100）
@@ -515,4 +516,5 @@ grep -nE "[^0-9](100|[2-9][0-9]{2}|[0-9]{4})" entry/src/main/ets/pages/MainPage.
 
 | 第 13 轮（2026-11-15 技术债修复） | 逐条回代码验证 M1 / M3 / M9 / M11 / L4 / L5 / L6 / L7；`tabVersion` 已无读取方，`isGeetestCancelAllRequested` 已无置 true 路径 | M1 删除 `tabVersion`；M3 改用 `window.WindowStatusType` 枚举（分屏 5 / 悬浮窗 4 均走堆叠）；M9 窗口状态读取抽 `readWindowStatus()` 包 try、`windowSizeChange` 注册补 try；M11 补日志与 Promise catch；L4 删除死分支；L5 补 `closeCustomDialog` / `showCurrentGeetest` 的 catch；L6 弹窗与分栏占位 `dispose()`；L7 账号标签改用 `common_uid_format` / `common_dot_separator`。Medium 11 → 7、Low 5 → 1，债务 33 → 21；`entry@default` 47 条单测通过 |
 | 第 14 轮（2026-11-15 M6 复核） | 回代码确认 `build()` 的 `toolbarConfiguration` 只剩 4 行 `tabItem(...)` 调用，结构在 `utils/MainMenuItems.ets:createTabItem()` 中只有一份 | M6 关闭（实际修复于 `504d607`）；Medium 7 → 6，债务 21 → 19；未再引入配置数组（剩余仅为数据差异） |
+| 第 15 轮（2026-11-15 H1/H2 复核关闭） | 回代码确认 H1 / H2 的实际修复点：`MainPage.ets:50/114/128` 的 `windowSizeCallback` 精确 `on`/`off`（`windowStatusCallback` 为 `:64/120/129`），`GeetestDialogUtil.ets:78-89/125-133` 的 `settled` + `onWillDismiss` + `onDidDisappear`；`features/verification` 已无裸 `off('windowSizeChange')` | H1 / H2 关闭（实际修复于 `f038d03`），High 2 → 0、评级 B → A、债务 19 → 13；同源问题：`windowStatusChange` 匿名回调改为 `windowStatusCallback` 字段 + 精确注销，避免连带注销 `EntryAbility` 的监听 |
 【已核对代码一致性】
