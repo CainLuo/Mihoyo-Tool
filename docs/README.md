@@ -68,28 +68,28 @@
 
 | 模块 | 页面 / 文件 | 分析文档 | 评级 | C | H | M | L | 源行数 | 债务点数 | 密度/百行 |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 应用框架 | `MainPage.ets` | [main-module-analysis.md](./main-module-analysis.md) | **B** | 0 | 2 | 11 | 5 | 513 | 33 | 6.4 |
+| 应用框架 | `MainPage.ets` | [main-module-analysis.md](./main-module-analysis.md) | **A** | 0 | 0 | 6 | 1 | 304 | 13 | 4.3 |
 | **共享层 (M0)** | `utils/ models/ constants/ theme/ config/ styles/ builders/`（52 文件）+ `components/common/`（2）+ `SnackbarContent` | [shared-layer-modules-analysis.md](./shared-layer-modules-analysis.md) | **B** | 0 | 0 | 8 | 9 | 4795 | 25 | 0.52 |
 | **Widget 子系统 (M14)** | `WidgetProvider/Service + Widget1x2/2x2/4x4`（6 页） | [widget-subsystem-modules-analysis.md](./widget-subsystem-modules-analysis.md) | **B** | 0 | 3 | 6 | 3 | — | 24 | — |
 | **通知服务层 (M5)** | `features/notification/.../model/`（5 文件） | [notification-service-modules-analysis.md](./notification-service-modules-analysis.md) | **B** | 0 | 0 | 8 | 4 | 1061 | 20 | 1.9 |
-| 首页 | `HomePage.ets` | [home-module-analysis.md](./home-module-analysis.md) | **B** | 0 | 0 | 6 | 5 | 185 | 17 | 9.2 |
+| 首页 | `HomePage.ets` | [home-module-analysis.md](./home-module-analysis.md) | **A** | 0 | 0 | 0 | 5 | 208 | 5 | 2.4 |
 | 工具页 | `ToolsPage.ets` | [tools-module-analysis.md](./tools-module-analysis.md) | **B** | 0 | 1 | 4 | 2 | 132 | 13 | 9.8 |
 | **Ability (M15)** | `EntryAbility.ets / EntryBackupAbility.ets` | [ability-and-startup-modules-analysis.md](./ability-and-startup-modules-analysis.md) | **A** | 0 | 0 | 4 | 4 | — | 12 | — |
 | 登录 | `LoginPage.ets` | [login-module-analysis.md](./login-module-analysis.md) | **A** | 0 | 0 | 4 | 2 | 129 | 10 | 7.8 |
-| 角色详情·星铁 | `StarRailCharacterDetailPage.ets` | [starrail-character-detail-module-analysis.md](./starrail-character-detail-module-analysis.md) | **B** | 0 | 2 | 1 | 2 | 140 | 10 | 7.1 |
+| 角色详情·星铁 | `StarRailCharacterDetailPage.ets` | [starrail-character-detail-module-analysis.md](./starrail-character-detail-module-analysis.md) | **A** | 0 | 0 | 1 | 6 | 116 | 8 | 6.9 |7.1 |
 | 角色列表 | `CharactersPage.ets` | [characters-module-analysis.md](./characters-module-analysis.md) | **B** | 0 | 1 | 2 | 2 | 167 | 9 | 5.4 |
 | 外观设置 | `AppearanceSettingsPage.ets` | [appearance-settings-page-module-analysis.md](./appearance-settings-page-module-analysis.md) | **B** | 0 | 1 | 2 | 1 | 145 | 8 | 5.5 |
-| 角色详情·原神 | `GenshinCharacterDetailPage.ets` | [genshin-character-detail-module-analysis.md](./genshin-character-detail-module-analysis.md) | **B** | 0 | 1 | 1 | 2 | 154 | 7 | 4.5 |
-| 角色详情·ZZZ | `ZZZCharacterDetailPage.ets` | [zzz-character-detail-module-analysis.md](./zzz-character-detail-module-analysis.md) | **B** | 0 | 1 | 1 | 2 | 140 | 7 | 5.0 |
+| 角色详情·原神 | `GenshinCharacterDetailPage.ets` | [genshin-character-detail-module-analysis.md](./genshin-character-detail-module-analysis.md) | **A** | 0 | 0 | 1 | 3 | 129 | 5 | 3.9 | |
+| 角色详情·ZZZ | `ZZZCharacterDetailPage.ets` | [zzz-character-detail-module-analysis.md](./zzz-character-detail-module-analysis.md) | **A** | 0 | 0 | 1 | 5 | 116 | 7 | 6.0 |
 | 材料选角色 | `MaterialCharacterSelectPage.ets` | [material-character-select-module-analysis.md](./material-character-select-module-analysis.md) | **A** | 0 | 0 | 2 | 3 | 493 | 7 | 1.4 |
 | 目标配置×3 | `Genshin/StarRail/ZZZMaterialTargetConfigPage.ets` | [material-target-config-modules-analysis.md](./material-target-config-modules-analysis.md) | **A** | 0 | 0 | 2 | 1 | 1098 | 5 | 0.5 |
 | 我的 | `MyPage.ets` | [my-module-analysis.md](./my-module-analysis.md) | **A** | 0 | 0 | 2 | 1 | 150 | 5 | 3.3 |
 | 日常详情×3 | `Genshin/StarRail/ZZZDailyDetailPage.ets` | [daily-detail-modules-analysis.md](./daily-detail-modules-analysis.md) | **A** | 0 | 0 | 1 | 2 | 383 | 4 | 1.0 |
-| 材料计算 | `MaterialCalcPage.ets` | [material-calc-module-analysis.md](./material-calc-module-analysis.md) | **B** | 0 | 1 | 4 | 3 | 111 | 14 | 12.6 |
+| 材料计算 | `MaterialCalcPage.ets` | [material-calc-module-analysis.md](./material-calc-module-analysis.md) | **A** | 0 | 0 | 0 | 1 | 113 | 1 | 0.9 |
 | 材料清单×3 | `Genshin/StarRail/ZZZMaterialListPage.ets` | [material-list-modules-analysis.md](./material-list-modules-analysis.md) | **A** | 0 | 0 | 1 | 2 | 558 | 4 | 0.7 |
 | 账号详情 | `AccountDetailPage.ets` | [account-detail-module-analysis.md](./account-detail-module-analysis.md) | **A** | 0 | 0 | 1 | 1 | 148 | 3 | 2.0 |
 | 小组件设置 | `WidgetSettingsPage.ets` | [widget-settings-module-analysis.md](./widget-settings-module-analysis.md) | **A** | 0 | 0 | 1 | 1 | 65 | 3 | 4.6 |
-| 隐私同意 | `PrivacyConsentPage.ets` | [privacy-consent-page-module-analysis.md](./privacy-consent-page-module-analysis.md) | **A** | 0 | 0 | 1 | 1 | 113 | 3 | 2.7 |
+| 隐私同意 | `PrivacyConsentPage.ets` | [privacy-consent-page-module-analysis.md](./privacy-consent-page-module-analysis.md) | **A** | 0 | 0 | 1 | 1 | 129 | 3 | 2.3 |
 | 通知设置 | `NotificationSettingsPage.ets` | [notification-settings-module-analysis.md](./notification-settings-module-analysis.md) | **A** | 0 | 0 | 1 | 0 | 40 | 2 | 5.0 |
 | 启动页 | `LaunchPage.ets` | [launch-module-analysis.md](./launch-module-analysis.md) | **A** | 0 | 0 | 0 | 2 | 94 | 2 | 2.1 |
 | 入口 | `Index.ets` | [index-module-analysis.md](./index-module-analysis.md) | **A** | 0 | 0 | 0 | 2 | 34 | 2 | 5.9 |

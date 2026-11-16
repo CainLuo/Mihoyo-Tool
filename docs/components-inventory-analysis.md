@@ -26,7 +26,7 @@
 | `dailynote/{genshin,starrail,zzz}/` | 10 | 892 | 同上 |
 | `home/` | 10 | 671 | [home](./home-module-analysis.md) |
 | `login/` | 18 | 852 | [login](./login-module-analysis.md) |
-| `materialcalc/` | 8 | 781 | [material-calc](./material-calc-module-analysis.md) |
+| `materialcalc/` | 7 | 618 | [material-calc](./material-calc-module-analysis.md) |
 | `materiallist/` | 6 | 1,049 | [material-list](./material-list-modules-analysis.md) |
 | `my/` | 6 | 442 | [my](./my-module-analysis.md) |
 | `notification/` | 14 | 720 | [notification-settings](./notification-settings-module-analysis.md) |
