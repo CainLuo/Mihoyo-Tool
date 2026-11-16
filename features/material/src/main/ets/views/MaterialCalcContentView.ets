@@ -1,7 +1,8 @@
 /**
  * MaterialCalcContentView.ets — 材料计算页内容视图
  *
- * 显示角色信息卡、技能目标设置、材料 Section。
+ * 显示角色信息卡、技能目标等级（只读）与材料 Section；
+ * 目标等级的修改统一走养成目标配置页，由 onEditTargets 触发跳转。
  */
 
 import { themeManager, ThemeManager } from 'basic';
@@ -16,9 +17,7 @@ export struct MaterialCalcContentView {
   @Param skills: SkillTargetVM[] = [];
   @Param avatarSection: MaterialCalcSectionVM = new MaterialCalcSectionVM();
   @Param weaponSection: MaterialCalcSectionVM = new MaterialCalcSectionVM();
-  @Param onCharacterLevelTap: () => void = () => {};
-  @Param onWeaponLevelTap: () => void = () => {};
-  @Param onSkillTap: (skillId: string) => void = (_: string) => {};
+  @Param onEditTargets: () => void = () => {};
 
   @Local private tm: ThemeManager = themeManager;
 
@@ -27,39 +26,51 @@ export struct MaterialCalcContentView {
       Column({ space: 16 }) {
         // 角色信息卡
         MaterialCalcCharacter({
-          character: this.character,
-          onLevelTap: this.onCharacterLevelTap
+          character: this.character
         })
 
-        // 技能目标设置
+        // 技能目标等级（只读）
         MaterialCalcSkills({
-          skills: this.skills,
-          onSkillTap: this.onSkillTap
+          skills: this.skills
         })
 
         // 角色材料 Section
-        MaterialCalcSection({
-          section: this.avatarSection,
-          iconName: '👤',
-          onWeaponLevelTap: null
-        })
+        if (this.avatarSection.hasData) {
+          MaterialCalcSection({
+            section: this.avatarSection,
+            iconName: '👤'
+          })
+        }
 
         // 武器材料 Section
         if (this.weaponSection.hasData) {
           MaterialCalcSection({
             section: this.weaponSection,
-            iconName: '⚔️',
-            onWeaponLevelTap: this.onWeaponLevelTap
+            iconName: '⚔️'
           })
         }
 
-        // 下拉刷新提示
-        Text($r('app.string.material_calc_refresh_hint'))
-          .fontSize(this.tm.current.font10)
-          .fontColor(this.tm.current.colorTextMuted)
+        // 该角色还没有计算结果（例如未加入养成目标配置）
+        if (!this.avatarSection.hasData && !this.weaponSection.hasData) {
+          Text($r('app.string.material_calc_no_compute_hint'))
+            .fontSize(this.tm.current.font12)
+            .fontColor(this.tm.current.colorTextSecondary)
+            .width('100%')
+            .textAlign(TextAlign.Center)
+            .padding({ top: 24, bottom: 8 })
+        }
+
+        // 调整养成目标入口
+        Button($r('app.string.material_calc_edit_targets'))
+          .id('material_calc_edit_targets')
+          .type(ButtonType.Normal)
           .width('100%')
-          .textAlign(TextAlign.Center)
-          .padding({ top: 20, bottom: 20 })
+          .height(44)
+          .backgroundColor(this.tm.current.surfaceActivePrimary)
+          .fontColor(this.tm.current.colorPrimary)
+          .fontSize(this.tm.current.font14)
+          .borderRadius(this.tm.current.radius8)
+          .onClick(() => { this.onEditTargets() })
       }
       .width('100%')
       .padding(16)

@@ -1,7 +1,7 @@
 /**
  * MaterialCalcViewModel.test.ets
  *
- * 测试 MaterialCalcViewModel 的初始状态和等级目标修改逻辑。
+ * 测试 MaterialCalcViewModel 的初始状态。目标等级只读，由养成目标配置页写入 DB。
  */
 
 import { describe, it, expect } from '@ohos/hypium';
@@ -57,32 +57,6 @@ export default function materialCalcViewModelTest() {
     it('initial_weapon_isNull', 0, () => {
       const vm = new MaterialCalcViewModel();
       expect(vm.weapon).assertNull();
-    });
-
-    // ── 等级目标修改逻辑 ─────────────────────────────────────────
-
-    it('setCharTargetLevel_updatesValue', 0, () => {
-      const vm = new MaterialCalcViewModel();
-      vm.setCharTargetLevel(80);
-      expect(vm.charTargetLevel).assertEqual(80);
-    });
-
-    it('setCharTargetLevel_multipleTimes', 0, () => {
-      const vm = new MaterialCalcViewModel();
-      vm.setCharTargetLevel(60);
-      expect(vm.charTargetLevel).assertEqual(60);
-      
-      vm.setCharTargetLevel(70);
-      expect(vm.charTargetLevel).assertEqual(70);
-      
-      vm.setCharTargetLevel(90);
-      expect(vm.charTargetLevel).assertEqual(90);
-    });
-
-    it('setWeaponTargetLevel_updatesValue', 0, () => {
-      const vm = new MaterialCalcViewModel();
-      vm.setWeaponTargetLevel(80);
-      expect(vm.weaponTargetLevel).assertEqual(80);
     });
 
     // ── MaterialCalcCharacterVM 初始值 ─────────────────────────────

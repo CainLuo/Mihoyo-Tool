@@ -1,20 +1,19 @@
 /**
  * MaterialCalcPage.ets — 材料计算页主页面
  *
- * 单个角色的材料计算页面，支持：
- * 1. 设置角色目标等级
- * 2. 设置武器目标等级
- * 3. 设置技能目标等级
- * 4. 查看材料缺口
+ * 展示单个角色按「已保存的养成目标」计算出的材料缺口：
+ * 1. 角色 / 武器 / 技能的目标等级只读展示
+ * 2. 材料缺口
+ * 3. 目标等级统一在养成目标配置页修改（本页不提供编辑器）
  */
 
-import { themeManager, ThemeManager, ViewState } from 'basic';
+import { themeManager, ThemeManager, ViewState, AppRoutes } from 'basic';
+import { GameId } from 'core';
 import { MaterialCalcViewModel } from '../viewmodel/MaterialCalcViewModel';
 import { MaterialCalcContentView } from '../views/MaterialCalcContentView';
 import { MaterialCalcEmptyView } from '../views/MaterialCalcEmptyView';
 import { MaterialCalcLoadingView } from '../views/MaterialCalcLoadingView';
-import { MaterialCalcLevelPicker } from '../views/MaterialCalcLevelPicker';
-import { LevelOptionVM } from '../model/MaterialCalcModels';
+import { MaterialTargetConfigParam } from '../model/MaterialTargetModels';
 
 /** 页面参数 */
 export class MaterialCalcParam {
@@ -27,14 +26,36 @@ export class MaterialCalcParam {
 export struct MaterialCalcPage {
   @Param param: MaterialCalcParam = new MaterialCalcParam();
   @Local private vm: MaterialCalcViewModel = new MaterialCalcViewModel();
-  @Local private shouldShowLevelPicker: boolean = false;
-  @Local private levelPickerType: 'character' | 'weapon' = 'character';
-  @Local private levelOptions: LevelOptionVM[] = [];
   @Local private tm: ThemeManager = themeManager;
+  private localStack: NavPathStack | null = null;
+  /** onShown 首次触发与 aboutToAppear 重叠，跳过第一次避免重复加载 */
+  private hasShown: boolean = false;
 
   aboutToAppear(): void {
     this.vm.init(this.param.accountId, this.param.roleUid, this.param.avatarId);
-    this.levelOptions = this.vm.getLevelOptions();
+  }
+
+  /** 目标等级的唯一编辑入口：跳转到该游戏的养成目标配置页 */
+  private goToTargetConfig(): void {
+    if (this.localStack === null) {
+      return;
+    }
+    const configParam: MaterialTargetConfigParam = new MaterialTargetConfigParam();
+    configParam.accountId = this.param.accountId;
+    configParam.roleUid = this.param.roleUid;
+    configParam.gameId = this.vm.getGameId();
+    configParam.avatarIds = [this.param.avatarId];
+    this.localStack.pushPathByName(this.getConfigRoute(this.vm.getGameId()), configParam);
+  }
+
+  private getConfigRoute(gameId: GameId): string {
+    if (gameId === GameId.STARRAIL) {
+      return AppRoutes.STARRAIL_MATERIAL_TARGET_CONFIG;
+    }
+    if (gameId === GameId.ZZZ) {
+      return AppRoutes.ZZZ_MATERIAL_TARGET_CONFIG;
+    }
+    return AppRoutes.GENSHIN_MATERIAL_TARGET_CONFIG;
   }
 
   build() {
@@ -51,17 +72,7 @@ export struct MaterialCalcPage {
             skills: this.vm.skills,
             avatarSection: this.vm.avatarSection,
             weaponSection: this.vm.weaponSection,
-            onCharacterLevelTap: () => {
-              this.levelPickerType = 'character';
-              this.shouldShowLevelPicker = true;
-            },
-            onWeaponLevelTap: () => {
-              this.levelPickerType = 'weapon';
-              this.shouldShowLevelPicker = true;
-            },
-            onSkillTap: (skillId: string) => {
-              // TODO: 显示技能等级选择器
-            }
+            onEditTargets: () => { this.goToTargetConfig() }
           })
         }
       }
@@ -69,26 +80,18 @@ export struct MaterialCalcPage {
       .width('100%')
       .height('100%')
       .backgroundColor(this.tm.current.colorPageBg)
-
-      // 等级选择器弹窗
-      MaterialCalcLevelPicker({
-        currentLevel: this.levelPickerType === 'character' ? this.vm.charTargetLevel : this.vm.weaponTargetLevel,
-        options: this.levelOptions,
-        isVisible: this.shouldShowLevelPicker,
-        onSelect: (level: number) => {
-          if (this.levelPickerType === 'character') {
-            this.vm.setCharTargetLevel(level);
-          } else {
-            this.vm.setWeaponTargetLevel(level);
-          }
-        },
-        onDismiss: () => {
-          this.shouldShowLevelPicker = false;
-        }
-      })
     }
     .title($r('app.string.material_calc_title'))
     .hideTitleBar(false)
+    .onReady((ctx: NavDestinationContext) => { this.localStack = ctx.pathStack })
+    .onShown(() => {
+      // 从养成目标配置页返回时目标等级与材料数据都可能已变化
+      if (this.hasShown) {
+        this.vm.refresh();
+      } else {
+        this.hasShown = true;
+      }
+    })
   }
 }
 

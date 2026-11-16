@@ -73,6 +73,14 @@
       "value": "↓ 下拉刷新材料數據"
     },
     {
+      "name": "material_calc_edit_targets",
+      "value": "調整養成目標"
+    },
+    {
+      "name": "material_calc_no_compute_hint",
+      "value": "該角色還沒有計算結果，請在養成目標配置中選擇該角色並開始計算。"
+    },
+    {
       "name": "skill_target_title",
       "value": "技能目標"
     },

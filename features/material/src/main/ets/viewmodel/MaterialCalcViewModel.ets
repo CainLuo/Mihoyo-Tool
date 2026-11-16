@@ -30,10 +30,11 @@ import {
   MaterialCalcSectionVM,
   MaterialCalcCharacterVM,
   MaterialCalcWeaponVM,
-  LevelOptionVM,
   SkillTypeDefinition,
 } from '../model/MaterialCalcModels';
 import { MaterialItemRaw } from '../model/MaterialRawModels';
+import { MaterialComputeTargets } from '../model/MaterialTargetModels';
+import { MaterialComputeService } from '../model/service/MaterialComputeService';
 
 const TAG: string = 'MaterialCalcViewModel';
 
@@ -68,50 +69,32 @@ export class MaterialCalcViewModel {
     this.avatarId = avatarId;
     this.viewState = ViewState.LOADING;
 
-    // 先获取游戏类型
-    const roles = await CoreInitializer.bbsRepository.getGameRoles(accountId);
-    for (let i = 0; i < roles.length; i++) {
-      if (roles[i].roleId === roleUid) {
-        this.gameId = roles[i].gameId;
-        break;
+    // 先获取游戏类型；仓库异常时落到 EMPTY，避免页面永久停在 LOADING
+    try {
+      const roles = await CoreInitializer.bbsRepository.getGameRoles(accountId);
+      for (let i = 0; i < roles.length; i++) {
+        if (roles[i].roleId === roleUid) {
+          this.gameId = roles[i].gameId;
+          break;
+        }
       }
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      Logger.error(TAG, `getGameRoles failed: ${msg}`);
+      this.viewState = ViewState.EMPTY;
+      return;
     }
 
-    await this.loadData();
+    await this.reloadAll();
+  }
+
+  /** 当前账号所属游戏，供页面选择「养成目标配置」路由 */
+  getGameId(): GameId {
+    return this.gameId;
   }
 
   /**
-   * 设置角色目标等级。
-   */
-  setCharTargetLevel(level: number): void {
-    this.charTargetLevel = level;
-    // 触发重新计算材料需求
-    this.recalculateMaterials();
-  }
-
-  /**
-   * 设置武器目标等级。
-   */
-  setWeaponTargetLevel(level: number): void {
-    this.weaponTargetLevel = level;
-    this.recalculateMaterials();
-  }
-
-  /**
-   * 设置技能目标等级。
-   */
-  setSkillTarget(skillId: string, targetLevel: number): void {
-    for (let i = 0; i < this.skills.length; i++) {
-      if (this.skills[i].skillId === skillId) {
-        this.skills[i].targetLevel = targetLevel;
-        break;
-      }
-    }
-    this.recalculateMaterials();
-  }
-
-  /**
-   * 下拉刷新：重新加载数据。
+   * 重新加载材料数据与目标等级（页面重新可见时调用）。
    */
   async refresh(): Promise<void> {
     if (this.isRefreshing) {
@@ -119,28 +102,65 @@ export class MaterialCalcViewModel {
     }
     this.isRefreshing = true;
     try {
-      await this.loadData();
+      await this.reloadAll();
     } finally {
       this.isRefreshing = false;
     }
   }
 
-  /**
-   * 获取可用的等级选项列表。
-   */
-  getLevelOptions(): LevelOptionVM[] {
-    const options: LevelOptionVM[] = [];
-    const levels = [1, 20, 40, 50, 60, 70, 80, 90];
-    for (let i = 0; i < levels.length; i++) {
-      const opt = new LevelOptionVM();
-      opt.level = levels[i];
-      opt.label = `Lv.${levels[i]}`;
-      options[options.length] = opt;
-    }
-    return options;
+  // ─── 私有方法 ────────────────────────────────────────────────
+
+  /** 重新读材料数据与已保存的目标等级（首次进入、从配置页返回都走这里） */
+  private async reloadAll(): Promise<void> {
+    await this.loadData();
+    await this.applySavedTargets();
   }
 
-  // ─── 私有方法 ────────────────────────────────────────────────
+  /**
+   * 把「养成目标配置」页保存的目标等级应用到展示模型。
+   *
+   * 材料数据本身由配置页触发计算后写入 DB，本页只读；目标等级同样以 DB 为准，
+   * 避免页面显示写死的默认值（原神 90 / 星铁 80 / 绝区零 60）与实际计算依据不一致。
+   * 没有配置记录时保留各游戏默认值。
+   */
+  private async applySavedTargets(): Promise<void> {
+    if (this.viewState !== ViewState.DATA) {
+      return;
+    }
+    let targets: MaterialComputeTargets | null = null;
+    try {
+      targets = await MaterialComputeService.loadSavedTargets(this.gameId, this.accountId, this.roleUid);
+    } catch (error) {
+      const msg = error instanceof Error ? error.message : `${error}`;
+      Logger.warn(TAG, `loadSavedTargets failed: ${msg}`);
+      return;
+    }
+    if (targets === null) {
+      return;
+    }
+    const saved: MaterialComputeTargets = targets;
+    this.charTargetLevel = saved.avatarLevel;
+    this.character.targetLevel = saved.avatarLevel;
+    if (this.weapon !== null) {
+      this.weaponTargetLevel = saved.weaponLevel;
+      this.weapon.targetLevel = saved.weaponLevel;
+    }
+    for (let i = 0; i < this.skills.length; i++) {
+      const skill = this.skills[i];
+      if (this.gameId === GameId.ZZZ) {
+        // 绝区零 skillId 即 skill_type 的字符串形式
+        for (let j = 0; j < saved.zzzSkills.length; j++) {
+          if (`${saved.zzzSkills[j].skillType}` === skill.skillId) {
+            skill.targetLevel = saved.zzzSkills[j].target;
+            break;
+          }
+        }
+      } else if (i < saved.skillLevels.length) {
+        // 原神 / 星铁：skills 顺序与 skillLevels 下标一致
+        skill.targetLevel = saved.skillLevels[i];
+      }
+    }
+  }
 
   private async loadData(): Promise<void> {
     try {
@@ -151,7 +171,10 @@ export class MaterialCalcViewModel {
       } else if (this.gameId === GameId.ZZZ) {
         await this.loadZZZData();
       }
-      this.viewState = ViewState.DATA;
+      // 各 load*Data 在角色缺失时已置 EMPTY，这里不能再覆盖成 DATA
+      if (this.viewState === ViewState.LOADING) {
+        this.viewState = ViewState.DATA;
+      }
     } catch (error) {
       const msg = error instanceof Error ? error.message : `${error}`;
       Logger.error(TAG, `loadData failed: ${msg}`);
@@ -199,10 +222,10 @@ export class MaterialCalcViewModel {
     // 技能目标（原神：普攻、战技、爆发）
     this.skills = this.buildGenshinSkills();
 
-    // 材料数据
+    // 材料数据：只取本角色的计算结果，缺失时保持空 Section（不能回退到其他角色）
     const computeRows = await CoreInitializer.genshinRepository.getAllComputeData(this.accountId, this.roleUid);
-    if (computeRows.length > 0) {
-      const row = computeRows.find((r) => r.avatarId === this.avatarId) ?? computeRows[0];
+    const row = computeRows.find((r) => r.avatarId === this.avatarId);
+    if (row !== undefined) {
       const parsedArray = GenshinComputeParser.parse(row.rawJson);
       const parsed = parsedArray.length > 0 ? parsedArray[0] : null;
 
@@ -452,14 +475,5 @@ export class MaterialCalcViewModel {
     section.deficitCount = totalNeed - totalHave;
 
     return section;
-  }
-
-  /**
-   * 重新计算材料需求（目标等级变化时调用）。
-   */
-  private recalculateMaterials(): void {
-    // 简化实现：目标等级变化后，需要重新调用计算接口
-    // 这里暂不实现，保持现有数据不变
-    // 完整实现需要重新调用 batchCompute API
   }
 }

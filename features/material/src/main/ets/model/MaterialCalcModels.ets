@@ -134,13 +134,3 @@ export class MaterialCalcWeaponVM {
   /** 最高可升级等级 */
   maxLevel: number = 90;
 }
-
-/**
- * 等级选项
- */
-export class LevelOptionVM {
-  /** 等级值 */
-  level: number = 1;
-  /** 显示文本 */
-  label: ResourceStr = '';
-}

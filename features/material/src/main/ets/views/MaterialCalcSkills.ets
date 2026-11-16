@@ -1,7 +1,7 @@
 /**
  * MaterialCalcSkills.ets — 技能目标设置组件
  *
- * 显示三个技能的目标等级设置。
+ * 只读展示各技能的目标等级（目标等级在养成目标配置页修改）。
  */
 
 import { themeManager, ThemeManager } from 'basic';
@@ -10,7 +10,6 @@ import { SkillTargetVM } from '../model/MaterialCalcModels';
 @ComponentV2
 export struct MaterialCalcSkills {
   @Param skills: SkillTargetVM[] = [];
-  @Param onSkillTap: (skillId: string) => void = (_: string) => {};
 
   @Local private tm: ThemeManager = themeManager;
 
@@ -26,10 +25,7 @@ export struct MaterialCalcSkills {
       Row({ space: 8 }) {
         ForEach(this.skills, (skill: SkillTargetVM) => {
           MaterialCalcSkillItem({
-            skill: skill,
-            onTap: () => {
-              this.onSkillTap(skill.skillId);
-            }
+            skill: skill
           })
         }, (skill: SkillTargetVM) => skill.skillId)
       }
@@ -42,12 +38,11 @@ export struct MaterialCalcSkills {
 /**
  * MaterialCalcSkillItem — 技能目标项
  *
- * 单个技能的目标等级显示，支持点击选择目标等级。
+ * 单个技能的目标等级显示（只读）。
  */
 @ComponentV2
 struct MaterialCalcSkillItem {
   @Param skill: SkillTargetVM = new SkillTargetVM();
-  @Param onTap: () => void = () => {};
 
   @Local private tm: ThemeManager = themeManager;
 
@@ -76,7 +71,6 @@ struct MaterialCalcSkillItem {
     .backgroundColor(this.skill.isComplete ? this.tm.current.colorSuccess + '18' : this.tm.current.colorSurfaceCard)
     .borderRadius(this.tm.current.radius12)
     .border({ width: 1, color: this.skill.isComplete ? this.tm.current.colorSuccess + '44' : this.tm.current.colorDivider })
-    .onClick(this.onTap)
   }
 }
 
@@ -96,8 +90,7 @@ export struct MaterialCalcSkillsPreview {
   build() {
     Column() {
       MaterialCalcSkills({
-        skills: this.skills,
-        onSkillTap: (_: string) => {}
+        skills: this.skills
       })
     }
     .width('100%')

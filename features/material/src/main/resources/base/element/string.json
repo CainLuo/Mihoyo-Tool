@@ -73,6 +73,14 @@
       "value": "↓ 下拉刷新材料数据"
     },
     {
+      "name": "material_calc_edit_targets",
+      "value": "调整养成目标"
+    },
+    {
+      "name": "material_calc_no_compute_hint",
+      "value": "该角色还没有计算结果，请在养成目标配置中选择该角色并开始计算。"
+    },
+    {
       "name": "skill_target_title",
       "value": "技能目标"
     },

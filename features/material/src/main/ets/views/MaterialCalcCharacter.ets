@@ -1,7 +1,7 @@
 /**
  * MaterialCalcCharacter.ets — 材料计算页角色信息组件
  *
- * 显示角色信息和可点击的等级目标按钮。
+ * 显示角色信息和只读的等级目标（目标等级在养成目标配置页修改）。
  */
 
 import { themeManager, ThemeManager } from 'basic';
@@ -10,7 +10,6 @@ import { MaterialCalcCharacterVM } from '../model/MaterialCalcModels';
 @ComponentV2
 export struct MaterialCalcCharacter {
   @Param character: MaterialCalcCharacterVM = new MaterialCalcCharacterVM();
-  @Param onLevelTap: () => void = () => {};
 
   @Local private tm: ThemeManager = themeManager;
 
@@ -50,26 +49,14 @@ export struct MaterialCalcCharacter {
       .layoutWeight(1)
       .alignItems(HorizontalAlign.Start)
 
-      // 等级目标按钮
-      Button() {
-        Row({ space: 6 }) {
-          Text(`Lv.${this.character.currentLevel} → ${this.character.targetLevel}`)
-            .fontSize(this.tm.current.font14)
-            .fontWeight(FontWeight.Medium)
-            .fontColor(this.tm.current.colorPrimary)
-
-          Text('▼')
-            .fontSize(10)
-            .fontColor(this.tm.current.colorPrimary)
-        }
-      }
-      .type(ButtonType.Normal)
-      .backgroundColor(this.tm.current.surfaceActivePrimary)
-      .borderRadius(this.tm.current.radius8)
-      .padding({ left: 12, right: 12, top: 8, bottom: 8 })
-      .onClick(() => {
-        this.onLevelTap();
-      })
+      // 等级目标（只读）
+      Text(`Lv.${this.character.currentLevel} → ${this.character.targetLevel}`)
+        .fontSize(this.tm.current.font14)
+        .fontWeight(FontWeight.Medium)
+        .fontColor(this.tm.current.colorPrimary)
+        .backgroundColor(this.tm.current.surfaceActivePrimary)
+        .borderRadius(this.tm.current.radius8)
+        .padding({ left: 12, right: 12, top: 8, bottom: 8 })
     }
     .id('material_calc_character')
     .width('100%')
@@ -124,8 +111,7 @@ export struct MaterialCalcCharacterPreview {
   build() {
     Column() {
       MaterialCalcCharacter({
-        character: this.character,
-        onLevelTap: () => {}
+        character: this.character
       })
     }
     .width('100%')

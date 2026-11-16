@@ -12,7 +12,6 @@ import { MaterialCalcItem } from './MaterialCalcItem';
 export struct MaterialCalcSection {
   @Param section: MaterialCalcSectionVM = new MaterialCalcSectionVM();
   @Param iconName: string = '👤';
-  @Param onWeaponLevelTap: (() => void) | null = null;
 
   @Local private tm: ThemeManager = themeManager;
 
@@ -37,24 +36,6 @@ export struct MaterialCalcSection {
       }
       .width('100%')
       .justifyContent(FlexAlign.Start)
-
-      // 武器等级按钮（仅武器 Section 显示）
-      if (this.onWeaponLevelTap !== null) {
-        Button() {
-          Text('Lv.80→90 ▼')
-            .fontSize(this.tm.current.font12)
-            .fontColor(this.tm.current.colorPrimary)
-        }
-        .type(ButtonType.Normal)
-        .backgroundColor(this.tm.current.surfaceActivePrimary)
-        .borderRadius(this.tm.current.radius8)
-        .padding({ left: 10, right: 10, top: 4, bottom: 4 })
-        .onClick(() => {
-          if (this.onWeaponLevelTap !== null) {
-            this.onWeaponLevelTap();
-          }
-        })
-      }
 
       // 缺少数量提示
       if (this.section.hasData) {
@@ -104,8 +85,7 @@ export struct MaterialCalcSectionPreview {
     Column() {
       MaterialCalcSection({
         section: this.section,
-        iconName: '👤',
-        onWeaponLevelTap: null
+        iconName: '👤'
       })
     }
     .width('100%')
