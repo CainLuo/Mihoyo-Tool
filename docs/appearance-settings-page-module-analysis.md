@@ -10,13 +10,17 @@
 | 优先级 | 数量 |
 | --- | --- |
 | Critical | 0 |
-| High | 1 |
+| High | 0 |
 | Medium | 1 |
-| Low | 2 |
+| Low | 1 |
 
-**整体评级：B**
+**整体评级：A**
 
-> 口径：skills `harmonyos-review` 官方 A-F 评级（0 Critical + High ≤ 3）。旧百分制已废弃，原分 88/100 仅作历史参考。
+> 口径：skills `harmonyos-review` 官方 A-F 评级（0 Critical + 0 High → A）。旧百分制已废弃，原分 88/100 仅作历史参考。
+>
+> **2026-11-16 复核**：原 High（主题应用失败照常 pop）与「`selectTheme` 无重复点击保护」Low 均已在代码中修复——`AppearanceManager.applyColorMode()` 改为返回 `Promise<boolean>`（`model/service/AppearanceManager.ets:67-95`），`setColorMode` 失败返回 `false`；页面 `selectTheme()` 有 `isApplying` 闸门、失败/异常统一走 `notifyApplyFailed()` 提示且**不 pop**（`AppearanceSettingsPage.ets:42-83`）。评级 B → A。
+>
+> **债务点数**：1×2 + 1×1 = **3**；密度 3 ÷ (162/100) ≈ **1.9**。
 
 ---
 
@@ -24,13 +28,13 @@
 
 | 文件 | 类型 | 行数 | 职责 |
 |------|------|------|------|
-| `features/settings/src/main/ets/pages/AppearanceSettingsPage.ets` | Page / @ComponentV2 | 163 | 外观设置二级页——主题模式选择（浅色/深色/跟随系统），选中后立即生效并返回 |
-| `features/settings/src/main/ets/viewmodel/AppearanceSettingsViewModel.ets` | ViewModel（`@ObservedV2` + `@Trace`） | 55 | `themeMode` 状态、初始化与 `themeItems` 构建 |
+| `features/settings/src/main/ets/pages/AppearanceSettingsPage.ets` | Page / @ComponentV2 | 162 | 外观设置二级页——主题模式选择（浅色/深色/跟随系统），选中后立即生效并返回 |
+| `features/settings/src/main/ets/viewmodel/AppearanceSettingsViewModel.ets` | ViewModel（`@ObservedV2` + `@Trace`） | 63 | `themeMode` 状态、初始化与 `themeItems` 构建 |
 | `features/settings/src/main/ets/views/ThemeModeRow.ets` | Component（子组件） | 86 | 单个主题选项行（标签 + 描述 + 圆形选中指示；分隔 Divider 由页面绘制） |
 | `features/settings/src/main/ets/model/AppearanceSettingsModels.ets` | 模型 | 35 | `AppearanceSettingsParam` / `ThemeModeItem` / `getThemeModeLabel()` |
-| `features/settings/src/main/ets/model/service/AppearanceManager.ets` | 服务 | 114 | `applyColorMode()` / `getCachedColorMode()` / `getSavedColorMode()` / `restoreOnLaunch()` |
+| `features/settings/src/main/ets/model/service/AppearanceManager.ets` | 服务 | 114 | `applyColorMode(): Promise<boolean>` / `getCachedColorMode()` / `getSavedColorMode()` / `restoreOnLaunch()` |
 
-> 行数为 M3 重构后现状；§2–§6 保留重构前基线，便于对照。
+> 行数为 2026-11-16 现状（M3 重构后页面 163 / VM 55）；§2–§6 的历史结论保留，状态已按本轮复核更新。
 
 **直接导入依赖**：AbilityKit `common`、ThemeFonts、ThemeManager、showFeedback / FeedbackType、AppearanceSettingsViewModel（`applyColorMode()`）、AppearanceSettingsParam / ThemeModeItem、ThemeModeRow、Logger（页面不再直接导入 `AppearanceManager`）。
 
@@ -43,14 +47,18 @@ AppearanceSettingsPage (@ComponentV2)
 ├── private localStack: NavPathStack | null
 ├── private onThemeChange: (mode: number) => void
 ├── private uiCtx: UIContext | null
+├── private isApplying: boolean — 切换中闸门（防连点多次 pop）
 ├── aboutToAppear() → this.uiCtx = this.getUIContext()
 ├── onReady(ctx) → localStack + param 提取 (AppearanceSettingsParam)
 │   └── vm.init(param.themeMode) / onThemeChange = param.onThemeChange
 ├── selectTheme(mode: number) — 核心交互函数
-│   ├── vm.applyColorMode(abilityCtx, mode)
-│   ├── vm.init(mode) — 更新选中状态
-│   ├── onThemeChange(mode) — 通知调用方（回调传播）
-│   └── this.localStack?.pop() — 返回上一页
+│   ├── if (isApplying) return
+│   ├── hostCtx 为空 → notifyApplyFailed() 并 return（不 pop）
+│   ├── vm.applyColorMode(abilityCtx, mode): Promise<boolean>
+│   │   ├── false → notifyApplyFailed()，留在本页
+│   │   ├── true → vm.init(mode) + onThemeChange(mode) + localStack?.pop()
+│   │   └── catch → notifyApplyFailed()，留在本页
+├── notifyApplyFailed() → showFeedback(ERROR, appearance_apply_failed)
 ├── build()
 │   └── NavDestination (title + hideTitleBar(false))
 │       └── Scroll → Column
@@ -85,17 +93,17 @@ AppearanceSettingsPage (@ComponentV2)
 
 | 风险 | 级别 | 说明 |
 |------|------|------|
-| 主题应用失败对页面不可见，照常 pop | ⚠️ High | `AppearanceManager.applyColorMode()` 内部把 `setColorMode` 与持久化异常都吞掉、永不 reject（`utils/AppearanceManager.ets:68-82`），页面 `.catch`（`:52-54`）是死代码；`hostCtx` 为空分支（`:55-57`）也照常回调 + `pop()`（docs/README P1 已按 High 统计） |
-| selectTheme 无重复点击保护 | ⚠️ 低 | `:47-67` 无 guard；但从 My 进入时 `detailStack` 通常只有本页，第二次 `pop()` 为空操作 |
+| ~~主题应用失败对页面不可见，照常 pop~~ | ✅ 已修（2026-11-16） | `applyColorMode()` 返回 `Promise<boolean>`：`setColorMode` 失败 `return false`（持久化失败不计失败，本次切换已生效）；页面拿到 `false` / 抛异常 / `hostCtx` 为空时统一 `notifyApplyFailed()` 并留在本页 |
+| ~~selectTheme 无重复点击保护~~ | ✅ 已修 | `isApplying` 闸门（`:27/43/54/57/71`）在切换期间拦截重复点击 |
 | onThemeChange 回调可能未设置 | ⚠️ 中 | 若路由参数为 null（如直接导航），onThemeChange 为空函数 `{_m => {}}`，调用方不会感知主题变化；当前唯一入口 `MyPage.ets:83-90` 始终传参 |
 
-**安全结论：存在需关注项**
+**安全结论：通过（`param` 为 null 的防御性 Medium 仍记录）**
 
 ## 6. 风险清单
 
-- [x] **High**：主题应用失败时页面照常 `onThemeChange` + `pop()`，用户无任何提示。根因在 `AppearanceManager.applyColorMode()`：`setColorMode` 失败（`utils/AppearanceManager.ets:68-73`）与持久化失败（`:76-82`）都只记日志、从不 reject，所以页面的 `.catch`（`AppearanceSettingsPage.ets:52-54`）永远不会触发；`hostCtx` 为空时（`:55-57`）同样继续执行 `:60-66`。用户看到的是：My 页显示新模式，但界面没变（`setColorMode` 失败 / 无 context），或重启后回退（持久化失败）。**仅把页面改成 await 再 pop 无效**——需要 `applyColorMode` 返回成功标志或重新抛出（该文件属 M0 共享层，需与 M0 协调），页面据此决定留在本页并提示
-- [x] **Medium**：param 为 null 时 onThemeChange 为空函数静默失败——应添加 fallback 逻辑或 Alert（`AppearanceSettingsPage.ets:23 / 31` 空函数默认值、`:41-44` 只在 param 非空时赋值）。`:128` Builder 不转发 `_param` 不影响取参（`onReady` 读 `ctx.pathInfo.param`）；当前唯一入口 `MyPage.ets:83-90` 始终传参，属防御性问题
-- [ ] **低优先级**（原 Medium，降级）：`selectTheme()` 无重复点击保护——`applyColorMode()` 是 fire-and-forget，随后同步执行 `localStack?.pop()`（`:47-67`）；快速连点会重复执行回调与 `pop()`。原文"可能把上一页（My）也弹掉"不成立：My 是 `Main` 的 Tab 根页面，不在 `detailStack` 里（`MyPage.ets:87-89` 把本页 push / replace 到 `detailStack`），通常栈里只有本页，第二次 `pop()` 为空操作。建议加 `if (this.popped) { return }` 标记（可与 High 合并为一个提交）
+- [x] ~~**High**：主题应用失败时页面照常 `onThemeChange` + `pop()`，用户无任何提示。~~ ✅ **已修（2026-11-16）**：`AppearanceManager.applyColorMode()` 改为 `Promise<boolean>`——`setColorMode` 失败直接 `return false`（`model/service/AppearanceManager.ets:76-83`），持久化失败只记日志不影响返回值（`:86-95`）；页面 `selectTheme()` 拿到 `false` 时调用 `notifyApplyFailed()`（`showFeedback(ERROR, appearance_apply_failed)`）并**不 pop**，`hostCtx` 为空与 Promise 抛异常走同一条失败路径（`AppearanceSettingsPage.ets:42-83`）。
+- [ ] **Medium**：param 为 null 时 onThemeChange 为空函数静默失败——应添加 fallback 逻辑或 Alert（`AppearanceSettingsPage.ets:23 / 31` 空函数默认值、`:41-44` 只在 param 非空时赋值）。`:128` Builder 不转发 `_param` 不影响取参（`onReady` 读 `ctx.pathInfo.param`）；当前唯一入口 `MyPage.ets:83-90` 始终传参，属防御性问题
+- [x] ~~**低优先级**：`selectTheme()` 无重复点击保护~~ ✅ **已修（2026-11-16）**：`isApplying` 在切换开始时置 `true`，`then` / `catch` 两条路径都复位，重复点击在 `:43` 直接 return。
 - [ ] **低优先级**：`selectTheme` 里的 `vm.init(mode)`（`:60`）紧接着就 `pop()`，选中态更新在离开前不可见，属冗余调用；可收敛到 ViewModel 的 `select(mode)` 一并处理
 
 *§6 为重构前基线；重构执行记录见下文。*
@@ -109,6 +117,7 @@ AppearanceSettingsPage (@ComponentV2)
 | 第 3 轮（全面复核） | custom_router_map L59-61、Builder L128 不传 param、无 Local Test、VM init/themeItems | ✅ 无不一致 |
 | 第 4 轮（2026-10-27 逐条事实） | `AppearanceManager.ets:61-83` 不会 reject；`MyPage.ets:83-90` 唯一入口且始终传参；My 不在 `detailStack` | ✅ High 改写根因与修法；重复点击 Medium → Low；`vm.init` Low 改写；计数 1/2/1 → 1/1/2，评级 B 不变 |
 | 第 5 轮（2026-11-05 M3 真重构后） | 页面 163L / VM 55L / ThemeModeRow 86L / Models 35L / AppearanceManager 114L；`AppearanceSettingsParam` 与 `ThemeModeItem` 已移入 `model/AppearanceSettingsModels.ets`；`getThemeModeLabel()` 由 settings 导出、M4 `AppearanceSection` 复用；`bash run.sh uat` → BUILD SUCCESSFUL in 15s 856ms | ✅ 编译通过，路由 / Builder 名未变 |
+| 第 7 轮（2026-11-16 High 复核关闭） | 回代码确认 `applyColorMode()` 返回 `Promise<boolean>`（`AppearanceManager.ets:67-95`）、页面 `isApplying` + `notifyApplyFailed()` + 失败不 pop（`AppearanceSettingsPage.ets:42-83`）、`appearance_apply_failed` 三语言字符串存在；同步页面 162L / VM 63L | High 1 → 0、Low 2 → 1、评级 B → A、债务 8 → 3（1×3 + 2×2 + 1×1 = 8，修复后 1×2 + 1×1 = 3） |
 
 ---
 

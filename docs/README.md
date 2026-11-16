@@ -78,7 +78,7 @@
 | 登录 | `LoginPage.ets` | [login-module-analysis.md](./login-module-analysis.md) | **A** | 0 | 0 | 4 | 2 | 129 | 10 | 7.8 |
 | 角色详情·星铁 | `StarRailCharacterDetailPage.ets` | [starrail-character-detail-module-analysis.md](./starrail-character-detail-module-analysis.md) | **A** | 0 | 0 | 1 | 6 | 116 | 8 | 6.9 |7.1 |
 | 角色列表 | `CharactersPage.ets` | [characters-module-analysis.md](./characters-module-analysis.md) | **B** | 0 | 1 | 2 | 2 | 167 | 9 | 5.4 |
-| 外观设置 | `AppearanceSettingsPage.ets` | [appearance-settings-page-module-analysis.md](./appearance-settings-page-module-analysis.md) | **B** | 0 | 1 | 2 | 1 | 145 | 8 | 5.5 |
+| 外观设置 | `AppearanceSettingsPage.ets` | [appearance-settings-page-module-analysis.md](./appearance-settings-page-module-analysis.md) | **A** | 0 | 0 | 1 | 1 | 162 | 3 | 1.9 |
 | 角色详情·原神 | `GenshinCharacterDetailPage.ets` | [genshin-character-detail-module-analysis.md](./genshin-character-detail-module-analysis.md) | **A** | 0 | 0 | 1 | 3 | 129 | 5 | 3.9 | |
 | 角色详情·ZZZ | `ZZZCharacterDetailPage.ets` | [zzz-character-detail-module-analysis.md](./zzz-character-detail-module-analysis.md) | **A** | 0 | 0 | 1 | 5 | 116 | 7 | 6.0 |
 | 材料选角色 | `MaterialCharacterSelectPage.ets` | [material-character-select-module-analysis.md](./material-character-select-module-analysis.md) | **A** | 0 | 0 | 2 | 3 | 493 | 7 | 1.4 |
