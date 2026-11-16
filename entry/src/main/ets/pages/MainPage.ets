@@ -60,6 +60,13 @@ export struct MainPage {
     this.setCurrentMode()
   }
 
+  /** 窗口状态回调同样存为字段：不传 callback 的 off 会注销 EntryAbility 注册在同一主窗口上的监听 */
+  private windowStatusCallback: (statusType: window.WindowStatusType) => void =
+    (statusType: window.WindowStatusType) => {
+      this.currentWindowStatusType = statusType
+      this.setCurrentMode()
+    }
+
   readonly stack: NavPathStack = new NavPathStack()
   private placeholder: ComponentContent<object> | null = null
   private uiCtx: UIContext | null = null
@@ -110,10 +117,7 @@ export struct MainPage {
     }
     // 监听窗口状态变化（分屏模式检测）
     try {
-      this.windowClass?.on('windowStatusChange', (statusType: window.WindowStatusType) => {
-        this.currentWindowStatusType = statusType
-        this.setCurrentMode()
-      })
+      this.windowClass?.on('windowStatusChange', this.windowStatusCallback)
     } catch (_e) {
       // 注册窗口状态监听失败时忽略
     }
@@ -122,7 +126,7 @@ export struct MainPage {
   aboutToDisappear(): void {
     try {
       this.windowClass?.off('windowSizeChange', this.windowSizeCallback)
-      this.windowClass?.off('windowStatusChange')
+      this.windowClass?.off('windowStatusChange', this.windowStatusCallback)
     } catch (_e) {
       // 注销监听失败时忽略
     }
