@@ -10,15 +10,15 @@
 | 优先级 | 数量 |
 | --- | --- |
 | Critical | 0 |
-| High | 1 |
+| High | 0 |
 | Medium | 1 |
 | Low | 6 |
 
-**整体评级：B**
+**整体评级：A**
 
 > 口径：skills `harmonyos-review` 官方 A-F 评级（0 Critical + High ≤ 3）。旧百分制已废弃，原分 A 仅作历史参考。
 >
-> 债务点数 = 1×3 + 1×2 + 6×1 = **11**；页面 140 行，密度 **7.9**/百行。（2026-10-27 复核前为 H2/M1/L2、10 点、7.1：`entityId === '1510'` 空循环无运行时影响，按 COMPAT-005 由 High 改判 Low；Monitor 常量未使用由 Medium 改判 Low；新增 ARKTS-014 Medium 与 3 条 Low。）
+> 债务点数 = 1×2 + 6×1 = **8**；页面 116 行，密度 **6.9**/百行。（2026-11-16 复核：`parseRawJson` 已改为返回错误串、`loadData` 据此置 `ViewState.ERROR`（`f013430`），High 关闭。）（2026-10-27 复核前为 H2/M1/L2、10 点、7.1：`entityId === '1510'` 空循环无运行时影响，按 COMPAT-005 由 High 改判 Low；Monitor 常量未使用由 Medium 改判 Low；新增 ARKTS-014 Medium 与 3 条 Low。）
 
 ---
 
@@ -27,7 +27,7 @@
 | 类别 | 文件路径 | 行数 | 说明 |
 |------|----------|------|------|
 | **Page** | `features/chardetail/src/main/ets/pages/StarRailCharacterDetailPage.ets` | 116 | 角色详情主页面（View） |
-| **ViewModel** | `features/chardetail/src/main/ets/viewmodel/StarRailCharacterDetailViewModel.ets` | 239 | 数据加载 + JSON 解析 + 展示模型构造 |
+| **ViewModel** | `features/chardetail/src/main/ets/viewmodel/StarRailCharacterDetailViewModel.ets` | 247 | 数据加载 + JSON 解析 + 展示模型构造 |
 | **窗口工具** | `features/chardetail/src/main/ets/utils/CharDetailWindowSize.ets` | 56 | 三游戏共用：初始尺寸 + windowSizeChange 订阅 + 断点计算（M10 新增） |
 | **路由参数** | `features/chardetail/src/main/ets/model/CharDetailModels.ets`（CharDetailRouterParam） | 272 | 通用路由参数 + 展示模型（注：目录已改为单数 `model/`，非复数 `models/`） |
 | **状态常量** | `common/basic/src/main/ets/constants/ViewState.ets`（ViewState 枚举） | 18 | 页面四态枚举（共享层） |
@@ -149,7 +149,7 @@ aboutToDisappear() { // Line 65
 
 | 风险项 | 严重程度 | 位置 | 说明 |
 |--------|----------|------|------|
-| **JSON 解析异常捕获但 UI 不回退** | ⚠️ **High**（与下方 P0 同一项） | VM `parseRawJson()` L226-229 | catch 仅 Logger.error，viewState 未切换（loadData 随后仍会置 DATA，用户看到脏数据/空白） |
+| ~~**JSON 解析异常捕获但 UI 不回退**~~ ✅ 已修（`f013430`） | ✅ 已修 | VM `parseRawJson()` L107-220 / `loadData()` L91-96 | 原实现 catch 仅 Logger.error，viewState 未切换、`loadData()` 随后仍置 DATA；现 `parseRawJson` 返回错误串，`loadData()` 据此置 `ViewState.ERROR` 并写 `networkErrorMsg` |
 | **异步加载异常兜底** | ✅ | VM `loadData()` L87-106 | try-catch 完整，异常时正确设置 viewState = ERROR + networkErrorMsg。注意：**没有超时控制**，`getAvatarDetail()` 是本地 DB 查询，不计入风险 |
 | **window API try-catch 静默吞错** | ℹ️ 信息（不计数） | Page L44 / L48 / L50 / L71 / L73（5 处 `catch (_e) {}`） | 屏幕尺寸监听失败不影响核心功能，属可接受设计；三游戏页面一致按信息处理 |
 | **硬编码 entityId 调试代码** | Low | VM `parseRawJson()` L171-179 | `if (this.entityId === '1510')` 下两个只声明局部变量的空循环，无副作用、无日志，属 COMPAT-005 调试残留 |
@@ -160,8 +160,9 @@ aboutToDisappear() { // Line 65
 
 ### P0 — 必须修复（High）
 
-1. **[High] `parseRawJson` catch 分支（VM L226-229）未设置 viewState = ViewState.ERROR**：catch 只记日志，`loadData()` 随后无条件执行 `this.viewState = ViewState.DATA`（L98-99）。JSON 解析或字段访问抛错时，用户看到的是只填了一部分（或全空）的详情页，且没有任何错误提示（不会停留在 LOADING）。
-   - 建议：catch 内 `throw` 交由 `loadData()` 的 catch 统一处理，或直接 `this.viewState = ViewState.ERROR; this.networkErrorMsg = msg;` 并让 `loadData()` 不再覆盖为 DATA。原神 / ZZZ 同源，三游戏统一修。
+> 2026-11-16 复核：原 High 已关闭，本节保留问题描述作为历史记录。
+
+1. ~~**[High] `parseRawJson` catch 分支（VM L226-229）未设置 viewState = ViewState.ERROR**~~ ✅ **已修（`f013430`）**：原实现 catch 只记日志，`loadData()` 随后无条件执行 `this.viewState = ViewState.DATA`（L98-99），解析或字段访问抛错时会显示半空详情且无提示。现 `parseRawJson` 返回 `string`（成功为空串、失败为错误信息），`loadData()` 据此置 `ViewState.ERROR` 并写 `networkErrorMsg`（`:91-96`）。原神 / ZZZ 同源已同步修。
 
 ### P1 — 建议修复（Medium）
 
@@ -206,7 +207,7 @@ aboutToDisappear() { // Line 65
 - 新增 `views/common/CharDetailHeroScaffold.ets`（99L）：星铁 / 绝区零英雄区共用骨架（背景渐变、立绘、遮罩、命座纵列、名字叠加层），游戏差异通过 `imageUrl` / `strongOverlay` / `midOverlay` / `@BuilderParam infoContent` 注入；`StarRailCharDetailHero` 101 → 48 行。
 - `@ohos.display` → `@kit.ArkUI` 是等价导包替换（ARKTS-014）。
 - `StarRailCharacterDetailViewModel` 合并 3 条 `from 'core'` 导入，删除未使用的 `StarRailPropertyType` / `StarRailRawSkillNode` 导入；删除 `entityId === '1510'` 空循环（无行为变化）。
-- `parseRawJson` 的 ERROR 兜底是行为修复，未随本提交执行（记录为 High，单独提交）。
+- `parseRawJson` 的 ERROR 兜底是行为修复，未随本提交执行（记录为 High，单独提交）。✅ 已于 `f013430` 单独提交完成。
 - 不合并 `starrail/` 的 11 个组件到 common（行迹 / 遗器模型是游戏特定的）。
 
 ### 验收
@@ -226,7 +227,7 @@ aboutToDisappear() { // Line 65
 
 ### 已知问题归属
 
-- High（`parseRawJson` 未设 ERROR）：保留，行为修复需单独提交（三游戏统一）。
+- ~~High（`parseRawJson` 未设 ERROR）：保留，行为修复需单独提交（三游戏统一）。~~ ✅ 已修（`f013430`，三游戏统一），评级已更新为 A。
 - Medium（ARKTS-014 `@ohos.display` 导包）：✅ 已在本轮改为 `@kit.ArkUI`。
 - Low（`entityId === '1510'` 残留）：✅ 已删除。
 - Low（宽屏左栏无 Scroll、heroHeight 未缓存、初始尺寸取整屏、遗器不按 pos 排布）：记录。
@@ -240,3 +241,4 @@ aboutToDisappear() { // Line 65
 | 第 3 轮（全面复核） | 总计 686 / 子组件行数总和 / 路径常量 / 问题优先级归属 | ✅ |
 | 第 4 轮（2026-10-27 逐条复核） | 全部锚点逐行对照；common 引用关系（原文误列 MaterialCalcEntry / StatRow、漏 HeroNameOverlay）；`1510`、Monitor 常量改判 Low；补 ARKTS-014、宽屏左栏、初始尺寸、遗器排布 | 已修正 |
 | 第 5 轮（2026-11-05 M10 真重构后） | 页面 140 → 116L；VM 256 → 239L；Hero 101 → 48L；新增 `CharDetailWindowSize` 56L 与 `CharDetailHeroScaffold` 99L；删除 `1510` 空循环与未使用导入；`bash run.sh uat` → BUILD SUCCESSFUL in 14s 775ms | ✅ 编译通过；路由 / Builder 名未变 |
+| 第 6 轮（2026-11-16 High 复核关闭） | 回代码确认 `parseRawJson` 已改为返回错误串（`:107-220`）、`loadData` 据此置 `ViewState.ERROR`（`:91-96`，`f013430`）；同步页面 116 行 / VM 247 行的实测值 | High 1 → 0、评级 B → A、债务 11 → 8 |

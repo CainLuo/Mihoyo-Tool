@@ -10,15 +10,15 @@
 | 优先级 | 数量 |
 | --- | --- |
 | Critical | 0 |
-| High | 1 |
+| High | 0 |
 | Medium | 1 |
 | Low | 3 |
 
-**整体评级：B**
+**整体评级：A**
 
 > 口径：skills `harmonyos-review` 官方 A-F 评级（0 Critical + High ≤ 3）。旧百分制已废弃，原分 A 仅作历史参考。
 >
-> 债务点数 = 1×3 + 1×2 + 3×1 = **8**；页面 154 行，密度 **5.2**/百行。（2026-10-27 复核前为 H1/M1/L2、7 点、4.5：撤回"断点应为 576"Medium（前提不成立）与"VM 依赖 init()"Low（页面总是先 init 再 load）；新增 ARKTS-014 Medium 与 2 条 Low。）
+> 债务点数 = 1×2 + 3×1 = **5**；页面 129 行，密度 **3.9**/百行。（2026-11-16 复核：`parseRawJson` 已改为返回错误串、`loadData` 据此置 `ViewState.ERROR`（`f013430`），High 关闭。）（2026-10-27 复核前为 H1/M1/L2、7 点、4.5：撤回"断点应为 576"Medium（前提不成立）与"VM 依赖 init()"Low（页面总是先 init 再 load）；新增 ARKTS-014 Medium 与 2 条 Low。）
 
 ---
 
@@ -27,7 +27,7 @@
 | 类别 | 文件路径 | 行数 | 说明 |
 |------|----------|------|------|
 | **Page** | `pages/GenshinCharacterDetailPage.ets` | 129 | 角色详情主页面（View） |
-| **ViewModel** | `viewmodel/GenshinCharacterDetailViewModel.ets` | 239 | 数据加载 + JSON 解析 + 展示模型构造 |
+| **ViewModel** | `viewmodel/GenshinCharacterDetailViewModel.ets` | 247 | 数据加载 + JSON 解析 + 展示模型构造 |
 | **窗口工具** | `utils/CharDetailWindowSize.ets` | 56 | 三游戏共用：初始尺寸 + windowSizeChange 订阅 + 断点计算（M10 新增） |
 | **路由参数** | `model/CharDetailModels.ets`（CharDetailRouterParam，L11） | 272 | 通用路由参数 + 展示模型 |
 | **状态常量** | `common/basic` 的 `ViewState` 枚举 | — | 页面四态枚举 |
@@ -175,7 +175,7 @@ aboutToDisappear() { // Line 71
 | 风险项 | 严重程度 | 位置 | 说明 |
 |--------|----------|------|------|
 | **异步加载未做超时控制** | ℹ️ 信息（不计数） | VM `loadData()` L81-97 | `getAvatarDetail()` 是本地 DB 查询（core `GenshinRepository.getAvatarDetail`），无 timeout；异常已由 catch 置 ERROR。三游戏一致，不计入风险 |
-| **JSON 解析异常捕获但 UI 不回退** | ⚠️ **High**（与下方 P0 同一项） | VM `parseRawJson()` L202-205 | catch 仅 Logger.error，viewState 未切换；`loadData()` 随后仍置 DATA（L89-90），用户看到部分填充 / 空白的详情页 |
+| ~~**JSON 解析异常捕获但 UI 不回退**~~ ✅ 已修（`f013430`） | ✅ 已修 | VM `parseRawJson()` L100-209 / `loadData()` L84-90 | 原实现 catch 仅 Logger.error，viewState 未切换、`loadData()` 随后仍置 DATA；现 `parseRawJson` 返回错误串，`loadData()` 据此置 `ViewState.ERROR` 并写 `networkErrorMsg` |
 | **window API try-catch 静默吞错** | ℹ️ 信息（不计数） | Page L50 / L54 / L56 / L77 / L79（5 处 `catch (_e) {}`） | 屏幕尺寸监听失败不影响核心功能，属可接受设计；三游戏页面一致按信息处理 |
 
 ---
@@ -184,8 +184,9 @@ aboutToDisappear() { // Line 71
 
 ### P0 — 必须修复（High）
 
-1. **[High] `parseRawJson` catch 分支（L202-205）未设置 viewState = ViewState.ERROR**：catch 只记日志，`loadData()` 随后无条件置 `DATA`（L89-90）。`const base = parsed.base; base.name`（L102-103）在 `base` 缺失时即抛 TypeError，此时页面显示全空的详情（不会停留在 LOADING），且不会弹出错误提示。
-   - 建议：catch 内 `throw` 交由 `loadData()` 统一处理，或设 `this.viewState = ViewState.ERROR; this.networkErrorMsg = msg;` 并让 `loadData()` 不再覆盖为 DATA。星铁 / ZZZ 同源，三游戏统一修。
+> 2026-11-16 复核：原 High 已关闭，本节保留问题描述作为历史记录。
+
+1. ~~**[High] `parseRawJson` catch 分支（L202-205）未设置 viewState = ViewState.ERROR**~~ ✅ **已修（`f013430`）**：原实现 catch 只记日志，`loadData()` 随后无条件置 `DATA`（L89-90），`base` 缺失时抛 TypeError 会显示全空详情且无提示。现 `parseRawJson` 返回 `string`（成功为空串、失败为错误信息，`:100-209`），`loadData()` 据此置 `ViewState.ERROR` 并写 `networkErrorMsg`（`:84-90`）。星铁 / ZZZ 同源已同步修。
 
 ### P1 — 建议修复（Medium）
 
@@ -228,7 +229,7 @@ aboutToDisappear() { // Line 71
 - `GenshinCharacterDetailViewModel` 合并 3 条 `from 'core'` 导入，删除未使用的 `GenshinPropertyType` 导入，修正 `relic.subStats = subs` 的错位换行（无行为变化）。
 - `CharDetailWeaponCard` 删除未使用的私有 `formatStars()`；两个 `CharDetailHeroPanel*` 删除未使用的 `getGenshinElementColor` 导入。
 - `CharDetailHeroPanel` 的 PORTRAIT / LANDSCAPE / WIDE 三分支已经参数化；不合并 26 个组件。
-- `parseRawJson` 的 ERROR 兜底是行为修复，未随本提交执行（记录为 High，单独提交）。
+- `parseRawJson` 的 ERROR 兜底是行为修复，未随本提交执行（记录为 High，单独提交）。✅ 已于 `f013430` 单独提交完成。
 
 ### 验收
 
@@ -248,7 +249,7 @@ aboutToDisappear() { // Line 71
 
 ### 已知问题归属
 
-- High（`parseRawJson` 未设 ERROR）：保留，行为修复需单独提交（三游戏统一）。
+- ~~High（`parseRawJson` 未设 ERROR）：保留，行为修复需单独提交（三游戏统一）。~~ ✅ 已修（`f013430`，三游戏统一），评级已更新为 A。
 - Medium（ARKTS-014 `@ohos.display` 导包）：✅ 已在本轮改为 `@kit.ArkUI`。
 - Low（宽屏圣遗物栏无 Scroll、初始尺寸取整屏）：记录。
 - Low（`formatStars` 死方法、未使用导入）：✅ 已清理。
@@ -262,3 +263,4 @@ aboutToDisappear() { // Line 71
 | 第 3 轮（全面复核） | §7 测试文件 90 行、路由映射 L9-11、重构范围/验收声明 | ✅ |
 | 第 4 轮（2026-10-27 逐条复核） | 安全表 parseRawJson 由"中"统一为 High；撤回断点 576 Medium 与 init() Low；Monitor 常量实际存在且未使用；common 引用关系与 `gameId` 未使用；测试文件引用失效成员；补 ARKTS-014、初始尺寸 Low | 已修正 |
 | 第 5 轮（2026-11-05 M10 真重构后） | 页面 154 → 129L；VM 243 → 239L；新增 `utils/CharDetailWindowSize.ets` 56L；`@ohos.display` → `@kit.ArkUI`；删除 `formatStars` 与 2 处未使用导入；测试 84L / 12 用例已从 `utils/GenshinPropertyUtil` 导入；`bash run.sh uat` → BUILD SUCCESSFUL in 14s 775ms | ✅ 编译通过；路由 / Builder 名未变 |
+| 第 6 轮（2026-11-16 High 复核关闭） | 回代码确认 `parseRawJson` 已改为返回错误串（`:100-209`）、`loadData` 据此置 `ViewState.ERROR`（`:84-90`，`f013430`）；同步页面 129 行 / VM 247 行的实测值 | High 1 → 0、评级 B → A、债务 8 → 5 |

@@ -1,6 +1,6 @@
 # ZZZCharacterDetail 模块分析
 
-> **文件：** `features/chardetail/src/main/ets/pages/ZZZCharacterDetailPage.ets`（140 行）  
+> **文件：** `features/chardetail/src/main/ets/pages/ZZZCharacterDetailPage.ets`（116 行）  
 > **游戏：** 绝区零 (ZZZ) — 角色详情页面 View 层  
 > **对比参考：** GenshinCharacterDetail / StarRailCharacterDetail（结构基本一致）  
 > **分析日期：** 2026-10-24（重构备注同日复核）
@@ -13,15 +13,15 @@
 | 优先级 | 数量 |
 | --- | --- |
 | Critical | 0 |
-| High | 1 |
+| High | 0 |
 | Medium | 1 |
 | Low | 5 |
 
-**整体评级：B**
+**整体评级：A**
 
-> 口径：skills `harmonyos-review` 官方 A-F 评级（0 Critical + High ≤ 3 → B；有 1 条 High，达不到 A 的"0 High"）。旧百分制已废弃，原分 94/100 仅作历史参考。
+> 口径：skills `harmonyos-review` 官方 A-F 评级（0 Critical + 0 High → A）。旧百分制已废弃，原分 94/100 仅作历史参考。
 >
-> 债务点数 = 1×3 + 1×2 + 5×1 = **10**；页面 140 行，密度 **7.1**/百行。（2026-10-27 复核前为 H1/M1/L2、7 点、5.0：`heroHeight()` 未缓存由 Medium 改判 Low（与星铁同项同级）；`catch (_e) {}` 改为信息项不计数（与星铁 / 原神一致）；尺寸双初始化改写为"初始尺寸取整屏"；新增 ARKTS-014 Medium 与 3 条 Low。）
+> 债务点数 = 1×2 + 5×1 = **7**；页面 116 行，密度 **6.0**/百行。（2026-11-16 复核：`parseRawJson` 已改为返回错误串、`loadData` 据此置 `ViewState.ERROR`（`f013430`），High 关闭。）（2026-10-27 复核前为 H1/M1/L2、7 点、5.0：`heroHeight()` 未缓存由 Medium 改判 Low（与星铁同项同级）；`catch (_e) {}` 改为信息项不计数（与星铁 / 原神一致）；尺寸双初始化改写为"初始尺寸取整屏"；新增 ARKTS-014 Medium 与 3 条 Low。）
 
 ---
 
@@ -30,7 +30,7 @@
 | 属性 | 值 |
 |------|-----|
 | 行数 | 116 |
-| ViewModel | `viewmodel/ZZZCharacterDetailViewModel.ets`（259 行） |
+| ViewModel | `viewmodel/ZZZCharacterDetailViewModel.ets`（267 行） |
 | 窗口工具 | `utils/CharDetailWindowSize.ets`（56 行，三游戏共享，M10 新增） |
 | 模型 / 状态 | `model/CharDetailModels.ets`（272 行，三游戏共享）、`common/basic` 的 `ViewState` |
 | 专属子组件 | `views/zzz/` 13 个文件（见 2.2） |
@@ -140,7 +140,7 @@
 
 | 维度 | 原神 | 星铁 | ZZZ |
 |------|------|------|-----|
-| 行数 | 154 | 140 | 140 |
+| 行数 | 129 | 116 | 116 |
 | Hero 高度逻辑 | 无 `heroHeight()`；xs 下按宽高选 Portrait / Landscape 布局，竖屏英雄区固定 260 | `heroHeight()` 横竖判断 260/200 | ✅ 同星铁（`heroHeight()` L76-80） |
 | 宽屏适配 | sm/md/lg → `CharDetailWideLayout` | md/lg → WideLayout | ✅ 同星铁 |
 | @Monitor 网络错误 | ✅ | ✅ | ✅ |
@@ -156,7 +156,7 @@
 
 | 优先级 | 编号 | 问题 | 说明 |
 |--------|------|------|------|
-| **High** | ZZZ-CD-0 | `parseRawJson` 吞掉异常后仍进入 DATA | VM `parseRawJson` 的 catch（L223-226）只 `Logger.error`，不抛不设 ERROR；`loadData` 随后仍执行 `viewState = DATA`（L91-92），JSON 解析失败时用户看到空白 / 部分数据且无错误提示（与原神/星铁同源问题，三游戏同级 High） |
+| ~~**High**~~ ✅ 已修（`f013430`） | ZZZ-CD-0 | `parseRawJson` 吞掉异常后仍进入 DATA | 原实现 catch 只 `Logger.error`，不抛不设 ERROR，`loadData` 随后仍执行 `viewState = DATA`，解析失败时用户看到空白 / 部分数据且无提示（与原神 / 星铁同源）。现 `parseRawJson` 返回错误串，`loadData` 据此置 `ViewState.ERROR` 并写 `networkErrorMsg`（`:85-90`） |
 | **Medium** | ZZZ-CD-6 | 旧式 `@ohos.*` 导包（ARKTS-014） | Page L4 `import display from '@ohos.display'`，应改 `import { display } from '@kit.ArkUI'`；星铁 / 原神角色详情及三个 DailyDetail 页同样如此 |
 | **低** | ZZZ-CD-1 | `heroHeight()` 是普通方法而非 @Computed | Page L76-80。这是可选的渲染优化：build() 会因读取 `@Local windowWidthVp/HeightVp` 而重算，并非响应式缺陷；与星铁同项同级（Low） |
 | **低** | ZZZ-CD-3 | 初始尺寸取整屏而非窗口 | `aboutToAppear` 先用 `display.getDefaultDisplaySync()`（L41-43）初始化尺寸，`windowSizeChange`（L48）只在尺寸**变化**时回调；分屏 / 悬浮窗进入时 `heroHeight()` 基于整屏宽高判断，直到窗口再次变化。三游戏同源 |
@@ -212,7 +212,7 @@
 - 新增 `views/common/CharDetailHeroScaffold.ets`（99L）：星铁 / 绝区零英雄区共用骨架；`ZZZCharDetailHero` 101 → 49 行。绝区零保留原固定黑色遮罩（`#99000000` / `#66000000`），未改为主题色。
 - `@ohos.display` → `@kit.ArkUI` 是等价导包替换（ARKTS-014）。
 - `ZZZCharacterDetailViewModel` 合并 3 条 `from 'core'` 导入。
-- `parseRawJson` 的 ERROR 兜底（ZZZ-CD-0）是行为修复，未随本提交执行（记录为 High，单独提交，三游戏统一）。
+- `parseRawJson` 的 ERROR 兜底（ZZZ-CD-0）是行为修复，未随本提交执行（记录为 High，单独提交，三游戏统一）。✅ 已于 `f013430` 单独提交完成。
 - 不合并 `zzz/` 的 13 个组件到 common（装备 / 驱动盘 / 词条模型是游戏特定的）。
 
 ### 验收
@@ -232,7 +232,7 @@
 
 ### 已知问题归属
 
-- High（`parseRawJson` 吞异常）：保留，行为修复需单独提交；修完更新评级。
+- ~~High（`parseRawJson` 吞异常）：保留，行为修复需单独提交；修完更新评级。~~ ✅ 已修（`f013430`），评级已更新为 A。
 - Medium（ARKTS-014 导包）：✅ 已在本轮改为 `@kit.ArkUI`。
 - Low（`heroHeight` 未缓存、初始尺寸取整屏、宽屏左栏无 Scroll、驱动盘不按 pos 排布）：记录。
 - 信息（5 处 `catch (_e) {}`）：不计数。
@@ -246,5 +246,6 @@
 | 第 3 轮（全面复核） | parseRawJson catch、§7 测试声明、子组件逐文件行数 | ✅ |
 | 第 4 轮（2026-10-27 逐条复核） | 摘要口径行写错评级条件（已改为 B 的条件）；三游戏对比表中原神组件名 / 断点 / Hero 逻辑描述不实；`heroHeight` 与星铁统一为 Low；catch 静默统一为信息项；补 ARKTS-014、Monitor 常量、宽屏左栏、驱动盘排布 | 已修正 |
 | 第 5 轮（2026-11-05 M10 真重构后） | 页面 140 → 116L；VM 265 → 259L；Hero 101 → 49L；新增 `CharDetailWindowSize` 56L 与 `CharDetailHeroScaffold` 99L；`@ohos.display` → `@kit.ArkUI`；`bash run.sh uat` → BUILD SUCCESSFUL in 14s 775ms | ✅ 编译通过；路由 / Builder 名未变 |
+| 第 6 轮（2026-11-16 High 复核关闭） | 回代码确认 `parseRawJson` 已改为返回错误串（`:101-228`）、`loadData` 据此置 `ViewState.ERROR`（`:85-90`，`f013430`）；同步页面 116 行 / VM 267 行 / 对比表行数的实测值 | High 1 → 0、评级 B → A、债务 10 → 7 |
 
 > 注：ZZZ-CD-2 原文称 catch(_e){} "三个"，实际 5 处（L44/L48/L50/L71/L73），已在 5.1 更正。
