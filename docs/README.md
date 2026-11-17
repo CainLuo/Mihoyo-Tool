@@ -91,7 +91,7 @@
 | 小组件设置 | `WidgetSettingsPage.ets` | [widget-settings-module-analysis.md](./widget-settings-module-analysis.md) | **A** | 0 | 0 | 1 | 1 | 65 | 3 | 4.6 |
 | 隐私同意 | `PrivacyConsentPage.ets` | [privacy-consent-page-module-analysis.md](./privacy-consent-page-module-analysis.md) | **A** | 0 | 0 | 1 | 1 | 129 | 3 | 2.3 |
 | 通知设置 | `NotificationSettingsPage.ets` | [notification-settings-module-analysis.md](./notification-settings-module-analysis.md) | **A** | 0 | 0 | 1 | 0 | 40 | 2 | 5.0 |
-| 启动页 | `LaunchPage.ets` | [launch-module-analysis.md](./launch-module-analysis.md) | **A** | 0 | 0 | 0 | 2 | 94 | 2 | 2.1 |
+| 启动页 | `LaunchPage.ets` | [launch-module-analysis.md](./launch-module-analysis.md) | **A** | 0 | 0 | 0 | 1 | 173 | 1 | 0.6 |
 | 入口 | `Index.ets` | [index-module-analysis.md](./index-module-analysis.md) | **A** | 0 | 0 | 0 | 2 | 34 | 2 | 5.9 |
 | WebView | `WebViewPage.ets` | [webview-page-module-analysis.md](./webview-page-module-analysis.md) | **A** | 0 | 0 | 0 | 2 | 101 | 2 | 2.0 |
 | 测试页 | `TestPage.ets` | [test-page-module-analysis.md](./test-page-module-analysis.md) | **A** | 0 | 0 | 0 | 2 | 106 | 2 | 1.9 |
