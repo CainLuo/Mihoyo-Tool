@@ -17,14 +17,8 @@ import { formBindingData, FormExtensionAbility, formInfo, formProvider } from '@
 import { Want } from '@kit.AbilityKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { preferences } from '@kit.ArkData';
-import { WidgetLogger } from '../widget/utils/WidgetLogger';
-import { WidgetConfigStore } from '../widget/utils/WidgetConfigStore';
-import { WidgetDataStoreManager } from '../widget/utils/WidgetDataStoreManager';
-import { WidgetPayloadBuilder } from '../widget/utils/WidgetPayloadBuilder';
-import { WidgetConfig, WidgetSize } from '../widget/models/WidgetConfig';
-import { WidgetImageDownloader } from '../widget/utils/WidgetImageDownloader';
-import { WidgetMockData } from '../widget/utils/WidgetMockData';
-import { WidgetDataStore } from '../widget/models/WidgetDataStore';
+import { WidgetLogger } from 'widgetbase';
+import { WidgetConfigStore, WidgetDataStoreManager, WidgetPayloadBuilder, WidgetConfig, WidgetSize, WidgetImageDownloader, WidgetDataStore } from 'widget';
 
 const TAG = 'WIDGET';
 
@@ -83,8 +77,15 @@ export default class EntryFormAbility extends FormExtensionAbility {
 
   /**
    * 卡片内点击刷新按钮触发
+   *
+   * 卡片统一使用 `postCardAction({ action: 'call' })`，message 为空串。
+   * 其它消息类型目前没有定义，收到时只记日志、不触发刷新，避免未知 payload 引起误刷新。
    */
-  onFormEvent(formId: string, _message: string): void {
+  onFormEvent(formId: string, message: string): void {
+    if (message.length > 0) {
+      WidgetLogger.warn(TAG, `onFormEvent: unsupported message="${message}", ignored`);
+      return;
+    }
     this.pushUpdate(formId);
   }
 
@@ -93,7 +94,7 @@ export default class EntryFormAbility extends FormExtensionAbility {
   /**
    * 解析 want.parameters 获取卡片信息
    */
-  private parseWantParameters(want: Want): FormInfo {
+  private parseWantParameters(want: Want): FormSpec {
     return {
       formId: want.parameters?.[formInfo.FormParam.IDENTITY_KEY] as string ?? '',
       formName: want.parameters?.[formInfo.FormParam.NAME_KEY] as string ?? '',
@@ -128,7 +129,7 @@ export default class EntryFormAbility extends FormExtensionAbility {
   /**
    * 加载或创建配置
    */
-  private loadOrCreateConfig(formInfo: FormInfo): WidgetConfig {
+  private loadOrCreateConfig(formInfo: FormSpec): WidgetConfig {
     // 尝试加载用户配置
     if (formInfo.formName.length > 0) {
       const config = this.loadPendingConfig(formInfo.formName);
@@ -143,7 +144,7 @@ export default class EntryFormAbility extends FormExtensionAbility {
     const config = new WidgetConfig();
     config.formId = formInfo.formId;
     config.formName = formInfo.formName;
-    config.size = this.dimensionToSize(formInfo.dimension);
+    config.size = this.getSizeByDimension(formInfo.dimension);
     config.slots = [];
 
     return config;
@@ -177,15 +178,14 @@ export default class EntryFormAbility extends FormExtensionAbility {
   private buildFormData(
     config: WidgetConfig,
     dataStore: WidgetDataStore,
-    formInfo: FormInfo
+    formInfo: FormSpec
   ): formBindingData.FormBindingData {
-    // 数据为空时返回 Mock 数据
+    // 数据为空时也要返回真实空 payload，让卡片展示空态；不能展示 Mock 账号/体力
     if (!dataStore.hasData) {
-      WidgetLogger.warn(TAG, 'dataStore is empty, using mock data');
-      return this.buildMockFormData();
+      WidgetLogger.warn(TAG, 'dataStore is empty, rendering empty payload');
     }
 
-    // 构建 payload
+    // 构建 payload（无数据时 accounts 为空，卡片走 isEmpty 空态）
     const payload = WidgetPayloadBuilder.buildPayload(config, dataStore);
     payload.widgetWidth = formInfo.width;
     payload.widgetHeight = formInfo.height;
@@ -204,15 +204,6 @@ export default class EntryFormAbility extends FormExtensionAbility {
     formDataObj['formImages'] = formImages as Object;
 
     return formBindingData.createFormBindingData(formDataObj);
-  }
-
-  /**
-   * 构建 Mock 表单数据（用于调试）
-   */
-  private buildMockFormData(): formBindingData.FormBindingData {
-    const mockPayload = WidgetMockData.buildPayload();
-    const mockRecord: Record<string, string> = { 'payload': mockPayload };
-    return formBindingData.createFormBindingData(mockRecord);
   }
 
   // ── 私有方法：配置保存 ────────────────────────────────────────────────────────
@@ -262,22 +253,22 @@ export default class EntryFormAbility extends FormExtensionAbility {
   /**
    * dimension 转 WidgetSize
    */
-  private dimensionToSize(dimension: number): WidgetSize {
+  private getSizeByDimension(dimension: number): WidgetSize {
     if (dimension === 1) {
-      return WidgetSize.SIZE_1x2;
+      return WidgetSize.SIZE_1X2;
     } else if (dimension === 3) {
-      return WidgetSize.SIZE_2x4;
+      return WidgetSize.SIZE_2X4;
     } else if (dimension === 4) {
-      return WidgetSize.SIZE_4x4;
+      return WidgetSize.SIZE_4X4;
     }
-    return WidgetSize.SIZE_2x2;
+    return WidgetSize.SIZE_2X2;
   }
 }
 
 /**
  * 表单信息结构
  */
-interface FormInfo {
+interface FormSpec {
   formId: string;
   formName: string;
   dimension: number;

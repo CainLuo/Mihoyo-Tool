@@ -4,6 +4,7 @@ import { RdbManager } from '../../../main/ets/db/RdbManager';
 import { SCHEMA_REGISTRY } from '../../../main/ets/SchemaRegistry';
 import { AccountDao, GameRoleDao } from '../../../main/ets/MihoyoKit/db/BBSDao';
 import { AccountRow } from '../../../main/ets/MihoyoKit/model/AccountRow';
+import { GameId } from '../../../main/ets/common/constants/GameId';
 import { GameRoleRow } from '../../../main/ets/MihoyoKit/model/GameRoleRow';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 
@@ -17,9 +18,6 @@ function makeAccount(username: string): AccountRow {
   const row = new AccountRow();
   row.username = username;
   row.cookie = 'cookie_' + username;
-  row.stoken = '';
-  row.stuid = '';
-  row.mid = '';
   row.isActive = 0;
   row.createTime = 0;
   row.updateTime = 0;
@@ -30,7 +28,7 @@ function makeAccount(username: string): AccountRow {
   return row;
 }
 
-function makeGameRole(accountId: string, gameId: string, roleId: string): GameRoleRow {
+function makeGameRole(accountId: string, gameId: GameId, roleId: string): GameRoleRow {
   const row = new GameRoleRow();
   row.accountId = accountId;
   row.gameId = gameId;
@@ -177,8 +175,8 @@ export default function bbsDaoTest() {
     it('upsertAll_twoRows_findByAccountIdReturnsTwo', 0, async () => {
       const accountId = await insertTestAccount('grtest_acc1');
       const rows = [
-        makeGameRole(accountId, 'genshin', 'role1'),
-        makeGameRole(accountId, 'starrail', 'role2')
+        makeGameRole(accountId, GameId.GENSHIN, 'role1'),
+        makeGameRole(accountId, GameId.STARRAIL, 'role2')
       ];
       await gameRoleDao.upsertAll(rows);
       const result = await gameRoleDao.findByAccountId(accountId);
@@ -187,12 +185,12 @@ export default function bbsDaoTest() {
 
     it('upsertAll_duplicateUniqueKey_updatesExisting', 0, async () => {
       const accountId = await insertTestAccount('grtest_acc2');
-      const row = makeGameRole(accountId, 'genshin', 'role_dup');
+      const row = makeGameRole(accountId, GameId.GENSHIN, 'role_dup');
       await gameRoleDao.upsertAll([row]);
       row.level = 90;
       await gameRoleDao.upsertAll([row]);
       const result = await gameRoleDao.findByAccountId(accountId);
-      const genshinRoles = result.filter(r => r.gameId === 'genshin');
+      const genshinRoles = result.filter(r => r.gameId === GameId.GENSHIN);
       expect(genshinRoles.length).assertEqual(1);
       expect(genshinRoles[0].level).assertEqual(90);
     });
@@ -209,7 +207,7 @@ export default function bbsDaoTest() {
 
     it('findByAccountId_exists_returnsRows', 0, async () => {
       const accountId = await insertTestAccount('grtest_acc3');
-      await gameRoleDao.upsertAll([makeGameRole(accountId, 'genshin', 'r1')]);
+      await gameRoleDao.upsertAll([makeGameRole(accountId, GameId.GENSHIN, 'r1')]);
       const result = await gameRoleDao.findByAccountId(accountId);
       expect(result.length >= 1).assertTrue();
     });
@@ -222,22 +220,22 @@ export default function bbsDaoTest() {
     it('findByAccountAndGame_exists_returnsRows', 0, async () => {
       const accountId = await insertTestAccount('grtest_acc4');
       await gameRoleDao.upsertAll([
-        makeGameRole(accountId, 'genshin', 'r_g'),
-        makeGameRole(accountId, 'starrail', 'r_s')
+        makeGameRole(accountId, GameId.GENSHIN, 'r_g'),
+        makeGameRole(accountId, GameId.STARRAIL, 'r_s')
       ]);
-      const result = await gameRoleDao.findByAccountAndGame(accountId, 'genshin');
+      const result = await gameRoleDao.findByAccountAndGame(accountId, GameId.GENSHIN);
       expect(result.length).assertEqual(1);
-      expect(result[0].gameId).assertEqual('genshin');
+      expect(result[0].gameId).assertEqual(GameId.GENSHIN);
     });
 
     it('findByAccountAndGame_notExists_returnsEmptyArray', 0, async () => {
-      const result = await gameRoleDao.findByAccountAndGame('999997', 'zzz');
+      const result = await gameRoleDao.findByAccountAndGame('999997', GameId.ZZZ);
       expect(result.length).assertEqual(0);
     });
 
     it('deleteByAccountId_exists_rowsRemoved', 0, async () => {
       const accountId = await insertTestAccount('grtest_acc5');
-      await gameRoleDao.upsertAll([makeGameRole(accountId, 'genshin', 'r_del')]);
+      await gameRoleDao.upsertAll([makeGameRole(accountId, GameId.GENSHIN, 'r_del')]);
       await gameRoleDao.deleteByAccountId(accountId);
       const result = await gameRoleDao.findByAccountId(accountId);
       expect(result.length).assertEqual(0);

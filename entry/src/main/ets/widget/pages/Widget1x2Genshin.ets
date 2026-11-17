@@ -15,13 +15,10 @@
  *   payload JSON → parsePayload() → ParsedPayload → Widget1x2ViewModel.buildUIState() → UIState → Component
  */
 
-import { Widget1x2ContentView } from '../components/Widget1x2ContentView';
-import { WidgetEmptyContent } from '../components/WidgetEmptyContent';
-import { parsePayload } from '../utils/WidgetPayloadParser';
-import { Widget1x2UIState } from '../models/WidgetUIStates';
+import { Widget1x2ContentView } from '../views/Widget1x2ContentView';
+import { WidgetEmptyContent } from '../views/WidgetEmptyContent';
+import { parsePayload, Widget1x2UIState, createSingleGameGradient, WidgetGameId, getGameColor, DefaultTheme } from 'widgetbase';
 import { Widget1x2ViewModel } from '../viewmodel/Widget1x2ViewModel';
-import { widgetSingleGameGradient, WIDGET_GAME_ID, getGameColor } from '../utils/WidgetUtils';
-import { DefaultTheme } from '../../theme/DefaultTheme';
 
 /** 主题常量实例（Widget 直接使用，不依赖 @ObservedV2/@Trace） */
 const theme = new DefaultTheme();
@@ -33,10 +30,27 @@ let storage: LocalStorage = new LocalStorage();
 struct Widget1x2Genshin {
   @LocalStorageProp('payload') payloadJson: string = '';
 
+  /**
+   * 性能优化：同一 payload 字符串只解析/构建一次 UIState。
+   * build() 中会多次读取 UIState，缓存后避免重复 JSON.parse + ViewModel 计算。
+   */
+  private cachedPayloadJson: string = '';
+  private cachedUIState: Widget1x2UIState =
+    Widget1x2ViewModel.buildUIState(parsePayload(''), WidgetGameId.GENSHIN);
+
+  /** payload 变化时重建缓存，未变化时直接复用 */
+  private ensureCache(): void {
+    if (this.cachedPayloadJson === this.payloadJson) {
+      return;
+    }
+    this.cachedPayloadJson = this.payloadJson;
+    this.cachedUIState = Widget1x2ViewModel.buildUIState(parsePayload(this.payloadJson), WidgetGameId.GENSHIN);
+  }
+
   /** 构建 UIState（在组件方法中调用 ViewModel） */
   private getUIState(): Widget1x2UIState {
-    const parsed = parsePayload(this.payloadJson);
-    return Widget1x2ViewModel.buildUIState(parsed, WIDGET_GAME_ID.GENSHIN);
+    this.ensureCache();
+    return this.cachedUIState;
   }
 
   build() {
@@ -46,7 +60,7 @@ struct Widget1x2Genshin {
       } else {
         Widget1x2ContentView({
           state: this.getUIState().role,
-          gameColor: getGameColor(WIDGET_GAME_ID.GENSHIN)
+          gameColor: getGameColor(WidgetGameId.GENSHIN)
         })
       }
     }
@@ -56,7 +70,7 @@ struct Widget1x2Genshin {
       left: theme.value12,
       right: theme.value12
     })
-    .linearGradient(widgetSingleGameGradient(WIDGET_GAME_ID.GENSHIN))
+    .linearGradient(createSingleGameGradient(WidgetGameId.GENSHIN))
     .borderRadius(theme.radius16)
     .onClick(() => {
       postCardAction(this, {

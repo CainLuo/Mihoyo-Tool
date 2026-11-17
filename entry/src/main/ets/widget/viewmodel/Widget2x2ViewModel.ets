@@ -13,22 +13,15 @@
  *   EntryFormAbility → parsePayload() → ParsedPayload → ViewModel.buildUIState() → UIState
  */
 
-import {
-  Widget2x2UIState,
-  WidgetRoleUIState,
-  Widget1x2RoleUIState,
-  WidgetExtraRow
-} from '../models/WidgetUIStates';
-import { ParsedPayload, ParsedRole } from '../utils/WidgetPayloadParser';
-import { WidgetDataHelper, ParsedExtraRow } from '../utils/WidgetDataHelper';
-import { getGameName, getGameColor, gameNameRes } from '../utils/WidgetUtils';
+import { Widget2x2UIState, Widget1x2RoleUIState, ParsedPayload, ParsedRole, WidgetDataHelper, getGameName } from 'widgetbase';
+import { WidgetRoleStateBuilder, WidgetRoleLayout } from './WidgetRoleStateBuilder';
 
 /**
  * 2x2 Widget ViewModel
  */
 export class Widget2x2ViewModel {
   /** 2x2 多游戏模式最多显示的游戏数量 */
-  private static readonly MAX_GAMES_2x2: number = 2;
+  private static readonly MAX_GAMES_2X2: number = 2;
 
   /**
    * 构建 2x2 Widget UIState
@@ -48,50 +41,17 @@ export class Widget2x2ViewModel {
     if (parsed.isSingleGame) {
       // 单游戏模式：详细布局
       result.isSingleGame = true;
-      result.singleGameState = Widget2x2ViewModel.buildRoleUIState(roles[0]);
+      result.singleGameState = WidgetRoleStateBuilder.buildRoleUIState(roles[0], WidgetRoleLayout.COMPACT_2X2);
     } else {
       // 多游戏模式：两个 1x2 纵向排列
       result.isSingleGame = false;
       result.multiGameStates = Widget2x2ViewModel.buildMultiGame1x2States(
         roles,
-        Widget2x2ViewModel.MAX_GAMES_2x2
+        Widget2x2ViewModel.MAX_GAMES_2X2
       );
     }
 
     return result;
-  }
-
-  /**
-   * 构建单个角色的详细 UIState（单游戏模式）
-   */
-  private static buildRoleUIState(role: ParsedRole): WidgetRoleUIState {
-    const state = new WidgetRoleUIState();
-
-    state.gameId = role.gameId;
-    state.gameName = getGameName(role.gameId);
-    state.gameNameResource = gameNameRes(role.gameId);
-    state.gameColor = getGameColor(role.gameId);
-    state.roleId = role.roleId;
-    state.roleIdWithPrefix = 'UID ' + role.roleId;
-    state.currentStamina = role.currentStamina;
-    state.maxStamina = role.maxStamina;
-    state.recoverySeconds = role.recoverySeconds;
-
-    // 使用 WidgetDataHelper 工具函数计算展示字段
-    state.isFull = WidgetDataHelper.calcIsFull(role.currentStamina, role.maxStamina, role.recoverySeconds);
-    state.recoveryTime = WidgetDataHelper.formatRecoveryTime(role.recoverySeconds, state.isFull);
-    state.staminaColorType = WidgetDataHelper.calcStaminaColorType(role.currentStamina, role.maxStamina);
-
-    // 星铁专属：后备开拓力
-    if (role.isStarRail()) {
-      state.reserveStamina = WidgetDataHelper.parseReserveStamina(role.rawJson);
-    }
-
-    // 解析额外数据行（2x2 Widget 最多显示 2 行）
-    const extraRows = WidgetDataHelper.parseExtraRows(role.rawJson, role.widgetRawJson, role.gameId, 3);
-    state.extraRows = Widget2x2ViewModel.convertExtraRows(extraRows);
-
-    return state;
   }
 
   /**
@@ -147,23 +107,5 @@ export class Widget2x2ViewModel {
     state.staminaColorType = WidgetDataHelper.calcStaminaColorType(role.currentStamina, role.maxStamina);
 
     return state;
-  }
-
-  /**
-   * 转换额外数据行（ParsedExtraRow → WidgetExtraRow）
-   */
-  private static convertExtraRows(rows: ParsedExtraRow[]): WidgetExtraRow[] {
-    const result: WidgetExtraRow[] = [];
-    for (let i = 0; i < rows.length; i++) {
-      const row = new WidgetExtraRow();
-      row.label = rows[i].label;
-      row.labelResource = WidgetDataHelper.getExtraRowLabelResource(rows[i].label);
-      row.value = rows[i].value;
-      // 如果 value 已经是最终格式（如绝区零 note_list），直接使用，不再转换
-      row.displayValue = rows[i].isRawValue ? rows[i].value : WidgetDataHelper.getExtraRowValueDisplay(rows[i].value);
-      row.valueColor = rows[i].valueColor;
-      result.push(row);
-    }
-    return result;
   }
 }

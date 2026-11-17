@@ -1,0 +1,312 @@
+/**
+ * CharacterCard — 角色列表卡片
+ *
+ * 根据 gameId 自动切换展示逻辑：
+ *   - genshin：元素圆形角标（左上）+ 命座（右上）+ 好感度（底部）
+ *   - starrail：属性+命途胶囊标签纵向（左上）+ 星魂（右上）+ 等级（底部）
+ *   - zzz：稀有度+属性+特性胶囊标签纵向（左上）+ 影画（右上）+ 等级+阵营（底部）
+ */
+import { themeManager, ThemeManager, ThemeFonts } from 'basic';
+import { GameDataSummary, GameId } from 'core';
+
+// 子组件导入
+import { GenshinTopLeftBadge } from './genshin/GenshinTopLeftBadge';
+import { GenshinBottomBar } from './genshin/GenshinBottomBar';
+import { StarRailTopLeftBadge } from './starrail/StarRailTopLeftBadge';
+import { StarRailBottomBar } from './starrail/StarRailBottomBar';
+import { ZZZTopLeftBadge } from './zzz/ZZZTopLeftBadge';
+import { ZZZBottomBar } from './zzz/ZZZBottomBar';
+
+@ComponentV2
+export struct CharacterCard {
+  @Param character: GameDataSummary = new GameDataSummary();
+  @Param gameId: GameId = GameId.GENSHIN;
+  @Param roleUid: string = '';
+  @Param onTap: (character: GameDataSummary) => void = (_c: GameDataSummary) => {};
+  @Local private tm: ThemeManager = themeManager;
+
+  build() {
+    Column() {
+      // 图片区 + 武器浮层
+      Stack({ alignContent: Alignment.BottomEnd }) {
+        Stack() {
+          // 背景色（按稀有度）
+          Column()
+            .width(this.tm.current.full)
+            .aspectRatio(1)
+            .backgroundColor(this.character.rarity >= 5
+              ? $r('app.color.dark_400')
+              : $r('app.color.dark_400'))
+
+          // 角色图片（原神用 iconUrl，星铁/绝区零用 squareIconUrl 半身立绘）
+          if (this.gameId === GameId.GENSHIN) {
+            if (this.character.iconUrl) {
+              Image(this.character.iconUrl)
+                .width(this.tm.current.full)
+                .aspectRatio(1)
+                .objectFit(ImageFit.Cover)
+                .alt($r('app.string.a11y_character_avatar', this.character.name))
+            }
+          } else {
+            if (this.character.squareIconUrl) {
+              Image(this.character.squareIconUrl)
+                .width(this.tm.current.full)
+                .aspectRatio(1)
+                .objectFit(ImageFit.Cover)
+                .alt($r('app.string.a11y_character_portrait', this.character.name))
+            }
+          }
+
+          // 底部渐变遮罩 + 角色名
+          Column() {
+            Text(this.character.name)
+              .font(ThemeFonts.FONT_BOLD_14)
+              .fontColor(this.tm.current.textOnDarkHigh)
+              .maxLines(1)
+              .textOverflow({ overflow: TextOverflow.Ellipsis })
+              .width(this.tm.current.full)
+              .padding({
+                left: this.tm.current.value8,
+                right: this.tm.current.value8,
+                bottom: this.tm.current.value8
+              })
+          }
+          .width(this.tm.current.full)
+          .justifyContent(FlexAlign.End)
+          .linearGradient({
+            angle: this.tm.current.a180,
+            colors: [[Color.Transparent, 0.0], [this.tm.current.overlayGradientEnd, 1.0]]
+          })
+          .padding({ top: this.tm.current.font20 })
+          .position({ x: 0, y: this.tm.current.full })
+          .markAnchor({ x: 0, y: this.tm.current.full })
+          .zIndex(2)
+
+          // 左上角标签区（根据游戏不同）
+          if (this.gameId === GameId.GENSHIN) {
+            GenshinTopLeftBadge({ element: this.character.extraText1 })
+          } else if (this.gameId === GameId.STARRAIL) {
+            StarRailTopLeftBadge({
+              element: this.character.extraText1,
+              path: parseInt(this.character.extraText2)
+            })
+          } else if (this.gameId === GameId.ZZZ) {
+            ZZZTopLeftBadge({
+              rarity: this.character.rarity,
+              element: parseInt(this.character.extraText1),
+              profession: parseInt(this.character.extraText2)
+            })
+          }
+
+          // 右上角：命座/星魂/影画数字
+          Text(`${this.character.extraInt1}`)
+            .fontSize(this.tm.current.font13)
+            .fontWeight(FontWeight.Bold)
+            .fontColor($r('app.color.gold'))
+            .width(this.tm.current.value22)
+            .height(this.tm.current.value22)
+            .borderRadius(this.tm.current.value22 / 2)
+            .backgroundColor($r('app.color.black'))
+            .border({ width: this.tm.current.value1p5, color: $r('app.color.gray_200') })
+            .textAlign(TextAlign.Center)
+            .position({ x: this.tm.current.full, y: this.tm.current.value8 })
+            .markAnchor({ x: this.tm.current.full, y: 0 })
+            .margin({ right: this.tm.current.value8 })
+            .zIndex(3)
+        }
+        .width(this.tm.current.full)
+        .aspectRatio(1)
+
+        // 武器浮层（右下角）—— 无武器槽位时不显示
+        if (this.character.hasWeaponSlot) {
+          Column() {
+            if (this.character.weaponLevel > 0 || this.character.weaponIconUrl !== '') {
+              // 有武器：显示图标 + 等级 + 精炼
+              Stack() {
+                if (this.character.weaponIconUrl) {
+                  Image(this.character.weaponIconUrl)
+                    .width(this.tm.current.full)
+                    .height(this.tm.current.full)
+                    .objectFit(ImageFit.Contain)
+                    .alt($r('app.string.a11y_character_weapon', this.character.name))
+                } else {
+                  Column()
+                    .width(this.tm.current.full)
+                    .height(this.tm.current.full)
+                    .backgroundColor($r('app.color.gray_600'))
+                }
+              }
+              .layoutWeight(1)
+              .width(this.tm.current.full)
+
+              Row({ space: this.tm.current.value2 }) {
+                Text($r('app.string.character_weapon_level_prefix', this.character.weaponLevel))
+                  .fontSize(this.tm.current.font11)
+                  .fontWeight(FontWeight.Medium)
+                  .fontColor(this.tm.current.textOnDarkGhost)
+                  .layoutWeight(1)
+                  .textAlign(TextAlign.Start)
+                Text(this.gameId === GameId.STARRAIL
+                  ? `S${this.character.weaponAffix}`
+                  : `R${this.character.weaponAffix}`)
+                  .fontSize(this.tm.current.font11)
+                  .fontWeight(FontWeight.Bold)
+                  .fontColor(this.tm.current.accentRefine)
+                  .backgroundColor(this.tm.current.accentRefineBg)
+                  .borderRadius(this.tm.current.value2)
+                  .padding({ left: this.tm.current.value2, right: this.tm.current.value2 })
+              }
+              .width(this.tm.current.full)
+              .height(this.tm.current.font18)
+              .padding({ left: this.tm.current.value4, right: this.tm.current.value4 })
+              .alignItems(VerticalAlign.Center)
+            } else {
+              // 无武器：禁止圆圈 + "未装备"提示
+              Column({ space: this.tm.current.value4 }) {
+                // 禁止圆圈图标
+                Stack() {
+                  Column()
+                    .width(this.tm.current.value22)
+                    .height(this.tm.current.value22)
+                    .borderRadius(this.tm.current.value22 / 2)
+                    .border({ width: this.tm.current.value2, color: $r('app.color.gray_700') })
+                  Column()
+                    .width(this.tm.current.value2)
+                    .height(this.tm.current.font24)
+                    .backgroundColor($r('app.color.gray_700'))
+                    .rotate({ angle: 45 })
+                }
+                .width(this.tm.current.value22)
+                .height(this.tm.current.value22)
+                .opacity(0.4)
+
+                Text($r('app.string.character_weapon_none'))
+                  .fontSize(this.tm.current.font12)
+                  .fontColor(this.tm.current.colorTextSecondary)
+                  .opacity(0.7)
+              }
+              .width(this.tm.current.full)
+              .layoutWeight(1)
+              .justifyContent(FlexAlign.Center)
+              .alignItems(HorizontalAlign.Center)
+            }
+          }
+          .width(this.tm.current.value64)
+          .height(this.tm.current.value64)
+          .backgroundColor($r('app.color.black'))
+          .borderRadius({ topLeft: this.tm.current.radius8, topRight: 0, bottomLeft: 0, bottomRight: 0 })
+          .border({ width: { top: 1, left: 1 }, color: $r('app.color.gray_200') })
+          .clip(true)
+          .zIndex(4)
+        }
+      }
+      .width(this.tm.current.full)
+      .aspectRatio(1)
+      .clip(true)
+
+      // 底部信息栏（根据游戏不同）
+      if (this.gameId === GameId.GENSHIN) {
+        GenshinBottomBar({
+          level: this.character.level,
+          fetter: this.character.extraInt2
+        })
+      } else if (this.gameId === GameId.STARRAIL) {
+        StarRailBottomBar({ level: this.character.level })
+      } else {
+        ZZZBottomBar({
+          level: this.character.level,
+          groupIconUrl: this.character.groupIconUrl ?? ''
+        })
+      }
+    }
+    .width(this.tm.current.full)
+    .backgroundColor(this.tm.current.colorSurfaceCard)
+    .borderRadius(this.tm.current.radius12)
+    .border({ width: this.tm.current.value1, color: this.tm.current.colorDivider })
+    .clip(true)
+    .shadow({
+      radius: this.tm.current.shadowRadius,
+      color: this.tm.current.shadowColor,
+      offsetY: this.tm.current.shadowOffsetY
+    })
+    .accessibilityText($r('app.string.a11y_character_card', this.character.name))
+    .onClick(() => { this.onTap(this.character) })
+  }
+}
+
+// ─── Preview ─────────────────────────────────────────────────────
+
+@Preview
+@ComponentV2
+export struct CharacterCardPreview {
+  build() {
+    GridRow({
+      columns: { xs: 2, sm: 3, md: 4, lg: 5 },
+      gutter: 8
+    }) {
+      // 原神角色
+      GridCol() {
+        CharacterCard({
+          character: (() => {
+            const c = new GameDataSummary();
+            c.gameId = GameId.GENSHIN;
+            c.name = '纳西妲';
+            c.rarity = 5;
+            c.level = 90;
+            c.extraInt1 = 6;
+            c.extraInt2 = 10;
+            c.extraText1 = 'Dendro';
+            c.extraText2 = '10';
+            c.weaponLevel = 90;
+            c.weaponAffix = 1;
+            c.weaponRarity = 5;
+            return c;
+          })(),
+          gameId: GameId.GENSHIN
+        })
+      }
+      // 星铁角色
+      GridCol() {
+        CharacterCard({
+          character: (() => {
+            const c = new GameDataSummary();
+            c.gameId = GameId.STARRAIL;
+            c.name = '黑天鹅';
+            c.rarity = 5;
+            c.level = 80;
+            c.extraInt1 = 4;
+            c.extraText1 = 'wind';
+            c.extraText2 = '4';
+            c.weaponLevel = 80;
+            c.weaponAffix = 1;
+            c.weaponRarity = 5;
+            return c;
+          })(),
+          gameId: GameId.STARRAIL
+        })
+      }
+      // 绝区零角色
+      GridCol() {
+        CharacterCard({
+          character: (() => {
+            const c = new GameDataSummary();
+            c.gameId = GameId.ZZZ;
+            c.name = '柏妮思';
+            c.rarity = 5;
+            c.level = 60;
+            c.extraInt1 = 3;
+            c.extraText1 = '200';
+            c.extraText2 = '1';
+            c.weaponLevel = 60;
+            c.weaponAffix = 1;
+            c.weaponRarity = 5;
+            return c;
+          })(),
+          gameId: GameId.ZZZ
+        })
+      }
+    }
+    .padding(16)
+    .backgroundColor('#1a1a2e')
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "routerMap": [
+    {
+      "name": "GenshinDailyDetail",
+      "pageSourceFile": "src/main/ets/pages/GenshinDailyDetailPage.ets",
+      "buildFunction": "GenshinDailyDetailPageBuilder"
+    },
+    {
+      "name": "StarRailDailyDetail",
+      "pageSourceFile": "src/main/ets/pages/StarRailDailyDetailPage.ets",
+      "buildFunction": "StarRailDailyDetailPageBuilder"
+    },
+    {
+      "name": "ZZZDailyDetail",
+      "pageSourceFile": "src/main/ets/pages/ZZZDailyDetailPage.ets",
+      "buildFunction": "ZZZDailyDetailPageBuilder"
+    }
+  ]
+}

@@ -4,6 +4,7 @@ import { RdbManager } from '../../../main/ets/db/RdbManager';
 import { SCHEMA_REGISTRY } from '../../../main/ets/SchemaRegistry';
 import { BBSRepository } from '../../../main/ets/MihoyoKit/repository/BBSRepository';
 import { AccountRow } from '../../../main/ets/MihoyoKit/model/AccountRow';
+import { GameId } from '../../../main/ets/common/constants/GameId';
 import { GameRoleRow } from '../../../main/ets/MihoyoKit/model/GameRoleRow';
 import { GameRoleDao } from '../../../main/ets/MihoyoKit/db/BBSDao';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
@@ -18,9 +19,6 @@ function makeAccount(username: string): AccountRow {
   const row = new AccountRow();
   row.username = username;
   row.cookie = 'cookie_' + username;
-  row.stoken = '';
-  row.stuid = '';
-  row.mid = '';
   row.isActive = 0;
   row.createTime = 0;
   row.updateTime = 0;
@@ -31,7 +29,7 @@ function makeAccount(username: string): AccountRow {
   return row;
 }
 
-function makeGameRole(accountId: string, gameId: string, roleId: string): GameRoleRow {
+function makeGameRole(accountId: string, gameId: GameId, roleId: string): GameRoleRow {
   const row = new GameRoleRow();
   row.accountId = accountId;
   row.gameId = gameId;
@@ -122,7 +120,7 @@ export default function bbsRepositoryTest() {
       expect(acc !== null).assertTrue();
       if (acc !== null) {
         const accIdStr = String(acc.id);
-        await gameRoleDao.upsertAll([makeGameRole(accIdStr, 'genshin', 'r_cascade')]);
+        await gameRoleDao.upsertAll([makeGameRole(accIdStr, GameId.GENSHIN, 'r_cascade')]);
         const rolesBefore = await repo.getGameRoles(accIdStr);
         expect(rolesBefore.length).assertEqual(1);
 
@@ -141,8 +139,8 @@ export default function bbsRepositoryTest() {
       if (acc !== null) {
         const accIdStr = String(acc.id);
         await gameRoleDao.upsertAll([
-          makeGameRole(accIdStr, 'genshin', 'r1'),
-          makeGameRole(accIdStr, 'starrail', 'r2')
+          makeGameRole(accIdStr, GameId.GENSHIN, 'r1'),
+          makeGameRole(accIdStr, GameId.STARRAIL, 'r2')
         ]);
         const result = await repo.getGameRoles(accIdStr);
         expect(result.length).assertEqual(2);
@@ -158,8 +156,8 @@ export default function bbsRepositoryTest() {
       if (acc1 !== null && acc2 !== null) {
         const acc1IdStr = String(acc1.id);
         const acc2IdStr = String(acc2.id);
-        await gameRoleDao.upsertAll([makeGameRole(acc1IdStr, 'genshin', 'r_f1')]);
-        await gameRoleDao.upsertAll([makeGameRole(acc2IdStr, 'genshin', 'r_f2')]);
+        await gameRoleDao.upsertAll([makeGameRole(acc1IdStr, GameId.GENSHIN, 'r_f1')]);
+        await gameRoleDao.upsertAll([makeGameRole(acc2IdStr, GameId.GENSHIN, 'r_f2')]);
         const result = await repo.getGameRoles(acc1IdStr);
         expect(result.length).assertEqual(1);
         expect(result[0].accountId).assertEqual(acc1IdStr);
@@ -173,12 +171,12 @@ export default function bbsRepositoryTest() {
       if (acc !== null) {
         const accIdStr = String(acc.id);
         await gameRoleDao.upsertAll([
-          makeGameRole(accIdStr, 'genshin', 'r_g'),
-          makeGameRole(accIdStr, 'starrail', 'r_s')
+          makeGameRole(accIdStr, GameId.GENSHIN, 'r_g'),
+          makeGameRole(accIdStr, GameId.STARRAIL, 'r_s')
         ]);
-        const result = await repo.getGameRolesByGame(accIdStr, 'genshin');
+        const result = await repo.getGameRolesByGame(accIdStr, GameId.GENSHIN);
         expect(result.length).assertEqual(1);
-        expect(result[0].gameId).assertEqual('genshin');
+        expect(result[0].gameId).assertEqual(GameId.GENSHIN);
       }
     });
 
@@ -188,7 +186,7 @@ export default function bbsRepositoryTest() {
       expect(acc !== null).assertTrue();
       if (acc !== null) {
         const accIdStr = String(acc.id);
-        await gameRoleDao.upsertAll([makeGameRole(accIdStr, 'genshin', 'r_del')]);
+        await gameRoleDao.upsertAll([makeGameRole(accIdStr, GameId.GENSHIN, 'r_del')]);
         await repo.deleteGameRoles(accIdStr);
         const result = await repo.getGameRoles(accIdStr);
         expect(result.length).assertEqual(0);

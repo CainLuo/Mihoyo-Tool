@@ -12,5 +12,7 @@
 /.appanalyzer
 **/hm_*
 /logs
-# Hvigor generated HAR profile
+# Hvigor generated module profiles（构建时按 product 重写，不入库）
 /core/BuildProfile.ets
+/common/*/BuildProfile.ets
+/features/*/BuildProfile.ets

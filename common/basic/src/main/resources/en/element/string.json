@@ -1,0 +1,196 @@
+{
+  "string": [
+    {
+      "name": "app_display_name",
+      "value": "MiYouYou"
+    },
+    {
+      "name": "common_arrow_right",
+      "value": "›"
+    },
+    {
+      "name": "launch_subtitle",
+      "value": "Game Stats Assistant"
+    },
+    {
+      "name": "launch_init_failed_title",
+      "value": "Initialization Failed"
+    },
+    {
+      "name": "launch_init_failed_desc",
+      "value": "App data could not be initialized. Tap retry. If it keeps failing, restart the app or check device storage."
+    },
+    {
+      "name": "launch_retry",
+      "value": "Retry"
+    },
+    {
+      "name": "my_account_role_count",
+      "value": "%d game roles"
+    },
+    {
+      "name": "daily_note_task_all_received",
+      "value": "All Claimed"
+    },
+    {
+      "name": "daily_note_resin_title",
+      "value": "Original Resin"
+    },
+    {
+      "name": "daily_note_home_coin_title",
+      "value": "Realm Currency"
+    },
+    {
+      "name": "daily_note_daily_task_title",
+      "value": "Daily Commission Rewards"
+    },
+    {
+      "name": "daily_note_expedition_title",
+      "value": "Expedition Limit"
+    },
+    {
+      "name": "game_name_genshin",
+      "value": "Genshin Impact"
+    },
+    {
+      "name": "game_name_starrail",
+      "value": "Honkai: Star Rail"
+    },
+    {
+      "name": "game_name_zzz",
+      "value": "Zenless Zone Zero"
+    },
+    {
+      "name": "game_name_honkai3",
+      "value": "Honkai Impact 3rd"
+    },
+    {
+      "name": "server_genshin_cn_official",
+      "value": "Tianqiu (Official)"
+    },
+    {
+      "name": "server_starrail_cn_official",
+      "value": "Nameless Honor (Official)"
+    },
+    {
+      "name": "server_zzz_cn_official",
+      "value": "New Eridu (Official)"
+    },
+    {
+      "name": "sync_just_now",
+      "value": "Just synced"
+    },
+    {
+      "name": "dialog_confirm",
+      "value": "OK"
+    },
+    {
+      "name": "dialog_cancel",
+      "value": "Cancel"
+    },
+    {
+      "name": "dialog_sync",
+      "value": "Sync"
+    },
+    {
+      "name": "characters_switch_account_title",
+      "value": "Switch Account"
+    },
+    {
+      "name": "character_level_value",
+      "value": "Lv.%d"
+    },
+    {
+      "name": "character_fetter_value",
+      "value": "Fetter %d"
+    },
+    {
+      "name": "time_hours_minutes_recovery",
+      "value": "Recovers in %d h %d min"
+    },
+    {
+      "name": "time_minutes_recovery",
+      "value": "Recovers in %d min"
+    },
+    {
+      "name": "time_hours_minutes_after",
+      "value": "Recovers in %dh %dm"
+    },
+    {
+      "name": "time_minutes_after",
+      "value": "Recovers in %d min"
+    },
+    {
+      "name": "time_soon",
+      "value": "Recovering soon"
+    },
+    {
+      "name": "time_days_hours_available",
+      "value": "Available in %dd %dh"
+    },
+    {
+      "name": "time_hours_minutes_available",
+      "value": "Available in %dh %dm"
+    },
+    {
+      "name": "time_minutes_available",
+      "value": "Available in %d min"
+    },
+    {
+      "name": "time_soon_available",
+      "value": "Available soon"
+    },
+    {
+      "name": "feedback_refresh_error",
+      "value": "Refresh failed, check your connection"
+    },
+    {
+      "name": "my_section_notification",
+      "value": "Notifications"
+    },
+    {
+      "name": "common_dot_separator",
+      "value": "·"
+    },
+    {
+      "name": "common_uid_format",
+      "value": "UID %s"
+    },
+    {
+      "name": "split_placeholder_hint",
+      "value": "Tap an item on the left to view details"
+    },
+    {
+      "name": "material_list_empty_title",
+      "value": "No material data"
+    },
+    {
+      "name": "material_list_empty_desc",
+      "value": "Please calculate material requirements from character details"
+    },
+    {
+      "name": "material_list_empty_button",
+      "value": "Sync Now"
+    },
+    {
+      "name": "material_view_by_character",
+      "value": "By Character"
+    },
+    {
+      "name": "material_view_by_material",
+      "value": "By Material"
+    },
+    {
+      "name": "material_target_config_level_suffix",
+      "value": "Lv.%d"
+    },
+    {
+      "name": "device_fp_regenerate_success",
+      "value": "Device fingerprint regenerated. Syncing again."
+    },
+    {
+      "name": "device_fp_regenerate_failed",
+      "value": "Failed to regenerate the device fingerprint. Please try again later."
+    }
+  ]
+}

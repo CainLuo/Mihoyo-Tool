@@ -10,13 +10,10 @@
  *   payload JSON → parsePayload() → ParsedPayload (Model) → ViewModel.buildUIState() → UIState (View)
  */
 
-import { Widget4x4SingleGame } from '../components/Widget4x4SingleGame';
-import { Widget2x4SingleGame } from '../components/Widget2x4SingleGame';
-import { parsePayload, ParsedPayload } from '../utils/WidgetPayloadParser';
-import { Widget4x4UIState, WidgetColors } from '../models/WidgetUIStates';
-import { widgetGradient } from '../utils/WidgetUtils';
+import { Widget4x4SingleGame } from '../views/Widget4x4SingleGame';
+import { Widget2x4SingleGame } from '../views/Widget2x4SingleGame';
+import { parsePayload, ParsedPayload, Widget4x4UIState, WidgetColors, createWidgetGradient, DefaultTheme, formatUpdatedAtText, isWidgetDataStale } from 'widgetbase';
 import { Widget4x4ViewModel } from '../viewmodel/Widget4x4ViewModel';
-import { DefaultTheme } from '../../theme/DefaultTheme';
 
 /** 主题常量实例 */
 const theme = new DefaultTheme();
@@ -28,8 +25,27 @@ let storage: LocalStorage = new LocalStorage();
 struct Widget4x4 {
   @LocalStorageProp('payload') payloadJson: string = '';
 
+  /**
+   * 性能优化：同一 payload 字符串只解析/构建一次。
+   * build() 中会多次读取 ParsedPayload / UIState，缓存后避免重复 JSON.parse + ViewModel 计算。
+   */
+  private cachedPayloadJson: string = '';
+  private cachedParsed: ParsedPayload = parsePayload('');
+  private cachedUIState: Widget4x4UIState = Widget4x4ViewModel.buildUIState(parsePayload(''));
+
+  /** payload 变化时重建缓存，未变化时直接复用 */
+  private ensureCache(): void {
+    if (this.cachedPayloadJson === this.payloadJson) {
+      return;
+    }
+    this.cachedPayloadJson = this.payloadJson;
+    this.cachedParsed = parsePayload(this.payloadJson);
+    this.cachedUIState = Widget4x4ViewModel.buildUIState(this.cachedParsed);
+  }
+
   private getParsed(): ParsedPayload {
-    return parsePayload(this.payloadJson);
+    this.ensureCache();
+    return this.cachedParsed;
   }
 
   private getGameIds(): string[] {
@@ -37,7 +53,18 @@ struct Widget4x4 {
   }
 
   private getUIState(): Widget4x4UIState {
-    return Widget4x4ViewModel.buildUIState(this.getParsed());
+    this.ensureCache();
+    return this.cachedUIState;
+  }
+
+  /** 数据拉取时间（秒），0 表示从未成功拉取 */
+  private getUpdatedAt(): number {
+    return this.getParsed().updatedAt;
+  }
+
+  /** 数据是否已陈旧（超过 1 小时未刷新） */
+  private isDataStale(): boolean {
+    return isWidgetDataStale(this.getUpdatedAt(), Math.floor(Date.now() / 1000));
   }
 
   build() {
@@ -46,7 +73,7 @@ struct Widget4x4 {
       Column()
         .width(theme.full)
         .height(theme.full)
-        .linearGradient(widgetGradient(this.getGameIds()))
+        .linearGradient(createWidgetGradient(this.getGameIds()))
         .borderRadius(theme.radius16)
 
       // Content layer
@@ -65,14 +92,17 @@ struct Widget4x4 {
           .justifyContent(FlexAlign.Center)
         } else if (this.getUIState().isSingleGame) {
           // 单游戏模式：详细布局（使用 4x4 专用组件）
-          Widget4x4SingleGame({ role: this.getUIState().singleGameState })
+          Widget4x4SingleGame({
+            role: this.getUIState().singleGameState,
+            dataUpdatedAt: this.getUpdatedAt()
+          })
         } else {
           // 多游戏模式：两个 Widget2x4SingleGame + 分隔线 纵向排列
           Column() {
             // 第一个游戏
             Widget2x4SingleGame({ 
               role: this.getUIState().multiGameStates[0],
-              inNestedContainer: true 
+              isInNestedContainer: true 
             })
               .layoutWeight(1)
 
@@ -88,7 +118,7 @@ struct Widget4x4 {
               // 第二个游戏
               Widget2x4SingleGame({ 
                 role: this.getUIState().multiGameStates[1],
-                inNestedContainer: true 
+                isInNestedContainer: true 
               })
                 .layoutWeight(1)
             }
@@ -100,6 +130,23 @@ struct Widget4x4 {
       .width(theme.full)
       .height(theme.full)
       .padding(theme.value12)
+
+      // 数据新鲜度角标：单游戏由 Widget4x4Header 显示（UID 右侧）；
+      // 多游戏模式顶部是 2x4 子卡片，统一放右上角
+      if (this.getUpdatedAt() > 0 && !this.getUIState().isEmpty && !this.getUIState().isSingleGame) {
+        Column() {
+          Text(formatUpdatedAtText(this.getUpdatedAt(), Math.floor(Date.now() / 1000)))
+            .fontSize(theme.font10)
+            .fontColor(this.isDataStale() ? WidgetColors.STAMINA_MEDIUM : WidgetColors.WHITE)
+            .opacity(this.isDataStale() ? WidgetColors.OPACITY_TEXT_HIGH : WidgetColors.OPACITY_TEXT_GHOST)
+            .maxLines(1)
+        }
+        .width(theme.full)
+        .height(theme.full)
+        .padding({ top: theme.value6, right: theme.value10 })
+        .alignItems(HorizontalAlign.End)
+        .justifyContent(FlexAlign.Start)
+      }
     }
     .width(theme.full)
     .height(theme.full)

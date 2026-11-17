@@ -101,9 +101,6 @@ export default function zzzRepositoryTest() {
     acc.id = 20003;
     acc.username = 'zzz_repo_test_account';
     acc.cookie = '';
-    acc.stoken = '';
-    acc.stuid = '';
-    acc.mid = '';
     acc.isActive = 0;
     acc.createTime = 0;
     acc.updateTime = 0;

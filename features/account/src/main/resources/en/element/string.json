@@ -1,0 +1,248 @@
+{
+  "string": [
+    {
+      "name": "login_title",
+      "value": "Welcome"
+    },
+    {
+      "name": "login_button",
+      "value": "Login"
+    },
+    {
+      "name": "login_cookie_placeholder",
+      "value": "Paste your MiHoYo Cookie here"
+    },
+    {
+      "name": "login_tab_phone",
+      "value": "Phone"
+    },
+    {
+      "name": "login_tab_qrcode",
+      "value": "QR Code"
+    },
+    {
+      "name": "login_tab_cookie",
+      "value": "Cookie"
+    },
+    {
+      "name": "login_phone_placeholder",
+      "value": "Enter phone number"
+    },
+    {
+      "name": "login_send_sms_button",
+      "value": "Send Code"
+    },
+    {
+      "name": "login_code_placeholder",
+      "value": "Enter verification code"
+    },
+    {
+      "name": "login_back_to_phone",
+      "value": "Re-enter phone number"
+    },
+    {
+      "name": "login_resend_sms",
+      "value": "Resend"
+    },
+    {
+      "name": "login_sms_cooldown_seconds",
+      "value": "%ds"
+    },
+    {
+      "name": "login_qrcode_loading",
+      "value": "Loading QR code..."
+    },
+    {
+      "name": "login_qrcode_hint",
+      "value": "Scan with MiYouShe App to login"
+    },
+    {
+      "name": "login_qrcode_scanned",
+      "value": "Scanned, please confirm in the App"
+    },
+    {
+      "name": "login_qrcode_confirmed",
+      "value": "Logging in..."
+    },
+    {
+      "name": "login_qrcode_expired",
+      "value": "QR code expired, please refresh"
+    },
+    {
+      "name": "login_qrcode_refresh",
+      "value": "Refresh QR Code"
+    },
+    {
+      "name": "login_cookie_hint",
+      "value": "Cookie must contain stoken field. Use phone or QR code login instead"
+    },
+    {
+      "name": "login_cookie_no_stoken",
+      "value": "Cookie is missing the stoken field. Daily note sync will not work. Please use phone or QR code login, or provide a Cookie that includes stoken"
+    },
+    {
+      "name": "login_cookie_no_stoken_title",
+      "value": "Incomplete Cookie"
+    },
+    {
+      "name": "my_section_account",
+      "value": "Accounts"
+    },
+    {
+      "name": "my_section_appearance",
+      "value": "Appearance"
+    },
+    {
+      "name": "my_section_about",
+      "value": "About"
+    },
+    {
+      "name": "my_account_empty",
+      "value": "No accounts yet, tap to add"
+    },
+    {
+      "name": "my_account_add",
+      "value": "+ Add Account"
+    },
+    {
+      "name": "my_theme_label",
+      "value": "Theme"
+    },
+    {
+      "name": "my_about_version",
+      "value": "Version"
+    },
+    {
+      "name": "my_export_logs",
+      "value": "Export Logs"
+    },
+    {
+      "name": "my_clear_cache",
+      "value": "Clear Cache"
+    },
+    {
+      "name": "my_clear_cache_confirm_title",
+      "value": "Confirm Clear"
+    },
+    {
+      "name": "my_clear_cache_confirm_msg",
+      "value": "All local log files will be deleted. This cannot be undone."
+    },
+    {
+      "name": "my_clear_cache_success",
+      "value": "Freed %s"
+    },
+    {
+      "name": "my_clear_cache_failed",
+      "value": "Done, %d file(s) failed to delete"
+    },
+    {
+      "name": "my_export_logs_failed",
+      "value": "Export failed, please try again"
+    },
+    {
+      "name": "account_detail_title",
+      "value": "Account Detail"
+    },
+    {
+      "name": "account_detail_section_roles",
+      "value": "Linked Game Roles"
+    },
+    {
+      "name": "account_detail_section_actions",
+      "value": "Actions"
+    },
+    {
+      "name": "account_detail_relogin",
+      "value": "Log in again"
+    },
+    {
+      "name": "account_detail_refresh_cookie",
+      "value": "Refresh Cookie"
+    },
+    {
+      "name": "account_detail_refreshing_cookie",
+      "value": "Refreshing…"
+    },
+    {
+      "name": "account_detail_refresh_cookie_success",
+      "value": "Cookie refreshed"
+    },
+    {
+      "name": "account_detail_refresh_cookie_failed",
+      "value": "Failed to refresh cookie, please log in again"
+    },
+    {
+      "name": "account_detail_expired_tip",
+      "value": "Login has expired for this account"
+    },
+    {
+      "name": "account_detail_delete",
+      "value": "Delete This Account"
+    },
+    {
+      "name": "login_agreement_prefix",
+      "value": "By logging in, you agree to our"
+    },
+    {
+      "name": "login_agreement_terms",
+      "value": "Terms of Service"
+    },
+    {
+      "name": "login_agreement_and",
+      "value": "and"
+    },
+    {
+      "name": "login_agreement_privacy",
+      "value": "Privacy Policy"
+    },
+    {
+      "name": "login_cookie_security_hint",
+      "value": "Cookie is stored locally only and never uploaded to any server"
+    },
+    {
+      "name": "login_brand_desc",
+      "value": "All-in-one game stats viewer"
+    },
+    {
+      "name": "login_brand_feature1",
+      "value": "Character list & detail"
+    },
+    {
+      "name": "login_brand_feature2",
+      "value": "Real-time notes & resin reminder"
+    },
+    {
+      "name": "login_sms_sent_to_prefix",
+      "value": "Code sent to"
+    },
+    {
+      "name": "login_phone_label",
+      "value": "Phone Number"
+    },
+    {
+      "name": "login_code_label",
+      "value": "Verification Code"
+    },
+    {
+      "name": "login_cookie_label",
+      "value": "Cookie"
+    },
+    {
+      "name": "login_phone_hint",
+      "value": "Mainland China phone numbers only"
+    },
+    {
+      "name": "my_section_widget",
+      "value": "Widget Cards"
+    },
+    {
+      "name": "device_fp_regenerate",
+      "value": "Regenerate device fingerprint"
+    },
+    {
+      "name": "device_fp_regenerating",
+      "value": "Regenerating…"
+    }
+  ]
+}

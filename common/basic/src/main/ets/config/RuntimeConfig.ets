@@ -1,0 +1,15 @@
+import BuildProfile from 'BuildProfile';
+import { AppEnv, appEnvFromString } from 'core';
+
+/**
+ * RuntimeConfig — 运行时环境配置
+ *
+ * 直接从 hvigor buildProfileFields.APP_ENV 读取并转换为 AppEnv 枚举。
+ * entry 主进程读取 BuildProfile.APP_ENV 的统一入口。
+ * （卡片进程不能依赖本文件，widget/utils/WidgetLogger.ets 直接读取 BuildProfile.APP_ENV。）
+ *
+ * mock product      → APP_ENV = 'mock'    → AppEnv.MOCK
+ * uat product       → APP_ENV = 'uat'     → AppEnv.UAT
+ * release product   → APP_ENV = 'release' → AppEnv.RELEASE
+ */
+export const APP_ENV: AppEnv = appEnvFromString(String(BuildProfile.APP_ENV));

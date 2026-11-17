@@ -4,6 +4,12 @@ import { RdbManager } from '../../../main/ets/db/RdbManager';
 import { SCHEMA_REGISTRY } from '../../../main/ets/SchemaRegistry';
 import { BBSRepository } from '../../../main/ets/MihoyoKit/repository/BBSRepository';
 import { StarRailRepository } from '../../../main/ets/StarRailKit/repository/StarRailRepository';
+import {
+  StarRailAvatarBasicDao,
+  StarRailDailyNoteDao,
+  StarRailAvatarInfoDao,
+  StarRailAvatarComputeDao
+} from '../../../main/ets/StarRailKit/db/StarRailDao';
 import { AccountRow } from '../../../main/ets/MihoyoKit/model/AccountRow';
 import {
   StarRailAvatarBasicRow,
@@ -11,7 +17,6 @@ import {
   StarRailAvatarInfoRow,
   StarRailAvatarComputeRow
 } from '../../../main/ets/StarRailKit/model/StarRailRows';
-import { SyncMetaDao } from '../../../main/ets/sync/db/SyncMetaDao';
 import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
 
 async function getContext(): Promise<common.UIAbilityContext> {
@@ -103,7 +108,10 @@ function makeAvatarComputeRow(avatarId: string): StarRailAvatarComputeRow {
 export default function starRailRepositoryTest() {
   const bbsRepo = new BBSRepository();
   const repo = new StarRailRepository();
-  const syncMetaDao = new SyncMetaDao();
+  const avatarBasicDao = new StarRailAvatarBasicDao();
+  const dailyNoteDao = new StarRailDailyNoteDao();
+  const avatarInfoDao = new StarRailAvatarInfoDao();
+  const avatarComputeDao = new StarRailAvatarComputeDao();
 
   beforeAll(async () => {
     await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
@@ -111,9 +119,6 @@ export default function starRailRepositoryTest() {
     acc.id = 20002;
     acc.username = 'sr_repo_test_account';
     acc.cookie = '';
-    acc.stoken = '';
-    acc.stuid = '';
-    acc.mid = '';
     acc.isActive = 0;
     acc.createTime = 0;
     acc.updateTime = 0;
@@ -125,8 +130,8 @@ export default function starRailRepositoryTest() {
   });
 
   beforeEach(async () => {
-    await repo.deleteAvatarList(TEST_ACCOUNT_ID, TEST_ROLE_UID);
     const store = RdbManager.getRdbStore();
+    await store.executeSql('DELETE FROM starrail_avatar_basic WHERE account_id = ?', [TEST_ACCOUNT_ID]);
     await store.executeSql('DELETE FROM starrail_daily_note WHERE account_id = ?', [TEST_ACCOUNT_ID]);
     await store.executeSql('DELETE FROM starrail_avatar_info WHERE account_id = ?', [TEST_ACCOUNT_ID]);
     await store.executeSql('DELETE FROM starrail_avatar_compute WHERE account_id = ?', [TEST_ACCOUNT_ID]);
@@ -141,18 +146,9 @@ export default function starRailRepositoryTest() {
     });
 
     it('upsertAvatarList_oneRow_getAvatarListReturnsOne', 0, async () => {
-      await repo.upsertAvatarList(TEST_ACCOUNT_ID, TEST_ROLE_UID, [makeAvatarBasicRow('sr_avatar_001')]);
+      await avatarBasicDao.upsertAll([makeAvatarBasicRow('sr_avatar_001')]);
       const result = await repo.getAvatarList(TEST_ACCOUNT_ID, TEST_ROLE_UID);
       expect(result.length).assertEqual(1);
-    });
-
-    it('upsertAvatarList_updatesSyncMeta', 0, async () => {
-      await repo.upsertAvatarList(TEST_ACCOUNT_ID, TEST_ROLE_UID, [makeAvatarBasicRow('sr_avatar_sync')]);
-      const meta = await syncMetaDao.findOne(TEST_ACCOUNT_ID, TEST_ROLE_UID, 'starrail_avatar_basic');
-      expect(meta !== null).assertTrue();
-      if (meta !== null) {
-        expect(meta.syncStatus).assertEqual('success');
-      }
     });
 
     it('needsAvatarListSync_noRecord_returnsTrue', 0, async () => {
@@ -161,7 +157,12 @@ export default function starRailRepositoryTest() {
     });
 
     it('needsAvatarListSync_recentSync_returnsFalse', 0, async () => {
-      await repo.upsertAvatarList(TEST_ACCOUNT_ID, TEST_ROLE_UID, [makeAvatarBasicRow('sr_avatar_recent')]);
+      const store = RdbManager.getRdbStore();
+      const recentTime = Math.floor(Date.now() / 1000);
+      await store.executeSql(
+        "INSERT OR REPLACE INTO sync_meta (account_id, role_uid, data_type, last_sync_time, sync_status, error_msg) VALUES (?, ?, ?, ?, ?, ?)",
+        [TEST_ACCOUNT_ID, TEST_ROLE_UID, 'starrail_avatar_basic', recentTime, 'success', '']
+      );
       const result = await repo.needsAvatarListSync(TEST_ACCOUNT_ID, TEST_ROLE_UID);
       expect(result).assertFalse();
     });
@@ -183,20 +184,11 @@ export default function starRailRepositoryTest() {
     });
 
     it('upsertDailyNote_row_getDailyNoteReturnsRow', 0, async () => {
-      await repo.upsertDailyNote(TEST_ACCOUNT_ID, TEST_ROLE_UID, makeDailyNoteRow());
+      await dailyNoteDao.upsert(makeDailyNoteRow());
       const result = await repo.getDailyNote(TEST_ACCOUNT_ID, TEST_ROLE_UID);
       expect(result !== null).assertTrue();
       if (result !== null) {
         expect(result.currentStamina).assertEqual(180);
-      }
-    });
-
-    it('upsertDailyNote_updatesSyncMeta', 0, async () => {
-      await repo.upsertDailyNote(TEST_ACCOUNT_ID, TEST_ROLE_UID, makeDailyNoteRow());
-      const meta = await syncMetaDao.findOne(TEST_ACCOUNT_ID, TEST_ROLE_UID, 'starrail_daily_note');
-      expect(meta !== null).assertTrue();
-      if (meta !== null) {
-        expect(meta.syncStatus).assertEqual('success');
       }
     });
 
@@ -206,7 +198,7 @@ export default function starRailRepositoryTest() {
     });
 
     it('upsertAvatarDetails_oneRow_getAvatarDetailReturnsRow', 0, async () => {
-      await repo.upsertAvatarDetails(TEST_ACCOUNT_ID, TEST_ROLE_UID, [makeAvatarInfoRow('sr_info_001')]);
+      await avatarInfoDao.upsertAll([makeAvatarInfoRow('sr_info_001')]);
       const result = await repo.getAvatarDetail(TEST_ACCOUNT_ID, TEST_ROLE_UID, 'sr_info_001');
       expect(result !== null).assertTrue();
       if (result !== null) {
@@ -220,7 +212,7 @@ export default function starRailRepositoryTest() {
     });
 
     it('upsertAvatarCompute_row_getAvatarComputeReturnsRow', 0, async () => {
-      await repo.upsertAvatarCompute(TEST_ACCOUNT_ID, TEST_ROLE_UID, makeAvatarComputeRow('sr_compute_001'));
+      await avatarComputeDao.upsert(makeAvatarComputeRow('sr_compute_001'));
       const result = await repo.getAvatarCompute(TEST_ACCOUNT_ID, TEST_ROLE_UID, 'sr_compute_001');
       expect(result !== null).assertTrue();
       if (result !== null) {

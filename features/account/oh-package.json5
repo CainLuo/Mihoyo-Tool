@@ -1,0 +1,17 @@
+{
+  name: "account",
+  version: "1.0.0",
+  description: "登录、我的、账号详情",
+  main: "Index.ets",
+  dependencies: {
+    core: "file:../../core",
+    widgetbase: "file:../../common/widgetbase",
+    basic: "file:../../common/basic",
+    settings: "file:../settings",
+    legal: "file:../legal",
+    verification: "file:../verification",
+  },
+  devDependencies: {
+    "@ohos/hypium": "1.0.25",
+  },
+}

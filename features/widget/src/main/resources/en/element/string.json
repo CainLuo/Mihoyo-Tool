@@ -1,0 +1,112 @@
+{
+  "string": [
+    {
+      "name": "widget_reserve_stamina",
+      "value": "Reserved Power"
+    },
+    {
+      "name": "widget_grid_fight",
+      "value": "Divergent Universe"
+    },
+    {
+      "name": "widget_rogue_weekly",
+      "value": "Divergent Universe Weekly"
+    },
+    {
+      "name": "widget_vitality",
+      "value": "Daily Vitality"
+    },
+    {
+      "name": "widget_card_sign",
+      "value": "Scratch Card"
+    },
+    {
+      "name": "widget_uid_prefix",
+      "value": "UID "
+    },
+    {
+      "name": "widget_video_store",
+      "value": "Video Store"
+    },
+    {
+      "name": "widget_config_title",
+      "value": "Configure Widget"
+    },
+    {
+      "name": "widget_size_1x2",
+      "value": "1×2 Mini"
+    },
+    {
+      "name": "widget_size_2x2",
+      "value": "2×2 Standard"
+    },
+    {
+      "name": "widget_size_2x4",
+      "value": "2×4 Wide"
+    },
+    {
+      "name": "widget_size_4x4",
+      "value": "4×4 Large"
+    },
+    {
+      "name": "widget_size_1x2_desc",
+      "value": "1 account · 1 game · Stamina only"
+    },
+    {
+      "name": "widget_size_2x2_desc",
+      "value": "1 account · Up to 3 games · Detailed mode"
+    },
+    {
+      "name": "widget_size_2x4_desc",
+      "value": "Detailed: 1 account full data / Compact: 2 accounts stamina"
+    },
+    {
+      "name": "widget_size_4x4_desc",
+      "value": "Detailed: 1 account full data / Compact: 3 accounts stamina"
+    },
+    {
+      "name": "widget_select_account_hint",
+      "value": "Select an account to bind (single choice)"
+    },
+    {
+      "name": "widget_select_game_hint",
+      "value": "Select the game type to display"
+    },
+    {
+      "name": "widget_selected_count",
+      "value": "%1$d/%2$d roles selected"
+    },
+    {
+      "name": "widget_game_account_count",
+      "value": "%d accounts"
+    },
+    {
+      "name": "widget_btn_prev",
+      "value": "Previous"
+    },
+    {
+      "name": "widget_btn_next",
+      "value": "Next"
+    },
+    {
+      "name": "widget_btn_add",
+      "value": "Add to Home Screen"
+    },
+    {
+      "name": "widget_config_done_title",
+      "value": "Configuration Complete!"
+    },
+    {
+      "name": "widget_config_done_desc",
+      "value": "Widget is ready to be added to home screen"
+    },
+    {
+      "name": "widget_summary_size",
+      "value": "Size"
+    },
+    {
+      "name": "widget_summary_roles",
+      "value": "Selected Roles"
+    }
+  ]
+}

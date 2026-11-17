@@ -1,0 +1,22 @@
+/**
+ * TestSectionHeader — 测试页分区标题（仅 Debug 环境使用）
+ */
+import { themeManager, ThemeManager, ThemeFonts } from 'basic'
+
+@ComponentV2
+export struct TestSectionHeader {
+  @Param title: string = ''
+  @Local private tm: ThemeManager = themeManager
+
+  build() {
+    Text(this.title)
+      .font(ThemeFonts.FONT_14)
+      .fontColor(this.tm.current.colorTextSecondary)
+      .width(this.tm.current.full)
+      .padding({
+        top: this.tm.current.value8,
+        bottom: this.tm.current.value4,
+        left: this.tm.current.value4,
+      })
+  }
+}

@@ -85,7 +85,7 @@ ohpm.cmd install
 
 > `default` 主要用于 IDE 兜底和 `ohosTest`，不要用它区分运行环境。
 
-**签名说明**：`release` 使用 `Certificates/release/` 下的正式材料。`uat` / `mock` 必须在 AGC 为对应 Bundle ID 创建独立的调试证书和调试 Profile，并填入 `build-profile.json5` 的 `signingConfigs`；不能复用 release 签名。材料补齐前，`uat` / `mock` 只能构建出 unsigned HAP，不能安装。
+**签名说明**：`release` 使用 `Certificates/release/` 下的正式材料。`uat` / `mock` 保留各自 Bundle ID；模拟器可直接安装 unsigned HAP，`run.sh` 会优先使用 signed HAP，缺失时回退 unsigned。真机安装时，仍需为 `.uat` / `.mock` 分别申请绑定对应包名的调试 Profile；一套 p7b 只能对应一个 bundleName。
 
 ### 第五步：运行
 
@@ -104,7 +104,7 @@ bash run.sh release   # Release：正式包
 bash run.sh           # 交互选择（5 秒无输入默认 uat）
 ```
 
-脚本会自动启动模拟器（如未运行）、Clean、Build、安装、启动，一步到位。`uat` / `mock` 缺少签名材料时会在构建前直接报错，避免误装 unsigned 包。
+脚本会自动启动模拟器（如未运行）、Clean、Build、安装、启动，一步到位。`release` 必须使用 signed HAP；`uat` / `mock` 在模拟器上缺少签名时会回退到 unsigned HAP。
 
 ---
 
@@ -130,7 +130,7 @@ Mihoyo-Tool/
 │       ├── db/                     # RdbManager、SchemaRegistry、迁移基础设施
 │       └── sync/                   # 同步队列与同步模型
 ├── mock-service/                   # 本地 Node Mock 服务（fixtures + RPC）
-├── Certificates/                   # 签名材料（release / uat / mock 分开）
+├── Certificates/                   # 签名材料（release 正式签名；dev 调试材料备用）
 ├── AppScope/                       # 应用级资源（图标、应用名）
 ├── build-profile.json5             # 构建配置（product / buildMode / signingConfigs）
 ├── run.sh                          # 三环境构建安装脚本（macOS）

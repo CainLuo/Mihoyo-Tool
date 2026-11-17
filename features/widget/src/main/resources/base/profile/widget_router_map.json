@@ -1,0 +1,9 @@
+{
+  "routerMap": [
+    {
+      "name": "WidgetSettings",
+      "pageSourceFile": "src/main/ets/pages/WidgetSettingsPage.ets",
+      "buildFunction": "WidgetSettingsPageBuilder"
+    }
+  ]
+}

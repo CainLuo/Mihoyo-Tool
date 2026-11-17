@@ -1,5 +1,6 @@
 #!/bin/bash
-# 构建 entry@ohosTest HAP（entry + core 所有单元测试）
+# 构建 entry@ohosTest HAP（仅 entry 的 Ability / UI 冒烟测试）
+# core 的纯逻辑用例在 core/src/test，用 test-core.sh 运行
 # 构建成功 = 所有测试文件编译通过
 
 set -e

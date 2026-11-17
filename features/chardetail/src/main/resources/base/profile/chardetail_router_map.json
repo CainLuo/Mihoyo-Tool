@@ -1,0 +1,19 @@
+{
+  "routerMap": [
+    {
+      "name": "GenshinCharacterDetail",
+      "pageSourceFile": "src/main/ets/pages/GenshinCharacterDetailPage.ets",
+      "buildFunction": "GenshinCharacterDetailPageBuilder"
+    },
+    {
+      "name": "StarRailCharacterDetail",
+      "pageSourceFile": "src/main/ets/pages/StarRailCharacterDetailPage.ets",
+      "buildFunction": "StarRailCharacterDetailPageBuilder"
+    },
+    {
+      "name": "ZZZCharacterDetail",
+      "pageSourceFile": "src/main/ets/pages/ZZZCharacterDetailPage.ets",
+      "buildFunction": "ZZZCharacterDetailPageBuilder"
+    }
+  ]
+}

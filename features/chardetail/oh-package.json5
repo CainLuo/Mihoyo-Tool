@@ -1,0 +1,15 @@
+{
+  name: "chardetail",
+  version: "1.0.0",
+  description: "角色详情（三游戏）",
+  main: "Index.ets",
+  dependencies: {
+    core: "file:../../core",
+    widgetbase: "file:../../common/widgetbase",
+    basic: "file:../../common/basic",
+    material: "file:../material",
+  },
+  devDependencies: {
+    "@ohos/hypium": "1.0.25",
+  },
+}

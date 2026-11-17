@@ -25,11 +25,8 @@ import { formProvider } from '@kit.FormKit';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { preferences } from '@kit.ArkData';
 import { CoreInitializer, Logger, GameId, RetcodeKind, RetcodeRegistry } from 'core';
-import { APP_ENV } from '../config/RuntimeConfig';
-import { WidgetDataStoreBuilder } from '../widget/utils/WidgetDataStoreBuilder';
-import { WidgetUpdateNotifier } from '../widget/utils/WidgetUpdateNotifier';
-import { WidgetConfigStore } from '../widget/utils/WidgetConfigStore';
-import { WidgetDataStoreManager } from '../widget/utils/WidgetDataStoreManager';
+import { APP_ENV } from 'basic';
+import { WidgetDataStoreBuilder, WidgetUpdateNotifier, WidgetConfigStore, WidgetDataStoreManager } from 'widget';
 
 const TAG = 'WidgetSyncAbility';
 
@@ -50,17 +47,17 @@ let cachedPrefs: preferences.Preferences | null = null;
 
 /** IPC 返回值 */
 class SyncParcelable implements rpc.Parcelable {
-  success: boolean = false;
+  isSuccess: boolean = false;
   message: string = '';
 
-  constructor(success: boolean, message: string) {
-    this.success = success;
+  constructor(isSuccess: boolean, message: string) {
+    this.isSuccess = isSuccess;
     this.message = message;
   }
 
   marshalling(messageSequence: rpc.MessageSequence): boolean {
     try {
-      messageSequence.writeInt(this.success ? 1 : 0);
+      messageSequence.writeInt(this.isSuccess ? 1 : 0);
       messageSequence.writeString(this.message);
       return true;
     } catch (e) {
@@ -71,7 +68,7 @@ class SyncParcelable implements rpc.Parcelable {
 
   unmarshalling(messageSequence: rpc.MessageSequence): boolean {
     try {
-      this.success = messageSequence.readInt() === 1;
+      this.isSuccess = messageSequence.readInt() === 1;
       this.message = messageSequence.readString();
       return true;
     } catch (e) {
@@ -118,8 +115,8 @@ async function syncAllWidgets(context: common.UIAbilityContext): Promise<void> {
     }
 
     // 刷新 Widget 数据存储
-    const success = await WidgetDataStoreBuilder.refreshAndSave(context, undefined, false);
-    if (!success) {
+    const isSuccess = await WidgetDataStoreBuilder.refreshAndSave(context, undefined, false);
+    if (!isSuccess) {
       Logger.warn(TAG, 'syncAllWidgets: refreshAndSave failed');
       return;
     }
@@ -207,6 +204,10 @@ export default class WidgetSyncAbility extends UIAbility {
           return new SyncParcelable(false, `In cooldown, ${Math.floor(remaining / 60)} minutes remaining`);
         }
 
+        // 先置位并发锁再启动异步链：initCore 期间连点卡片也必须被拦下，
+        // 否则每次点击都会各自启动一条 syncAllWidgets 链（重复请求，更易触发人机验证）
+        isSyncing = true;
+
         // 初始化 core 模块（WidgetSyncAbility 是独立 UIAbility，需要单独初始化）
         CoreInitializer.initCore({ env: APP_ENV, context: this.context })
           .then(async () => {
@@ -217,7 +218,6 @@ export default class WidgetSyncAbility extends UIAbility {
             await WidgetConfigStore.init(this.context);
             
             // 执行同步
-            isSyncing = true;
             try {
               await syncAllWidgets(this.context);
               // 更新上次同步时间
@@ -232,6 +232,8 @@ export default class WidgetSyncAbility extends UIAbility {
           })
           .catch((initErr: Error) => {
             Logger.error(TAG, `CoreInitializer.initCore failed: ${initErr.message}`);
+            // 初始化失败也要释放锁，否则后续点击永远被 "Already syncing" 拦下
+            isSyncing = false;
           });
 
         return new SyncParcelable(true, 'Sync started');

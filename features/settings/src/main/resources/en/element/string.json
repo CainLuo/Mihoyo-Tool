@@ -1,0 +1,40 @@
+{
+  "string": [
+    {
+      "name": "my_theme_light",
+      "value": "Light"
+    },
+    {
+      "name": "my_theme_dark",
+      "value": "Dark"
+    },
+    {
+      "name": "my_theme_system",
+      "value": "System"
+    },
+    {
+      "name": "appearance_settings_title",
+      "value": "Appearance"
+    },
+    {
+      "name": "appearance_theme_light_desc",
+      "value": "Always use light mode"
+    },
+    {
+      "name": "appearance_theme_dark_desc",
+      "value": "Always use dark mode"
+    },
+    {
+      "name": "appearance_theme_system_desc",
+      "value": "Follow system dark/light mode"
+    },
+    {
+      "name": "appearance_settings_hint",
+      "value": "When \"Follow System\" is selected, the app automatically switches between dark and light mode based on system settings."
+    },
+    {
+      "name": "appearance_apply_failed",
+      "value": "Failed to switch appearance. Please try again."
+    }
+  ]
+}

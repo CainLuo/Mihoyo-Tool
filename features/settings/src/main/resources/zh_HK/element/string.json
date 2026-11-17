@@ -1,0 +1,40 @@
+{
+  "string": [
+    {
+      "name": "my_theme_light",
+      "value": "淺色"
+    },
+    {
+      "name": "my_theme_dark",
+      "value": "深色"
+    },
+    {
+      "name": "my_theme_system",
+      "value": "跟隨系統"
+    },
+    {
+      "name": "appearance_settings_title",
+      "value": "外觀設定"
+    },
+    {
+      "name": "appearance_theme_light_desc",
+      "value": "始終使用淺色介面"
+    },
+    {
+      "name": "appearance_theme_dark_desc",
+      "value": "始終使用深色介面"
+    },
+    {
+      "name": "appearance_theme_system_desc",
+      "value": "跟隨系統深色/淺色模式自動切換"
+    },
+    {
+      "name": "appearance_settings_hint",
+      "value": "選擇「跟隨系統」時，應用程式會根據系統設定自動切換深色/淺色模式。"
+    },
+    {
+      "name": "appearance_apply_failed",
+      "value": "切換外觀失敗，請重試"
+    }
+  ]
+}

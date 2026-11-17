@@ -1,0 +1,9 @@
+{
+  "routerMap": [
+    {
+      "name": "NotificationSettings",
+      "pageSourceFile": "src/main/ets/pages/NotificationSettingsPage.ets",
+      "buildFunction": "NotificationSettingsPageBuilder"
+    }
+  ]
+}

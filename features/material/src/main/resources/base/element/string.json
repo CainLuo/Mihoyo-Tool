@@ -1,0 +1,308 @@
+{
+  "string": [
+    {
+      "name": "tools_game_no_data",
+      "value": "暂无角色数据"
+    },
+    {
+      "name": "tools_game_status_not_computed",
+      "value": "%d 个角色 · 未计算"
+    },
+    {
+      "name": "tools_game_status_partial",
+      "value": "%d 个角色 · 已计算 %d 个"
+    },
+    {
+      "name": "tools_game_status_done",
+      "value": "%d 个角色 · 已全部计算"
+    },
+    {
+      "name": "material_list_syncing",
+      "value": "同步中..."
+    },
+    {
+      "name": "material_section_avatar",
+      "value": "角色材料"
+    },
+    {
+      "name": "material_section_needed",
+      "value": "所需材料"
+    },
+    {
+      "name": "material_section_skill",
+      "value": "技能材料"
+    },
+    {
+      "name": "material_section_weapon",
+      "value": "武器材料"
+    },
+    {
+      "name": "material_section_all",
+      "value": "全部材料"
+    },
+    {
+      "name": "genshin_material_list_title",
+      "value": "原神材料汇总"
+    },
+    {
+      "name": "starrail_material_list_title",
+      "value": "星穹铁道材料汇总"
+    },
+    {
+      "name": "zzz_material_list_title",
+      "value": "绝区零材料汇总"
+    },
+    {
+      "name": "material_section_light_cone",
+      "value": "光锥材料"
+    },
+    {
+      "name": "material_calc_title",
+      "value": "材料计算"
+    },
+    {
+      "name": "material_calc_empty_title",
+      "value": "暂无计算数据"
+    },
+    {
+      "name": "material_calc_empty_desc",
+      "value": "请先同步角色数据"
+    },
+    {
+      "name": "material_calc_refresh_hint",
+      "value": "↓ 下拉刷新材料数据"
+    },
+    {
+      "name": "material_calc_edit_targets",
+      "value": "调整养成目标"
+    },
+    {
+      "name": "material_calc_no_compute_hint",
+      "value": "该角色还没有计算结果，请在养成目标配置中选择该角色并开始计算。"
+    },
+    {
+      "name": "skill_target_title",
+      "value": "技能目标"
+    },
+    {
+      "name": "skill_normal",
+      "value": "普攻"
+    },
+    {
+      "name": "skill_skill",
+      "value": "战技"
+    },
+    {
+      "name": "skill_burst",
+      "value": "爆发"
+    },
+    {
+      "name": "skill_basic",
+      "value": "普攻"
+    },
+    {
+      "name": "skill_ultimate",
+      "value": "终结技"
+    },
+    {
+      "name": "skill_talent",
+      "value": "天赋"
+    },
+    {
+      "name": "skill_special",
+      "value": "特殊技"
+    },
+    {
+      "name": "skill_chain",
+      "value": "连携技"
+    },
+    {
+      "name": "skill_dodge",
+      "value": "闪避"
+    },
+    {
+      "name": "skill_assist",
+      "value": "支援"
+    },
+    {
+      "name": "skill_core",
+      "value": "核心技"
+    },
+    {
+      "name": "level_picker_title",
+      "value": "选择目标等级"
+    },
+    {
+      "name": "game_name_genshin_material",
+      "value": "原神材料总汇"
+    },
+    {
+      "name": "game_name_starrail_material",
+      "value": "崩坏：星穹铁道材料总汇"
+    },
+    {
+      "name": "game_name_zzz_material",
+      "value": "绝区零材料总汇"
+    },
+    {
+      "name": "material_section_currency",
+      "value": "经验书与摩拉"
+    },
+    {
+      "name": "material_section_materials",
+      "value": "其他材料"
+    },
+    {
+      "name": "material_target_config_title",
+      "value": "养成目标配置"
+    },
+    {
+      "name": "material_target_config_genshin_tip",
+      "value": "点击等级行设置当前等级和目标等级，系统将计算升级所需的材料。"
+    },
+    {
+      "name": "material_target_config_starrail_tip",
+      "value": "星穹铁道角色满级为 80 级，光锥满级为 80 级。\n注：技能等级为统一设置，实际计算时会应用到所有行迹。"
+    },
+    {
+      "name": "material_target_config_zzz_tip",
+      "value": "绝区零角色满级为 60 级，技能满级为 12 级，音擎满级为 60 级。\n注：绝区零有 6 个技能需要逐个配置。"
+    },
+    {
+      "name": "material_target_config_avatar_level",
+      "value": "角色等级"
+    },
+    {
+      "name": "material_target_config_skill_level",
+      "value": "技能等级"
+    },
+    {
+      "name": "material_target_config_weapon_level",
+      "value": "武器等级"
+    },
+    {
+      "name": "material_target_config_trace_level",
+      "value": "行迹等级"
+    },
+    {
+      "name": "material_target_config_light_cone_level",
+      "value": "光锥等级"
+    },
+    {
+      "name": "material_target_config_start_calc",
+      "value": "开始计算材料"
+    },
+    {
+      "name": "material_target_config_syncing",
+      "value": "同步数据中..."
+    },
+    {
+      "name": "material_target_config_current",
+      "value": "当前"
+    },
+    {
+      "name": "material_target_config_target",
+      "value": "目标"
+    },
+    {
+      "name": "genshin_skill_normal_attack",
+      "value": "普通攻击"
+    },
+    {
+      "name": "genshin_skill_elemental_skill",
+      "value": "元素战技"
+    },
+    {
+      "name": "genshin_skill_elemental_burst",
+      "value": "元素爆发"
+    },
+    {
+      "name": "starrail_skill_basic_attack",
+      "value": "普攻"
+    },
+    {
+      "name": "starrail_skill_skill",
+      "value": "战技"
+    },
+    {
+      "name": "starrail_skill_ultimate",
+      "value": "终结技"
+    },
+    {
+      "name": "starrail_skill_talent",
+      "value": "天赋"
+    },
+    {
+      "name": "zzz_skill_normal_attack",
+      "value": "普通攻击"
+    },
+    {
+      "name": "zzz_skill_dodge",
+      "value": "闪避"
+    },
+    {
+      "name": "zzz_skill_assist",
+      "value": "支援技"
+    },
+    {
+      "name": "zzz_skill_special",
+      "value": "特殊技"
+    },
+    {
+      "name": "zzz_skill_chain",
+      "value": "连携技"
+    },
+    {
+      "name": "zzz_skill_core",
+      "value": "核心技"
+    },
+    {
+      "name": "material_character_select_empty_title",
+      "value": "暂无角色数据"
+    },
+    {
+      "name": "material_character_select_empty_desc",
+      "value": "请先在角色页面同步数据"
+    },
+    {
+      "name": "material_character_select_count",
+      "value": "已选择 %d/%d 个角色"
+    },
+    {
+      "name": "material_character_select_start",
+      "value": "开始计算"
+    },
+    {
+      "name": "material_list_target_reached",
+      "value": "已达成目标"
+    },
+    {
+      "name": "material_target_config_required_title",
+      "value": "尚未设置养成目标"
+    },
+    {
+      "name": "material_target_config_required_message",
+      "value": "计算材料前需要先设置角色、技能和武器的目标等级。"
+    },
+    {
+      "name": "material_target_config_required_go",
+      "value": "去设置"
+    },
+    {
+      "name": "material_history",
+      "value": "历史记录"
+    },
+    {
+      "name": "material_target_config_saved",
+      "value": "养成目标已保存"
+    },
+    {
+      "name": "material_character_select_failed",
+      "value": "计算失败，请稍后重试"
+    },
+    {
+      "name": "material_character_select_no_needs",
+      "value": "所选角色已全部满级，无需培养材料"
+    }
+  ]
+}

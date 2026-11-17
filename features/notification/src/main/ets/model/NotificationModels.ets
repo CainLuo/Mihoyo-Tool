@@ -1,0 +1,194 @@
+/**
+ * NotificationModels.ets — 通知功能数据模型
+ */
+import { GameId } from 'core';
+
+/** 通知样式枚举 */
+export enum NotificationStyle {
+  /** 每个角色独立一条普通文本通知 */
+  STYLE_A = 'styleA',
+  /** 所有角色合并为一条多行文本通知 */
+  STYLE_B = 'styleB',
+}
+
+/** 单个账号下某游戏的通知配置（UI 展示用） */
+export class GameNotificationConfig {
+  /** 游戏 ID：GameId.GENSHIN | GameId.STARRAIL | GameId.ZZZ */
+  gameId: GameId = GameId.GENSHIN;
+  /** 游戏显示名称（多语言 Resource） */
+  gameName: ResourceStr = '';
+  /** 体力名称（多语言 Resource，如原粹树脂 / 开拓力 / 电量） */
+  staminaName: ResourceStr = '';
+  /** 该账号该游戏的通知开关 */
+  isEnabled: boolean = true;
+  /** 阈值（1 ≤ threshold ≤ maxStamina） */
+  threshold: number = 0;
+  /** 来自 DB 的 API 实际上限，0 表示尚无数据 */
+  maxStamina: number = 0;
+  /** 每点恢复秒数（原神 480，星铁/绝区零 360） */
+  secondsPerUnit: number = 0;
+}
+
+/** 单个账号的通知配置（UI 展示用） */
+export class AccountNotificationConfig {
+  accountId: string = '';
+  nickname: string = '';
+  uid: string = '';
+  avatarUrl: string = '';
+  /** 只包含该账号实际拥有的游戏 */
+  games: GameNotificationConfig[] = [];
+  /** 折叠/展开状态 */
+  isExpanded: boolean = true;
+}
+
+/** 持久化到 preferences 的全局通知设置 */
+export class NotificationSettings {
+  /** 总开关 */
+  isEnabled: boolean = false;
+  /** 通知样式 */
+  style: NotificationStyle = NotificationStyle.STYLE_A;
+}
+
+/** 持久化到 preferences 的单个游戏通知配置，key = "{accountId}_{gameId}" */
+export class GameNotificationSetting {
+  isEnabled: boolean = true;
+  threshold: number = 0;
+}
+
+/** 持久化到 preferences 的通知状态条目，key = "{accountId}_{roleUid}_{gameId}" */
+export class NotificationStateEntry {
+  /** 系统分配的 reminderId（用于取消） */
+  reminderId: number = -1;
+  /** 调度时的 Recovery_Time 快照（秒） */
+  recoveryTimeSnapshot: number = -1;
+  /** 对应的阈值 */
+  threshold: number = 0;
+  /** 调度时的 Unix 时间戳（秒） */
+  scheduledAt: number = 0;
+}
+
+/**
+ * 持久化到 preferences 的「即时通知已发送」标记，key = "{accountId}_{roleUid}_{gameId}"。
+ *
+ * 单独存放而不复用 NotificationStateEntry：后者的 `reminderId < 0` 表示「没有有效代理提醒」，
+ * 读回时直接丢弃，无法表达「已发过即时通知」。
+ */
+export class NotifyMarker {
+  /** 发送即时通知时的阈值（-1 表示从未通知） */
+  threshold: number = -1;
+  /** 发送时刻（Unix 时间戳，秒） */
+  notifiedAt: number = 0;
+}
+
+/** 游戏常量（每点恢复秒数） */
+export class GameStaminaConstants {
+  /**
+   * 每点体力恢复所需秒数（游戏机制固定值，与 PizzaHelperUnited 一致）
+   * 原神：8 分钟/格，星铁/绝区零：6 分钟/格
+   * API 不返回此值，由游戏机制决定，多年未变。
+   */
+  static readonly GENSHIN_SECONDS_PER_UNIT: number = 480;  // 8 分钟
+  static readonly STARRAIL_SECONDS_PER_UNIT: number = 360; // 6 分钟
+  static readonly ZZZ_SECONDS_PER_UNIT: number = 360;      // 6 分钟
+
+  /** 各游戏默认阈值（满值的 80%，仅作 fallback，实际以 maxStamina × 0.8 为准） */
+  static readonly GENSHIN_DEFAULT_THRESHOLD: number = 160;   // 200 × 80%
+  static readonly STARRAIL_DEFAULT_THRESHOLD: number = 240;  // 300 × 80%
+  static readonly ZZZ_DEFAULT_THRESHOLD: number = 192;       // 240 × 80%
+
+  /** 各游戏 fallback 上限（DB 无数据时使用，仅影响首次同步前的 UI 显示） */
+  static readonly GENSHIN_MAX_FALLBACK: number = 200;
+  static readonly STARRAIL_MAX_FALLBACK: number = 300;
+  static readonly ZZZ_MAX_FALLBACK: number = 240;
+
+  /** 代理提醒上限（API 10+ 普通应用） */
+  static readonly REMINDER_LIMIT: number = 30;
+
+  /** 根据 gameId 返回 fallback 上限 */
+  static getFallbackMax(gameId: GameId): number {
+    if (gameId === GameId.GENSHIN) {
+      return GameStaminaConstants.GENSHIN_MAX_FALLBACK;
+    }
+    if (gameId === GameId.STARRAIL) {
+      return GameStaminaConstants.STARRAIL_MAX_FALLBACK;
+    }
+    return GameStaminaConstants.ZZZ_MAX_FALLBACK;
+  }
+
+  /** 根据 gameId 返回每点体力恢复秒数 */
+  static getSecondsPerUnit(gameId: GameId): number {
+    if (gameId === GameId.GENSHIN) {
+      return GameStaminaConstants.GENSHIN_SECONDS_PER_UNIT;
+    }
+    if (gameId === GameId.STARRAIL) {
+      return GameStaminaConstants.STARRAIL_SECONDS_PER_UNIT;
+    }
+    return GameStaminaConstants.ZZZ_SECONDS_PER_UNIT;
+  }
+}
+
+/**
+ * 游戏名称 / 体力名称的资源映射。
+ *
+ * - UI 层（通知设置页）直接取 `Resource`，交给 ArkUI 做多语言渲染；
+ * - 服务层（代理提醒文案）按 key 通过 resourceManager 取当前语言字符串，
+ *   取不到时使用英文 fallback。
+ *
+ * 三个游戏的映射只保留这一份，避免页面与服务各写一套 if 链。
+ */
+export class GameStaminaResources {
+  /** 游戏名称资源 key */
+  static getGameNameKey(gameId: GameId): string {
+    if (gameId === GameId.GENSHIN) {
+      return 'game_name_genshin';
+    }
+    if (gameId === GameId.STARRAIL) {
+      return 'game_name_starrail';
+    }
+    return 'game_name_zzz';
+  }
+
+  /** 体力名称资源 key */
+  static getStaminaNameKey(gameId: GameId): string {
+    if (gameId === GameId.GENSHIN) {
+      return 'notification_stamina_genshin';
+    }
+    if (gameId === GameId.STARRAIL) {
+      return 'notification_stamina_starrail';
+    }
+    return 'notification_stamina_zzz';
+  }
+
+  /** 游戏名称英文 fallback（resourceManager 取不到时使用） */
+  static getGameNameFallback(gameId: GameId): string {
+    if (gameId === GameId.GENSHIN) {
+      return 'Genshin Impact';
+    }
+    if (gameId === GameId.STARRAIL) {
+      return 'Honkai: Star Rail';
+    }
+    return 'Zenless Zone Zero';
+  }
+
+  /** 体力名称英文 fallback（resourceManager 取不到时使用） */
+  static getStaminaNameFallback(gameId: GameId): string {
+    if (gameId === GameId.GENSHIN) {
+      return 'Resin';
+    }
+    if (gameId === GameId.STARRAIL) {
+      return 'Trailblaze Power';
+    }
+    return 'Battery';
+  }
+
+  /** 体力名称 Resource（通知设置页 UI 使用） */
+  static getStaminaName(gameId: GameId): Resource {
+    if (gameId === GameId.GENSHIN) {
+      return $r('app.string.notification_stamina_genshin');
+    }
+    if (gameId === GameId.STARRAIL) {
+      return $r('app.string.notification_stamina_starrail');
+    }
+    return $r('app.string.notification_stamina_zzz');
+  }
+}

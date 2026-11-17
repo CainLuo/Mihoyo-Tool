@@ -1,0 +1,133 @@
+/**
+ * MyPage — 我的页面（View 层，普通内容组件）
+ */
+import { common } from '@kit.AbilityKit'
+import { themeManager, ThemeManager, AppRoutes, AccountSignal } from 'basic'
+import { SettingRow } from '../views/SettingRow'
+import { MyAccountVM } from '../model/MyModels'
+import { AccountListSection } from '../views/AccountListSection'
+import { AppearanceSection } from '../views/AppearanceSection'
+import { AboutSection } from '../views/AboutSection'
+import { SectionHeader } from '../views/SectionHeader'
+import { AppearanceSettingsParam } from 'settings'
+import { MyViewModel } from '../viewmodel/MyViewModel'
+
+@ComponentV2
+export struct MyPage {
+  @Param detailStack: NavPathStack = new NavPathStack()
+  @Param isSplit: boolean = false
+  @Local private tm: ThemeManager = themeManager
+  @Local private vm: MyViewModel = new MyViewModel()
+  @Local private themeMode: number = MyViewModel.getCachedThemeMode()
+  @Local private signal: AccountSignal = AccountSignal.getInstance()
+  private uiCtx: UIContext | null = null
+
+  aboutToAppear(): void {
+    this.uiCtx = this.getUIContext()
+    this.vm.loadAccounts()
+    this.loadSavedColorMode()
+  }
+
+  @Monitor('signal.version')
+  onAccountDataChanged(_monitor: IMonitor): void {
+    this.vm.loadAccounts()
+  }
+
+  private getAbilityContext(): common.UIAbilityContext | null {
+    const ctx = this.uiCtx
+    if (ctx === null) { return null }
+    const hostCtx = ctx.getHostContext()
+    if (hostCtx === undefined) { return null }
+    return hostCtx as common.UIAbilityContext
+  }
+
+  private loadSavedColorMode(): void {
+    const abilityCtx = this.getAbilityContext()
+    if (abilityCtx === null) { return }
+    this.vm.loadSavedColorMode(abilityCtx).then((mode: number) => {
+      this.themeMode = mode
+    })
+  }
+
+  /** 窄屏 push / 宽屏 replacePath 统一入口 */
+  private openDetail(name: string, param: Object | null): void {
+    if (this.isSplit) {
+      this.detailStack.replacePath({ name: name, param: param })
+    } else {
+      this.detailStack.pushPathByName(name, param)
+    }
+  }
+
+  build() {
+    Scroll() {
+      Column({ space: this.tm.current.font20 }) {
+        SectionHeader({ title: $r('app.string.my_section_account') })
+        AccountListSection({
+          accounts: this.vm.accounts,
+          onAccountTap: (account: MyAccountVM) => {
+            this.openDetail(AppRoutes.ACCOUNT_DETAIL, account)
+          },
+          onAddTap: () => {
+            this.openDetail(AppRoutes.LOGIN, null)
+          }
+        })
+
+        SectionHeader({ title: $r('app.string.my_section_appearance') })
+        AppearanceSection({
+          themeMode: this.themeMode,
+          onTap: () => {
+            const param = new AppearanceSettingsParam()
+            param.themeMode = this.themeMode
+            param.onThemeChange = (mode: number) => { this.themeMode = mode }
+            this.openDetail(AppRoutes.APPEARANCE_SETTINGS, param)
+          }
+        })
+
+        SectionHeader({ title: $r('app.string.my_section_widget') })
+        Column() {
+          SettingRow({
+            label: $r('app.string.my_section_widget'),
+            onTap: () => {
+              this.openDetail(AppRoutes.WIDGET_SETTINGS, this.vm.accounts)
+            }
+          })
+        }
+        .width(this.tm.current.full)
+        .backgroundColor(this.tm.current.colorSurfaceCard)
+        .borderRadius(this.tm.current.radius12)
+        .clip(true)
+
+        SectionHeader({ title: $r('app.string.my_section_notification') })
+        Column() {
+          SettingRow({
+            label: $r('app.string.my_section_notification'),
+            onTap: () => {
+              this.openDetail(AppRoutes.NOTIFICATION_SETTINGS, null)
+            }
+          })
+        }
+        .width(this.tm.current.full)
+        .backgroundColor(this.tm.current.colorSurfaceCard)
+        .borderRadius(this.tm.current.radius12)
+        .clip(true)
+
+        SectionHeader({ title: $r('app.string.my_section_about') })
+        AboutSection({ vm: this.vm })
+
+        Row().height(this.tm.current.value40)
+      }
+      .width(this.tm.current.full)
+      .padding({
+        top: this.tm.current.font16,
+        left: this.tm.current.font20,
+        right: this.tm.current.font20
+      })
+    }
+    .scrollBar(BarState.Off)
+    .width(this.tm.current.full)
+    .height(this.tm.current.full)
+    .align(Alignment.Top)
+    .edgeEffect(EdgeEffect.Spring)
+    .backgroundColor(this.tm.current.colorPageBg)
+  }
+}

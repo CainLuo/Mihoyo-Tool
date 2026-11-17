@@ -1,0 +1,80 @@
+{
+  "string": [
+    {
+      "name": "characters_placeholder_title",
+      "value": "No Character Data"
+    },
+    {
+      "name": "characters_placeholder_desc",
+      "value": "Link an account and sync to view your character roster"
+    },
+    {
+      "name": "characters_no_data_hint",
+      "value": "No characters yet, tap refresh to sync"
+    },
+    {
+      "name": "characters_refresh_cooldown_title",
+      "value": "Refresh Rate Limited"
+    },
+    {
+      "name": "characters_refresh_cooldown_msg",
+      "value": "Synced within 30 minutes. Frequent refreshes may trigger CAPTCHA. Continue anyway?"
+    },
+    {
+      "name": "character_weapon_level_prefix",
+      "value": "Lv.%d"
+    },
+    {
+      "name": "character_weapon_none",
+      "value": "No Weapon"
+    },
+    {
+      "name": "feedback_characters_refresh_success",
+      "value": "Characters updated"
+    },
+    {
+      "name": "a11y_character_card",
+      "value": "%s character card, tap to view details"
+    },
+    {
+      "name": "a11y_character_avatar",
+      "value": "%s avatar"
+    },
+    {
+      "name": "a11y_character_portrait",
+      "value": "%s portrait"
+    },
+    {
+      "name": "a11y_character_weapon",
+      "value": "%s weapon"
+    },
+    {
+      "name": "a11y_element_icon",
+      "value": "%s element"
+    },
+    {
+      "name": "a11y_path_icon",
+      "value": "Path icon"
+    },
+    {
+      "name": "a11y_rarity_icon",
+      "value": "%s rarity"
+    },
+    {
+      "name": "a11y_element_icon_generic",
+      "value": "Element icon"
+    },
+    {
+      "name": "a11y_profession_icon",
+      "value": "Profession icon"
+    },
+    {
+      "name": "a11y_faction_icon",
+      "value": "Faction icon"
+    },
+    {
+      "name": "characters_refresh_busy",
+      "value": "Refreshing in progress. Please don't refresh repeatedly."
+    }
+  ]
+}

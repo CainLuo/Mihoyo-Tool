@@ -1,0 +1,248 @@
+{
+  "string": [
+    {
+      "name": "login_title",
+      "value": "欢迎登录"
+    },
+    {
+      "name": "login_button",
+      "value": "登录"
+    },
+    {
+      "name": "login_cookie_placeholder",
+      "value": "请粘贴米游社 Cookie"
+    },
+    {
+      "name": "login_tab_phone",
+      "value": "手机号"
+    },
+    {
+      "name": "login_tab_qrcode",
+      "value": "扫码"
+    },
+    {
+      "name": "login_tab_cookie",
+      "value": "Cookie"
+    },
+    {
+      "name": "login_phone_placeholder",
+      "value": "请输入手机号"
+    },
+    {
+      "name": "login_send_sms_button",
+      "value": "获取验证码"
+    },
+    {
+      "name": "login_code_placeholder",
+      "value": "请输入验证码"
+    },
+    {
+      "name": "login_back_to_phone",
+      "value": "重新输入手机号"
+    },
+    {
+      "name": "login_resend_sms",
+      "value": "重新发送"
+    },
+    {
+      "name": "login_sms_cooldown_seconds",
+      "value": "%ds"
+    },
+    {
+      "name": "login_qrcode_loading",
+      "value": "二维码加载中..."
+    },
+    {
+      "name": "login_qrcode_hint",
+      "value": "使用米游社 App 扫码登录"
+    },
+    {
+      "name": "login_qrcode_scanned",
+      "value": "已扫码，请在 App 内确认"
+    },
+    {
+      "name": "login_qrcode_confirmed",
+      "value": "登录中..."
+    },
+    {
+      "name": "login_qrcode_expired",
+      "value": "二维码已过期，请刷新"
+    },
+    {
+      "name": "login_qrcode_refresh",
+      "value": "刷新二维码"
+    },
+    {
+      "name": "login_cookie_hint",
+      "value": "Cookie 必须包含 stoken 字段，建议通过手机号或二维码登录"
+    },
+    {
+      "name": "login_cookie_no_stoken",
+      "value": "Cookie 缺少 stoken 字段，便笺同步将无法正常工作。请使用手机号或二维码登录，或提供包含 stoken 的完整 Cookie"
+    },
+    {
+      "name": "login_cookie_no_stoken_title",
+      "value": "Cookie 不完整"
+    },
+    {
+      "name": "my_section_account",
+      "value": "账号管理"
+    },
+    {
+      "name": "my_section_appearance",
+      "value": "外观设置"
+    },
+    {
+      "name": "my_section_about",
+      "value": "关于"
+    },
+    {
+      "name": "my_account_empty",
+      "value": "暂无账号，点击添加"
+    },
+    {
+      "name": "my_account_add",
+      "value": "+ 添加账号"
+    },
+    {
+      "name": "my_theme_label",
+      "value": "主题"
+    },
+    {
+      "name": "my_about_version",
+      "value": "版本"
+    },
+    {
+      "name": "my_export_logs",
+      "value": "导出日志"
+    },
+    {
+      "name": "my_clear_cache",
+      "value": "清理缓存"
+    },
+    {
+      "name": "my_clear_cache_confirm_title",
+      "value": "确认清理"
+    },
+    {
+      "name": "my_clear_cache_confirm_msg",
+      "value": "将删除所有本地日志文件，此操作不可撤销"
+    },
+    {
+      "name": "my_clear_cache_success",
+      "value": "已释放 %s"
+    },
+    {
+      "name": "my_clear_cache_failed",
+      "value": "清理完成，%d 个文件删除失败"
+    },
+    {
+      "name": "my_export_logs_failed",
+      "value": "导出失败，请重试"
+    },
+    {
+      "name": "account_detail_title",
+      "value": "账号详情"
+    },
+    {
+      "name": "account_detail_section_roles",
+      "value": "绑定的游戏角色"
+    },
+    {
+      "name": "account_detail_section_actions",
+      "value": "操作"
+    },
+    {
+      "name": "account_detail_relogin",
+      "value": "重新登录"
+    },
+    {
+      "name": "account_detail_refresh_cookie",
+      "value": "刷新 Cookie"
+    },
+    {
+      "name": "account_detail_refreshing_cookie",
+      "value": "刷新中…"
+    },
+    {
+      "name": "account_detail_refresh_cookie_success",
+      "value": "Cookie 已刷新"
+    },
+    {
+      "name": "account_detail_refresh_cookie_failed",
+      "value": "刷新 Cookie 失败，请重新登录"
+    },
+    {
+      "name": "account_detail_expired_tip",
+      "value": "该账号登录已过期"
+    },
+    {
+      "name": "account_detail_delete",
+      "value": "删除此账号"
+    },
+    {
+      "name": "login_agreement_prefix",
+      "value": "登录即表示您同意"
+    },
+    {
+      "name": "login_agreement_terms",
+      "value": "用户协议"
+    },
+    {
+      "name": "login_agreement_and",
+      "value": "与"
+    },
+    {
+      "name": "login_agreement_privacy",
+      "value": "隐私政策"
+    },
+    {
+      "name": "login_cookie_security_hint",
+      "value": "Cookie 仅存储在本地设备，不会上传至任何服务器"
+    },
+    {
+      "name": "login_brand_desc",
+      "value": "多款游戏数据一站式查看"
+    },
+    {
+      "name": "login_brand_feature1",
+      "value": "角色列表 · 详情查看"
+    },
+    {
+      "name": "login_brand_feature2",
+      "value": "实时便笺 · 树脂提醒"
+    },
+    {
+      "name": "login_sms_sent_to_prefix",
+      "value": "验证码已发送至"
+    },
+    {
+      "name": "login_phone_label",
+      "value": "手机号"
+    },
+    {
+      "name": "login_code_label",
+      "value": "验证码"
+    },
+    {
+      "name": "login_cookie_label",
+      "value": "Cookie"
+    },
+    {
+      "name": "login_phone_hint",
+      "value": "仅支持中国大陆手机号"
+    },
+    {
+      "name": "my_section_widget",
+      "value": "Widget 卡片"
+    },
+    {
+      "name": "device_fp_regenerate",
+      "value": "重新生成设备指纹"
+    },
+    {
+      "name": "device_fp_regenerating",
+      "value": "重新生成中…"
+    }
+  ]
+}

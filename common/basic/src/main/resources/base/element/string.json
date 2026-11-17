@@ -1,0 +1,220 @@
+{
+  "string": [
+    {
+      "name": "app_display_name",
+      "value": "米悠悠"
+    },
+    {
+      "name": "common_arrow_right",
+      "value": "›"
+    },
+    {
+      "name": "launch_subtitle",
+      "value": "游戏数据助手"
+    },
+    {
+      "name": "launch_init_failed_title",
+      "value": "初始化失败"
+    },
+    {
+      "name": "launch_init_failed_desc",
+      "value": "应用数据初始化未完成，请点击重试。若反复失败，请重启应用或检查设备存储空间。"
+    },
+    {
+      "name": "launch_retry",
+      "value": "重试"
+    },
+    {
+      "name": "home_game_count_format",
+      "value": "%d 个游戏"
+    },
+    {
+      "name": "home_no_data_hint",
+      "value": "暂无数据，点击同步"
+    },
+    {
+      "name": "home_account_avatar_desc",
+      "value": "账号头像"
+    },
+    {
+      "name": "home_placeholder_title",
+      "value": "还没有绑定账号"
+    },
+    {
+      "name": "home_placeholder_desc",
+      "value": "绑定米游社账号后，即可查看原神、星穹铁道等游戏的战绩数据"
+    },
+    {
+      "name": "home_placeholder_button",
+      "value": "去绑定账号"
+    },
+    {
+      "name": "my_account_role_count",
+      "value": "%d 个游戏角色"
+    },
+    {
+      "name": "daily_note_task_all_received",
+      "value": "已全部领取"
+    },
+    {
+      "name": "daily_note_resin_title",
+      "value": "原粹树脂"
+    },
+    {
+      "name": "daily_note_home_coin_title",
+      "value": "洞天财富 · 洞天宝钱"
+    },
+    {
+      "name": "daily_note_daily_task_title",
+      "value": "每日委托奖励"
+    },
+    {
+      "name": "daily_note_expedition_title",
+      "value": "探索派遣限制"
+    },
+    {
+      "name": "game_name_genshin",
+      "value": "原神"
+    },
+    {
+      "name": "game_name_starrail",
+      "value": "崩坏：星穹铁道"
+    },
+    {
+      "name": "game_name_zzz",
+      "value": "绝区零"
+    },
+    {
+      "name": "game_name_honkai3",
+      "value": "崩坏3"
+    },
+    {
+      "name": "server_genshin_cn_official",
+      "value": "天空岛"
+    },
+    {
+      "name": "server_starrail_cn_official",
+      "value": "星穹列车"
+    },
+    {
+      "name": "server_zzz_cn_official",
+      "value": "新艾利都"
+    },
+    {
+      "name": "sync_just_now",
+      "value": "刚刚同步"
+    },
+    {
+      "name": "dialog_confirm",
+      "value": "确定"
+    },
+    {
+      "name": "dialog_cancel",
+      "value": "取消"
+    },
+    {
+      "name": "dialog_sync",
+      "value": "同步"
+    },
+    {
+      "name": "characters_switch_account_title",
+      "value": "切换账号"
+    },
+    {
+      "name": "character_level_value",
+      "value": "Lv.%d"
+    },
+    {
+      "name": "character_fetter_value",
+      "value": "好感 %d"
+    },
+    {
+      "name": "time_hours_minutes_recovery",
+      "value": "将于 %d 小时 %d 分钟后全部恢复"
+    },
+    {
+      "name": "time_minutes_recovery",
+      "value": "将于 %d 分钟后全部恢复"
+    },
+    {
+      "name": "time_hours_minutes_after",
+      "value": "%d小时%d分钟后恢复"
+    },
+    {
+      "name": "time_minutes_after",
+      "value": "%d分钟后恢复"
+    },
+    {
+      "name": "time_soon",
+      "value": "即将恢复"
+    },
+    {
+      "name": "time_days_hours_available",
+      "value": "%d天%d小时后可用"
+    },
+    {
+      "name": "time_hours_minutes_available",
+      "value": "%d小时%d分钟后可用"
+    },
+    {
+      "name": "time_minutes_available",
+      "value": "%d分钟后可用"
+    },
+    {
+      "name": "time_soon_available",
+      "value": "即将可用"
+    },
+    {
+      "name": "feedback_refresh_error",
+      "value": "刷新失败，请检查网络连接"
+    },
+    {
+      "name": "my_section_notification",
+      "value": "通知设置"
+    },
+    {
+      "name": "common_dot_separator",
+      "value": "·"
+    },
+    {
+      "name": "common_uid_format",
+      "value": "UID %s"
+    },
+    {
+      "name": "split_placeholder_hint",
+      "value": "点击左侧内容查看详情"
+    },
+    {
+      "name": "material_list_empty_title",
+      "value": "暂无材料数据"
+    },
+    {
+      "name": "material_list_empty_desc",
+      "value": "请先在角色详情页计算材料需求"
+    },
+    {
+      "name": "material_list_empty_button",
+      "value": "去同步"
+    },
+    {
+      "name": "material_view_by_character",
+      "value": "按角色"
+    },
+    {
+      "name": "material_view_by_material",
+      "value": "按材料"
+    },
+    {
+      "name": "material_target_config_level_suffix",
+      "value": "%d 级"
+    },
+    {
+      "name": "device_fp_regenerate_success",
+      "value": "已重新生成设备指纹，正在重新同步"
+    },
+    {
+      "name": "device_fp_regenerate_failed",
+      "value": "重新生成设备指纹失败，请稍后再试"
+    }
+  ]
+}

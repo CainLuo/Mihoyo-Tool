@@ -1,0 +1,12 @@
+{
+  "module": {
+    "name": "material",
+    "type": "har",
+    "deviceTypes": [
+      "default",
+      "tablet",
+      "2in1"
+    ],
+    "routerMap": "$profile:material_router_map"
+  }
+}

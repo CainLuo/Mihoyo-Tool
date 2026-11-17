@@ -1,0 +1,80 @@
+{
+  "string": [
+    {
+      "name": "characters_placeholder_title",
+      "value": "還沒有角色數據"
+    },
+    {
+      "name": "characters_placeholder_desc",
+      "value": "綁定帳號並同步後，即可查看各遊戲的角色列表"
+    },
+    {
+      "name": "characters_no_data_hint",
+      "value": "暫無角色數據，點擊刷新同步"
+    },
+    {
+      "name": "characters_refresh_cooldown_title",
+      "value": "刷新頻率限制"
+    },
+    {
+      "name": "characters_refresh_cooldown_msg",
+      "value": "30 分鐘內已同步過，頻繁刷新可能觸發人機校驗，是否繼續刷新？"
+    },
+    {
+      "name": "character_weapon_level_prefix",
+      "value": "Lv.%d"
+    },
+    {
+      "name": "character_weapon_none",
+      "value": "未裝備"
+    },
+    {
+      "name": "feedback_characters_refresh_success",
+      "value": "角色數據已更新"
+    },
+    {
+      "name": "a11y_character_card",
+      "value": "%s 角色卡片，點擊查看詳情"
+    },
+    {
+      "name": "a11y_character_avatar",
+      "value": "%s 頭像"
+    },
+    {
+      "name": "a11y_character_portrait",
+      "value": "%s 立繪"
+    },
+    {
+      "name": "a11y_character_weapon",
+      "value": "%s 武器"
+    },
+    {
+      "name": "a11y_element_icon",
+      "value": "%s 元素"
+    },
+    {
+      "name": "a11y_path_icon",
+      "value": "命途圖標"
+    },
+    {
+      "name": "a11y_rarity_icon",
+      "value": "%s 稀有度"
+    },
+    {
+      "name": "a11y_element_icon_generic",
+      "value": "元素圖標"
+    },
+    {
+      "name": "a11y_profession_icon",
+      "value": "特性圖標"
+    },
+    {
+      "name": "a11y_faction_icon",
+      "value": "陣營圖標"
+    },
+    {
+      "name": "characters_refresh_busy",
+      "value": "正在刷新，請勿頻繁刷新"
+    }
+  ]
+}

@@ -1,0 +1,240 @@
+{
+  "string": [
+    {
+      "name": "genshin_daily_title",
+      "value": "Real-Time Notes"
+    },
+    {
+      "name": "genshin_daily_data_delay_hint",
+      "value": "*Data refresh may be slightly delayed. Please refer to the actual in-game data."
+    },
+    {
+      "name": "daily_note_task_label",
+      "value": "Daily Tasks"
+    },
+    {
+      "name": "daily_note_adventure_label",
+      "value": "Adventure EXP"
+    },
+    {
+      "name": "daily_note_stored_adventure_label",
+      "value": "Stored Adventure EXP"
+    },
+    {
+      "name": "daily_note_task_not_received",
+      "value": "Reward Unclaimed"
+    },
+    {
+      "name": "daily_note_archon_quest_title",
+      "value": "Archon Quests"
+    },
+    {
+      "name": "daily_note_archon_quest_done",
+      "value": "All Done"
+    },
+    {
+      "name": "daily_note_weekly_boss_title",
+      "value": "Enemies of Note"
+    },
+    {
+      "name": "daily_note_weekly_boss_subtitle",
+      "value": "Remaining half-off challenges this week"
+    },
+    {
+      "name": "daily_note_transformer_title",
+      "value": "Parametric Transformer"
+    },
+    {
+      "name": "daily_note_transformer_ready",
+      "value": "Ready"
+    },
+    {
+      "name": "daily_note_transformer_done",
+      "value": "Preparation Complete"
+    },
+    {
+      "name": "daily_note_expedition_finished",
+      "value": "Completed"
+    },
+    {
+      "name": "daily_note_expedition_ongoing",
+      "value": "Exploring"
+    },
+    {
+      "name": "daily_note_expedition_remain_prefix",
+      "value": "Remaining: "
+    },
+    {
+      "name": "starrail_daily_title",
+      "value": "Star Rail Notes"
+    },
+    {
+      "name": "zzz_daily_title",
+      "value": "ZZZ Notes"
+    },
+    {
+      "name": "daily_note_section_daily",
+      "value": "Daily"
+    },
+    {
+      "name": "daily_note_section_universe",
+      "value": "Universe"
+    },
+    {
+      "name": "daily_note_section_shop",
+      "value": "Shop"
+    },
+    {
+      "name": "daily_note_section_other",
+      "value": "Other"
+    },
+    {
+      "name": "daily_note_stamina",
+      "value": "Trailblaze Power"
+    },
+    {
+      "name": "daily_note_reserve_stamina",
+      "value": "Reserve Stamina"
+    },
+    {
+      "name": "daily_note_reserve_stamina_full_value",
+      "value": "%d (Full)"
+    },
+    {
+      "name": "daily_note_expedition_sr",
+      "value": "Expeditions"
+    },
+    {
+      "name": "daily_note_train_score",
+      "value": "Daily Training"
+    },
+    {
+      "name": "daily_note_cocoon",
+      "value": "Echo of War"
+    },
+    {
+      "name": "daily_note_rogue_score",
+      "value": "Simulated Universe"
+    },
+    {
+      "name": "daily_note_rogue_tourn",
+      "value": "Divergent Universe"
+    },
+    {
+      "name": "daily_note_rogue_tourn_locked",
+      "value": "Locked"
+    },
+    {
+      "name": "daily_note_rogue_exp_full",
+      "value": "EXP Full"
+    },
+    {
+      "name": "daily_note_grid_fight",
+      "value": "Gold & Gears"
+    },
+    {
+      "name": "daily_note_grid_fight_locked",
+      "value": "Locked"
+    },
+    {
+      "name": "daily_note_energy",
+      "value": "Battery"
+    },
+    {
+      "name": "daily_note_vitality",
+      "value": "Vitality"
+    },
+    {
+      "name": "daily_note_vitality_done",
+      "value": "Daily vitality complete"
+    },
+    {
+      "name": "daily_note_vitality_hint",
+      "value": "Complete daily tasks for vitality"
+    },
+    {
+      "name": "daily_note_vhs_sale",
+      "value": "Video Store"
+    },
+    {
+      "name": "daily_note_card_sign",
+      "value": "Scratch Card"
+    },
+    {
+      "name": "daily_note_temple",
+      "value": "Hollow Zero"
+    },
+    {
+      "name": "daily_note_member_card",
+      "value": "Member Card"
+    },
+    {
+      "name": "daily_note_cafe",
+      "value": "Café"
+    },
+    {
+      "name": "daily_note_vhs_done",
+      "value": "Settled"
+    },
+    {
+      "name": "daily_note_vhs_doing",
+      "value": "Open"
+    },
+    {
+      "name": "daily_note_vhs_no",
+      "value": "Closed"
+    },
+    {
+      "name": "daily_note_card_done",
+      "value": "Done"
+    },
+    {
+      "name": "daily_note_card_no",
+      "value": "Not Done"
+    },
+    {
+      "name": "daily_note_temple_unknown",
+      "value": "Unknown"
+    },
+    {
+      "name": "daily_note_temple_running",
+      "value": "Running"
+    },
+    {
+      "name": "daily_note_temple_done",
+      "value": "Done"
+    },
+    {
+      "name": "daily_note_temple_idle",
+      "value": "Idle"
+    },
+    {
+      "name": "daily_note_temple_currency",
+      "value": "Currency: %d"
+    },
+    {
+      "name": "daily_note_member_no",
+      "value": "Not Active"
+    },
+    {
+      "name": "daily_note_member_active",
+      "value": "Active"
+    },
+    {
+      "name": "daily_note_member_expired",
+      "value": "Expired"
+    },
+    {
+      "name": "daily_note_cafe_no",
+      "value": "Closed"
+    },
+    {
+      "name": "daily_note_cafe_open",
+      "value": "Open"
+    },
+    {
+      "name": "daily_note_cafe_done",
+      "value": "Settled"
+    }
+  ]
+}

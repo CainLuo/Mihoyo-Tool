@@ -6,6 +6,7 @@
  */
 
 import { describe, it, expect, beforeAll, afterAll } from '@ohos/hypium';
+import { common } from '@kit.AbilityKit';
 import { GenshinMaterialBagDao } from '../../../main/ets/GenshinKit/db/MaterialBagDao';
 import { StarRailMaterialBagDao } from '../../../main/ets/StarRailKit/db/MaterialBagDao';
 import { ZZZMaterialBagDao } from '../../../main/ets/ZZZKit/db/MaterialBagDao';
@@ -14,23 +15,27 @@ import { RdbManager } from '../../../main/ets/db/RdbManager';
 import { SCHEMA_REGISTRY } from '../../../main/ets/SchemaRegistry';
 import { AccountDao } from '../../../main/ets/MihoyoKit/db/BBSDao';
 import { AccountRow } from '../../../main/ets/MihoyoKit/model/AccountRow';
-import { GameId } from '../../../main/ets/common/constants/GameId';
-import UIAbility from '@ohos.app.ability.UIAbility';
-import AbilityConstant from '@ohos.app.ability.AbilityConstant';
+import AbilityDelegatorRegistry from '@ohos.app.ability.abilityDelegatorRegistry';
+
+async function getContext(): Promise<common.UIAbilityContext> {
+  const delegator = AbilityDelegatorRegistry.getAbilityDelegator();
+  const ability = await delegator.getCurrentTopAbility();
+  return ability.context as common.UIAbilityContext;
+}
 
 let genshinDao: GenshinMaterialBagDao;
 let starrailDao: StarRailMaterialBagDao;
 let zzzDao: ZZZMaterialBagDao;
 let accountDao: AccountDao;
 const TEST_ACCOUNT_ID = 'test_material_bag_account';
+const TEST_ROLE_UID = 'test_material_bag_role';
 
 export default function materialBagDaoTest() {
   describe('MaterialBagDao', () => {
 
     beforeAll(async () => {
       // 确保 RDB 已初始化
-      const context = getContext(this) as UIAbilityContext;
-      await RdbManager.init(context, SCHEMA_REGISTRY);
+      await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
       genshinDao = new GenshinMaterialBagDao();
       starrailDao = new StarRailMaterialBagDao();
       zzzDao = new ZZZMaterialBagDao();
@@ -71,15 +76,15 @@ export default function materialBagDaoTest() {
       row2.count = 50;
       row2.source = 'api';
 
-      await genshinDao.upsertAll(TEST_ACCOUNT_ID, [row1, row2]);
+      await genshinDao.upsertAll(TEST_ACCOUNT_ID, TEST_ROLE_UID, [row1, row2]);
 
-      const result = await genshinDao.findByAccount(TEST_ACCOUNT_ID);
+      const result = await genshinDao.findByRole(TEST_ACCOUNT_ID, TEST_ROLE_UID);
       expect(result.length).assertEqual(2);
     });
 
     it('genshin_findOne_exists_returnsRow', 0, async () => {
-      const row = await genshinDao.findOne(TEST_ACCOUNT_ID, 'mat_001');
-      expect(row).not.assertNull();
+      const row = await genshinDao.findOne(TEST_ACCOUNT_ID, TEST_ROLE_UID, 'mat_001');
+      expect(row !== null).assertTrue();
       if (row !== null) {
         expect(row.materialName).assertEqual('测试材料1');
         expect(row.count).assertEqual(100);
@@ -87,10 +92,10 @@ export default function materialBagDaoTest() {
     });
 
     it('genshin_updateCount_updatesCount', 0, async () => {
-      await genshinDao.updateCount(TEST_ACCOUNT_ID, 'mat_001', 200);
+      await genshinDao.updateCount(TEST_ACCOUNT_ID, TEST_ROLE_UID, 'mat_001', 200);
 
-      const row = await genshinDao.findOne(TEST_ACCOUNT_ID, 'mat_001');
-      expect(row).not.assertNull();
+      const row = await genshinDao.findOne(TEST_ACCOUNT_ID, TEST_ROLE_UID, 'mat_001');
+      expect(row !== null).assertTrue();
       if (row !== null) {
         expect(row.count).assertEqual(200);
       }
@@ -107,9 +112,9 @@ export default function materialBagDaoTest() {
       row.count = 30;
       row.source = 'api';
 
-      await starrailDao.upsertAll(TEST_ACCOUNT_ID, [row]);
+      await starrailDao.upsertAll(TEST_ACCOUNT_ID, TEST_ROLE_UID, [row]);
 
-      const result = await starrailDao.findByAccount(TEST_ACCOUNT_ID);
+      const result = await starrailDao.findByRole(TEST_ACCOUNT_ID, TEST_ROLE_UID);
       expect(result.length).assertEqual(1);
     });
 
@@ -124,9 +129,9 @@ export default function materialBagDaoTest() {
       row.count = 20;
       row.source = 'api';
 
-      await zzzDao.upsertAll(TEST_ACCOUNT_ID, [row]);
+      await zzzDao.upsertAll(TEST_ACCOUNT_ID, TEST_ROLE_UID, [row]);
 
-      const result = await zzzDao.findByAccount(TEST_ACCOUNT_ID);
+      const result = await zzzDao.findByRole(TEST_ACCOUNT_ID, TEST_ROLE_UID);
       expect(result.length).assertEqual(1);
     });
 
@@ -134,9 +139,9 @@ export default function materialBagDaoTest() {
 
     it('dataIsolation_differentGames_notCrossPolluted', 0, async () => {
       // 确认三个游戏的材料是隔离的
-      const genshinMaterials = await genshinDao.findByAccount(TEST_ACCOUNT_ID);
-      const starrailMaterials = await starrailDao.findByAccount(TEST_ACCOUNT_ID);
-      const zzzMaterials = await zzzDao.findByAccount(TEST_ACCOUNT_ID);
+      const genshinMaterials = await genshinDao.findByRole(TEST_ACCOUNT_ID, TEST_ROLE_UID);
+      const starrailMaterials = await starrailDao.findByRole(TEST_ACCOUNT_ID, TEST_ROLE_UID);
+      const zzzMaterials = await zzzDao.findByRole(TEST_ACCOUNT_ID, TEST_ROLE_UID);
 
       // 原神应该有 2 条（测试材料1和2）
       expect(genshinMaterials.length).assertEqual(2);
@@ -164,9 +169,9 @@ export default function materialBagDaoTest() {
       await starrailDao.deleteByAccount(TEST_ACCOUNT_ID);
       await zzzDao.deleteByAccount(TEST_ACCOUNT_ID);
 
-      expect((await genshinDao.findByAccount(TEST_ACCOUNT_ID)).length).assertEqual(0);
-      expect((await starrailDao.findByAccount(TEST_ACCOUNT_ID)).length).assertEqual(0);
-      expect((await zzzDao.findByAccount(TEST_ACCOUNT_ID)).length).assertEqual(0);
+      expect((await genshinDao.findByRole(TEST_ACCOUNT_ID, TEST_ROLE_UID)).length).assertEqual(0);
+      expect((await starrailDao.findByRole(TEST_ACCOUNT_ID, TEST_ROLE_UID)).length).assertEqual(0);
+      expect((await zzzDao.findByRole(TEST_ACCOUNT_ID, TEST_ROLE_UID)).length).assertEqual(0);
     });
 
   });
