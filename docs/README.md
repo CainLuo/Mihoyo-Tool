@@ -70,7 +70,7 @@
 |---|---|---|---|---|---|---|---|---|---|---|
 | 应用框架 | `MainPage.ets` | [main-module-analysis.md](./main-module-analysis.md) | **A** | 0 | 0 | 6 | 1 | 304 | 13 | 4.3 |
 | **共享层 (M0)** | `utils/ models/ constants/ theme/ config/ styles/ builders/`（52 文件）+ `components/common/`（2）+ `SnackbarContent` | [shared-layer-modules-analysis.md](./shared-layer-modules-analysis.md) | **A** | 0 | 0 | 5 | 7 | 2095 | 17 | 0.81 |
-| **Widget 子系统 (M14)** | `WidgetProvider/Service + Widget1x2/2x2/4x4`（6 页） | [widget-subsystem-modules-analysis.md](./widget-subsystem-modules-analysis.md) | **B** | 0 | 1 | 4 | 1 | 9242 | 12 | 0.13 |
+| **Widget 子系统 (M14)** | `WidgetProvider/Service + Widget1x2/2x2/4x4`（6 页） | [widget-subsystem-modules-analysis.md](./widget-subsystem-modules-analysis.md) | **A** | 0 | 0 | 4 | 1 | 9439 | 9 | 0.10 |
 | **通知服务层 (M5)** | `features/notification/.../model/`（5 文件） | [notification-service-modules-analysis.md](./notification-service-modules-analysis.md) | **B** | 0 | 0 | 3 | 4 | 1061 | 10 | 0.9 |
 | 首页 | `HomePage.ets` | [home-module-analysis.md](./home-module-analysis.md) | **A** | 0 | 0 | 0 | 5 | 208 | 5 | 2.4 |
 | 工具页 | `ToolsPage.ets` | [tools-module-analysis.md](./tools-module-analysis.md) | **B** | 0 | 0 | 6 | 2 | 132 | 14 | 10.6 |
@@ -124,18 +124,20 @@
 >
 > 详见 [login-module-analysis.md](./login-module-analysis.md) 的「安全项复核」一节。
 
-### P1 · 本迭代（High 集中区）
+### P1 · 本迭代（High 集中区，2026-11-17 已全部关闭）
 
-| 模块 | High 数 | 核心问题 |
-| --- | --- | --- |
-| `MainPage.ets` | 2 | 人机验证弹窗关闭时无 callback 地 `off('windowSizeChange')`，首次验证后折叠屏单双栏不再切换；用返回手势 / 侧滑关闭验证框后验证队列永久卡死（10-29 复核恢复，10-27 的撤回理由漏了这条关闭路径） |
-| `StarRailCharacterDetailPage.ets` | 2 | `parseRawJson` 异常分支未设 `ViewState.ERROR`（用户看到空白）；`entityId === '1510'` 调试残留 |
-| `Widget 子系统`（6 页） | 3 | 更新瞬时失败会永久删除用户的卡片配置；无数据时展示 Mock 账号与体力；卡片从不显示数据新鲜度 |
-| `CharactersPage.ets` | 1 | 11 个 `@Monitor` 密集使用，易产生竞态 |
-| `ToolsPage.ets` | 1 | `loadData()` 无取消标记，页面销毁后仍改写状态 |
-| `GenshinCharacterDetailPage.ets` | 1 | `parseRawJson` 异常分支未设 `ERROR`（与星铁同源问题） |
-| `ZZZCharacterDetailPage.ets` | 1 | `parseRawJson` 吞异常后仍进入 `DATA`，解析失败时空白页（三游同源） |
-| `AppearanceSettingsPage.ets` | 1 | `applyColorMode()` 异步失败后仍 `pop()`，用户无感知 |
+| 模块 | 原 High 数 | 核心问题 | 现状 |
+| --- | --- | --- | --- |
+| `MainPage.ets` | 2 | 人机验证弹窗关闭时无 callback 地 `off('windowSizeChange')`，首次验证后折叠屏单双栏不再切换；用返回手势 / 侧滑关闭验证框后验证队列永久卡死（10-29 复核恢复，10-27 的撤回理由漏了这条关闭路径） | ✅ 已修（`1c71ed2` / `b19d264`） |
+| `StarRailCharacterDetailPage.ets` | 2 | `parseRawJson` 异常分支未设 `ViewState.ERROR`（用户看到空白）；`entityId === '1510'` 调试残留 | ✅ 已修（`db17cdc`） |
+| `Widget 子系统`（6 页） | 3 | 更新瞬时失败会永久删除用户的卡片配置；无数据时展示 Mock 账号与体力；卡片从不显示数据新鲜度 | ✅ 已修（H1 / H2 `bae5b61`，H3 `f629da5`） |
+| `CharactersPage.ets` | 1 | 11 个 `@Monitor` 密集使用，易产生竞态 | ✅ 复核降为 M-1（`@Monitor` 内只有 1 处 `loadData()`），现 0 High |
+| `ToolsPage.ets` | 1 | `loadData()` 无取消标记，页面销毁后仍改写状态 | ✅ 复核降为 LIFE-002（Tools 作为 Tab 页常驻，切 Tab 不销毁），现 0 High |
+| `GenshinCharacterDetailPage.ets` | 1 | `parseRawJson` 异常分支未设 `ERROR`（与星铁同源问题） | ✅ 已修（`db17cdc`） |
+| `ZZZCharacterDetailPage.ets` | 1 | `parseRawJson` 吞异常后仍进入 `DATA`，解析失败时空白页（三游同源） | ✅ 已修（`db17cdc`） |
+| `AppearanceSettingsPage.ets` | 1 | `applyColorMode()` 异步失败后仍 `pop()`，用户无感知 | ✅ 已修（`e5c8563`） |
+
+> 当前 27 份模块文档的 High 计数均为 0，全仓无未关闭 High。
 
 **不计入 High、但值得顺手做的加固**：`LoginPage.ets` 的失败日志（`LoginViewModel.ets:350`）改成不拼接可变 `error.message` 的格式，15 分钟，可与 M12 目录调整一并提交。
 

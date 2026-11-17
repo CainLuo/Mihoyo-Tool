@@ -1,6 +1,6 @@
 # Widget 子系统分析（M14）
 
-> **分析对象**：`entry/src/main/ets/widget/`（28 个文件 / 2,703 行：pages 6·689 + views 17·1,552 + viewmodel 5·462）+ `entryformability/EntryFormAbility.ets`（270 行）+ `widgetsyncability/WidgetSyncAbility.ets`（263 行）
+> **分析对象**：`entry/src/main/ets/widget/`（28 个文件 / 2,836 行：pages 6·775 + views 17·1,599 + viewmodel 5·462）+ `entryformability/EntryFormAbility.ets`（277 行）+ `widgetsyncability/WidgetSyncAbility.ets`（263 行）；另含 `features/widget/src/main/ets/`（43 文件 / 6,063 行）与 `common/widgetbase/`（卡片进程共享的解析 / 工具 / 主题代码）
 > **分析日期**：2026-10-24
 > **代码版本**：`105c8d3`
 > **HarmonyOS SDK**：`6.0.2(22)`（`targetSdkVersion` / `compatibleSdkVersion`，见根 `build-profile.json5`）
@@ -14,17 +14,19 @@
 | 优先级 | 数量 |
 | --- | --- |
 | Critical | 0 |
-| High | 1 |
+| High | 0 |
 | Medium | 4 |
 | Low | 1 |
 
-**整体评级：B**
+**整体评级：A**
 
-> 计数为 2026-11-17 现状：H1 / H2 已修复（`bae5b61`，对应审计 GAP-01 / GAP-06），M1 / M6 / M7 / M8 已修复（8 → 4 Medium），L1（`WidgetLog` 重复）/ L2（`onFormEvent` 忽略 `message`）已修复（L1 2026-11-13、L2 2026-11-15，代码见 `EntryFormAbility.ets:84-90` 对非空 `message` 直接忽略并记日志）；**H3 待产品决策**，M2 / M3 / M4 / M5 与 L3（缺页面级 `@Preview`）仍在（M4 / M5 属能力增强）。
+> 口径：skills `harmonyos-review` 官方 A-F 评级（0 Critical + 0 High → A）。
 >
-> 债务 1×3 + 4×2 + 1×1 = **12**；体量 9,242 行（`features/widget/src/main/ets/` 6,006 + `entry/src/main/ets/widget/` 2,703 + `EntryFormAbility` 270 + `WidgetSyncAbility` 263），密度 12 ÷ 92.42 ≈ **0.13 / 百行**（旧记录里的 7,506 行基线已漂移，§7 第 8 轮已改用实测口径）。
+> 计数为 2026-11-17 现状：H1 / H2 已修复（`bae5b61`，对应审计 GAP-01 / GAP-06），**H3 已修复（`f629da5`）**，M1 / M6 / M7 / M8 已修复（8 → 4 Medium），L1（`WidgetLog` 重复）/ L2（`onFormEvent` 忽略 `message`）已修复（L1 2026-11-13、L2 2026-11-15，代码见 `EntryFormAbility.ets:84-90` 对非空 `message` 直接忽略并记日志）；剩余 M2 / M3 / M4 / M5 与 L3（缺页面级 `@Preview`），其中 M4 / M5 属能力增强。
+>
+> 债务 4×2 + 1×1 = **9**；体量 9,439 行（`features/widget/src/main/ets/` 6,063 + `entry/src/main/ets/widget/` 2,836 + `EntryFormAbility` 277 + `WidgetSyncAbility` 263），密度 9 ÷ 94.39 ≈ **0.10 / 百行**（旧记录里的 7,506 行基线已漂移，§7 第 8 轮已改用实测口径）。
 
-> 架构本身是清楚的：主应用写「数据仓」→ 卡片进程读 payload → 6 个页面各自经 ViewModel 构建 UIState → V1 组件渲染。**曾经有三处会直接伤害"桌面卡片"这个核心场景**：更新失败会把用户的卡片配置删掉（H1，已修）、无数据时展示伪造的"测试账号"（H2，已修）、卡片从不显示数据有多旧（H3，待决策）。这三条都不影响主应用，只影响卡片，所以历史上一直没被页面级评审覆盖。2026-10-27 复核另补 2 条 Medium：点击同步的并发锁置位过晚（M7，已修）、`WidgetFormIdStore` 无写入方导致两条调用链空转（M8，已删）。
+> 架构本身是清楚的：主应用写「数据仓」→ 卡片进程读 payload → 6 个页面各自经 ViewModel 构建 UIState → V1 组件渲染。**曾经有三处会直接伤害"桌面卡片"这个核心场景**：更新失败会把用户的卡片配置删掉（H1，已修）、无数据时展示伪造的"测试账号"（H2，已修）、卡片从不显示数据有多旧（H3，已修）。这三条都不影响主应用，只影响卡片，所以历史上一直没被页面级评审覆盖。2026-10-27 复核另补 2 条 Medium：点击同步的并发锁置位过晚（M7，已修）、`WidgetFormIdStore` 无写入方导致两条调用链空转（M8，已删）。
 >
 > 另有结构性事实需要先说清楚：widget **是 V1 孤岛**（16 个文件使用 `@Component`，0 个 `@ComponentV2`），这是卡片渲染引擎的限制，不是技术债——本轮重构**不迁移**装饰器。
 
@@ -39,9 +41,9 @@
 | `widget/pages/Widget1x2Genshin.ets` | 99 | 1×2 | 单角色迷你卡（原神） |
 | `widget/pages/Widget1x2StarRail.ets` | 99 | 1×2 | 单角色迷你卡（星铁） |
 | `widget/pages/Widget1x2ZZZ.ets` | 99 | 1×2 | 单角色迷你卡（绝区零） |
-| `widget/pages/Widget2x2.ets` | 129 | 2×2 | 单游戏详细 / 双游戏上下分栏 |
-| `widget/pages/Widget2x4.ets` | 130 | 2×4 | 单游戏横排 / 双游戏左右分栏 |
-| `widget/pages/Widget4x4.ets` | 133 | 4×4 | 单游戏大卡 / 双游戏上下分栏 |
+| `widget/pages/Widget2x2.ets` | 159 | 2×2 | 单游戏详细 / 双游戏上下分栏；多游戏时右下角显示数据新鲜度 |
+| `widget/pages/Widget2x4.ets` | 156 | 2×4 | 单游戏横排 / 双游戏左右分栏；右上角显示数据新鲜度 |
+| `widget/pages/Widget4x4.ets` | 163 | 4×4 | 单游戏大卡 / 双游戏上下分栏；多游戏时右上角显示数据新鲜度 |
 
 ### 1.2 ViewModel（5，462 行）
 
@@ -55,34 +57,34 @@
 
 ### 1.3 组件（17，1,552 行）
 
-`Widget1x2ContentView`（121）· `Widget2x2Header`（56）· `Widget2x2SingleGame`（99）· `Widget2x2StaminaBlock`（53）· `Widget2x2StandardStamina`（70）· `Widget2x2StarRailStamina`（91）· `Widget2x4SingleGame`（152）· `Widget2x4InfoColumn`（106）· `Widget4x4SingleGame`（131）· `Widget4x4Header`（65）· `Widget4x4StaminaBlock`（112）· `Widget4x4ExtraRowsGroup`（63）· `Widget4x4ExpeditionBlock`（64）· `WidgetDataRow`（69）· `WidgetExpeditionAvatar`（126）· `WidgetEmptyContent`（66）· `WidgetExtraDataRows`（108）
+`Widget1x2ContentView`（121）· `Widget2x2Header`（76，含新鲜度）· `Widget2x2SingleGame`（106）· `Widget2x2StaminaBlock`（53）· `Widget2x2StandardStamina`（70）· `Widget2x2StarRailStamina`（91）· `Widget2x4SingleGame`（152）· `Widget2x4InfoColumn`（106）· `Widget4x4SingleGame`（136）· `Widget4x4Header`（80，含新鲜度）· `Widget4x4StaminaBlock`（112）· `Widget4x4ExtraRowsGroup`（63）· `Widget4x4ExpeditionBlock`（64）· `WidgetDataRow`（69）· `WidgetExpeditionAvatar`（126）· `WidgetEmptyContent`（66）· `WidgetExtraDataRows`（108）
 
-### 1.4 模型（4，973 行）
+### 1.4 模型（4，979 行）
 
 | 文件 | 行数 | 职责 |
 | --- | --- | --- |
-| `widget/models/WidgetModels.ets` | 134 | 原始 JSON 结构 + payload 中间模型 |
-| `widget/models/WidgetUIStates.ets` | 236 | 各尺寸 UIState（被测试直接引用） |
-| `widget/models/WidgetConfig.ets` | 151 | 单个卡片的配置（尺寸 / slots / formName） |
-| `widget/models/WidgetDataStore.ets` | 452 | 全局数据仓（账号 → 角色 → rawJson），写入 `preferences` |
+| `features/widget/.../model/WidgetGameSnapshotModel.ets` | 134 | 原始 JSON 结构 + payload 中间模型 |
+| `common/widgetbase/.../model/WidgetUIStateModels.ets` | 236 | 各尺寸 UIState（被测试直接引用） |
+| `features/widget/.../model/WidgetConfigModels.ets` | 151 | 单个卡片的配置（尺寸 / slots / formName） |
+| `features/widget/.../model/WidgetDataStoreModels.ets` | 458 | 全局数据仓（账号 → 角色 → rawJson + 拉取时间），写入 `preferences` |
 
-### 1.5 工具（13，3,111 行）
+### 1.5 工具（13，3,264 行）
 
 | 分组 | 文件（行数） |
 | --- | --- |
-| **数据构建** | `WidgetDataStoreBuilder`（365）· `WidgetPayloadBuilder`（358） |
-| **数据解析** | `WidgetPayloadParser`（395，被测试引用）· `WidgetDataHelper`（497，被测试引用） |
+| **数据构建** | `WidgetDataStoreBuilder`（394）· `WidgetPayloadBuilder`（379） |
+| **数据解析** | `WidgetPayloadUtil`（395，被测试引用）· `WidgetDataUtil`（497，被测试引用） |
 | **存储** | `WidgetDataStoreManager`（164）· `WidgetConfigStore`（145） |
 | **推送** | `WidgetUpdateNotifier`（168） |
 | **图片** | `WidgetImageDownloader`（489） |
-| **展示工具** | `WidgetUtils`（315）· `WidgetExtraRowConfig`（55，被测试引用）· `WidgetExtraRowType`（35，被测试引用） |
-| **日志 / 调试** | `WidgetLogger`（80）· `WidgetMockData`（45） |
+| **展示工具** | `WidgetUtil`（418，含新鲜度格式化）· `WidgetExtraRowConstants`（55，被测试引用）· `WidgetExtraRowType`（35，被测试引用） |
+| **日志 / 调试** | `WidgetLogger`（80）· `WidgetMockPayload`（45） |
 
 ### 1.6 子系统外的两个 ability
 
 | 文件 | 行数 | 角色 |
 | --- | --- | --- |
-| `entryformability/EntryFormAbility.ets` | 286 | 卡片生命周期：`onAddForm` 同步返回初始数据、`onUpdateForm` / `onFormEvent` 推送、`onRemoveForm` 清配置 |
+| `entryformability/EntryFormAbility.ets` | 277 | 卡片生命周期：`onAddForm` 同步返回初始数据、`onUpdateForm` / `onFormEvent` 推送、`onRemoveForm` 清配置 |
 | `widgetsyncability/WidgetSyncAbility.ets` | 263 | 卡片点击触发的 `call` 事件：拉取全部账号便笺 → 刷新数据仓 → 推送全部卡片 |
 
 ---
@@ -229,6 +231,13 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 - **问题**：payload 里的 `updatedAt` 是**推送时刻**而非数据拉取时刻，即使渲染出来也只会显示"刚刚"；体力与恢复倒计时也是同步时刻的快照（widget 内无任何按当前时间推算的逻辑）。没有一个组件渲染"更新于 X 分钟前"；叠加 §2.5 的 30 分钟全局冷却、H1 的静默失败、`syncDailyNoteQuietly` 遇到人机验证直接跳过（`WidgetSyncAbility.ets:164-166`），卡片可能长时间停在旧数值上。
 - **影响**：用户把陈旧数据当实时数据决策（"还有 160 体力，先打一把"）。
 - **建议**：把 `dataStore.updatedAt` 写进 payload（而不是推送时刻），至少在 2×2 / 2×4 / 4×4 的角落显示相对时间；或当 `now - updatedAt > 2×updateDuration` 时给一个降透明度/角标。
+- **状态**：✅ 已修复（`f629da5`，2026-11-17）。数据时间改为**便笺行的真实拉取时间**，而不是「数据仓最后一次保存时间」——后者在每次冷启动 `buildFromDB()` 读本地 DB 时都会被刷新成「刚刚」，等于没修。具体：
+  - `WidgetSlotSnapshot.updatedAt`（新字段，`WidgetDataStoreModels.ets`）：由 `WidgetDataStoreBuilder.buildSlotData()` 取 `dailyNote.updateTime` 写入，随 store JSON 持久化（旧数据缺失时为 0，向后兼容）。
+  - `WidgetPayloadBuilder.buildPayload()`：`payload.updatedAt` 取**本次展示 slot 中最早的 `updatedAt`**（`resolveUpdatedAt()`），跳过无数据 / 无时间的 slot；`toLocalStorageRecord()` 不再写 `Date.now()`。
+  - `saveWidgetsConfig()` 不再改 `store.updatedAt`（改卡片配置不代表数据变新）；`buildFromDB()` 的 `store.updatedAt` 改为所有有数据 slot 的最早时间。
+  - 卡片渲染（`widgetbase`，不依赖 core）：`formatUpdatedAtText()` / `formatUpdatedAtCompactText()` + `isWidgetDataStale()`；超过 1 小时（`WIDGET_FRESHNESS_STALE_SECONDS`）改用 `color_warning` + 高透明度高亮。
+  - 位置：2×2 单游戏在 `Widget2x2Header` 的 UID 行右侧（紧凑文案），2×2 多游戏在右下角；2×4 在右上角（完整文案）；4×4 单游戏在 `Widget4x4Header` 的 UID 右侧，多游戏在右上角。1×2 三页空间不足，不显示。
+  - 测试：`WidgetPayloadBuilder.test.ets` 覆盖「取最早时间 / 跳过未同步 slot」；`WidgetFreshness.test.ets` 覆盖陈旧阈值；`widget` 76 → 79 条、`widgetbase` 96 → 100 条。
 
 ### Medium（技术债）
 
@@ -266,13 +275,13 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | 测试引用（冻结） | `widget/viewmodel/Widget2x2ViewModel`、`widget/models/WidgetUIStates`、`widget/utils/{WidgetPayloadParser,WidgetDataHelper,WidgetUtils,WidgetExtraRowConfig,WidgetExtraRowType}` —— 导出名不得变（§2.5） |
 | 装饰器 | **不迁移 V1 → V2**；不新增 `@ComponentV2` 文件 |
 | payload 键名 | `'payload'` 是卡片进程与主应用的唯一约定（6 个 `@LocalStorageProp`），不能改名 |
-| 数据仓格式 | `widget_data` / `widget_configs` 两个 preferences 文件与 JSON 结构（`version: 2`）不可变，否则已装卡片读不到数据 |
+| 数据仓格式 | `widget_data` / `widget_configs` 两个 preferences 文件与 JSON 结构（`version: 2`）不可变，否则已装卡片读不到数据；新增字段必须是**可选**的（如 slot 的 `updatedAt`），旧数据缺失时按 0 处理 |
 
 ### 重构范围（建议）
 
 - **只做内部整理**：`widget/` 目录已经按 pages/components/viewmodel/models/utils 分好，**不需要搬文件**；本轮只做了 `WidgetLog` 删除（2026-11-13，死代码）与 `WidgetMockData` 的 debug-only 标注。
 - **优先修 H1 / H2**：两处都不改变 UI 结构，H1 是 10 行左右的错误码分支，H2 是一个 `BuildProfile.DEBUG` 判断；建议各自单独提交。
-- **H3 需要产品决策**：加"更新于 X 分钟前"会改变卡片视觉，属于行为变更，应单独立项。
+- **H3 已完成**（2026-11-17）：payload 改用便笺真实拉取时间，2×2 / 2×4 / 4×4 显示相对时间，超 1 小时高亮；只改渲染层与数据时间，未动 `form_config.json` / payload 键名。
 - **M1 已完成**：页面内缓存 `ParsedPayload` + UIState，不改任何组件接口（2026-11-11，见下方执行记录）；回归 6 张卡片 × 单/多游戏仍待真机。
 - **不要合并 1×2 三页文件**：`src` 冻结，只能抽内部共享 struct。
 - **M4 / M5 属于能力增强**（超时、并发、进度），超出"保持行为"的重构边界，记录不执行。
@@ -288,10 +297,10 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 
 ### 已知问题归属
 
-- **High 3 项**（配置误删、Mock 数据、无新鲜度标识）：H1 / H2 建议随 M14 修，H3 需产品决策。
+- **High 3 项**（配置误删、Mock 数据、无新鲜度标识）：**全部关闭**——H1 / H2 于 `bae5b61`，H3 于 `f629da5`。
 - **Medium 8 项**（重复解析、全局冷却且失败也计冷却、结果不可见、10 秒窗口、串行同步、派遣头像永不更新、并发锁置位过晚、`WidgetFormIdStore` 空转）：**M1 / M6 / M7 / M8 已完成**（M8 走删除路线）；其余（M2 / M3 / M4 / M5）属增强或待决策。
 - **Low 2 项**（logger 合并、预览缺失）：`formEvent` 校验已于 2026-11-15 修复——非空 `message` 只记日志、不触发刷新。
-- **测试空白**：`WidgetDataStore`（452）、`WidgetPayloadBuilder`（358）、`WidgetDataStoreBuilder`（365）、`WidgetImageDownloader`（489）、`WidgetUpdateNotifier`（146）均无单测——即**本子系统 3 个 High 所在的文件全部无测试保护**。四个 ViewModel 自 2026-11-07 起已有 `entry/src/test` 单测（本轮实测四个均 100% 行覆盖），不再是空白。
+- **测试覆盖**：`WidgetDataStoreModels`（序列化往返 / `getRole` / 配置）与 `WidgetPayloadBuilder`（slot 选择 / 截断 / `updatedAt`）已有单测；`WidgetDataStoreBuilder`（365）、`WidgetImageDownloader`（489）、`WidgetUpdateNotifier`（146）仍无单测。四个 ViewModel 自 2026-11-07 起已有 `entry/src/test` 单测（本轮实测四个均 100% 行覆盖）。
 
 ### 预览组件执行记录（2026-11-06）
 
@@ -467,5 +476,17 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | 处理 | 删除 `features/widget/src/main/ets/utils/WidgetLog.ets`（53 行）与该未使用 import；日志统一走 `widgetbase` 的 `WidgetLogger`（含 release 环境降级），卡片进程仍不依赖 core（HSP） |
 | 体量 | `features/widget/src/main/ets/` 44 → **43 文件**，6,060 → **6,006 行** |
 | 验证 | `assembleHap`（uat/debug）成功；`widget@default` 76 条单测全绿 |
+
+### 复核记录（2026-11-17 第 10 轮，H3 数据新鲜度）
+
+| 检查项 | 结论 |
+| --- | --- |
+| 根因确认 | 原 `WidgetPayloadBuilder.ets:77` 写 `updatedAt = Date.now()`（推送时刻），`WidgetDataStore.updatedAt` 未进入 payload；6 个页面 / 10 个组件均未渲染它 |
+| 关键修正 | 仅把 `dataStore.updatedAt` 写进 payload 不够：`buildFromDB()` 每次冷启动都会把 `store.updatedAt` 刷成「构建时刻」。因此新增 `WidgetSlotSnapshot.updatedAt`，取便笺行 `updateTime`（真实拉取时间），payload 取本次展示 slot 的最早值 |
+| 数据时间口径 | `buildSlotData()` 写 `slot.updatedAt = dailyNote.updateTime`；`buildFromDB()` 的 `store.updatedAt` = 所有有数据 slot 的最早时间；`saveWidgetsConfig()` 不再改 `updatedAt` |
+| 渲染 | `widgetbase` 新增 `formatUpdatedAtText` / `formatUpdatedAtCompactText` / `isWidgetDataStale`（卡片进程不依赖 core）；2×2 紧凑文案、2×4 / 4×4 完整文案；超 1 小时用 `color_warning` 高亮；1×2 空间不足不显示 |
+| 兼容性 | slot JSON 新增 `updatedAt?` 为可选字段，旧 `widget_data` 反序列化为 0（不显示新鲜度）；payload 键名、`form_config.json`、V1 装饰器均未改 |
+| 验证 | `assembleHap`（uat/debug）BUILD SUCCESSFUL；`widget@default` 79 条、`widgetbase@default` 100 条、全量 898 条单测全绿；6 张卡片的实际视觉与超时高亮待真机回归 |
+| 计数 | 0 Critical / **0 High** / 4 Medium / 1 Low，评级 **A**；债务 9，密度 9 ÷ 94.39 ≈ 0.10 |
 
 【已核对代码一致性】
