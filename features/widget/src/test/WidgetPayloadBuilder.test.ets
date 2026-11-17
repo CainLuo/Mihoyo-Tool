@@ -129,6 +129,39 @@ export default function widgetPayloadBuilderTest() {
       expect(payload.accounts[0].games[0].roles[0].roleId).assertEqual('r_gi');
     });
 
+    it('payload 使用展示 slot 的数据拉取时间（不是推送时刻）', 0, () => {
+      const store = makeStore();
+      store.data['a1'].slots['r1'].updatedAt = 1779012632;
+      store.data['a1'].slots['r2'].updatedAt = 1779010000;
+      const config = new WidgetConfig();
+      config.size = WidgetSize.SIZE_2X2;
+      config.slots = [makeSlotRef('a1', 'genshin', 'r1'), makeSlotRef('a1', 'starrail', 'r2')];
+
+      const payload = WidgetPayloadBuilder.buildPayload(config, store);
+      // 取展示 slot 中最早的拉取时间
+      expect(payload.updatedAt).assertEqual(1779010000);
+
+      const json = payload.toLocalStorageRecord()['payload'];
+      const parsed = JSON.parse(json) as Record<string, number>;
+      expect(parsed.updatedAt).assertEqual(1779010000);
+    });
+
+    it('未同步过的 slot 不参与数据时间计算', 0, () => {
+      const store = makeStore();
+      store.data['a1'].slots['r1'].updatedAt = 1779012632;
+      const config = new WidgetConfig();
+      config.size = WidgetSize.SIZE_2X2;
+      config.slots = [makeSlotRef('a1', 'genshin', 'r1'), makeSlotRef('a1', 'starrail', 'r2')];
+
+      const payload = WidgetPayloadBuilder.buildPayload(config, store);
+      expect(payload.updatedAt).assertEqual(1779012632);
+    });
+
+    it('空 dataStore 的 payload updatedAt 为 0', 0, () => {
+      const payload = WidgetPayloadBuilder.buildPayload(null, new WidgetDataStore());
+      expect(payload.updatedAt).assertEqual(0);
+    });
+
     it('toLocalStorageRecord 返回 payload JSON 字符串', 0, () => {
       const store = makeStore();
       const config = new WidgetConfig();

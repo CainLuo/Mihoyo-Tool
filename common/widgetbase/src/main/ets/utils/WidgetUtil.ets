@@ -173,6 +173,109 @@ export function formatRecoveryDesc(secondsStr: string): ResourceStr {
 }
 
 // ============================================================
+// 数据新鲜度工具函数
+// ============================================================
+
+/** 数据超过该时长（秒）视为陈旧，卡片会高亮提示 */
+export const WIDGET_FRESHNESS_STALE_SECONDS: number = 3600;
+
+/** 新鲜度单位：刚刚 / 分钟 / 小时 / 天 */
+const FRESHNESS_JUST_NOW: number = 0;
+const FRESHNESS_MINUTES: number = 1;
+const FRESHNESS_HOURS: number = 2;
+const FRESHNESS_DAYS: number = 3;
+
+/** 新鲜度换算结果（内部使用） */
+class FreshnessBucket {
+  unit: number = FRESHNESS_JUST_NOW;
+  value: number = 0;
+}
+
+/** 把时间差换算成「单位 + 数值」 */
+function resolveFreshness(updatedAt: number, nowSeconds: number): FreshnessBucket {
+  const bucket = new FreshnessBucket();
+  const diff = nowSeconds - updatedAt;
+  if (diff < 60) {
+    return bucket;
+  }
+  const minutes = Math.floor(diff / 60);
+  if (minutes < 60) {
+    bucket.unit = FRESHNESS_MINUTES;
+    bucket.value = minutes;
+    return bucket;
+  }
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) {
+    bucket.unit = FRESHNESS_HOURS;
+    bucket.value = hours;
+    return bucket;
+  }
+  bucket.unit = FRESHNESS_DAYS;
+  bucket.value = Math.floor(hours / 24);
+  return bucket;
+}
+
+/**
+ * 判断数据是否陈旧。
+ *
+ * @param updatedAt 数据拉取时间（秒级时间戳，来自 WidgetDataStore.updatedAt）
+ * @param nowSeconds 当前时间（秒级时间戳）
+ *
+ * updatedAt 为 0 表示从未成功拉取过数据，此时卡片展示空态，不算「陈旧」。
+ */
+export function isWidgetDataStale(updatedAt: number, nowSeconds: number): boolean {
+  if (updatedAt <= 0) {
+    return false;
+  }
+  return nowSeconds - updatedAt > WIDGET_FRESHNESS_STALE_SECONDS;
+}
+
+/**
+ * 格式化数据新鲜度文字（完整文案，2x4 / 4x4 使用）
+ *
+ * 例：刚刚更新 / 更新于 12 分钟前 / 更新于 3 小时前 / 更新于 2 天前
+ * updatedAt 为 0 时返回空字符串，调用方据此不渲染该行。
+ */
+export function formatUpdatedAtText(updatedAt: number, nowSeconds: number): ResourceStr {
+  if (updatedAt <= 0) {
+    return '';
+  }
+  const bucket = resolveFreshness(updatedAt, nowSeconds);
+  if (bucket.unit === FRESHNESS_MINUTES) {
+    return $r('app.string.widget_updated_minutes_ago', bucket.value);
+  }
+  if (bucket.unit === FRESHNESS_HOURS) {
+    return $r('app.string.widget_updated_hours_ago', bucket.value);
+  }
+  if (bucket.unit === FRESHNESS_DAYS) {
+    return $r('app.string.widget_updated_days_ago', bucket.value);
+  }
+  return $r('app.string.widget_updated_just_now');
+}
+
+/**
+ * 格式化数据新鲜度文字（紧凑文案，2x2 使用，宽度不足以放下完整文案）
+ *
+ * 例：刚刚 / 12分钟前 / 3小时前 / 2天前
+ */
+export function formatUpdatedAtCompactText(updatedAt: number, nowSeconds: number): ResourceStr {
+  if (updatedAt <= 0) {
+    return '';
+  }
+  const bucket = resolveFreshness(updatedAt, nowSeconds);
+  if (bucket.unit === FRESHNESS_MINUTES) {
+    return $r('app.string.widget_updated_minutes_ago_short', bucket.value);
+  }
+  if (bucket.unit === FRESHNESS_HOURS) {
+    return $r('app.string.widget_updated_hours_ago_short', bucket.value);
+  }
+  if (bucket.unit === FRESHNESS_DAYS) {
+    return $r('app.string.widget_updated_days_ago_short', bucket.value);
+  }
+  return $r('app.string.widget_updated_just_now_short');
+}
+
+// ============================================================
 // 渐变背景工具函数（使用 $r() 资源引用）
 // ============================================================
 

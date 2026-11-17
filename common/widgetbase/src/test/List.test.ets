@@ -3,6 +3,7 @@ import widgetDataHelperTest from './WidgetDataUtil.test';
 import widgetExtraRowTypeTest from './WidgetExtraRowType.test';
 import widgetExtraRowConfigTest from './WidgetExtraRowConstants.test';
 import widgetDataHelperExtraRowsTest from './WidgetDataUtilExtraRows.test';
+import widgetFreshnessTest from './WidgetFreshness.test';
 
 export default function testsuite() {
   widgetPayloadParserTest();
@@ -10,4 +11,5 @@ export default function testsuite() {
   widgetExtraRowTypeTest();
   widgetExtraRowConfigTest();
   widgetDataHelperExtraRowsTest();
+  widgetFreshnessTest();
 }

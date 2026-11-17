@@ -91,6 +91,38 @@
     {
       "name": "widget_recovery_minutes",
       "value": "%d分钟后回满"
+    },
+    {
+      "name": "widget_updated_just_now",
+      "value": "刚刚更新"
+    },
+    {
+      "name": "widget_updated_minutes_ago",
+      "value": "更新于 %d 分钟前"
+    },
+    {
+      "name": "widget_updated_hours_ago",
+      "value": "更新于 %d 小时前"
+    },
+    {
+      "name": "widget_updated_days_ago",
+      "value": "更新于 %d 天前"
+    },
+    {
+      "name": "widget_updated_just_now_short",
+      "value": "刚刚"
+    },
+    {
+      "name": "widget_updated_minutes_ago_short",
+      "value": "%d分钟前"
+    },
+    {
+      "name": "widget_updated_hours_ago_short",
+      "value": "%d小时前"
+    },
+    {
+      "name": "widget_updated_days_ago_short",
+      "value": "%d天前"
     }
   ]
 }

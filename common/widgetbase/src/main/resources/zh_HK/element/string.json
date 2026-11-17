@@ -91,6 +91,38 @@
     {
       "name": "widget_recovery_minutes",
       "value": "%d分鐘後回滿"
+    },
+    {
+      "name": "widget_updated_just_now",
+      "value": "剛剛更新"
+    },
+    {
+      "name": "widget_updated_minutes_ago",
+      "value": "更新於 %d 分鐘前"
+    },
+    {
+      "name": "widget_updated_hours_ago",
+      "value": "更新於 %d 小時前"
+    },
+    {
+      "name": "widget_updated_days_ago",
+      "value": "更新於 %d 天前"
+    },
+    {
+      "name": "widget_updated_just_now_short",
+      "value": "剛剛"
+    },
+    {
+      "name": "widget_updated_minutes_ago_short",
+      "value": "%d分鐘前"
+    },
+    {
+      "name": "widget_updated_hours_ago_short",
+      "value": "%d小時前"
+    },
+    {
+      "name": "widget_updated_days_ago_short",
+      "value": "%d天前"
     }
   ]
 }

@@ -29,6 +29,9 @@ export struct Widget2x2SingleGame {
   /** 是否在嵌套容器中使用（不使用 layoutWeight 和 100% 高度） */
   isInNestedContainer: boolean = false;
 
+  /** 数据拉取时间（秒），透传给头部显示新鲜度；0 表示不显示 */
+  @Prop dataUpdatedAt: number = 0;
+
   /** 主题常量 */
   theme: DefaultTheme = new DefaultTheme();
 
@@ -42,6 +45,7 @@ export struct Widget2x2SingleGame {
       Widget2x2Header({
         gameNameResource: this.role.gameNameResource,
         roleIdWithPrefix: this.role.roleIdWithPrefix,
+        dataUpdatedAt: this.dataUpdatedAt,
         theme: this.theme
       })
 
@@ -86,7 +90,10 @@ struct Widget2x2SingleGamePreview {
 
   build() {
     Column({ space: 12 }) {
-      Widget2x2SingleGame({ role: this.role })
+      Widget2x2SingleGame({
+        role: this.role,
+        dataUpdatedAt: Math.floor(Date.now() / 1000) - 600
+      })
         .width(168)
         .height(168)
         .padding(12)

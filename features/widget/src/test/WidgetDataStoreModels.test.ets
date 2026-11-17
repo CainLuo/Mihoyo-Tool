@@ -21,6 +21,7 @@ function addSlot(store: WidgetDataStore, accountId: string, roleId: string, game
   slot.level = 60;
   slot.rawJson = '{"current":1}';
   slot.widgetRawJson = '{"note_list":[]}';
+  slot.updatedAt = 1779012632;
   account.slots[roleId] = slot;
 }
 
@@ -131,6 +132,7 @@ export default function widgetDataStoreModelsTest() {
       expect(parsed.getAccountName('a1')).assertEqual('a1');
       expect(parsed.getRole('a1', 'r2')?.nickname).assertEqual('原神角色');
       expect(parsed.getRole('a1', 'r1')?.widgetRawJson).assertEqual('{"note_list":[]}');
+      expect(parsed.getRole('a1', 'r1')?.updatedAt).assertEqual(1779012632);
       expect(parsed.getPresetSlots('widget22').length).assertEqual(1);
       expect(parsed.getFormConfig('123').length).assertEqual(1);
     });

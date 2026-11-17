@@ -10,7 +10,7 @@
 import { Widget2x2SingleGame } from '../views/Widget2x2SingleGame';
 import { Widget1x2ContentView } from '../views/Widget1x2ContentView';
 import { WidgetEmptyContent } from '../views/WidgetEmptyContent';
-import { parsePayload, ParsedRole, ParsedPayload, Widget2x2UIState, WidgetColors, createWidgetGradient, getGameColor, DefaultTheme } from 'widgetbase';
+import { parsePayload, ParsedRole, ParsedPayload, Widget2x2UIState, WidgetColors, createWidgetGradient, getGameColor, DefaultTheme, formatUpdatedAtCompactText, isWidgetDataStale } from 'widgetbase';
 import { Widget2x2ViewModel } from '../viewmodel/Widget2x2ViewModel';
 
 const theme = new DefaultTheme();
@@ -66,6 +66,16 @@ struct Widget2x2 {
     return this.cachedUIState;
   }
 
+  /** 数据拉取时间（秒），0 表示从未成功拉取 */
+  private getUpdatedAt(): number {
+    return this.getParsed().updatedAt;
+  }
+
+  /** 数据是否已陈旧（超过 1 小时未刷新） */
+  private isDataStale(): boolean {
+    return isWidgetDataStale(this.getUpdatedAt(), Math.floor(Date.now() / 1000));
+  }
+
   build() {
     Stack() {
       Column()
@@ -78,7 +88,10 @@ struct Widget2x2 {
         if (this.getIsEmpty()) {
           WidgetEmptyContent()
         } else if (this.getIsSingleGame()) {
-          Widget2x2SingleGame({ role: this.getUIState().singleGameState })
+          Widget2x2SingleGame({
+            role: this.getUIState().singleGameState,
+            dataUpdatedAt: this.getUpdatedAt()
+          })
         } else {
           // 多游戏模式：两个 Widget1x2ContentView + Divider
           Column() {
@@ -112,6 +125,23 @@ struct Widget2x2 {
       .width(theme.full)
       .height(theme.full)
       .padding(theme.value12)
+
+      // 数据新鲜度角标：单游戏由 Widget2x2Header 显示（UID 行右侧）；
+      // 多游戏顶部行被游戏名 + UID 占满，只能放右下角，用紧凑文案。
+      if (this.getUpdatedAt() > 0 && !this.getIsEmpty() && !this.getIsSingleGame()) {
+        Column() {
+          Text(formatUpdatedAtCompactText(this.getUpdatedAt(), Math.floor(Date.now() / 1000)))
+            .fontSize(theme.font9)
+            .fontColor(this.isDataStale() ? WidgetColors.STAMINA_MEDIUM : WidgetColors.WHITE)
+            .opacity(this.isDataStale() ? WidgetColors.OPACITY_TEXT_HIGH : WidgetColors.OPACITY_TEXT_GHOST)
+            .maxLines(1)
+        }
+        .width(theme.full)
+        .height(theme.full)
+        .padding({ top: theme.value6, right: theme.value10, bottom: theme.value6 })
+        .alignItems(HorizontalAlign.End)
+        .justifyContent(FlexAlign.End)
+      }
     }
     .width(theme.full)
     .height(theme.full)

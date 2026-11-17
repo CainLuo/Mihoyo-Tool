@@ -6,7 +6,7 @@
  * 使用 @Component（V1 体系），因为卡片渲染引擎不支持 @ComponentV2。
  */
 
-import { WidgetColors } from 'widgetbase';
+import { WidgetColors, formatUpdatedAtText, isWidgetDataStale } from 'widgetbase';
 
 @Component
 export struct Widget4x4Header {
@@ -18,6 +18,9 @@ export struct Widget4x4Header {
 
   /** 角色 UID（含前缀） */
   roleIdWithPrefix: string = '';
+
+  /** 数据拉取时间（秒），0 表示不显示新鲜度 */
+  dataUpdatedAt: number = 0;
 
   build() {
     Row() {
@@ -42,6 +45,18 @@ export struct Widget4x4Header {
         .fontSize(10)
         .fontColor(WidgetColors.WHITE)
         .opacity(0.35)
+
+      // 数据新鲜度（陈旧时用警示色高亮）
+      if (this.dataUpdatedAt > 0) {
+        Text(formatUpdatedAtText(this.dataUpdatedAt, Math.floor(Date.now() / 1000)))
+          .fontSize(10)
+          .fontColor(isWidgetDataStale(this.dataUpdatedAt, Math.floor(Date.now() / 1000))
+            ? WidgetColors.STAMINA_MEDIUM : WidgetColors.WHITE)
+          .opacity(isWidgetDataStale(this.dataUpdatedAt, Math.floor(Date.now() / 1000))
+            ? WidgetColors.OPACITY_TEXT_HIGH : WidgetColors.OPACITY_TEXT_GHOST)
+          .maxLines(1)
+          .margin({ left: 8 })
+      }
     }
     .width('100%')
     .padding({ bottom: 8 })

@@ -26,6 +26,9 @@ export struct Widget4x4SingleGame {
   /** 角色 UIState（已解析好的数据） */
   @Prop role: WidgetRoleUIState = new WidgetRoleUIState();
 
+  /** 数据拉取时间（秒），透传给头部显示新鲜度；0 表示不显示 */
+  @Prop dataUpdatedAt: number = 0;
+
   /** 获取分组1（前半部分） */
   private getGroup1(): WidgetExtraRow[] {
     const half = Math.ceil(this.role.extraRows.length / 2);
@@ -49,7 +52,8 @@ export struct Widget4x4SingleGame {
       Widget4x4Header({
         gameColor: this.role.gameColor,
         gameName: this.role.gameName,
-        roleIdWithPrefix: this.role.roleIdWithPrefix
+        roleIdWithPrefix: this.role.roleIdWithPrefix,
+        dataUpdatedAt: this.dataUpdatedAt
       })
 
       // ── 区块1：体力区块（固定高度，不参与 flex 分配）──
@@ -117,7 +121,8 @@ struct Widget4x4SingleGamePreview {
   build() {
     Column({ space: 12 }) {
       Widget4x4SingleGame({
-        role: this.role
+        role: this.role,
+        dataUpdatedAt: Math.floor(Date.now() / 1000) - 600
       })
         .width(290)
         .height(309)

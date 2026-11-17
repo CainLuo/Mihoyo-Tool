@@ -60,6 +60,8 @@ export class WidgetPayloadItem {
 export class WidgetPayload {
   /** Widget 尺寸 */
   widgetSize: string = '';
+  /** 数据拉取时间（秒级时间戳，来自 WidgetDataStore.updatedAt，不是推送时刻） */
+  updatedAt: number = 0;
   /** 卡片宽度（vp） */
   widgetWidth: number = 0;
   /** 卡片高度（vp） */
@@ -73,7 +75,8 @@ export class WidgetPayload {
   toLocalStorageRecord(): Record<string, string> {
     const payloadItem = new WidgetPayloadItem();
     payloadItem.version = 1;
-    payloadItem.updatedAt = Math.floor(Date.now() / 1000);
+    // 用真实拉取时间而不是推送时刻，否则卡片上的「更新于 X 分钟前」永远是「刚刚」
+    payloadItem.updatedAt = this.updatedAt;
     payloadItem.widgetWidth = this.widgetWidth;
     payloadItem.widgetHeight = this.widgetHeight;
     payloadItem.accounts = this.accounts;
@@ -110,11 +113,30 @@ export class WidgetPayloadBuilder {
 
     // 构建 payload
     payload.accounts = WidgetPayloadBuilder.buildAccountPayloads(slotKeys, dataStore, maxSlots);
+    // 数据时间取卡片实际展示的 slot 中最早的拉取时间，不能用推送时刻冒充新鲜数据
+    payload.updatedAt = WidgetPayloadBuilder.resolveUpdatedAt(slotKeys, dataStore, maxSlots);
 
     return payload;
   }
 
   // ── 私有方法：Slot 选择 ────────────────────────────────────────────────────────
+
+  /**
+   * 取本次展示的 slot 中最早的数据拉取时间；没有可用时间时返回 0（卡片不显示新鲜度）。
+   */
+  private static resolveUpdatedAt(slotKeys: string[], dataStore: WidgetDataStore, maxSlots: number): number {
+    let oldest = 0;
+    for (let i = 0; i < slotKeys.length && i < maxSlots; i++) {
+      const slotData = dataStore.getRoleByKey(slotKeys[i]);
+      if (slotData === null || slotData.rawJson.length === 0 || slotData.updatedAt <= 0) {
+        continue;
+      }
+      if (oldest === 0 || slotData.updatedAt < oldest) {
+        oldest = slotData.updatedAt;
+      }
+    }
+    return oldest;
+  }
 
   /**
    * 统一 slot 选择入口

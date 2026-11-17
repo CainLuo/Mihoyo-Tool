@@ -12,7 +12,7 @@
 
 import { Widget2x4SingleGame } from '../views/Widget2x4SingleGame';
 import { Widget2x2SingleGame } from '../views/Widget2x2SingleGame';
-import { parsePayload, ParsedPayload, Widget2x4UIState, WidgetColors, createWidgetGradient, DefaultTheme } from 'widgetbase';
+import { parsePayload, ParsedPayload, Widget2x4UIState, WidgetColors, createWidgetGradient, DefaultTheme, formatUpdatedAtText, isWidgetDataStale } from 'widgetbase';
 import { Widget2x4ViewModel } from '../viewmodel/Widget2x4ViewModel';
 
 /** 主题常量实例 */
@@ -55,6 +55,16 @@ struct Widget2x4 {
   private getUIState(): Widget2x4UIState {
     this.ensureCache();
     return this.cachedUIState;
+  }
+
+  /** 数据拉取时间（秒），0 表示从未成功拉取 */
+  private getUpdatedAt(): number {
+    return this.getParsed().updatedAt;
+  }
+
+  /** 数据是否已陈旧（超过 1 小时未刷新） */
+  private isDataStale(): boolean {
+    return isWidgetDataStale(this.getUpdatedAt(), Math.floor(Date.now() / 1000));
   }
 
   build() {
@@ -114,6 +124,22 @@ struct Widget2x4 {
       .width(theme.full)
       .height(theme.full)
       .padding(theme.value12)
+
+      // 数据新鲜度角标（右上角）：完整文案；陈旧时用警示色高亮
+      if (this.getUpdatedAt() > 0 && !this.getUIState().isEmpty) {
+        Column() {
+          Text(formatUpdatedAtText(this.getUpdatedAt(), Math.floor(Date.now() / 1000)))
+            .fontSize(theme.font10)
+            .fontColor(this.isDataStale() ? WidgetColors.STAMINA_MEDIUM : WidgetColors.WHITE)
+            .opacity(this.isDataStale() ? WidgetColors.OPACITY_TEXT_HIGH : WidgetColors.OPACITY_TEXT_GHOST)
+            .maxLines(1)
+        }
+        .width(theme.full)
+        .height(theme.full)
+        .padding({ top: theme.value6, right: theme.value10 })
+        .alignItems(HorizontalAlign.End)
+        .justifyContent(FlexAlign.Start)
+      }
     }
     .width(theme.full)
     .height(theme.full)

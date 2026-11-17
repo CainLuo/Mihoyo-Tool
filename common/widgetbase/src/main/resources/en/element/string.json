@@ -91,6 +91,38 @@
     {
       "name": "widget_recovery_minutes",
       "value": "Full in %d min"
+    },
+    {
+      "name": "widget_updated_just_now",
+      "value": "Just updated"
+    },
+    {
+      "name": "widget_updated_minutes_ago",
+      "value": "Updated %d min ago"
+    },
+    {
+      "name": "widget_updated_hours_ago",
+      "value": "Updated %d h ago"
+    },
+    {
+      "name": "widget_updated_days_ago",
+      "value": "Updated %d d ago"
+    },
+    {
+      "name": "widget_updated_just_now_short",
+      "value": "Just now"
+    },
+    {
+      "name": "widget_updated_minutes_ago_short",
+      "value": "%d min ago"
+    },
+    {
+      "name": "widget_updated_hours_ago_short",
+      "value": "%d h ago"
+    },
+    {
+      "name": "widget_updated_days_ago_short",
+      "value": "%d d ago"
     }
   ]
 }

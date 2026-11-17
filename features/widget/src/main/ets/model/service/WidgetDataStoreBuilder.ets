@@ -40,7 +40,7 @@ export class WidgetDataStoreBuilder {
     Logger.info(TAG, '[WIDGET_DEBUG] buildFromDB: start (v2)');
     const store = new WidgetDataStore();
     store.version = 2;
-    store.updatedAt = Math.floor(Date.now() / 1000);
+    // updatedAt 在遍历完 slots 后按便笺的真实拉取时间回填，不能用「构建时刻」
 
     try {
       // 1. 获取所有账号
@@ -93,6 +93,9 @@ export class WidgetDataStoreBuilder {
         store.widgets = existingStore.widgets;
       }
 
+      // store.updatedAt 取所有有数据 slot 的最早拉取时间（保守值，供调试与外部读取）
+      store.updatedAt = WidgetDataStoreBuilder.resolveOldestDataTime(store);
+
       const totalRoles = WidgetDataStoreBuilder.countTotalRoles(store);
       Logger.info(TAG, `[WIDGET_DEBUG] buildFromDB: done, total=${Object.keys(store.data).length} accounts, ${totalRoles} roles`);
     } catch (e) {
@@ -121,16 +124,19 @@ export class WidgetDataStoreBuilder {
         Logger.info(TAG, `[WIDGET_DEBUG] buildSlotData: reading genshin dailyNote for ${accountId}/${role.roleId}`);
         const dailyNote = await CoreInitializer.genshinRepository.getDailyNote(accountId, role.roleId);
         rawJson = dailyNote?.rawJson ?? '';
+        slotData.updatedAt = dailyNote?.updateTime ?? 0;
         Logger.info(TAG, `[WIDGET_DEBUG] buildSlotData:   genshin dailyNote found=${dailyNote !== null} rawJson.length=${rawJson.length}`);
       } else if (role.gameId === GameId.STARRAIL) {
         Logger.info(TAG, `[WIDGET_DEBUG] buildSlotData: reading starrail dailyNote for ${accountId}/${role.roleId}`);
         const dailyNote = await CoreInitializer.starRailRepository.getDailyNote(accountId, role.roleId);
         rawJson = dailyNote?.rawJson ?? '';
+        slotData.updatedAt = dailyNote?.updateTime ?? 0;
         Logger.info(TAG, `[WIDGET_DEBUG] buildSlotData:   starrail dailyNote found=${dailyNote !== null} rawJson.length=${rawJson.length}`);
       } else if (role.gameId === GameId.ZZZ) {
         Logger.info(TAG, `[WIDGET_DEBUG] buildSlotData: reading zzz dailyNote for ${accountId}/${role.roleId}`);
         const dailyNote = await CoreInitializer.zzzRepository.getDailyNote(accountId, role.roleId);
         rawJson = dailyNote?.rawJson ?? '';
+        slotData.updatedAt = dailyNote?.updateTime ?? 0;
         // 读取 widgetRawJson（绝区零专用，包含 note_list 等额外数据）
         const widgetRawJson = dailyNote?.widgetRawJson ?? '';
         slotData.widgetRawJson = widgetRawJson;
@@ -151,6 +157,7 @@ export class WidgetDataStoreBuilder {
     } catch (e) {
       Logger.error(TAG, `buildSlotData failed for ${accountId}/${role.gameId}/${role.roleId}: ${JSON.stringify(e)}`);
       slotData.rawJson = '';
+      slotData.updatedAt = 0;
     }
 
     return slotData;
@@ -313,7 +320,7 @@ export class WidgetDataStoreBuilder {
     try {
       const store = await WidgetDataStoreManager.load();
       store.widgets = widgets;
-      store.updatedAt = Math.floor(Date.now() / 1000);
+      // 不改 updatedAt：它表示数据拉取时间，仅改卡片配置不代表数据变新
       await WidgetDataStoreManager.save(store);
       Logger.info(TAG, '[WIDGET_DEBUG] saveWidgetsConfig: done');
       return true;
@@ -324,6 +331,28 @@ export class WidgetDataStoreBuilder {
   }
 
   // ── 工具方法 ────────────────────────────────────────────────
+
+  /**
+   * 取所有有数据 slot 的最早拉取时间；没有任何可用数据时返回 0。
+   */
+  private static resolveOldestDataTime(store: WidgetDataStore): number {
+    let oldest = 0;
+    const accountIds = Object.keys(store.data);
+    for (let i = 0; i < accountIds.length; i++) {
+      const slots = store.data[accountIds[i]].slots;
+      const roleIds = Object.keys(slots);
+      for (let j = 0; j < roleIds.length; j++) {
+        const slot = slots[roleIds[j]];
+        if (slot.rawJson.length === 0 || slot.updatedAt <= 0) {
+          continue;
+        }
+        if (oldest === 0 || slot.updatedAt < oldest) {
+          oldest = slot.updatedAt;
+        }
+      }
+    }
+    return oldest;
+  }
 
   private static getGameIdString(gameId: GameId): string {
     switch (gameId) {

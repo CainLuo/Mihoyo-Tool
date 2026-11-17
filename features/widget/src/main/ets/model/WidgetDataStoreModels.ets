@@ -43,6 +43,8 @@ interface WidgetSlotDataJson {
   rawJson: string;
   /** Widget API 原始响应 JSON（绝区零专用，用于 note_list 等额外数据） */
   widgetRawJson: string;
+  /** 数据拉取时间（Unix 秒，来自便笺行的 updateTime；旧数据可能缺失） */
+  updatedAt?: number;
 }
 
 /** Account JSON 结构 */
@@ -90,6 +92,8 @@ export class WidgetSlotSnapshot {
   rawJson: string = '';
   /** Widget API 原始响应 JSON（绝区零专用，用于 note_list 等额外数据） */
   widgetRawJson: string = '';
+  /** 数据拉取时间（Unix 秒，来自便笺行的 updateTime），0 表示未知 */
+  updatedAt: number = 0;
 
   toJson(): WidgetSlotDataJson {
     const obj: WidgetSlotDataJson = {
@@ -100,6 +104,7 @@ export class WidgetSlotSnapshot {
       level: this.level,
       rawJson: this.rawJson,
       widgetRawJson: this.widgetRawJson,
+      updatedAt: this.updatedAt,
     };
     return obj;
   }
@@ -113,6 +118,7 @@ export class WidgetSlotSnapshot {
     d.level = obj.level;
     d.rawJson = obj.rawJson;
     d.widgetRawJson = obj.widgetRawJson ?? '';
+    d.updatedAt = obj.updatedAt ?? 0;
     return d;
   }
 }
