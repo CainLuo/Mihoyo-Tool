@@ -71,7 +71,7 @@
 | 应用框架 | `MainPage.ets` | [main-module-analysis.md](./main-module-analysis.md) | **A** | 0 | 0 | 6 | 1 | 304 | 13 | 4.3 |
 | **共享层 (M0)** | `common/basic/`（36 文件 + `Index.ets`；config / constants / model / shares / signals / theme / utils） | [shared-layer-modules-analysis.md](./shared-layer-modules-analysis.md) | **A** | 0 | 0 | 5 | 7 | 2066 | 17 | 0.82 |
 | **Widget 子系统 (M14)** | `WidgetProvider/Service + Widget1x2/2x2/4x4`（6 页） | [widget-subsystem-modules-analysis.md](./widget-subsystem-modules-analysis.md) | **A** | 0 | 0 | 4 | 1 | 9439 | 9 | 0.10 |
-| **通知服务层 (M5)** | `features/notification/.../model/`（5 文件） | [notification-service-modules-analysis.md](./notification-service-modules-analysis.md) | **B** | 0 | 0 | 3 | 4 | 1061 | 10 | 0.9 |
+| **通知服务层 (M5)** | `features/notification/.../model/`（7 文件） | [notification-service-modules-analysis.md](./notification-service-modules-analysis.md) | **A** | 0 | 0 | 2 | 4 | 1395 | 8 | 0.57 |
 | 首页 | `HomePage.ets` | [home-module-analysis.md](./home-module-analysis.md) | **A** | 0 | 0 | 0 | 5 | 208 | 5 | 2.4 |
 | 工具页 | `ToolsPage.ets` | [tools-module-analysis.md](./tools-module-analysis.md) | **B** | 0 | 0 | 6 | 2 | 132 | 14 | 10.6 |
 | **Ability (M15)** | `EntryAbility.ets / EntryBackupAbility.ets` | [ability-and-startup-modules-analysis.md](./ability-and-startup-modules-analysis.md) | **A** | 0 | 0 | 5 | 4 | — | 14 | — |
@@ -163,7 +163,7 @@
 | --- | --- | --- |
 | **深度分析** | Main、Home、Characters、Tools、Login、My | 含结构树、依赖清单、机制剖析、逐条 `file:line` |
 | **标准分析** | 其余 14 份页面级独立文档 | 含结构树、合规检查、风险清单，证据锚点较少 |
-| **系统层分析** | 共享层（M0）、通知服务层（M5）、Ability & 启动链路（M15）、Widget 子系统（M14） | 按文件清单 + 中心节点 + 调用链组织；共享层为 37 文件 2,066 行（`common/basic/` 36 + `Index.ets`），服务层 5 文件 1,061 行 |
+| **系统层分析** | 共享层（M0）、通知服务层（M5）、Ability & 启动链路（M15）、Widget 子系统（M14） | 按文件清单 + 中心节点 + 调用链组织；共享层为 37 文件 2,066 行（`common/basic/` 36 + `Index.ets`），服务层 7 文件 1,395 行 |
 | **家族合并分析** | MaterialList×3、MaterialTargetConfig×3、DailyDetail×3、Widget 子系统×6 | 一份文档覆盖多份高度雷同的模板代码，行数按文件合计（widget 为 6 页 596 行，另含 4 VM / 10 组件 / 4 模型 / 16 工具与 2 个 ability，共 42 文件 7,494 行） |
 | **专题** | component-deduplication-review、components-inventory-analysis、test-suite-analysis | 跨页面 / 全局索引维度，不重复单页结论；组件索引覆盖 195 文件 14,931 行，测试索引覆盖 20 文件 286 用例 |
 
