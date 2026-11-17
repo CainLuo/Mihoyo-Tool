@@ -1,8 +1,8 @@
 # entry 模块分析索引
 
-> **覆盖范围**：`entry/src/main/ets` 全部 **349 个 `.ets`** = 29 页面 + 195 组件 + 24 ViewModel（`viewmodel/`）+ 40 widget 文件（含 4 个 widget ViewModel）+ 52 共享层（utils/models/constants/theme/config/styles/builders）+ 5 通知服务 + 4 ability；另含 `module.json5` 契约与 `entry/src/test` 的 20 个测试文件
+> **覆盖范围**：15 个模块的 `src/main/ets` 共 **520 个 `.ets` / 59,083 行** —— `core`（124）· `entry`（46：5 页面 + 2 views + 3 ViewModel + 28 widget + 4 ability + 4 utils）· `common/basic`（36）· `common/widgetbase`（9）· `features/`（`chardetail` 71 · `material` 51 · `widget` 43 · `account` 40 · `dailynote` 27 · `notification` 24 · `home` 14 · `characters` 13 · `verification` 9 · `legal` 8 · `settings` 5）；另含各模块 `module.json5` 契约与 `*/src/test` 单测（14 模块 / 898 条用例）
 > **文档数量**：20 份单页面分析 + 3 份家族/模板合并分析 + 4 份跨层/子系统分析 + 3 份专项（去重/组件索引/测试套件）= **30 份分析**，另加 1 份 2026-11-06 收尾审计（[refactor-completion-audit.md](./refactor-completion-audit.md)）
-> **最后更新**：2026-10-26（全目录逐份复核）
+> **最后更新**：2026-11-17（共享层文件清单与 P0 债务点数对齐代码）
 > **评分口径**：`skills/harmonyos-review` 官方 A-F 评级（统一，见第 1 节）
 > **配套方案**：重构执行以 [`entry/Refactor_Spec.md`](../entry/Refactor_Spec.md) 为准（模块划分、契约冻结、缺陷分诊见其 §4 / §11）
 
@@ -69,7 +69,7 @@
 | 模块 | 页面 / 文件 | 分析文档 | 评级 | C | H | M | L | 源行数 | 债务点数 | 密度/百行 |
 |---|---|---|---|---|---|---|---|---|---|---|
 | 应用框架 | `MainPage.ets` | [main-module-analysis.md](./main-module-analysis.md) | **A** | 0 | 0 | 6 | 1 | 304 | 13 | 4.3 |
-| **共享层 (M0)** | `utils/ models/ constants/ theme/ config/ styles/ builders/`（52 文件）+ `components/common/`（2）+ `SnackbarContent` | [shared-layer-modules-analysis.md](./shared-layer-modules-analysis.md) | **A** | 0 | 0 | 5 | 7 | 2095 | 17 | 0.81 |
+| **共享层 (M0)** | `common/basic/`（36 文件 + `Index.ets`；config / constants / model / shares / signals / theme / utils） | [shared-layer-modules-analysis.md](./shared-layer-modules-analysis.md) | **A** | 0 | 0 | 5 | 7 | 2066 | 17 | 0.82 |
 | **Widget 子系统 (M14)** | `WidgetProvider/Service + Widget1x2/2x2/4x4`（6 页） | [widget-subsystem-modules-analysis.md](./widget-subsystem-modules-analysis.md) | **A** | 0 | 0 | 4 | 1 | 9439 | 9 | 0.10 |
 | **通知服务层 (M5)** | `features/notification/.../model/`（5 文件） | [notification-service-modules-analysis.md](./notification-service-modules-analysis.md) | **B** | 0 | 0 | 3 | 4 | 1061 | 10 | 0.9 |
 | 首页 | `HomePage.ets` | [home-module-analysis.md](./home-module-analysis.md) | **A** | 0 | 0 | 0 | 5 | 208 | 5 | 2.4 |
@@ -120,7 +120,7 @@
 >
 > - `LoginViewModel.ets:350` 的 catch 只记录 `error.message`，不引用 cookie 变量；`BBSRepository.ets:482/501` 的抛错只含 `retcode` + 服务端 `message`；`AuthRepository.ets:225` 只记 cookie 长度。**没有凭据落盘的现行路径**，原 SEC-002「Critical」降为 Medium 加固。
 > - 原 High「二维码轮询无取消标记」已在 `b98abae` 修复（`qrGeneration` + `pollInFlight`），同样撤回。
-> - 两项撤回后 `Login` 由 D 升为 A，债务点数 8 → 10（4 Medium + 2 Low）。
+> - 两项撤回后 `Login` 由 D 升为 A，债务点数 8 → **13**（5 Medium + 3 Low，见 [login-module-analysis.md](./login-module-analysis.md)）。
 >
 > 详见 [login-module-analysis.md](./login-module-analysis.md) 的「安全项复核」一节。
 
@@ -163,7 +163,7 @@
 | --- | --- | --- |
 | **深度分析** | Main、Home、Characters、Tools、Login、My | 含结构树、依赖清单、机制剖析、逐条 `file:line` |
 | **标准分析** | 其余 14 份页面级独立文档 | 含结构树、合规检查、风险清单，证据锚点较少 |
-| **系统层分析** | 共享层（M0）、通知服务层（M5）、Ability & 启动链路（M15）、Widget 子系统（M14） | 按文件清单 + 中心节点 + 调用链组织；共享层为 55 文件 4,795 行（含 `components/common/` 2 个与 `SnackbarContent`），服务层 5 文件 1,061 行 |
+| **系统层分析** | 共享层（M0）、通知服务层（M5）、Ability & 启动链路（M15）、Widget 子系统（M14） | 按文件清单 + 中心节点 + 调用链组织；共享层为 37 文件 2,066 行（`common/basic/` 36 + `Index.ets`），服务层 5 文件 1,061 行 |
 | **家族合并分析** | MaterialList×3、MaterialTargetConfig×3、DailyDetail×3、Widget 子系统×6 | 一份文档覆盖多份高度雷同的模板代码，行数按文件合计（widget 为 6 页 596 行，另含 4 VM / 10 组件 / 4 模型 / 16 工具与 2 个 ability，共 42 文件 7,494 行） |
 | **专题** | component-deduplication-review、components-inventory-analysis、test-suite-analysis | 跨页面 / 全局索引维度，不重复单页结论；组件索引覆盖 195 文件 14,931 行，测试索引覆盖 20 文件 286 用例 |
 
@@ -222,7 +222,7 @@
 | --- | --- | --- |
 | 证据锚点 | 提取全部 `*.ets:行号`，比对文件存在性与行数上限 | ✅ 0 处越界 / 0 处文件不存在 |
 | 引用文件 | 提取全部 `` `path/File.ets` `` 引用 | ✅ 仅 4 处为「建议新建/已废弃」路径，正文已标注，非事实错误 |
-| 文件行数 | 表格中「文件名 → 行数」逐行与 `wc -l` 比对 | ✅ 全部一致（含 195 组件、42 widget、52 共享层、20 测试文件） |
+| 文件行数 | 表格中「文件名 → 行数」逐行与 `wc -l` 比对 | ✅ 全部一致（含 42 widget、37 共享层、20 测试文件；2026-11-17 复核共享层） |
 | 目录计数 | `components/` 16 个子目录、`ets/` 16 个顶层目录、349 文件 40,947 行 | ✅ 与 Refactor_Spec §2.1、组件索引一致 |
 | 评级算数 | 每份文档的 C/H/M/L → 债务点数 → 评级规则 | ✅ 修正 8 份 README 表格行的陈旧计数 |
 | 校准口径 | 测试资产是否计入评级 | 新增 §1.4，并据此回调 DailyDetail（2M→1M）、AccountDetail（2M→1M）、My（2L→1L） |

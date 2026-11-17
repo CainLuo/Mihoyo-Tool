@@ -1,6 +1,6 @@
 # 共享层分析（M0）
 
-> **分析对象**：`common/basic/src/main/ets/{config,constants,model,shares,signals,theme,utils}` —— 37 个文件 / ~2,043 行；另含 `common/basic/Index.ets` 52 行（统一导出入口，别名 `basic`），合计 **38 文件 / ~2,095 行**。
+> **分析对象**：`common/basic/src/main/ets/{config,constants,model,shares,signals,theme,utils}` —— 36 个文件 / 2,012 行；另含 `common/basic/Index.ets` 54 行（统一导出入口，别名 `basic`），合计 **37 文件 / 2,066 行**。
 > **分析日期**：2026-10-29
 > **代码版本**：`e00e579`
 > **HarmonyOS SDK**：`6.0.2(22)`（`targetSdkVersion` / `compatibleSdkVersion`，见根 `build-profile.json5`）
@@ -8,7 +8,7 @@
 > **状态**：正文为 `e00e579` 基线的分析结论；2026-10-29 已在代码中修复的条目、仍待决策的条目见 **§8 修复状态**。
 > **已移出共享层的大文件**（归属对应 features 模块）：`MaterialComputeService` → `features/material/model/service/`（M7 已按 facade 拆为 163L + Result / Utils / Genshin / StarRail / ZZZ 五个文件）；`GeetestSignal` / `GeetestCenter` → `features/geetest/`；`DeviceFpCenter` → `features/devicefp/`；`AppearanceManager` → `features/appearance/`。这些文件不再计入 M0 行数，仅在其遗留问题对共享层有影响时在相应条目中引用。
 >
-> **定位**：M0 是被全 entry 依赖的共享层（Spec §3 要求中心节点原位不动），此前没有独立分析文档。本文件补齐 38 个文件的职责、中心节点与改动风险。
+> **定位**：M0 是被全 entry 依赖的共享层（Spec §3 要求中心节点原位不动），此前没有独立分析文档。本文件补齐 37 个文件的职责、中心节点与改动风险。
 
 ---
 
@@ -23,7 +23,7 @@
 
 **整体评级：A**（0 Critical、0 High，Medium 5 ≤ 5）
 
-**债务点数**：5×2 + 7×1 = **17**；源行数 ~2,095（38 个共享层文件）；密度 17 ÷ 20.95 ≈ **0.81 / 百行**
+**债务点数**：5×2 + 7×1 = **17**；源行数 2,066（37 个共享层文件）；密度 17 ÷ 20.66 ≈ **0.82 / 百行**
 
 > **判级说明**：M1 / M2 / M5 / M6 是"协议脆弱 / 治理缺失"类技术债，当前代码没有触发路径（如 `Index.ets:23-25` 先 `RouterUtil.init` 再 push；DialogDedup 5 处调用均已释放），按 README §1「Medium = 技术债」口径计入。已移出共享层的大文件（`MaterialComputeService`、`GeetestSignal`/`GeetestCenter`、`DeviceFpCenter`、`AppearanceManager`）的风险项不再计入 M0，其遗留问题对共享层有影响时在相应条目中引用。Medium 5 ≤ 5，满足 A 级条件。
 
@@ -49,36 +49,35 @@
 | `constants/HeroPanelMode` | 14 | 立绘区布局模式（禁止写字面量） |
 | `constants/FeedbackType` | 13 | Snackbar 类型枚举 |
 
-### 1.5 `model/`（4 文件 / 278 行）
+### 1.5 `model/`（4 文件 / 321 行）
 
 | 文件 | 行数 | 说明 | 引用方 |
 | --- | --- | --- | --- |
-| `model/AccountRoleModels` | 192 | `GameDataRowVM` / `GameNoteSnapshotVM` / `GameRoleCardVM` / `MihoyoAccountVM`（三游戏通用）+ `CharDetailHeroPanel` 相关类 + `CharDetailRouterParam` | fan-in **41**：3 个详情 VM + `CharactersViewModel` + 3 个详情页 + 34 个 `components/chardetail/` 组件 |
-| `model/SnackbarParamsModel` | 33 | `SnackbarParams`（字段默认值用 `$r()` 读主题色，混入 ArkUI 类型见 M3） | `FeedbackUtil`、`SettingRow`（含 ArkUI `$r('sys.symbol.*')` 逻辑）、`SnackbarContent` |
-| `model/AccountOptionModel` | 34 | `AccountOption`（账号选项模型）；测试资产引用见 [test-suite-analysis](./test-suite-analysis.md) T6 | `AccountSwitchDialog` + 测试 |
-| `model/SegmentedTabItemModel` | 19 | `SegmentedTabItem`（L6 修复：已从 `components/common/SegmentedTabBar.ets` 移至 model 层，原文件 re-export） | `SegmentedTabBar`、`CharactersViewModel`、三游戏 MaterialList 页 |
+| `model/AccountRoleModels` | 233 | `GameDataRowVM` / `GameNoteSnapshotVM` / `GameRoleCardVM` / `MihoyoAccountVM`（三游戏通用）+ `CharDetailHeroPanel` 相关类 + `CharDetailRouterParam` | fan-in **41**：3 个详情 VM + `CharactersViewModel` + 3 个详情页 + 34 个 `components/chardetail/` 组件 |
+| `model/SnackbarParamsModel` | 33 | `SnackbarParams`（字段默认值用 `$r()` 读主题色，混入 ArkUI 类型见 M3） | `FeedbackUtil`、`SnackbarContent` |
+| `model/AccountOptionModel` | 35 | `AccountOption`（账号选项模型）；测试资产引用见 [test-suite-analysis](./test-suite-analysis.md) T6 | `AccountSwitchDialog` + 测试 |
+| `model/SegmentedTabItemModel` | 20 | `SegmentedTabItem`（L6 修复：已从 `components/common/SegmentedTabBar.ets` 移至 model 层，原文件 re-export） | `SegmentedTabBar`、`CharactersViewModel`、三游戏 MaterialList 页 |
 
-### 1.6 `shares/`（8 文件 / 602 行）
+### 1.6 `shares/`（7 文件 / 634 行）
 
 | 文件 | 行数 | 说明 | 引用方 |
 | --- | --- | --- | --- |
 | `shares/AccountSwitchDialog` | 149 | 账号切换弹窗（`AccountOption` + `MihoyoAccountVM`） | 4 引用方 |
 | `shares/PlaceholderView` | 113 | 骨架屏/占位视图（`PlaceholderState` 纯数据类，装饰器已删除见 L7） | 6 引用方（Tools、Home、MaterialCharacterSelect 页 + `characters/CharactersContent`） |
 | `shares/SegmentedTabBar` | 100 | Tab 切换组件（`SegmentedTabItem` 从 model re-export，见 L6） | 8 引用方（三游戏 MaterialList 页、`characters/CharactersContent`） |
-| `shares/SettingRow` | 68 | 设置项行组件（My 页专用） | 5 引用方（`pages/MyPage.ets`、`my/AppearanceSection`、`my/AboutSection`） |
 | `shares/SnackbarContent` | 93 | Snackbar 内容视图；`aboutToDisappear` 已清理定时器（`:25-30`） | 仅 `utils/FeedbackUtil.ets:11`（§2.1 反向边之一） |
 | `shares/SplitPlaceholder` | 45 | 分段占位视图 | 2 引用方 |
 | `shares/UserGameSection` | 76 | 用户游戏区域组件 | 6 引用方 |
 | `shares/UserGameSectionHeader` | 58 | 用户游戏区头部 | 3 引用方 |
 
-### 1.7 `signals/`（4 文件 / 161 行）
+### 1.7 `signals/`（4 文件 / 151 行）
 
 | 文件 | 行数 | 说明 | 引用方 |
 | --- | --- | --- | --- |
 | `signals/CookieExpiredSignal` | 68 | Cookie 过期信号队列（AppStorageV2 单例 + `@Trace version/queue/trigger`） | **10** 引用方（Main、LoginViewModel、AccountDetailViewModel 等） |
 | `signals/AccountSignal` | 25 | 登录/账号变更信号；`static readonly KEY` | **12** 引用方（三个目标配置 VM + Home/Characters/My/Tools 页面） |
 | `signals/SyncRetrySignal` | 25 | 同步重试信号（L4 已删除无用的 `accountId` 字段，`notify()` 改为无参） | **7** 引用方 |
-| `signals/WidgetSyncHook` | 43 | Widget 同步钩子 | **5** 引用方 |
+| `signals/WidgetSyncHook` | 33 | Widget 同步钩子 | **5** 引用方 |
 
 ### 1.8 `theme/`（3 文件 / 115 行）
 
@@ -88,13 +87,13 @@
 | `theme/ThemeManager` | 38 | `@ObservedV2` 单例 + `@Trace current`；字段无版本/废弃策略（M5） | **210** 引用方（全仓中心节点） |
 | `theme/PrimaryButtonModifier` | 36 | 按钮修饰符（颜色尺寸全部取自 `themeManager`） | 继承自旧 `styles/`，已移至 `theme/` |
 
-### 1.9 `utils/`（11 文件 / 563 行）
+### 1.9 `utils/`（11 文件 / 620 行）
 
 | 文件 | 行数 | 说明 | 引用方 |
 | --- | --- | --- | --- |
-| `utils/ColorUtil` | 109 | `Alpha` 常量、`colorWithAlpha`、`TransparentColorCache`（L5 修复：启动时随用户模式计算；`onConfigurationUpdate` 重算） | EntryAbility + 8 组件 |
-| `utils/TimeFormatUtil` | 85 | 时间格式化（`recoveryDesc` L8 已修复不足 1 分钟显示"即将恢复"；L1 的 getCachedColorMode 建议已删除） | Home、各详情页 |
-| `utils/GameIdUtil` | 77 | `GameId` → 名称/主题色/logo/主资源标签（枚举与字符串双版本） | **6 VM** + 8 组件/页面 + 2 utils（widget `WidgetUtils` 有独立映射） |
+| `utils/ColorUtil` | 114 | `Alpha` 常量、`colorWithAlpha`、`TransparentColorCache`（L5 修复：启动时随用户模式计算；`onConfigurationUpdate` 重算） | EntryAbility + 8 组件 |
+| `utils/TimeFormatUtil` | 83 | 时间格式化（`recoveryDesc` L8 已修复不足 1 分钟显示"即将恢复"；L1 的 getCachedColorMode 建议已删除） | Home、各详情页 |
+| `utils/GameIdUtil` | 78 | `GameId` → 名称/主题色/logo/主资源标签（枚举与字符串双版本） | **6 VM** + 8 组件/页面 + 2 utils（widget `WidgetUtils` 有独立映射） |
 | `utils/FeedbackUtil` | 75 | Snackbar/Dialog 工具（L9 修复：关闭时 `dispose()` ComponentContent；L2 注释已改正） | **4** 引用方 |
 | `utils/DialogDedupUtil` | 43 | Dialog 防重复工具（M2：现有 5 处调用均已正确释放 key，不加超时） | `FeedbackUtil` + EntryAbility |
 | `utils/ServerNameUtil` | 50 | 服务器名称格式化 | 12 引用方 |
@@ -104,9 +103,9 @@
 | `utils/GenshinElementUtil` | 31 | 原神属性类型 → 资源/展示顺序/高亮规则 | 仅 `GenshinCharacterDetailViewModel` |
 | `utils/CharacterSortUtil` | 31 | 角色排序工具 | Characters 页 |
 
-### 1.10 `Index.ets`（统一导出入口 / 52 行）
+### 1.10 `Index.ets`（统一导出入口 / 54 行）
 
-根目录 `common/basic/Index.ets`，逐行 re-export 上述所有符号：`config`(1) · `constants`(6) · `model`(4) · `shares`(8) · `signals`(4) · `theme`(3) · `utils`(11)，共 **37** 个导出项。
+根目录 `common/basic/Index.ets`，逐行 re-export 上述所有符号：`config`(1) · `constants`(6) · `model`(4) · `shares`(7) · `signals`(4) · `theme`(3) · `utils`(11)，共 **36** 个源文件；`Index.ets` 自身按文件计 1 个，合计 **37**。`model/SnackbarParamsModel` 与 `shares/SnackbarContent` 仅 basic 内部使用，不从 `Index.ets` 导出。
 
 ---
 
@@ -413,5 +412,15 @@ config     ← EntryAbility / WidgetSyncAbility（取 APP_ENV 传给 CoreInitial
 | 不一致 | Spec §11 M0 行 Low 描述补回 L3、注释错误数改为四处、补 L1 / L5 / L7 去向；Spec §3 写明 `config/ styles/ builders/`"保持不变"指文件位置 |
 | 已核实无误 | 计数、fan-in、32 个测试闭包文件、§1.1 引用方、M1-M8 / L1-L9 锚点、两条循环导入均由审稿人独立复核通过 |
 | 结果 | 计数不变：0 / 0 / 8 / 9，评级 B，债务 25，密度 0.52 |
+
+### 复核记录（2026-11-17 第 14 轮：文件清单与代码对齐）
+
+| 检查项 | 结论 |
+| --- | --- |
+| 机器核对 | `find common/basic/src/main/ets -name '*.ets'` 实测 36 文件 / 2,012 行；加 `common/basic/Index.ets` 54 行 = **37 文件 / 2,066 行** |
+| 结构变更 | `shares/SettingRow.ets`（68 行）已随 M0 移入 `features/account/views/SettingRow.ets`（`common/basic/Index.ets:6` 注释写明），§1.6 删除该行，shares 8 → 7 文件 |
+| 行数校准 | `model` 278 → 321（`AccountRoleModels` 192 → 233、`AccountOptionModel` 34 → 35、`SegmentedTabItemModel` 19 → 20）；`signals` 161 → 151（`WidgetSyncHook` 43 → 33）；`utils` 563 → 620（`ColorUtil` 109 → 114、`GameIdUtil` 77 → 78、`TimeFormatUtil` 85 → 83）；`Index.ets` 52 → 54 |
+| 摘要同步 | 分析对象 / 债务点数行改为 37 文件 / 2,066 行，密度 17 ÷ 20.66 ≈ **0.82**；§1.10 写明 `SnackbarParamsModel` / `SnackbarContent` 仅内部使用、不从 `Index.ets` 导出 |
+| 计数 | 不变：0 Critical / 0 High / 5 Medium / 7 Low，评级 **A**，债务 17 |
 
 【已核对代码一致性】
