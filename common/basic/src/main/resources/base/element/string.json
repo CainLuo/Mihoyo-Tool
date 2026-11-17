@@ -13,6 +13,18 @@
       "value": "游戏数据助手"
     },
     {
+      "name": "launch_init_failed_title",
+      "value": "初始化失败"
+    },
+    {
+      "name": "launch_init_failed_desc",
+      "value": "应用数据初始化未完成，请点击重试。若反复失败，请重启应用或检查设备存储空间。"
+    },
+    {
+      "name": "launch_retry",
+      "value": "重试"
+    },
+    {
       "name": "home_game_count_format",
       "value": "%d 个游戏"
     },

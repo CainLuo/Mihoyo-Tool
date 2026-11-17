@@ -13,6 +13,18 @@
       "value": "遊戲數據助手"
     },
     {
+      "name": "launch_init_failed_title",
+      "value": "初始化失敗"
+    },
+    {
+      "name": "launch_init_failed_desc",
+      "value": "應用程式資料初始化未完成，請點擊重試。若反覆失敗，請重新啟動應用程式或檢查裝置儲存空間。"
+    },
+    {
+      "name": "launch_retry",
+      "value": "重試"
+    },
+    {
       "name": "my_account_role_count",
       "value": "%d 個遊戲角色"
     },

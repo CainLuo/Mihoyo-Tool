@@ -13,6 +13,18 @@
       "value": "Game Stats Assistant"
     },
     {
+      "name": "launch_init_failed_title",
+      "value": "Initialization Failed"
+    },
+    {
+      "name": "launch_init_failed_desc",
+      "value": "App data could not be initialized. Tap retry. If it keeps failing, restart the app or check device storage."
+    },
+    {
+      "name": "launch_retry",
+      "value": "Retry"
+    },
+    {
       "name": "my_account_role_count",
       "value": "%d game roles"
     },

@@ -23,25 +23,31 @@ export default class EntryAbility extends UIAbility {
     // 初始化透明色缓存（从 color.json 读取基础颜色并计算；restoreOnLaunch 已同步应用用户的颜色模式）
     TransparentColorCache.init(this.context);
 
+    // Core 初始化成功后的附加初始化。走 registerReadyHook 而不是 initCore().then，
+    // 这样启动页「初始化失败 → 重试」成功时同样会执行（否则重试后 Widget / 通知都不工作）。
+    CoreInitializer.registerReadyHook(async () => {
+      // 初始化 Widget 数据存储
+      await WidgetDataStoreManager.init(this.context);
+      // 立即构建并保存 Widget 数据（确保添加卡片时有数据可用）
+      await WidgetDataStoreBuilder.initAndSave(this.context);
+      // 注册同步完成回调：同步完成后刷新 Widget 数据
+      SyncQueueRunner.registerOnComplete(async () => {
+        Logger.info(TAG, 'SyncQueueRunner.onComplete: refreshing Widget data');
+        await WidgetDataStoreBuilder.refreshAndSave(this.context);
+      });
+      // 核心库初始化完成后，初始化通知服务
+      StaminaNotificationService.getInstance().init(this.context).catch((e: Error | object) => {
+        Logger.warning(TAG, `StaminaNotificationService.init failed: ${JSON.stringify(e)}`);
+      });
+    });
+
     // 初始化核心库，直接传递 AppEnv，无需任何转换
     CoreInitializer.initCore({ env: APP_ENV, context: this.context })
-      .then(async () => {
+      .then(() => {
         Logger.info(TAG, `CoreV2 initialized. env=${APP_ENV}`);
-        // 初始化 Widget 数据存储
-        await WidgetDataStoreManager.init(this.context);
-        // 立即构建并保存 Widget 数据（确保添加卡片时有数据可用）
-        await WidgetDataStoreBuilder.initAndSave(this.context);
-        // 注册同步完成回调：同步完成后刷新 Widget 数据
-        SyncQueueRunner.registerOnComplete(async () => {
-          Logger.info(TAG, 'SyncQueueRunner.onComplete: refreshing Widget data');
-          await WidgetDataStoreBuilder.refreshAndSave(this.context);
-        });
-        // 核心库初始化完成后，初始化通知服务
-        StaminaNotificationService.getInstance().init(this.context).catch((e: Error | object) => {
-          Logger.warning(TAG, `StaminaNotificationService.init failed: ${JSON.stringify(e)}`);
-        });
       })
       .catch((error: Error | object) => {
+        // 启动页会收到 reject 并展示错误态 + 重试入口
         Logger.warning(TAG, `CoreInitializer.initCore failed: ${JSON.stringify(error)}`);
       });
 
