@@ -99,6 +99,35 @@ export class StaminaThresholdCalculator {
   }
 
   /**
+   * 判断是否可以直接复用已注册的代理提醒（不取消、不重建）。
+   *
+   * 全部满足才复用，任一不满足都重新调度：
+   *   - 系统里仍存在该 reminderId（用户手动清除 / 系统清理后要重建）；
+   *   - 仍处于「等待回满」阶段（`delaySeconds > 0`；已达标要走即时通知）；
+   *   - Recovery_Time 快照未变（体力被消耗后要按新时间重建）；
+   *   - 阈值未变（用户改阈值后要按新阈值重建）。
+   */
+  static canReuseReminder(
+    oldSnapshot: number,
+    newRecoveryTime: number,
+    oldThreshold: number,
+    newThreshold: number,
+    delaySeconds: number,
+    reminderAlive: boolean,
+  ): boolean {
+    if (!reminderAlive) {
+      return false;
+    }
+    if (delaySeconds <= 0) {
+      return false;
+    }
+    if (oldThreshold !== newThreshold) {
+      return false;
+    }
+    return !StaminaThresholdCalculator.shouldReschedule(oldSnapshot, newRecoveryTime);
+  }
+
+  /**
    * 将阈值 clamp 到合法范围 [1, maxStamina]。
    */
   static clampThreshold(value: number, maxStamina: number): number {

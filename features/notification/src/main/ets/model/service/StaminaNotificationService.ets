@@ -271,7 +271,6 @@ export class StaminaNotificationService {
     const threshold = StaminaThresholdCalculator.clampThreshold(gameSetting.threshold, maxStamina);
 
     const key = `${accountId}_${roleUid}_${gameId}`;
-    await this.cancelExistingReminder(key);
 
     const delaySeconds = StaminaThresholdCalculator.adjustDelayForElapsed(
       StaminaThresholdCalculator.calcDelaySeconds(
@@ -280,6 +279,21 @@ export class StaminaNotificationService {
       snapshot.updateTime,
       Math.floor(Date.now() / 1000),
     );
+
+    // 数据没变且系统里提醒仍在：复用已有提醒，避免每次同步都取消重建（系统通知列表抖动）
+    const existingEntry = await NotificationStateStore.getInstance().getEntry(key);
+    if (existingEntry !== null) {
+      const alive = await this.isReminderAlive(existingEntry.reminderId);
+      if (StaminaThresholdCalculator.canReuseReminder(
+        existingEntry.recoveryTimeSnapshot, snapshot.recoveryTime,
+        existingEntry.threshold, threshold,
+        delaySeconds, alive,
+      )) {
+        Logger.info(TAG, `resolveSchedule: reuse existing reminder for ${key}`);
+        return null;
+      }
+    }
+    await this.cancelExistingReminder(key);
 
     const schedule = new StaminaSchedule();
     schedule.key = key;
@@ -295,6 +309,28 @@ export class StaminaNotificationService {
     schedule.threshold = threshold;
     schedule.delaySeconds = delaySeconds;
     return schedule;
+  }
+
+  /**
+   * 系统中是否仍存在该 reminderId。
+   *
+   * 用户手动清除通知、系统清理或卸载重装后，状态表里的 reminderId 会变成孤儿，
+   * 此时不能复用，必须重新调度。查询失败时按「不存在」处理，宁可重建也不要漏提醒。
+   */
+  private async isReminderAlive(reminderId: number): Promise<boolean> {
+    try {
+      const reminders = await reminderAgentManager.getAllValidReminders();
+      for (let i = 0; i < reminders.length; i++) {
+        if (reminders[i].reminderId === reminderId) {
+          return true;
+        }
+      }
+      return false;
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : `${e}`;
+      Logger.warn(TAG, `getAllValidReminders failed: ${msg}`);
+      return false;
+    }
   }
 
   /** 取消该 key 已注册的旧提醒并清除状态 */

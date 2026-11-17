@@ -138,6 +138,33 @@ export default function staminaThresholdCalculatorTest() {
       expect(result).assertFalse();
     });
 
+    // ─── canReuseReminder 测试 ──────────────────────────────────────
+
+    it('canReuseReminder: 快照与阈值都没变且提醒仍在 → 复用', 0, () => {
+      const result = StaminaThresholdCalculator.canReuseReminder(1000, 1000, 160, 160, 600, true);
+      expect(result).assertTrue();
+    });
+
+    it('canReuseReminder: 系统里提醒已消失 → 不复用', 0, () => {
+      const result = StaminaThresholdCalculator.canReuseReminder(1000, 1000, 160, 160, 600, false);
+      expect(result).assertFalse();
+    });
+
+    it('canReuseReminder: 已达标（delay ≤ 0）→ 不复用', 0, () => {
+      const result = StaminaThresholdCalculator.canReuseReminder(1000, 1000, 160, 160, 0, true);
+      expect(result).assertFalse();
+    });
+
+    it('canReuseReminder: Recovery_Time 变化 → 不复用', 0, () => {
+      const result = StaminaThresholdCalculator.canReuseReminder(1000, 2000, 160, 160, 600, true);
+      expect(result).assertFalse();
+    });
+
+    it('canReuseReminder: 阈值变化 → 不复用', 0, () => {
+      const result = StaminaThresholdCalculator.canReuseReminder(1000, 1000, 160, 180, 600, true);
+      expect(result).assertFalse();
+    });
+
     // ─── clampThreshold 测试 ────────────────────────────────────────
 
     it('clampThreshold: 值在范围内返回原值', 0, () => {
