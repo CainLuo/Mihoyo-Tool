@@ -70,7 +70,7 @@
 |---|---|---|---|---|---|---|---|---|---|---|
 | 应用框架 | `MainPage.ets` | [main-module-analysis.md](./main-module-analysis.md) | **A** | 0 | 0 | 6 | 1 | 304 | 13 | 4.3 |
 | **共享层 (M0)** | `utils/ models/ constants/ theme/ config/ styles/ builders/`（52 文件）+ `components/common/`（2）+ `SnackbarContent` | [shared-layer-modules-analysis.md](./shared-layer-modules-analysis.md) | **A** | 0 | 0 | 5 | 7 | 2095 | 17 | 0.81 |
-| **Widget 子系统 (M14)** | `WidgetProvider/Service + Widget1x2/2x2/4x4`（6 页） | [widget-subsystem-modules-analysis.md](./widget-subsystem-modules-analysis.md) | **B** | 0 | 1 | 4 | 3 | — | 14 | — |
+| **Widget 子系统 (M14)** | `WidgetProvider/Service + Widget1x2/2x2/4x4`（6 页） | [widget-subsystem-modules-analysis.md](./widget-subsystem-modules-analysis.md) | **B** | 0 | 1 | 4 | 1 | 9242 | 12 | 0.13 |
 | **通知服务层 (M5)** | `features/notification/.../model/`（5 文件） | [notification-service-modules-analysis.md](./notification-service-modules-analysis.md) | **B** | 0 | 0 | 3 | 4 | 1061 | 10 | 0.9 |
 | 首页 | `HomePage.ets` | [home-module-analysis.md](./home-module-analysis.md) | **A** | 0 | 0 | 0 | 5 | 208 | 5 | 2.4 |
 | 工具页 | `ToolsPage.ets` | [tools-module-analysis.md](./tools-module-analysis.md) | **B** | 0 | 0 | 6 | 2 | 132 | 14 | 10.6 |
