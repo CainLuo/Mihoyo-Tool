@@ -12,6 +12,10 @@ export default function widgetUpdateNotifierTest() {
       expect(WidgetUpdateNotifier.classifyPushError(16500050)).assertEqual(WidgetPushResult.WIDGET_REMOVED);
     });
 
+    it('16501001 表示卡片已被删除（实测桌面删卡后的错误码）', 0, () => {
+      expect(WidgetUpdateNotifier.classifyPushError(16501001)).assertEqual(WidgetPushResult.WIDGET_REMOVED);
+    });
+
     it('网络 / 权限 / 限流错误只算失败，不清理配置', 0, () => {
       expect(WidgetUpdateNotifier.classifyPushError(1001)).assertEqual(WidgetPushResult.FAILED);
       expect(WidgetUpdateNotifier.classifyPushError(201)).assertEqual(WidgetPushResult.FAILED);

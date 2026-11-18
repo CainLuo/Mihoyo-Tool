@@ -157,10 +157,14 @@ export class WidgetUpdateNotifier {
 
   /**
    * 根据 updateForm 错误码判断卡片是否真的已被移除。
-   * 401 / 16500050 才清理配置；其他错误（网络、权限、限流）都可重试。
+   * 401 / 16500050 / 16501001 才清理配置；其他错误（网络、权限、限流）都可重试。
+   *
+   * 16501001 = "The ID of the form to be operated does not exist"：
+   * 用户在桌面删除卡片后 formId 立即失效，实测每轮同步都会命中该码。
+   * 不识别它会导致失效配置永久残留，每轮同步都白跑一次 IPC 并刷 ERROR 日志。
    */
   static classifyPushError(code: number): WidgetPushResult {
-    if (code === 401 || code === 16500050) {
+    if (code === 401 || code === 16500050 || code === 16501001) {
       return WidgetPushResult.WIDGET_REMOVED;
     }
     return WidgetPushResult.FAILED;
