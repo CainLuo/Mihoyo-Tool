@@ -339,3 +339,17 @@ grep -rn "notificationManager.cancel" --include="*.ets" features/notification
 - M2（30 条上限静默跳过）、M6（状态表对账）：需产品 / 存储设计，保留。
 - M5（bundle / ability 硬编码）：构建配置修复，单独提交。
 - L1–L4：保留记录。
+
+### 复核记录（2026-11-18 第 10 轮，模拟器运行时验证 M1）
+
+| 检查项 | 结论 |
+| --- | --- |
+| 环境 | 模拟器 Mate 80 Pro Max / HarmonyOS 6.0.2(22)，uat 包，真实账号 3 个游戏 |
+| 即时通知分支 | ✅ 三游戏体力均已超阈值（`delaySeconds` 为负）→ 3 条即时通知发布成功；`skip immediate notification (already notified at threshold N)` 去重生效 |
+| 定时提醒分支 | ✅ 阈值改满值后重启：`checkAndSchedule: genshin recoveryTime=9215 threshold=200 delaySeconds=8992` → `publishTimerReminder: publishing reminder ..., delay=8992s, current count=0`，M1 分支走向正确 |
+| 失败语义 | ✅ 系统返回 `code=1700002 The number of reminders exceeds the limit` 时只打 `Logger.error`，不写状态表（`saveState` 仅在成功后执行），下一轮同步会重试，不留脏状态 |
+| 未闭环 | 🔶 模拟器 agent reminder 配额为 **0**（`The number of reminders exceeds the limit[0]`），提醒无法真正创建，因此「反复进首页 `delay` 不后移」「到点响铃」「App 被杀后仍生效」必须真机验证 |
+| 权限现状 | `bm dump` 显示 `reqPermissionStates` 全为 0；`PUBLISH_AGENT_REMINDER` 在 SDK `PermissionDefinitions.json` 中为 `grantMode: system_grant` / `availableLevel: normal`，无需 ACL，但 unsigned 包在模拟器上未被授予。真机需确认签名包下该权限状态 |
+| 真机清单 | 见 [`device-regression-checklist.md`](./device-regression-checklist.md) §1 |
+
+【已核对代码一致性】

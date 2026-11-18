@@ -1,8 +1,8 @@
 # entry 模块分析索引
 
-> **覆盖范围**：15 个模块的 `src/main/ets` 共 **520 个 `.ets` / 59,083 行** —— `core`（124）· `entry`（46：5 页面 + 2 views + 3 ViewModel + 28 widget + 4 ability + 4 utils）· `common/basic`（36）· `common/widgetbase`（9）· `features/`（`chardetail` 71 · `material` 51 · `widget` 43 · `account` 40 · `dailynote` 27 · `notification` 24 · `home` 14 · `characters` 13 · `verification` 9 · `legal` 8 · `settings` 5）；另含各模块 `module.json5` 契约与 `*/src/test` 单测（14 模块 / 903 条用例）
-> **文档数量**：20 份单页面分析 + 3 份家族/模板合并分析 + 4 份跨层/子系统分析 + 3 份专项（去重/组件索引/测试套件）= **30 份分析**，另加 1 份 2026-11-06 收尾审计（[refactor-completion-audit.md](./refactor-completion-audit.md)）
-> **最后更新**：2026-11-17（共享层文件清单与 P0 债务点数对齐代码）
+> **覆盖范围**：15 个模块的 `src/main/ets` 共 **520 个 `.ets` / 59,083 行** —— `core`（124）· `entry`（46：5 页面 + 2 views + 3 ViewModel + 28 widget + 4 ability + 4 utils）· `common/basic`（36）· `common/widgetbase`（9）· `features/`（`chardetail` 71 · `material` 51 · `widget` 43 · `account` 40 · `dailynote` 27 · `notification` 24 · `home` 14 · `characters` 13 · `verification` 9 · `legal` 8 · `settings` 5）；另含各模块 `module.json5` 契约与 `*/src/test` 单测（14 模块 / 904 条用例）
+> **文档数量**：20 份单页面分析 + 3 份家族/模板合并分析 + 4 份跨层/子系统分析 + 3 份专项（去重/组件索引/测试套件）= **30 份分析**，另加 1 份 2026-11-06 收尾审计（[refactor-completion-audit.md](./refactor-completion-audit.md)）与 1 份真机回归清单（[device-regression-checklist.md](./device-regression-checklist.md)）
+> **最后更新**：2026-11-18（新增真机回归清单；Widget 失效 formId 清理）
 > **评分口径**：`skills/harmonyos-review` 官方 A-F 评级（统一，见第 1 节）
 > **配套方案**：重构执行以 [`entry/Refactor_Spec.md`](../entry/Refactor_Spec.md) 为准（模块划分、契约冻结、缺陷分诊见其 §4 / §11）
 
@@ -109,6 +109,7 @@
 - [component-deduplication-review.md](./component-deduplication-review.md) —— 跨页面组件重复度审查与整合方案
 - [components-inventory-analysis.md](./components-inventory-analysis.md) —— 195 个组件 / 14,931 行的全量索引与归属
 - [test-suite-analysis.md](./test-suite-analysis.md) —— `entry/src/test` 20 文件 / 286 用例的覆盖矩阵与红色基线
+- [device-regression-checklist.md](./device-regression-checklist.md) —— **真机回归清单**：模拟器覆盖不到的通知响铃 / 代理提醒配额 / 卡片桌面渲染 / 折叠屏 / 弱网，按功能域列可勾选项
 
 ---
 

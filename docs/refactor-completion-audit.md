@@ -178,7 +178,7 @@ Local Test 首轮并非全绿：3 个模块的测试根本编译不过。修复�
 
 | 项 | 改动 | 验证 |
 | --- | --- | --- |
-| GAP-01 | `WidgetUpdateNotifier` 新增 `WidgetPushResult` 与 `classifyPushError()`，只有 401 / 16500050（卡片已移除）才 `deleteConfig`；网络 / 权限 / 限流失败保留配置 | widget 79 条全绿，含 8 条推送分类 / Store 用例 |
+| GAP-01 | `WidgetUpdateNotifier` 新增 `WidgetPushResult` 与 `classifyPushError()`，只有 401 / 16500050（卡片已移除）才 `deleteConfig`；网络 / 权限 / 限流失败保留配置 | widget 80 条全绿，含 9 条推送分类 / Store 用例 |
 | GAP-02 | [`material_router_map.json`](../features/material/src/main/resources/base/profile/material_router_map.json) 注册 `MaterialCalc` → `MaterialCalcPageBuilder` | `assembleHap` 通过，路由表可被父级 navDestination 解析 |
 | GAP-03 | 三个 `*CharacterDetailViewModel` 的加载 catch 置 `ViewState.ERROR`，失败不再白屏 | chardetail 34 条全绿，含错误态断言 |
 | GAP-06 | [`EntryFormAbility`](../entry/src/main/ets/entryformability/EntryFormAbility.ets) 无数据时不再返回 Mock，改传真实空 payload，卡片走 `isEmpty` 空态 | `assembleHap` 通过 |

@@ -216,6 +216,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 - **影响**：一次偶发失败 → 用户在该卡片上选的游戏/角色槽位被清空，且**没有任何提示**；配置删除后该 formId 不再出现在 `getAllConfigs()`，主应用同步后的 `notifyAllWidgets` 再也不会推送它，只能等 `onUpdateForm` 用 `loadConfig()` 返回的空 `WidgetConfig`（`WidgetConfigStore.ets:64-80`，`formName` 为空 → 走默认 fallback）兜底；重建卡片后需重新配置。
 - **建议**：区分"不存在"与"暂时失败"——只有 401 / 16500050 才删配置，其余记日志并保留；或加失败计数阈值。
 - **状态**：✅ 已修复（`bae5b61`）。`WidgetUpdateNotifier` 新增 `WidgetPushResult`（`SUCCESS` / `WIDGET_REMOVED` / `FAILED`）与 `classifyPushError()`：仅 `401` / `16500050` 清理配置，其余失败只记日志并保留配置，下次同步继续推送。
+  - **补充（2026-11-18，`5b6d0a9`）**：模拟器实测发现漏了一个错误码。桌面删卡后 `updateForm` 返回 **`16501001`「The ID of the form to be operated does not exist」**，`classifyPushError()` 未识别，于是走 `FAILED` 分支「保留配置」，导致失效配置永久残留——每轮同步都白跑一次 IPC 并刷 `pushUpdate error` / `keeping config` 两条日志（实测 4 条/轮）。现已把 `16501001` 并入 `WIDGET_REMOVED`：首轮 `success=1 removed=4 failed=0`，后续轮次 `removed=0 failed=0`，配置被真正清理。单测 79 → 80 条。
 
 **H2 · 无数据时卡片展示伪造的账号与体力**
 
@@ -488,5 +489,17 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | 兼容性 | slot JSON 新增 `updatedAt?` 为可选字段，旧 `widget_data` 反序列化为 0（不显示新鲜度）；payload 键名、`form_config.json`、V1 装饰器均未改 |
 | 验证 | `assembleHap`（uat/debug）BUILD SUCCESSFUL；`widget@default` 79 条、`widgetbase@default` 100 条、全量 898 条单测全绿；6 张卡片的实际视觉与超时高亮待真机回归 |
 | 计数 | 0 Critical / **0 High** / 4 Medium / 1 Low，评级 **A**；债务 9，密度 9 ÷ 94.39 ≈ 0.10 |
+
+### 复核记录（2026-11-18 第 11 轮，模拟器运行时验证）
+
+| 检查项 | 结论 |
+| --- | --- |
+| 触发方式 | 首次在模拟器（Mate 80 Pro Max / HarmonyOS 6.0.2(22)）安装 uat 包并启动，从 `hilog` 观察 `WIDGET_UPDATE` 实际行为 |
+| 发现问题 | 每轮同步固定刷出 4 条 `pushUpdate error ... code=16501001 The ID of the form to be operated does not exist` + 4 条 `keeping config`。桌面删卡后系统返回的是 **16501001**，而 `classifyPushError()` 只认 `401` / `16500050`，被误判为可重试失败 |
+| 影响 | 失效 `formId` 永久留在 `widget_configs`，每轮同步白跑 4 次 IPC、刷 8 行日志，且配置永不清理 |
+| 修复 | `classifyPushError()` 把 `16501001` 并入 `WIDGET_REMOVED`（`5b6d0a9`） |
+| 验证 | 首轮 `notifyAllWidgets: done, success=1 removed=4 failed=0`；后续两轮 `found 1 widgets` / `removed=0 failed=0`，不再出现 `16501001` |
+| 计数 | 0 Critical / 0 High / 4 Medium / 1 Low，评级 **A**；`widget` 单测 79 → 80 条 |
+| 遗留 | 6 张卡片在真机的实际视觉、超时高亮、派遣头像仍需真机验证，见 [`device-regression-checklist.md`](./device-regression-checklist.md) §2 |
 
 【已核对代码一致性】
