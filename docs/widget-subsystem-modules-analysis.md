@@ -85,7 +85,7 @@
 | 文件 | 行数 | 角色 |
 | --- | --- | --- |
 | `entryformability/EntryFormAbility.ets` | 277 | 卡片生命周期：`onAddForm` 同步返回初始数据、`onUpdateForm` / `onFormEvent` 推送、`onRemoveForm` 清配置 |
-| `widgetsyncability/WidgetSyncAbility.ets` | 263 | 卡片点击触发的 `call` 事件：拉取全部账号便笺 → 刷新数据仓 → 推送全部卡片 |
+| `widgetsyncability/WidgetSyncAbility.ets` | 263 | 后台全量同步入口（`call` + 30 分钟冷却）。**2026-11-19 起卡片点击改走 `router` → `EntryAbility`，该 Ability 当前无调用方** |
 
 ---
 
@@ -132,22 +132,20 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 
 6 个页面都用同一套写法：`payload` 字符串 → `parsePayload()`（2×2 / 2×4 / 4×4 经页面私有 `getParsed()`，1×2 三页直接在 `getUIState()` 内调用）→ ViewModel 静态方法 → 组件。ViewModel 完全无状态，四个 ViewModel 均有 `entry/src/test` 单测。
 
-### 2.5 点击刷新链路
+### 2.5 点击卡片链路
 
 ```
 卡片 onClick
-  → postCardAction({ action: 'call', abilityName: 'WidgetSyncAbility', method: 'sync' })
-  → WidgetSyncAbility.onCreate 注册的 callee.on('sync')
-      → isSyncing 并发锁（模块级变量，WidgetSyncAbility.ets:43；检查在 :191，冷却通过后 :209 同步置位，见 M7）
-      → 冷却检查：widget_last_sync_time 距今 < 30 分钟则拒绝（:40 / :204）
-      → 立即返回 SyncParcelable(true, 'Sync started')（:237）
-      → 异步：CoreInitializer.initCore() → syncAllWidgets()
-          → 遍历 账号 × 角色，逐个 syncDailyNote（:105-118）
-          → WidgetDataStoreBuilder.refreshAndSave()
-          → WidgetUpdateNotifier.notifyAllWidgets()
+  → postCardAction({ action: 'router', abilityName: 'EntryAbility', params: { from: 'widget' } })
+  → EntryAbility.onCreate / onNewWant 检测 want.parameters.from === 'widget'
+      → onCreate：Core 就绪后（registerReadyHook 内）调用 WidgetSyncHook.onDailyNotesSynced(context)
+      → onNewWant：应用已在运行时直接调用
+          → WidgetDataStoreBuilder.refreshAndSave()（本地 DB → Preferences → 推送卡片）
 ```
 
-**关键时序**：`call` 的返回值和同步是否成功**没有关系**——返回 `'Sync started'` 时同步才刚开始，卡片侧拿不到最终结果。
+**2026-11-19 修正**：原先 6 张卡片都发 `action: 'call'` 拉起 `WidgetSyncAbility`，但该 Ability 的 `onWindowStageCreate` 不 `loadContent`，是纯后台同步入口——点击卡片只会在后台同步，**永远不会打开 App**。现在改为 `router` 直接打开 `EntryAbility`，由它刷新一次卡片数据；网络同步交给 App 首页原有的同步流程（同步完成回调仍会刷新卡片）。
+
+`WidgetSyncAbility` 暂时保留（`exported: true`、`KEEP_BACKGROUND_RUNNING` 权限未动），但当前**没有任何调用方**。后续若要恢复「点击卡片触发网络同步」，建议把 `syncAllWidgets` 抽到 widget 功能层，由 `EntryAbility` 在收到 `from=widget` 时调用，而不是让卡片直接拉起一个无界面的 Ability。
 
 ---
 
@@ -245,10 +243,10 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | # | 问题 | 位置 | 说明 |
 | --- | --- | --- | --- |
 | M1 | `build()` 内反复解析 payload | `Widget2x2.ets:57/61/63`（`getGameIds` / `getIsEmpty` / `getIsSingleGame` 各 `getParsed()` 1 次）+ `build()` 内 6 处 `getUIState()`，多游戏分支单次渲染最多 **9 次** `JSON.parse`；`Widget2x4.ets` / `Widget4x4.ets` 各 6 次 `getUIState()` + 1 次 `getGameIds()`（**7 次**）；1×2 三页各 2 次 | 每次 `getUIState()` 都 `JSON.parse` 整个 payload 并重建 `ParsedPayload` + UIState。V1 没有 computed，且 `build()` 不能声明局部变量——这是限制下的写法，但可以让页面缓存一次（私有字段记住上次的 `payloadJson` 与解析结果，`payloadJson` 变化时失效；V1 页面不能用 V2 的 `@Local`）。**✅ 已修复（2026-11-11，见 §7 M1 执行记录）** |
-| M2 | 30 分钟冷却被所有卡片共享，且失败也计入冷却 | `WidgetSyncAbility.ets:40 / 43 / 204 / 224` | `widget_last_sync_time` 是**单个全局 key**：用户点了 1×2 的卡片后，30 分钟内点任何其他卡片都只得到 "In cooldown"；没有 per-form 刷新。另外 `syncAllWidgets` 自己吞掉全部异常（`:131-134`），`refreshAndSave` 失败也只是 `return`（`:122-124`），所以 `:224` 的时间戳在同步失败时照写，`:227` 的 catch 实际不可达——**一次失败的刷新同样锁 30 分钟** |
-| M3 | 同步结果不可见 | `WidgetSyncAbility.ets:237` | `call` 立刻返回 `'Sync started'`，之后失败只写 hilog；卡片侧无法显示"刷新失败" |
+| M2 | 30 分钟冷却被所有卡片共享，且失败也计入冷却 | `WidgetSyncAbility.ets:40 / 43 / 204 / 224` | `widget_last_sync_time` 是**单个全局 key**：用户点了 1×2 的卡片后，30 分钟内点任何其他卡片都只得到 "In cooldown"；没有 per-form 刷新。另外 `syncAllWidgets` 自己吞掉全部异常（`:131-134`），`refreshAndSave` 失败也只是 `return`（`:122-124`），所以 `:224` 的时间戳在同步失败时照写，`:227` 的 catch 实际不可达——**一次失败的刷新同样锁 30 分钟**。2026-11-19 起卡片点击改走 `router`，该链路当前无调用方 |
+| M3 | 同步结果不可见 | `WidgetSyncAbility.ets:237` | `call` 立刻返回 `'Sync started'`，之后失败只写 hilog；卡片侧无法显示"刷新失败"。2026-11-19 起该链路无调用方 |
 | M4 | `onAddForm` 全同步链路压在 10 秒窗口 | `EntryFormAbility.ets:42 / 45-67`（Preferences 同步读 + `loadFormImagesSync` + payload 构建） | 账号 × 角色多时，图片 fd 读取与 payload 构建都在主线程；没有超时保护 |
-| M5 | 全量同步是串行双层循环 | `WidgetSyncAbility.ets:105-118` | 账号 × 角色逐个 `await syncDailyNote`，无并发上限、无进度、无总超时；一次点击可能是几十个串行网络请求 |
+| M5 | 全量同步是串行双层循环 | `WidgetSyncAbility.ets:105-118` | 账号 × 角色逐个 `await syncDailyNote`，无并发上限、无进度、无总超时；一次点击可能是几十个串行网络请求。2026-11-19 起该链路无调用方 |
 | M6 | ✅ 已修复（2026-11-12） | 原 `WidgetImageDownloader.ets:87`（文件名固定 `${prefsKey}_${i}.png`）、`:91-105`（文件已存在就跳过下载） | 修复：下载时把源 URL 记到 `${key}_url`，只有「文件存在 **且 URL 未变**」才跳过；URL 变化（派遣角色变化 / 换账号）重新下载并用 `TRUNC` 覆盖同名文件。旧安装（无 URL 记录）会重下一次，自动纠正历史陈旧头像 |
 | M7 | ✅ 已修复（2026-11-12） | 原 `WidgetSyncAbility.ets:194` 检查 vs `:217` 置位（`initCore()` + 两次 `init` 完成后才置位） | 修复：冷却检查通过后**同步**置位 `isSyncing`，再启动异步链；`initCore` 失败也释放锁。`initCore` 期间连点卡片会被 "Already syncing" 拦下，不再并发起多条 `syncAllWidgets` |
 | M8 | ✅ 已修复（2026-11-13） | 原：`WidgetFormIdStore.save()` 全工程零调用 → `widget_form_ids` 永远为空，`WidgetDataBuilder.buildAndPushForAccount` 恒提前返回，`AccountDetailViewModel.deleteAccount` 的卡片清理恒为 no-op | 修复：整条遗留链路删除（`WidgetFormIdStore.ets` 141 行 + `WidgetDataBuilder.ets` 228 行 + `WidgetFormIdStore.test.ets` 3 条用例），`WidgetSyncHandlerImpl` 只留 `refreshAndSave`，`WidgetSyncHook.init` 与通知服务 init 里的调用一并删除，`AccountDetailViewModel` 去掉 no-op 清理。真正的卡片推送一直由 `WidgetDataStoreBuilder.refreshAndSave` → `WidgetUpdateNotifier.notifyAllWidgets` 负责，行为零变更 |
@@ -501,5 +499,19 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | 验证 | 首轮 `notifyAllWidgets: done, success=1 removed=4 failed=0`；后续两轮 `found 1 widgets` / `removed=0 failed=0`，不再出现 `16501001` |
 | 计数 | 0 Critical / 0 High / 4 Medium / 1 Low，评级 **A**；`widget` 单测 79 → 80 条 |
 | 遗留 | 6 张卡片在真机的实际视觉、超时高亮、派遣头像仍需真机验证，见 [`device-regression-checklist.md`](./device-regression-checklist.md) §2 |
+
+### 复核记录（2026-11-19 第 10 轮：绝区零体力 0/160 + 卡片点击）
+
+| 检查项 | 结论 |
+| --- | --- |
+| 现象 | 4×4 卡片绝区零显示 `0/160 已回满`，App 内是 `65/240`；点击卡片不打开 App |
+| 根因 1（数据） | `ZZZRepository.doSyncDailyNoteWidget` 构造的新行只填 `widgetRawJson`，而 `ZZZDailyNoteDao.upsert` 是 `INSERT OR REPLACE` 整行覆盖 → 普通便笺写入的 `raw_json` 被清空。实测 UAT 库：`energy_current=65`、`energy_max=240`、`raw_json` 长度 **0**、`widget_raw_json` 长度 1655 |
+| 根因 2（解析） | `WidgetPayloadUtil.parseStaminaData` 只读 `rawJson`，为空时保留默认 `currentStamina=0 / maxStamina=160 / recoverySeconds=0`；`formatRecoveryTime(0, false)` 又把 0 秒判为已满 → 显示 `0/160 已回满` |
+| 根因 3（点击） | 6 张卡片都发 `postCardAction({ action: 'call', abilityName: 'WidgetSyncAbility' })`，该 Ability 不 `loadContent`，点击只触发后台同步，永远不打开 App |
+| 修复 1 | `doSyncDailyNoteWidget` 先 `findOne` 已有行，`parseZZZDailyNoteData` 新增 `existing` 参数，保留 `rawJson` 与 Widget 接口缺失的 `energy` / `vitality` / `vhs_sale` / `card_sign` 字段 |
+| 修复 2 | `parseStaminaData` 拆成 `parseStaminaFromJson`，`rawJson` 解析不到体力时回退 `widgetRawJson`；`WidgetPayloadBuilder.resolveUpdatedAt` 判空同时看两个 JSON |
+| 修复 3 | 6 张卡片改 `router` → `EntryAbility`，`params: { from: 'widget' }`；`EntryAbility.onCreate`（`registerReadyHook` 内）与 `onNewWant` 检测后调用 `WidgetSyncHook.onDailyNotesSynced` 刷新卡片 |
+| 验证 | 模拟器 UAT 包：卡片由 `0/160 已回满` 变为 `66/240 / 17小时18分钟后回满`；点击卡片成功打开 App 首页；`widgetbase` 102 条（+2）、`widget` 80 条、`core` 250 条本地单测全绿 |
+| 遗留 | `WidgetSyncAbility` 当前无调用方，是否删除或改为「长按菜单同步」待决策；1×2 卡片点击目前统一进首页，尚未按 `gameId` 直达对应游戏详情 |
 
 【已核对代码一致性】

@@ -1,4 +1,4 @@
-import { UIAbility, Want, AbilityConstant, Configuration } from '@kit.AbilityKit';
+import { UIAbility, Want, AbilityConstant, Configuration, common } from '@kit.AbilityKit';
 import { window } from '@kit.ArkUI';
 import { CoreInitializer, Logger, SyncQueueRunner } from 'core';
 import { APP_ENV, TransparentColorCache, WidgetSyncHook } from 'basic';
@@ -7,9 +7,35 @@ import { StaminaNotificationService } from 'notification';
 import { WidgetDataStoreBuilder, WidgetDataStoreManager, WidgetSyncHandlerImpl } from 'widget';
 
 const TAG: string = 'EntryAbility';
+/** 卡片点击打开应用时携带的来源标记（与 6 个 Widget 页面的 postCardAction 保持一致） */
+const WIDGET_SOURCE_PARAM: string = 'from';
+const WIDGET_SOURCE_VALUE: string = 'widget';
 
 export default class EntryAbility extends UIAbility {
-  onCreate(_want: Want, _launchParam: AbilityConstant.LaunchParam) {
+  /**
+   * 判断本次启动是否来自卡片点击。
+   *
+   * 卡片用 postCardAction({ action: 'router', params: { from: 'widget' } }) 打开应用，
+   * params 会原样进入 want.parameters。
+   */
+  private static isFromWidget(want: Want): boolean {
+    const params = want.parameters;
+    if (params === undefined || params === null) {
+      return false;
+    }
+    return `${params[WIDGET_SOURCE_PARAM] ?? ''}` === WIDGET_SOURCE_VALUE;
+  }
+
+  /** 从卡片进入时刷新一次卡片数据（本地 DB → Preferences → 推送卡片） */
+  private static async refreshWidgetData(context: common.UIAbilityContext): Promise<void> {
+    try {
+      await WidgetSyncHook.onDailyNotesSynced(context);
+    } catch (e) {
+      Logger.warning(TAG, `refreshWidgetData failed: ${JSON.stringify(e)}`);
+    }
+  }
+
+  onCreate(want: Want, _launchParam: AbilityConstant.LaunchParam) {
     Logger.info(TAG, 'onCreate');
 
     // 注册卡片推送实现（须早于 StaminaNotificationService.init）
@@ -39,6 +65,10 @@ export default class EntryAbility extends UIAbility {
       StaminaNotificationService.getInstance().init(this.context).catch((e: Error | object) => {
         Logger.warning(TAG, `StaminaNotificationService.init failed: ${JSON.stringify(e)}`);
       });
+      // 从卡片点击进入：Core 与 Widget 存储就绪后刷新一次卡片数据
+      if (EntryAbility.isFromWidget(want)) {
+        await EntryAbility.refreshWidgetData(this.context);
+      }
     });
 
     // 初始化核心库，直接传递 AppEnv，无需任何转换
@@ -66,7 +96,10 @@ export default class EntryAbility extends UIAbility {
    */
   onNewWant(want: Want, _launchParam: AbilityConstant.LaunchParam): void {
     Logger.info(TAG, `onNewWant: action=${want.action} parameters=${JSON.stringify(want.parameters)}`);
-    // 当前无特殊处理，保留方法供后续扩展
+    // 应用已在运行时从卡片点击进入：直接刷新卡片数据
+    if (EntryAbility.isFromWidget(want)) {
+      EntryAbility.refreshWidgetData(this.context);
+    }
   }
 
   onWindowStageCreate(windowStage: window.WindowStage) {

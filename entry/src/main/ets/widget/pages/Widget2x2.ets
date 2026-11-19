@@ -148,10 +148,10 @@ struct Widget2x2 {
     .accessibilityText($r('app.string.a11y_widget_card'))
     .onClick(() => {
       postCardAction(this, {
-        action: 'call',
-        abilityName: 'WidgetSyncAbility',
+        action: 'router',
+        abilityName: 'EntryAbility',
         params: {
-          method: 'sync'
+          from: 'widget'
         }
       });
     })

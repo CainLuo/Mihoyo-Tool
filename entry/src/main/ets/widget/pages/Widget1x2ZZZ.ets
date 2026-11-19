@@ -74,10 +74,10 @@ struct Widget1x2ZZZ {
     .borderRadius(theme.radius16)
     .onClick(() => {
       postCardAction(this, {
-        action: 'call',
-        abilityName: 'WidgetSyncAbility',
+        action: 'router',
+        abilityName: 'EntryAbility',
         params: {
-          method: 'sync'
+          from: 'widget'
         }
       });
     })
