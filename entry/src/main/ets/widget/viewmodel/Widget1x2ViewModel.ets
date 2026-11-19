@@ -64,6 +64,7 @@ export class Widget1x2ViewModel {
 
     state.gameId = role.gameId;
     state.gameName = getGameName(role.gameId);
+    state.accountId = role.accountId;
     state.accountUid = role.roleId;
     state.currentStamina = role.currentStamina;
     state.maxStamina = role.maxStamina;

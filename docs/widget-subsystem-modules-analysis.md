@@ -136,14 +136,22 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 
 ```
 卡片 onClick
-  → postCardAction({ action: 'router', abilityName: 'EntryAbility', params: { from: 'widget' } })
-  → EntryAbility.onCreate / onNewWant 检测 want.parameters.from === 'widget'
-      → onCreate：Core 就绪后（registerReadyHook 内）调用 WidgetSyncHook.onDailyNotesSynced(context)
-      → onNewWant：应用已在运行时直接调用
+  → postCardAction({ action: 'router', abilityName: 'EntryAbility',
+                     params: { from: 'widget'[, gameId, accountId, roleUid] } })
+  → EntryAbility
+      → onCreate：解析路由 → AppStorage('widgetEntryRoute')（冷启动，等 MainPage 挂载时消费）
+      → onNewWant：解析路由 → eventHub.emit('widgetEntryRoute')（热启动，MainPage 直接消费）
+      → 两条路径都会调用 WidgetSyncHook.onDailyNotesSynced(context)
           → WidgetDataStoreBuilder.refreshAndSave()（本地 DB → Preferences → 推送卡片）
+  → MainPage
+      → 1×2 卡片：gameId + accountId + roleUid → buildDailyDetailRoute()
+          → 竖屏 pushPathByName / 分栏 replacePath → 对应游戏便笺详情页
+      → 2×2 / 2×4 / 4×4：只带 from，落在首页
 ```
 
-**2026-11-19 修正**：原先 6 张卡片都发 `action: 'call'` 拉起 `WidgetSyncAbility`，但该 Ability 的 `onWindowStageCreate` 不 `loadContent`，是纯后台同步入口——点击卡片只会在后台同步，**永远不会打开 App**。现在改为 `router` 直接打开 `EntryAbility`，由它刷新一次卡片数据；网络同步交给 App 首页原有的同步流程（同步完成回调仍会刷新卡片）。
+**2026-11-19 修正**：原先 6 张卡片都发 `action: 'call'` 拉起 `WidgetSyncAbility`，但该 Ability 的 `onWindowStageCreate` 不 `loadContent`，是纯后台同步入口——点击卡片只会在后台同步，**永远不会打开 App**。现在改为 `router` 直接打开 `EntryAbility`，由它刷新一次卡片数据并处理跳转；网络同步交给 App 首页原有的同步流程（同步完成回调仍会刷新卡片）。
+
+**1×2 直达详情**：`ParsedRole` 增加 `accountId`，`Widget1x2RoleUIState` 透传，卡片点击时把 `gameId` / `accountId` / `roleUid` 放进 `params`。路由映射收敛到 `features/home` 的 `buildDailyDetailRoute()`，首页卡片点击与桌面卡片点击共用同一份实现。
 
 `WidgetSyncAbility` 暂时保留（`exported: true`、`KEEP_BACKGROUND_RUNNING` 权限未动），但当前**没有任何调用方**。后续若要恢复「点击卡片触发网络同步」，建议把 `syncAllWidgets` 抽到 widget 功能层，由 `EntryAbility` 在收到 `from=widget` 时调用，而不是让卡片直接拉起一个无界面的 Ability。
 
@@ -512,6 +520,6 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | 修复 2 | `parseStaminaData` 拆成 `parseStaminaFromJson`，`rawJson` 解析不到体力时回退 `widgetRawJson`；`WidgetPayloadBuilder.resolveUpdatedAt` 判空同时看两个 JSON |
 | 修复 3 | 6 张卡片改 `router` → `EntryAbility`，`params: { from: 'widget' }`；`EntryAbility.onCreate`（`registerReadyHook` 内）与 `onNewWant` 检测后调用 `WidgetSyncHook.onDailyNotesSynced` 刷新卡片 |
 | 验证 | 模拟器 UAT 包：卡片由 `0/160 已回满` 变为 `66/240 / 17小时18分钟后回满`；点击卡片成功打开 App 首页；`widgetbase` 102 条（+2）、`widget` 80 条、`core` 250 条本地单测全绿 |
-| 遗留 | `WidgetSyncAbility` 当前无调用方，是否删除或改为「长按菜单同步」待决策；1×2 卡片点击目前统一进首页，尚未按 `gameId` 直达对应游戏详情 |
+| 遗留 | `WidgetSyncAbility` 当前无调用方，是否删除或改为「长按菜单同步」待决策；1×2 卡片点击已在同批次补上直达详情页 |
 
 【已核对代码一致性】

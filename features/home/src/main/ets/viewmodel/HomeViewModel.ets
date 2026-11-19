@@ -46,6 +46,41 @@ export class HomeCardTapRoute {
   param: GenshinDailyDetailParam | StarRailDailyDetailParam | ZZZDailyDetailParam = new GenshinDailyDetailParam();
 }
 
+/**
+ * 按 gameId 构建便笺详情页路由。
+ *
+ * 首页卡片点击与桌面卡片点击（1×2 直达）共用同一份 gameId → 路由映射，
+ * 避免两处各写一套 if 分支。返回 null 表示该游戏暂不支持跳转。
+ */
+export function buildDailyDetailRoute(gameId: string, accountId: string, roleUid: string): HomeCardTapRoute | null {
+  const route = new HomeCardTapRoute();
+  if (gameId === GameId.GENSHIN) {
+    const param = new GenshinDailyDetailParam();
+    param.accountId = accountId;
+    param.roleUid = roleUid;
+    route.routeName = AppRoutes.GENSHIN_DAILY_DETAIL;
+    route.param = param;
+    return route;
+  }
+  if (gameId === GameId.STARRAIL) {
+    const param = new StarRailDailyDetailParam();
+    param.accountId = accountId;
+    param.roleUid = roleUid;
+    route.routeName = AppRoutes.STARRAIL_DAILY_DETAIL;
+    route.param = param;
+    return route;
+  }
+  if (gameId === GameId.ZZZ) {
+    const param = new ZZZDailyDetailParam();
+    param.accountId = accountId;
+    param.roleUid = roleUid;
+    route.routeName = AppRoutes.ZZZ_DAILY_DETAIL;
+    route.param = param;
+    return route;
+  }
+  return null;
+}
+
 @ObservedV2
 export class HomeViewModel {
 
@@ -72,32 +107,7 @@ export class HomeViewModel {
    * 返回 null 表示该游戏暂不支持跳转。
    */
   buildCardTapRoute(accountId: string, card: GameRoleCardVM): HomeCardTapRoute | null {
-    const route = new HomeCardTapRoute();
-    if (card.gameId === GameId.GENSHIN) {
-      const param = new GenshinDailyDetailParam();
-      param.accountId = accountId;
-      param.roleUid = card.roleUid;
-      route.routeName = AppRoutes.GENSHIN_DAILY_DETAIL;
-      route.param = param;
-      return route;
-    }
-    if (card.gameId === GameId.STARRAIL) {
-      const param = new StarRailDailyDetailParam();
-      param.accountId = accountId;
-      param.roleUid = card.roleUid;
-      route.routeName = AppRoutes.STARRAIL_DAILY_DETAIL;
-      route.param = param;
-      return route;
-    }
-    if (card.gameId === GameId.ZZZ) {
-      const param = new ZZZDailyDetailParam();
-      param.accountId = accountId;
-      param.roleUid = card.roleUid;
-      route.routeName = AppRoutes.ZZZ_DAILY_DETAIL;
-      route.param = param;
-      return route;
-    }
-    return null;
+    return buildDailyDetailRoute(card.gameId, accountId, card.roleUid);
   }
 
   /**

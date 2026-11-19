@@ -73,11 +73,15 @@ struct Widget1x2Genshin {
     .linearGradient(createSingleGameGradient(WidgetGameId.GENSHIN))
     .borderRadius(theme.radius16)
     .onClick(() => {
+      const role = this.getUIState().role;
       postCardAction(this, {
         action: 'router',
         abilityName: 'EntryAbility',
         params: {
-          from: 'widget'
+          from: 'widget',
+          gameId: WidgetGameId.GENSHIN,
+          accountId: role.accountId,
+          roleUid: role.accountUid
         }
       });
     })

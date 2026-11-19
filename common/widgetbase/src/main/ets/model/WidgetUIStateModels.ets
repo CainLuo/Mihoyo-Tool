@@ -138,6 +138,8 @@ export class Widget1x2RoleUIState {
   gameId: string = WidgetGameId.GENSHIN;
   /** 游戏名称（已在 ViewModel 中转换） */
   gameName: string = '';
+  /** 所属米游社账号 ID（卡片点击直达详情页时需要） */
+  accountId: string = '';
   /** 游戏角色 UID */
   accountUid: string = '';
   /** 当前体力 */

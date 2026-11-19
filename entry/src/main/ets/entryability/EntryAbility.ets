@@ -5,11 +5,18 @@ import { APP_ENV, TransparentColorCache, WidgetSyncHook } from 'basic';
 import { AppearanceManager } from 'settings';
 import { StaminaNotificationService } from 'notification';
 import { WidgetDataStoreBuilder, WidgetDataStoreManager, WidgetSyncHandlerImpl } from 'widget';
+import {
+  WidgetEntryRoute,
+  WIDGET_ENTRY_ACCOUNT_PARAM,
+  WIDGET_ENTRY_FROM_PARAM,
+  WIDGET_ENTRY_FROM_VALUE,
+  WIDGET_ENTRY_GAME_PARAM,
+  WIDGET_ENTRY_ROLE_PARAM,
+  WIDGET_ENTRY_ROUTE_EVENT,
+  WIDGET_ENTRY_ROUTE_STORAGE
+} from '../widget/WidgetEntryRoute';
 
 const TAG: string = 'EntryAbility';
-/** 卡片点击打开应用时携带的来源标记（与 6 个 Widget 页面的 postCardAction 保持一致） */
-const WIDGET_SOURCE_PARAM: string = 'from';
-const WIDGET_SOURCE_VALUE: string = 'widget';
 
 export default class EntryAbility extends UIAbility {
   /**
@@ -23,7 +30,31 @@ export default class EntryAbility extends UIAbility {
     if (params === undefined || params === null) {
       return false;
     }
-    return `${params[WIDGET_SOURCE_PARAM] ?? ''}` === WIDGET_SOURCE_VALUE;
+    return `${params[WIDGET_ENTRY_FROM_PARAM] ?? ''}` === WIDGET_ENTRY_FROM_VALUE;
+  }
+
+  /**
+   * 解析卡片直达详情页的路由参数。
+   *
+   * 1×2 卡片携带 gameId / accountId / roleUid；2×2 / 2×4 / 4×4 只带 from，
+   * 返回 null 表示落在首页即可。
+   */
+  private static buildEntryRoute(want: Want): WidgetEntryRoute | null {
+    if (!EntryAbility.isFromWidget(want)) {
+      return null;
+    }
+    const params = want.parameters;
+    if (params === undefined || params === null) {
+      return null;
+    }
+    const route = new WidgetEntryRoute();
+    route.gameId = `${params[WIDGET_ENTRY_GAME_PARAM] ?? ''}`;
+    route.accountId = `${params[WIDGET_ENTRY_ACCOUNT_PARAM] ?? ''}`;
+    route.roleUid = `${params[WIDGET_ENTRY_ROLE_PARAM] ?? ''}`;
+    if (route.gameId.length === 0 || route.accountId.length === 0 || route.roleUid.length === 0) {
+      return null;
+    }
+    return route;
   }
 
   /** 从卡片进入时刷新一次卡片数据（本地 DB → Preferences → 推送卡片） */
@@ -37,6 +68,12 @@ export default class EntryAbility extends UIAbility {
 
   onCreate(want: Want, _launchParam: AbilityConstant.LaunchParam) {
     Logger.info(TAG, 'onCreate');
+
+    // 冷启动来自卡片：先落到 AppStorage，MainPage 挂载时消费（LaunchPage 可能还没走完）
+    const entryRoute = EntryAbility.buildEntryRoute(want);
+    if (entryRoute !== null) {
+      AppStorage.setOrCreate(WIDGET_ENTRY_ROUTE_STORAGE, entryRoute);
+    }
 
     // 注册卡片推送实现（须早于 StaminaNotificationService.init）
     WidgetSyncHook.register(new WidgetSyncHandlerImpl());
@@ -96,8 +133,16 @@ export default class EntryAbility extends UIAbility {
    */
   onNewWant(want: Want, _launchParam: AbilityConstant.LaunchParam): void {
     Logger.info(TAG, `onNewWant: action=${want.action} parameters=${JSON.stringify(want.parameters)}`);
-    // 应用已在运行时从卡片点击进入：直接刷新卡片数据
+    // 应用已在运行时从卡片点击进入：先通知 MainPage 跳转，再刷新卡片数据
     if (EntryAbility.isFromWidget(want)) {
+      const entryRoute = EntryAbility.buildEntryRoute(want);
+      if (entryRoute !== null) {
+        try {
+          this.context.eventHub.emit(WIDGET_ENTRY_ROUTE_EVENT, entryRoute);
+        } catch (e) {
+          Logger.warning(TAG, `emit widget entry route failed: ${JSON.stringify(e)}`);
+        }
+      }
       EntryAbility.refreshWidgetData(this.context);
     }
   }

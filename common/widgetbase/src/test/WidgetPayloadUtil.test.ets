@@ -49,6 +49,8 @@ export default function widgetPayloadParserTest(): void {
       expect(role.roleId).assertEqual('role1');
       expect(role.nickname).assertEqual('旅行者');
       expect(role.server).assertEqual('cn_gf01');
+      // 卡片点击直达详情页依赖 role.accountId 回填
+      expect(role.accountId).assertEqual('acc1');
     });
     
     // ── 体力数据解析 ──────────────────────────────────────────────────────

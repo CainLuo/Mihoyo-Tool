@@ -1,6 +1,6 @@
 import { describe, it, expect } from '@ohos/hypium';
-import { HomeViewModel } from '../main/ets/viewmodel/HomeViewModel';
-import { ViewState, getGameColorByStr } from 'basic';
+import { HomeViewModel, buildDailyDetailRoute } from '../main/ets/viewmodel/HomeViewModel';
+import { ViewState, getGameColorByStr, AppRoutes } from 'basic';
 import { GameId } from 'core';
 
 export default function homeViewModelTest() {
@@ -96,6 +96,32 @@ export default function homeViewModelTest() {
     it('refreshCoolingDown 初始为 false', 0, () => {
       const vm = new HomeViewModel();
       expect(vm.isRefreshCoolingDown).assertFalse();
+    });
+
+    // ─── buildDailyDetailRoute（首页与桌面卡片共用）──────────────────
+
+    it('buildDailyDetailRoute 原神返回原神便笺详情路由', 0, () => {
+      const route = buildDailyDetailRoute(GameId.GENSHIN, 'acc1', 'uid1');
+      expect(route !== null).assertTrue();
+      expect(route?.routeName).assertEqual(AppRoutes.GENSHIN_DAILY_DETAIL);
+      expect(route?.param.accountId).assertEqual('acc1');
+      expect(route?.param.roleUid).assertEqual('uid1');
+    });
+
+    it('buildDailyDetailRoute 星铁返回星铁便笺详情路由', 0, () => {
+      const route = buildDailyDetailRoute(GameId.STARRAIL, 'acc2', 'uid2');
+      expect(route?.routeName).assertEqual(AppRoutes.STARRAIL_DAILY_DETAIL);
+      expect(route?.param.accountId).assertEqual('acc2');
+    });
+
+    it('buildDailyDetailRoute 绝区零返回绝区零便笺详情路由', 0, () => {
+      const route = buildDailyDetailRoute(GameId.ZZZ, 'acc3', 'uid3');
+      expect(route?.routeName).assertEqual(AppRoutes.ZZZ_DAILY_DETAIL);
+      expect(route?.param.roleUid).assertEqual('uid3');
+    });
+
+    it('buildDailyDetailRoute 未知游戏返回 null', 0, () => {
+      expect(buildDailyDetailRoute('unknown', 'acc', 'uid') === null).assertTrue();
     });
 
 

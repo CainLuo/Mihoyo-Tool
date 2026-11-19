@@ -6,11 +6,12 @@
  * 各 Tab 页的 ViewModel 通过 @Param 回调把状态和操作函数传给 MainPage。
  */
 import { ComponentContent } from '@kit.ArkUI'
+import { common } from '@kit.AbilityKit'
 import { Logger } from 'core'
 import { window } from '@kit.ArkUI'
 import { display } from '@kit.ArkUI'
 import { themeManager, ThemeManager, AccountOption, AccountSwitchDialogParams, AppRoutes, splitPlaceholderBuilder, CookieExpiredSignal } from 'basic'
-import { HomePage } from 'home'
+import { HomePage, buildDailyDetailRoute } from 'home'
 import { CharactersPage } from 'characters'
 import { MyPage } from 'account'
 import { ToolsPage } from 'material'
@@ -22,6 +23,7 @@ import { MainDialogArbiter } from '../utils/MainDialogArbiter'
 import { TAB_HOME, TAB_CHARACTERS, TAB_TOOLS, TAB_MY, resolveTabTitle, buildHomeMenuItems,
   buildCharMenuItems, buildMyMenuItems, createTabItem } from '../utils/MainMenuItems'
 import { accountSwitchDialogBuilder } from './MainPageBuilders'
+import { WidgetEntryRoute, WIDGET_ENTRY_ROUTE_EVENT, WIDGET_ENTRY_ROUTE_STORAGE } from '../widget/WidgetEntryRoute'
 
 
 @ComponentV2
@@ -91,6 +93,54 @@ export struct MainPage {
   private charDoRefresh: () => void = () => {}
   private charDoSelectAccount: (idx: number) => void = (_idx: number) => {}
 
+  // ── 卡片点击直达详情页 ──────────────────────────────────────────
+  /** 热启动（EntryAbility.onNewWant）通过 EventHub 发来的路由 */
+  private widgetRouteCallback: (route: WidgetEntryRoute) => void = (route: WidgetEntryRoute) => {
+    this.openWidgetRoute(route)
+  }
+
+  /** 打开卡片指定的便笺详情页；参数不完整或游戏不支持时停留在首页 */
+  private openWidgetRoute(route: WidgetEntryRoute): void {
+    const tap = buildDailyDetailRoute(route.gameId, route.accountId, route.roleUid)
+    if (tap === null) {
+      return
+    }
+    this.selectedTab = TAB_HOME
+    if (this.isSplit) {
+      this.stack.replacePath({ name: tap.routeName, param: tap.param })
+    } else {
+      this.stack.pushPathByName(tap.routeName, tap.param)
+    }
+  }
+
+  /** 冷启动：消费 EntryAbility 在 onCreate 写入的路由 */
+  private consumeWidgetRoute(): void {
+    const route = AppStorage.get<WidgetEntryRoute>(WIDGET_ENTRY_ROUTE_STORAGE)
+    if (route === undefined || route === null) {
+      return
+    }
+    AppStorage.delete(WIDGET_ENTRY_ROUTE_STORAGE)
+    this.openWidgetRoute(route)
+  }
+
+  private registerWidgetRouteListener(): void {
+    try {
+      const ctx = this.getUIContext().getHostContext() as common.UIAbilityContext
+      ctx.eventHub.on(WIDGET_ENTRY_ROUTE_EVENT, this.widgetRouteCallback)
+    } catch (_e) {
+      // 注册失败时仅失去热启动跳转能力
+    }
+  }
+
+  private unregisterWidgetRouteListener(): void {
+    try {
+      const ctx = this.getUIContext().getHostContext() as common.UIAbilityContext
+      ctx.eventHub.off(WIDGET_ENTRY_ROUTE_EVENT, this.widgetRouteCallback)
+    } catch (_e) {
+      // 注销失败时忽略
+    }
+  }
+
   aboutToAppear(): void {
     this.uiCtx = this.getUIContext()
     this.dialogArbiter.attach(this.uiCtx, this.stack, this.geetestSignal, this.deviceFpInvalidSignal, this.viewModel)
@@ -121,9 +171,13 @@ export struct MainPage {
     } catch (_e) {
       // 注册窗口状态监听失败时忽略
     }
+    // 卡片点击：冷启动消费 AppStorage 路由，热启动监听 EventHub
+    this.registerWidgetRouteListener()
+    this.consumeWidgetRoute()
   }
 
   aboutToDisappear(): void {
+    this.unregisterWidgetRouteListener()
     try {
       this.windowClass?.off('windowSizeChange', this.windowSizeCallback)
       this.windowClass?.off('windowStatusChange', this.windowStatusCallback)

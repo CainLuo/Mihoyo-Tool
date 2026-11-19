@@ -73,11 +73,15 @@ struct Widget1x2StarRail {
     .linearGradient(createSingleGameGradient(WidgetGameId.STARRAIL))
     .borderRadius(theme.radius16)
     .onClick(() => {
+      const role = this.getUIState().role;
       postCardAction(this, {
         action: 'router',
         abilityName: 'EntryAbility',
         params: {
-          from: 'widget'
+          from: 'widget',
+          gameId: WidgetGameId.STARRAIL,
+          accountId: role.accountId,
+          roleUid: role.accountUid
         }
       });
     })
