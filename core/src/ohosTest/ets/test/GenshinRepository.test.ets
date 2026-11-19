@@ -101,44 +101,43 @@ export default function genshinRepositoryTest() {
   const repo = new GenshinRepository();
   const syncMetaDao = new SyncMetaDao();
 
-  beforeAll(async () => {
-    await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
-    const acc = new AccountRow();
-    acc.id = 20001;
-    acc.username = 'genshin_repo_test_account';
-    acc.cookie = '';
-    acc.isActive = 0;
-    acc.createTime = 0;
-    acc.updateTime = 0;
-    acc.uid = '';
-    acc.nickname = '';
-    acc.avatarUrl = '';
-    acc.introduce = '';
-    await bbsRepo.saveAccount(acc);
-  });
-
-  beforeEach(async () => {
-    await repo.deleteAvatarList(TEST_ACCOUNT_ID, TEST_ROLE_UID);
-    const store = RdbManager.getRdbStore();
-    await store.executeSql(
-      'DELETE FROM genshin_daily_note WHERE account_id = ?',
-      [TEST_ACCOUNT_ID]
-    );
-    await store.executeSql(
-      'DELETE FROM genshin_character_detail WHERE account_id = ?',
-      [TEST_ACCOUNT_ID]
-    );
-    await store.executeSql(
-      'DELETE FROM genshin_character_compute WHERE account_id = ?',
-      [TEST_ACCOUNT_ID]
-    );
-    await store.executeSql(
-      'DELETE FROM sync_meta WHERE account_id = ?',
-      [TEST_ACCOUNT_ID]
-    );
-  });
-
   describe('GenshinRepository', () => {
+
+    beforeAll(async () => {
+      await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
+      const acc = new AccountRow();
+      acc.username = 'genshin_repo_test_account';
+      acc.cookie = '';
+      acc.isActive = 0;
+      acc.createTime = 0;
+      acc.updateTime = 0;
+      acc.uid = TEST_ACCOUNT_ID;
+      acc.nickname = '';
+      acc.avatarUrl = '';
+      acc.introduce = '';
+      await bbsRepo.saveAccount(acc);
+    });
+
+    beforeEach(async () => {
+      await repo.deleteAvatarList(TEST_ACCOUNT_ID, TEST_ROLE_UID);
+      const store = RdbManager.getRdbStore();
+      await store.executeSql(
+        'DELETE FROM genshin_daily_note WHERE account_id = ?',
+        [TEST_ACCOUNT_ID]
+      );
+      await store.executeSql(
+        'DELETE FROM genshin_character_detail WHERE account_id = ?',
+        [TEST_ACCOUNT_ID]
+      );
+      await store.executeSql(
+        'DELETE FROM genshin_character_compute WHERE account_id = ?',
+        [TEST_ACCOUNT_ID]
+      );
+      await store.executeSql(
+        'DELETE FROM sync_meta WHERE account_id = ?',
+        [TEST_ACCOUNT_ID]
+      );
+    });
 
     it('getAvatarList_emptyTable_returnsEmptyArray', 0, async () => {
       const result = await repo.getAvatarList(TEST_ACCOUNT_ID, TEST_ROLE_UID);

@@ -112,23 +112,23 @@ export default function starRailDaoTest() {
   const avatarInfoDao = new StarRailAvatarInfoDao();
   const avatarComputeDao = new StarRailAvatarComputeDao();
 
-  beforeAll(async () => {
-    await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
-    const acc = new AccountRow();
-    acc.id = 10002;
-    acc.username = 'sr_dao_test_account';
-    acc.cookie = '';
-    acc.isActive = 0;
-    acc.createTime = 0;
-    acc.updateTime = 0;
-    acc.uid = '';
-    acc.nickname = '';
-    acc.avatarUrl = '';
-    acc.introduce = '';
-    await accountDao.upsert(acc);
-  });
-
   describe('StarRailAvatarBasicDao', () => {
+
+    beforeAll(async () => {
+      await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
+      const acc = new AccountRow();
+      acc.username = 'sr_dao_test_account';
+      acc.cookie = '';
+      acc.isActive = 0;
+      acc.createTime = 0;
+      acc.updateTime = 0;
+      // 外键是 account_table(uid)，必须与 TEST_ACCOUNT_ID 一致
+      acc.uid = TEST_ACCOUNT_ID;
+      acc.nickname = '';
+      acc.avatarUrl = '';
+      acc.introduce = '';
+      await accountDao.upsert(acc);
+    });
 
     beforeEach(async () => {
       await avatarBasicDao.deleteAll(TEST_ACCOUNT_ID, TEST_ROLE_UID);
@@ -188,6 +188,22 @@ export default function starRailDaoTest() {
 
   describe('StarRailDailyNoteDao', () => {
 
+    beforeAll(async () => {
+      await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
+      const acc = new AccountRow();
+      acc.username = 'sr_dao_test_account';
+      acc.cookie = '';
+      acc.isActive = 0;
+      acc.createTime = 0;
+      acc.updateTime = 0;
+      // 外键是 account_table(uid)，必须与 TEST_ACCOUNT_ID 一致
+      acc.uid = TEST_ACCOUNT_ID;
+      acc.nickname = '';
+      acc.avatarUrl = '';
+      acc.introduce = '';
+      await accountDao.upsert(acc);
+    });
+
     beforeEach(async () => {
       await dailyNoteDao.deleteOne(TEST_ACCOUNT_ID, TEST_ROLE_UID);
     });
@@ -229,6 +245,22 @@ export default function starRailDaoTest() {
 
   describe('StarRailAvatarInfoDao', () => {
 
+    beforeAll(async () => {
+      await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
+      const acc = new AccountRow();
+      acc.username = 'sr_dao_test_account';
+      acc.cookie = '';
+      acc.isActive = 0;
+      acc.createTime = 0;
+      acc.updateTime = 0;
+      // 外键是 account_table(uid)，必须与 TEST_ACCOUNT_ID 一致
+      acc.uid = TEST_ACCOUNT_ID;
+      acc.nickname = '';
+      acc.avatarUrl = '';
+      acc.introduce = '';
+      await accountDao.upsert(acc);
+    });
+
     beforeEach(async () => {
       await avatarInfoDao.deleteAll(TEST_ACCOUNT_ID, TEST_ROLE_UID);
     });
@@ -269,6 +301,22 @@ export default function starRailDaoTest() {
   });
 
   describe('StarRailAvatarComputeDao', () => {
+
+    beforeAll(async () => {
+      await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
+      const acc = new AccountRow();
+      acc.username = 'sr_dao_test_account';
+      acc.cookie = '';
+      acc.isActive = 0;
+      acc.createTime = 0;
+      acc.updateTime = 0;
+      // 外键是 account_table(uid)，必须与 TEST_ACCOUNT_ID 一致
+      acc.uid = TEST_ACCOUNT_ID;
+      acc.nickname = '';
+      acc.avatarUrl = '';
+      acc.introduce = '';
+      await accountDao.upsert(acc);
+    });
 
     beforeEach(async () => {
       await avatarComputeDao.deleteAll(TEST_ACCOUNT_ID, TEST_ROLE_UID);

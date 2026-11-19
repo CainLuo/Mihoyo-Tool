@@ -102,23 +102,23 @@ export default function zzzDaoTest() {
   const avatarInfoDao = new ZZZAvatarInfoDao();
   const avatarComputeDao = new ZZZAvatarComputeDao();
 
-  beforeAll(async () => {
-    await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
-    const acc = new AccountRow();
-    acc.id = 10003;
-    acc.username = 'zzz_dao_test_account';
-    acc.cookie = '';
-    acc.isActive = 0;
-    acc.createTime = 0;
-    acc.updateTime = 0;
-    acc.uid = '';
-    acc.nickname = '';
-    acc.avatarUrl = '';
-    acc.introduce = '';
-    await accountDao.upsert(acc);
-  });
-
   describe('ZZZAvatarBasicDao', () => {
+
+    beforeAll(async () => {
+      await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
+      const acc = new AccountRow();
+      acc.username = 'zzz_dao_test_account';
+      acc.cookie = '';
+      acc.isActive = 0;
+      acc.createTime = 0;
+      acc.updateTime = 0;
+      // 外键是 account_table(uid)，必须与 TEST_ACCOUNT_ID 一致
+      acc.uid = TEST_ACCOUNT_ID;
+      acc.nickname = '';
+      acc.avatarUrl = '';
+      acc.introduce = '';
+      await accountDao.upsert(acc);
+    });
 
     beforeEach(async () => {
       await avatarBasicDao.deleteAll(TEST_ACCOUNT_ID, TEST_ROLE_UID);
@@ -190,6 +190,22 @@ export default function zzzDaoTest() {
 
   describe('ZZZDailyNoteDao', () => {
 
+    beforeAll(async () => {
+      await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
+      const acc = new AccountRow();
+      acc.username = 'zzz_dao_test_account';
+      acc.cookie = '';
+      acc.isActive = 0;
+      acc.createTime = 0;
+      acc.updateTime = 0;
+      // 外键是 account_table(uid)，必须与 TEST_ACCOUNT_ID 一致
+      acc.uid = TEST_ACCOUNT_ID;
+      acc.nickname = '';
+      acc.avatarUrl = '';
+      acc.introduce = '';
+      await accountDao.upsert(acc);
+    });
+
     beforeEach(async () => {
       await dailyNoteDao.deleteOne(TEST_ACCOUNT_ID, TEST_ROLE_UID);
     });
@@ -233,6 +249,22 @@ export default function zzzDaoTest() {
 
   describe('ZZZAvatarInfoDao', () => {
 
+    beforeAll(async () => {
+      await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
+      const acc = new AccountRow();
+      acc.username = 'zzz_dao_test_account';
+      acc.cookie = '';
+      acc.isActive = 0;
+      acc.createTime = 0;
+      acc.updateTime = 0;
+      // 外键是 account_table(uid)，必须与 TEST_ACCOUNT_ID 一致
+      acc.uid = TEST_ACCOUNT_ID;
+      acc.nickname = '';
+      acc.avatarUrl = '';
+      acc.introduce = '';
+      await accountDao.upsert(acc);
+    });
+
     beforeEach(async () => {
       await avatarInfoDao.deleteAll(TEST_ACCOUNT_ID, TEST_ROLE_UID);
     });
@@ -273,6 +305,22 @@ export default function zzzDaoTest() {
   });
 
   describe('ZZZAvatarComputeDao', () => {
+
+    beforeAll(async () => {
+      await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
+      const acc = new AccountRow();
+      acc.username = 'zzz_dao_test_account';
+      acc.cookie = '';
+      acc.isActive = 0;
+      acc.createTime = 0;
+      acc.updateTime = 0;
+      // 外键是 account_table(uid)，必须与 TEST_ACCOUNT_ID 一致
+      acc.uid = TEST_ACCOUNT_ID;
+      acc.nickname = '';
+      acc.avatarUrl = '';
+      acc.introduce = '';
+      await accountDao.upsert(acc);
+    });
 
     beforeEach(async () => {
       await avatarComputeDao.deleteAll(TEST_ACCOUNT_ID, TEST_ROLE_UID);

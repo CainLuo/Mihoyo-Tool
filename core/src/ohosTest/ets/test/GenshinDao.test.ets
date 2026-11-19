@@ -109,24 +109,23 @@ export default function genshinDaoTest() {
   const charDetailDao = new GenshinCharacterDetailDao();
   const charComputeDao = new GenshinCharacterComputeDao();
 
-  beforeAll(async () => {
-    await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
-    // 确保测试账号存在（外键约束）
-    const acc = new AccountRow();
-    acc.id = 10001;
-    acc.username = 'genshin_dao_test_account';
-    acc.cookie = '';
-    acc.isActive = 0;
-    acc.createTime = 0;
-    acc.updateTime = 0;
-    acc.uid = '';
-    acc.nickname = '';
-    acc.avatarUrl = '';
-    acc.introduce = '';
-    await accountDao.upsert(acc);
-  });
-
   describe('GenshinCharacterListDao', () => {
+
+    beforeAll(async () => {
+      await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
+      // 确保测试账号存在（外键约束）
+      const acc = new AccountRow();
+      acc.username = 'genshin_dao_test_account';
+      acc.cookie = '';
+      acc.isActive = 0;
+      acc.createTime = 0;
+      acc.updateTime = 0;
+      acc.uid = TEST_ACCOUNT_ID;
+      acc.nickname = '';
+      acc.avatarUrl = '';
+      acc.introduce = '';
+      await accountDao.upsert(acc);
+    });
 
     beforeEach(async () => {
       await charListDao.deleteAll(TEST_ACCOUNT_ID, TEST_ROLE_UID);
@@ -186,6 +185,22 @@ export default function genshinDaoTest() {
 
   describe('GenshinDailyNoteDao', () => {
 
+    beforeAll(async () => {
+      await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
+      // 确保测试账号存在（外键约束）
+      const acc = new AccountRow();
+      acc.username = 'genshin_dao_test_account';
+      acc.cookie = '';
+      acc.isActive = 0;
+      acc.createTime = 0;
+      acc.updateTime = 0;
+      acc.uid = TEST_ACCOUNT_ID;
+      acc.nickname = '';
+      acc.avatarUrl = '';
+      acc.introduce = '';
+      await accountDao.upsert(acc);
+    });
+
     beforeEach(async () => {
       await dailyNoteDao.deleteOne(TEST_ACCOUNT_ID, TEST_ROLE_UID);
     });
@@ -227,6 +242,22 @@ export default function genshinDaoTest() {
 
   describe('GenshinCharacterDetailDao', () => {
 
+    beforeAll(async () => {
+      await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
+      // 确保测试账号存在（外键约束）
+      const acc = new AccountRow();
+      acc.username = 'genshin_dao_test_account';
+      acc.cookie = '';
+      acc.isActive = 0;
+      acc.createTime = 0;
+      acc.updateTime = 0;
+      acc.uid = TEST_ACCOUNT_ID;
+      acc.nickname = '';
+      acc.avatarUrl = '';
+      acc.introduce = '';
+      await accountDao.upsert(acc);
+    });
+
     beforeEach(async () => {
       await charDetailDao.deleteAll(TEST_ACCOUNT_ID, TEST_ROLE_UID);
     });
@@ -267,6 +298,22 @@ export default function genshinDaoTest() {
   });
 
   describe('GenshinCharacterComputeDao', () => {
+
+    beforeAll(async () => {
+      await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
+      // 确保测试账号存在（外键约束）
+      const acc = new AccountRow();
+      acc.username = 'genshin_dao_test_account';
+      acc.cookie = '';
+      acc.isActive = 0;
+      acc.createTime = 0;
+      acc.updateTime = 0;
+      acc.uid = TEST_ACCOUNT_ID;
+      acc.nickname = '';
+      acc.avatarUrl = '';
+      acc.introduce = '';
+      await accountDao.upsert(acc);
+    });
 
     beforeEach(async () => {
       await charComputeDao.deleteAll(TEST_ACCOUNT_ID, TEST_ROLE_UID);

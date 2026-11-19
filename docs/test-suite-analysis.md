@@ -76,7 +76,7 @@
 | 入口 | `List.test.ets` 的 `testsuite()` 依次调用 19 个套件 | 任一文件编译失败 → 整套失败（当前即如此） |
 | CLI | `hvigorw tasks --mode module -p module=entry@default` 只有 `tasks` / `taskTree` / `init`，**没有 test 任务** | 只能在 DevEco Studio 里 Run Test（`Refactor_Spec` §0.3） |
 | 脚本 | `test-entry.sh` 只 `assembleHap` entry@ohosTest HAP（编译验证）；`test-core.sh` 改为执行 `core@default` 本地单测 | `test-entry.sh` 仍不是测试执行器 |
-| ohosTest | `entry/src/ohosTest/ets/test/core/*` 的 12 个 core 用例副本已于 2026-11-14 删除（与 `core/src/test` 重复，仅 import 路径不同）；entry 侧只保留 `Ability.test` + `ui/MainFlow.test`。`core@ohosTest` 存量 API 漂移已于 2026-11-14 修复，`genOnDeviceTestHap` 编译通过；无设备未执行 | 不在本次门禁内（§0.4） |
+| ohosTest | `entry/src/ohosTest/ets/test/core/*` 的 12 个 core 用例副本已于 2026-11-14 删除（与 `core/src/test` 重复，仅 import 路径不同）；entry 侧只保留 `Ability.test` + `ui/MainFlow.test`。2026-11-19 已补齐 `testrunner/OpenHarmonyTestRunner`、`TestAbility`、`module.json5` 与资源，`core@ohosTest` 154 条 / `entry@ohosTest` 2 条均可在模拟器执行且全绿（§7） | 设备端门禁已可执行；仍需真机复跑 |
 
 ---
 
@@ -121,5 +121,21 @@
 | 用例数 / 行数 | 逐文件 `grep -cE '^\s*it\('` 与 `wc -l` 复算：286 条 / 2,312 行，表格 20 行全部一致；修正页首 288→286 |
 | 红色基线 | 脚本比对测试中所有 `Class.member` / `vm.member` / 具名导入与源码声明：除第 4 轮 3 处外，另有 `HomeViewModel.KEYS`、`GAME_*` 全仓无定义、`CharactersViewModel`（`AccountOption` 未导出 / `gameTabs` / `KEYS`）、`GenshinCharacterDetailViewModel`（`propertyTypeToResource` / `KEYS`），补为 T6 |
 | 其他 | ohosTest 已不再引用 `parsers/*`；`WidgetDataStore` 位于 `widget/models/`；`hashNotifId` 为测试内复制版 |
+
+### 复核记录（2026-11-19 第 6 轮：设备端测试首次跑通）
+
+| 检查项 | 结论 |
+| --- | --- |
+| 跑不起来的原因 | `core/src/ohosTest` 与 `entry/src/ohosTest` 都缺 `ets/testrunner/OpenHarmonyTestRunner.ets`，`aa test -s unittest OpenHarmonyTestRunner` 找不到入口 → `TestFinished-ResultMsg: App died` |
+| 补齐的骨架 | 两个模块各补 `testrunner/OpenHarmonyTestRunner.ets`、`testability/TestAbility.ets`、`testability/pages/Index.ets`、`resources/base/{element,media,profile}`；`module.json5` 补 `mainElement` / `abilities` / `pages` |
+| `core@ohosTest` | **154 条 / Pass 154 / Failure 0 / Error 0**，连续两次复跑一致（模拟器 Mate 80 Pro Max） |
+| `entry@ohosTest` | **2 条 / Pass 2 / Failure 0 / Error 0**（`assertContain` 模板用例 + 主链路启动冒烟） |
+| 测试代码缺陷 1 | 外键是 `FOREIGN KEY (account_id) REFERENCES account_table(uid)`，测试却用自增 `id` 当 `accountId` → 大面积 `SQLite: Abort due to constraint violation`。统一改为 `acc.uid = TEST_ACCOUNT_ID` / `row.uid` |
+| 测试代码缺陷 2 | 顶层（`describe` 外）的 `beforeAll` / `beforeEach` 在 hypium 1.0.25 下不生效，测试账号与清理逻辑没执行。8 个文件的钩子全部移入 `describe` |
+| 测试代码缺陷 3 | 测试给 `AccountRow` 设了 `acc.id = 1000x/2000x`，而 `AccountDao.upsert` 在 `id > 0` 时走 UPDATE（避免 REPLACE 级联删角色），库里没有该行时静默影响 0 行。删掉测试里的 id 预设 |
+| UI 冒烟前置 | `onDeviceTest` 每次卸载重装，应用数据为空 → 启动先落隐私协议页。测试在 `beforeAll` 写 entry 模块的 `legal_prefs`（`haps/entry/preferences`，不是应用级 `/preferences`）再启动；`Want` 还必须带 `moduleName: 'entry'`，否则报 `16000001` |
+| 安装顺序 | `onDeviceTest` 会卸载整包，`core_test` / `entry_test` 不能各跑一次。先 `onDeviceTest` 装主 HAP + 一个测试模块，另一个用 `hdc install -r` 追加 |
+| 产品代码改动 | 无。以上全部是测试资产修复 |
+| 已知噪音 | `onDeviceTest` 末尾 `getInitCoverageData failed, SyntaxError: ...` 属 hvigor coverage 插件问题，不影响用例执行与统计 |
 
 【已核对代码一致性】

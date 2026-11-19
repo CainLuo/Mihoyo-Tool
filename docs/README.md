@@ -108,7 +108,7 @@
 
 - [component-deduplication-review.md](./component-deduplication-review.md) —— 跨页面组件重复度审查与整合方案
 - [components-inventory-analysis.md](./components-inventory-analysis.md) —— 195 个组件 / 14,931 行的全量索引与归属
-- [test-suite-analysis.md](./test-suite-analysis.md) —— `entry/src/test` 20 文件 / 286 用例的覆盖矩阵与红色基线
+- [test-suite-analysis.md](./test-suite-analysis.md) —— `entry/src/test` 20 文件 / 286 用例的覆盖矩阵与红色基线；含设备端 `ohosTest`（core 154 + entry 2）执行记录
 - [device-regression-checklist.md](./device-regression-checklist.md) —— **真机回归清单**：模拟器覆盖不到的通知响铃 / 代理提醒配额 / 卡片桌面渲染 / 折叠屏 / 弱网，按功能域列可勾选项
 
 ---
@@ -173,7 +173,7 @@
 1. **深度不完全一致**。早期文档（Home / Characters）用 12 章节模板，中期为控制生成长度压缩到 7 章节，导致部分文档偏薄。**2026-10-26 复核已统一章节骨架与计数口径**：27 份模块文档（20 单页 + 3 家族 + 4 系统层）均含「执行摘要（C/H/M/L）→ 文件/组件清单 → 结构或调用链 → 合规检查 → 风险清单 → 重构执行备注」，并逐份重算了行数、计数与 `file:line` 锚点；Login / Tools / My / Main 四份补齐了缺失的「合规检查」章节，Home 补齐后新增 1 条 Medium（首页组件反向依赖 widget；2026-10-29 结构迁移把 `UserGameSection` 迁入 `common/basic` 并改为 `roleBuilder` 插槽，该 Medium 已解除）。
 2. **证据锚点已机器化核对**：全部文档引用的 `*.ets:行号` 均落在真实文件与行数范围内，引用的文件路径全部存在；表格里的「文件名 → 行数」逐行与 `wc -l` 对过（30/30 一致）。复核方法见文末《7. 全目录复核记录》。
 3. **债务点数为人工分类**，不是 `codeLinter` 或静态工具输出。同一问题在不同文档中可能被判为 High 或 Medium（例如"异步失败后仍照常推进"在 `AppearanceSettingsPage` 记为 High——用户会被 `pop()` 带走且无任何提示；在 `PrivacyConsentPage` 记为 Medium——用户看到的是正常进入主界面），判断依据是**用户是否能感知到故障**。跨文档横向比较时请以评级为准，不要逐一对比点数值。
-4. **评级不代表有测试保护**。Local Test 已扩展到 14 个模块 / 903 条用例，29 个 ViewModel 全部有测试（含 AppearanceSettings、NotificationSettings、WidgetSettings、三个游戏的 MaterialList / MaterialTargetConfig / CharDetail / DailyDetail 与 4 个 Widget VM）；widget / notification 的 4 个 Store 也已改为可注入并补测。但组件、Ability、设备端 UI 与部分服务层仍无自动化执行结果，A 级只说明代码问题少，不代表重构后能被测试接住。完整测试资产与剩余缺口见 [refactor-completion-audit.md](./refactor-completion-audit.md)。
+4. **评级不代表有测试保护**。Local Test 已扩展到 14 个模块 / 904 条用例，29 个 ViewModel 全部有测试（含 AppearanceSettings、NotificationSettings、WidgetSettings、三个游戏的 MaterialList / MaterialTargetConfig / CharDetail / DailyDetail 与 4 个 Widget VM）；widget / notification 的 4 个 Store 也已改为可注入并补测。设备端 `ohosTest` 于 2026-11-19 首次跑通（`core` 154 条 + `entry` 2 条，模拟器全绿），但组件层与部分服务层仍无自动化执行结果，A 级只说明代码问题少，不代表重构后能被测试接住。完整测试资产与剩余缺口见 [refactor-completion-audit.md](./refactor-completion-audit.md)。
 
 ---
 

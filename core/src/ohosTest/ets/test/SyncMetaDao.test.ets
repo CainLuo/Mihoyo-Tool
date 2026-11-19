@@ -33,32 +33,32 @@ export default function syncMetaDaoTest() {
   const accountDao = new AccountDao();
   const syncMetaDao = new SyncMetaDao();
 
-  beforeAll(async () => {
-    await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
-    const acc = new AccountRow();
-    acc.id = 10004;
-    acc.username = 'sync_dao_test_account';
-    acc.cookie = '';
-    acc.isActive = 0;
-    acc.createTime = 0;
-    acc.updateTime = 0;
-    acc.uid = '';
-    acc.nickname = '';
-    acc.avatarUrl = '';
-    acc.introduce = '';
-    await accountDao.upsert(acc);
-  });
-
-  beforeEach(async () => {
-    // 清理测试数据
-    const store = RdbManager.getRdbStore();
-    await store.executeSql(
-      'DELETE FROM sync_meta WHERE account_id = ?',
-      [TEST_ACCOUNT_ID]
-    );
-  });
-
   describe('SyncMetaDao', () => {
+
+    beforeAll(async () => {
+      await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
+      const acc = new AccountRow();
+      acc.username = 'sync_dao_test_account';
+      acc.cookie = '';
+      acc.isActive = 0;
+      acc.createTime = 0;
+      acc.updateTime = 0;
+      // 外键是 account_table(uid)，必须与 TEST_ACCOUNT_ID 一致
+      acc.uid = TEST_ACCOUNT_ID;
+      acc.nickname = '';
+      acc.avatarUrl = '';
+      acc.introduce = '';
+      await accountDao.upsert(acc);
+    });
+
+    beforeEach(async () => {
+      // 清理测试数据
+      const store = RdbManager.getRdbStore();
+      await store.executeSql(
+        'DELETE FROM sync_meta WHERE account_id = ?',
+        [TEST_ACCOUNT_ID]
+      );
+    });
 
     it('upsert_newRow_findOneReturnsRow', 0, async () => {
       await syncMetaDao.upsert(makeSyncMetaRow());

@@ -113,32 +113,31 @@ export default function starRailRepositoryTest() {
   const avatarInfoDao = new StarRailAvatarInfoDao();
   const avatarComputeDao = new StarRailAvatarComputeDao();
 
-  beforeAll(async () => {
-    await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
-    const acc = new AccountRow();
-    acc.id = 20002;
-    acc.username = 'sr_repo_test_account';
-    acc.cookie = '';
-    acc.isActive = 0;
-    acc.createTime = 0;
-    acc.updateTime = 0;
-    acc.uid = '';
-    acc.nickname = '';
-    acc.avatarUrl = '';
-    acc.introduce = '';
-    await bbsRepo.saveAccount(acc);
-  });
-
-  beforeEach(async () => {
-    const store = RdbManager.getRdbStore();
-    await store.executeSql('DELETE FROM starrail_avatar_basic WHERE account_id = ?', [TEST_ACCOUNT_ID]);
-    await store.executeSql('DELETE FROM starrail_daily_note WHERE account_id = ?', [TEST_ACCOUNT_ID]);
-    await store.executeSql('DELETE FROM starrail_avatar_info WHERE account_id = ?', [TEST_ACCOUNT_ID]);
-    await store.executeSql('DELETE FROM starrail_avatar_compute WHERE account_id = ?', [TEST_ACCOUNT_ID]);
-    await store.executeSql('DELETE FROM sync_meta WHERE account_id = ?', [TEST_ACCOUNT_ID]);
-  });
-
   describe('StarRailRepository', () => {
+
+    beforeAll(async () => {
+      await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
+      const acc = new AccountRow();
+      acc.username = 'sr_repo_test_account';
+      acc.cookie = '';
+      acc.isActive = 0;
+      acc.createTime = 0;
+      acc.updateTime = 0;
+      acc.uid = TEST_ACCOUNT_ID;
+      acc.nickname = '';
+      acc.avatarUrl = '';
+      acc.introduce = '';
+      await bbsRepo.saveAccount(acc);
+    });
+
+    beforeEach(async () => {
+      const store = RdbManager.getRdbStore();
+      await store.executeSql('DELETE FROM starrail_avatar_basic WHERE account_id = ?', [TEST_ACCOUNT_ID]);
+      await store.executeSql('DELETE FROM starrail_daily_note WHERE account_id = ?', [TEST_ACCOUNT_ID]);
+      await store.executeSql('DELETE FROM starrail_avatar_info WHERE account_id = ?', [TEST_ACCOUNT_ID]);
+      await store.executeSql('DELETE FROM starrail_avatar_compute WHERE account_id = ?', [TEST_ACCOUNT_ID]);
+      await store.executeSql('DELETE FROM sync_meta WHERE account_id = ?', [TEST_ACCOUNT_ID]);
+    });
 
     it('getAvatarList_emptyTable_returnsEmptyArray', 0, async () => {
       const result = await repo.getAvatarList(TEST_ACCOUNT_ID, TEST_ROLE_UID);

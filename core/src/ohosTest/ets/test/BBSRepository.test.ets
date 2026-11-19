@@ -51,16 +51,16 @@ export default function bbsRepositoryTest() {
   const repo = new BBSRepository();
   const gameRoleDao = new GameRoleDao();
 
-  beforeAll(async () => {
-    await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
-  });
-
-  beforeEach(async () => {
-    const store = RdbManager.getRdbStore();
-    await store.executeSql("DELETE FROM account_table WHERE username LIKE 'repo_test_%'", []);
-  });
-
   describe('BBSRepository', () => {
+
+    beforeAll(async () => {
+      await RdbManager.init(await getContext(), SCHEMA_REGISTRY);
+    });
+
+    beforeEach(async () => {
+      const store = RdbManager.getRdbStore();
+      await store.executeSql("DELETE FROM account_table WHERE username LIKE 'repo_test_%'", []);
+    });
 
     it('saveAccount_newAccount_getAllAccountsReturnsOne', 0, async () => {
       await repo.saveAccount(makeAccount('repo_test_u1'));
@@ -119,7 +119,7 @@ export default function bbsRepositoryTest() {
       const acc = await repo.getAccountByUsername('repo_test_cascade');
       expect(acc !== null).assertTrue();
       if (acc !== null) {
-        const accIdStr = String(acc.id);
+        const accIdStr = acc.uid;
         await gameRoleDao.upsertAll([makeGameRole(accIdStr, GameId.GENSHIN, 'r_cascade')]);
         const rolesBefore = await repo.getGameRoles(accIdStr);
         expect(rolesBefore.length).assertEqual(1);
@@ -137,7 +137,7 @@ export default function bbsRepositoryTest() {
       const acc = await repo.getAccountByUsername('repo_test_roles');
       expect(acc !== null).assertTrue();
       if (acc !== null) {
-        const accIdStr = String(acc.id);
+        const accIdStr = acc.uid;
         await gameRoleDao.upsertAll([
           makeGameRole(accIdStr, GameId.GENSHIN, 'r1'),
           makeGameRole(accIdStr, GameId.STARRAIL, 'r2')
@@ -154,8 +154,8 @@ export default function bbsRepositoryTest() {
       const acc2 = await repo.getAccountByUsername('repo_test_filter2');
       expect(acc1 !== null && acc2 !== null).assertTrue();
       if (acc1 !== null && acc2 !== null) {
-        const acc1IdStr = String(acc1.id);
-        const acc2IdStr = String(acc2.id);
+        const acc1IdStr = acc1.uid;
+        const acc2IdStr = acc2.uid;
         await gameRoleDao.upsertAll([makeGameRole(acc1IdStr, GameId.GENSHIN, 'r_f1')]);
         await gameRoleDao.upsertAll([makeGameRole(acc2IdStr, GameId.GENSHIN, 'r_f2')]);
         const result = await repo.getGameRoles(acc1IdStr);
@@ -169,7 +169,7 @@ export default function bbsRepositoryTest() {
       const acc = await repo.getAccountByUsername('repo_test_bygame');
       expect(acc !== null).assertTrue();
       if (acc !== null) {
-        const accIdStr = String(acc.id);
+        const accIdStr = acc.uid;
         await gameRoleDao.upsertAll([
           makeGameRole(accIdStr, GameId.GENSHIN, 'r_g'),
           makeGameRole(accIdStr, GameId.STARRAIL, 'r_s')
@@ -185,7 +185,7 @@ export default function bbsRepositoryTest() {
       const acc = await repo.getAccountByUsername('repo_test_delroles');
       expect(acc !== null).assertTrue();
       if (acc !== null) {
-        const accIdStr = String(acc.id);
+        const accIdStr = acc.uid;
         await gameRoleDao.upsertAll([makeGameRole(accIdStr, GameId.GENSHIN, 'r_del')]);
         await repo.deleteGameRoles(accIdStr);
         const result = await repo.getGameRoles(accIdStr);

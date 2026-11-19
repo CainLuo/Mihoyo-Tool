@@ -52,7 +52,8 @@ const _accountDao = new AccountDao();
 async function insertTestAccount(username: string): Promise<string> {
   await _accountDao.upsert(makeAccount(username));
   const row = await _accountDao.findByUsername(username);
-  return row !== null ? String(row.id) : '0';
+  // game_role_table 的外键是 account_table(uid)，不是自增 id
+  return row !== null ? row.uid : '0';
 }
 
 export default function bbsDaoTest() {
