@@ -342,24 +342,23 @@ export function parsePayload(payloadJson: string): ParsedPayload {
 }
 
 /**
- * 解析体力数据
+ * 从一段 data JSON 里解析体力字段。
  *
- * 注意：rawJson 存储的是 API 响应中的 data 对象（不带 retcode/message 结构）
+ * 注意：JSON 存储的是 API 响应中的 data 对象（不带 retcode/message 结构）
  * 例如原神：{"current_resin": 140, "max_resin": 200, ...}
- * 
- * 注意：Widget Form 不支持 union 类型，所有变量使用显式类型
+ *
+ * @returns true 表示命中任一游戏格式并已写入 role；false 表示这段 JSON 没有体力数据
  */
-function parseStaminaData(role: ParsedRole): void {
-  if (role.rawJson.length === 0) {
-    return;
+function parseStaminaFromJson(json: string, role: ParsedRole): boolean {
+  if (json.length === 0) {
+    return false;
   }
 
   try {
-    // rawJson 直接就是 data 对象，不需要从 resp.data 取
-    const data: ApiDataJson = JSON.parse(role.rawJson) as ApiDataJson;
+    const data: ApiDataJson = JSON.parse(json) as ApiDataJson;
 
     if (data === undefined || data === null) {
-      return;
+      return false;
     }
 
     // 尝试原神格式
@@ -368,7 +367,7 @@ function parseStaminaData(role: ParsedRole): void {
       role.maxStamina = data.max_resin !== undefined ? data.max_resin : 160;
       const recoveryTime = data.resin_recovery_time;
       role.recoverySeconds = recoveryTime !== undefined ? parseInt(recoveryTime, 10) : 0;
-      return;
+      return true;
     }
 
     // 尝试星铁格式
@@ -376,7 +375,7 @@ function parseStaminaData(role: ParsedRole): void {
       role.currentStamina = data.current_stamina !== undefined ? data.current_stamina : 0;
       role.maxStamina = data.max_stamina !== undefined ? data.max_stamina : 240;
       role.recoverySeconds = data.stamina_recover_time !== undefined ? data.stamina_recover_time : 0;
-      return;
+      return true;
     }
 
     // 尝试绝区零格式
@@ -388,8 +387,28 @@ function parseStaminaData(role: ParsedRole): void {
         role.maxStamina = progress.max !== undefined ? progress.max : 240;
       }
       role.recoverySeconds = energy.restore !== undefined ? energy.restore : 0;
+      return true;
     }
   } catch (_e) {
-    // 解析失败保持默认值
+    // 解析失败按无体力数据处理
   }
+
+  return false;
+}
+
+/**
+ * 解析体力数据
+ *
+ * rawJson 来自普通便笺接口，widgetRawJson 来自绝区零 Widget 接口。
+ * 绝区零降级到 Widget 接口同步时只写 widgetRawJson；如果只读 rawJson，
+ * 体力会回退到默认值 0/160，并因 recoverySeconds=0 被显示成「已回满」。
+ * 因此 rawJson 解析不到体力时必须回退到 widgetRawJson。
+ *
+ * 注意：Widget Form 不支持 union 类型，所有变量使用显式类型
+ */
+function parseStaminaData(role: ParsedRole): void {
+  if (parseStaminaFromJson(role.rawJson, role)) {
+    return;
+  }
+  parseStaminaFromJson(role.widgetRawJson, role);
 }

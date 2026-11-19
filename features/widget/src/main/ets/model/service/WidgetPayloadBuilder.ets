@@ -128,7 +128,10 @@ export class WidgetPayloadBuilder {
     let oldest = 0;
     for (let i = 0; i < slotKeys.length && i < maxSlots; i++) {
       const slotData = dataStore.getRoleByKey(slotKeys[i]);
-      if (slotData === null || slotData.rawJson.length === 0 || slotData.updatedAt <= 0) {
+      // 绝区零降级到 Widget 接口同步后只有 widgetRawJson，不能只按 rawJson 判空
+      if (slotData === null ||
+        (slotData.rawJson.length === 0 && slotData.widgetRawJson.length === 0) ||
+        slotData.updatedAt <= 0) {
         continue;
       }
       if (oldest === 0 || slotData.updatedAt < oldest) {

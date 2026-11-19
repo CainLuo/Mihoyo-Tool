@@ -82,6 +82,29 @@ export default function widgetPayloadParserTest(): void {
       expect(role.maxStamina).assertEqual(240);
       expect(role.recoverySeconds).assertEqual(5400);
     });
+
+    it('parsePayload_zzzWidgetRawJsonOnly_parsesStamina', 0, () => {
+      // 绝区零降级到 Widget 接口同步后 rawJson 可能为空，体力只在 widgetRawJson 里
+      const widgetRawJson = '{"energy":{"progress":{"current":65,"max":240},"restore":1800}}';
+      const json = `{"version":1,"updatedAt":0,"accounts":[{"accountId":"acc1","accountName":"Test","games":[{"gameId":"zzz","roles":[{"roleId":"role1","nickname":"代理人","server":"prod_gf_cn","rawJson":"","widgetRawJson":"${widgetRawJson.replace(/"/g, '\\"')}"}]}]}]}`;
+      const result = parsePayload(json);
+      const role = result.accounts[0].games[0].roles[0];
+      expect(role.currentStamina).assertEqual(65);
+      expect(role.maxStamina).assertEqual(240);
+      expect(role.recoverySeconds).assertEqual(1800);
+    });
+
+    it('parsePayload_zzzRawJsonWithoutStamina_fallsBackToWidgetRawJson', 0, () => {
+      // rawJson 存在但只有普通便笺字段（无 energy）时，也要回退到 widgetRawJson
+      const rawJson = '{"vitality":{"current":10,"max":60}}';
+      const widgetRawJson = '{"energy":{"progress":{"current":65,"max":240},"restore":1800}}';
+      const json = `{"version":1,"updatedAt":0,"accounts":[{"accountId":"acc1","accountName":"Test","games":[{"gameId":"zzz","roles":[{"roleId":"role1","nickname":"代理人","server":"prod_gf_cn","rawJson":"${rawJson.replace(/"/g, '\\"')}","widgetRawJson":"${widgetRawJson.replace(/"/g, '\\"')}"}]}]}]}`;
+      const result = parsePayload(json);
+      const role = result.accounts[0].games[0].roles[0];
+      expect(role.currentStamina).assertEqual(65);
+      expect(role.maxStamina).assertEqual(240);
+      expect(role.recoverySeconds).assertEqual(1800);
+    });
     
     // ── 容错处理 ──────────────────────────────────────────────────────────
     

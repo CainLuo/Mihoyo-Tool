@@ -253,12 +253,22 @@ export class ZZZRepository extends GameRepository implements ZZYSyncPort {
       throw new Error(`Widget API: no data`);
     }
     const dataObj = respData['data'] !== undefined ? respData['data'] : resp;
+    // Widget API 只返回 widgetRawJson。DAO 是 INSERT OR REPLACE，会整行覆盖，
+    // 必须先读出已有行，否则普通便笺接口写入的 rawJson 会被清空，
+    // Widget 体力回退到默认 0/160 并误显示「已回满」。
+    const existing = await this.dailyNoteDao.findOne(accountId, roleUid);
     // Widget API 数据存储到 widgetRawJson
-    const row = this.parseZZZDailyNoteData(accountId, roleUid, dataObj, true);
+    const row = this.parseZZZDailyNoteData(accountId, roleUid, dataObj, true, existing);
     await this.upsertDailyNote(accountId, roleUid, row);
   }
 
-  private parseZZZDailyNoteData(accountId: string, roleUid: string, dataObj: object, isWidget: boolean = false): ZZZDailyNoteRow {
+  private parseZZZDailyNoteData(
+    accountId: string,
+    roleUid: string,
+    dataObj: object,
+    isWidget: boolean = false,
+    existing: ZZZDailyNoteRow | null = null
+  ): ZZZDailyNoteRow {
     const d = dataObj as Record<string, object>;
     const row = new ZZZDailyNoteRow();
     row.accountId = accountId;
@@ -266,6 +276,19 @@ export class ZZZRepository extends GameRepository implements ZZYSyncPort {
     // isWidget=true 时存储到 widgetRawJson，否则存储到 rawJson
     if (isWidget) {
       row.widgetRawJson = JSON.stringify(dataObj);
+      // Widget 接口是普通便笺的子集，且 upsert 是 INSERT OR REPLACE。
+      // 普通便笺专有的字段（rawJson / 活力 / 报刊亭 / 名片）必须沿用旧值，
+      // 缺失字段会被下面的解析覆盖为 0 或空串。
+      if (existing !== null) {
+        row.rawJson = existing.rawJson;
+        row.energyCurrent = existing.energyCurrent;
+        row.energyMax = existing.energyMax;
+        row.energyRestore = existing.energyRestore;
+        row.vitalityCurrent = existing.vitalityCurrent;
+        row.vitalityMax = existing.vitalityMax;
+        row.vhsSaleState = existing.vhsSaleState;
+        row.cardSign = existing.cardSign;
+      }
     } else {
       row.rawJson = JSON.stringify(dataObj);
     }
@@ -285,8 +308,12 @@ export class ZZZRepository extends GameRepository implements ZZYSyncPort {
       row.vitalityMax = Number(vitality['max'] ?? 0);
     }
     const vhsSale = d['vhs_sale'] as Record<string, object> | null;
-    row.vhsSaleState = vhsSale ? `${vhsSale['sale_state'] ?? ''}` : '';
-    row.cardSign = `${d['card_sign'] ?? ''}`;
+    if (vhsSale) {
+      row.vhsSaleState = `${vhsSale['sale_state'] ?? ''}`;
+    }
+    if (d['card_sign'] !== undefined) {
+      row.cardSign = `${d['card_sign'] ?? ''}`;
+    }
     return row;
   }
 
