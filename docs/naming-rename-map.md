@@ -24,7 +24,7 @@
 | `models/SegmentedTabModels.ets`（M0 新建） | `models/SegmentedTabItem.ets` |
 | `components/chardetail/starrail/StarRailCharDetailHeroInfo.ets` | `…/StarRailCharDetailHeroProfile.ets` |
 | `components/chardetail/zzz/ZZZCharDetailHeroInfo.ets` | `…/ZZZCharDetailHeroProfile.ets` |
-| `widget/utils/WidgetMockData.ets` | `widget/utils/WidgetMockPayload.ets` |
+| `widget/utils/WidgetMockData.ets` | `widget/utils/WidgetMockPayload.ets`（2026-11-20 已删除） |
 | `resources/base/profile/custom_router_map.json` | 19 条 `pageSourceFile` 与 `buildFunction` 同步；`name`（路由名）不变 |
 
 ## 2. 类型名
@@ -39,7 +39,7 @@
 | `RecoveryTimeData` / `RecoveryData` | `RecoveryTime` / `StaminaRecovery` |
 | `FormInfo` / `PreviewStaminaData` | `FormSpec` / `PreviewStamina` |
 | `CharDetailHeroInfo` / `StarRailCharDetailHeroInfo` / `ZZZCharDetailHeroInfo` | `…HeroProfile` |
-| `WidgetMockData` | `WidgetMockPayload` |
+| `WidgetMockData` | `WidgetMockPayload`（2026-11-20 已删除） |
 
 ## 3. 常量与枚举值
 

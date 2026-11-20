@@ -7,7 +7,6 @@ export { WidgetConfigStore } from './src/main/ets/model/service/WidgetConfigStor
 export { WidgetDataStoreBuilder } from './src/main/ets/model/service/WidgetDataStoreBuilder';
 export { WidgetDataStoreManager } from './src/main/ets/model/service/WidgetDataStoreManager';
 export { WidgetImageDownloader } from './src/main/ets/model/service/WidgetImageDownloader';
-export { WidgetMockPayload } from './src/main/ets/model/service/WidgetMockPayload';
 export { WidgetPayloadBuilder } from './src/main/ets/model/service/WidgetPayloadBuilder';
 export { WidgetSyncHandlerImpl } from './src/main/ets/model/service/WidgetSyncHandlerImpl';
 export { WidgetUpdateNotifier } from './src/main/ets/model/service/WidgetUpdateNotifier';

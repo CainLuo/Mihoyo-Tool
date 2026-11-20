@@ -62,7 +62,7 @@ Mihoyo-Tool/
 **依赖方向**（官方规定，编译期强制）：`entry / products → features → common`；`features` 之间可以横向依赖但**不能成环**；`common` 不依赖任何上层；每个模块必须**直接**声明自己用到的模块（不能靠传递）。
 
 **为什么这几样必须留在 `entry`**：
-- 4 个 Ability（`EntryAbility`、`EntryBackupAbility`、`EntryFormAbility`、`WidgetSyncAbility`）——依据 ③，HAR / HSP 不能声明 Ability；
+- 3 个 Ability（`EntryAbility`、`EntryBackupAbility`、`EntryFormAbility`）——依据 ③，HAR / HSP 不能声明 Ability；
 - 服务卡片的 6 个卡片页面及其组件、ViewModel——由声明 `FormExtensionAbility` 的模块的 `form_config.json` 引用；卡片运行在独立进程。已核实（官方 [arkts-form-overview.md「约束与限制」](https://github.com/openharmony/docs/blob/master/zh-cn/application-dev/form/arkts-form-overview.md)）：卡片可导入 HAR、不可导入 HSP，且导入链只能含卡片支持的 API。因此卡片页面留在入口模块，卡片导入链上的 9 个纯文件单独放入 `common/widgetbase`（HAR），见 [structure-migration-plan.md 阶段 2](./structure-migration-plan.md)；
 - `Index` / `Launch` / `Main` / `TestPage`——应用框架，每个设备形态各自一份。
 
@@ -173,7 +173,6 @@ Mihoyo-Tool/
 | `widget/components/` 下 10 个（`Widget1x2ContentView`、`Widget2x2Header`、`Widget2x2SingleGame`、`Widget2x2StaminaBlock`、`Widget2x2StandardStamina`、`Widget2x2StarRailStamina`…） | `widget/views/`，文件名不变 |
 | `widget/pages/` 下 6 个（`Widget1x2Genshin`、`Widget1x2StarRail`、`Widget1x2ZZZ`、`Widget2x2`、`Widget2x4`、`Widget4x4`） | `widget/pages/`，文件名不变 |
 | `widget/viewmodel/` 下 4 个（`Widget1x2ViewModel`、`Widget2x2ViewModel`、`Widget2x4ViewModel`、`Widget4x4ViewModel`） | `widget/viewmodel/`，文件名不变 |
-| `widgetsyncability/WidgetSyncAbility.ets` | `widgetsyncability/WidgetSyncAbility.ets` |
 
 ### `common/basic`（35 个）
 

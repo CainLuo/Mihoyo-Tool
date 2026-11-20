@@ -6,7 +6,6 @@ import widgetSettingsSizeConfigTest from './WidgetSettingsSizeConfig.test';
 import widgetPreviewUtilTest from './WidgetPreviewUtil.test';
 import widgetGameSnapshotModelTest from './WidgetGameSnapshotModel.test';
 import widgetPreviewModelsTest from './WidgetPreviewModels.test';
-import widgetMockPayloadTest from './WidgetMockPayload.test';
 import widgetSettingsModelsTest from './WidgetSettingsModels.test';
 import widgetUpdateNotifierTest from './WidgetUpdateNotifier.test';
 import widgetConfigStoreTest from './WidgetConfigStore.test';
@@ -20,7 +19,6 @@ export default function testsuite() {
   widgetPreviewUtilTest();
   widgetGameSnapshotModelTest();
   widgetPreviewModelsTest();
-  widgetMockPayloadTest();
   widgetSettingsModelsTest();
   widgetUpdateNotifierTest();
   widgetConfigStoreTest();

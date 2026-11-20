@@ -1,6 +1,6 @@
 # Widget 子系统分析（M14）
 
-> **分析对象**：`entry/src/main/ets/widget/`（28 个文件 / 2,836 行：pages 6·775 + views 17·1,599 + viewmodel 5·462）+ `entryformability/EntryFormAbility.ets`（277 行）+ `widgetsyncability/WidgetSyncAbility.ets`（263 行）；另含 `features/widget/src/main/ets/`（43 文件 / 6,063 行）与 `common/widgetbase/`（卡片进程共享的解析 / 工具 / 主题代码）
+> **分析对象**：`entry/src/main/ets/widget/`（28 个文件 / 2,836 行：pages 6·775 + views 17·1,599 + viewmodel 5·462）+ `entryformability/EntryFormAbility.ets`（277 行）；另含 `features/widget/src/main/ets/`（43 文件 / 6,063 行）与 `common/widgetbase/`（卡片进程共享的解析 / 工具 / 主题代码）。`widgetsyncability/WidgetSyncAbility.ets`（263 行）已于 2026-11-20 删除。
 > **分析日期**：2026-10-24
 > **代码版本**：`105c8d3`
 > **HarmonyOS SDK**：`6.0.2(22)`（`targetSdkVersion` / `compatibleSdkVersion`，见根 `build-profile.json5`）
@@ -15,16 +15,16 @@
 | --- | --- |
 | Critical | 0 |
 | High | 0 |
-| Medium | 4 |
+| Medium | 1 |
 | Low | 1 |
 
 **整体评级：A**
 
 > 口径：skills `harmonyos-review` 官方 A-F 评级（0 Critical + 0 High → A）。
 >
-> 计数为 2026-11-17 现状：H1 / H2 已修复（`bae5b61`，对应审计 GAP-01 / GAP-06），**H3 已修复（`f629da5`）**，M1 / M6 / M7 / M8 已修复（8 → 4 Medium），L1（`WidgetLog` 重复）/ L2（`onFormEvent` 忽略 `message`）已修复（L1 2026-11-13、L2 2026-11-15，代码见 `EntryFormAbility.ets:84-90` 对非空 `message` 直接忽略并记日志）；剩余 M2 / M3 / M4 / M5 与 L3（缺页面级 `@Preview`），其中 M4 / M5 属能力增强。
+> 计数为 2026-11-20 现状：H1 / H2 已修复（`bae5b61`，对应审计 GAP-01 / GAP-06），**H3 已修复（`f629da5`）**，M1 / M6 / M7 / M8 已修复（8 → 4 Medium），L1（`WidgetLog` 重复）/ L2（`onFormEvent` 忽略 `message`）已修复（L1 2026-11-13、L2 2026-11-15，代码见 `EntryFormAbility.ets:84-90` 对非空 `message` 直接忽略并记日志）；M2 / M3 / M5 随 `WidgetSyncAbility` 删除而关闭（2026-11-20）。剩余 M4 与 L3，其中 M4 属能力增强。
 >
-> 债务 4×2 + 1×1 = **9**；体量 9,439 行（`features/widget/src/main/ets/` 6,063 + `entry/src/main/ets/widget/` 2,836 + `EntryFormAbility` 277 + `WidgetSyncAbility` 263），密度 9 ÷ 94.39 ≈ **0.10 / 百行**（旧记录里的 7,506 行基线已漂移，§7 第 8 轮已改用实测口径）。
+> 债务 1×2 + 1×1 = **3**；体量 9,176 行（`features/widget/src/main/ets/` 6,063 + `entry/src/main/ets/widget/` 2,836 + `EntryFormAbility` 277），密度 3 ÷ 91.76 ≈ **0.03 / 百行**（`WidgetSyncAbility` 263 行已随 2026-11-20 清理移除）。
 
 > 架构本身是清楚的：主应用写「数据仓」→ 卡片进程读 payload → 6 个页面各自经 ViewModel 构建 UIState → V1 组件渲染。**曾经有三处会直接伤害"桌面卡片"这个核心场景**：更新失败会把用户的卡片配置删掉（H1，已修）、无数据时展示伪造的"测试账号"（H2，已修）、卡片从不显示数据有多旧（H3，已修）。这三条都不影响主应用，只影响卡片，所以历史上一直没被页面级评审覆盖。2026-10-27 复核另补 2 条 Medium：点击同步的并发锁置位过晚（M7，已修）、`WidgetFormIdStore` 无写入方导致两条调用链空转（M8，已删）。
 >
@@ -68,7 +68,7 @@
 | `features/widget/.../model/WidgetConfigModels.ets` | 151 | 单个卡片的配置（尺寸 / slots / formName） |
 | `features/widget/.../model/WidgetDataStoreModels.ets` | 458 | 全局数据仓（账号 → 角色 → rawJson + 拉取时间），写入 `preferences` |
 
-### 1.5 工具（13，3,264 行）
+### 1.5 工具（12，3,219 行）
 
 | 分组 | 文件（行数） |
 | --- | --- |
@@ -78,14 +78,13 @@
 | **推送** | `WidgetUpdateNotifier`（168） |
 | **图片** | `WidgetImageDownloader`（489） |
 | **展示工具** | `WidgetUtil`（418，含新鲜度格式化）· `WidgetExtraRowConstants`（55，被测试引用）· `WidgetExtraRowType`（35，被测试引用） |
-| **日志 / 调试** | `WidgetLogger`（80）· `WidgetMockPayload`（45） |
+| **日志 / 调试** | `WidgetLogger`（80）；`WidgetMockPayload`（45）已于 2026-11-20 删除 |
 
 ### 1.6 子系统外的两个 ability
 
 | 文件 | 行数 | 角色 |
 | --- | --- | --- |
 | `entryformability/EntryFormAbility.ets` | 277 | 卡片生命周期：`onAddForm` 同步返回初始数据、`onUpdateForm` / `onFormEvent` 推送、`onRemoveForm` 清配置 |
-| `widgetsyncability/WidgetSyncAbility.ets` | 263 | 后台全量同步入口（`call` + 30 分钟冷却）。**2026-11-19 起卡片点击改走 `router` → `EntryAbility`，该 Ability 当前无调用方** |
 
 ---
 
@@ -101,7 +100,6 @@ widget/
 ├── models/         payload 结构 / UIState / 卡片配置 / 全局数据仓
 └── utils/          16 个：构建 / 解析 / 存储 / 推送 / 图片 / 日志
 entryformability/EntryFormAbility.ets      卡片生命周期入口
-widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 ```
 
 ### 2.2 卡片定义（`form_config.json`，6 个 form）
@@ -153,7 +151,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 
 **1×2 直达详情**：`ParsedRole` 增加 `accountId`，`Widget1x2RoleUIState` 透传，卡片点击时把 `gameId` / `accountId` / `roleUid` 放进 `params`。路由映射收敛到 `features/home` 的 `buildDailyDetailRoute()`，首页卡片点击与桌面卡片点击共用同一份实现。
 
-`WidgetSyncAbility` 暂时保留（`exported: true`、`KEEP_BACKGROUND_RUNNING` 权限未动），但当前**没有任何调用方**。后续若要恢复「点击卡片触发网络同步」，建议把 `syncAllWidgets` 抽到 widget 功能层，由 `EntryAbility` 在收到 `from=widget` 时调用，而不是让卡片直接拉起一个无界面的 Ability。
+`WidgetSyncAbility` 已于 2026-11-20 删除：点击改 `router` 后它没有任何调用方，且该 Ability 从未注册定时器（30 分钟冷却只约束「重复点击同步」，不是自动刷新）。`KEEP_BACKGROUND_RUNNING` 权限与两条字符串资源一并移除。后续若要恢复「点击卡片触发网络同步」，建议把同步编排抽到 widget 功能层，由 `EntryAbility` 在收到 `from=widget` 时调用。
 
 ---
 
@@ -206,7 +204,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | **凭据落盘** | ✅ 干净。`WidgetDataStore` / `WidgetPayloadBuilder` / `WidgetPayloadParser` / `WidgetModels` 中 **grep `cookie` / `token` 无命中**；数据仓只存 `accountId` / `accountName` / `roleId` / `nickname` / `server` / `rawJson`（便笺原始 JSON） |
 | **网络请求** | ⚠️ 仅 `WidgetImageDownloader` 走网络，下载派遣头像；`http.createHttp()` 在 `finally` 里 `destroy()`（`WidgetImageDownloader.ets:410/444`）。但 URL 直接取自便笺 `rawJson` 的 `avatar_side_icon`（`:478`），**没有 scheme / 域名校验**，并非"只下载 `https://`"；来源是米游社接口，风险低 |
 | **明文存储** | ⚠️ `preferences: widget_data` 是明文 JSON，但内容不含凭据，可接受 |
-| **日志** | ⚠️ `syncAllWidgets` 打印 `uid` / `roleId` / `gameId`（`WidgetSyncAbility.ets:107` 起），属中等敏感度；没有打印 cookie |
+| **日志** | ✅ `WidgetSyncAbility` 已删除，其 `syncAllWidgets` 打印 `uid` / `roleId` / `gameId` 的日志随之消失；现存卡片链路不打印账号标识，也没有打印 cookie |
 | **Mock 数据** | ❌ 见 H2：无数据时把"测试账号 / 旅行者 / 树脂 152"当真数据返回给卡片 |
 
 ---
@@ -230,12 +228,12 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 - **问题**：首次添加卡片、或数据仓为空时，`onAddForm` 返回 `WidgetMockData.buildPayload()` —— 内容是 `"测试账号"` / `"旅行者"` / 树脂 152 / 洞天宝钱 1230 等固定假数据，`payload` 里没有任何 `isMock` 标记。
 - **影响**：用户看到的是**看起来完全真实**的体力与恢复时间，无法区分"占位"与"真实数据"。这是产品级误导，不只是调试残留。
 - **建议**：Mock 只允许在 `BuildProfile.DEBUG` 下使用；release 下无数据应返回空态 payload（页面已有 `WidgetEmptyContent`）。
-- **状态**：✅ 已修复（`bae5b61`）。`EntryFormAbility.buildFormData` 删除 Mock 分支：`!dataStore.hasData` 时只记一条 warn 日志，仍用 `WidgetPayloadBuilder.buildPayload` 返回真实空 payload，卡片走 `WidgetEmptyContent` 空态。生产代码已无 `WidgetMockData` / `WidgetMockPayload` 引用（仅测试与 `features/widget/Index.ets` 导出保留）。
+- **状态**：✅ 已修复（`bae5b61`）。`EntryFormAbility.buildFormData` 删除 Mock 分支：`!dataStore.hasData` 时只记一条 warn 日志，仍用 `WidgetPayloadBuilder.buildPayload` 返回真实空 payload，卡片走 `WidgetEmptyContent` 空态。2026-11-20 进一步删除 `WidgetMockPayload` 及其单测、`features/widget/Index.ets` 导出，生产与测试代码均无 Mock 残留。
 
 **H3 · 卡片从不显示数据新鲜度**
 
 - **位置**：`WidgetPayloadBuilder.ets:77`（`toLocalStorageRecord()` 写入 `updatedAt = Date.now()`）→ `WidgetPayloadParser.ets:283`（解析出 `updatedAt`）→ **6 个页面与 10 个组件均未使用**；真正的数据时间 `WidgetDataStore.updatedAt`（`WidgetDataStore.ets:216`，由 `WidgetDataStoreBuilder.ets:43/297/316` 写入）**没有进入 payload**
-- **问题**：payload 里的 `updatedAt` 是**推送时刻**而非数据拉取时刻，即使渲染出来也只会显示"刚刚"；体力与恢复倒计时也是同步时刻的快照（widget 内无任何按当前时间推算的逻辑）。没有一个组件渲染"更新于 X 分钟前"；叠加 §2.5 的 30 分钟全局冷却、H1 的静默失败、`syncDailyNoteQuietly` 遇到人机验证直接跳过（`WidgetSyncAbility.ets:164-166`），卡片可能长时间停在旧数值上。
+- **问题**：payload 里的 `updatedAt` 是**推送时刻**而非数据拉取时刻，即使渲染出来也只会显示"刚刚"；体力与恢复倒计时也是同步时刻的快照（widget 内无任何按当前时间推算的逻辑）。没有一个组件渲染"更新于 X 分钟前"；叠加 §2.5 的 30 分钟全局冷却、H1 的静默失败、已删除的 `WidgetSyncAbility` 内 `syncDailyNoteQuietly` 遇到人机验证直接跳过（原 `:164-166`），卡片可能长时间停在旧数值上。
 - **影响**：用户把陈旧数据当实时数据决策（"还有 160 体力，先打一把"）。
 - **建议**：把 `dataStore.updatedAt` 写进 payload（而不是推送时刻），至少在 2×2 / 2×4 / 4×4 的角落显示相对时间；或当 `now - updatedAt > 2×updateDuration` 时给一个降透明度/角标。
 - **状态**：✅ 已修复（`f629da5`，2026-11-17）。数据时间改为**便笺行的真实拉取时间**，而不是「数据仓最后一次保存时间」——后者在每次冷启动 `buildFromDB()` 读本地 DB 时都会被刷新成「刚刚」，等于没修。具体：
@@ -251,12 +249,12 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | # | 问题 | 位置 | 说明 |
 | --- | --- | --- | --- |
 | M1 | `build()` 内反复解析 payload | `Widget2x2.ets:57/61/63`（`getGameIds` / `getIsEmpty` / `getIsSingleGame` 各 `getParsed()` 1 次）+ `build()` 内 6 处 `getUIState()`，多游戏分支单次渲染最多 **9 次** `JSON.parse`；`Widget2x4.ets` / `Widget4x4.ets` 各 6 次 `getUIState()` + 1 次 `getGameIds()`（**7 次**）；1×2 三页各 2 次 | 每次 `getUIState()` 都 `JSON.parse` 整个 payload 并重建 `ParsedPayload` + UIState。V1 没有 computed，且 `build()` 不能声明局部变量——这是限制下的写法，但可以让页面缓存一次（私有字段记住上次的 `payloadJson` 与解析结果，`payloadJson` 变化时失效；V1 页面不能用 V2 的 `@Local`）。**✅ 已修复（2026-11-11，见 §7 M1 执行记录）** |
-| M2 | 30 分钟冷却被所有卡片共享，且失败也计入冷却 | `WidgetSyncAbility.ets:40 / 43 / 204 / 224` | `widget_last_sync_time` 是**单个全局 key**：用户点了 1×2 的卡片后，30 分钟内点任何其他卡片都只得到 "In cooldown"；没有 per-form 刷新。另外 `syncAllWidgets` 自己吞掉全部异常（`:131-134`），`refreshAndSave` 失败也只是 `return`（`:122-124`），所以 `:224` 的时间戳在同步失败时照写，`:227` 的 catch 实际不可达——**一次失败的刷新同样锁 30 分钟**。2026-11-19 起卡片点击改走 `router`，该链路当前无调用方 |
-| M3 | 同步结果不可见 | `WidgetSyncAbility.ets:237` | `call` 立刻返回 `'Sync started'`，之后失败只写 hilog；卡片侧无法显示"刷新失败"。2026-11-19 起该链路无调用方 |
+| M2 | ~~30 分钟冷却被所有卡片共享，且失败也计入冷却~~ | ~~`WidgetSyncAbility.ets:40 / 43 / 204 / 224`~~ | **已关闭（2026-11-20）**：`WidgetSyncAbility` 删除，全局冷却逻辑不存在；卡片点击改为打开 App，由首页同步流程接管 |
+| M3 | ~~同步结果不可见~~ | ~~`WidgetSyncAbility.ets:237`~~ | **已关闭（2026-11-20）**：`call` 链路随 Ability 删除；`router` 打开 App 后由页面自身展示刷新状态 |
 | M4 | `onAddForm` 全同步链路压在 10 秒窗口 | `EntryFormAbility.ets:42 / 45-67`（Preferences 同步读 + `loadFormImagesSync` + payload 构建） | 账号 × 角色多时，图片 fd 读取与 payload 构建都在主线程；没有超时保护 |
-| M5 | 全量同步是串行双层循环 | `WidgetSyncAbility.ets:105-118` | 账号 × 角色逐个 `await syncDailyNote`，无并发上限、无进度、无总超时；一次点击可能是几十个串行网络请求。2026-11-19 起该链路无调用方 |
+| M5 | ~~全量同步是串行双层循环~~ | ~~`WidgetSyncAbility.ets:105-118`~~ | **已关闭（2026-11-20）**：`syncAllWidgets` 随 Ability 删除；App 首页的同步编排不受影响 |
 | M6 | ✅ 已修复（2026-11-12） | 原 `WidgetImageDownloader.ets:87`（文件名固定 `${prefsKey}_${i}.png`）、`:91-105`（文件已存在就跳过下载） | 修复：下载时把源 URL 记到 `${key}_url`，只有「文件存在 **且 URL 未变**」才跳过；URL 变化（派遣角色变化 / 换账号）重新下载并用 `TRUNC` 覆盖同名文件。旧安装（无 URL 记录）会重下一次，自动纠正历史陈旧头像 |
-| M7 | ✅ 已修复（2026-11-12） | 原 `WidgetSyncAbility.ets:194` 检查 vs `:217` 置位（`initCore()` + 两次 `init` 完成后才置位） | 修复：冷却检查通过后**同步**置位 `isSyncing`，再启动异步链；`initCore` 失败也释放锁。`initCore` 期间连点卡片会被 "Already syncing" 拦下，不再并发起多条 `syncAllWidgets` |
+| M7 | ✅ 已修复（2026-11-12），随 Ability 删除关闭（2026-11-20） | 原 `WidgetSyncAbility.ets:194` 检查 vs `:217` 置位（`initCore()` + 两次 `init` 完成后才置位） | 修复：冷却检查通过后**同步**置位 `isSyncing`，再启动异步链；`initCore` 失败也释放锁。`initCore` 期间连点卡片会被 "Already syncing" 拦下，不再并发起多条 `syncAllWidgets` |
 | M8 | ✅ 已修复（2026-11-13） | 原：`WidgetFormIdStore.save()` 全工程零调用 → `widget_form_ids` 永远为空，`WidgetDataBuilder.buildAndPushForAccount` 恒提前返回，`AccountDetailViewModel.deleteAccount` 的卡片清理恒为 no-op | 修复：整条遗留链路删除（`WidgetFormIdStore.ets` 141 行 + `WidgetDataBuilder.ets` 228 行 + `WidgetFormIdStore.test.ets` 3 条用例），`WidgetSyncHandlerImpl` 只留 `refreshAndSave`，`WidgetSyncHook.init` 与通知服务 init 里的调用一并删除，`AccountDetailViewModel` 去掉 no-op 清理。真正的卡片推送一直由 `WidgetDataStoreBuilder.refreshAndSave` → `WidgetUpdateNotifier.notifyAllWidgets` 负责，行为零变更 |
 
 ### Low（建议优化）
@@ -278,7 +276,7 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | 项 | 内容 |
 | --- | --- |
 | 卡片定义 | `resources/base/profile/form_config.json` 的 6 条 `src` 路径（`./ets/widget/pages/Widget*.ets`）与 `name` 全部冻结；改名 = 卡片在桌面消失 |
-| Ability | `module.json5` 的 `EntryFormAbility` / `WidgetSyncAbility` `srcEntry` 冻结 |
+| Ability | `module.json5` 的 `EntryFormAbility` `srcEntry` 冻结（`WidgetSyncAbility` 已于 2026-11-20 删除） |
 | 测试引用（冻结） | `widget/viewmodel/Widget2x2ViewModel`、`widget/models/WidgetUIStates`、`widget/utils/{WidgetPayloadParser,WidgetDataHelper,WidgetUtils,WidgetExtraRowConfig,WidgetExtraRowType}` —— 导出名不得变（§2.5） |
 | 装饰器 | **不迁移 V1 → V2**；不新增 `@ComponentV2` 文件 |
 | payload 键名 | `'payload'` 是卡片进程与主应用的唯一约定（6 个 `@LocalStorageProp`），不能改名 |
@@ -521,5 +519,16 @@ widgetsyncability/WidgetSyncAbility.ets    卡片点击 → 后台同步入口
 | 修复 3 | 6 张卡片改 `router` → `EntryAbility`，`params: { from: 'widget' }`；`EntryAbility.onCreate`（`registerReadyHook` 内）与 `onNewWant` 检测后调用 `WidgetSyncHook.onDailyNotesSynced` 刷新卡片 |
 | 验证 | 模拟器 UAT 包：卡片由 `0/160 已回满` 变为 `66/240 / 17小时18分钟后回满`；点击卡片成功打开 App 首页；`widgetbase` 102 条（+2）、`widget` 80 条、`core` 250 条本地单测全绿 |
 | 遗留 | `WidgetSyncAbility` 当前无调用方，是否删除或改为「长按菜单同步」待决策；1×2 卡片点击已在同批次补上直达详情页 |
+
+### 复核记录（2026-11-20 第 11 轮：孤儿代码清理）
+
+| 检查项 | 结论 |
+| --- | --- |
+| 删除 1 | `WidgetSyncAbility.ets`（263 行）删除；`module.json5` 移除 ability 注册与 `KEEP_BACKGROUND_RUNNING` 权限；`string.json` 移除 `permission_reason_keep_background` / `WidgetSyncAbility_desc` / `WidgetSyncAbility_label` |
+| 删除 2 | `WidgetMockPayload.ets`（45 行）及其单测（58 行）删除，`features/widget/Index.ets` 导出与 `List.test.ets` 引用同步移除 |
+| 删除 3 | `WidgetDataStoreBuilder.updateRoleRawJson()`（约 60 行）与其专用私有方法 `parseGameId()` 删除；`WidgetDataStore.updateRoleRawJson()` 是模型层方法且有单测覆盖，保留 |
+| 保留 | `TestPage` 不是孤儿：DEBUG 构建「我的」菜单可进，`custom_router_map.json` 注册了路由，是 Cookie 过期手工测试入口 |
+| 不影响自动刷新 | App 内 30 分钟联网刷新在 `HomeViewModel.startAutoRefresh()`（`AppConstants.AUTO_REFRESH_INTERVAL_MS`），与本次删除无引用关系；卡片侧 `updateDuration: 1` 仍只重绘本地缓存 |
+| 验证 | `widget` 80 条、`widgetbase` 102 条单测全绿；default / uat 构建通过 |
 
 【已核对代码一致性】

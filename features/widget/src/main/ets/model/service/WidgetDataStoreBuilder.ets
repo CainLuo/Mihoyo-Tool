@@ -258,61 +258,6 @@ export class WidgetDataStoreBuilder {
   }
 
   /**
-   * 更新单个角色的 rawJson
-   */
-  static async updateRoleRawJson(
-    accountId: string,
-    gameId: string,
-    roleId: string,
-  ): Promise<boolean> {
-    Logger.info(TAG, `[WIDGET_DEBUG] updateRoleRawJson: start ${accountId}/${gameId}/${roleId}`);
-    try {
-      const store = await WidgetDataStoreManager.load();
-      const slot = store.getRole(accountId, roleId);
-      if (slot === null) {
-        Logger.warn(TAG, `updateRoleRawJson: role not found ${accountId}/${roleId}`);
-        return false;
-      }
-
-      // 从 DB 读取最新数据
-      let rawJson = '';
-      const gameIdEnum = WidgetDataStoreBuilder.parseGameId(gameId);
-
-      if (gameIdEnum === GameId.GENSHIN) {
-        Logger.info(TAG, `[WIDGET_DEBUG] updateRoleRawJson: reading genshin dailyNote for ${accountId}/${roleId}`);
-        const dailyNote = await CoreInitializer.genshinRepository.getDailyNote(accountId, roleId);
-        rawJson = dailyNote?.rawJson ?? '';
-        Logger.info(TAG, `[WIDGET_DEBUG] updateRoleRawJson:   genshin dailyNote found=${dailyNote !== null} rawJson.length=${rawJson.length}`);
-      } else if (gameIdEnum === GameId.STARRAIL) {
-        Logger.info(TAG, `[WIDGET_DEBUG] updateRoleRawJson: reading starrail dailyNote for ${accountId}/${roleId}`);
-        const dailyNote = await CoreInitializer.starRailRepository.getDailyNote(accountId, roleId);
-        rawJson = dailyNote?.rawJson ?? '';
-        Logger.info(TAG, `[WIDGET_DEBUG] updateRoleRawJson:   starrail dailyNote found=${dailyNote !== null} rawJson.length=${rawJson.length}`);
-      } else if (gameIdEnum === GameId.ZZZ) {
-        Logger.info(TAG, `[WIDGET_DEBUG] updateRoleRawJson: reading zzz dailyNote for ${accountId}/${roleId}`);
-        const dailyNote = await CoreInitializer.zzzRepository.getDailyNote(accountId, roleId);
-        rawJson = dailyNote?.rawJson ?? '';
-        // 同时更新 widgetRawJson
-        const widgetRawJson = dailyNote?.widgetRawJson ?? '';
-        slot.widgetRawJson = widgetRawJson;
-        Logger.info(TAG, `[WIDGET_DEBUG] updateRoleRawJson:   zzz dailyNote found=${dailyNote !== null} rawJson.length=${rawJson.length} widgetRawJson.length=${widgetRawJson.length}`);
-      } else {
-        Logger.warn(TAG, `[WIDGET_DEBUG] updateRoleRawJson: unsupported gameId=${gameId}`);
-      }
-
-      slot.rawJson = rawJson;
-      store.updatedAt = Math.floor(Date.now() / 1000);
-      await WidgetDataStoreManager.save(store);
-
-      Logger.info(TAG, `[WIDGET_DEBUG] updateRoleRawJson: updated ${accountId}/${roleId}, rawJson.length=${rawJson.length}`);
-      return true;
-    } catch (e) {
-      Logger.error(TAG, `updateRoleRawJson failed: ${JSON.stringify(e)}`);
-      return false;
-    }
-  }
-
-  /**
    * 保存 widgets 配置
    */
   static async saveWidgetsConfig(widgets: Record<string, string[]>): Promise<boolean> {
@@ -367,19 +312,6 @@ export class WidgetDataStoreBuilder {
       default:
         return 'unknown';
     }
-  }
-
-  private static parseGameId(str: string): GameId {
-    if (str === 'genshin') {
-      return GameId.GENSHIN;
-    } else if (str === 'starrail') {
-      return GameId.STARRAIL;
-    } else if (str === 'zzz') {
-      return GameId.ZZZ;
-    } else if (str === 'honkai3') {
-      return GameId.HONKAI3;
-    }
-    return GameId.GENSHIN;
   }
 
   private static countTotalRoles(store: WidgetDataStore): number {

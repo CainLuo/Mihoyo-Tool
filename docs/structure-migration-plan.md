@@ -55,7 +55,7 @@
 
 ```
 entry/src/main/ets/
-├── entryability/ entrybackupability/ entryformability/ widgetsyncability/   ← 留在 entry
+├── entryability/ entrybackupability/ entryformability/   ← 留在 entry
 ├── pages/Index.ets LaunchPage.ets MainPage.ets TestPage.ets                ← 留在 entry
 ├── views/test/                                                             ← TestPage 组件，留在 entry
 ├── widget/pages/ widget/views/ widget/viewmodel/                           ← 卡片 UI，留在 entry

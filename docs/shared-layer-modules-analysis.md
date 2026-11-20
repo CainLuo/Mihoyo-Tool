@@ -41,7 +41,7 @@
 
 | 文件 | 行数 | 说明 | 引用方 |
 | --- | --- | --- | --- |
-| `config/RuntimeConfig` | 15 | `APP_ENV`（来自 hvigor `buildProfileFields`）；引用方 `EntryAbility`、`WidgetSyncAbility`。头注释（`:8`）称"唯一允许读取 `BuildProfile.APP_ENV` 的地方"，但 `widget/utils/WidgetLogger.ets:35` 也直接读取 |
+| `config/RuntimeConfig` | 15 | `APP_ENV`（来自 hvigor `buildProfileFields`）；引用方 `EntryAbility`。头注释（`:8`）称"唯一允许读取 `BuildProfile.APP_ENV` 的地方"，但 `widget/utils/WidgetLogger.ets:35` 也直接读取 |
 | `constants/AppRoutes` | 58 | 25 个 `static readonly` 路由名常量；`AppRoutes` 被全仓 ~120+ 引用方（grep 计数） |
 | `constants/AppConstants` | 39 | 响应式断点、骨架屏占位索引、自动刷新间隔（30 分钟） |
 | `constants/SignalStorageKey` | 14 | 仅保留 2 个 AppStorage key：`GEETEST_SIGNAL_KEY` / `COOKIE_EXPIRED_SIGNAL_KEY`（旧 8 条 @Monitor 路径约定已作废，见 M6） |
@@ -117,7 +117,7 @@
 constants  ← models  ← utils  ← viewmodel / components / pages
 theme      ← components / pages / models/SnackbarParams / utils/GenshinElementUtil（AppTheme）
              （例外：widget/ 14 个文件与 components/widgetsettings/preview/ 10 个文件直接 new DefaultTheme()，绕过 themeManager）
-config     ← EntryAbility / WidgetSyncAbility（取 APP_ENV 传给 CoreInitializer.initCore）
+config     ← EntryAbility（取 APP_ENV 传给 CoreInitializer.initCore）
 ```
 
 共享层**整体不反向依赖** `pages/components/viewmodel`，除按设计依赖页面的 `builders/MaterialCharacterSelectPageBuilder.ets:7` → `pages/MaterialCharacterSelect` 外，有 3 处例外（全量 grep import 已核）：
@@ -275,7 +275,7 @@ config     ← EntryAbility / WidgetSyncAbility（取 APP_ENV 传给 CoreInitial
 | models → core / constants / theme | 8 个模型 import `'core'`（其中 `MaterialTargetConfigModels` 的导入实际未使用；主要是 `GameId`，另有 `GeetestCreateResult`、`ZZZCardSign` 等）；`SnackbarParams` → `constants/FeedbackType` + `theme/ThemeManager`；`WidgetSettingsModels` → `widget/` + `viewmodel/`（§2.1 例外）；`CharDetailModels` / `DailyNoteModels` / `AccountOption` 无任何 import |
 | constants → core | `GenshinElement` / `StarRailElement` / `ZZZElement` 从 core 重导出枚举 |
 | theme → 无 | `AppTheme` / `DefaultTheme` / `ThemeFonts` 不依赖任何业务模块 |
-| 被谁依赖 | `viewmodel/`、`components/`、`pages/`、`entryability/` / `widgetsyncability/`（`RuntimeConfig`、`AppearanceManager`、`ColorUtil`）；`widget/` 只有 14 个文件 import `theme/DefaultTheme`（`WidgetUtils` 自持颜色映射，不引用 `GameIdUtil`）；`notification/` 不 import 任何 M0 文件（`NotificationModels` + `StaminaThresholdCalculator` 在 notification 内，不属于 M0） |
+| 被谁依赖 | `viewmodel/`、`components/`、`pages/`、`entryability/`（`RuntimeConfig`、`AppearanceManager`、`ColorUtil`）；`widget/` 只有 14 个文件 import `theme/DefaultTheme`（`WidgetUtils` 自持颜色映射，不引用 `GameIdUtil`）；`notification/` 不 import 任何 M0 文件（`NotificationModels` + `StaminaThresholdCalculator` 在 notification 内，不属于 M0） |
 
 ---
 
@@ -330,7 +330,7 @@ config     ← EntryAbility / WidgetSyncAbility（取 APP_ENV 传给 CoreInitial
 | 新增 | M7 `compute()` 三处 `await` 不在 try 内（`:151-154/232/349`）；L4 `SyncRetrySignal.accountId` 无读取方且可能存整串 Cookie；L5 `TransparentColorCache` 不随深浅色重算 |
 | 改写 | M6：`SignalMonitorKey` 实际未被任何 `@Monitor` 使用（37 处全为字面量），§2.3 / §2.4 / §3 / §7 冻结项同步修订；M2 注明现有 5 处调用均已正确释放；M4 锚点改为真实重复片段 `:236-245`/`:369-378`、`:314-323`/`:417-426`，并注明 `getAvatarDetail` 是本地 DB 读；L1 纠正"`getCachedColorMode` 可替代等待"的错误建议；L3 补 `AppTheme.ets:13` |
 | 中心节点 | `themeManager` import 方为 **210**（原 211 含定义文件 `ThemeManager.ets` 自身注释）；`CharDetailModels` 41 = 4 VM + 3 页 + 34 组件；信号读写方按 grep 重列 |
-| 引用方 | 修正 `GeetestCenter`（仅 Main）、`DeviceFpCenter`（Main + AccountDetailVM）、`SyncRetrySignal`（HomeViewModel 只在注释）、`AppearanceManager`（+My）、`GameIdUtil`（6 VM + 8 组件/页面 + 2 utils）、`CookieExpiredSignal`、`TimeFormatUtil`、`RuntimeConfig`（+WidgetSyncAbility）；§8 `utils → core` 名单改为实际 12 个文件 |
+| 引用方 | 修正 `GeetestCenter`（仅 Main）、`DeviceFpCenter`（Main + AccountDetailVM）、`SyncRetrySignal`（HomeViewModel 只在注释）、`AppearanceManager`（+My）、`GameIdUtil`（6 VM + 8 组件/页面 + 2 utils）、`CookieExpiredSignal`、`TimeFormatUtil`、`RuntimeConfig`；§8 `utils → core` 名单改为实际 12 个文件 |
 | 结果 | 0 / 0 / 7 / 5，评级 B，债务 17 → **19**，密度 0.42 / 百行 |
 
 ### 复核记录（2026-10-27 第 6 轮：独立复核第 5 轮改动 + 补齐 Spec M0 范围）

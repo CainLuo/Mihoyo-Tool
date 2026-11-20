@@ -79,7 +79,7 @@ HVIGOR=/Applications/DevEco-Studio.app/Contents/tools/hvigor/bin/hvigorw
 | `notification/` | 5 | 1082 | 通知服务（含 `StaminaNotificationService` 691L） |
 | `theme/` | 4 | 538 | `ThemeManager`（fan-in **210**）、`ThemeFonts`（82，真实 import 方）、`DefaultTheme`（25）、`AppTheme`（4） |
 | `constants/` | 10 | 338 | `AppRoutes`、`ViewStates`（fan-in 35）、按游戏分类的 Element 枚举 |
-| `entryability/` `entryformability/` `entrybackupability/` `widgetsyncability/` | 4 | 676 | Stage 模型契约入口点 —— **契约区域** |
+| `entryability/` `entryformability/` `entrybackupability/` | 3 | 413 | Stage 模型契约入口点 —— **契约区域**（`widgetsyncability/` 263 行已于 2026-11-20 删除） |
 | `builders/` `config/` `styles/` | 3 | 72 | `MaterialCharacterSelectBuilder`（路由入口）/ 单例配置 / 样式常量 |
 
 > 统计口径：`find entry/src/main/ets -name '*.ets'`，包含所有子目录。重新统计用：
@@ -119,7 +119,7 @@ Fan-in 中心节点（共享层，不可随意移动）：
 | **路由表** | `resources/base/profile/custom_router_map.json`（20 条） | `name`、`pageSourceFile`、`buildFunction` | M3 / M5 / M6 / M7 / M10 / M11 / M12 / M13 / M15 |
 | 入口页 | `resources/base/profile/main_pages.json` | 仅注册 `pages/Index` | M15 |
 | 卡片配置 | `resources/base/profile/form_config.json` | 6 个 form 的 `src` 均硬编码 `./ets/widget/pages/*.ets` | M14 |
-| Ability | `entry/src/main/module.json5:36/52/64/76` | `EntryAbility` / `WidgetSyncAbility` / `EntryBackupAbility` / `EntryFormAbility` 的 `srcEntry` | M0 / M14 / M15 |
+| Ability | `entry/src/main/module.json5:28/46/58` | `EntryAbility` / `EntryBackupAbility` / `EntryFormAbility` 的 `srcEntry`（`WidgetSyncAbility` 已于 2026-11-20 删除） | M0 / M14 / M15 |
 | 路由常量 | `constants/AppRoutes.ets` | 所有 `static readonly` 字符串值（NavPathStack 用它 push），共 25 条 | 全模块 |
 | `@Monitor` 路径 | 各页面/组件中 37 处 `@Monitor('xxx.yyy')` 字面量 | 字面量 ↔ 其指向的 `@Local` 字段名 / VM 字段名必须一致，改任一侧监听静默失效。`constants/SignalStorageKey.ets` 原有的 8 个 `@Monitor` 路径值从未被引用，已于 2026-10-28（M0）删除，现只保留 `GEETEST_SIGNAL_KEY` / `COOKIE_EXPIRED_SIGNAL_KEY` 两个 AppStorage key，这两个值冻结 | M1 / M2 / M4 / M5 / M7 / M8 / M9 / M10 / M11 / M12 / M15 |
 | 持久化 key | `utils/AppearanceManager.ets:19-20`、`utils/LegalPreferences.ets:13-14`；AppStorageV2 key（`SignalMonitorKey` 两个 + `AccountSignal` / `SyncRetrySignal` / `DeviceFpInvalidSignal` 的 `KEY`） | Preferences store 名与 key、AppStorageV2 key 的字符串值（改名会丢失用户已保存的颜色模式 / 隐私同意状态） | M0 / M2 / M3 |
@@ -160,7 +160,7 @@ Keep `entry/src/main/ets/` 根目录结构不变，内部重新分组：
 
 ```
 entry/src/main/ets/
-├── entryability/ entryformability/ entrybackupability/ widgetsyncability/  # 契约区域 — 不移动文件，仅编辑内容
+├── entryability/ entryformability/ entrybackupability/  # 契约区域 — 不移动文件，仅编辑内容
 ├── config/ styles/ builders/                    # 文件位置保持不变（文件少，与契约相邻；builders 内容随 M7 修改）
 ├── theme/ constants/ utils/ models/             # 共享层（M0）：可编辑，但中心节点文件原位不动
 ├── pages/                                       # 页面层：每个路由一个文件；见 §2.4 的路由冻结例外
@@ -194,7 +194,7 @@ entry/src/main/ets/
 | M11 | AccountDetail | AccountDetail | AccountDetailViewModel | accountdetail/（7） | 有 Local Test |
 | M12 | Login | Login (+WebViewPage) | LoginViewModel | views/（19） | **已有根 spec `Refactor_Login_Spec.md`**：其中 build-profile/mock 分离不可执行，只取组件拆分；WebView 路由文件冻结 |
 | M13 | WidgetConfig | WidgetSettings | WidgetSettingsViewModel | views/（23 = 13 根级 + preview/10） | 无 Local Test |
-| M14 | Widget 子系统 | widget/pages ×6 | widget/viewmodel ×4 | `features/widget` 预览 views/preview（10）+ model/service + utils | V1 孤岛；与 widgetsyncability + notification 交互；form_config 路径冻结；本轮只重构 preview |
+| M14 | Widget 子系统 | widget/pages ×6 | widget/viewmodel ×4 | `features/widget` 预览 views/preview（10）+ model/service + utils | V1 孤岛；与 notification 交互；form_config 路径冻结；本轮只重构 preview |
 | M15 | 框架 | MainPage, Index, LaunchPage (+TestPage) | – | – | Navigation 路由 + `@Param` 回调编排；最后执行 |
 
 **跨模块共享组件（复用分析）** — 被多个模块导入的组件应位于 `components/common/`（或保留在原定义处）：
@@ -292,7 +292,7 @@ entry/src/main/ets/
 - ⚠️ **$r 字符串资源**：组件引用 `$r('app.xxx.key')`；移动组件不会触及 `resources/` —— 但重命名组件绝不能重命名字符串 key。
 - ⚠️ **@ComponentV2 装饰器**：拆分文件时保持装饰器风格不变（@Local/@Param/@Watch 语义在文件边界处会变化；遵循 state-management skill 规则与 §6.1）。
 - ⚠️ **单例静态成员**：`themeManager` 模块级单例（210 个导入者）、`CookieExpiredSignal.instance()` 模式 —— 移动文件不会移动单例；保持导入相同路径或 AppStorage，切勿重新实例化。
-- ⚠️ **widgetsyncability / entryformability**：表单和同步能力与 widget/ 耦合；`form_config.json` 硬编码 6 个页面路径，M14 不得移动 `widget/pages/*`。
+- ⚠️ **entryformability**：表单能力与 widget/ 耦合；`form_config.json` 硬编码 6 个页面路径，M14 不得移动 `widget/pages/*`。
 - ⚠️ **AppStorage / windowClass**（`entry/src/main/ets/pages/MainPage.ets` 第 44 行：`AppStorage.get<window.Window>('windowClass')`）：key-string 耦合 —— 保留 key 字符串不变。
 - ⚠️ **基线与门禁**：Local Test 只能在 DevEco 运行；`test-entry.sh` 只编译 ohosTest HAP，且 ohosTest 当前 67 个编译错误（`log.md`）。不要把它当作回归保护。
 - ⚠️ **作用域外已知问题（本次不处理）**：`build-profile.json5` 内含明文签名口令（SEC-001 / Critical），建议单独轮换并迁移到 CI Secret；`entry/src/ohosTest` 的过期测试需要单独清理。
@@ -409,7 +409,7 @@ Local Test 首轮实际是红的，收尾时修掉的测试侧阻塞（不改产
 | 2 | M13 WidgetConfig | `init()` 改为返回 `boolean`；加载失败展示错误态 + 重试按钮；`complete()` 失败（无槽位 / 拉起卡片管理器失败）通过新增 `onConfigError` 弹 toast | `d01d988` | 编译通过；正常路径实测（尺寸 → Slot → 完成 → 系统卡片管理器）无回归。错误态与失败 toast 属防御路径，未构造出触发条件 |
 | 3 | M12 Login | `LoginErrorText` 把哨兵码 `phone_empty` / `code_empty` / `cookie_empty` 映射为可读文案，未识别值原样展示；VM 值不变，测试断言不受影响 | `bae5b61`（与测试补全同批，未单独拆分） | 编译通过 |
 | 4 | M15 框架 | `GeetestDialog` / `MainPage` 的 `windowSizeChange` 回调存为字段并精确 `off`，不再整体注销同窗口其它监听；`showGeetestDialog` 注册 `onWillDismiss` + `onDidDisappear`，返回手势 / 侧滑 / ESC 关闭时按"取消当前项"收尾；`showCurrentGeetest` 补 `catch` 防止异常跳过队列推进 | `f038d03` | 编译通过；应用启动、首页 / 角色页渲染正常。返回手势路径需真机触发人机验证后复测 |
-| 5 | M14 数据层 | 更新失败不删卡片配置（`WidgetPushResult` 区分 `WIDGET_REMOVED` / `FAILED`，仅 401 / 16500050 清理）；无数据时返回真实空 payload，不再展示 Mock 账号 | `bae5b61`（与测试补全同批，未单独拆分） | 代码核查：生产代码已无 `WidgetMockData` / `WidgetMockPayload` 引用（仅测试与 `Index.ets` 导出保留）；`buildFormData` 空数据分支只记日志并走空态 |
+| 5 | M14 数据层 | 更新失败不删卡片配置（`WidgetPushResult` 区分 `WIDGET_REMOVED` / `FAILED`，仅 401 / 16500050 清理）；无数据时返回真实空 payload，不再展示 Mock 账号 | `bae5b61`（与测试补全同批，未单独拆分） | 代码核查：生产代码已无 `WidgetMockData` / `WidgetMockPayload` 引用；`buildFormData` 空数据分支只记日志并走空态。`WidgetMockPayload` 及其单测已于 2026-11-20 删除 |
 
 **回滚策略：**
 - 执行前打基线 tag：`git tag refactor-baseline-2026-10-24`。
@@ -1253,7 +1253,7 @@ M14 原范围覆盖整个 Widget 子系统（V1 卡片孤岛 + 两个 ability + 
 ### 契约与冻结项
 
 - `resources/base/profile/form_config.json` 的 6 条 `src` 与 `name` 冻结；本轮不改。
-- `module.json5` 的 `EntryFormAbility` / `WidgetSyncAbility` `srcEntry` 冻结。
+- `module.json5` 的 `EntryFormAbility` `srcEntry` 冻结（`WidgetSyncAbility` 已于 2026-11-20 删除）。
 - V1 组件不迁移到 V2，不新增 `@ComponentV2` 到卡片渲染进程。
 - `'payload'` LocalStorage key、`widget_data` / `widget_configs` Preferences 文件与 JSON 结构不变。
 - 测试引用的 `Widget2x2ViewModel` / `WidgetUIStates` / `WidgetPayloadParser` / `WidgetDataHelper` / `WidgetUtils` / `WidgetExtraRow*` 导出名不变。

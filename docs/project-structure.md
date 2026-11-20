@@ -169,8 +169,6 @@ entry/src/main/ets/
 │       ├── WidgetEmptyContent.ets        # Widget 空态内容组件
 │       ├── WidgetExpeditionAvatar.ets    # 派遣角色头像（2×4 / 4×4 共享）
 │       └── WidgetExtraDataRows.ets       # Widget 额外数据行组件
-└── widgetsyncability/                    # 卡片数据同步
-    └── WidgetSyncAbility.ets             # 卡片数据同步 Ability
 ```
 
 ### 4.2 `common/basic` — 公共模块（HAR）
@@ -681,11 +679,11 @@ features/notification/src/main/ets/
 
 | 项 | 内容 |
 | --- | --- |
-| 代码文件 | 43 个 `.ets` |
+| 代码文件 | 42 个 `.ets` |
 | 依赖 | core、widgetbase、basic |
-| 对外导出 | 11 个（`Index.ets`） |
+| 对外导出 | 10 个（`Index.ets`） |
 | 路由 | `WidgetSettings` |
-| 本地测试 | 12 个测试文件 / 76 条：模型（Config / DataStore / GameSnapshot / Preview / Settings）、`WidgetPayloadBuilder`、`WidgetMockPayload`、`WidgetUpdateNotifier`、`WidgetConfigStore`、`WidgetSettingsViewModel`、`WidgetPreviewUtil`、`WidgetSettingsSizeConfig` |
+| 本地测试 | 11 个测试文件 / 77 条：模型（Config / DataStore / GameSnapshot / Preview / Settings）、`WidgetPayloadBuilder`、`WidgetUpdateNotifier`、`WidgetConfigStore`、`WidgetSettingsViewModel`、`WidgetPreviewUtil`、`WidgetSettingsSizeConfig` |
 | 资源 | `base/string` 27、`en/string` 27、`zh_HK/string` 27、`base/profile` 1 |
 
 ```
@@ -701,7 +699,6 @@ features/widget/src/main/ets/
 │       ├── WidgetDataStoreBuilder.ets   # Widget 数据构建器（v2）
 │       ├── WidgetDataStoreManager.ets   # Widget 全局数据存储管理器（v2）
 │       ├── WidgetImageDownloader.ets    # Widget 网络图片下载器
-│       ├── WidgetMockPayload.ets        # Widget Mock 数据
 │       ├── WidgetPayloadBuilder.ets     # Widget Payload 构建器
 │       ├── WidgetSyncHandlerImpl.ets    # WidgetSyncHook 的 widget 功能实现
 │       └── WidgetUpdateNotifier.ets     # Widget 更新通知器

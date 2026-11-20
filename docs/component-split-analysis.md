@@ -15,7 +15,7 @@
 | **Widget Page** | 6 | 99–133 | `entry/src/main/ets/widget/pages/`，运行在 `FormExtensionAbility` 中 |
 | **Widget View** | 17 | 53–152 | `entry/src/main/ets/widget/views/`，Widget 专用子组件 |
 | **ViewModel** | 5 | 60–151 | `entry/src/main/ets/widget/viewmodel/`，Widget 数据层（含共享构建器 `WidgetRoleStateBuilder`） |
-| **Ability** | 4 | 16–270 | `EntryAbility` / `WidgetSyncAbility` 等，不纳入拆分 |
+| **Ability** | 3 | 16–277 | `EntryAbility` / `EntryBackupAbility` / `EntryFormAbility`，不纳入拆分（`WidgetSyncAbility` 已于 2026-11-20 删除） |
 | **Utils** | 2 | 21–26 | 纯工具类，不纳入拆分 |
 
 ### 1.2 Normal Page 复杂度分布
