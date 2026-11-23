@@ -10,6 +10,7 @@
 import { Widget2x2SingleGame } from '../views/Widget2x2SingleGame';
 import { Widget1x2ContentView } from '../views/Widget1x2ContentView';
 import { WidgetEmptyContent } from '../views/WidgetEmptyContent';
+import { buildWidgetPreviewPayload } from '../preview/WidgetPreviewPayload';
 import { parsePayload, ParsedRole, ParsedPayload, Widget2x2UIState, WidgetColors, createWidgetGradient, getGameColor, DefaultTheme, formatUpdatedAtCompactText, isWidgetDataStale } from 'widgetbase';
 import { Widget2x2ViewModel } from '../viewmodel/Widget2x2ViewModel';
 
@@ -155,5 +156,24 @@ struct Widget2x2 {
         }
       });
     })
+  }
+}
+
+/** 页面级预览：单账号 + 原神单角色，展示真实 2×2 布局 */
+@Preview
+@Component
+struct Widget2x2Preview {
+  aboutToAppear(): void {
+    storage.setOrCreate('payload', buildWidgetPreviewPayload());
+  }
+
+  build() {
+    Column() {
+      Widget2x2()
+        .width(168)
+        .height(168)
+    }
+    .padding(16)
+    .backgroundColor($r('app.color.dark_400'))
   }
 }

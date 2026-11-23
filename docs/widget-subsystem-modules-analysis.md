@@ -1,6 +1,6 @@
 # Widget 子系统分析（M14）
 
-> **分析对象**：`entry/src/main/ets/widget/`（28 个文件 / 2,836 行：pages 6·775 + views 17·1,599 + viewmodel 5·462）+ `entryformability/EntryFormAbility.ets`（322 行）；另含 `features/widget/src/main/ets/`（43 文件 / 6,063 行）与 `common/widgetbase/`（卡片进程共享的解析 / 工具 / 主题代码）。`widgetsyncability/WidgetSyncAbility.ets`（263 行）已于 2026-11-20 删除。
+> **分析对象**：`entry/src/main/ets/widget/`（30 个文件 / 2,966 行：pages 6·847 + views 17·1,599 + viewmodel 5·463 + preview 1·26 + `WidgetEntryRoute` 31）+ `entryformability/EntryFormAbility.ets`（322 行）；另含 `features/widget/src/main/ets/`（43 文件 / 6,063 行）与 `common/widgetbase/`（卡片进程共享的解析 / 工具 / 主题代码）。`widgetsyncability/WidgetSyncAbility.ets`（263 行）已于 2026-11-20 删除。
 > **分析日期**：2026-10-24
 > **代码版本**：`105c8d3`
 > **HarmonyOS SDK**：`6.0.2(22)`（`targetSdkVersion` / `compatibleSdkVersion`，见根 `build-profile.json5`）
@@ -16,15 +16,15 @@
 | Critical | 0 |
 | High | 0 |
 | Medium | 0 |
-| Low | 1 |
+| Low | 0 |
 
 **整体评级：A**
 
 > 口径：skills `harmonyos-review` 官方 A-F 评级（0 Critical + 0 High → A）。
 >
-> 计数为 2026-11-23 现状：H1 / H2 已修复（`bae5b61`，对应审计 GAP-01 / GAP-06），**H3 已修复（`f629da5`）**，M1 / M6 / M7 / M8 已修复，L1（`WidgetLog` 重复）/ L2（`onFormEvent` 忽略 `message`）已修复（L1 2026-11-13、L2 2026-11-15，代码见 `EntryFormAbility.ets` 对非空 `message` 直接忽略并记日志）；M2 / M3 / M5 随 `WidgetSyncAbility` 删除而关闭（2026-11-20），M4 已修复（2026-11-23：按尺寸跳过图片、图片读取加时间预算、补耗时日志）。**Medium 已清零，仅剩 L3（2×2 / 2×4 / 4×4 缺页面级 `@Preview`）。**
+> 计数为 2026-11-23 现状：H1 / H2 已修复（`bae5b61`，对应审计 GAP-01 / GAP-06），**H3 已修复（`f629da5`）**，M1 / M6 / M7 / M8 已修复，L1（`WidgetLog` 重复）/ L2（`onFormEvent` 忽略 `message`）已修复（L1 2026-11-13、L2 2026-11-15，代码见 `EntryFormAbility.ets` 对非空 `message` 直接忽略并记日志）；M2 / M3 / M5 随 `WidgetSyncAbility` 删除而关闭（2026-11-20），M4 已修复（2026-11-23：按尺寸跳过图片、图片读取加时间预算、补耗时日志），L3 已修复（2026-11-23：2×2 / 2×4 / 4×4 补页面级 `@Preview`）。**全部债务清零。**
 >
-> 债务 1×1 = **1**；体量 9,221 行（`features/widget/src/main/ets/` 6,063 + `entry/src/main/ets/widget/` 2,836 + `EntryFormAbility` 322），密度 1 ÷ 92.21 ≈ **0.01 / 百行**（`WidgetSyncAbility` 263 行已随 2026-11-20 清理移除）。
+> 债务 **0**；体量 9,351 行（`features/widget/src/main/ets/` 6,063 + `entry/src/main/ets/widget/` 2,966 + `EntryFormAbility` 322），密度 **0 / 百行**（`WidgetSyncAbility` 263 行已随 2026-11-20 清理移除）。
 
 > 架构本身是清楚的：主应用写「数据仓」→ 卡片进程读 payload → 6 个页面各自经 ViewModel 构建 UIState → V1 组件渲染。**曾经有三处会直接伤害"桌面卡片"这个核心场景**：更新失败会把用户的卡片配置删掉（H1，已修）、无数据时展示伪造的"测试账号"（H2，已修）、卡片从不显示数据有多旧（H3，已修）。这三条都不影响主应用，只影响卡片，所以历史上一直没被页面级评审覆盖。2026-10-27 复核另补 2 条 Medium：点击同步的并发锁置位过晚（M7，已修）、`WidgetFormIdStore` 无写入方导致两条调用链空转（M8，已删）。
 >
@@ -38,24 +38,24 @@
 
 | 文件 | 行数 | 尺寸 | 布局 |
 | --- | --- | --- | --- |
-| `widget/pages/Widget1x2Genshin.ets` | 99 | 1×2 | 单角色迷你卡（原神） |
-| `widget/pages/Widget1x2StarRail.ets` | 99 | 1×2 | 单角色迷你卡（星铁） |
-| `widget/pages/Widget1x2ZZZ.ets` | 99 | 1×2 | 单角色迷你卡（绝区零） |
-| `widget/pages/Widget2x2.ets` | 159 | 2×2 | 单游戏详细 / 双游戏上下分栏；多游戏时右下角显示数据新鲜度 |
-| `widget/pages/Widget2x4.ets` | 156 | 2×4 | 单游戏横排 / 双游戏左右分栏；右上角显示数据新鲜度 |
-| `widget/pages/Widget4x4.ets` | 163 | 4×4 | 单游戏大卡 / 双游戏上下分栏；多游戏时右上角显示数据新鲜度 |
+| `widget/pages/Widget1x2Genshin.ets` | 103 | 1×2 | 单角色迷你卡（原神） |
+| `widget/pages/Widget1x2StarRail.ets` | 103 | 1×2 | 单角色迷你卡（星铁） |
+| `widget/pages/Widget1x2ZZZ.ets` | 103 | 1×2 | 单角色迷你卡（绝区零） |
+| `widget/pages/Widget2x2.ets` | 179 | 2×2 | 单游戏详细 / 双游戏上下分栏；多游戏时右下角显示数据新鲜度 |
+| `widget/pages/Widget2x4.ets` | 176 | 2×4 | 单游戏横排 / 双游戏左右分栏；右上角显示数据新鲜度 |
+| `widget/pages/Widget4x4.ets` | 183 | 4×4 | 单游戏大卡 / 双游戏上下分栏；多游戏时右上角显示数据新鲜度 |
 
-### 1.2 ViewModel（5，462 行）
+### 1.2 ViewModel（5，463 行）
 
 | 文件 | 行数 | 职责 |
 | --- | --- | --- |
 | `widget/viewmodel/WidgetRoleStateBuilder.ets` | 151 | 角色 UIState 共享构建器（2×2 / 2×4 / 4×4 共用，布局差异由 `WidgetRoleLayout` 表达） |
-| `widget/viewmodel/Widget1x2ViewModel.ets` | 80 | 按 `gameId` 过滤后取首个角色（产出紧凑的 `Widget1x2RoleUIState`） |
+| `widget/viewmodel/Widget1x2ViewModel.ets` | 81 | 按 `gameId` 过滤后取首个角色（产出紧凑的 `Widget1x2RoleUIState`） |
 | `widget/viewmodel/Widget2x2ViewModel.ets` | 111 | 单游戏详细态 / 多游戏最多 2 个 |
 | `widget/viewmodel/Widget2x4ViewModel.ets` | 60 | 同上，横向布局态 |
 | `widget/viewmodel/Widget4x4ViewModel.ets` | 60 | 同上，大卡态 |
 
-### 1.3 组件（17，1,552 行）
+### 1.3 组件（17，1,599 行）
 
 `Widget1x2ContentView`（121）· `Widget2x2Header`（76，含新鲜度）· `Widget2x2SingleGame`（106）· `Widget2x2StaminaBlock`（53）· `Widget2x2StandardStamina`（70）· `Widget2x2StarRailStamina`（91）· `Widget2x4SingleGame`（152）· `Widget2x4InfoColumn`（106）· `Widget4x4SingleGame`（136）· `Widget4x4Header`（80，含新鲜度）· `Widget4x4StaminaBlock`（112）· `Widget4x4ExtraRowsGroup`（63）· `Widget4x4ExpeditionBlock`（64）· `WidgetDataRow`（69）· `WidgetExpeditionAvatar`（126）· `WidgetEmptyContent`（66）· `WidgetExtraDataRows`（108）
 
@@ -68,14 +68,14 @@
 | `features/widget/.../model/WidgetConfigModels.ets` | 151 | 单个卡片的配置（尺寸 / slots / formName） |
 | `features/widget/.../model/WidgetDataStoreModels.ets` | 458 | 全局数据仓（账号 → 角色 → rawJson + 拉取时间），写入 `preferences` |
 
-### 1.5 工具（12，3,219 行）
+### 1.5 工具（12，3,180 行）
 
 | 分组 | 文件（行数） |
 | --- | --- |
-| **数据构建** | `WidgetDataStoreBuilder`（394）· `WidgetPayloadBuilder`（379） |
-| **数据解析** | `WidgetPayloadUtil`（395，被测试引用）· `WidgetDataUtil`（497，被测试引用） |
+| **数据构建** | `WidgetDataStoreBuilder`（326）· `WidgetPayloadBuilder`（382） |
+| **数据解析** | `WidgetPayloadUtil`（417，被测试引用）· `WidgetDataUtil`（497，被测试引用） |
 | **存储** | `WidgetDataStoreManager`（164）· `WidgetConfigStore`（145） |
-| **推送** | `WidgetUpdateNotifier`（168） |
+| **推送** | `WidgetUpdateNotifier`（172） |
 | **图片** | `WidgetImageDownloader`（489） |
 | **展示工具** | `WidgetUtil`（418，含新鲜度格式化）· `WidgetExtraRowConstants`（55，被测试引用）· `WidgetExtraRowType`（35，被测试引用） |
 | **日志 / 调试** | `WidgetLogger`（80）；`WidgetMockPayload`（45）已于 2026-11-20 删除 |
@@ -175,7 +175,7 @@ entryformability/EntryFormAbility.ets      卡片生命周期入口
 
 ### 4.1 1×2 三个页面是复制粘贴
 
-`Widget1x2Genshin` / `StarRail` / `ZZZ` 各 85 行，逐行 diff 后除文件头注释、`struct` 名与 Preview `struct` 名外，**逻辑只有 3 处不同**：`buildUIState` 的 `gameId` 参数（`:39`）、`getGameColor(...)`（`:49`）、`widgetSingleGameGradient(...)`（`:59`）。三份的 `@Preview` 块结构也一致（页面级只有这 3 页有 `@Preview`，2×2 / 2×4 / 4×4 页面没有）。
+`Widget1x2Genshin` / `StarRail` / `ZZZ` 各 85 行，逐行 diff 后除文件头注释、`struct` 名与 Preview `struct` 名外，**逻辑只有 3 处不同**：`buildUIState` 的 `gameId` 参数（`:39`）、`getGameColor(...)`（`:49`）、`widgetSingleGameGradient(...)`（`:59`）。三份的 `@Preview` 块结构也一致（2026-11-23 起 2×2 / 2×4 / 4×4 页面也各有一个页面级 `@Preview`）。
 
 ### 4.2 2×2 体力区块有两个变体
 
@@ -263,7 +263,7 @@ entryformability/EntryFormAbility.ets      卡片生命周期入口
 | --- | --- | --- | --- |
 | L1 | ✅ 已修复（2026-11-13） | 原：`WidgetLog.ets`（53）vs `WidgetLogger.ets`（80）并存 | `WidgetLog` 的唯一引用是未使用的 import，已删除 |
 | ~~L2~~ ✅ | `onFormEvent` 忽略 `message` | `EntryFormAbility.ets:87-89` | 任何 `formEvent` 都对该 formId 触发 `pushUpdate`，不校验内容；而 6 个页面的点击只发 `action: 'call'`（如 `Widget2x2.ets:104`），从不发 `message`，该回调目前没有触发源 |
-| L3 | 页面级只有 1×2 三页有 `@Preview` | `widget/pages/Widget1x2*.ets:73` | 9 个组件文件各有 `@Preview`（`WidgetEmptyContent` 无），但 2×2 / 2×4 / 4×4 页面的空态 / 单游戏 / 多游戏分支组合只能上真机验证；建议补页面级 `@Preview`（不改页面结构） |
+| L3 | ✅ 已修复（2026-11-23） | 原：`widget/pages/Widget1x2*.ets:73` 之外无页面级 `@Preview` | 2×2 / 2×4 / 4×4 三页各补一个页面级 `@Preview`，通过 `widget/preview/WidgetPreviewPayload` 注入「单账号 + 原神单角色」示例 payload（含体力 / 洞天财瓮 / 每日委托 / 派遣），预览器可直接看单游戏布局；`entry/src/test/WidgetPreviewPayload.test.ets` 2 条用例保证示例 payload 始终可解析 |
 
 ---
 
@@ -304,7 +304,7 @@ entryformability/EntryFormAbility.ets      卡片生命周期入口
 
 - **High 3 项**（配置误删、Mock 数据、无新鲜度标识）：**全部关闭**——H1 / H2 于 `bae5b61`，H3 于 `f629da5`。
 - **Medium 8 项**（重复解析、全局冷却且失败也计冷却、结果不可见、10 秒窗口、串行同步、派遣头像永不更新、并发锁置位过晚、`WidgetFormIdStore` 空转）：**全部关闭**——M1 / M4 / M6 / M7 / M8 已修复（M8 走删除路线），M2 / M3 / M5 随 `WidgetSyncAbility` 删除关闭。
-- **Low 2 项**（logger 合并、预览缺失）：`formEvent` 校验已于 2026-11-15 修复——非空 `message` 只记日志、不触发刷新。
+- **Low 2 项**（logger 合并、预览缺失）：**全部关闭**——L1 / L2 于 2026-11-13 / 2026-11-15 修复，L3 于 2026-11-23 补页面级 `@Preview`。
 - **测试覆盖**：`WidgetDataStoreModels`（序列化往返 / `getRole` / 配置）与 `WidgetPayloadBuilder`（slot 选择 / 截断 / `updatedAt`）已有单测；`WidgetDataStoreBuilder`（365）、`WidgetImageDownloader`（489）、`WidgetUpdateNotifier`（146）仍无单测。四个 ViewModel 自 2026-11-07 起已有 `entry/src/test` 单测（本轮实测四个均 100% 行覆盖）。
 
 ### 预览组件执行记录（2026-11-06）
@@ -542,5 +542,16 @@ entryformability/EntryFormAbility.ets      卡片生命周期入口
 | 模拟器实测（UAT） | 2×2：`total=5ms payload=0ms images=0ms imagesLoaded=0`；2×4：`total=1ms images=1ms imagesLoaded=5`；1×2：`total=10ms images=0ms`（首次 config 初始化 8ms）；新加 2×2 绝区零卡正常显示 49/240，4×4 卡 5 个派遣头像正常 |
 | 单测 | `entry` 47 条、`widget` 77 条全绿 |
 | 未改动 | Preferences 同步读取与 payload 构建保持原样：卡片最多 2 个 slot，payload 构建成本有界；本次只去掉小尺寸无意义的图片 fd 读取并补上保护与度量 |
+
+### 复核记录（2026-11-23 第 13 轮：L3 页面级预览）
+
+| 检查项 | 结论 |
+| --- | --- |
+| 原问题 | 页面级只有 1×2 三页有 `@Preview`，2×2 / 2×4 / 4×4 的空态 / 单游戏 / 多游戏分支只能上真机验证 |
+| 新增 1 | `widget/preview/WidgetPreviewPayload.ets`（26 行）：构造「单账号 + 原神单角色」payload，含体力 140/160、洞天财瓮 1200/2400、每日委托 2/4、3 个派遣；`updatedAt` 默认取当前时间前 10 分钟 |
+| 新增 2 | `Widget2x2` / `Widget2x4` / `Widget4x4` 各补一个页面级 `@Preview`（168×168 / 316×146 / 290×309），`aboutToAppear` 写入 `storage.setOrCreate('payload', ...)`，预览器直接显示单游戏真实布局 |
+| 新增 3 | `entry/src/test/WidgetPreviewPayload.test.ets`（2 条）：校验 payload 可解析、体力字段与 `updatedAt` 偏移正确，防止预览静默变空态 |
+| 验证 | `entry` 单测 47 → **49** 条全绿；default 构建通过；页面结构与 `form_config.json` 未改 |
+| 计数 | 0 Critical / 0 High / 0 Medium / 0 Low，评级 A；债务 **0** |
 
 【已核对代码一致性】

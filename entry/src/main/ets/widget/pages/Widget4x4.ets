@@ -12,6 +12,7 @@
 
 import { Widget4x4SingleGame } from '../views/Widget4x4SingleGame';
 import { Widget2x4SingleGame } from '../views/Widget2x4SingleGame';
+import { buildWidgetPreviewPayload } from '../preview/WidgetPreviewPayload';
 import { parsePayload, ParsedPayload, Widget4x4UIState, WidgetColors, createWidgetGradient, DefaultTheme, formatUpdatedAtText, isWidgetDataStale } from 'widgetbase';
 import { Widget4x4ViewModel } from '../viewmodel/Widget4x4ViewModel';
 
@@ -159,5 +160,24 @@ struct Widget4x4 {
         }
       });
     })
+  }
+}
+
+/** 页面级预览：单账号 + 原神单角色，展示真实 4×4 布局 */
+@Preview
+@Component
+struct Widget4x4Preview {
+  aboutToAppear(): void {
+    storage.setOrCreate('payload', buildWidgetPreviewPayload());
+  }
+
+  build() {
+    Column() {
+      Widget4x4()
+        .width(290)
+        .height(309)
+    }
+    .padding(16)
+    .backgroundColor($r('app.color.dark_400'))
   }
 }

@@ -5,6 +5,7 @@ import widget2x4ViewModelTest from './Widget2x4ViewModel.test';
 import widget4x4ViewModelTest from './Widget4x4ViewModel.test';
 import mainNavigationModeTest from './MainNavigationMode.test';
 import mainDialogLabelsTest from './MainDialogLabels.test';
+import widgetPreviewPayloadTest from './WidgetPreviewPayload.test';
 
 export default function testsuite() {
   localUnitTest();
@@ -14,4 +15,5 @@ export default function testsuite() {
   widget4x4ViewModelTest();
   mainNavigationModeTest();
   mainDialogLabelsTest();
+  widgetPreviewPayloadTest();
 }
