@@ -1,6 +1,6 @@
 # Widget 子系统分析（M14）
 
-> **分析对象**：`entry/src/main/ets/widget/`（28 个文件 / 2,836 行：pages 6·775 + views 17·1,599 + viewmodel 5·462）+ `entryformability/EntryFormAbility.ets`（277 行）；另含 `features/widget/src/main/ets/`（43 文件 / 6,063 行）与 `common/widgetbase/`（卡片进程共享的解析 / 工具 / 主题代码）。`widgetsyncability/WidgetSyncAbility.ets`（263 行）已于 2026-11-20 删除。
+> **分析对象**：`entry/src/main/ets/widget/`（28 个文件 / 2,836 行：pages 6·775 + views 17·1,599 + viewmodel 5·462）+ `entryformability/EntryFormAbility.ets`（322 行）；另含 `features/widget/src/main/ets/`（43 文件 / 6,063 行）与 `common/widgetbase/`（卡片进程共享的解析 / 工具 / 主题代码）。`widgetsyncability/WidgetSyncAbility.ets`（263 行）已于 2026-11-20 删除。
 > **分析日期**：2026-10-24
 > **代码版本**：`105c8d3`
 > **HarmonyOS SDK**：`6.0.2(22)`（`targetSdkVersion` / `compatibleSdkVersion`，见根 `build-profile.json5`）
@@ -15,16 +15,16 @@
 | --- | --- |
 | Critical | 0 |
 | High | 0 |
-| Medium | 1 |
+| Medium | 0 |
 | Low | 1 |
 
 **整体评级：A**
 
 > 口径：skills `harmonyos-review` 官方 A-F 评级（0 Critical + 0 High → A）。
 >
-> 计数为 2026-11-20 现状：H1 / H2 已修复（`bae5b61`，对应审计 GAP-01 / GAP-06），**H3 已修复（`f629da5`）**，M1 / M6 / M7 / M8 已修复（8 → 4 Medium），L1（`WidgetLog` 重复）/ L2（`onFormEvent` 忽略 `message`）已修复（L1 2026-11-13、L2 2026-11-15，代码见 `EntryFormAbility.ets:84-90` 对非空 `message` 直接忽略并记日志）；M2 / M3 / M5 随 `WidgetSyncAbility` 删除而关闭（2026-11-20）。剩余 M4 与 L3，其中 M4 属能力增强。
+> 计数为 2026-11-23 现状：H1 / H2 已修复（`bae5b61`，对应审计 GAP-01 / GAP-06），**H3 已修复（`f629da5`）**，M1 / M6 / M7 / M8 已修复，L1（`WidgetLog` 重复）/ L2（`onFormEvent` 忽略 `message`）已修复（L1 2026-11-13、L2 2026-11-15，代码见 `EntryFormAbility.ets` 对非空 `message` 直接忽略并记日志）；M2 / M3 / M5 随 `WidgetSyncAbility` 删除而关闭（2026-11-20），M4 已修复（2026-11-23：按尺寸跳过图片、图片读取加时间预算、补耗时日志）。**Medium 已清零，仅剩 L3（2×2 / 2×4 / 4×4 缺页面级 `@Preview`）。**
 >
-> 债务 1×2 + 1×1 = **3**；体量 9,176 行（`features/widget/src/main/ets/` 6,063 + `entry/src/main/ets/widget/` 2,836 + `EntryFormAbility` 277），密度 3 ÷ 91.76 ≈ **0.03 / 百行**（`WidgetSyncAbility` 263 行已随 2026-11-20 清理移除）。
+> 债务 1×1 = **1**；体量 9,221 行（`features/widget/src/main/ets/` 6,063 + `entry/src/main/ets/widget/` 2,836 + `EntryFormAbility` 322），密度 1 ÷ 92.21 ≈ **0.01 / 百行**（`WidgetSyncAbility` 263 行已随 2026-11-20 清理移除）。
 
 > 架构本身是清楚的：主应用写「数据仓」→ 卡片进程读 payload → 6 个页面各自经 ViewModel 构建 UIState → V1 组件渲染。**曾经有三处会直接伤害"桌面卡片"这个核心场景**：更新失败会把用户的卡片配置删掉（H1，已修）、无数据时展示伪造的"测试账号"（H2，已修）、卡片从不显示数据有多旧（H3，已修）。这三条都不影响主应用，只影响卡片，所以历史上一直没被页面级评审覆盖。2026-10-27 复核另补 2 条 Medium：点击同步的并发锁置位过晚（M7，已修）、`WidgetFormIdStore` 无写入方导致两条调用链空转（M8，已删）。
 >
@@ -84,7 +84,7 @@
 
 | 文件 | 行数 | 角色 |
 | --- | --- | --- |
-| `entryformability/EntryFormAbility.ets` | 277 | 卡片生命周期：`onAddForm` 同步返回初始数据、`onUpdateForm` / `onFormEvent` 推送、`onRemoveForm` 清配置 |
+| `entryformability/EntryFormAbility.ets` | 322 | 卡片生命周期：`onAddForm` 同步返回初始数据（按尺寸决定是否读图片 fd，带时间预算与分段耗时日志）、`onUpdateForm` / `onFormEvent` 推送、`onRemoveForm` 清配置 |
 
 ---
 
@@ -251,7 +251,7 @@ entryformability/EntryFormAbility.ets      卡片生命周期入口
 | M1 | `build()` 内反复解析 payload | `Widget2x2.ets:57/61/63`（`getGameIds` / `getIsEmpty` / `getIsSingleGame` 各 `getParsed()` 1 次）+ `build()` 内 6 处 `getUIState()`，多游戏分支单次渲染最多 **9 次** `JSON.parse`；`Widget2x4.ets` / `Widget4x4.ets` 各 6 次 `getUIState()` + 1 次 `getGameIds()`（**7 次**）；1×2 三页各 2 次 | 每次 `getUIState()` 都 `JSON.parse` 整个 payload 并重建 `ParsedPayload` + UIState。V1 没有 computed，且 `build()` 不能声明局部变量——这是限制下的写法，但可以让页面缓存一次（私有字段记住上次的 `payloadJson` 与解析结果，`payloadJson` 变化时失效；V1 页面不能用 V2 的 `@Local`）。**✅ 已修复（2026-11-11，见 §7 M1 执行记录）** |
 | M2 | ~~30 分钟冷却被所有卡片共享，且失败也计入冷却~~ | ~~`WidgetSyncAbility.ets:40 / 43 / 204 / 224`~~ | **已关闭（2026-11-20）**：`WidgetSyncAbility` 删除，全局冷却逻辑不存在；卡片点击改为打开 App，由首页同步流程接管 |
 | M3 | ~~同步结果不可见~~ | ~~`WidgetSyncAbility.ets:237`~~ | **已关闭（2026-11-20）**：`call` 链路随 Ability 删除；`router` 打开 App 后由页面自身展示刷新状态 |
-| M4 | `onAddForm` 全同步链路压在 10 秒窗口 | `EntryFormAbility.ets:42 / 45-67`（Preferences 同步读 + `loadFormImagesSync` + payload 构建） | 账号 × 角色多时，图片 fd 读取与 payload 构建都在主线程；没有超时保护 |
+| M4 | ✅ 已修复（2026-11-23） | 原 `EntryFormAbility.ets:42 / 45-67`（Preferences 同步读 + `loadFormImagesSync` + payload 构建） | 修复：① 只有 2×4 / 4×4（`dimension` 3 / 4）才读派遣头像 fd，1×2 / 2×2 直接返回空 map；② 图片读取前检查已耗时，≥3 秒则跳过图片保证按时返回；③ `onAddForm` 记录 `total / config / store / payload / images` 耗时，≥3 秒打 warn。Preferences 与 payload 构建仍同步，但卡片最多 2 个 slot，成本有界 |
 | M5 | ~~全量同步是串行双层循环~~ | ~~`WidgetSyncAbility.ets:105-118`~~ | **已关闭（2026-11-20）**：`syncAllWidgets` 随 Ability 删除；App 首页的同步编排不受影响 |
 | M6 | ✅ 已修复（2026-11-12） | 原 `WidgetImageDownloader.ets:87`（文件名固定 `${prefsKey}_${i}.png`）、`:91-105`（文件已存在就跳过下载） | 修复：下载时把源 URL 记到 `${key}_url`，只有「文件存在 **且 URL 未变**」才跳过；URL 变化（派遣角色变化 / 换账号）重新下载并用 `TRUNC` 覆盖同名文件。旧安装（无 URL 记录）会重下一次，自动纠正历史陈旧头像 |
 | M7 | ✅ 已修复（2026-11-12），随 Ability 删除关闭（2026-11-20） | 原 `WidgetSyncAbility.ets:194` 检查 vs `:217` 置位（`initCore()` + 两次 `init` 完成后才置位） | 修复：冷却检查通过后**同步**置位 `isSyncing`，再启动异步链；`initCore` 失败也释放锁。`initCore` 期间连点卡片会被 "Already syncing" 拦下，不再并发起多条 `syncAllWidgets` |
@@ -289,7 +289,7 @@ entryformability/EntryFormAbility.ets      卡片生命周期入口
 - **H3 已完成**（2026-11-17）：payload 改用便笺真实拉取时间，2×2 / 2×4 / 4×4 显示相对时间，超 1 小时高亮；只改渲染层与数据时间，未动 `form_config.json` / payload 键名。
 - **M1 已完成**：页面内缓存 `ParsedPayload` + UIState，不改任何组件接口（2026-11-11，见下方执行记录）；回归 6 张卡片 × 单/多游戏仍待真机。
 - **不要合并 1×2 三页文件**：`src` 冻结，只能抽内部共享 struct。
-- **M4 / M5 属于能力增强**（超时、并发、进度），超出"保持行为"的重构边界，记录不执行。
+- **M4 已修复**（2026-11-23）：`onAddForm` 只对 2×4 / 4×4 读派遣头像 fd，图片读取带 3 秒时间预算，并补充分段耗时日志；Preferences 与 payload 构建保持同步（卡片最多 2 个 slot，成本有界）。M5 随 `WidgetSyncAbility` 删除关闭。
 - **M6 / M7 是行为修复**：M6 用「源 URL + 文件」双记录判断缓存是否过期，URL 变化即重下；M7 把 `isSyncing = true` 提前到返回前并在 `initCore` 失败时释放。两项已于 2026-11-12 单独提交。
 - **M8 已按「删除遗留链路」执行**（2026-11-13）：删 `WidgetFormIdStore` / `WidgetDataBuilder` 与对应测试，`WidgetSyncHandlerImpl` 只保留 `refreshAndSave`，`WidgetSyncHook` 去掉只为它存在的 `init` 接口，`AccountDetailViewModel` 去掉恒 no-op 的清理；行为零变更，单独提交。**遗留缺陷另立**：「删除账号后 `widget_configs` 里指向该账号的 slots 无人清理」需要 `deleteAccount` 拿到 context 后按 `slot.accountId` 过滤，属行为变更，未随本次提交。
 
@@ -303,7 +303,7 @@ entryformability/EntryFormAbility.ets      卡片生命周期入口
 ### 已知问题归属
 
 - **High 3 项**（配置误删、Mock 数据、无新鲜度标识）：**全部关闭**——H1 / H2 于 `bae5b61`，H3 于 `f629da5`。
-- **Medium 8 项**（重复解析、全局冷却且失败也计冷却、结果不可见、10 秒窗口、串行同步、派遣头像永不更新、并发锁置位过晚、`WidgetFormIdStore` 空转）：**M1 / M6 / M7 / M8 已完成**（M8 走删除路线）；其余（M2 / M3 / M4 / M5）属增强或待决策。
+- **Medium 8 项**（重复解析、全局冷却且失败也计冷却、结果不可见、10 秒窗口、串行同步、派遣头像永不更新、并发锁置位过晚、`WidgetFormIdStore` 空转）：**全部关闭**——M1 / M4 / M6 / M7 / M8 已修复（M8 走删除路线），M2 / M3 / M5 随 `WidgetSyncAbility` 删除关闭。
 - **Low 2 项**（logger 合并、预览缺失）：`formEvent` 校验已于 2026-11-15 修复——非空 `message` 只记日志、不触发刷新。
 - **测试覆盖**：`WidgetDataStoreModels`（序列化往返 / `getRole` / 配置）与 `WidgetPayloadBuilder`（slot 选择 / 截断 / `updatedAt`）已有单测；`WidgetDataStoreBuilder`（365）、`WidgetImageDownloader`（489）、`WidgetUpdateNotifier`（146）仍无单测。四个 ViewModel 自 2026-11-07 起已有 `entry/src/test` 单测（本轮实测四个均 100% 行覆盖）。
 
@@ -530,5 +530,17 @@ entryformability/EntryFormAbility.ets      卡片生命周期入口
 | 保留 | `TestPage` 不是孤儿：DEBUG 构建「我的」菜单可进，`custom_router_map.json` 注册了路由，是 Cookie 过期手工测试入口 |
 | 不影响自动刷新 | App 内 30 分钟联网刷新在 `HomeViewModel.startAutoRefresh()`（`AppConstants.AUTO_REFRESH_INTERVAL_MS`），与本次删除无引用关系；卡片侧 `updateDuration: 1` 仍只重绘本地缓存 |
 | 验证 | `widget` 80 条、`widgetbase` 102 条单测全绿；default / uat 构建通过 |
+
+### 复核记录（2026-11-23 第 12 轮：M4 `onAddForm` 时间窗口）
+
+| 检查项 | 结论 |
+| --- | --- |
+| 原问题 | `onAddForm` 同步链路包含 Preferences 读取、payload 构建、派遣头像 fd 读取，全部压在主线程；宿主只给 10 秒，超时会直接添加失败，且没有耗时数据 |
+| 修复 1（按尺寸） | 只有 2×4 / 4×4（`dimension` 3 / 4）才调用 `loadFormImagesSync`；1×2 / 2×2 直接返回空 map。全仓只有 `Widget2x4SingleGame` / `Widget4x4ExpeditionBlock` 使用 `WidgetExpeditionAvatar`，小尺寸本就不渲染派遣头像 |
+| 修复 2（时间预算） | 读图片前检查已耗时，≥3 秒则跳过图片，优先保证 `onAddForm` 按时返回（空 map 只影响头像，显示占位图） |
+| 修复 3（可观测） | 新增分段日志 `total / config / store / payload / images`；总耗时 ≥3 秒打 warn，便于后续定位 |
+| 模拟器实测（UAT） | 2×2：`total=5ms payload=0ms images=0ms imagesLoaded=0`；2×4：`total=1ms images=1ms imagesLoaded=5`；1×2：`total=10ms images=0ms`（首次 config 初始化 8ms）；新加 2×2 绝区零卡正常显示 49/240，4×4 卡 5 个派遣头像正常 |
+| 单测 | `entry` 47 条、`widget` 77 条全绿 |
+| 未改动 | Preferences 同步读取与 payload 构建保持原样：卡片最多 2 个 slot，payload 构建成本有界；本次只去掉小尺寸无意义的图片 fd 读取并补上保护与度量 |
 
 【已核对代码一致性】

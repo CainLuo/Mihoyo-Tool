@@ -22,6 +22,13 @@ import { WidgetConfigStore, WidgetDataStoreManager, WidgetPayloadBuilder, Widget
 
 const TAG = 'WIDGET';
 
+/** onAddForm 总耗时告警阈值：宿主只给 10 秒，超过 3 秒说明链路需要优化 */
+const ON_ADD_FORM_WARN_MS = 3000;
+/** 图片 fd 读取预算：payload 构建已耗时超过该值时跳过图片，优先保证按时返回 */
+const FORM_IMAGE_BUDGET_MS = 3000;
+/** 只有 2×4 / 4×4 渲染派遣头像（dimension 3 / 4），1×2 / 2×2 无需读取图片 fd */
+const MIN_DIMENSION_WITH_IMAGES = 3;
+
 export default class EntryFormAbility extends FormExtensionAbility {
   private prefs: preferences.Preferences | null = null;
 
@@ -37,6 +44,8 @@ export default class EntryFormAbility extends FormExtensionAbility {
    * 因此必须使用同步 API 读取数据并立即返回，不能依赖异步更新。
    */
   onAddForm(want: Want): formBindingData.FormBindingData {
+    const startMs = Date.now();
+
     // 1. 解析 want 参数
     const formInfo = this.parseWantParameters(want);
     WidgetLogger.info(TAG, `onAddForm: formId=${formInfo.formId} formName=${formInfo.formName} size=${formInfo.width}x${formInfo.height}`);
@@ -46,15 +55,25 @@ export default class EntryFormAbility extends FormExtensionAbility {
 
     // 3. 加载配置
     const config = this.loadOrCreateConfig(formInfo);
+    const configDoneMs = Date.now();
 
     // 4. 加载数据
     const dataStore = WidgetDataStoreManager.loadSync(this.context);
+    const storeDoneMs = Date.now();
 
-    // 5. 构建并返回表单数据
-    const formData = this.buildFormData(config, dataStore, formInfo);
+    // 5. 构建并返回表单数据（内部会记录 payload / 图片耗时）
+    const formData = this.buildFormData(config, dataStore, formInfo, startMs, storeDoneMs);
 
     // 6. 异步保存配置（不阻塞返回）
     this.saveConfigAsync(formInfo.formId, config);
+
+    const totalMs = Date.now() - startMs;
+    const timing = `total=${totalMs}ms config=${configDoneMs - startMs}ms store=${storeDoneMs - configDoneMs}ms`;
+    if (totalMs >= ON_ADD_FORM_WARN_MS) {
+      WidgetLogger.warn(TAG, `onAddForm slow: ${timing}`);
+    } else {
+      WidgetLogger.info(TAG, `onAddForm timing: ${timing}`);
+    }
 
     return formData;
   }
@@ -178,7 +197,9 @@ export default class EntryFormAbility extends FormExtensionAbility {
   private buildFormData(
     config: WidgetConfig,
     dataStore: WidgetDataStore,
-    formInfo: FormSpec
+    formInfo: FormSpec,
+    startMs: number,
+    storeDoneMs: number
   ): formBindingData.FormBindingData {
     // 数据为空时也要返回真实空 payload，让卡片展示空态；不能展示 Mock 账号/体力
     if (!dataStore.hasData) {
@@ -186,12 +207,19 @@ export default class EntryFormAbility extends FormExtensionAbility {
     }
 
     // 构建 payload（无数据时 accounts 为空，卡片走 isEmpty 空态）
+    const payloadStartMs = Date.now();
     const payload = WidgetPayloadBuilder.buildPayload(config, dataStore);
     payload.widgetWidth = formInfo.width;
     payload.widgetHeight = formInfo.height;
+    const payloadMs = Date.now() - payloadStartMs;
 
-    // 读取派遣头像图片
-    const formImages = WidgetImageDownloader.loadFormImagesSync(this.context, 'exp_avatar', 5);
+    // 读取派遣头像图片（仅 2×4 / 4×4 需要；带时间预算，超时则跳过）
+    const imagesStartMs = Date.now();
+    const formImages = this.loadFormImages(formInfo.dimension, Date.now() - startMs);
+    const imagesMs = Date.now() - imagesStartMs;
+
+    WidgetLogger.info(TAG,
+      `onAddForm build: payload=${payloadMs}ms images=${imagesMs}ms imagesLoaded=${Object.keys(formImages).length} prebuild=${storeDoneMs - startMs}ms`);
 
     // 构建 FormData（手动合并，不能使用 spread 运算符）
     const record = payload.toLocalStorageRecord();
@@ -204,6 +232,23 @@ export default class EntryFormAbility extends FormExtensionAbility {
     formDataObj['formImages'] = formImages as Object;
 
     return formBindingData.createFormBindingData(formDataObj);
+  }
+
+  /**
+   * 按尺寸与时间预算决定是否读取派遣头像 fd。
+   *
+   * 1×2 / 2×2 不渲染派遣头像，读取 fd 纯属浪费；payload 构建已接近宿主窗口时
+   * 也跳过图片，保证 onAddForm 能按时返回（空 map 会让头像显示占位图）。
+   */
+  private loadFormImages(dimension: number, elapsedMs: number): Record<string, number> {
+    if (dimension < MIN_DIMENSION_WITH_IMAGES) {
+      return {};
+    }
+    if (elapsedMs >= FORM_IMAGE_BUDGET_MS) {
+      WidgetLogger.warn(TAG, `onAddForm skip form images: elapsed=${elapsedMs}ms`);
+      return {};
+    }
+    return WidgetImageDownloader.loadFormImagesSync(this.context, 'exp_avatar', 5);
   }
 
   // ── 私有方法：配置保存 ────────────────────────────────────────────────────────
