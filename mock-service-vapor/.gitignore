@@ -1,0 +1,10 @@
+# SwiftPM 构建产物
+.build/
+# 依赖解析结果（每台机器重新解析，避免锁死版本）
+Package.resolved
+# Xcode / SwiftPM 生成物
+.swiftpm/
+*.xcodeproj
+DerivedData/
+# macOS 杂项
+.DS_Store
